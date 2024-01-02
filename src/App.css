@@ -15,11 +15,11 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: 20vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: left;
+  justify-content: left;
   font-size: calc(10px + 2vmin);
   color: white;
 }
@@ -27,6 +27,111 @@
 .App-link {
   color: #61dafb;
 }
+
+.response-container {
+  height: 300px; /* Adjust the height as needed */
+  overflow-y: auto; /* Enables vertical scrolling */
+  border: 1px solid #ccc; /* Optional: adds a border around the container */
+  padding: 10px; /* Optional: adds some spacing inside the container */
+  margin-top: 20px; /* Optional: adds some space above the container */
+}
+
+/* App.css */
+
+/* Styling for the container that holds all PromptComponents */
+.prompt-container {
+  max-width: 800px; /* Adjust the width as necessary */
+  margin: auto; /* Center the container */
+  border: 1px solid #ccc; /* Optional border */
+  border-radius: 5px; /* Rounded corners */
+  overflow: hidden; /* Ensures the border encapsulates the tabs and content */
+}
+
+.tab-menu {
+  display: flex;
+  justify-content: space-evenly; /* Evenly distribute the space among tabs */
+  background-color: #f1f1f1; /* Background color for the tab menu */
+  border-bottom: 1px solid #ccc; /* Border to separate tabs from content */
+}
+
+.tab-menu button {
+  padding: 10px 20px;
+  border: none;
+  background-color: inherit; /* Inherits from tab-menu */
+  cursor: pointer;
+  outline: none; /* Removes the default focus outline */
+}
+
+.tab-menu button:hover {
+  background-color: #e0e0e0; /* Hover effect */
+}
+
+.tab-menu button.active {
+  background-color: #ddd; /* Active tab color */
+  font-weight: bold; /* Optional: Makes active tab text bold */
+}
+
+.tab-content {
+  padding: 20px;
+  background-color: #fff; /* Background color for the content area */
+}
+
+
+/* Styling for individual PromptComponent */
+.prompt-component {
+  border: 1px solid #ccc; /* Optional: Adds a border */
+  border-radius: 5px; /* Optional: Rounds the corners */
+  padding: 10px; /* Adds padding inside each component */
+  height: 250px; /* Fixed height */
+  overflow-y: auto; /* Makes it scrollable */
+  text-align: left; /* Aligns text to the left */
+}
+
+.tab-menu, .planet-menu {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f1f1f1;
+  border-bottom: 1px solid #ccc;
+}
+
+.tab-menu button, .planet-menu button {
+  padding: 10px;
+  border: none;
+  background-color: inherit;
+  cursor: pointer;
+}
+
+.tab-button.active, .planet-button.active {
+  background-color: #ddd;
+  font-weight: bold;
+}
+
+.tab-content {
+  padding: 20px;
+  background-color: #fff;
+}
+
+.planet-component {
+  margin: 0 auto;
+  padding: 10px;
+  max-width: 100%; /* Ensures the component does not exceed the width of the parent */
+}
+
+.planet-response pre {
+  white-space: pre-wrap; /* Wraps the text */
+  word-wrap: break-word; /* Breaks long words */
+  text-align: left;
+  overflow-wrap: break-word; /* Ensures text breaks in a way that prevents overflow */
+  max-width: 100%; /* Restrict width to the parent container */
+  overflow-x: auto; /* Adds a scrollbar if content overflows horizontally */
+}
+
+
+
+
+
+
+
 
 @keyframes App-logo-spin {
   from {

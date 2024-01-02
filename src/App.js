@@ -1,23 +1,27 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import SimpleForm from './UI/SimpleForm';
+import RawBirthDataComponent from './UI/RawBirthDataComponent';
+import TabbedBigFourMenu from './UI/TabbedBigFourComponent';
+import useStore from './Utilities/store'; // Import the store
+
 import './App.css';
+import PromptComponent from './UI/PromptComponent';
 
 function App() {
+ 
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        StelliumAI
       </header>
+      <SimpleForm />
+      <RawBirthDataComponent />  
+      <TabbedBigFourMenu/>
+
+
+      
+      
     </div>
   );
 }
