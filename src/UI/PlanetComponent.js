@@ -15,10 +15,10 @@ const PlanetComponent = ({ planet }) => {
     }, [planet, promptDescriptionsMap, planetResponsesMap]);
 
     async function generateResponse() {
-        // if (!planet || !planet.type) {
-        //     console.error('Planet or planet type is undefined');
-        //     return;
-        // }
+        if (!planet || planet === '') {
+            console.error('Planet or planet type is undefined');
+            return;
+        }
         console.log("generate planet response");
         const modifiedInput = promptDescriptionsMap['everything'] + "\n" +  planet.toUpperCase() + " ANALYSIS";
         try {

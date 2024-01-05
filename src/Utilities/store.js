@@ -15,6 +15,9 @@ const useStore = create(set => ({
         'home': '',
         'career': '',
         'relationships': '',
+        'quadrants': '',
+        'elements': '',
+        'modalities': ''
         },
 
         // Function to set prompt descriptions in the map
@@ -41,6 +44,20 @@ const useStore = create(set => ({
     setPlanetResponsesMap: (key, description) => set(state => ({
         planetResponsesMap: { ...state.planetResponsesMap, [key]: description }
     })),
+
+    dominanceResponsesMap: {
+        'Quadrant': '',
+        'Element': '',
+        'Modality': ''
+        },   
+
+        // Function to set prompt descriptions in the map
+    setDominanceResponsesMap: (key, description) => set(state => ({
+        dominanceResponsesMap: { ...state.dominanceResponsesMap, [key]: description }
+    })),
+
+
+
 }));
 
 export default useStore;

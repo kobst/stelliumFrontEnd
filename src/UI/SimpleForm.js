@@ -16,12 +16,13 @@ const SimpleForm = () => {
   const [lon, setLon] = useState('');
 
   const setRawBirthData = useStore(state => state.setRawBirthData);
-
+  const setModifiedBirthData = useStore(state => state.setModifiedBirthData);
 
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setRawBirthData("")
+    setModifiedBirthData("")
     const birthData = {
       date: date,
       time: time,
@@ -69,7 +70,6 @@ const SimpleForm = () => {
             />
             
         </div>
- 
         <input type="submit" value="Submit" />
       </form>
     </div>

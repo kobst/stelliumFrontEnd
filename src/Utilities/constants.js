@@ -51,6 +51,7 @@ export const rulers = {
     "Pisces": "Neptune"
   }
 
+  export const dominanceTopics = ['Quadrants', 'Elements', 'Modalities']
   export const planets = ["Sun", "Moon", "Ascendant", "Mercury", "Venus", "Mars", "Saturn", "Jupiter", "Uranus", "Neptune", "Pluto"]  
   
   const personality_headings = ["Personal Identity and Self-Image", "Outward Expression and Appearance", "Inner Self and Emotional Dynamics", "Challenges and Tension", "Path of Integration"]
@@ -67,3 +68,44 @@ export const rulers = {
     "relationships": relationship_headings,
     "career": career_headings
   }
+
+  export const elements = {
+    'Fire': ["Leo", "Aries", "Sagittarius"],
+    'Earth': ["Taurus", "Virgo", "Capricorn"],
+    'Air': ["Gemini", "Libra", "Aquarius"],
+    'Water': ["Cancer", "Scorpio", "Pisces"]
+  }
+  
+  export const elementPoints = {
+    "Sun": 3,
+    "Moon": 3,
+    "Ascendant": 3,
+    "Mercury": 2,
+    "Venus": 2,
+    "Mars": 2,
+    "Saturn": 2,
+    "Jupiter": 2,
+    "Uranus": 1,
+    "Neptune": 1,
+    "Pluto": 1,
+    "Node": 1,
+    "Midheaven": 1
+  }
+  
+  export const quadrants = {
+    'SouthEast': [10, 11, 12],
+    "NorthEast": [1, 2, 3],
+    "NorthWest": [4, 5, 6],
+    "SouthWest": [7, 8, 9]
+  }
+  
+  export const modalities = {
+    'Cardinal': ["Aries", "Cancer", "Libra", "Capricorn"],
+    'Fixed': ["Taurus", "Leo", "Scorpio", "Aquarius"],
+    'Mutable': ["Gemini", "Virgo", "Sagittarius", "Pisces"]
+  }
+  
+  export const ignorePlanets = [
+    "Ascendant", "Midheaven", "Chiron", "Part of Fortune", "South Node", "Node"
+  ]
+  export const ignorePoints = ["Chiron", "Part of Fortune", "South Node"]

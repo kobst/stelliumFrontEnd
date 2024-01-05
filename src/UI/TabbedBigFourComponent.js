@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { planets, heading_map } from '../Utilities/constants';
+import { planets, heading_map, dominanceTopics } from '../Utilities/constants';
 
 import PromptComponent from './PromptComponent';
 import PlanetComponent from './PlanetComponent'
+import DominanceComponent from './DominanceComponent';
  
 
 const TabbedBigFourMenu = () => {
@@ -18,18 +19,20 @@ const getTabButtonClass = (tabName) => (
 
   return (
     <div className="prompt-container">
-      <div className="tab-menu">
-        {headings.map(tab => (
-          <button
-            key={tab}
-            className={getTabButtonClass(tab)}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab.toUpperCase()}
-          </button>
-        ))}
-      </div>
-       {/* Planet Tabs */}
+
+        <div className="planet-menu">
+        {dominanceTopics.map(topic => (
+            <button
+                key={topic}
+                className={getTabButtonClass(topic)}
+                onClick={() => setActiveTab(topic)}
+            >
+                {topic}
+            </button>
+            ))}
+        </div>
+
+        {/* Planet Tabs */}
        <div className="planet-menu">
         {planets.map(planet => (
           <button
@@ -41,6 +44,18 @@ const getTabButtonClass = (tabName) => (
           </button>
         ))}
       </div>
+      <div className="tab-menu">
+        {headings.map(tab => (
+          <button
+            key={tab}
+            className={getTabButtonClass(tab)}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
 
     {/* Tab Content */}
     <div className="tab-content">
@@ -50,9 +65,11 @@ const getTabButtonClass = (tabName) => (
             bigFourType={activeTab}
           />
         )}
-
         {planets.includes(activeTab) && (
           <PlanetComponent planet={activeTab} />
+        )}
+        {dominanceTopics.includes(activeTab) && (
+          <DominanceComponent dominanceTopic={activeTab} />
         )}
       </div>
     </div>
