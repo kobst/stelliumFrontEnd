@@ -212,7 +212,7 @@ export const generateResponse = (promptKey, birthData) => {
         }
       });
   
-      const percentage = points / 24;
+      const percentage = points / 21;
       elementPercentiles[element] = percentage;
       const formattedValue = (percentage * 100).toFixed(1);
       const category = getDescriptionElementDominance(percentage * 100);

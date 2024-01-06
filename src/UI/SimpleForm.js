@@ -4,7 +4,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import ResponseContext from '../Utilities/ResponseContext';
 
 import GoogleAutocomplete from 'react-google-autocomplete';
-import { postBirthData } from '../Utilities/api'; 
+import { fetchTimeZone, postBirthData } from '../Utilities/api'; 
 import useStore from '../Utilities/store';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
@@ -18,23 +18,28 @@ const SimpleForm = () => {
   const setRawBirthData = useStore(state => state.setRawBirthData);
   const setModifiedBirthData = useStore(state => state.setModifiedBirthData);
 
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     setRawBirthData("")
     setModifiedBirthData("")
-    const birthData = {
-      date: date,
-      time: time,
-      lat: lat,
-      lon: lon
-    };
-  
-    console.log(birthData)
+ 
     try {
-      const response = await postBirthData(birthData)
-    //   setRawBirthData(JSON.stringify(response, null, 2));
-      setRawBirthData(response.chartData);
+        const dateTimeString = `${date}T${time}:00`; // Adding ':00' for seconds
+        const dateTime = new Date(dateTimeString);
+        const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
+        const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
+        console.log(`Time Zone Offset in Hours: ${totalOffsetHours}`);
+    
+        const birthData = {
+            date: date,
+            time: time,
+            lat: lat,
+            lon: lon,
+            tzone: totalOffsetHours,
+        };
+        console.log(birthData)
+        const response = await postBirthData(birthData)
+        setRawBirthData(response.chartData);
 
     } catch (error) {
       console.error('Error submitting form:', error);
