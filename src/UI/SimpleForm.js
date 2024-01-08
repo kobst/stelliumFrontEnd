@@ -20,8 +20,8 @@ const SimpleForm = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setRawBirthData("")
-    setModifiedBirthData("")
+    setRawBirthData('')
+    setModifiedBirthData('')
  
     try {
         const dateTimeString = `${date}T${time}:00`; // Adding ':00' for seconds

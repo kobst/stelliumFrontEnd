@@ -93,7 +93,7 @@ export const postGptResponsePlanets = async (prompt) => {
     }
 
     const responseData = await response.json();
-    console.log(responseData)
+    // console.log(responseData)
     return responseData.response;
   } catch (error) {
     console.error('Error in API call:', error);

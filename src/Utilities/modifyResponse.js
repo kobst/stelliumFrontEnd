@@ -13,11 +13,11 @@ function generatePlanetObject(name, rawResponse, house) {
   
     const newObject = {
       name: name,
-      fullDegree: ascendantDegree,
-      normDegree: normalDegree,
+      full_degree: ascendantDegree,
+      norm_degree: normalDegree,
       speed: 0.4995,
-      isRetro: false,
-      signId: signId,
+      is_retro: false,
+      sign_id: signId,
       sign: signs[signId - 1],
       house: house
     };
@@ -48,11 +48,11 @@ function addSouthNode(rawResponse) {
   
         const southNodeObject = {
           name: "South Node",
-          fullDegree: fullDegree,
-          normDegree: normalDegree,
+          full_degree: fullDegree,
+          norm_degree: normalDegree,
           speed: 0.4995,
-          isRetro: false, // Assuming you want a boolean value here, as in the earlier example
-          signId: signId,
+          is_retro: false, // Assuming you want a boolean value here, as in the earlier example
+          sign_id: signId,
           sign: signs[signId - 1], // Assumes 'signs' array is defined elsewhere
           house: house
         };
@@ -65,7 +65,7 @@ function addSouthNode(rawResponse) {
 function modifyRawResponse(rawResponse) {
     const ascendantObject = generatePlanetObject("ascendant", rawResponse, 1);
     const midheavenObject = generatePlanetObject("midheaven", rawResponse, 10);
-    console.log(rawResponse)
+    // console.log(rawResponse)
     const southNodeObject = addSouthNode(rawResponse); // Assuming addSouthNode is defined elsewhere
   
     rawResponse["planets"].splice(10, 0, ascendantObject);

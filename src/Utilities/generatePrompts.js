@@ -1,7 +1,7 @@
 
 import { elements, elementPoints, relevantPromptAspects, rulers, quadrants, ignorePlanets, ignorePoints } from "./constants";
 
-function orbDescription(orb) {
+export const orbDescription = (orb) => {
     if (orb < 1) {
       return "exact";
     } else if (orb >= 1 && orb < 3) {
@@ -53,14 +53,13 @@ function findAspects(planetName, birthData) {
 export const generateResponse = (promptKey, birthData) => {
     const prompt = relevantPromptAspects[promptKey];
     let responses = [];
-    console.log(birthData)
-    console.log(prompt.planets)
-    console.log(prompt.houses)
+    // console.log(birthData)
+    // console.log(prompt.planets)
+    // console.log(prompt.houses)
   
     // Planets and their aspects
     prompt.planets.forEach(planet => {
       const planetData = birthData.planets.find(p => p.name === planet);
-      console.log(planetData)
       if (planetData.is_retro === "false") {
         responses.push(`${planet} in ${planetData.sign} in the ${planetData.house} house`);
       }
@@ -166,7 +165,7 @@ export const generateResponse = (promptKey, birthData) => {
       result.push("Vast majority of planets are in the Southern hemisphere");
     }
   
-    console.log(result)
+    // console.log(result)
     return result.join("\n");
   }
   

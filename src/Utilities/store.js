@@ -4,6 +4,9 @@ import create from 'zustand';
 const useStore = create(set => ({
   rawBirthData: '',
   setRawBirthData: (response) => set({ rawBirthData: response }),
+
+  ascendantDegree: 0,
+  setAscendantDegree: (response) => set({ ascendantDegree: response }),
   
   modifiedBirthData: '',
   setModifiedBirthData: (response) => set({ modifiedBirthData: response }),
