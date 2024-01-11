@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { planets, heading_map, dominanceTopics } from '../Utilities/constants';
+import { planets, heading_map, dominanceTopics, transitTopics } from '../Utilities/constants';
 
 import PromptComponent from './PromptComponent';
 import PlanetComponent from './PlanetComponent'
 import DominanceComponent from './DominanceComponent';
+import ProgressedTransitComponent from './ProgressedTransitComponent';
  
 
 const TabbedBigFourMenu = () => {
@@ -55,6 +56,17 @@ const getTabButtonClass = (tabName) => (
           </button>
         ))}
       </div>
+      <div className="tab-menu">
+        {transitTopics.map(tab => (
+          <button
+            key={tab}
+            className={getTabButtonClass(tab)}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab.toUpperCase()}
+          </button>
+        ))}
+      </div>
 
 
     {/* Tab Content */}
@@ -70,6 +82,9 @@ const getTabButtonClass = (tabName) => (
         )}
         {dominanceTopics.includes(activeTab) && (
           <DominanceComponent dominanceTopic={activeTab} />
+        )}
+        {transitTopics.includes(activeTab) && (
+          <ProgressedTransitComponent/>
         )}
       </div>
     </div>

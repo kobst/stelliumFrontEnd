@@ -53,11 +53,6 @@ function findAspects(planetName, birthData) {
 export const generateResponse = (promptKey, birthData) => {
     const prompt = relevantPromptAspects[promptKey];
     let responses = [];
-    // console.log(birthData)
-    // console.log(prompt.planets)
-    // console.log(prompt.houses)
-  
-    // Planets and their aspects
     prompt.planets.forEach(planet => {
       const planetData = birthData.planets.find(p => p.name === planet);
       if (planetData.is_retro === "false") {

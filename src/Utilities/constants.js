@@ -53,7 +53,8 @@ export const rulers = {
 
   export const dominanceTopics = ['Quadrants', 'Elements', 'Modalities']
   export const planets = ["Sun", "Moon", "Ascendant", "Mercury", "Venus", "Mars", "Saturn", "Jupiter", "Uranus", "Neptune", "Pluto"]  
-  
+  export const transitTopics = ['Progressed', 'Transits']
+
   const personality_headings = ["Personal Identity and Self-Image", "Outward Expression and Appearance", "Inner Self and Emotional Dynamics", "Challenges and Tension", "Path of Integration"]
   
   const home_headings = ["Emotional Foundations and Security Needs", "Family Dynamics and Past Influences", "Home Environment and Preferences", "Challenges and Growth in Family Life", "Role of Tradition and Legacy", "Synthesizing a Harmonious Physical and Emotional Home"]

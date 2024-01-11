@@ -265,6 +265,68 @@ const birthData = {"planets": [
       "sign": "Gemini",
       "house": 8
     }
+  ],
+  "houses": [
+    {
+      "house": 1,
+      "sign": "Scorpio",
+      "degree": 230.11033
+    },
+    {
+      "house": 2,
+      "sign": "Sagittarius",
+      "degree": 260.25642
+    },
+    {
+      "house": 3,
+      "sign": "Capricorn",
+      "degree": 295.73534
+    },
+    {
+      "house": 4,
+      "sign": "Pisces",
+      "degree": 332.49636
+    },
+    {
+      "house": 5,
+      "sign": "Aries",
+      "degree": 4.30637
+    },
+    {
+      "house": 6,
+      "sign": "Aries",
+      "degree": 29.59781
+    },
+    {
+      "house": 7,
+      "sign": "Taurus",
+      "degree": 50.11033
+    },
+    {
+      "house": 8,
+      "sign": "Gemini",
+      "degree": 80.25642
+    },
+    {
+      "house": 9,
+      "sign": "Cancer",
+      "degree": 115.73534
+    },
+    {
+      "house": 10,
+      "sign": "Virgo",
+      "degree": 152.49636
+    },
+    {
+      "house": 11,
+      "sign": "Libra",
+      "degree": 184.30637
+    },
+    {
+      "house": 12,
+      "sign": "Libra",
+      "degree": 209.59781
+    }
   ]}
 
 function updateObjectKeys(response) {
@@ -337,18 +399,41 @@ function calculateAspect(degree1, degree2) {
     return '';
 }
 
+function findTransitingHouse(transit, sortedHouses) {
+
+    console.log(transit.full_degree + ' planet degree')
+
+    // Find the house the transit is currently in
+    for (let i = 0; i < sortedHouses.length - 1; i++) {
+        console.log(sortedHouses[i].degree + ' degree ' + sortedHouses[i + 1].degree)
+        // Check if the transit is between the current house cusp and the next one
+        if (sortedHouses[i].degree <= transit.full_degree && transit.full_degree < sortedHouses[i + 1].degree) {
+            console.log(sortedHouses[i].degree + ' house deegre')
+            return sortedHouses[i].house;
+        }
+    }
+
+    // If not found, the planet might be transiting the last house
+    return sortedHouses[sortedHouses.length - 1].house.toString();
+}
+
 function findAspects(transits, birthChart) {
     const updatedTransits = updateObjectKeys(transits);
-
+        // Sort the houses by degree for proper comparison
+    const sortedHouses = birthChart.houses.slice().sort((a, b) => a.degree - b.degree);
+    sortedHouses.push({ house: 1, sign: sortedHouses[0].sign, degree: sortedHouses[0].degree + 360 });
     const aspects = [];
 
     updatedTransits.forEach(transit => {
         if (transit.name === 'Ascendant') return
+        // console.log(transit)
+        let retro = transit.is_retro === 'true' ? 'retrograde ' : ''
+        let transitHouse = findTransitingHouse(transit, sortedHouses)
         birthChart.planets.forEach(birthPlanet => {
             if (["South Node", "Chiron", "Part of Fortune"].includes(birthPlanet.name)) return
                 const aspect = calculateAspect(transit.full_degree, birthPlanet.full_degree);
                 if (aspect !== '') {
-                    const description =  `${transit.name} transiting ${transit.sign} ${aspect} to ${birthPlanet.name} in ${birthPlanet.sign}`;
+                    const description =  `${retro} ${transit.name} transiting ${transit.sign} in your ${transitHouse} house ${aspect} to ${birthPlanet.name} in ${birthPlanet.sign} in your ${birthPlanet.house} house`;
                     aspects.push(description)
                 }
 

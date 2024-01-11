@@ -36,7 +36,7 @@ const RawBirthDataComponent = () => {
             setPromptDescriptionsMap('Elements', elements)
             setPromptDescriptionsMap('Modalities', modalities)
             setModifiedBirthData(JSON.stringify(modified, null, 2))
-            console.log(JSON.stringify(modified, null, 2))
+            // console.log(JSON.stringify(modified, null, 2))
 
         }
         

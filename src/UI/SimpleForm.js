@@ -4,7 +4,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import ResponseContext from '../Utilities/ResponseContext';
 
 import GoogleAutocomplete from 'react-google-autocomplete';
-import { fetchTimeZone, postBirthData } from '../Utilities/api'; 
+import { fetchTimeZone, postBirthData, postProgressedChart } from '../Utilities/api'; 
 import useStore from '../Utilities/store';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
@@ -17,11 +17,15 @@ const SimpleForm = () => {
 
   const setRawBirthData = useStore(state => state.setRawBirthData);
   const setModifiedBirthData = useStore(state => state.setModifiedBirthData);
+  const setBirthDate = useStore(state => state.setBirthDate);
+  const setProgressedBirthData = useStore(state => state.setProgressedBirthData);
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setRawBirthData('')
     setModifiedBirthData('')
+    setBirthDate({})
  
     try {
         const dateTimeString = `${date}T${time}:00`; // Adding ':00' for seconds
@@ -37,8 +41,10 @@ const SimpleForm = () => {
             lon: lon,
             tzone: totalOffsetHours,
         };
-        console.log(birthData)
+        setBirthDate(birthData)
         const response = await postBirthData(birthData)
+        const responseProgressed = await postProgressedChart(birthData)
+        setProgressedBirthData(responseProgressed.chartData)
         setRawBirthData(response.chartData);
 
     } catch (error) {

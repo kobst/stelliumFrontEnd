@@ -2,6 +2,10 @@
 import create from 'zustand';
 
 const useStore = create(set => ({
+
+    birthDate: {},
+    setBirthDate: (response) => set({ birthDate: response}),
+
   rawBirthData: '',
   setRawBirthData: (response) => set({ rawBirthData: response }),
 
@@ -10,6 +14,9 @@ const useStore = create(set => ({
   
   modifiedBirthData: '',
   setModifiedBirthData: (response) => set({ modifiedBirthData: response }),
+
+  progressedBirthData: '',
+  setProgressedBirthData: (response) => set({ progressedBirthData: response }),
 
     // Prompt descriptions mapping
     promptDescriptionsMap: {

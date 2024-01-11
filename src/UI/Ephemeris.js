@@ -109,7 +109,6 @@ const Emphemeris = () => {
         //Draw 12 sections
         for (let i = 0; i < 12; i++) {
             const angle = (i * 30) * Math.PI / 180; // 30 degrees for each section
-            console.log(angle + "angle")
             ctx.beginPath();
             ctx.moveTo(centerX + innerRadius * Math.cos(angle), centerY + innerRadius * Math.sin(angle));
             ctx.lineTo(centerX + outerRadius * Math.cos(angle), centerY + outerRadius * Math.sin(angle));
