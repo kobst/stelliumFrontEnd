@@ -19,10 +19,8 @@ const RawBirthDataComponent = () => {
 
     useEffect(() => {
         if (rawBirthData !== '' && todaysTransits !== '' && progressedBirthData !== ''){
-            console.log(rawBirthData)
             setAscendantDegree(rawBirthData['ascendant'])
             const pattern = identifyBirthChartPattern(rawBirthData)
-            console.log(pattern)
             const modified = modifyRawResponse(rawBirthData)
             const everything = generateResponse('everything', modified)
             const personality = generateResponse('personality', modified)
