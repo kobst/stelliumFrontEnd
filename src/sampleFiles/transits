@@ -1,0 +1,101 @@
+export const transits = [
+    {
+        "name": "Sun",
+        "fullDegree": 286.22376300111836,
+        "normDegree": 16.223763001118357,
+        "speed": 1.0194522746986416,
+        "isRetro": "false",
+        "sign": "Capricorn",
+        "house": 1
+    },
+    {
+        "name": "Moon",
+        "fullDegree": 229.38677798877586,
+        "normDegree": 19.38677798877586,
+        "speed": 12.881609269285496,
+        "isRetro": "false",
+        "sign": "Scorpio",
+        "house": 10
+    },
+    {
+        "name": "Mars",
+        "fullDegree": 271.82131282872984,
+        "normDegree": 1.8213128287298446,
+        "speed": 0.7460207926990318,
+        "isRetro": "false",
+        "sign": "Capricorn",
+        "house": 12
+    },
+    {
+        "name": "Mercury",
+        "fullDegree": 263.81362988391425,
+        "normDegree": 23.813629883914246,
+        "speed": 0.6131829932672538,
+        "isRetro": "false",
+        "sign": "Sagittarius",
+        "house": 12
+    },
+    {
+        "name": "Jupiter",
+        "fullDegree": 35.66470750810593,
+        "normDegree": 5.664707508105927,
+        "speed": 0.024051573912293192,
+        "isRetro": "false",
+        "sign": "Taurus",
+        "house": 4
+    },
+    {
+        "name": "Venus",
+        "fullDegree": 250.0083572000911,
+        "normDegree": 10.008357200091098,
+        "speed": 1.2215046921439294,
+        "isRetro": "false",
+        "sign": "Sagittarius",
+        "house": 11
+    },
+    {
+        "name": "Saturn",
+        "fullDegree": 333.80067392689375,
+        "normDegree": 3.800673926893751,
+        "speed": 0.09507633087350757,
+        "isRetro": "false",
+        "sign": "Pisces",
+        "house": 2
+    },
+    {
+        "name": "Uranus",
+        "fullDegree": 49.26501188334822,
+        "normDegree": 19.265011883348222,
+        "speed": -0.017209522303035935,
+        "isRetro": "true",
+        "sign": "Taurus",
+        "house": 4
+    },
+    {
+        "name": "Neptune",
+        "fullDegree": 355.17438972436497,
+        "normDegree": 25.17438972436497,
+        "speed": 0.017827093128491407,
+        "isRetro": "false",
+        "sign": "Pisces",
+        "house": 3
+    },
+    {
+        "name": "Pluto",
+        "fullDegree": 299.5484016981138,
+        "normDegree": 29.54840169811382,
+        "speed": 0.03183571528216639,
+        "isRetro": "false",
+        "sign": "Capricorn",
+        "house": 1
+    },
+    {
+        "name": "Ascendant",
+        "fullDegree": 283.44632564453605,
+        "normDegree": 13.446325644536046,
+        "speed": 0,
+        "isRetro": "false",
+        "sign": "Capricorn",
+        "house": 1
+    }
+]

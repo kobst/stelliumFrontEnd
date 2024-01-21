@@ -63,10 +63,14 @@ function addSouthNode(rawResponse) {
   }
   
 function modifyRawResponse(rawResponse) {
+
+ 
     const ascendantObject = generatePlanetObject("ascendant", rawResponse, 1);
     const midheavenObject = generatePlanetObject("midheaven", rawResponse, 10);
     // console.log(rawResponse)
-    const southNodeObject = addSouthNode(rawResponse); // Assuming addSouthNode is defined elsewhere
+    const southNodeObject = addSouthNode(rawResponse); 
+
+
   
     rawResponse["planets"].splice(10, 0, ascendantObject);
     rawResponse["planets"].splice(11, 0, midheavenObject);

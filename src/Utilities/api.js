@@ -76,6 +76,30 @@ export const postProgressedChart = async (birthData) => {
   }
 };
 
+// Function to post birth data
+export const postDailyTransit = async () => {
+  try {
+    const response = await fetch(`${SERVER_URL}/dayTransits`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    console.log(responseData)
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
+
+
 
 // Function to post birth data
 export const postGptResponse = async (prompt) => {

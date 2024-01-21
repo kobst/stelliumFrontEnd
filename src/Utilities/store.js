@@ -11,6 +11,15 @@ const useStore = create(set => ({
 
   ascendantDegree: 0,
   setAscendantDegree: (response) => set({ ascendantDegree: response }),
+
+  dailyTransits: '',
+  setDailyTransits: (response) => set({dailyTransits: response}),
+
+  dailyTransitDescriptions: '',
+  setDailyTransitDescriptions: (response) => set({dailyTransitDescriptions: response}),
+
+  progressedTransitDescriptions: '',
+  setProgressedTransitDescriptions: (response) => set({progressedTransitDescriptions: response}),
   
   modifiedBirthData: '',
   setModifiedBirthData: (response) => set({ modifiedBirthData: response }),
@@ -27,7 +36,8 @@ const useStore = create(set => ({
         'relationships': '',
         'quadrants': '',
         'elements': '',
-        'modalities': ''
+        'modalities': '',
+        'pattern': ''
         },
 
         // Function to set prompt descriptions in the map
@@ -58,7 +68,7 @@ const useStore = create(set => ({
     dominanceResponsesMap: {
         'Quadrant': '',
         'Element': '',
-        'Modality': ''
+        'Modality': '',
         },   
 
         // Function to set prompt descriptions in the map
@@ -66,8 +76,35 @@ const useStore = create(set => ({
         dominanceResponsesMap: { ...state.dominanceResponsesMap, [key]: description }
     })),
 
+    bigFourResponsesMap: {
+        'Personal Identity and Self-Image': '',
+        'Outward Expression and Appearance': '',
+        'Inner Self and Emotional Dynamics': '',
+        'Challenges and Tension': '',
+        'Path of Integration': '',
+        'Emotional Foundations and Security Needs': '',
+        'Family Dynamics and Past Influences': '',
+        'Home Environment and Preferences': '',
+        'Challenges and Growth in Family Life': '',
+        'Role of Tradition and Legacy': '',
+        'Synthesizing a Harmonious Physical and Emotional Home': '',
+        'Core Relationship Desires and Boundaries': '',
+        'Love Style: Expression and Attraction': '',
+        'Sexual Nature and Intimacy': '',
+        'Commitment Approach and Long-term Vision': '',
+        'Challenges and Growth in Relationships': '',
+        'Romantic Summary': '',
+        'Career Motivations and Ambitions': '',
+        'Public Image, Reputation, and Leadership Style': '',
+        'Challenges and Growth Opportunities in Profession': '',
+        'Skills, Talents, and Strengths': '',
+        'Summary and Path To Success': ''
+    },
 
-
+    setBigFourMap: (key, description) => set(state => ({
+        bigFourResponsesMap: { ...state.bigFourResponsesMap, [key]: description }
+    })),
 }));
 
 export default useStore;
+

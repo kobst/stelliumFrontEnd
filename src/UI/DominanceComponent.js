@@ -42,7 +42,7 @@ const DominanceComponent = ({ dominanceTopic }) => {
                 <h4>{dominanceTopic}</h4>
                 {promptData !== "" && (
                 <div>
-                    <pre>{promptData}</pre>  
+                    <pre className="pre-container">{promptData}</pre>  
                     <button onClick={generateResponse}>Generate Responses</button>
                 </div>
                 )}

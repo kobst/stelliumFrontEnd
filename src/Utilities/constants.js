@@ -51,23 +51,25 @@ export const rulers = {
     "Pisces": "Neptune"
   }
 
-  export const dominanceTopics = ['Quadrants', 'Elements', 'Modalities']
+  export const dominanceTopics = ['Quadrants', 'Elements', 'Modalities', 'Pattern']
   export const planets = ["Sun", "Moon", "Ascendant", "Mercury", "Venus", "Mars", "Saturn", "Jupiter", "Uranus", "Neptune", "Pluto"]  
   export const transitTopics = ['Progressed', 'Transits']
 
   const personality_headings = ["Personal Identity and Self-Image", "Outward Expression and Appearance", "Inner Self and Emotional Dynamics", "Challenges and Tension", "Path of Integration"]
   
-  const home_headings = ["Emotional Foundations and Security Needs", "Family Dynamics and Past Influences", "Home Environment and Preferences", "Challenges and Growth in Family Life", "Role of Tradition and Legacy", "Synthesizing a Harmonious Physical and Emotional Home"]
+  const home_headings = ["Emotional Foundations and Security Needs", "Family Dynamics and Past Influences", "Home Environment and Preferences", "Challenges and Growth in Family Life", "Synthesizing a Harmonious Physical and Emotional Home"]
   
   const relationship_headings = ["Core Relationship Desires and Boundaries", "Love Style: Expression and Attraction", "Sexual Nature and Intimacy", "Commitment Approach and Long-term Vision", "Challenges and Growth in Relationships", "Romantic Summary"]
   
   const career_headings = ["Career Motivations and Ambitions", "Public Image, Reputation, and Leadership Style", "Challenges and Growth Opportunities in Profession", "Skills, Talents, and Strengths", "Summary and Path To Success"]
 
+
   export const heading_map = {
     "personality": personality_headings,
     "home": home_headings,
     "relationships": relationship_headings,
-    "career": career_headings
+    "career": career_headings,
+    "everything": personality_headings
   }
 
   export const elements = {

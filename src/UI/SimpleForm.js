@@ -4,7 +4,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import ResponseContext from '../Utilities/ResponseContext';
 
 import GoogleAutocomplete from 'react-google-autocomplete';
-import { fetchTimeZone, postBirthData, postProgressedChart } from '../Utilities/api'; 
+import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart } from '../Utilities/api'; 
 import useStore from '../Utilities/store';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
@@ -19,7 +19,7 @@ const SimpleForm = () => {
   const setModifiedBirthData = useStore(state => state.setModifiedBirthData);
   const setBirthDate = useStore(state => state.setBirthDate);
   const setProgressedBirthData = useStore(state => state.setProgressedBirthData);
-
+  const setDailyTransits = useStore(state => state.setDailyTransits)
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -44,6 +44,11 @@ const SimpleForm = () => {
         setBirthDate(birthData)
         const response = await postBirthData(birthData)
         const responseProgressed = await postProgressedChart(birthData)
+        const todaysPositions = await postDailyTransit();
+  
+        // console.log(response)
+
+        setDailyTransits(todaysPositions.chartData)
         setProgressedBirthData(responseProgressed.chartData)
         setRawBirthData(response.chartData);
 

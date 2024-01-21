@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { planets, heading_map, dominanceTopics, transitTopics } from '../Utilities/constants';
 
-import PromptComponent from './PromptComponent';
+import BigFourComponent from './BigFourComponent';
 import PlanetComponent from './PlanetComponent'
 import DominanceComponent from './DominanceComponent';
 import ProgressedTransitComponent from './ProgressedTransitComponent';
@@ -72,7 +72,7 @@ const getTabButtonClass = (tabName) => (
     {/* Tab Content */}
     <div className="tab-content">
         {headings.includes(activeTab) && (
-          <PromptComponent
+          <BigFourComponent
             className="prompt-component"
             bigFourType={activeTab}
           />
@@ -84,7 +84,7 @@ const getTabButtonClass = (tabName) => (
           <DominanceComponent dominanceTopic={activeTab} />
         )}
         {transitTopics.includes(activeTab) && (
-          <ProgressedTransitComponent/>
+          <ProgressedTransitComponent transitType={activeTab}/>
         )}
       </div>
     </div>

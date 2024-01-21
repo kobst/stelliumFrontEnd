@@ -1,19 +1,24 @@
 import React, { useEffect } from 'react';
 import useStore from '../Utilities/store';
 import modifyRawResponse from '../Utilities/modifyResponse';
+import { findAspects } from '../Utilities/generateTransitDescriptions'
 import {generateResponse, findPlanetsInQuadrant, findPlanetsInElements, findPlanetsInModalities} from '../Utilities/generatePrompts';
 import { identifyBirthChartPattern } from '../Utilities/patternSummarizer';
 
 const RawBirthDataComponent = () => {
 
     const rawBirthData = useStore(state => state.rawBirthData);
+    const todaysTransits = useStore(state => state.dailyTransits);
     const modifiedBirthData = useStore(state => state.modifiedBirthData);
+    const progressedBirthData = useStore(state => state.progressedBirthData);
     const setModifiedBirthData = useStore(state => state.setModifiedBirthData);
     const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
     const setAscendantDegree = useStore(state => state.setAscendantDegree)
+    const setDailyTransitDescriptions = useStore(state => state.setDailyTransitDescriptions);
+    const setProgressedTransitDescriptions = useStore(state => state.setProgressedTransitDescriptions)
 
     useEffect(() => {
-        if (rawBirthData !== ''){
+        if (rawBirthData !== '' && todaysTransits !== '' && progressedBirthData !== ''){
             console.log(rawBirthData)
             setAscendantDegree(rawBirthData['ascendant'])
             const pattern = identifyBirthChartPattern(rawBirthData)
@@ -27,6 +32,11 @@ const RawBirthDataComponent = () => {
             const quadrants = findPlanetsInQuadrant(modified)
             const elements = findPlanetsInElements(modified)
             const modalities = findPlanetsInModalities(modified)
+            const todaysTransitDescriptions = findAspects(todaysTransits, modified )
+            const progressedTransitDescriptions = findAspects(progressedBirthData, modified )
+            
+            setProgressedTransitDescriptions(progressedTransitDescriptions)
+            setDailyTransitDescriptions(todaysTransitDescriptions)
             setPromptDescriptionsMap('personality', personality)
             setPromptDescriptionsMap('home', home)
             setPromptDescriptionsMap('relationships', relationships)
@@ -35,13 +45,14 @@ const RawBirthDataComponent = () => {
             setPromptDescriptionsMap('Quadrants', quadrants)
             setPromptDescriptionsMap('Elements', elements)
             setPromptDescriptionsMap('Modalities', modalities)
-            setModifiedBirthData(JSON.stringify(modified, null, 2))
+            setPromptDescriptionsMap('Pattern', pattern)
+            setModifiedBirthData(modified)
             // console.log(JSON.stringify(modified, null, 2))
 
         }
         
 
-    }, [rawBirthData, setPromptDescriptionsMap, setModifiedBirthData])
+    }, [rawBirthData, todaysTransits, setPromptDescriptionsMap, setModifiedBirthData])
 
 
     return (

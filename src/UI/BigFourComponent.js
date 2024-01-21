@@ -4,12 +4,15 @@ import { heading_map } from '../Utilities/constants';
 
 import useStore from '../Utilities/store';
 
-const PromptComponent = ({ bigFourType }) => {
+const BigFourComponent = ({ bigFourType }) => {
     const [responses, setResponses] = useState({});
     const [subHeadings, setSubHeadings] = useState([]);
     const [promptData, setPromptData] = useState("")
 
     const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
+    const setBigFourMap = useStore(state => state.setBigFourMap)
+    const bigFourMap = useStore(state => state.bigFourMap)
+
 
 
     useEffect(() => {
@@ -24,7 +27,11 @@ const PromptComponent = ({ bigFourType }) => {
           setResponses(prevResponses => ({
             ...prevResponses,
             [heading]: response
-          }));
+        }));
+        
+            setBigFourMap(heading, response)
+
+
         } catch (error) {
           console.error('Error:', error);
           // Handle the error appropriately
@@ -58,4 +65,4 @@ const PromptComponent = ({ bigFourType }) => {
     );
 };
 
-export default PromptComponent;
+export default BigFourComponent;
