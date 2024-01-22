@@ -47,34 +47,38 @@ const planetNameToIndex = {
 
 const Emphemeris = () => {
     const canvasRef = useRef(null);
-    const [ascendantDegree, setAscendantDegree] = useState(0)
-    const [planets, setPlanets] = useState([])
-    const [houses, setHouses] = useState([])
+    // const [ascendantDegree, setAscendantDegree] = useState(0)
+    // const [planets, setPlanets] = useState([])
+    // const [houses, setHouses] = useState([])
 
-    // const ascendantDegree = useStore(state => state.ascendantDegree);
     const rawBirthData = useStore(state => state.rawBirthData);
 
 
     useEffect(() => {
-
-        if (rawBirthData.planets) {
-            setPlanets(rawBirthData.planets)
-            setAscendantDegree(rawBirthData.houses[0].degree)
-            setHouses(rawBirthData.houses)
-        }
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
-        drawZodiacWheel(context);
+
+        console.log("render ephmeris")
+        if (rawBirthData.planets) {
+            console.log("planets")
+
+            // setAscendantDegree(rawBirthData.houses[0].degree)
+            // setHouses(rawBirthData.houses)
+            drawZodiacWheel(context, rawBirthData.planets, rawBirthData.houses );
+        }
+        drawZodiacWheel(context, [], []);
 
     }, [rawBirthData]);
 
-    const drawZodiacWheel = (ctx) => {
+    const drawZodiacWheel = (ctx, planets, houses) => {
         const centerX = 300;
         const centerY = 300;
         const outerRadius = 200;
         const innerRadius = 90;
         const houseCircleRadius = 220
 
+
+        const ascendantDegree = houses !== [] ? houses[0].degree : 0
        
         // Clear the canvas
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -141,6 +145,7 @@ const Emphemeris = () => {
         });
 
         if (planets.length !== 0) {
+            console.log("draw planets")
             planets.forEach(planet => {
                 const planetIndex = planetNameToIndex[planet.name];
                 if (planetIndex !== undefined) {
@@ -171,7 +176,9 @@ const Emphemeris = () => {
       
 
         if (houses.length !== 0) {
-            console.log("ascendant" + ascendantDegree )
+            console.log("draw houses")
+
+            // console.log("ascendant" + ascendantDegree )
             // const houseRadians = (0) * Math.PI / 180 + rotationRadians;
             // ctx.beginPath();
             // ctx.moveTo(centerX + outerRadius * Math.cos(houseRadians), centerY + outerRadius * Math.sin(houseRadians));
