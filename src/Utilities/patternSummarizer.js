@@ -52,8 +52,8 @@ function getConcentratedPattern(planets) {
     function getName(index, angle) {
         let patternName = getConcentratedPatternName(angle);
         let lastIndex = index - 1 >=0 ? index - 1 : planets.length - 1
-        console.log(planets[index])
-        console.log(index + " index " + lastIndex + " lastIndex")
+        // console.log(planets[index])
+        // console.log(index + " index " + lastIndex + " lastIndex")
         return `${patternName} with all planets within a ${angle} between your ${planets[index].sign} ${planets[index].name}` + 
         `in your ${planets[index].house}th house and your ${planets[lastIndex].sign} ${planets[lastIndex].name} in your ${planets[index].house}th house`
     }
@@ -365,7 +365,7 @@ export const identifyBirthChartPattern = (chartJson) => {
     let houses = chartJson.houses;
     let sortedPlanets = sortPlanetsByDegree(planets);
 
-    console.log(sortedPlanets)
+    // console.log(sortedPlanets)
 
 
     const concentratedPatternName = getConcentratedPattern(sortedPlanets)

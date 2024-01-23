@@ -10,7 +10,6 @@ const DominanceComponent = ({ dominanceTopic }) => {
     const setDominanceResponsesMap = useStore(state => state.setDominanceResponsesMap);
 
     useEffect(() => {
-        console.log(promptDescriptionsMap[dominanceTopic])
         setPromptData(promptDescriptionsMap[dominanceTopic])
     }, [dominanceTopic, setPromptData, promptDescriptionsMap]);
 

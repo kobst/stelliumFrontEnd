@@ -14,7 +14,6 @@ const ProgressedTransitComponent = ( {transitType} ) => {
     useEffect(() => {
         // Check if the planet response is already fetched
         generateResponse();
-        console.log(JSON.stringify(progressedBirthData, null, 2))
 
     }, [progressedBirthData]);
 

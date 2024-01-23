@@ -44,7 +44,7 @@ export const postBirthData = async (birthData) => {
     }
 
     const responseData = await response.json();
-    console.log(responseData)
+    // console.log(responseData)
     return responseData;
   } catch (error) {
     console.error('Error in API call:', error);
@@ -68,7 +68,7 @@ export const postProgressedChart = async (birthData) => {
     }
 
     const responseData = await response.json();
-    console.log(responseData)
+    // console.log(responseData)
     return responseData;
   } catch (error) {
     console.error('Error in API call:', error);
@@ -91,7 +91,7 @@ export const postDailyTransit = async () => {
     }
 
     const responseData = await response.json();
-    console.log(responseData)
+    // console.log(responseData)
     return responseData;
   } catch (error) {
     console.error('Error in API call:', error);
@@ -117,7 +117,7 @@ export const postGptResponse = async (prompt) => {
     }
 
     const responseData = await response.json();
-    console.log(responseData)
+    // console.log(responseData)
     return responseData.response;
   } catch (error) {
     console.error('Error in API call:', error);
