@@ -47,7 +47,7 @@ const planetNameToIndex = {
 
 const Emphemeris = () => {
     const canvasRef = useRef(null);
-    // const [ascendantDegree, setAscendantDegree] = useState(0)
+    const [ascendantDegree, setAscendantDegree] = useState(0)
     // const [planets, setPlanets] = useState([])
     // const [houses, setHouses] = useState([])
 
@@ -62,7 +62,7 @@ const Emphemeris = () => {
         if (rawBirthData.planets) {
             console.log("planets")
 
-            // setAscendantDegree(rawBirthData.houses[0].degree)
+            setAscendantDegree(rawBirthData.houses[0].degree)
             // setHouses(rawBirthData.houses)
             drawZodiacWheel(context, rawBirthData.planets, rawBirthData.houses );
         }
@@ -78,7 +78,8 @@ const Emphemeris = () => {
         const houseCircleRadius = 220
 
 
-        const ascendantDegree = houses !== [] ? houses[0].degree : 0
+        console.log(houses)
+        // const ascendantDegree = houses.length === 0 ? 0 : houses[0].degree
        
         // Clear the canvas
         ctx.setTransform(1, 0, 0, 1, 0, 0);
