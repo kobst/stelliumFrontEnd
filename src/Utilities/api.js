@@ -31,6 +31,7 @@ export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
 // Function to post birth data
 export const postBirthData = async (birthData) => {
   try {
+    console.log(`${SERVER_URL}/birthdata`)
     const response = await fetch(`${SERVER_URL}/birthdata`, {
       method: 'POST',
       headers: {
