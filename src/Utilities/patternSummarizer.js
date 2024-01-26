@@ -362,10 +362,8 @@ function findStelliumByDegrees(planets) {
 
 export const identifyBirthChartPattern = (chartJson) => {
     let planets = chartJson.planets;
-    let houses = chartJson.houses;
+    // let houses = chartJson.houses;
     let sortedPlanets = sortPlanetsByDegree(planets);
-
-    // console.log(sortedPlanets)
 
 
     const concentratedPatternName = getConcentratedPattern(sortedPlanets)

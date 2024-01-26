@@ -474,7 +474,7 @@ function findTransitingHouse(transit, sortedHouses) {
 
 export const findAspects = (transits, birthChart) => {
     const updatedTransits = updateObjectKeys(transits);
-    console.log(updatedTransits)
+    // console.log(updatedTransits)
         // Sort the houses by degree for proper comparison
     const sortedHouses = birthChart.houses.slice().sort((a, b) => a.degree - b.degree);
     sortedHouses.push({ house: 1, sign: sortedHouses[0].sign, degree: sortedHouses[0].degree + 360 });
