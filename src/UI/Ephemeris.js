@@ -14,7 +14,7 @@ const zodiacIcons = [
     '/assets/signs/icons8-scorpio-50.png',
     '/assets/signs/icons8-sagittarius-50.png',
     '/assets/signs/icons8-capricorn-50.png',
-    '/assets/signs/icons8-aquarius-50.png',
+    '/assets/signs/icons8-aquarius-symbol-50.png',
     '/assets/signs/icons8-pisces-50.png'
 ];
 
