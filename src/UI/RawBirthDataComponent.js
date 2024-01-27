@@ -13,13 +13,13 @@ const RawBirthDataComponent = () => {
     const progressedBirthData = useStore(state => state.progressedBirthData);
     const setModifiedBirthData = useStore(state => state.setModifiedBirthData);
     const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
-    const setAscendantDegree = useStore(state => state.setAscendantDegree)
+    // const setAscendantDegree = useStore(state => state.setAscendantDegree)
     const setDailyTransitDescriptions = useStore(state => state.setDailyTransitDescriptions);
     const setProgressedTransitDescriptions = useStore(state => state.setProgressedTransitDescriptions)
 
     useEffect(() => {
         if (rawBirthData !== '' && todaysTransits !== '' && progressedBirthData !== ''){
-            setAscendantDegree(rawBirthData['ascendant'])
+            // setAscendantDegree(rawBirthData['ascendant'])
             const pattern = identifyBirthChartPattern(rawBirthData)
             const modified = modifyRawResponse(rawBirthData)
             const everything = generateResponse('everything', modified)

@@ -47,11 +47,8 @@ const planetNameToIndex = {
 
 const Emphemeris = () => {
     const canvasRef = useRef(null);
-    const [ascendantDegree, setAscendantDegree] = useState(0)
-    // const [planets, setPlanets] = useState([])
-    // const [houses, setHouses] = useState([])
-
     const rawBirthData = useStore(state => state.rawBirthData);
+    const ascendantDegree = useStore(state => state.ascendantDegree);
 
 
     useEffect(() => {
@@ -59,14 +56,16 @@ const Emphemeris = () => {
         const context = canvas.getContext('2d');
 
         console.log("render ephmeris")
-        if (rawBirthData.planets) {
-            console.log("planets")
+        if (rawBirthData.planets && rawBirthData.houses && ascendantDegree) {
+            console.log("use effect ephemeris")
 
-            setAscendantDegree(rawBirthData.houses[0].degree)
-            // setHouses(rawBirthData.houses)
+            // setAscendantDegree(rawBirthData.houses[0].degree)
+            // console.log(rawBirthData.houses[0].degree)
+            console.log(ascendantDegree + "planets " + rawBirthData.planets.length + " houses " + rawBirthData.houses.length)
             drawZodiacWheel(context, rawBirthData.planets, rawBirthData.houses );
+        } else {
+            drawZodiacWheel(context, [], []);
         }
-        drawZodiacWheel(context, [], []);
 
     }, [rawBirthData]);
 
@@ -77,15 +76,12 @@ const Emphemeris = () => {
         const innerRadius = 90;
         const houseCircleRadius = 220
 
-
-        console.log(houses)
-        // const ascendantDegree = houses.length === 0 ? 0 : houses[0].degree
-       
         // Clear the canvas
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
         // Convert ascendant degree to radians and adjust for starting at left (9 o'clock)
+        console.log(ascendantDegree)
         const rotationRadians = ((270 + ascendantDegree) % 360) * Math.PI / 180;
         const houseRotationRadians = Math.PI / 180;
 
@@ -108,7 +104,6 @@ const Emphemeris = () => {
         ctx.arc(centerX, centerY, houseCircleRadius, 0, 2 * Math.PI);
         ctx.stroke();
 
-
         ctx.strokeStyle = '#cccccc';
 
         //Draw 12 sections
@@ -117,13 +112,7 @@ const Emphemeris = () => {
             ctx.beginPath();
             ctx.moveTo(centerX + innerRadius * Math.cos(angle), centerY + innerRadius * Math.sin(angle));
             ctx.lineTo(centerX + outerRadius * Math.cos(angle), centerY + outerRadius * Math.sin(angle));
-            
-            if (i === 0) {
-                ctx.lineWidth = 6; // Thicker line for main houses
-            } else {
-                ctx.lineWidth = 1; // Default line width for other houses
-            }
-
+            ctx.lineWidth = 1; // Default line width for other houses
             ctx.stroke();
         }
 
@@ -174,34 +163,21 @@ const Emphemeris = () => {
         }
 
 
-      
-
         if (houses.length !== 0) {
             console.log("draw houses")
-
-            // console.log("ascendant" + ascendantDegree )
-            // const houseRadians = (0) * Math.PI / 180 + rotationRadians;
-            // ctx.beginPath();
-            // ctx.moveTo(centerX + outerRadius * Math.cos(houseRadians), centerY + outerRadius * Math.sin(houseRadians));
-            // ctx.lineTo(centerX + houseCircleRadius * Math.cos(houseRadians), centerY + houseCircleRadius * Math.sin(houseRadians));
-            // ctx.lineWidth = 11;
-            // ctx.stroke();
-            
-
             houses.forEach(house => {
+                console.log(house.degree)
                 const houseDegree = house.degree;
                 const houseRadians = ((270 - houseDegree) % 360) * Math.PI / 180 + houseRotationRadians;
                 ctx.beginPath();
                 ctx.moveTo(centerX + outerRadius * Math.cos(houseRadians), centerY + outerRadius * Math.sin(houseRadians));
                 ctx.lineTo(centerX + houseCircleRadius * Math.cos(houseRadians), centerY + houseCircleRadius * Math.sin(houseRadians));
-                 // Check if the house is 1, 4, 7, or 10 and adjust the line width accordingly
                 if ([1, 10].includes(house.house)) {
                     ctx.lineWidth = 6; // Thicker line for main houses
                 } else {
                     ctx.lineWidth = 1; // Default line width for other houses
                 }
                 ctx.strokeStyle = 'black';  // Replace 'red' with your desired color
-
                 ctx.stroke();
                 ctx.lineWidth = 1;
             });
@@ -214,9 +190,7 @@ const Emphemeris = () => {
     };
 
     return (
-        <>
-            <canvas ref={canvasRef} width={600} height={600} />
-        </>
+        <canvas ref={canvasRef} width={600} height={600} />
 
     );
 };

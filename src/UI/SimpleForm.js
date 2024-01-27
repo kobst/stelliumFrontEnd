@@ -20,6 +20,8 @@ const SimpleForm = () => {
   const setBirthDate = useStore(state => state.setBirthDate);
   const setProgressedBirthData = useStore(state => state.setProgressedBirthData);
   const setDailyTransits = useStore(state => state.setDailyTransits)
+  const setAscendantDegree = useStore(state => state.setAscendantDegree)
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -50,7 +52,10 @@ const SimpleForm = () => {
 
         setDailyTransits(todaysPositions.chartData)
         setProgressedBirthData(responseProgressed.chartData)
+        setAscendantDegree(response.chartData['ascendant'])
         setRawBirthData(response.chartData);
+
+
 
     } catch (error) {
       console.error('Error submitting form:', error);

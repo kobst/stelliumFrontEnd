@@ -51,8 +51,8 @@ function App() {
       <header className="App-header">
         StelliumAI
       </header>
-      <Emphemeris />
       <SimpleForm />
+      <Emphemeris />
       <RawBirthDataComponent />  
       <TabbedBigFourMenu />
     </div>

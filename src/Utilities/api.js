@@ -1,6 +1,8 @@
 import {modifyRawResponse} from './modifyResponse'
 
-const SERVER_URL = process.env.REACT_APP_SERVER_URL;
+// const SERVER_URL = process.env.REACT_APP_SERVER_URL;
+const SERVER_URL = process.env.REACT_APP_LOCAL_URL;
+
 
 export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
   const apiKey = process.env.REACT_APP_GOOGLE_API_KEY; // Replace with your API key
