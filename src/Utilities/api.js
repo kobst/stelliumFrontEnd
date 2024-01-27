@@ -1,7 +1,7 @@
 import {modifyRawResponse} from './modifyResponse'
 
-// const SERVER_URL = process.env.REACT_APP_SERVER_URL;
-const SERVER_URL = process.env.REACT_APP_LOCAL_URL;
+const SERVER_URL = process.env.REACT_APP_SERVER_URL;
+// const SERVER_URL = process.env.REACT_APP_LOCAL_URL;
 
 
 export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {

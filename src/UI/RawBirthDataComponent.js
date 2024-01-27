@@ -55,11 +55,7 @@ const RawBirthDataComponent = () => {
 
     return (
         <div>
-            {rawBirthData !== "" && 
-            <div>
-            <pre>raw data ready</pre>  
-            </div>}
-            {modifiedBirthData !== "" && 
+            {rawBirthData !== "" && modifiedBirthData !== "" && 
             <div>
             <pre>prompts ready</pre>  
             </div>}
