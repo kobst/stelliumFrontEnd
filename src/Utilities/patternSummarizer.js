@@ -137,7 +137,8 @@ function isSeesawPattern(sortedPlanets) {
             let cluster1 = sortedPlanets.slice(i, j);
             let cluster2 = [...sortedPlanets.slice(j, sortedPlanets.length), ...sortedPlanets.slice(0, i)];
 
-            if (checkClusters(cluster1, cluster2, 60)) {
+
+            if (cluster1.length > 3 && cluster2.length > 3 && checkClusters(cluster1, cluster2, 60)) {
                 return `Seesaw pattern with two clusters: 1) ${cluster1.map(p => p.name).join(', ')} and 2) ${cluster2.map(p => p.name).join(', ')}`;
             }
         }

@@ -34,7 +34,6 @@ const BigFourComponent = ({ bigFourType }) => {
 
         } catch (error) {
           console.error('Error:', error);
-          // Handle the error appropriately
         }
     }
 
