@@ -9,14 +9,14 @@ function generatePlanetObject(name, rawResponse, house) {
       normalDegree -= 30;
     }
   
-    name = name.charAt(0).toUpperCase() + name.slice(1);
+    const nameCapped = name.charAt(0).toUpperCase() + name.slice(1);
   
     const newObject = {
-      name: name,
+      name: nameCapped,
       full_degree: ascendantDegree,
       norm_degree: normalDegree,
       speed: 0.4995,
-      is_retro: false,
+      is_retro: "false",
       sign_id: signId,
       sign: signs[signId - 1],
       house: house

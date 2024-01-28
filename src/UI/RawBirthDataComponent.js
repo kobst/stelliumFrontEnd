@@ -22,6 +22,7 @@ const RawBirthDataComponent = () => {
             // setAscendantDegree(rawBirthData['ascendant'])
             const pattern = identifyBirthChartPattern(rawBirthData)
             const modified = modifyRawResponse(rawBirthData)
+            console.log(modified)
             const everything = generateResponse('everything', modified)
             const personality = generateResponse('personality', modified)
             const home = generateResponse('home', modified)

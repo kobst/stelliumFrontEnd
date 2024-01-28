@@ -27,6 +27,7 @@ const BigFourComponent = ({ bigFourType }) => {
           setResponses(prevResponses => ({
             ...prevResponses,
             [heading]: response
+
         }));
         
             setBigFourMap(heading, response)
@@ -39,6 +40,16 @@ const BigFourComponent = ({ bigFourType }) => {
 
     const handleRedo = (heading) => {
         generateResponse(heading);
+    };
+
+    const renderPromptDataWithRefs = () => {
+        if (!promptData) {
+            return null;
+        }
+
+        // Splitting the promptData into lines and adding ref IDs
+        const linesWithRefs = promptData.split('\n').map((line, index) => `${line} (ref: ${index + 1})`);
+        return linesWithRefs.join('\n');
     };
 
     const renderResponseForHeading = (heading) => {
@@ -55,7 +66,7 @@ const BigFourComponent = ({ bigFourType }) => {
         <div>
             {promptData !== "" && (
                 <div>
-                    <pre>{promptData}</pre>  
+                    <pre>{renderPromptDataWithRefs()}</pre>  
                     <button onClick={() => subHeadings.forEach(generateResponse)}>Generate Responses</button>
                 </div>
             )}

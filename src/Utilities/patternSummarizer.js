@@ -54,10 +54,9 @@ function getConcentratedPattern(planets) {
         let lastIndex = index - 1 >=0 ? index - 1 : planets.length - 1
         // console.log(planets[index])
         // console.log(index + " index " + lastIndex + " lastIndex")
-        return `${patternName} with all planets within a ${angle} between your ${planets[index].sign} ${planets[index].name}` + 
-        `in your ${planets[index].house}th house and your ${planets[lastIndex].sign} ${planets[lastIndex].name} in your ${planets[index].house}th house`
+        return `${patternName} with all planets within a ${angle} between your ${planets[index].name} in ${planets[index].sign} ` + 
+        `in your ${planets[index].house}th house and your ${planets[lastIndex].name} in ${planets[lastIndex].sign} in your ${planets[lastIndex].house}th house`
     }
-
 
     const angles = [120, 180, 240];
     for (let angle of angles) {
@@ -83,55 +82,30 @@ function getConcentratedPattern(planets) {
 }
 
 
-
-// function checkClusters(cluster1, cluster2, degree) {
-//     for (let planet1 of cluster1) {
-//         for (let planet2 of cluster2) {
-//             if (degreeDifference(planet1.full_degree, planet2.full_degree) <= degree) {
-//                 return false; // Clusters are not well separated
-//             }
-//         }
-//     }
-//     return true; // Clusters are well separated
-// }
-
-
 function checkClusters(cluster1, cluster2, degree) {
 
-    if (degreeDifference(cluster1[0], cluster2[cluster2.length - 1]) <= degree) {
+    if (degreeDifference(cluster1[0].full_degree, cluster2[cluster2.length - 1].full_degree) <= degree) {
         return false
     } 
-    if (degreeDifference(cluster1[cluster1.length - 1], cluster2[0]) <= degree) {
+    if (degreeDifference(cluster1[cluster1.length - 1].full_degree, cluster2[0].full_degree) <= degree) {
         return false
     } 
     return true
 }
 
-// function checkClusters2(outer, inner, degree, sortedPlanets) {
-//     if (inner < sortedPlanets.length - 1) {
-//         if (degreeDifference(sortedPlanets[inner], sortedPlanets[inner + 1]) <= degree) {
-//             return false
-//         } 
-//     } else {
-//         if (degreeDifference(sortedPlanets[inner], sortedPlanets[0]) <= degree) {
-//             return false
-//         } 
-//     }
 
-//     if (outer > 0) {
-//         if (degreeDifference(sortedPlanets[outer], sortedPlanets[outer - 1]) <= degree) {
-//             return false
-//         }
-//     } else {
-//         if (degreeDifference(sortedPlanets[outer], sortedPlanets[sortedPlanets.length - 1]) <= degree) {
-//             return false
-//         }
-//     }
-//     return true
-// }
 
 
 function isSeesawPattern(sortedPlanets) {
+
+    function createDescription(clusters) {
+        return clusters.map((cluster, index) => {
+            const planetDescriptions = cluster.map(planet => `${planet.name} in ${planet.sign} (house ${planet.house})`).join(',');
+            return `${index + 1}) ${planetDescriptions}`;
+        }).join(' in one cluster \n \n ')
+    }
+
+
     for (let i = 0; i < sortedPlanets.length - 1; i++) {
         for (let j = i + 1; j < sortedPlanets.length; j++) {
             let cluster1 = sortedPlanets.slice(i, j);
@@ -139,7 +113,8 @@ function isSeesawPattern(sortedPlanets) {
 
 
             if (cluster1.length > 3 && cluster2.length > 3 && checkClusters(cluster1, cluster2, 60)) {
-                return `Seesaw pattern with two clusters: 1) ${cluster1.map(p => p.name).join(', ')} and 2) ${cluster2.map(p => p.name).join(', ')}`;
+                let clusters = [cluster1, cluster2]
+                return `Seesaw pattern with two clusters: \n  ${createDescription(clusters)}`;
             }
         }
     }
@@ -154,15 +129,21 @@ function isSeesawPattern(sortedPlanets) {
 //     return occupiedSigns.size >= 7;
 // }
 
+function clusterIsContained(cluster) {
+    if (cluster.length > 0) {
+        return degreeDifference(cluster[0].full_degree, cluster[cluster.length - 1].full_degree) < 60
+    } else {return false}
+}
+
 function isSplayPattern(sortedPlanets) {
 
     // Function to create a descriptive string of the clusters
     function createDescription(clusters) {
         return clusters.map((cluster, index) => {
-            const planetNames = cluster.map(planet => planet.name).join(', ');
-            return `${index + 1}) ${planetNames}`;
-        }).join(' in one cluster, ');
-    }
+            const planetDescriptions = cluster.map(planet => `${planet.name} in ${planet.sign} (house ${planet.house})`).join(',');
+            return `${index + 1}) ${planetDescriptions}`;
+        }).join(' in one cluster \n ');
+    }    
 
     for (let i = 0; i < sortedPlanets.length; i++) {
         for (let j = i + 1; j !== i; j = (j + 1) % sortedPlanets.length) {
@@ -172,12 +153,18 @@ function isSplayPattern(sortedPlanets) {
                 let cluster2 = sortedPlanets.slice(j, k);
                 let cluster3 = sortedPlanets.slice(k, sortedPlanets.length).concat(sortedPlanets.slice(0, i));
 
+                if (!clusterIsContained(cluster1) ||
+                !clusterIsContained(cluster2) || 
+                !clusterIsContained(cluster3)) {
+                    continue;
+                }
+
                 if (cluster1.length > 2 && cluster2.length > 2 && cluster3.length > 2 && 
                     checkClusters(cluster1, cluster2, 30) && 
                     checkClusters(cluster2, cluster3, 30) && 
                     checkClusters(cluster3, cluster1, 30)) {
                     let clusters = [cluster1, cluster2, cluster3];
-                    return `Splay pattern with ${clusters.length} clusters of planets - ${createDescription(clusters)}`;
+                    return `Splay pattern with ${clusters.length} clusters of planets: \n  ${createDescription(clusters)}`;
                 }
             }
         }
@@ -206,7 +193,7 @@ function isGrandTrine(planets) {
 
     function createVertexDescription(mainPlanet, conjunctions) {
         if (conjunctions.length === 0) {
-            return mainPlanet.name;
+            return `${mainPlanet.name} in ${mainPlanet.sign} in your ${mainPlanet.house}th house`;
         }
         const conjunctNames = conjunctions.map(p => p.name).join(' and ');
         return `${mainPlanet.name} and ${conjunctNames}`;
@@ -253,14 +240,14 @@ function findGrandCrossOrTSquare(planets) {
                 for (let k = 0; k < planets.length; k++) {
                     if (k !== i && k !== j && isSquareOrOpposition(planets[i].full_degree, planets[k].full_degree) && 
                         isSquareOrOpposition(planets[j].full_degree, planets[k].full_degree)) {
-                        descriptions.push(`T-Square formed by ${planets[i].name}, ${planets[j].name}, and ${planets[k].name}`);
+                        descriptions.push(`T-Square formed by ${planets[i].name} in  ${planets[i].sign}, ${planets[j].name} in  ${planets[j].sign}, and ${planets[k].name} in  ${planets[k].sign}`);
 
                         // Check for a fourth planet to form a Grand Cross
                         for (let l = 0; l < planets.length; l++) {
                             if (l !== i && l !== j && l !== k && 
                                 isSquareOrOpposition(planets[k].full_degree, planets[l].full_degree) &&
                                 isSquareOrOpposition(planets[l].full_degree, planets[i].full_degree)) {
-                                descriptions.push(`Grand Cross formed by ${planets[i].name}, ${planets[j].name}, ${planets[k].name}, and ${planets[l].name}`);
+                                descriptions.push(`Grand Cross formed by ${planets[i].name} in  ${planets[i].sign}, ${planets[j].name} in ${planets[j].sign}, ${planets[k].name} in ${planets[k].sign}, and ${planets[l].name} in ${planets[l].sign}`);
                             }
                         }
                     }
@@ -363,7 +350,7 @@ function findStelliumByDegrees(planets) {
 
 export const identifyBirthChartPattern = (chartJson) => {
     let planets = chartJson.planets;
-    // let houses = chartJson.houses;
+    let houses = chartJson.houses;
     let sortedPlanets = sortPlanetsByDegree(planets);
 
 
@@ -380,17 +367,19 @@ export const identifyBirthChartPattern = (chartJson) => {
     const patterns = [concentratedPatternName, splayPatternDescription, 
         seesawPatternDescription, grandTrineDescription, tSquareDescription, stelliumBySignDescription,
         stelliumByDegreeDescription, yodPatternDescription]
-    let response = 'x'
+    let responses = []
 
 
     for (let pattern of patterns) {
         if (pattern !== '') {
-            response = response.concat(pattern + ' '); // Concatenate non-empty patterns
+            responses.push(pattern)
+            // responses = response.concat(pattern + ' '); // Concatenate non-empty patterns
         }
     }
 
-    console.log("response pattern description " + response)
-    return response
+    // console.log("response pattern description " + response)
+    return responses.join("\n\n");
+
 }
 
 

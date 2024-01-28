@@ -14,7 +14,7 @@ code {
 
 
 .pre-container {
-  max-width: 500px; /* Adjust this value as needed */
+  max-width: 1000px; /* Adjust this value as needed */
   overflow: auto;   /* Enables scrolling for overflow content */
   white-space: pre-wrap; /* Optional: Ensures the content wraps and respects newlines and spaces */
 }

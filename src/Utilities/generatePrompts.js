@@ -53,13 +53,13 @@ function findAspects(planetName, birthData) {
 export const generateResponse = (promptKey, birthData) => {
     const prompt = relevantPromptAspects[promptKey];
     let responses = [];
+    
     prompt.planets.forEach(planet => {
       const planetData = birthData.planets.find(p => p.name === planet);
       if (planetData.is_retro === "false") {
         responses.push(`${planet} in ${planetData.sign} in the ${planetData.house} house`);
       }
       if (planetData.is_retro === "true") {
-
         responses.push(`${planet} is retrograde in ${planetData.sign} in the ${planetData.house} house`);
       }
 
@@ -94,6 +94,7 @@ export const generateResponse = (promptKey, birthData) => {
     });
   
     return responses.join("\n");
+
   }
 
   function getDominanceDescriptionQuadrant(percent) {
