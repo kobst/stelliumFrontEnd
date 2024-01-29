@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Loader } from "@googlemaps/js-api-loader";
 import ResponseContext from '../Utilities/ResponseContext';
+import { updateObjectKeys } from '../Utilities/helpers';
 
 import GoogleAutocomplete from 'react-google-autocomplete';
 import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart } from '../Utilities/api'; 
@@ -50,8 +51,8 @@ const SimpleForm = () => {
   
         // console.log(response)
 
-        setDailyTransits(todaysPositions.chartData)
-        setProgressedBirthData(responseProgressed.chartData)
+        setDailyTransits(updateObjectKeys(todaysPositions.chartData))
+        setProgressedBirthData(updateObjectKeys(responseProgressed.chartData))
         setAscendantDegree(response.chartData['ascendant'])
         setRawBirthData(response.chartData);
 

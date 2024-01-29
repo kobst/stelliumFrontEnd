@@ -45,7 +45,7 @@ const planetNameToIndex = {
 };
 
 
-const Emphemeris = () => {
+const Emphemeris = ({transits = []}) => {
     const canvasRef = useRef(null);
     const rawBirthData = useStore(state => state.rawBirthData);
     const ascendantDegree = useStore(state => state.ascendantDegree);
@@ -62,14 +62,14 @@ const Emphemeris = () => {
             // setAscendantDegree(rawBirthData.houses[0].degree)
             // console.log(rawBirthData.houses[0].degree)
             console.log(ascendantDegree + "planets " + rawBirthData.planets.length + " houses " + rawBirthData.houses.length)
-            drawZodiacWheel(context, rawBirthData.planets, rawBirthData.houses );
+            drawZodiacWheel(context, rawBirthData.planets, rawBirthData.houses, transits );
         } else {
-            drawZodiacWheel(context, [], []);
+            drawZodiacWheel(context, [], [], []);
         }
 
     }, [rawBirthData]);
 
-    const drawZodiacWheel = (ctx, planets, houses) => {
+    const drawZodiacWheel = (ctx, planets, houses, transits) => {
         const centerX = 300;
         const centerY = 300;
         const outerRadius = 200;
@@ -135,7 +135,6 @@ const Emphemeris = () => {
         });
 
         if (planets.length !== 0) {
-            console.log("draw planets")
             planets.forEach(planet => {
                 const planetIndex = planetNameToIndex[planet.name];
                 if (planetIndex !== undefined) {
@@ -164,9 +163,7 @@ const Emphemeris = () => {
 
 
         if (houses.length !== 0) {
-            console.log("draw houses")
             houses.forEach(house => {
-                console.log(house.degree)
                 const houseDegree = house.degree;
                 const houseRadians = ((270 - houseDegree) % 360) * Math.PI / 180 + houseRotationRadians;
                 ctx.beginPath();
@@ -183,6 +180,33 @@ const Emphemeris = () => {
             });
         }
 
+
+        if (transits.length !== 0) {
+            transits.forEach(planet => {
+                const planetIndex = planetNameToIndex[planet.name];
+                if (planetIndex !== undefined) {
+                    const planetDegree = planet.full_degree;
+
+                    const planetRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
+                    const planetX = centerX + (outerRadius + 50) * Math.cos(planetRadians) - 25;
+                    const planetY = centerY + (outerRadius +50) * Math.sin(planetRadians) - 25;
+    
+                    const planetImage = new Image();
+                    planetImage.src = planetIcons[planetIndex];
+                    planetImage.onload = () => {
+                        ctx.drawImage(planetImage, planetX, planetY, 50, 50);
+                    };
+
+                    const planetHashRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + houseRotationRadians;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX + outerRadius * Math.cos(planetHashRadians), centerY + outerRadius * Math.sin(planetHashRadians));
+                    ctx.lineTo(centerX + houseCircleRadius * Math.cos(planetHashRadians), centerY + houseCircleRadius * Math.sin(planetHashRadians));
+                    ctx.strokeStyle = 'red';  // Replace 'red' with your desired color
+                    ctx.stroke();
+
+                }
+            });
+        }
 
         // Restore the unrotated context for further drawing
         ctx.restore();

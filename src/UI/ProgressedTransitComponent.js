@@ -1,44 +1,49 @@
 import React, { useEffect, useState } from 'react';
-import { postDailyTransit } from '../Utilities/api'; 
+import Emphemeris from './Ephemeris'
 import useStore from '../Utilities/store';
 import { findAspects } from '../Utilities/generateTransitDescriptions';
 
 const ProgressedTransitComponent = ( {transitType} ) => {
+    // const birthData = useStore(state => state.birthData)
     const progressedBirthData = useStore(state => state.progressedBirthData);
-    const modifiedBirthData = useStore(state => state.modifiedBirthData)
+    // const setProgressedBirthData = useStore(state => state.setProgressedBirthData);
+    // const modifiedBirthData = useStore(state => state.modifiedBirthData)
     const dailyTransitDescriptions = useStore(state => state.dailyTransitDescriptions)
-    const setDailyTransitDescriptions = useStore(state => state.setDailyTransitDescriptions)
+    // const setDailyTransitDescriptions = useStore(state => state.setDailyTransitDescriptions)
     const progressedTransitDescriptions = useStore(state => state.progressedTransitDescriptions)
+    // const setProgressedTransitDescriptions = useStore(state => state.setProgressedTransitDescriptions)
+    // const setDailyTransits = useStore(state => state.setDailyTransits)
+    const dailyTransits = useStore(state => state.dailyTransits)
 
 
     useEffect(() => {
-        // Check if the planet response is already fetched
+ 
         generateResponse();
 
-    }, [progressedBirthData]);
+    }, []);
 
-    // useEffect(() => {
 
-    // }, [dailyTransits])
 
     async function generateResponse() {
-        console.log("generate progressed chart response");
 
-        if (transitType === 'Transits' && modifiedBirthData !== '') {
-            const todaysPositions = await postDailyTransit();
-            const todaysTransits = findAspects(todaysPositions.chartData, modifiedBirthData )
-            setDailyTransitDescriptions(todaysTransits)
+        // if (transitType === 'Transits' && modifiedBirthData !== '') {
+        //     console.log("generate transit chart response");
 
-        }
-
-        // const modifiedInput = promptDescriptionsMap['everything'] + "\n" +  planet.toUpperCase() + " ANALYSIS";
-        // try {
-        //     const response = await postGptResponsePlanets(modifiedInput);
-        //     setPlanetResponsesMap(planet, response);
-        // } catch (error) {
-        //     console.error('Error:', error);
+        //     const todaysPositions = await postDailyTransit();
+        //     setDailyTransits(todaysPositions.chartData)
+        //     const todaysTransitDescriptions = findAspects(todaysPositions.chartData, modifiedBirthData )
+        //     setDailyTransitDescriptions(todaysTransitDescriptions)
         // }
 
+        // if (transitType === 'Progressed' && modifiedBirthData !== '') {
+        //     console.log("generate progressed chart response");
+
+        //     const responseProgressed = await postProgressedChart(birthData)
+        //     setProgressedBirthData(responseProgressed.chartData)
+        //     const progressedTransitDescriptions = findAspects(responseProgressed.chartData, modifiedBirthData )
+        //     setProgressedTransitDescriptions(progressedTransitDescriptions)
+
+        // }
     }
 
     return (
@@ -51,11 +56,15 @@ const ProgressedTransitComponent = ( {transitType} ) => {
                 <div className="planet-response">
                     <pre>{JSON.stringify(progressedBirthData)}</pre>  
                     <pre>{progressedTransitDescriptions.join('\n')}</pre>  
+                    <Emphemeris transits={progressedBirthData}/>
                 </div>
             )}
             {transitType === 'Transits' && dailyTransitDescriptions !== "" && (
                 <div className="planet-response">
+                    <pre>{JSON.stringify(dailyTransits)}</pre>  
                     <pre>{dailyTransitDescriptions.join('\n')}</pre> 
+                    <Emphemeris transits={dailyTransits}/>
+
                 </div>
             )}
         </div>

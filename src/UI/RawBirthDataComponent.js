@@ -18,8 +18,10 @@ const RawBirthDataComponent = () => {
     const setProgressedTransitDescriptions = useStore(state => state.setProgressedTransitDescriptions)
 
     useEffect(() => {
-        if (rawBirthData !== '' && todaysTransits !== '' && progressedBirthData !== ''){
+        // if (rawBirthData !== '' && todaysTransits !== '' && progressedBirthData !== ''){
             // setAscendantDegree(rawBirthData['ascendant'])
+        if (rawBirthData !== ''){
+
             const pattern = identifyBirthChartPattern(rawBirthData)
             const modified = modifyRawResponse(rawBirthData)
             console.log(modified)
