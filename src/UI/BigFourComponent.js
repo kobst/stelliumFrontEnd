@@ -5,15 +5,15 @@ import { heading_map } from '../Utilities/constants';
 import useStore from '../Utilities/store';
 
 const BigFourComponent = ({ bigFourType }) => {
-    const [responses, setResponses] = useState({});
+    // const [responses, setResponses] = useState({});
     const [subHeadings, setSubHeadings] = useState([]);
     const [promptData, setPromptData] = useState("")
 
     const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
     const setBigFourMap = useStore(state => state.setBigFourMap)
-    const bigFourMap = useStore(state => state.bigFourMap)
+    const bigFourMap = useStore(state => state.bigFourResponsesMap)
 
-
+    console.log(bigFourMap)
 
     useEffect(() => {
         setSubHeadings(heading_map[bigFourType]);
@@ -24,15 +24,13 @@ const BigFourComponent = ({ bigFourType }) => {
         const modifiedInput = promptData + "\n" + heading;
         try {
           const response = await postGptResponse(modifiedInput);
-          setResponses(prevResponses => ({
-            ...prevResponses,
-            [heading]: response
-
-        }));
-        
+        //   setResponses(prevResponses => ({
+        //     ...prevResponses,
+        //     [heading]: response
+        // }));
             setBigFourMap(heading, response)
-
-
+        
+        
         } catch (error) {
           console.error('Error:', error);
         }
@@ -48,7 +46,7 @@ const BigFourComponent = ({ bigFourType }) => {
         }
 
         // Splitting the promptData into lines and adding ref IDs
-        const linesWithRefs = promptData.split('\n').map((line, index) => `${line} (ref: ${index + 1})`);
+        const linesWithRefs = promptData.split('\n').map((line, index) => `${line}`);
         return linesWithRefs.join('\n');
     };
 
@@ -57,7 +55,7 @@ const BigFourComponent = ({ bigFourType }) => {
             <div key={heading}>
                 <h4>{heading}</h4>
                 <button onClick={() => handleRedo(heading)}>Redo</button>
-                <p>{responses[heading]}</p>
+                <p>{bigFourMap[heading]}</p>
             </div>
         );
     };

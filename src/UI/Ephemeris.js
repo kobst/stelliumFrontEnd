@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import {PlanetPositions} from './PlanetPositions'
 import useStore from '../Utilities/store';
 
 
@@ -41,7 +42,7 @@ const planetNameToIndex = {
     "Saturn": 6,
     "Uranus": 7,
     "Neptune": 8,
-    "Pluto": 9
+    "Pluto": 9,
 };
 
 
@@ -50,18 +51,20 @@ const Emphemeris = ({transits = []}) => {
     const rawBirthData = useStore(state => state.rawBirthData);
     const ascendantDegree = useStore(state => state.ascendantDegree);
 
+    const [planetsArray, setPlanetsArray] = useState([])
+
 
     useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
 
-        console.log("render ephmeris")
+        // console.log("render ephmeris")
         if (rawBirthData.planets && rawBirthData.houses && ascendantDegree) {
-            console.log("use effect ephemeris")
+            // console.log("use effect ephemeris")
 
             // setAscendantDegree(rawBirthData.houses[0].degree)
             // console.log(rawBirthData.houses[0].degree)
-            console.log(ascendantDegree + "planets " + rawBirthData.planets.length + " houses " + rawBirthData.houses.length)
+            // console.log(ascendantDegree + "planets " + rawBirthData.planets.length + " houses " + rawBirthData.houses.length)
             drawZodiacWheel(context, rawBirthData.planets, rawBirthData.houses, transits );
         } else {
             drawZodiacWheel(context, [], [], []);
@@ -81,7 +84,7 @@ const Emphemeris = ({transits = []}) => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
         // Convert ascendant degree to radians and adjust for starting at left (9 o'clock)
-        console.log(ascendantDegree)
+        // console.log(ascendantDegree)
         const rotationRadians = ((270 + ascendantDegree) % 360) * Math.PI / 180;
         const houseRotationRadians = Math.PI / 180;
 
@@ -134,7 +137,8 @@ const Emphemeris = ({transits = []}) => {
             };
         });
 
-        if (planets.length !== 0) {
+        if (planets.length !== 0 && transits.length === 0) {
+            setPlanetsArray(planets)
             planets.forEach(planet => {
                 const planetIndex = planetNameToIndex[planet.name];
                 if (planetIndex !== undefined) {
@@ -154,7 +158,7 @@ const Emphemeris = ({transits = []}) => {
                     ctx.beginPath();
                     ctx.moveTo(centerX + outerRadius * Math.cos(planetHashRadians), centerY + outerRadius * Math.sin(planetHashRadians));
                     ctx.lineTo(centerX + houseCircleRadius * Math.cos(planetHashRadians), centerY + houseCircleRadius * Math.sin(planetHashRadians));
-                    ctx.strokeStyle = 'red';  // Replace 'red' with your desired color
+                    ctx.strokeStyle = 'red'; 
                     ctx.stroke();
 
                 }
@@ -182,6 +186,7 @@ const Emphemeris = ({transits = []}) => {
 
 
         if (transits.length !== 0) {
+            setPlanetsArray(transits)
             transits.forEach(planet => {
                 const planetIndex = planetNameToIndex[planet.name];
                 if (planetIndex !== undefined) {
@@ -201,7 +206,7 @@ const Emphemeris = ({transits = []}) => {
                     ctx.beginPath();
                     ctx.moveTo(centerX + outerRadius * Math.cos(planetHashRadians), centerY + outerRadius * Math.sin(planetHashRadians));
                     ctx.lineTo(centerX + houseCircleRadius * Math.cos(planetHashRadians), centerY + houseCircleRadius * Math.sin(planetHashRadians));
-                    ctx.strokeStyle = 'red';  // Replace 'red' with your desired color
+                    ctx.strokeStyle = 'blue';  // Replace 'red' with your desired color
                     ctx.stroke();
 
                 }
@@ -214,7 +219,10 @@ const Emphemeris = ({transits = []}) => {
     };
 
     return (
-        <canvas ref={canvasRef} width={600} height={600} />
+        <div>
+            <canvas ref={canvasRef} width={600} height={600} />
+            <PlanetPositions planets={planetsArray}/>
+        </div>
 
     );
 };

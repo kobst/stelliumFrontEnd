@@ -1,5 +1,19 @@
 
-import { elements, elementPoints, relevantPromptAspects, rulers, quadrants, ignorePlanets, ignorePoints } from "./constants";
+import { findRenderedDOMComponentWithClass } from "react-dom/test-utils";
+import { 
+  elements, 
+  elementPoints,
+  orbCodes,
+  planetCodes,
+  signCodes, 
+  relevantPromptAspects, 
+  rulers, 
+  transitCodes,
+  quadrants, 
+  ignorePlanets, 
+  ignorePoints } from "./constants";
+
+import { decodeAstrologyCode, decodeAspectCode, decodeRulerCode } from "./decoder";
 
 export const orbDescription = (orb) => {
     if (orb < 1) {
@@ -46,7 +60,12 @@ function findAspects(planetName, birthData) {
     }
   
     const orbDesc = orbDescription(aspect.orb); // Assuming orbDescription is defined elsewhere
-    return `${planetName} ${orbDesc} ${aspectType} to ${aspect[otherPlanet]} in ${birthData.planets[aspect[otherPlanetId]].sign} in ${birthData.planets[aspect[otherPlanetId]].house} house`;
+    const houseCode = birthData.planets[aspect[otherPlanetId]].house.toString().padStart(2, '0'); // Pad the house number to ensure it's 2 digits
+    const code = "A-" + planetCodes[planetName] + orbCodes[orbDesc] + transitCodes[aspectType] + planetCodes[aspect[otherPlanet]] + signCodes[birthData.planets[aspect[otherPlanetId]].sign] + houseCode
+    return decodeAspectCode(code)
+
+  //  return `${description}  (${code})`
+    // return `${planetName} ${orbDesc} ${aspectType} to ${aspect[otherPlanet]} in ${birthData.planets[aspect[otherPlanetId]].sign} in ${birthData.planets[aspect[otherPlanetId]].house} house (${code}) \n ${formattedDescription}`
   }
   
 
@@ -56,13 +75,20 @@ export const generateResponse = (promptKey, birthData) => {
     
     prompt.planets.forEach(planet => {
       const planetData = birthData.planets.find(p => p.name === planet);
-      if (planetData.is_retro === "false") {
-        responses.push(`${planet} in ${planetData.sign} in the ${planetData.house} house`);
-      }
+      let code
+      const houseCode = planetData.house.toString().padStart(2, '0'); // Pad the house number to ensure it's 2 digits
+      code = planetCodes[planet] + signCodes[planetData.sign] + houseCode
+
       if (planetData.is_retro === "true") {
-        responses.push(`${planet} is retrograde in ${planetData.sign} in the ${planetData.house} house`);
+        code = "Pr-" + code
+        // responses.push(`${planet} is retrograde in ${planetData.sign} in the ${planetData.house} house (${code})`);
+      } else {
+        code = "Pp-" + code
+        // responses.push(`${planet} in ${planetData.sign} in the ${planetData.house} house (${code})`);
       }
 
+      let description = decodeAstrologyCode(code)
+      responses.push(`${description}  (ref: ${code})`)
       // Assuming findAspects is a function defined elsewhere
       responses = responses.concat(findAspects(planet, birthData));
     });
@@ -75,19 +101,33 @@ export const generateResponse = (promptKey, birthData) => {
       const rulerPlanet = rulers[sign]; // Assuming rulers is an object defined elsewhere
       if (rulerPlanet) {
         const planetData = birthData.planets.find(p => p.name === rulerPlanet);
-        responses.push(`${rulerPlanet} ruler of ${sign} in ${houseNum} house in ${planetData.sign} in ${planetData.house} house`);
+        const houseCode = houseNum.toString().padStart(2, '0'); // Pad the house number to ensure it's 2 digits
+        const houseCodePlanet = planetData.house.toString().padStart(2, '0')
+        const code =  "r-" + planetCodes[rulerPlanet] + signCodes[sign] + houseCode + signCodes[planetData.sign] + houseCodePlanet
+        return decodeRulerCode(code)
+        // const description = `${rulerPlanet} ruler of ${sign} and the ${houseNum} house in ${planetData.sign} in ${planetData.house} house (${code})` 
+        // responses.push(description);
+        // responses.push(`${descriptionFromCode} (${code})`)
         // responses = responses.concat(findAspects(rulerPlanet, birthData));
       }
-      birthData.planets.forEach(planet => {
-        if (!prompt.planets.includes(planet.name)) {
-          if (planet.house === houseNum) {
-            if (planet.is_retro === "false") {
-              responses.push(`${planet.name} in ${houseNum} house in ${planet.sign} house`);
+      birthData.planets.forEach(planetData => {
+        if (!prompt.planets.includes(planetData.name)) {
+          if (planetData.house === houseNum) {
+            let code
+            const houseCode = houseNum.toString().padStart(2, '0'); // Pad the house number to ensure it's 2 digits
+            code = planetCodes[planetData.name] + signCodes[planetData.sign] + houseCode
+           
+ 
+            if (planetData.is_retro === "true") {
+              code = "Pr-" + code
+              // responses.push(`${planetData.name} is retrograde in ${houseNum} house in ${planetData.sign} house (${code})`);
+            } else {
+                code = "Pp-" + code
+                // responses.push(`${planetData.name} in ${planetData.sign} in the ${planetData.house} house (${code})`);
             }
-            if (planet.is_retro === "true") {
-              responses.push(`${planet.name} is retrograde in ${houseNum} house in ${planet.sign} house`);
-            }
-            responses = responses.concat(findAspects(planet.name, birthData));
+            let description = decodeAstrologyCode(code) 
+            responses.push(`${description} (${code})`)
+            responses = responses.concat(findAspects(planetData.name, birthData));
           }
         }
       });

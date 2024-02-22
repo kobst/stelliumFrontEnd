@@ -34,6 +34,8 @@ const useStore = create(set => ({
         'home': '',
         'career': '',
         'relationships': '',
+        'communication': '',
+        'unconscious': '',
         'quadrants': '',
         'elements': '',
         'modalities': '',

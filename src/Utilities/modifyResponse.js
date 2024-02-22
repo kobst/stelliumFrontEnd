@@ -65,10 +65,21 @@ function addSouthNode(rawResponse) {
 function modifyRawResponse(rawResponse) {
 
  
-    const ascendantObject = generatePlanetObject("ascendant", rawResponse, 1);
-    const midheavenObject = generatePlanetObject("midheaven", rawResponse, 10);
-    // console.log(rawResponse)
-    const southNodeObject = addSouthNode(rawResponse); 
+
+  if (rawResponse.planets) {
+    for (let planet of rawResponse.planets) {
+      if (planet.name === "Ascendant") {
+          console.log("Ascendant exists xxx");
+          return rawResponse;;
+      }
+    }
+  }
+
+
+  const ascendantObject = generatePlanetObject("ascendant", rawResponse, 1);
+  const midheavenObject = generatePlanetObject("midheaven", rawResponse, 10);
+  // console.log(rawResponse)
+  const southNodeObject = addSouthNode(rawResponse); 
 
 
   

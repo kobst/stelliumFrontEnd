@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Emphemeris from './Ephemeris'
+import { PlanetPositions } from './PlanetPositions';
 import useStore from '../Utilities/store';
 import { findAspects } from '../Utilities/generateTransitDescriptions';
 
@@ -25,25 +26,7 @@ const ProgressedTransitComponent = ( {transitType} ) => {
 
 
     async function generateResponse() {
-
-        // if (transitType === 'Transits' && modifiedBirthData !== '') {
-        //     console.log("generate transit chart response");
-
-        //     const todaysPositions = await postDailyTransit();
-        //     setDailyTransits(todaysPositions.chartData)
-        //     const todaysTransitDescriptions = findAspects(todaysPositions.chartData, modifiedBirthData )
-        //     setDailyTransitDescriptions(todaysTransitDescriptions)
-        // }
-
-        // if (transitType === 'Progressed' && modifiedBirthData !== '') {
-        //     console.log("generate progressed chart response");
-
-        //     const responseProgressed = await postProgressedChart(birthData)
-        //     setProgressedBirthData(responseProgressed.chartData)
-        //     const progressedTransitDescriptions = findAspects(responseProgressed.chartData, modifiedBirthData )
-        //     setProgressedTransitDescriptions(progressedTransitDescriptions)
-
-        // }
+        // to be filled
     }
 
     return (
@@ -57,6 +40,7 @@ const ProgressedTransitComponent = ( {transitType} ) => {
                     <pre>{JSON.stringify(progressedBirthData)}</pre>  
                     <pre>{progressedTransitDescriptions.join('\n')}</pre>  
                     <Emphemeris transits={progressedBirthData}/>
+                    
                 </div>
             )}
             {transitType === 'Transits' && dailyTransitDescriptions !== "" && (
@@ -64,6 +48,7 @@ const ProgressedTransitComponent = ( {transitType} ) => {
                     <pre>{JSON.stringify(dailyTransits)}</pre>  
                     <pre>{dailyTransitDescriptions.join('\n')}</pre> 
                     <Emphemeris transits={dailyTransits}/>
+
 
                 </div>
             )}

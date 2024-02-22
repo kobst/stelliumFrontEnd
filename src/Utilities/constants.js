@@ -1,3 +1,5 @@
+// missing 3, 8, 9, 11, 12
+
 export const relevantPromptAspects = {
     "personality": {
       "planets": ["Sun", "Moon", "Ascendant"],
@@ -10,16 +12,25 @@ export const relevantPromptAspects = {
         "Venus",
         "Mars",
         "Ascendant",
+        // "Uranus"
       ],
-      "houses": [5, 7]
+      "houses": [5, 7, 11]
     },
     "career": {
-      "planets": ["Sun", "Saturn", "Jupiter", "Midheaven"],
+      "planets": ["Sun", "Saturn", "Jupiter", "Midheaven", "Part of Fortune"],
       "houses": [2, 6, 10]
     },
     "home": {
-      "planets": ["Moon", "Saturn"],
+      "planets": ["Sun", "Moon", "Saturn"],
       "houses": [4]
+    },
+    "unconscious": {
+      "planets": ["Pluto", "Neptune", "Mars", "Node", "South Node", "Chiron"],
+      "houses": [8, 12]
+    },
+    "communication": {
+      "planets": ["Sun", "Moon", "Ascendant", "Mercury", "Jupiter"],
+      "houses": [3, 9]
     },
     "everything": {
       "planets": [
@@ -59,17 +70,23 @@ export const rulers = {
   
   const home_headings = ["Emotional Foundations and Security Needs", "Family Dynamics and Past Influences", "Home Environment and Preferences", "Challenges and Growth in Family Life", "Synthesizing a Harmonious Physical and Emotional Home"]
   
-  const relationship_headings = ["Core Relationship Desires and Boundaries", "Love Style: Expression and Attraction", "Sexual Nature and Intimacy", "Commitment Approach and Long-term Vision", "Challenges and Growth in Relationships", "Romantic Summary"]
+  const relationship_headings = ["Core Relationship Desires and Boundaries", "Love Style: Expression and Attraction", "Sexual Nature and Intimacy", "Commitment Approach and Long-term Vision", "Challenges and Growth in Relationships", "Romantic Summary", "Social Networks and Community"]
   
   const career_headings = ["Career Motivations and Ambitions", "Public Image, Reputation, and Leadership Style", "Challenges and Growth Opportunities in Profession", "Skills, Talents, and Strengths", "Summary and Path To Success"]
 
+  const unconscious_headings = ["Deep Psychological Patterns", "Spiritual Growth and Hidden Strengths", "Karmic Lessons and Past Life Influences", "Transformative Events and Personal Metamorphosis"]
 
+  const communication_headings = ["Communication and Learning Styles", "Philosophical Beliefs and Higher Learning", "Travel and Cross-Cultural Experiences"]
+  
   export const heading_map = {
     "personality": personality_headings,
     "home": home_headings,
     "relationships": relationship_headings,
     "career": career_headings,
-    "everything": personality_headings
+    "unconscious": unconscious_headings,
+    "communication": communication_headings,
+    "everything": personality_headings,
+
   }
 
   export const elements = {
@@ -112,3 +129,53 @@ export const rulers = {
     "Ascendant", "Midheaven", "Chiron", "Part of Fortune", "South Node", "Node"
   ]
   export const ignorePoints = ["Chiron", "Part of Fortune", "South Node"]
+
+  export const planetCodes = {
+    "Sun": "00",
+    "Moon": "01",
+    "Mercury": "02",
+    "Venus": "03",
+    "Mars": "04",
+    "Jupiter": "05",
+    "Saturn": "06",
+    "Uranus": "07",
+    "Neptune": "08",
+    "Pluto": "09",
+    "Ascendant": "10",
+    "Midheaven": "11",
+    "Node": "12",
+    "South Node": "13",
+    "Chiron": "14",
+    "Part of Fortune": "15"
+  }
+
+  export const signCodes = {
+    "Aries": "01",
+    "Taurus": "02",
+    "Gemini": "03",
+    "Cancer": "04",
+    "Leo": "05",
+    "Virgo": "06",
+    "Libra": "07",
+    "Scorpio": "08",
+    "Sagittarius": "09",
+    "Capricorn": "10",
+    "Aquarius": "11",
+    "Pisces": "12"
+  }
+
+export const transitCodes = {
+    "conjunction": "A1",
+    "sextile": "A2",
+    "square": "A3",
+    "trine": "A4",
+    "opposition": "A5",
+    "quincunx": "A6"
+  }
+
+  export const orbCodes = {
+    "loose": "L",
+    "close": "C",
+    "exact": "E",
+    "": "G",
+  }

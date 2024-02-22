@@ -34,6 +34,7 @@
   border: 1px solid #ccc; /* Optional: adds a border around the container */
   padding: 10px; /* Optional: adds some spacing inside the container */
   margin-top: 20px; /* Optional: adds some space above the container */
+  font-size: small;
 }
 
 /* App.css */

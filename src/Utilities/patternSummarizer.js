@@ -1,11 +1,11 @@
 import { ignorePlanets } from "./constants";
-
+import { degreeDifference } from "./helpers";
 
 // Utility function to get the difference between degrees considering circular nature
-function degreeDifference(deg1, deg2) {
-    let diff = Math.abs(deg1 - deg2);
-    return diff > 180 ? 360 - diff : diff;
-}
+// function degreeDifference(deg1, deg2) {
+//     let diff = Math.abs(deg1 - deg2);
+//     return diff > 180 ? 360 - diff : diff;
+// }
 
 // Sort planets by their full_degree
 function sortPlanetsByDegree(planets) {

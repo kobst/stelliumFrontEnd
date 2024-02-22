@@ -20,3 +20,10 @@ export const updateObjectKeys = (response) => {
         return item;
     });
 }
+
+
+// Utility function to get the difference between degrees considering circular nature
+export function degreeDifference(deg1, deg2) {
+    let diff = Math.abs(deg1 - deg2);
+    return diff > 180 ? 360 - diff : diff;
+}
