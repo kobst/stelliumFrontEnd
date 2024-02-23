@@ -78,99 +78,99 @@ export const rulers = {
 
   const communication_headings = ["Communication and Learning Styles", "Philosophical Beliefs and Higher Learning", "Travel and Cross-Cultural Experiences"]
   
-  export const heading_map = {
-    "personality": personality_headings,
-    "home": home_headings,
-    "relationships": relationship_headings,
-    "career": career_headings,
-    "unconscious": unconscious_headings,
-    "communication": communication_headings,
-    "everything": personality_headings,
+export const heading_map = {
+  "personality": personality_headings,
+  "home": home_headings,
+  "relationships": relationship_headings,
+  "career": career_headings,
+  "unconscious": unconscious_headings,
+  "communication": communication_headings,
+  "everything": personality_headings,
 
-  }
+}
 
-  export const elements = {
-    'Fire': ["Leo", "Aries", "Sagittarius"],
-    'Earth': ["Taurus", "Virgo", "Capricorn"],
-    'Air': ["Gemini", "Libra", "Aquarius"],
-    'Water': ["Cancer", "Scorpio", "Pisces"]
-  }
-  
-  export const elementPoints = {
-    "Sun": 3,
-    "Moon": 3,
-    "Ascendant": 3,
-    "Mercury": 2,
-    "Venus": 2,
-    "Mars": 2,
-    "Saturn": 2,
-    "Jupiter": 2,
-    "Uranus": 1,
-    "Neptune": 1,
-    "Pluto": 1,
-    "Node": 1,
-    "Midheaven": 1
-  }
-  
-  export const quadrants = {
-    'SouthEast': [10, 11, 12],
-    "NorthEast": [1, 2, 3],
-    "NorthWest": [4, 5, 6],
-    "SouthWest": [7, 8, 9]
-  }
-  
-  export const modalities = {
-    'Cardinal': ["Aries", "Cancer", "Libra", "Capricorn"],
-    'Fixed': ["Taurus", "Leo", "Scorpio", "Aquarius"],
-    'Mutable': ["Gemini", "Virgo", "Sagittarius", "Pisces"]
-  }
-  
-  export const ignorePlanets = [
-    "Ascendant", "Midheaven", "Chiron", "Part of Fortune", "South Node", "Node"
-  ]
-  export const ignorePoints = ["Chiron", "Part of Fortune", "South Node"]
+export const elements = {
+  'Fire': ["Leo", "Aries", "Sagittarius"],
+  'Earth': ["Taurus", "Virgo", "Capricorn"],
+  'Air': ["Gemini", "Libra", "Aquarius"],
+  'Water': ["Cancer", "Scorpio", "Pisces"]
+}
 
-  export const planetCodes = {
-    "Sun": "00",
-    "Moon": "01",
-    "Mercury": "02",
-    "Venus": "03",
-    "Mars": "04",
-    "Jupiter": "05",
-    "Saturn": "06",
-    "Uranus": "07",
-    "Neptune": "08",
-    "Pluto": "09",
-    "Ascendant": "10",
-    "Midheaven": "11",
-    "Node": "12",
-    "South Node": "13",
-    "Chiron": "14",
-    "Part of Fortune": "15"
-  }
+export const elementPoints = {
+  "Sun": 3,
+  "Moon": 3,
+  "Ascendant": 3,
+  "Mercury": 2,
+  "Venus": 2,
+  "Mars": 2,
+  "Saturn": 2,
+  "Jupiter": 2,
+  "Uranus": 1,
+  "Neptune": 1,
+  "Pluto": 1,
+  "Node": 1,
+  "Midheaven": 1
+}
+
+export const quadrants = {
+  'SouthEast': [10, 11, 12],
+  "NorthEast": [1, 2, 3],
+  "NorthWest": [4, 5, 6],
+  "SouthWest": [7, 8, 9]
+}
+
+export const modalities = {
+  'Cardinal': ["Aries", "Cancer", "Libra", "Capricorn"],
+  'Fixed': ["Taurus", "Leo", "Scorpio", "Aquarius"],
+  'Mutable': ["Gemini", "Virgo", "Sagittarius", "Pisces"]
+}
+
+export const ignorePlanets = [
+  "Ascendant", "Midheaven", "Chiron", "Part of Fortune", "South Node", "Node"
+]
+export const ignorePoints = ["Chiron", "Part of Fortune", "South Node"]
+
+export const planetCodes = {
+  "Sun": "pSu",
+  "Moon": "pMo",
+  "Mercury": "pMe",
+  "Venus": "pVe",
+  "Mars": "pMa",
+  "Jupiter": "pJu",
+  "Saturn": "pSa",
+  "Uranus": "pUr",
+  "Neptune": "pNe",
+  "Pluto": "pPl",
+  "Ascendant": "pAs",
+  "Midheaven": "pMi",
+  "Node": "pNo",
+  "South Node": "pSo",
+  "Chiron": "pCh",
+  "Part of Fortune": "pPa"
+}
 
   export const signCodes = {
-    "Aries": "01",
-    "Taurus": "02",
-    "Gemini": "03",
-    "Cancer": "04",
-    "Leo": "05",
-    "Virgo": "06",
-    "Libra": "07",
-    "Scorpio": "08",
-    "Sagittarius": "09",
-    "Capricorn": "10",
-    "Aquarius": "11",
-    "Pisces": "12"
+    "Aries": "sAr",
+    "Taurus": "sTa",
+    "Gemini": "sGe",
+    "Cancer": "sCa",
+    "Leo": "sLe",
+    "Virgo": "sVi",
+    "Libra": "sLi",
+    "Scorpio": "sSc",
+    "Sagittarius": "sSa",
+    "Capricorn": "sCa",
+    "Aquarius": "sAq",
+    "Pisces": "sPi"
   }
 
 export const transitCodes = {
-    "conjunction": "A1",
-    "sextile": "A2",
-    "square": "A3",
-    "trine": "A4",
-    "opposition": "A5",
-    "quincunx": "A6"
+    "conjunction": "aCo",
+    "sextile": "aSe",
+    "square": "aSq",
+    "trine": "aTr",
+    "opposition": "aOp",
+    "quincunx": "aQu"
   }
 
   export const orbCodes = {

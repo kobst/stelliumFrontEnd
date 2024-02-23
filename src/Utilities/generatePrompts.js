@@ -104,10 +104,10 @@ export const generateResponse = (promptKey, birthData) => {
         const houseCode = houseNum.toString().padStart(2, '0'); // Pad the house number to ensure it's 2 digits
         const houseCodePlanet = planetData.house.toString().padStart(2, '0')
         const code =  "r-" + planetCodes[rulerPlanet] + signCodes[sign] + houseCode + signCodes[planetData.sign] + houseCodePlanet
-        return decodeRulerCode(code)
+        const descriptionFromCode = decodeRulerCode(code)
         // const description = `${rulerPlanet} ruler of ${sign} and the ${houseNum} house in ${planetData.sign} in ${planetData.house} house (${code})` 
         // responses.push(description);
-        // responses.push(`${descriptionFromCode} (${code})`)
+        responses.push(`${descriptionFromCode}`)
         // responses = responses.concat(findAspects(rulerPlanet, birthData));
       }
       birthData.planets.forEach(planetData => {

@@ -66,9 +66,9 @@ export const decodeAstrologyCode = (code) => {
 
 
     // Extract components from the code
-    const planetCode = code.substring(0, 2);
-    const signCode = code.substring(2, 4);
-    const houseCode = code.substring(4);
+    const planetCode = code.substring(0, 3);
+    const signCode = code.substring(3, 6);
+    const houseCode = code.substring(6);
 
     // Find the matching descriptions
     const planet = getKeyByValue(planetCodes, planetCode);
@@ -90,12 +90,12 @@ export const decodeAspectCode = (code) => {
 
     code = code.substring(2); 
     // Extract the components from the code
-    const planetCode = code.substring(0, 2);
-    const orbCode = code.substring(2, 3);
-    const transitCode = code.substring(3, 5); // Includes "T"
-    const otherPlanetCode = code.substring(5, 7);
-    const signCode = code.substring(7, 9);
-    const houseCode = code.substring(9);
+    const planetCode = code.substring(0, 3);
+    const orbCode = code.substring(3, 4);
+    const transitCode = code.substring(4, 7); // Includes "T"
+    const otherPlanetCode = code.substring(7, 10);
+    const signCode = code.substring(10, 13);
+    const houseCode = code.substring(13);
 
     // Find the matching descriptions
     const planetName = getKeyByValue(planetCodes, planetCode);
@@ -118,11 +118,11 @@ export const decodeRulerCode = (code) => {
         code = code.substring(2);
     }
 
-    const rulerPlanetCode = code.substring(0, 2);
-    const signCode = code.substring(2, 4);
-    const houseCode = code.substring(4, 6);
-    const planetDataSignCode = code.substring(6, 8);
-    const houseCodePlanet = code.substring(8, 10); // Assuming the last part follows the pattern
+    const rulerPlanetCode = code.substring(0, 3);
+    const signCode = code.substring(3, 6);
+    const houseCode = code.substring(6, 8);
+    const planetDataSignCode = code.substring(8, 11);
+    const houseCodePlanet = code.substring(11, 14); // Assuming the last part follows the pattern
 
     // Decode each part
     const rulerPlanet = getKeyByValue(planetCodes, rulerPlanetCode);
@@ -168,10 +168,10 @@ export const decodeHouseTransitCode = (code) => {
         code = code.substring(1);
     }
     const retroIndicator = code[1]; // 'r' for retrograde, 't' for direct
-    const planetCode = code.substring(2, 4);
-    const signCode = code.substring(4, 6);
-    const houseStatusIndicator = code[6]; // E (entering), L (leaving), T (transiting)
-    const houseCode = code.substring(7, 9); // Always two digits
+    const planetCode = code.substring(2, 5);
+    const signCode = code.substring(5, 8);
+    const houseStatusIndicator = code[8]; // E (entering), L (leaving), T (transiting)
+    const houseCode = code.substring(9); // Always two digits
 
     // Map the codes back to their descriptive values
     const retro = retroIndicator === 'r' ? 'retrograde ' : '';
@@ -208,19 +208,19 @@ export const decodeTransitCode = (code) => {
     const isRetrograde = code[1] === 'r'; // Check retrograde status directly after "P"
     code = code.substring(3); // Properly skip 'P', 'r'/'t', and '-' to start with the planet code
 
-    const transitPlanetCode = code.substring(0, 2);
-    const aspectModifier = code.substring(2, 4); // 'ap' or 'sp'
-    const orbModifier = code.charAt(4); // 'g', 'l', or 'e'
-    const aspectTypeCode = code.substring(5, 7); // Aspect code
-    const natalPlanetCode = code.substring(7, 9);
-    const natalPlanetSignCode = code.substring(9, 11);
-    const natalPlanetHouseCode = code.substring(11); // House number
+    const transitPlanetCode = code.substring(0, 3);
+    const aspectModifier = code.substring(3, 5); // 'ap' or 'sp'
+    const orbModifier = code.charAt(5); // 'g', 'l', or 'e'
+    const aspectTypeCode = code.substring(6, 9); // Aspect code
+    const natalPlanetCode = code.substring(9, 12);
+    const natalPlanetSignCode = code.substring(12, 15);
+    const natalPlanetHouseCode = code.substring(16); // House number
 
     // Decoding each component
     const retro = isRetrograde ? 'retrograde ' : '';
     const transitPlanet = getKeyByValue(planetCodes, transitPlanetCode);
     const aspectModifierText = aspectModifier === 'ap' ? '(applying)' : '(separating)';
-    const modifierText = orbModifier === 'e' ? 'exact ' : orbModifier === 'l' ? 'loose ' : orbModifier === 'g' ? 'general ' : '';
+    const modifierText = orbModifier === 'e' ? 'exact ' : orbModifier === 'l' ? 'loose ' : orbModifier === 'g' ? '' : '';
     const aspectType = getKeyByValue(transitCodes, aspectTypeCode);
     const natalPlanet = getKeyByValue(planetCodes, natalPlanetCode);
     const natalPlanetSign = getKeyByValue(signCodes, natalPlanetSignCode);
