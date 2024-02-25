@@ -163,6 +163,7 @@ export const decodeHouseTransit = (code) => {
 
 
 export const decodeHouseTransitCode = (code) => {
+    const origCode = code
     // Extract parts of the code
     if (code.startsWith("H")) { // will always start with TP
         code = code.substring(1);
@@ -195,7 +196,7 @@ export const decodeHouseTransitCode = (code) => {
     }
 
     // Construct the final description
-    const description = `${retro} ${planetName} transiting ${signName}, ${houseStatus} your ${houseNumber} house (ref: ${code})`;
+    const description = `${retro} ${planetName} transiting ${signName}, ${houseStatus} your ${houseNumber} house (ref: ${origCode})`;
 
     return description;
 }
@@ -214,7 +215,7 @@ export const decodeTransitCode = (code) => {
     const aspectTypeCode = code.substring(6, 9); // Aspect code
     const natalPlanetCode = code.substring(9, 12);
     const natalPlanetSignCode = code.substring(12, 15);
-    const natalPlanetHouseCode = code.substring(16); // House number
+    const natalPlanetHouseCode = code.substring(15); // House number
 
     // Decoding each component
     const retro = isRetrograde ? 'retrograde ' : '';
