@@ -252,16 +252,21 @@ function findTransitingHouse(transit, sortedHouses) {
         if (sortedHouses[i].degree <= transit.full_degree && transit.full_degree < sortedHouses[i + 1].degree) {
             var houseCode = (sortedHouses[i].house).toString().padStart(2, '0'); // Pad the house number to ensure it's 2 digits
             if (degreeDifference(sortedHouses[i].degree, transit.full_degree) < 2) {
-                return [`, entering your ${sortedHouses[i].house} house`, `E${houseCode}`]
+                return `E${houseCode}`
             } else if (sortedHouses[i+1] && degreeDifference(sortedHouses[i+1], transit.full_degree) < 2) {
-                return [`, leaving your ${sortedHouses[i].house} house`, `L${houseCode}`]
+                return `L${houseCode}`
             }
-            return [`in your ${sortedHouses[i].house} house`, `T${houseCode}`]
+            return `T${houseCode}`
         }
     }
+    const lastHouseCode = 12
+    if (degreeDifference(sortedHouses[11].degree, transit.full_degree) < 2) {
+        return `E${lastHouseCode}`
+    } else if (degreeDifference(sortedHouses[1], transit.full_degree) < 2) {
+        return `L${lastHouseCode}`
+    }
+    return `T${lastHouseCode}`
 
-    // If not found, the planet might be transiting the last house
-    return sortedHouses[sortedHouses.length - 1].house.toString();
 }
 
 export const findAspects = (updatedTransits, birthChart) => {
@@ -276,10 +281,11 @@ export const findAspects = (updatedTransits, birthChart) => {
     updatedTransits.forEach(transit => {
         if (transit.name === 'Ascendant') return
         // console.log(transit)
-        let retro = transit.is_retro === 'true' ? 'retrograde ' : ''
         let retroCode = transit.is_retro === 'true' ? 'r' : 't'
         let houseTransit= findTransitingHouse(transit, sortedHouses)
-        const code = "H" + retroCode + "-" + planetCodes[transit.name] + signCodes[transit.sign] + houseTransit[1]
+
+    
+        const code = "H" + retroCode + "-" + planetCodes[transit.name] + signCodes[transit.sign] + houseTransit
         // const houseDescription = `${retro} ${transit.name} transiting ${transit.sign} ${houseTransit[0]} ${code}`
         const houseDescriptionDecoded = decodeHouseTransitCode(code)
         // aspects.push(houseDescription)
