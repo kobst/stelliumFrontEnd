@@ -170,9 +170,10 @@ export const decodeHouseTransitCode = (code) => {
     }
     const retroIndicator = code[1]; // 'r' for retrograde, 't' for direct
     const planetCode = code.substring(2, 5);
-    const signCode = code.substring(5, 8);
-    const houseStatusIndicator = code[8]; // E (entering), L (leaving), T (transiting)
-    const houseCode = code.substring(9); // Always two digits
+    const signStatusIndicator = code[5]
+    const signCode = code.substring(6, 9);
+    const houseStatusIndicator = code[9]; // E (entering), L (leaving), T (transiting)
+    const houseCode = code.substring(10); // Always two digits
 
     // Map the codes back to their descriptive values
     const retro = retroIndicator === 'r' ? 'retrograde ' : '';
@@ -181,6 +182,19 @@ export const decodeHouseTransitCode = (code) => {
     const houseNumber = parseInt(houseCode, 10); // Convert string to integer
 
     // Determine house status description
+    let signStatus = ''
+    switch (signStatusIndicator) {
+        case 'E':
+            signStatus = 'entering';
+            break;
+        case 'L':
+            signStatus = 'leaving';
+            break;
+        case 'T':
+        default:
+            signStatus = 'transiting';
+            break;
+    }
     let houseStatus = '';
     switch (houseStatusIndicator) {
         case 'E':
@@ -196,7 +210,7 @@ export const decodeHouseTransitCode = (code) => {
     }
 
     // Construct the final description
-    const description = `${retro} ${planetName} transiting ${signName}, ${houseStatus} your ${houseNumber} house (ref: ${origCode})`;
+    const description = `${retro} ${planetName} ${signStatus} ${signName}, ${houseStatus} your ${houseNumber} house (ref: ${origCode})`;
 
     return description;
 }

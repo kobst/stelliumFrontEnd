@@ -239,7 +239,9 @@ function calculateAspect3(degree1, degree2, isRetro) {
     return ['', ''];
   }
 
-  
+function findTransitingSign(transit) {
+
+}  
 
 function findTransitingHouse(transit, sortedHouses) {
 
@@ -284,8 +286,16 @@ export const findAspects = (updatedTransits, birthChart) => {
         let retroCode = transit.is_retro === 'true' ? 'r' : 't'
         let houseTransit= findTransitingHouse(transit, sortedHouses)
 
+        const signTransitDegree = transit.full_degree % 30
+        let signTransit = 'T'
+        if (signTransitDegree < 3) {
+            signTransit = 'E'
+        } else if (signTransitDegree > 27) {
+            signTransit = 'L'
+        }
+
     
-        const code = "H" + retroCode + "-" + planetCodes[transit.name] + signCodes[transit.sign] + houseTransit
+        const code = "H" + retroCode + "-" + planetCodes[transit.name] + signTransit + signCodes[transit.sign] + houseTransit
         // const houseDescription = `${retro} ${transit.name} transiting ${transit.sign} ${houseTransit[0]} ${code}`
         const houseDescriptionDecoded = decodeHouseTransitCode(code)
         // aspects.push(houseDescription)

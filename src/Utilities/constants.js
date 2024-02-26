@@ -159,7 +159,7 @@ export const planetCodes = {
     "Libra": "sLi",
     "Scorpio": "sSc",
     "Sagittarius": "sSa",
-    "Capricorn": "sCa",
+    "Capricorn": "sCp",
     "Aquarius": "sAq",
     "Pisces": "sPi"
   }
