@@ -75,9 +75,9 @@ const Emphemeris = ({transits = []}) => {
     const drawZodiacWheel = (ctx, planets, houses, transits) => {
         const centerX = 300;
         const centerY = 300;
-        const outerRadius = 200;
+        const outerRadius = 160;
         const innerRadius = 90;
-        const houseCircleRadius = 220
+        const houseCircleRadius = 180
 
         // Clear the canvas
         ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -145,8 +145,8 @@ const Emphemeris = ({transits = []}) => {
                     const planetDegree = planet.full_degree;
 
                     const planetRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
-                    const planetX = centerX + (outerRadius + 50) * Math.cos(planetRadians) - 25;
-                    const planetY = centerY + (outerRadius +50) * Math.sin(planetRadians) - 25;
+                    const planetX = centerX + (outerRadius + 60) * Math.cos(planetRadians) - 25;
+                    const planetY = centerY + (outerRadius + 60) * Math.sin(planetRadians) - 25;
     
                     const planetImage = new Image();
                     planetImage.src = planetIcons[planetIndex];
