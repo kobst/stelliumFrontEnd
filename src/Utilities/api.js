@@ -80,13 +80,14 @@ export const postProgressedChart = async (birthData) => {
 };
 
 // Function to post birth data
-export const postDailyTransit = async () => {
+export const postDailyTransit = async (birthData) => {
   try {
     const response = await fetch(`${SERVER_URL}/dayTransits`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify(birthData)
     });
 
     if (!response.ok) {
@@ -102,6 +103,31 @@ export const postDailyTransit = async () => {
   }
 };
 
+
+// Function to post birth data
+export const postPromptGeneration = async (birthchart) => {
+  try {
+    console.log(`${SERVER_URL}/promptGeneration`)
+    const response = await fetch(`${SERVER_URL}/promptGeneration`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(birthchart)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    // console.log(responseData)
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
 
 
 // Function to post birth data

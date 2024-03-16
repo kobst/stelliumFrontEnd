@@ -1,5 +1,5 @@
 import { updateObjectKeys, degreeDifference } from "./helpers";
-import { decodeHouseTransitCode, decodeTransitCode } from "./decoder";
+import { decodeHouseTransitCode, decodeTransitNatalAspectCode } from "./decoder";
 import { planetCodes, signCodes, transitCodes } from "./constants";
 
 
@@ -17,64 +17,64 @@ const orbDescription = (orb) => {
     }
   }
 
-  function calculateAspect(degree1, degree2, isRetro) {
-    const aspects = [0, 60, 90, 120, 150, 180]; // Conjunction, Sextile, Square, Trine, Opposite
-    let aspectType = '';
-    let isApplying = false;
+//   function calculateAspect(degree1, degree2, isRetro) {
+//     const aspects = [0, 60, 90, 120, 150, 180]; // Conjunction, Sextile, Square, Trine, Opposite
+//     let aspectType = '';
+//     let isApplying = false;
 
-    for (let aspectDegree of aspects) {
-        let perfectAspectDegree = degree1 + aspectDegree;
+//     for (let aspectDegree of aspects) {
+//         let perfectAspectDegree = degree1 + aspectDegree;
 
-        // Adjust if over 360 degrees
-        if (perfectAspectDegree >= 360) {
-            perfectAspectDegree -= 360;
-        }
+//         // Adjust if over 360 degrees
+//         if (perfectAspectDegree >= 360) {
+//             perfectAspectDegree -= 360;
+//         }
 
-        // Calculate diff considering the circular nature of zodiac
-        let diff = Math.abs(degree2 - perfectAspectDegree);
-        if (diff > 180) {
-            diff = 360 - diff;
-        }
+//         // Calculate diff considering the circular nature of zodiac
+//         let diff = Math.abs(degree2 - perfectAspectDegree);
+//         if (diff > 180) {
+//             diff = 360 - diff;
+//         }
 
-        if (perfectAspectDegree > 357) {
-            if (degree2 >= perfectAspectDegree || degree2 < (3 - (360 - perfectAspectDegree))) {
-                isApplying = true
-            } 
-        // } else if (perfectAspectDegree < 3) {
-        //     if (degree2 >= perfectAspectDegree || degree2 < (3 - (360 - perfectAspectDegree))) {
-        //         isApplying = true
-        //     } 
-        } else {
-            if (degree2 >= perfectAspectDegree && degree2 <= perfectAspectDegree) {
-                isApplying = true;
-            } 
-        }
+//         if (perfectAspectDegree > 357) {
+//             if (degree2 >= perfectAspectDegree || degree2 < (3 - (360 - perfectAspectDegree))) {
+//                 isApplying = true
+//             } 
+//         // } else if (perfectAspectDegree < 3) {
+//         //     if (degree2 >= perfectAspectDegree || degree2 < (3 - (360 - perfectAspectDegree))) {
+//         //         isApplying = true
+//         //     } 
+//         } else {
+//             if (degree2 >= perfectAspectDegree && degree2 <= perfectAspectDegree) {
+//                 isApplying = true;
+//             } 
+//         }
 
-        isApplying = isRetro ? !isApplying : isApplying
+//         isApplying = isRetro ? !isApplying : isApplying
 
-        // Check if the aspect is within orb
-        if (diff <= 3) {
-            let exactness = diff < 1 ? 'exact ' : '';
-            switch (aspectDegree) {
-                case 0: aspectType = `${exactness}Conjunction`; break;
-                case 60: aspectType = `${exactness}Sextile`; break;
-                case 90: aspectType = `${exactness}Square`; break;
-                case 120: aspectType = `${exactness}Trine`; break;
-                case 150: aspectType =  `${exactness}Quincunx`; break;
-                case 180: aspectType = `${exactness}Opposite`; break;
-                default: break;
-            }
-            break; // Exit the loop as aspect is found
-        }
-    }
+//         // Check if the aspect is within orb
+//         if (diff <= 3) {
+//             let exactness = diff < 1 ? 'exact ' : '';
+//             switch (aspectDegree) {
+//                 case 0: aspectType = `${exactness}Conjunction`; break;
+//                 case 60: aspectType = `${exactness}Sextile`; break;
+//                 case 90: aspectType = `${exactness}Square`; break;
+//                 case 120: aspectType = `${exactness}Trine`; break;
+//                 case 150: aspectType =  `${exactness}Quincunx`; break;
+//                 case 180: aspectType = `${exactness}Opposite`; break;
+//                 default: break;
+//             }
+//             break; // Exit the loop as aspect is found
+//         }
+//     }
 
-    if (aspectType !== '') {
-        const aspectStatus = isApplying ? 'applying' : 'separating';
-        return `${aspectType} (${aspectStatus})`;
-    }
+//     if (aspectType !== '') {
+//         const aspectStatus = isApplying ? 'applying' : 'separating';
+//         return `${aspectType} (${aspectStatus})`;
+//     }
 
-    return '';
-}
+//     return '';
+// }
 
   
 
@@ -186,7 +186,7 @@ const orbDescription = (orb) => {
 
 
 
-function calculateAspect3(degree1, degree2, isRetro) {
+function calculateAspect(degree1, degree2, isRetro) {
     let diff = Math.abs(degree1 - degree2);
     diff = diff > 180 ? 360 - diff : diff;
   
@@ -210,7 +210,6 @@ function calculateAspect3(degree1, degree2, isRetro) {
         code = orbDiff < 1 ? 'e' + code : 'g' + code;
 
 
-
         let perfectOrbDegree = degree1 + aspect.orb
         perfectOrbDegree = perfectOrbDegree > 360 ? perfectOrbDegree - 360 : perfectOrbDegree
   
@@ -232,16 +231,13 @@ function calculateAspect3(degree1, degree2, isRetro) {
             }
         }
   
-        return [aspectType, code];
+        return code;
       }
     }
   
-    return ['', ''];
+    return '';
   }
 
-function findTransitingSign(transit) {
-
-}  
 
 function findTransitingHouse(transit, sortedHouses) {
 
@@ -271,10 +267,11 @@ function findTransitingHouse(transit, sortedHouses) {
 
 }
 
-export const findAspects = (updatedTransits, birthChart) => {
+export const findAspects = (updatedTransits, birthChart, type) => {
     // const updatedTransits = updateObjectKeys(transits);
     // console.log(updatedTransits)
         // Sort the houses by degree for proper comparison
+    const typeDescriptor = type === 'progressed' ? 'G' : 'T'
     const sortedHouses = birthChart.houses.slice().sort((a, b) => a.degree - b.degree);
     sortedHouses.push({ house: 1, sign: sortedHouses[0].sign, degree: sortedHouses[0].degree + 360 });
     const aspects = [];
@@ -294,26 +291,18 @@ export const findAspects = (updatedTransits, birthChart) => {
             signTransit = 'L'
         }
 
-    
-        const code = "H" + retroCode + "-" + planetCodes[transit.name] + signTransit + signCodes[transit.sign] + houseTransit
+        const code = "H" + typeDescriptor + "-" + retroCode + planetCodes[transit.name] + signTransit + signCodes[transit.sign] + houseTransit
         // const houseDescription = `${retro} ${transit.name} transiting ${transit.sign} ${houseTransit[0]} ${code}`
         const houseDescriptionDecoded = decodeHouseTransitCode(code)
         // aspects.push(houseDescription)
         aspects.push(houseDescriptionDecoded)
         birthChart.planets.forEach(birthPlanet => {
             if (["South Node", "Chiron", "Part of Fortune"].includes(birthPlanet.name)) return
-            // var transitAspects = []
-            // const aspect = calculateAspect(transit.full_degree, birthPlanet.full_degree, transit.name);
-            const aspect3 = calculateAspect3(transit.full_degree, birthPlanet.full_degree, transit.is_retro);
-            if (aspect3[0] !== '') {
-
+            const aspect = calculateAspect(transit.full_degree, birthPlanet.full_degree, transit.is_retro);
+            if (aspect !== '') {
                 const birthPlanetHouseCode = birthPlanet.house.toString().padStart(2, '0'); // Pad the house number to ensure it's 2 digits
-                const code = "P" + retroCode + "-" + planetCodes[transit.name] + aspect3[1] + planetCodes[birthPlanet.name] + signCodes[birthPlanet.sign] + birthPlanetHouseCode
-                // const transitDescription =  `${retro} ${transit.name} ${aspect} to ${birthPlanet.name} in ${birthPlanet.sign} in your ${birthPlanet.house} house`;
-                // const transitDescription3 =  `${retro} ${transit.name} ${aspect3[0]} to ${birthPlanet.name} in ${birthPlanet.sign} in your ${birthPlanet.house} house ${code}`;
-                const decodedDesciption = decodeTransitCode(code)
-                // aspects.push(transitDescription)
-                // aspects.push(transitDescription3)
+                const code = typeDescriptor + "N-" + retroCode + planetCodes[transit.name] + aspect + planetCodes[birthPlanet.name] + signCodes[birthPlanet.sign] + birthPlanetHouseCode
+                const decodedDesciption = decodeTransitNatalAspectCode(code)
                 aspects.push(decodedDesciption)
             } 
         });
@@ -322,8 +311,7 @@ export const findAspects = (updatedTransits, birthChart) => {
     return aspects;
 }
 
-// const aspects = findAspects(transits, birthData);
-// console.log(aspects);
+
 
 
 

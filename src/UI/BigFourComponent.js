@@ -13,7 +13,7 @@ const BigFourComponent = ({ bigFourType }) => {
     const setBigFourMap = useStore(state => state.setBigFourMap)
     const bigFourMap = useStore(state => state.bigFourResponsesMap)
 
-    console.log(bigFourMap)
+    // console.log(bigFourMap)
 
     useEffect(() => {
         setSubHeadings(heading_map[bigFourType]);
@@ -64,7 +64,7 @@ const BigFourComponent = ({ bigFourType }) => {
         <div>
             {promptData !== "" && (
                 <div>
-                    <pre>{renderPromptDataWithRefs()}</pre>  
+                    <pre className='prompts'>{renderPromptDataWithRefs()}</pre>  
                     <button onClick={() => subHeadings.forEach(generateResponse)}>Generate Responses</button>
                 </div>
             )}

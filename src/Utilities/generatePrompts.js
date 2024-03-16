@@ -1,5 +1,4 @@
 
-import { findRenderedDOMComponentWithClass } from "react-dom/test-utils";
 import { 
   elements, 
   elementPoints,
@@ -13,7 +12,7 @@ import {
   ignorePlanets, 
   ignorePoints } from "./constants";
 
-import { decodeAstrologyCode, decodeAspectCode, decodeRulerCode } from "./decoder";
+import { decodePlanetHouseCode, decodeAspectCode, decodeRulerCode } from "./decoder";
 
 export const orbDescription = (orb) => {
     if (orb < 1) {
@@ -87,7 +86,7 @@ export const generateResponse = (promptKey, birthData) => {
         // responses.push(`${planet} in ${planetData.sign} in the ${planetData.house} house (${code})`);
       }
 
-      let description = decodeAstrologyCode(code)
+      let description = decodePlanetHouseCode(code)
       responses.push(`${description}  (ref: ${code})`)
       // Assuming findAspects is a function defined elsewhere
       responses = responses.concat(findAspects(planet, birthData));
@@ -101,9 +100,10 @@ export const generateResponse = (promptKey, birthData) => {
       const rulerPlanet = rulers[sign]; // Assuming rulers is an object defined elsewhere
       if (rulerPlanet) {
         const planetData = birthData.planets.find(p => p.name === rulerPlanet);
+        const rulerRetroCode = planetData.is_retro === 'true' ? 'Rr-' : 'Rp-'
         const houseCode = houseNum.toString().padStart(2, '0'); // Pad the house number to ensure it's 2 digits
         const houseCodePlanet = planetData.house.toString().padStart(2, '0')
-        const code =  "r-" + planetCodes[rulerPlanet] + signCodes[sign] + houseCode + signCodes[planetData.sign] + houseCodePlanet
+        const code =  rulerRetroCode + planetCodes[rulerPlanet] + signCodes[sign] + houseCode + signCodes[planetData.sign] + houseCodePlanet
         const descriptionFromCode = decodeRulerCode(code)
         // const description = `${rulerPlanet} ruler of ${sign} and the ${houseNum} house in ${planetData.sign} in ${planetData.house} house (${code})` 
         // responses.push(description);
@@ -125,7 +125,7 @@ export const generateResponse = (promptKey, birthData) => {
                 code = "Pp-" + code
                 // responses.push(`${planetData.name} in ${planetData.sign} in the ${planetData.house} house (${code})`);
             }
-            let description = decodeAstrologyCode(code) 
+            let description = decodePlanetHouseCode(code) 
             responses.push(`${description} (${code})`)
             responses = responses.concat(findAspects(planetData.name, birthData));
           }

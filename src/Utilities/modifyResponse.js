@@ -63,9 +63,6 @@ function addSouthNode(rawResponse) {
   }
   
 function modifyRawResponse(rawResponse) {
-
- 
-
   if (rawResponse.planets) {
     for (let planet of rawResponse.planets) {
       if (planet.name === "Ascendant") {
@@ -74,15 +71,10 @@ function modifyRawResponse(rawResponse) {
       }
     }
   }
-
-
   const ascendantObject = generatePlanetObject("ascendant", rawResponse, 1);
   const midheavenObject = generatePlanetObject("midheaven", rawResponse, 10);
   // console.log(rawResponse)
   const southNodeObject = addSouthNode(rawResponse); 
-
-
-  
     rawResponse["planets"].splice(10, 0, ascendantObject);
     rawResponse["planets"].splice(11, 0, midheavenObject);
     rawResponse["planets"].splice(13, 0, southNodeObject);

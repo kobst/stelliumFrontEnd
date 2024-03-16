@@ -5,7 +5,7 @@ import ResponseContext from '../Utilities/ResponseContext';
 import { updateObjectKeys } from '../Utilities/helpers';
 
 import GoogleAutocomplete from 'react-google-autocomplete';
-import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart } from '../Utilities/api'; 
+import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration } from '../Utilities/api'; 
 import useStore from '../Utilities/store';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
@@ -17,17 +17,16 @@ const SimpleForm = () => {
   const [lon, setLon] = useState('');
 
   const setRawBirthData = useStore(state => state.setRawBirthData);
-  const setModifiedBirthData = useStore(state => state.setModifiedBirthData);
   const setBirthDate = useStore(state => state.setBirthDate);
   const setProgressedBirthData = useStore(state => state.setProgressedBirthData);
   const setDailyTransits = useStore(state => state.setDailyTransits)
   const setAscendantDegree = useStore(state => state.setAscendantDegree)
+  const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
 
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setRawBirthData('')
-    setModifiedBirthData('')
     setBirthDate({})
  
     try {
@@ -47,15 +46,29 @@ const SimpleForm = () => {
         setBirthDate(birthData)
         const response = await postBirthData(birthData)
         const responseProgressed = await postProgressedChart(birthData)
-        const todaysPositions = await postDailyTransit();
-  
-        // console.log(response)
+        const todaysPositions = await postDailyTransit(birthData);
+        const promptMapResponse = await postPromptGeneration(response.chartData)
+        const promptDescriptionsMap = promptMapResponse.promptDescriptionsMap
 
-        setDailyTransits(updateObjectKeys(todaysPositions.chartData))
-        setProgressedBirthData(updateObjectKeys(responseProgressed.chartData))
+        console.log("PROMPT MAP")
+        
+        setPromptDescriptionsMap('personality', promptDescriptionsMap['personality'])
+        setPromptDescriptionsMap('home', promptDescriptionsMap['home'])
+        setPromptDescriptionsMap('relationships', promptDescriptionsMap['relationships'])
+        setPromptDescriptionsMap('career', promptDescriptionsMap['career'])
+        setPromptDescriptionsMap('everything', promptDescriptionsMap['everything'])
+        setPromptDescriptionsMap('unconscious', promptDescriptionsMap['unconscious'])
+        setPromptDescriptionsMap('communication', promptDescriptionsMap['communication'])
+        setPromptDescriptionsMap('Quadrants', promptDescriptionsMap['quadrants'])
+        setPromptDescriptionsMap('Elements', promptDescriptionsMap['elements'])
+        setPromptDescriptionsMap('Modalities', promptDescriptionsMap['modalities'])
+        setPromptDescriptionsMap('Pattern', promptDescriptionsMap['pattern'])
+
+
+        setDailyTransits(todaysPositions.chartData)
+        setProgressedBirthData(responseProgressed.chartData)
         setAscendantDegree(response.chartData['ascendant'])
         setRawBirthData(response.chartData);
-
 
 
     } catch (error) {

@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const data = require('./descriptionLookup.json');
+const data = require('../Utilities/descriptionLookup.json');
 
 /**
  * Takes an object with descriptive codes as values and replaces them with a 6-digit incrementing number.

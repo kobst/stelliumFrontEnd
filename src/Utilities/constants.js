@@ -1,4 +1,3 @@
-// missing 3, 8, 9, 11, 12
 
 export const relevantPromptAspects = {
     "personality": {
@@ -12,7 +11,6 @@ export const relevantPromptAspects = {
         "Venus",
         "Mars",
         "Ascendant",
-        // "Uranus"
       ],
       "houses": [5, 7, 11]
     },
@@ -179,3 +177,10 @@ export const transitCodes = {
     "exact": "E",
     "": "G",
   }
+
+  export const chart = {
+    "natal": "Na-",
+    "progressed": "Pg-",
+    "transiting": "Tr-"
+  }
+

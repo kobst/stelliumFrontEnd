@@ -1,61 +1,11 @@
 import { planetCodes, signCodes, orbCodes, transitCodes, rulers } from './constants';
 
-// const planetCodes = {
-//     "Sun": "00",
-//     "Moon": "01",
-//     "Mercury": "02",
-//     "Venus": "03",
-//     "Mars": "04",
-//     "Jupiter": "05",
-//     "Saturn": "06",
-//     "Uranus": "07",
-//     "Neptune": "08",
-//     "Pluto": "09",
-//     "Ascendant": "10",
-//     "Midheaven": "11",
-//     "Node": "12",
-//     "South Node": "13",
-//     "Chiron": "14",
-//     "Part of Fortune": "15"
-//   }
-
-//  const signCodes = {
-//     "Aries": "01",
-//     "Taurus": "02",
-//     "Gemini": "03",
-//     "Cancer": "04",
-//     "Leo": "05",
-//     "Virgo": "06",
-//     "Libra": "07",
-//     "Scorpio": "08",
-//     "Sagittarius": "09",
-//     "Capricorn": "10",
-//     "Aquarius": "11",
-//     "Pisces": "12"
-//   }
-
-//  const transitCodes = {
-//     "conjunction": "T01",
-//     "sextile": "T02",
-//     "square": "T03",
-//     "trine": "T04",
-//     "opposition": "T05",
-//   }
-
-//  const orbCodes = {
-//     "loose": "L",
-//     "close": "C",
-//     "exact": "E",
-//     "": "G",
-//   }
-
-
 // Helper function to find a key by its value in an object
 function getKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value);
 }
 
-export const decodeAstrologyCode = (code) => {
+export const decodePlanetHouseCode = (code) => {
     // Check for retrograde
     let isRetrograde = false;
 
@@ -113,10 +63,16 @@ export const decodeAspectCode = (code) => {
 
 export const decodeRulerCode = (code) => {
     // Split the code into its components
-     // Strip the initial 'r-' if present
-     if (code.startsWith("r-")) {
-        code = code.substring(2);
+     const origCode = code
+
+    // Check for retrograde
+    let isRetrograde = false;
+
+    if (code.startsWith('Rr')) {
+        isRetrograde = true;
     }
+    code = code.substring(3); // Remove the 'R' prefix for processing
+
 
     const rulerPlanetCode = code.substring(0, 3);
     const signCode = code.substring(3, 6);
@@ -132,9 +88,10 @@ export const decodeRulerCode = (code) => {
     const planetDataHouse = parseInt(houseCodePlanet, 10);
 
     // Construct the description
-    const description = `${rulerPlanet} ruler of ${sign} and the ${houseNum} house in ${planetDataSign} in the ${planetDataHouse} house (ref: ${code})`;
-
-    return description;
+    if (isRetrograde) {
+        return`retrograde ${rulerPlanet} ruler of ${sign} and the ${houseNum} house in ${planetDataSign} in the ${planetDataHouse} house (ref: ${origCode})`;
+    } 
+    return`${rulerPlanet} ruler of ${sign} and the ${houseNum} house in ${planetDataSign} in the ${planetDataHouse} house (ref: ${origCode})`;
 }
 
 
@@ -165,10 +122,11 @@ export const decodeHouseTransit = (code) => {
 export const decodeHouseTransitCode = (code) => {
     const origCode = code
     // Extract parts of the code
-    if (code.startsWith("H")) { // will always start with TP
-        code = code.substring(1);
-    }
-    const retroIndicator = code[1]; // 'r' for retrograde, 't' for direct
+
+    const typeTransit = code[1] === 'G' ? 'progressed' : 'transiting'
+
+    code = code.substring(2)
+    const retroIndicator = code[0]; // 'r' for retrograde, 't' for direct
     const planetCode = code.substring(2, 5);
     const signStatusIndicator = code[5]
     const signCode = code.substring(6, 9);
@@ -192,7 +150,7 @@ export const decodeHouseTransitCode = (code) => {
             break;
         case 'T':
         default:
-            signStatus = 'transiting';
+            signStatus = 'in';
             break;
     }
     let houseStatus = '';
@@ -205,31 +163,36 @@ export const decodeHouseTransitCode = (code) => {
             break;
         case 'T':
         default:
-            houseStatus = 'transiting';
+            houseStatus = 'in';
             break;
     }
 
     // Construct the final description
-    const description = `${retro} ${planetName} ${signStatus} ${signName}, ${houseStatus} your ${houseNumber} house (ref: ${origCode})`;
+    const description = `${typeTransit} ${retro} ${planetName} ${signStatus} ${signName}, ${houseStatus} your ${houseNumber} house (ref: ${origCode}) ${retroIndicator}`;
 
     return description;
 }
 
 
 
-export const decodeTransitCode = (code) => {
+export const decodeTransitNatalAspectCode = (code) => {
 
     const origCode = code
-    const isRetrograde = code[1] === 'r'; // Check retrograde status directly after "P"
-    code = code.substring(3); // Properly skip 'P', 'r'/'t', and '-' to start with the planet code
 
-    const transitPlanetCode = code.substring(0, 3);
-    const aspectModifier = code.substring(3, 5); // 'ap' or 'sp'
-    const orbModifier = code.charAt(5); // 'g', 'l', or 'e'
-    const aspectTypeCode = code.substring(6, 9); // Aspect code
-    const natalPlanetCode = code.substring(9, 12);
-    const natalPlanetSignCode = code.substring(12, 15);
-    const natalPlanetHouseCode = code.substring(15); // House number
+    const typeTransit = code[0] === 'G' ? 'progressed' : 'transiting'
+
+    code = code.substring(2)
+
+    const isRetrograde = code[0] === 'r'; // Check retrograde status directly after "P"
+    // code = code.substring(3); // Properly skip 'P', 'r'/'t', and '-' to start with the planet code
+
+    const transitPlanetCode = code.substring(2, 5);
+    const aspectModifier = code.substring(5, 7); // 'ap' or 'sp'
+    const orbModifier = code.charAt(7); // 'g', 'l', or 'e'
+    const aspectTypeCode = code.substring(8, 11); // Aspect code
+    const natalPlanetCode = code.substring(11, 14);
+    const natalPlanetSignCode = code.substring(14, 17);
+    const natalPlanetHouseCode = code.substring(17); // House number
 
     // Decoding each component
     const retro = isRetrograde ? 'retrograde ' : '';
@@ -242,42 +205,13 @@ export const decodeTransitCode = (code) => {
     const houseNumber = parseInt(natalPlanetHouseCode, 10);
 
     // Constructing the description
-    const description = `${retro}${transitPlanet} ${aspectModifierText} ${modifierText}${aspectType} to ${natalPlanet} in ${natalPlanetSign} in your ${houseNumber} house (ref: ${origCode})`;
+    const description = `${typeTransit} ${retro}${transitPlanet} ${aspectModifierText} ${modifierText}${aspectType} to ${natalPlanet} in ${natalPlanetSign} in your ${houseNumber} house (ref: ${origCode})`;
 
     return description;
 
-    // if (code.startsWith("P")) {
-    //     code = code.substring(2); // Skip 'P' and the next character (t/r) and the dash
-    // }
-    // const retroIndicator = code[0]; // 'r' for retrograde, 't' for direct, adjusted after skipping 'P'
-    // const transitPlanetCode = code.substring(1, 3);
-    // const aspectModifier = code.substring(3, 5); // 'ap' or 'sp'
-    // const orbModifier = code.charAt(5); // 'g', 'l', or 'e'
-    // const aspectTypeCode = code.substring(6, 8); // Aspect code
-    // const natalPlanetCode = code.substring(8, 10);
-    // const natalPlanetSignCode = code.substring(10, 12);
-    // const natalPlanetHouseCode = code.substring(12); // House number
-
-    // // Decoding each component
-    // const retro = isRetrograde === 'r' ? 'retrograde ' : '';
-    // const transitPlanet = getKeyByValue(planetCodes, transitPlanetCode);
-    // const aspectModifierText = aspectModifier === 'ap' ? '(applying)' : '(separating)';
-    // const modifierText = orbModifier === 'e' ? 'exact ' : orbModifier === 'l' ? 'loose ' : ' ';
-    // const aspectType = getKeyByValue(transitCodes, aspectTypeCode);
-    // const natalPlanet = getKeyByValue(planetCodes, natalPlanetCode);
-    // const natalPlanetSign = getKeyByValue(signCodes, natalPlanetSignCode);
-    // const houseNumber = parseInt(natalPlanetHouseCode, 10);
-
-    // // Constructing the description
-    // const description = `${retro}${transitPlanet} ${aspectModifierText} ${modifierText}${aspectType} to ${natalPlanet} in ${natalPlanetSign} in your ${houseNumber} house`;
-
-    // return description;
-
-
-
-    
 }
 
+// aspects within a transiting or progressed planets, not relative to natal 
 export const decodeTransitAspectCode = (aspectCode) => {
     // Example decoding logic, adjust according to your aspectCode structure
     const aspectTypeKey = aspectCode.charAt(1); // Assuming the second char is the key for aspect type
@@ -292,37 +226,41 @@ export const decodeTransitAspectCode = (aspectCode) => {
     return { aspectType, modifiers };
 }
 
+export const decodeAspectsInTransits = (code) => {
+    // Determine if the aspect is for progressed or transiting planets
+    const typeTransit = code.startsWith('GG') ? 'Progressed' : 'Transiting';
 
-// function decodeTransitCode(code) {
-//     const retroCode = code[1]; // Second character indicates retrograde status
-//     const planetCode = code.substring(2, 4);
-//     const signCode = code.substring(4, 6);
-//     const houseCode = code.substring(6);
+    // Extracting encoded parts directly using substring
+    const retroIndicatorA = code[3];
+    const transitPlanetCode = code.substring(4, 7);
+    const transitPlanetSign = code.substring(7, 10)
 
-//     const retro = retroCode === 'r' ? 'retrograde ' : '';
-//     const planetName = getKeyByValue(planetCodes, planetCode);
-//     const signName = getKeyByValue(signCodes, signCode);
-//     const house = parseInt(houseCode, 10);
+    const aspectModifier = code.substring(10, 12); // 'ap' or 'sp'
+    const orbModifier = code[12]; // 'g', 'l', or 'e'
+    const aspectTypeCode = code.substring(13, 16); 
+    const retroIndicatorB = code[16];
+    const otherPlanetCode = code.substring(17, 20);
 
-//     return `${retro}${planetName} transiting ${signName} ${house}`;
-// }
+    const otherSignCode = code.substring(20, 23);
+    const retroA = retroIndicatorA === 'r' ? 'retrograde ' : '';
+    const retroB = retroIndicatorB === 'r' ? 'retrograde ' : '';
+
+    // Decoding each component
+    const transitPlanet = getKeyByValue(planetCodes, transitPlanetCode);
+    const transitSign = getKeyByValue(signCodes, transitPlanetSign)
+    const otherPlanet = getKeyByValue(planetCodes, otherPlanetCode);
+    const aspectModifierText = aspectModifier === 'ap' ? '(applying)' : '(separating)';
+    const modifierText = orbModifier === 'e' ? 'exact ' : orbModifier === 'l' ? 'loose ' : '';
+    const aspectType = getKeyByValue(transitCodes, aspectTypeCode);
+    const sign = getKeyByValue(signCodes, otherSignCode);
+    // const houseNumber = parseInt(houseCode, 10);
+
+    // Constructing the description
+    const description = `${typeTransit} ${retroA}${transitPlanet} in ${transitSign} ${aspectModifierText} ${modifierText}${aspectType} to ${typeTransit} ${retroB}${otherPlanet} in ${sign}`;
+
+    return description;
+}
 
 
-// function decodeTransitAspectCode(code) {
-//     const retroCode = code[0] === 'r' ? 'retrograde ' : ''; // Assumes 'r' or direct assumption
-//     const planetCode = code.substring(1, 3); // Adjust based on actual structure
-//     const aspectCode = code.substring(3, 5); // Simplified for illustration
-//     const otherPlanetCode = code.substring(5, 7);
-//     const signCode = code.substring(7, 9);
-//     const houseCode = code.substring(9);
 
-//     const retro = retroCode ? 'retrograde ' : '';
-//     const planetName = getKeyByValue(planetCodes, planetCode);
-//     const aspectType = decodeAspectType(aspectCode); // This function needs to interpret aspect + orb + applying
-//     const otherPlanetName = getKeyByValue(planetCodes, otherPlanetCode);
-//     const signName = getKeyByValue(signCodes, signCode);
-//     const house = parseInt(houseCode, 10);
-
-//     return `${retro}${planetName} ${aspectType} to ${otherPlanetName} in ${signName} in your ${house} house`;
-// }
 

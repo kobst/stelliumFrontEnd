@@ -21,8 +21,8 @@ const useStore = create(set => ({
   progressedTransitDescriptions: '',
   setProgressedTransitDescriptions: (response) => set({progressedTransitDescriptions: response}),
   
-  modifiedBirthData: '',
-  setModifiedBirthData: (response) => set({ modifiedBirthData: response }),
+//   modifiedBirthData: '',
+//   setModifiedBirthData: (response) => set({ modifiedBirthData: response }),
 
   progressedBirthData: '',
   setProgressedBirthData: (response) => set({ progressedBirthData: response }),

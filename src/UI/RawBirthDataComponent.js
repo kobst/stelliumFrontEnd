@@ -2,6 +2,9 @@ import React, { useEffect } from 'react';
 import useStore from '../Utilities/store';
 import modifyRawResponse from '../Utilities/modifyResponse';
 import { findAspects } from '../Utilities/generateTransitDescriptions'
+import { findAspectsInTransits } from '../Utilities/transitsAspects';
+import { postPromptGeneration } from '../Utilities/api';
+
 import {generateResponse, findPlanetsInQuadrant, findPlanetsInElements, findPlanetsInModalities} from '../Utilities/generatePrompts';
 import { identifyBirthChartPattern } from '../Utilities/patternSummarizer';
 
@@ -13,50 +16,23 @@ const RawBirthDataComponent = () => {
     const progressedBirthData = useStore(state => state.progressedBirthData);
     const setModifiedBirthData = useStore(state => state.setModifiedBirthData);
     const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
-    // const setAscendantDegree = useStore(state => state.setAscendantDegree)
     const setDailyTransitDescriptions = useStore(state => state.setDailyTransitDescriptions);
     const setProgressedTransitDescriptions = useStore(state => state.setProgressedTransitDescriptions)
 
-    useEffect(() => {
-        // if (rawBirthData !== '' && todaysTransits !== '' && progressedBirthData !== ''){
-            // setAscendantDegree(rawBirthData['ascendant'])
-        if (rawBirthData !== ''){
+    useEffect(  () => {
 
-            const pattern = identifyBirthChartPattern(rawBirthData)
-            const modified = modifyRawResponse(rawBirthData)
-            console.log(modified)
-            const everything = generateResponse('everything', modified)
-            const personality = generateResponse('personality', modified)
-            const home = generateResponse('home', modified)
-            const relationships = generateResponse('relationships', modified)
-            const career = generateResponse('career', modified)
-            const unconscious = generateResponse('unconscious', modified)
-            const communication = generateResponse('communication', modified)
-            const quadrants = findPlanetsInQuadrant(modified)
-            const elements = findPlanetsInElements(modified)
-            const modalities = findPlanetsInModalities(modified)
+        if (rawBirthData !== ''){
+            const modified = rawBirthData
             const todaysTransitDescriptions = findAspects(todaysTransits, modified )
-            const progressedTransitDescriptions = findAspects(progressedBirthData, modified )
+            const progressedTransitDescriptions = findAspects(progressedBirthData, modified, 'progressed' )
+            // const progressedAspects = findAspectsInTransits(progressedBirthData, "progressed")
+            // console.log("progressed aspects")
+            // console.log(progressedAspects)
             
             setProgressedTransitDescriptions(progressedTransitDescriptions)
             setDailyTransitDescriptions(todaysTransitDescriptions)
-            setPromptDescriptionsMap('personality', personality)
-            setPromptDescriptionsMap('home', home)
-            setPromptDescriptionsMap('relationships', relationships)
-            setPromptDescriptionsMap('career', career)
-            setPromptDescriptionsMap('everything', everything)
-            setPromptDescriptionsMap('unconscious', unconscious)
-            setPromptDescriptionsMap('communication', communication)
-            setPromptDescriptionsMap('Quadrants', quadrants)
-            setPromptDescriptionsMap('Elements', elements)
-            setPromptDescriptionsMap('Modalities', modalities)
-            setPromptDescriptionsMap('Pattern', pattern)
-            setModifiedBirthData(modified)
-            // console.log(JSON.stringify(modified, null, 2))
-
         }
         
-
     }, [rawBirthData, todaysTransits, setPromptDescriptionsMap, setModifiedBirthData])
 
 

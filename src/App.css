@@ -110,6 +110,7 @@ form {
   height: 250px; /* Fixed height */
   overflow-y: auto; /* Makes it scrollable */
   text-align: left; /* Aligns text to the left */
+  font-size: small;
 }
 
 .tab-menu, .planet-menu {
@@ -149,6 +150,12 @@ form {
   overflow-wrap: break-word; /* Ensures text breaks in a way that prevents overflow */
   max-width: 100%; /* Restrict width to the parent container */
   overflow-x: auto; /* Adds a scrollbar if content overflows horizontally */
+  font-size: small;
+
+}
+
+.prompts {
+  text-align: left;
 }
 
 
