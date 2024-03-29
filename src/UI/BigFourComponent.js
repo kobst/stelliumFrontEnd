@@ -21,7 +21,7 @@ const BigFourComponent = ({ bigFourType }) => {
     }, [bigFourType, promptDescriptionsMap]);
 
     async function generateResponse(heading) {
-        const modifiedInput = promptData + "\n" + heading;
+        const modifiedInput = promptData + "\n" + heading + "\nEvery time you mention a particular aspect or position, please include its reference number provided";
         try {
           const response = await postGptResponse(modifiedInput);
         //   setResponses(prevResponses => ({
