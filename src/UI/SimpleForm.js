@@ -79,15 +79,15 @@ const SimpleForm = () => {
   
 
   return (
-    <div>
+    <div >
       <form onSubmit={handleSubmit}>
         <label htmlFor="date">Date:</label>
-        <input type="date" id="date" name="date" value={date} onChange={e => setDate(e.target.value)} /><br /><br />
+        <input type="date" id="date" name="date" value={date} onChange={e => setDate(e.target.value)} style={{ color: 'black' }}/><br /><br />
 
         <label htmlFor="time">Time:</label>
-        <input type="time" id="time" name="time" value={time} onChange={e => setTime(e.target.value)} /><br /><br />
+        <input type="time" id="time" name="time" value={time} onChange={e => setTime(e.target.value)} style={{ color: 'black' }}/><br /><br />
 
-        <label htmlFor="location">Location:</label>
+        <label htmlFor="location" style={{ color: 'black' }}>Location:</label>
 
         <div>
         <GoogleAutocomplete
@@ -105,7 +105,7 @@ const SimpleForm = () => {
             />
             
         </div>
-        <input type="submit" value="Submit" />
+        <input type="submit" value="Submit" style={{ color: 'black' }}/>
       </form>
     </div>
   );

@@ -1,3 +1,4 @@
+import { json } from 'react-router-dom';
 import {modifyRawResponse} from './modifyResponse'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
@@ -114,6 +115,37 @@ export const postPromptGeneration = async (birthchart) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(birthchart)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    // console.log(responseData)
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
+
+
+
+// Function to post birth data
+export const postPromptGPT = async (input) => {
+  // console.log(JSON.stringify({input}))
+  console.log('json strigify')
+  console.log(JSON.stringify(input))
+  console.log(input)
+  try {
+    console.log(`${SERVER_URL}/getPrompts`)
+    const response = await fetch(`${SERVER_URL}/getPrompts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({input})
     });
 
     if (!response.ok) {

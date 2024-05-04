@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { postGptResponse } from '../Utilities/api'; 
+import { postGptResponse, postPromptGPT } from '../Utilities/api'; 
 import { heading_map } from '../Utilities/constants';
 
 import useStore from '../Utilities/store';
@@ -8,6 +8,7 @@ const BigFourComponent = ({ bigFourType }) => {
     // const [responses, setResponses] = useState({});
     const [subHeadings, setSubHeadings] = useState([]);
     const [promptData, setPromptData] = useState("")
+    const [everythingData, setEverythingData] = useState("")
 
     const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
     const setBigFourMap = useStore(state => state.setBigFourMap)
@@ -18,17 +19,33 @@ const BigFourComponent = ({ bigFourType }) => {
     useEffect(() => {
         setSubHeadings(heading_map[bigFourType]);
         setPromptData(promptDescriptionsMap[bigFourType])
+        setEverythingData(promptDescriptionsMap['everything'])
+
+
     }, [bigFourType, promptDescriptionsMap]);
 
     async function generateResponse(heading) {
-        const modifiedInput = promptData + "\n" + heading + "\nEvery time you mention a particular aspect or position, please include its reference number provided";
+        // const modifiedInput = promptData + "\n" + heading + "\nEvery time you mention a particular aspect or position, please include its reference number provided";
+
+        const modifiedInput = `${everythingData}\n${bigFourType.toUpperCase()}-${heading}`;
+
         try {
-          const response = await postGptResponse(modifiedInput);
+        //   const response1 = await postGptResponse(modifiedInput);
+            const response = await postPromptGPT(modifiedInput)
+
         //   setResponses(prevResponses => ({
         //     ...prevResponses,
         //     [heading]: response
         // }));
-            setBigFourMap(heading, response)
+        // const formattedResponse = response.response.replace(/\n/g, '<br />');
+
+        const linesWithRefs = response.response.split('\n').map((line, index) => `${line}`);
+        const formattedResponse = linesWithRefs.join('\n');
+
+            setBigFourMap(heading, formattedResponse  )
+            // console.log(response1)
+
+            // console.log(response)
         
         
         } catch (error) {
