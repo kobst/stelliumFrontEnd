@@ -3,34 +3,35 @@ import {PlanetPositions} from './PlanetPositions'
 import useStore from '../Utilities/store';
 
 
-
 const zodiacIcons = [
-    '/assets/signs/icons8-aries-50.png',
-    '/assets/signs/icons8-taurus-50.png',
-    '/assets/signs/icons8-gemini-30.png',
-    '/assets/signs/icons8-cancer-48.png',
-    '/assets/signs/icons8-leo-50.png',
-    '/assets/signs/icons8-virgo-50.png',
-    '/assets/signs/icons8-libra-50.png',
-    '/assets/signs/icons8-scorpio-50.png',
-    '/assets/signs/icons8-sagittarius-50.png',
-    '/assets/signs/icons8-capricorn-50.png',
-    '/assets/signs/icons8-aquarius-symbol-50.png',
-    '/assets/signs/icons8-pisces-50.png'
+    '/assets/signs/aries.svg',
+    '/assets/signs/taurus.svg',
+    '/assets/signs/gemini.svg',
+    '/assets/signs/cancer.svg',
+    '/assets/signs/leo.svg',
+    '/assets/signs/virgo.svg',
+    '/assets/signs/libra.svg',
+    '/assets/signs/scorpio.svg',
+    '/assets/signs/sagitarius.svg',
+    '/assets/signs/capricorn.svg',
+    '/assets/signs/aquarius.svg',
+    '/assets/signs/pisces.svg'
 ];
 
+
 const planetIcons = [
-    '/assets/planets/icons8-sun-symbol-50.png',
-    '/assets/planets/icons8-moon-symbol-50.png',
-    '/assets/planets/icons8-mercury-50.png',
-    '/assets/planets/icons8-venus-symbol-50.png',
-    '/assets/planets/icons8-mars-symbol-50.png',
-    '/assets/planets/icons8-jupiter-symbol-50.png',
-    '/assets/planets/icons8-saturn-symbol-50.png',
-    '/assets/planets/icons8-uranus-symbol-50.png',
-    '/assets/planets/icons8-neptune-symbol-50.png',
-    '/assets/planets/icons8-pluto-50.png'
+    '/assets/planets/Sun.svg',
+    '/assets/planets/Moon.svg',
+    '/assets/planets/Mercury.svg',
+    '/assets/planets/Venus.svg',
+    '/assets/planets/Mars.svg',
+    '/assets/planets/Jupiter.svg',
+    '/assets/planets/Saturn.svg',
+    '/assets/planets/Uranus.svg',
+    '/assets/planets/Neptune.svg',
+    '/assets/planets/Pluto.svg'
 ]
+
 
 const planetNameToIndex = {
     "Sun": 0,
@@ -43,6 +44,14 @@ const planetNameToIndex = {
     "Uranus": 7,
     "Neptune": 8,
     "Pluto": 9,
+};
+
+const loadAndModifySVG = async (url, color) => {
+    const response = await fetch(url);
+    const text = await response.text();
+    const modifiedSVG = text.replace(/fill="[^"]*"/g, `fill="${color}"`);
+    const blob = new Blob([modifiedSVG], { type: 'image/svg+xml' });
+    return URL.createObjectURL(blob);
 };
 
 
@@ -67,12 +76,12 @@ const Emphemeris = ({transits = []}) => {
             // console.log(ascendantDegree + "planets " + rawBirthData.planets.length + " houses " + rawBirthData.houses.length)
             drawZodiacWheel(context, rawBirthData.planets, rawBirthData.houses, transits );
         } else {
-            drawZodiacWheel(context, [], [], []);
+            drawZodiacWheel(context, [], [], transits);
         }
 
     }, [rawBirthData]);
 
-    const drawZodiacWheel = (ctx, planets, houses, transits) => {
+    const drawZodiacWheel = async (ctx, planets, houses, transits) => {
         const centerX = 300;
         const centerY = 300;
         const outerRadius = 160;
@@ -96,6 +105,9 @@ const Emphemeris = ({transits = []}) => {
         ctx.rotate(rotationRadians);
         ctx.translate(-centerX, -centerY);
 
+        ctx.strokeStyle = 'white'; // Set line color to white
+
+
         // Draw the outer and inner circles
         ctx.beginPath();
         ctx.arc(centerX, centerY, outerRadius, 0, 2 * Math.PI);
@@ -107,7 +119,8 @@ const Emphemeris = ({transits = []}) => {
         ctx.arc(centerX, centerY, houseCircleRadius, 0, 2 * Math.PI);
         ctx.stroke();
 
-        ctx.strokeStyle = '#cccccc';
+        // ctx.strokeStyle = '#cccccc';
+
 
         //Draw 12 sections
         for (let i = 0; i < 12; i++) {
@@ -120,7 +133,10 @@ const Emphemeris = ({transits = []}) => {
         }
 
 
-        zodiacIcons.forEach((icon, index) => {
+        zodiacIcons.forEach(async (iconAddress, index) => {
+
+            const icon = await loadAndModifySVG(iconAddress, 'white');
+
             // Midpoint degree for each sign, starting with Aries
             const iconDegree = 15 + index * 30; // Ensure degrees are within 0-359
 
@@ -139,19 +155,28 @@ const Emphemeris = ({transits = []}) => {
 
         if (planets.length !== 0 && transits.length === 0) {
             setPlanetsArray(planets)
-            planets.forEach(planet => {
+            planets.forEach( async planet => {
                 const planetIndex = planetNameToIndex[planet.name];
                 if (planetIndex !== undefined) {
                     const planetDegree = planet.full_degree;
-
                     const planetRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
-                    const planetX = centerX + (outerRadius + 60) * Math.cos(planetRadians) - 25;
-                    const planetY = centerY + (outerRadius + 60) * Math.sin(planetRadians) - 25;
+                    const planetX = centerX + (outerRadius + 60) * Math.cos(planetRadians) - 10;
+                    const planetY = centerY + (outerRadius + 60) * Math.sin(planetRadians) - 10;
     
+                    // original
+                    // const planetImage = new Image();
+                    // planetImage.src = planetIcons[planetIndex];
+                    // planetImage.onload = () => {
+                    //     ctx.drawImage(planetImage, planetX, planetY, 50, 50);
+                    // };
+
+                    //new icons
+                    const planetIcon = await loadAndModifySVG(planetIcons[planetIndex], 'white');
+
                     const planetImage = new Image();
-                    planetImage.src = planetIcons[planetIndex];
+                    planetImage.src = planetIcon;
                     planetImage.onload = () => {
-                        ctx.drawImage(planetImage, planetX, planetY, 50, 50);
+                        ctx.drawImage(planetImage, planetX, planetY, 40, 40);
                     };
 
                     const planetHashRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + houseRotationRadians;
@@ -178,7 +203,9 @@ const Emphemeris = ({transits = []}) => {
                 } else {
                     ctx.lineWidth = 1; // Default line width for other houses
                 }
-                ctx.strokeStyle = 'black';  // Replace 'red' with your desired color
+                // ctx.strokeStyle = 'black';  // Replace 'red' with your desired color
+                ctx.strokeStyle = 'white';  // Replace 'red' with your desired color
+
                 ctx.stroke();
                 ctx.lineWidth = 1;
             });

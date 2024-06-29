@@ -19,13 +19,14 @@ const getTabButtonClass = (tabName) => (
   );    
 
   return (
-    <div className="prompt-container">
+    // <div className="prompt-container">
+    <div>
 
         <div className="planet-menu">
         {dominanceTopics.map(topic => (
             <button
                 key={topic}
-                className={getTabButtonClass(topic)}
+                className={`${getTabButtonClass(topic)} button-white-text`}
                 onClick={() => setActiveTab(topic)}
             >
                 {topic}
@@ -38,7 +39,7 @@ const getTabButtonClass = (tabName) => (
         {planets.map(planet => (
           <button
             key={planet}
-            className={getTabButtonClass(planet)}
+            className={`${getTabButtonClass(planet)} button-white-text`}
             onClick={() => setActiveTab(planet)}
           >
             {planet}
@@ -49,7 +50,7 @@ const getTabButtonClass = (tabName) => (
         {headings.map(tab => (
           <button
             key={tab}
-            className={getTabButtonClass(tab)}
+            className={`${getTabButtonClass(tab)} button-white-text`}
             onClick={() => setActiveTab(tab)}
           >
             {tab.toUpperCase()}
@@ -60,7 +61,7 @@ const getTabButtonClass = (tabName) => (
         {transitTopics.map(tab => (
           <button
             key={tab}
-            className={getTabButtonClass(tab)}
+            className={`${getTabButtonClass(tab)} button-white-text`}
             onClick={() => setActiveTab(tab)}
           >
             {tab.toUpperCase()}

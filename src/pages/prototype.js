@@ -6,11 +6,12 @@ import Emphemeris from '../UI/Ephemeris';
 
 function PrototypePage() {
   return (
-    <div className="App">
-    <header className="App-header">
-      StelliumAI
-    </header>
-    <div className="container">
+    // <div className="App">
+    <div>
+            <div className="maintxt mont-font">
+                <h1 className="logotxt">STELLIUM</h1>
+            </div>
+    <div className="horoscope-container">
       <SimpleForm />
       <Emphemeris />
       <RawBirthDataComponent />

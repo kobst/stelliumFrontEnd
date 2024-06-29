@@ -15,6 +15,9 @@ const useStore = create(set => ({
   dailyTransits: '',
   setDailyTransits: (response) => set({dailyTransits: response}),
 
+  dailyPersonalTransitDescriptions: '',
+  setDailyPersonalTransitDescriptions: (response) => set({dailyPersonalTransitDescriptions: response}),
+
   dailyTransitDescriptions: '',
   setDailyTransitDescriptions: (response) => set({dailyTransitDescriptions: response}),
 

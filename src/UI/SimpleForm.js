@@ -20,6 +20,8 @@ const SimpleForm = () => {
   const setBirthDate = useStore(state => state.setBirthDate);
   const setProgressedBirthData = useStore(state => state.setProgressedBirthData);
   const setDailyTransits = useStore(state => state.setDailyTransits)
+  const setDailyTransitDescriptions = useStore(state => state.setDailyTransitDescriptions)
+
   const setAscendantDegree = useStore(state => state.setAscendantDegree)
   const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
 
@@ -66,6 +68,7 @@ const SimpleForm = () => {
 
 
         setDailyTransits(todaysPositions.chartData)
+        setDailyTransitDescriptions(todaysPositions.transitAspects)
         setProgressedBirthData(responseProgressed.chartData)
         setAscendantDegree(response.chartData['ascendant'])
         setRawBirthData(response.chartData);
@@ -79,15 +82,21 @@ const SimpleForm = () => {
   
 
   return (
-    <div >
+    <div className="email_form">
       <form onSubmit={handleSubmit}>
-        <label htmlFor="date">Date:</label>
-        <input type="date" id="date" name="date" value={date} onChange={e => setDate(e.target.value)} style={{ color: 'black' }}/><br /><br />
+      `<div>
+          <span style={{ color: 'white' }}>I'm </span>
+          <input type="text" id="fname" name="fname" placeholder="Enter your Full Name" style={{ color: 'white' }}/>
+          <span style={{ color: 'white' }}>. My Email is </span>
+          <input type="text" id="email" name="email" placeholder="Email Address" style={{ color: 'white' }}/>
+        </div>
+        <label htmlFor="date" style={{ color: 'white' }}>Date:</label>
+        <input type="date" id="date" name="date" value={date} onChange={e => setDate(e.target.value)} /><br /><br />
 
-        <label htmlFor="time">Time:</label>
-        <input type="time" id="time" name="time" value={time} onChange={e => setTime(e.target.value)} style={{ color: 'black' }}/><br /><br />
+        <label htmlFor="time" style={{ color: 'white' }}>Time:</label>
+        <input type="time" id="time" name="time" value={time} onChange={e => setTime(e.target.value)} /><br /><br />
 
-        <label htmlFor="location" style={{ color: 'black' }}>Location:</label>
+        <label htmlFor="location" style={{ color: 'white' }}>Location:</label>
 
         <div>
         <GoogleAutocomplete

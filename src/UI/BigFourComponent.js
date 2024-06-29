@@ -27,11 +27,11 @@ const BigFourComponent = ({ bigFourType }) => {
     async function generateResponse(heading) {
         // const modifiedInput = promptData + "\n" + heading + "\nEvery time you mention a particular aspect or position, please include its reference number provided";
 
-        const modifiedInput = `${everythingData}\n${bigFourType.toUpperCase()}-${heading}`;
+        const modifiedInput = `${everythingData}\n${bigFourType.toUpperCase()}: ${heading}`;
 
         try {
-        //   const response1 = await postGptResponse(modifiedInput);
             const response = await postPromptGPT(modifiedInput)
+        //   const response1 = await postGptResponse(modifiedInput);
 
         //   setResponses(prevResponses => ({
         //     ...prevResponses,
@@ -42,7 +42,7 @@ const BigFourComponent = ({ bigFourType }) => {
         const linesWithRefs = response.response.split('\n').map((line, index) => `${line}`);
         const formattedResponse = linesWithRefs.join('\n');
 
-            setBigFourMap(heading, formattedResponse  )
+            setBigFourMap(heading, formattedResponse)
             // console.log(response1)
 
             // console.log(response)
@@ -70,9 +70,12 @@ const BigFourComponent = ({ bigFourType }) => {
     const renderResponseForHeading = (heading) => {
         return (
             <div key={heading}>
-                <h4>{heading}</h4>
-                <button onClick={() => handleRedo(heading)}>Redo</button>
-                <p>{bigFourMap[heading]}</p>
+                <h4 className="heading"> {heading}</h4>
+                <button className="redo-button" onClick={() => handleRedo(heading)}>Redo</button>
+                {/* <p>{bigFourMap[heading]}</p> */}
+                <div className="planet-response">
+                    <pre>{bigFourMap[heading]}</pre>  
+                </div>
             </div>
         );
     };

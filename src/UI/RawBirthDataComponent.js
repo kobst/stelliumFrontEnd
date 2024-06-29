@@ -16,7 +16,7 @@ const RawBirthDataComponent = () => {
     const progressedBirthData = useStore(state => state.progressedBirthData);
     const setModifiedBirthData = useStore(state => state.setModifiedBirthData);
     const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
-    const setDailyTransitDescriptions = useStore(state => state.setDailyTransitDescriptions);
+    const setDailyPersonalTransitDescriptions = useStore(state => state.setDailyPersonalTransitDescriptions);
     const setProgressedTransitDescriptions = useStore(state => state.setProgressedTransitDescriptions)
 
     useEffect(  () => {
@@ -30,7 +30,7 @@ const RawBirthDataComponent = () => {
             // console.log(progressedAspects)
             
             setProgressedTransitDescriptions(progressedTransitDescriptions)
-            setDailyTransitDescriptions(todaysTransitDescriptions)
+            setDailyPersonalTransitDescriptions(todaysTransitDescriptions)
         }
         
     }, [rawBirthData, todaysTransits, setPromptDescriptionsMap, setModifiedBirthData])

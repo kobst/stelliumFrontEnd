@@ -35,6 +35,7 @@
   padding: 10px; /* Optional: adds some spacing inside the container */
   margin-top: 20px; /* Optional: adds some space above the container */
   font-size: small;
+  background-color: transparent;
 }
 
 /* App.css */
@@ -75,7 +76,7 @@ form {
 .tab-menu {
   display: flex;
   justify-content: space-evenly; /* Evenly distribute the space among tabs */
-  background-color: #f1f1f1; /* Background color for the tab menu */
+  /* background-color: #f1f1f1; Background color for the tab menu */
   border-bottom: 1px solid #ccc; /* Border to separate tabs from content */
 }
 
@@ -92,13 +93,29 @@ form {
 }
 
 .tab-menu button.active {
-  background-color: #ddd; /* Active tab color */
+  /* background-color: #ddd; Active tab color */
+  background-color: #0d1691;
+
   font-weight: bold; /* Optional: Makes active tab text bold */
+}
+
+.heading {
+  color:#61dafb;
+}
+.redo-button {
+  background-color: blue; /* Sets the background color to blue */
+  color: white; /* Sets the text color to white */
+  padding: 10px 20px; /* Adds some padding for better visual */
+  border: none; /* Removes the border */
+  border-radius: 5px; /* Adds rounded corners */
+  cursor: pointer; /* Changes cursor to pointer on hover */
 }
 
 .tab-content {
   padding: 20px;
-  background-color: #fff; /* Background color for the content area */
+  /* background-color: #fff;  */
+  background-color: transparent;
+  
 }
 
 
@@ -116,7 +133,8 @@ form {
 .tab-menu, .planet-menu {
   display: flex;
   justify-content: space-around;
-  background-color: #f1f1f1;
+  background-color: transparent;
+  /* background-color: #f1f1f1; */
   border-bottom: 1px solid #ccc;
 }
 
@@ -128,13 +146,18 @@ form {
 }
 
 .tab-button.active, .planet-button.active {
-  background-color: #ddd;
+  background-color: #0d1691;
   font-weight: bold;
+}
+
+.button-white-text {
+  color: rgb(151, 138, 138); /* Sets the font color to white */
 }
 
 .tab-content {
   padding: 20px;
-  background-color: #fff;
+  /* background-color: #fff; */
+  background-color: transparent;
 }
 
 .planet-component {
@@ -151,19 +174,21 @@ form {
   max-width: 100%; /* Restrict width to the parent container */
   overflow-x: auto; /* Adds a scrollbar if content overflows horizontally */
   font-size: small;
+  color: whitesmoke;
 
 }
 
 .prompts {
   text-align: left;
   font-size: x-small;
+  color:#61dafb;
 }
 
 
 /* LANDING PAGE CSS ENDS*/
 
 body {
-  background: url("/public/nebulae2.png") no-repeat center center fixed;
+  background: url("/public/NebulaeBG.png") no-repeat center center fixed;
 
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -222,10 +247,10 @@ body {
   font-optical-sizing: auto;
 }
 
-.email_form {
+/* .email_form {
   color: white;
   margin-top: 20px;
-}
+} */
 
 .email_form h2 {
   font-weight: 400;
@@ -234,6 +259,7 @@ body {
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
   margin-bottom: 30px;
+  background-color: transparent;
 }
 
 .email_form span {
@@ -242,6 +268,22 @@ body {
   padding: 0 5px;
   font-size: 16px;
 }
+
+/* SimpleForm.css */
+.email_form {
+  background-color: transparent; /* Ensure no background color */
+  border: none; /* Remove any borders */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margin */
+}
+
+.email_form form {
+  background-color: transparent; /* Ensure form has no background color */
+  border: none; /* Remove form borders */
+  padding: 0; /* Remove form padding */
+  margin: 0; /* Remove form margin */
+}
+
 
 .email-submit-btn {
   font-family: "Montserrat", sans-serif;
@@ -287,6 +329,14 @@ input {
   background: transparent;
   transition: border-color 0.2s;
   text-align: center;
+}
+
+/* SimpleForm.css */
+.horoscope-container {
+  background-color: transparent; /* Ensure no background color */
+  border: none; /* Remove any borders */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margin */
 }
 
 /* Planets motion Styles */

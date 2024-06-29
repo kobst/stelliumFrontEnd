@@ -9,7 +9,9 @@ const ProgressedTransitComponent = ( {transitType} ) => {
     const progressedBirthData = useStore(state => state.progressedBirthData);
     // const setProgressedBirthData = useStore(state => state.setProgressedBirthData);
     // const modifiedBirthData = useStore(state => state.modifiedBirthData)
+    const dailyPersonalTransitDescriptions = useStore(state => state.dailyPersonalTransitDescriptions)
     const dailyTransitDescriptions = useStore(state => state.dailyTransitDescriptions)
+
     // const setDailyTransitDescriptions = useStore(state => state.setDailyTransitDescriptions)
     const progressedTransitDescriptions = useStore(state => state.progressedTransitDescriptions)
     // const setProgressedTransitDescriptions = useStore(state => state.setProgressedTransitDescriptions)
@@ -43,10 +45,15 @@ const ProgressedTransitComponent = ( {transitType} ) => {
                     
                 </div>
             )}
-            {transitType === 'Transits' && dailyTransitDescriptions !== "" && (
+            {transitType === 'Transits' && dailyPersonalTransitDescriptions !== "" && (
                 <div className="planet-response">
                     <pre>{JSON.stringify(dailyTransits)}</pre>  
-                    <pre>{dailyTransitDescriptions.join('\n')}</pre> 
+                    {/* <pre>{dailyPersonalTransitDescriptions.join('\n')}</pre> 
+                    <pre>{dailyTransitDescriptions.join('\n')}</pre>  */}
+                    <pre>{dailyPersonalTransitDescriptions}</pre> 
+                    <pre>{dailyTransitDescriptions}</pre> 
+
+
                     <Emphemeris transits={dailyTransits}/>
 
 
