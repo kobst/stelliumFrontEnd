@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import Emphemeris from './Ephemeris'
-import useStore from '../Utilities/store';
+import Emphemeris from '../shared/Ephemeris'
+import useStore from '../../Utilities/store';
 
 const DailyReading = ( ) => {
     const dailyTransitDescriptions = useStore(state => state.dailyTransitDescriptions)

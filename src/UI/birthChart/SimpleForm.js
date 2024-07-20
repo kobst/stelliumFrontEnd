@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { Loader } from "@googlemaps/js-api-loader";
-import ResponseContext from '../Utilities/ResponseContext';
-import { updateObjectKeys } from '../Utilities/helpers';
+import ResponseContext from '../../Utilities/ResponseContext';
+import { updateObjectKeys } from '../../Utilities/helpers';
 
 import GoogleAutocomplete from 'react-google-autocomplete';
-import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration } from '../Utilities/api'; 
-import useStore from '../Utilities/store';
+import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration } from '../../Utilities/api'; 
+import useStore from '../../Utilities/store';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 

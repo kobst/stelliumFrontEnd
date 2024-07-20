@@ -1,8 +1,8 @@
 import React from 'react';
-import SimpleForm from '../UI/SimpleForm';
-import RawBirthDataComponent from '../UI/RawBirthDataComponent';
-import TabbedBigFourMenu from '../UI/TabbedBigFourComponent';
-import Emphemeris from '../UI/Ephemeris';
+import SimpleForm from '../UI/birthChart/SimpleForm';
+import RawBirthDataComponent from '../UI/birthChart/RawBirthDataComponent';
+import TabbedBigFourMenu from '../UI/birthChart/TabbedBigFourComponent';
+import Emphemeris from '../UI/shared/Ephemeris';
 
 function PrototypePage() {
   return (

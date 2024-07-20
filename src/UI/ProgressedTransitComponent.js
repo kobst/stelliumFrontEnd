@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Emphemeris from './Ephemeris'
+import Emphemeris from './shared/Ephemeris'
 import { PlanetPositions } from './PlanetPositions';
 import useStore from '../Utilities/store';
 import { findAspects } from '../Utilities/generateTransitDescriptions';

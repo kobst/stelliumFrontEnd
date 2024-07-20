@@ -1,0 +1,43 @@
+[
+    {
+        "planet": "Mercury",
+        "retrogradeStart": "2024-08-05 06:00:00",
+        "retrogradeStartDegree": 154.10451561878193,
+        "retrogradeEnd": "2024-08-29 00:00:00",
+        "retrogradeEndDegree": 141.4096841422524,
+        "signsInRetrogradePeriod": [
+            "Leo",
+            "Virgo"
+        ]
+    },
+    {
+        "planet": "Neptune",
+        "retrogradeStart": "2024-07-02 12:00:00",
+        "retrogradeStartDegree": 359.9318949227731,
+        "retrogradeEnd": null,
+        "retrogradeEndDegree": null,
+        "signsInRetrogradePeriod": [
+            "Pisces"
+        ]
+    },
+    {
+        "planet": "Pluto",
+        "retrogradeStart": "2024-07-01 00:00:00",
+        "retrogradeStartDegree": 301.3807959712808,
+        "retrogradeEnd": null,
+        "retrogradeEndDegree": null,
+        "signsInRetrogradePeriod": [
+            "Aquarius"
+        ]
+    },
+    {
+        "planet": "Saturn",
+        "retrogradeStart": "2024-07-01 00:00:00",
+        "retrogradeStartDegree": 349.4268452891112,
+        "retrogradeEnd": null,
+        "retrogradeEndDegree": null,
+        "signsInRetrogradePeriod": [
+            "Pisces"
+        ]
+    }
+]

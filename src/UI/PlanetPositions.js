@@ -1,6 +1,14 @@
 export const PlanetPositions = ({ planets }) => {
     const formatPlanetData = (planet) => {
-        const normalTransit = `${planet.name}: ${planet.norm_degree.toFixed(2)} degrees ${planet.sign}, ${planet.house}th house`
+
+        let normalTransit = ''
+
+        if (planet.norm_degree) {
+            normalTransit = `${planet.name}: ${planet.norm_degree.toFixed(2)} degrees ${planet.sign}, ${planet.house}th house`
+        } else if (planet.normDegree) {
+            normalTransit = `${planet.name}: ${planet.normDegree.toFixed(2)} degrees ${planet.sign}, ${planet.house}th house`
+
+        }
         
         if (planet.is_retro === "true") {
            return  "retrograde " + normalTransit 
@@ -14,7 +22,7 @@ export const PlanetPositions = ({ planets }) => {
     const secondColumn = planets.slice(halfIndex);
 
     return (
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', color: 'white'}}>
             <div>
                 {firstColumn.map((planet, index) => (
                     <div key={index}>{formatPlanetData(planet)}</div>

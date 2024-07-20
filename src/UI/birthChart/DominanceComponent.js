@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { postGptResponse } from '../Utilities/api'; 
-import useStore from '../Utilities/store';
+import { postGptResponse } from '../../Utilities/api'; 
+import useStore from '../../Utilities/store';
 
 const DominanceComponent = ({ dominanceTopic }) => {
     const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap);

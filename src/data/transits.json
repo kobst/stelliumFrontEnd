@@ -1,0 +1,1226 @@
+{
+    "2024-07-01 00:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 99.66149010222519,
+            "normDegree": 9.661490102225187,
+            "speed": 0.9536559384967018,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 4,
+            "date": "2024-07-01 00:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 36.986059248975685,
+            "normDegree": 6.986059248975685,
+            "speed": 13.95433160315848,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 1,
+            "date": "2024-07-01 00:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 45.96169317948065,
+            "normDegree": 15.961693179480648,
+            "speed": 0.7199073941442347,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 2,
+            "date": "2024-07-01 00:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 117.3041263628564,
+            "normDegree": 27.304126362856394,
+            "speed": 1.7836726899036366,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 4,
+            "date": "2024-07-01 00:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.21677140006506,
+            "normDegree": 8.216771400065056,
+            "speed": 0.2166799405047344,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 2,
+            "date": "2024-07-01 00:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 106.87518363324932,
+            "normDegree": 16.87518363324932,
+            "speed": 1.2287883994034794,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 4,
+            "date": "2024-07-01 00:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.4268452891112,
+            "normDegree": 19.426845289111213,
+            "speed": -0.0019953518523662538,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 12,
+            "date": "2024-07-01 00:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.720206733586906,
+            "normDegree": 25.720206733586906,
+            "speed": 0.045428414060568495,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 2,
+            "date": "2024-07-01 00:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.93134304710753,
+            "normDegree": 29.931343047107532,
+            "speed": 0.000764090542943341,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 12,
+            "date": "2024-07-01 00:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.3807959712808,
+            "normDegree": 1.3807959712808042,
+            "speed": -0.021560659874241852,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 10,
+            "date": "2024-07-01 00:00:00"
+        }
+    ],
+    "2024-07-01 03:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 99.78069748790205,
+            "normDegree": 9.780697487902046,
+            "speed": 0.9536632243845592,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 2,
+            "date": "2024-07-01 03:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 38.72961446042717,
+            "normDegree": 8.729614460427172,
+            "speed": 13.942477226875388,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 12,
+            "date": "2024-07-01 03:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.05167230387532,
+            "normDegree": 16.05167230387532,
+            "speed": 0.7197588179969308,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 12,
+            "date": "2024-07-01 03:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 117.52680945718326,
+            "normDegree": 27.526809457183262,
+            "speed": 1.7792625538417413,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 3,
+            "date": "2024-07-01 03:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.24384975168797,
+            "normDegree": 8.243849751687975,
+            "speed": 0.21657348117138397,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 1,
+            "date": "2024-07-01 03:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 107.02878256743728,
+            "normDegree": 17.028782567437275,
+            "speed": 1.2287974509738873,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 2,
+            "date": "2024-07-01 03:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.4265829987149,
+            "normDegree": 19.426582998714878,
+            "speed": -0.002202212104034446,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 10,
+            "date": "2024-07-01 03:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.72588148050981,
+            "normDegree": 25.725881480509813,
+            "speed": 0.04536730400649723,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 12,
+            "date": "2024-07-01 03:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.931434464667,
+            "normDegree": 29.931434464667007,
+            "speed": 0.0006980020118941303,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 11,
+            "date": "2024-07-01 03:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.3780995712636,
+            "normDegree": 1.37809957126359,
+            "speed": -0.021582211627934653,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 9,
+            "date": "2024-07-01 03:00:00"
+        }
+    ],
+    "2024-07-01 06:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 99.8999057858867,
+            "normDegree": 9.899905785886702,
+            "speed": 0.9536705082127953,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 1,
+            "date": "2024-07-01 06:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 40.471668194227,
+            "normDegree": 10.471668194227,
+            "speed": 13.93030090546244,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 10,
+            "date": "2024-07-01 06:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.14163283431126,
+            "normDegree": 16.14163283431126,
+            "speed": 0.7196098751697505,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 11,
+            "date": "2024-07-01 06:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 117.74894118571066,
+            "normDegree": 27.748941185710663,
+            "speed": 1.7748507686715056,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 1,
+            "date": "2024-07-01 06:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.27091477329677,
+            "normDegree": 8.270914773296766,
+            "speed": 0.21646664846422206,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 11,
+            "date": "2024-07-01 06:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 107.18238263208522,
+            "normDegree": 17.182382632085222,
+            "speed": 1.2288064591177439,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 1,
+            "date": "2024-07-01 06:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.4262948540687,
+            "normDegree": 19.426294854068715,
+            "speed": -0.0024090374292199896,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 9,
+            "date": "2024-07-01 06:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.73154857978094,
+            "normDegree": 25.73154857978094,
+            "speed": 0.04530605213708975,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 11,
+            "date": "2024-07-01 06:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.93151762315347,
+            "normDegree": 29.931517623153468,
+            "speed": 0.0006319359859448255,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 9,
+            "date": "2024-07-01 06:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.375400488255,
+            "normDegree": 1.3754004882550248,
+            "speed": -0.021603608240593517,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 7,
+            "date": "2024-07-01 06:00:00"
+        }
+    ],
+    "2024-07-01 09:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 100.01911499406472,
+            "normDegree": 10.019114994064722,
+            "speed": 0.9536777738026718,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 11,
+            "date": "2024-07-01 09:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 42.2121788787381,
+            "normDegree": 12.2121788787381,
+            "speed": 13.917784043470453,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 9,
+            "date": "2024-07-01 09:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.23157472405933,
+            "normDegree": 16.231574724059328,
+            "speed": 0.7194605816926539,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 9,
+            "date": "2024-07-01 09:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 117.97052134384622,
+            "normDegree": 27.970521343846215,
+            "speed": 1.770437368049488,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 12,
+            "date": "2024-07-01 09:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.29796641853474,
+            "normDegree": 8.297966418534742,
+            "speed": 0.21635945467410647,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 10,
+            "date": "2024-07-01 09:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 107.33598381887172,
+            "normDegree": 17.335983818871725,
+            "speed": 1.2288154100958177,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 11,
+            "date": "2024-07-01 09:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.42598085782964,
+            "normDegree": 19.425980857829643,
+            "speed": -0.002615848629542732,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 7,
+            "date": "2024-07-01 09:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.73720801320563,
+            "normDegree": 25.73720801320563,
+            "speed": 0.04524464507878417,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 9,
+            "date": "2024-07-01 09:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.93159252470696,
+            "normDegree": 29.931592524706957,
+            "speed": 0.0005658844525621628,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 8,
+            "date": "2024-07-01 09:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.3726987399463,
+            "normDegree": 1.3726987399463155,
+            "speed": -0.021624865366851122,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 6,
+            "date": "2024-07-01 09:00:00"
+        }
+    ],
+    "2024-07-01 12:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 100.1383251096329,
+            "normDegree": 10.138325109632902,
+            "speed": 0.9536850049409048,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 10,
+            "date": "2024-07-01 12:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 43.95110276390858,
+            "normDegree": 13.95110276390858,
+            "speed": 13.904907549391245,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 8,
+            "date": "2024-07-01 12:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.32149792661581,
+            "normDegree": 16.321497926615812,
+            "speed": 0.7193108807405344,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 8,
+            "date": "2024-07-01 12:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 118.19154973840477,
+            "normDegree": 28.191549738404774,
+            "speed": 1.7660224794012334,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 10,
+            "date": "2024-07-01 12:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.3250046401761,
+            "normDegree": 8.325004640176104,
+            "speed": 0.2162518924749903,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 8,
+            "date": "2024-07-01 12:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 107.48958611980798,
+            "normDegree": 17.48958611980798,
+            "speed": 1.228824283221986,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 10,
+            "date": "2024-07-01 12:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.4256410118735,
+            "normDegree": 19.425641011873495,
+            "speed": -0.0028226374581739704,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 6,
+            "date": "2024-07-01 12:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.74285976154243,
+            "normDegree": 25.742859761542427,
+            "speed": 0.045183082942813715,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 8,
+            "date": "2024-07-01 12:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.9316591704247,
+            "normDegree": 29.931659170424723,
+            "speed": 0.0004998390240382255,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 6,
+            "date": "2024-07-01 12:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.36999434294114,
+            "normDegree": 1.3699943429411405,
+            "speed": -0.02164599095074408,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 4,
+            "date": "2024-07-01 12:00:00"
+        }
+    ],
+    "2024-07-01 15:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 100.25753612735323,
+            "normDegree": 10.257536127353234,
+            "speed": 0.9536921859755585,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 8,
+            "date": "2024-07-01 15:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 45.68839387554523,
+            "normDegree": 15.68839387554523,
+            "speed": 13.891651970333637,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 6,
+            "date": "2024-07-01 15:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.41140239384546,
+            "normDegree": 16.411402393845457,
+            "speed": 0.7191608018911916,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 6,
+            "date": "2024-07-01 15:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 118.41202618487385,
+            "normDegree": 28.412026184873852,
+            "speed": 1.7616061415935218,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 9,
+            "date": "2024-07-01 15:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.35202938959392,
+            "normDegree": 8.352029389593923,
+            "speed": 0.21614389674654977,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 7,
+            "date": "2024-07-01 15:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 107.64318952496497,
+            "normDegree": 17.643189524964967,
+            "speed": 1.2288330708559894,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 8,
+            "date": "2024-07-01 15:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.4252753172114,
+            "normDegree": 19.4252753172114,
+            "speed": -0.003029424760610867,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 4,
+            "date": "2024-07-01 15:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.74850380441955,
+            "normDegree": 25.74850380441955,
+            "speed": 0.04512137190424455,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 6,
+            "date": "2024-07-01 15:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.93171756037344,
+            "normDegree": 29.931717560373443,
+            "speed": 0.00043379119956368816,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 5,
+            "date": "2024-07-01 15:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.3672873128075,
+            "normDegree": 1.3672873128074912,
+            "speed": -0.02166700297175995,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 3,
+            "date": "2024-07-01 15:00:00"
+        }
+    ],
+    "2024-07-01 18:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 100.37674804047695,
+            "normDegree": 10.376748040476954,
+            "speed": 0.9536993013641641,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 7,
+            "date": "2024-07-01 18:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 47.42400340743753,
+            "normDegree": 17.42400340743753,
+            "speed": 13.877997421095321,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 5,
+            "date": "2024-07-01 18:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.50128807686414,
+            "normDegree": 16.501288076864142,
+            "speed": 0.7190103099404317,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 5,
+            "date": "2024-07-01 18:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 118.63195050780446,
+            "normDegree": 28.63195050780446,
+            "speed": 1.7571884169536864,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 7,
+            "date": "2024-07-01 18:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.3790406171179,
+            "normDegree": 8.379040617117894,
+            "speed": 0.21603552486643857,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 5,
+            "date": "2024-07-01 18:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 107.79679402270615,
+            "normDegree": 17.796794022706152,
+            "speed": 1.2288417470042654,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 7,
+            "date": "2024-07-01 18:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.4248837739982,
+            "normDegree": 19.424883773998204,
+            "speed": -0.003236217795967602,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 3,
+            "date": "2024-07-01 18:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.75414012040349,
+            "normDegree": 25.75414012040349,
+            "speed": 0.04505945723168057,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 5,
+            "date": "2024-07-01 18:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.9317676935908,
+            "normDegree": 29.931767693590814,
+            "speed": 0.0003677333119746036,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 3,
+            "date": "2024-07-01 18:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.36457766405647,
+            "normDegree": 1.364577664056469,
+            "speed": -0.02168789957797913,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 1,
+            "date": "2024-07-01 18:00:00"
+        }
+    ],
+    "2024-07-01 21:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 100.49596083901005,
+            "normDegree": 10.495960839010053,
+            "speed": 0.9537063361193208,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 5,
+            "date": "2024-07-01 21:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 49.15788022768512,
+            "normDegree": 19.15788022768512,
+            "speed": 13.863923948946335,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 3,
+            "date": "2024-07-01 21:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.59115492455455,
+            "normDegree": 16.59115492455455,
+            "speed": 0.7188594459204788,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 3,
+            "date": "2024-07-01 21:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 118.85132253631483,
+            "normDegree": 28.851322536314825,
+            "speed": 1.7527693799452877,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 6,
+            "date": "2024-07-01 21:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.40603827151288,
+            "normDegree": 8.406038271512884,
+            "speed": 0.21592674686769386,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 4,
+            "date": "2024-07-01 21:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 107.95039959866915,
+            "normDegree": 17.95039959866915,
+            "speed": 1.228850326157377,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 5,
+            "date": "2024-07-01 21:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.42446638163335,
+            "normDegree": 19.42446638163335,
+            "speed": -0.003443003036092287,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 1,
+            "date": "2024-07-01 21:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.7597686869105,
+            "normDegree": 25.759768686910498,
+            "speed": 0.044997369902020266,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 3,
+            "date": "2024-07-01 21:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.9318095680962,
+            "normDegree": 29.931809568096185,
+            "speed": 0.00030165665208390757,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 2,
+            "date": "2024-07-01 21:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.36186541020214,
+            "normDegree": 1.3618654102021424,
+            "speed": -0.021708674854869305,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 12,
+            "date": "2024-07-01 21:00:00"
+        }
+    ],
+    "2024-07-02 00:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 100.615174512424,
+            "normDegree": 10.615174512424005,
+            "speed": 0.9537132753773551,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 4,
+            "date": "2024-07-02 00:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 50.88997083889622,
+            "normDegree": 20.889970838896218,
+            "speed": 13.849411638197195,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 2,
+            "date": "2024-07-02 00:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.68100288615885,
+            "normDegree": 16.68100288615885,
+            "speed": 0.7187081250880524,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 2,
+            "date": "2024-07-02 00:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 119.07014211005594,
+            "normDegree": 29.07014211005594,
+            "speed": 1.7483490726347413,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 4,
+            "date": "2024-07-02 00:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.4330223007488,
+            "normDegree": 8.433022300748803,
+            "speed": 0.21581751447076905,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 2,
+            "date": "2024-07-02 00:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 108.1040062379867,
+            "normDegree": 18.104006237986695,
+            "speed": 1.22885877469339,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 4,
+            "date": "2024-07-02 00:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.42402313870923,
+            "normDegree": 19.42402313870923,
+            "speed": -0.003649809513863805,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 12,
+            "date": "2024-07-02 00:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.76538948037309,
+            "normDegree": 25.765389480373088,
+            "speed": 0.044935081200471697,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 2,
+            "date": "2024-07-02 00:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.93184318092744,
+            "normDegree": 29.931843180927444,
+            "speed": 0.00023555361418586292,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 12,
+            "date": "2024-07-02 00:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.3591505637178,
+            "normDegree": 1.359150563717776,
+            "speed": -0.021729356800917712,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 10,
+            "date": "2024-07-02 00:00:00"
+        }
+    ],
+    "2024-07-02 03:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 100.7343890479318,
+            "normDegree": 10.7343890479318,
+            "speed": 0.9537201049303075,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 2,
+            "date": "2024-07-02 03:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 52.62021915223946,
+            "normDegree": 22.620219152239457,
+            "speed": 13.834440689509119,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 12,
+            "date": "2024-07-02 03:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.770831909259705,
+            "normDegree": 16.770831909259705,
+            "speed": 0.7185564343914079,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 12,
+            "date": "2024-07-02 03:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 119.28840907160297,
+            "normDegree": 29.28840907160297,
+            "speed": 1.7439275486007386,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 3,
+            "date": "2024-07-02 03:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.45999265148758,
+            "normDegree": 8.459992651487582,
+            "speed": 0.21570788001654728,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 1,
+            "date": "2024-07-02 03:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 108.25761392427819,
+            "normDegree": 18.25761392427819,
+            "speed": 1.228867078208066,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 2,
+            "date": "2024-07-02 03:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.4235540430571,
+            "normDegree": 19.423554043057095,
+            "speed": -0.0038566367996759237,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 10,
+            "date": "2024-07-02 03:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.77100247616073,
+            "normDegree": 25.77100247616073,
+            "speed": 0.044872593359622,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 12,
+            "date": "2024-07-02 03:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.9318685281409,
+            "normDegree": 29.93186852814091,
+            "speed": 0.0001694167755800096,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 11,
+            "date": "2024-07-02 03:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.35643313608915,
+            "normDegree": 1.3564331360891515,
+            "speed": -0.021749957623217343,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 9,
+            "date": "2024-07-02 03:00:00"
+        }
+    ],
+    "2024-07-02 06:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 100.85360443143375,
+            "normDegree": 10.853604431433752,
+            "speed": 0.9537268109616321,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 1,
+            "date": "2024-07-02 06:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 54.348566509177786,
+            "normDegree": 24.348566509177786,
+            "speed": 13.818991570870098,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 11,
+            "date": "2024-07-02 06:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.86064194140373,
+            "normDegree": 16.860641941403728,
+            "speed": 0.7184042874536934,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 11,
+            "date": "2024-07-02 06:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 119.50612327185868,
+            "normDegree": 29.506123271858684,
+            "speed": 1.7395048158871953,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 1,
+            "date": "2024-07-02 06:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.48694926942453,
+            "normDegree": 8.486949269424528,
+            "speed": 0.21559780680098808,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 11,
+            "date": "2024-07-02 06:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 108.41122263959197,
+            "normDegree": 18.41122263959197,
+            "speed": 1.2288752223014119,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 1,
+            "date": "2024-07-02 06:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.4230590917569,
+            "normDegree": 19.423059091756897,
+            "speed": -0.00406348549715614,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 9,
+            "date": "2024-07-02 06:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.77660764867122,
+            "normDegree": 25.776607648671217,
+            "speed": 0.04480991991055649,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 11,
+            "date": "2024-07-02 06:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.93188560486203,
+            "normDegree": 29.931885604862032,
+            "speed": 0.00010323842144713311,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 9,
+            "date": "2024-07-02 06:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.3537131378357,
+            "normDegree": 1.3537131378357117,
+            "speed": -0.02177047170043426,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 7,
+            "date": "2024-07-02 06:00:00"
+        }
+    ],
+    "2024-07-02 09:00:00": [
+        {
+            "name": "Sun",
+            "fullDegree": 100.97282064580273,
+            "normDegree": 10.972820645802727,
+            "speed": 0.9537333801588146,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 11,
+            "date": "2024-07-02 09:00:00"
+        },
+        {
+            "name": "Moon",
+            "fullDegree": 56.07495204880222,
+            "normDegree": 26.074952048802217,
+            "speed": 13.803045256755034,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 9,
+            "date": "2024-07-02 09:00:00"
+        },
+        {
+            "name": "Mars",
+            "fullDegree": 46.95043292754909,
+            "normDegree": 16.950432927549087,
+            "speed": 0.7182516917566655,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 9,
+            "date": "2024-07-02 09:00:00"
+        },
+        {
+            "name": "Mercury",
+            "fullDegree": 119.72328456297461,
+            "normDegree": 29.723284562974612,
+            "speed": 1.7350809429413607,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 12,
+            "date": "2024-07-02 09:00:00"
+        },
+        {
+            "name": "Jupiter",
+            "fullDegree": 68.51389209892557,
+            "normDegree": 8.513892098925567,
+            "speed": 0.21548727862469683,
+            "isRetro": "false",
+            "sign": "Gemini",
+            "house": 10,
+            "date": "2024-07-02 09:00:00"
+        },
+        {
+            "name": "Venus",
+            "fullDegree": 108.56483236309522,
+            "normDegree": 18.56483236309522,
+            "speed": 1.2288832142075485,
+            "isRetro": "false",
+            "sign": "Cancer",
+            "house": 11,
+            "date": "2024-07-02 09:00:00"
+        },
+        {
+            "name": "Saturn",
+            "fullDegree": 349.4225382812248,
+            "normDegree": 19.422538281224774,
+            "speed": -0.004270359952875516,
+            "isRetro": "true",
+            "sign": "Pisces",
+            "house": 7,
+            "date": "2024-07-02 09:00:00"
+        },
+        {
+            "name": "Uranus",
+            "fullDegree": 55.78220497126047,
+            "normDegree": 25.78220497126047,
+            "speed": 0.04474700878476064,
+            "isRetro": "false",
+            "sign": "Taurus",
+            "house": 9,
+            "date": "2024-07-02 09:00:00"
+        },
+        {
+            "name": "Neptune",
+            "fullDegree": 359.9318944052937,
+            "normDegree": 29.93189440529369,
+            "speed": 3.7011509188825315e-05,
+            "isRetro": "false",
+            "sign": "Pisces",
+            "house": 8,
+            "date": "2024-07-02 09:00:00"
+        },
+        {
+            "name": "Pluto",
+            "fullDegree": 301.35099057856326,
+            "normDegree": 1.3509905785632554,
+            "speed": -0.02179091455555698,
+            "isRetro": "true",
+            "sign": "Aquarius",
+            "house": 6,
+            "date": "2024-07-02 09:00:00"
+        }
+    ]
+}

@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import useStore from '../Utilities/store';
-import modifyRawResponse from '../Utilities/modifyResponse';
-import { findAspects } from '../Utilities/generateTransitDescriptions'
-import { findAspectsInTransits } from '../Utilities/transitsAspects';
-import { postPromptGeneration } from '../Utilities/api';
+import useStore from '../../Utilities/store';
+import modifyRawResponse from '../../Utilities/modifyResponse';
+import { findAspects } from '../../Utilities/generateTransitDescriptions'
+import { findAspectsInTransits } from '../../Utilities/transitsAspects';
+import { postPromptGeneration } from '../../Utilities/api';
 
-import {generateResponse, findPlanetsInQuadrant, findPlanetsInElements, findPlanetsInModalities} from '../Utilities/generatePrompts';
-import { identifyBirthChartPattern } from '../Utilities/patternSummarizer';
+import {generateResponse, findPlanetsInQuadrant, findPlanetsInElements, findPlanetsInModalities} from '../../Utilities/generatePrompts';
+import { identifyBirthChartPattern } from '../../Utilities/patternSummarizer';
 
 const RawBirthDataComponent = () => {
 

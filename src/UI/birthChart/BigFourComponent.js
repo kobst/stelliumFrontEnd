@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { postGptResponse, postPromptGPT } from '../Utilities/api'; 
-import { heading_map } from '../Utilities/constants';
+import { postGptResponse, postPromptGPT } from '../../Utilities/api'; 
+import { heading_map } from '../../Utilities/constants';
 
-import useStore from '../Utilities/store';
+import useStore from '../../Utilities/store';
 
 const BigFourComponent = ({ bigFourType }) => {
     // const [responses, setResponses] = useState({});
