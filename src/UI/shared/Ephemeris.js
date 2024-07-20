@@ -55,6 +55,13 @@ const loadAndModifySVG = async (url, color) => {
 };
 
 
+
+    //    drawZodiacWheel(context, rawBirthData.planets, rawBirthData.houses, transits );
+    // } else {
+    //     drawZodiacWheel(context, [], [], []);
+    // }
+
+
 const Emphemeris = ({ planets = [], houses = [], transits = [], ascendantDegree = 0 }) => {
     const canvasRef = useRef(null);
     const [planetsArray, setPlanetsArray] = useState([]);
@@ -129,7 +136,7 @@ const Emphemeris = ({ planets = [], houses = [], transits = [], ascendantDegree 
                         ctx.drawImage(planetImage, planetX, planetY, 40, 40);
                     };
 
-                    const planetHashRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + houseRotationRadians;
+                    const planetHashRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
                     ctx.beginPath();
                     ctx.moveTo(centerX + outerRadius * Math.cos(planetHashRadians), centerY + outerRadius * Math.sin(planetHashRadians));
                     ctx.lineTo(centerX + houseCircleRadius * Math.cos(planetHashRadians), centerY + houseCircleRadius * Math.sin(planetHashRadians));
