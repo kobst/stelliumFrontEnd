@@ -4,17 +4,22 @@ import React, { useEffect, useState } from 'react';
 // import SimpleForm from '../UI/SimpleForm';
 
 import GoogleAutocomplete from 'react-google-autocomplete'; // Make sure to import GoogleAutocomplete
-import { fetchTimeZone,postDailyTransit } from '../Utilities/api'; 
+import { fetchTimeZone, postDailyTransit } from '../Utilities/api'; 
+import { updateObjectKeys } from '../Utilities/helpers';
 
 import lightLogo from '../assets/Light logo.png'
 
 import whiteLine from '../assets/whiteline.png'
 import useStore from '../Utilities/store';
+import DailyReading from '../UI/landingPage/DailyReading'
+
 import Emphemeris from '../UI/shared/Ephemeris';
 import { TransitAspects } from '../UI/landingPage/transitAspects';
 
-import transitsData from '../data/transits_underscore.json';
+import transitsData from '../data/transits.json';
 import aspectsData from '../data/groupedTransitAspects.json';
+
+import { postDailyTransits, postDailyAspects, postPeriodAspects } from '../Utilities/api'
 
 
 
@@ -31,6 +36,9 @@ const LandingPageComponent = () => {
     const [todaysDate, setTodaysDate] = useState('')
 
     const [dailyTransitAspects, setDailyTransitAspects] = useState([]);
+    const [periodTransitAspects, setPeriodTransitAspects] = useState([]);
+    const [errorState, setError] = useState('');
+
 
     const setDailyTransits = useStore(state => state.setDailyTransits)
     const dailyTransits = useStore(state => state.dailyTransits)
@@ -76,38 +84,66 @@ const LandingPageComponent = () => {
             return (dateSpanStart <= transitEnd) && (dateSpanEnd >= transitStart);
         });
     }
+
+
+
+    const handleFetchDailyTransits = async (date) => {
+        try {
+          const transitsData = await postDailyTransits(date);
+          const cleanedTransits = updateObjectKeys(transitsData);
+          setDailyTransits(cleanedTransits);
+        } catch (error) {
+          setError(error.message);
+        }
+      };
+    
+    const handleFetchDailyAspects = async (date) => {
+    try {
+        const aspectsData = await postDailyAspects(date);
+        console.log("aspectsData", aspectsData);
+
+        setDailyTransitAspects(aspectsData);
+    } catch (error) {
+        setError(error.message);
+    }
+    };
+
+    const handleFetchPeriodAspects = async (startDate, endDate) => {
+    try {
+        const periodAspectsData = await postPeriodAspects(startDate, endDate);
+        setPeriodTransitAspects(periodAspectsData);
+    } catch (error) {
+        setError(error.message);
+    }
+    };
     
 
-    useEffect( () => {
+
+
+    
+
+    useEffect(() => {
         async function getTodaysData() {
-             
-            // console.log(todaysPositions.chartData)
-            // setDailyTransits(todaysPositions.chartData)
-            const closestDateKey = "2024-07-13 09:00:00"
-            const laterDateKey = "2024-08-13 09:00:00"
-            const transits = await loadTransits();
-
-            const targetDate = new Date(closestDateKey);
-            const targetDateLater = new Date(laterDateKey);
-            const relevantTransitAspects = getTransitsForDate(aspectsData, targetDate);
-            // const relevantTransitAspects = getTransitsForDateSpan(aspectsData, [targetDate, targetDateLater]);
-
-            // Find the closest date key
-            // const targetDate = new Date();
-            // const closestDateKey = findClosestDateKey(transits, targetDate);
-
-            // Access the corresponding array of transits
-            const todaysTransits = transits[closestDateKey];
-            console.log(todaysTransits);
-            console.log(relevantTransitAspects);
-            setTodaysDate(closestDateKey)
-            setDailyTransitAspects(relevantTransitAspects)
-            setDailyTransits(todaysTransits);
+          try {
+            
+            const closestDateKey = "2024-07-01T09:00:00Z"; // Use ISO 8601 format
+            const laterDateKey = "2025-03-30T09:00:00Z"; // Use ISO 8601 format
+    
+            await handleFetchDailyTransits(laterDateKey);
+            await handleFetchDailyAspects(laterDateKey);
+            // Optionally, fetch period aspects if needed
+            // await handleFetchPeriodAspects(closestDateKey, laterDateKey);
+    
+            // Set today's date (you might want to format it as needed)
+            setTodaysDate(laterDateKey);
+  
+          } catch (error) {
+            setError(error.message);
+          }
         }
-
-        getTodaysData()
-
-    }, []);
+    
+        getTodaysData();
+      }, []);
       
     return (
         <div className="container">
@@ -130,6 +166,10 @@ const LandingPageComponent = () => {
                 </div>
             </span>
             <TransitAspects transits={dailyTransitAspects}/>
+
+
+
+            {/* <DailyReading transitAspectObjects={dailyTransitAspects} transits={dailyTransits} /> */}
 
 
             <div className="email_form">

@@ -6,6 +6,9 @@ import { findAspects } from '../Utilities/generateTransitDescriptions';
 
 const ProgressedTransitComponent = ( {transitType} ) => {
     // const birthData = useStore(state => state.birthData)
+    const rawBirthData = useStore(state => state.rawBirthData)
+    const ascendantDegree = useStore(state => state.ascendantDegree)
+  
     const progressedBirthData = useStore(state => state.progressedBirthData);
     // const setProgressedBirthData = useStore(state => state.setProgressedBirthData);
     // const modifiedBirthData = useStore(state => state.modifiedBirthData)
@@ -41,7 +44,7 @@ const ProgressedTransitComponent = ( {transitType} ) => {
                 <div className="planet-response">
                     <pre>{JSON.stringify(progressedBirthData)}</pre>  
                     <pre>{progressedTransitDescriptions.join('\n')}</pre>  
-                    <Emphemeris transits={progressedBirthData}/>
+                    <Emphemeris planets={rawBirthData.planets} houses={rawBirthData.houses} ascendantDegree={ascendantDegree} transits={progressedBirthData}/>
                     
                 </div>
             )}
@@ -54,7 +57,7 @@ const ProgressedTransitComponent = ( {transitType} ) => {
                     <pre>{dailyTransitDescriptions}</pre> 
 
 
-                    <Emphemeris transits={dailyTransits}/>
+                    <Emphemeris planets={rawBirthData.planets} houses={rawBirthData.houses} ascendantDegree={ascendantDegree} transits={dailyTransits}/>
 
 
                 </div>

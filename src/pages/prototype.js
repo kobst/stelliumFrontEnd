@@ -10,7 +10,6 @@ function PrototypePage() {
 
 
   const rawBirthData = useStore(state => state.rawBirthData)
-
   const ascendantDegree = useStore(state => state.ascendantDegree)
 
 
