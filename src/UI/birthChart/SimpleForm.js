@@ -4,8 +4,9 @@ import { Loader } from "@googlemaps/js-api-loader";
 import ResponseContext from '../../Utilities/ResponseContext';
 import { updateObjectKeys } from '../../Utilities/helpers';
 
+
 import GoogleAutocomplete from 'react-google-autocomplete';
-import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration } from '../../Utilities/api'; 
+import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits} from '../../Utilities/api'; 
 import useStore from '../../Utilities/store';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
@@ -25,6 +26,17 @@ const SimpleForm = () => {
   const setAscendantDegree = useStore(state => state.setAscendantDegree)
   const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
 
+  function getStartAndEndDate() {
+    const currentDate = new Date();
+    const startDate = currentDate.toISOString();
+
+    const endDate = new Date(currentDate);
+    endDate.setMonth(endDate.getMonth() + 1);
+    const endDateString = endDate.toISOString();
+
+    return { startDate, endDate: endDateString };
+}
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -38,6 +50,7 @@ const SimpleForm = () => {
         const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
         console.log(`Time Zone Offset in Hours: ${totalOffsetHours}`);
     
+       
         const birthData = {
             date: date,
             time: time,
@@ -46,13 +59,15 @@ const SimpleForm = () => {
             tzone: totalOffsetHours,
         };
         setBirthDate(birthData)
+
+        const { startDate, endDate } = getStartAndEndDate();
+
+
         const response = await postBirthData(birthData)
         const responseProgressed = await postProgressedChart(birthData)
         const todaysPositions = await postDailyTransit(birthData);
         const promptMapResponse = await postPromptGeneration(response.chartData)
         const promptDescriptionsMap = promptMapResponse.promptDescriptionsMap
-
-        console.log("PROMPT MAP")
         
         setPromptDescriptionsMap('personality', promptDescriptionsMap['personality'])
         setPromptDescriptionsMap('home', promptDescriptionsMap['home'])
@@ -66,6 +81,10 @@ const SimpleForm = () => {
         setPromptDescriptionsMap('Modalities', promptDescriptionsMap['modalities'])
         setPromptDescriptionsMap('Pattern', promptDescriptionsMap['pattern'])
 
+        console.log(" CHART DATA ")
+        console.log(response.chartData)
+        const periodTransitsTest = await postPeriodTransits(startDate, endDate, response.chartData.planets)
+        console.log(periodTransitsTest)
 
         setDailyTransits(todaysPositions.chartData)
         setDailyTransitDescriptions(todaysPositions.transitAspects)
@@ -121,3 +140,6 @@ const SimpleForm = () => {
 };
 
 export default SimpleForm;
+
+
+

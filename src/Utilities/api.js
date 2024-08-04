@@ -57,6 +57,31 @@ export const postDailyTransits = async (date) => {
 };
 
 
+
+export const postPeriodTransits = async (startDate, endDate, birthChart)=> {
+  try {
+      const response = await fetch(`${SERVER_URL}/periodTransits`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ startDate, endDate, birthChart})
+      });
+
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      console.log('Transits:', data);
+      return data;
+  } catch (error) {
+      console.error('Error fetching transits:', error);
+  }
+}
+
+
+
 // Function to post daily aspects data
 export const postDailyAspects = async (date) => {
   try {
@@ -94,6 +119,33 @@ export const postPeriodAspects = async (startDate, endDate) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ startDate, endDate })  // Ensure the dates are sent as a JSON object
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
+
+
+// Function to post daily aspects data
+export const postDailyRetrogrades = async (date) => {
+  try {
+    console.log('date')
+    console.log(date)
+    console.log(`${SERVER_URL}/dailyRetrogrades`);
+    const response = await fetch(`${SERVER_URL}/dailyRetrogrades`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ date })  // Ensure the date is sent as a JSON object
     });
 
     if (!response.ok) {

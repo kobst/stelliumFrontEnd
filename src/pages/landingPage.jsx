@@ -19,7 +19,7 @@ import { TransitAspects } from '../UI/landingPage/transitAspects';
 import transitsData from '../data/transits.json';
 import aspectsData from '../data/groupedTransitAspects.json';
 
-import { postDailyTransits, postDailyAspects, postPeriodAspects } from '../Utilities/api'
+import { postDailyTransits, postDailyAspects, postPeriodAspects, postDailyRetrogrades } from '../Utilities/api'
 
 
 
@@ -37,6 +37,8 @@ const LandingPageComponent = () => {
 
     const [dailyTransitAspects, setDailyTransitAspects] = useState([]);
     const [periodTransitAspects, setPeriodTransitAspects] = useState([]);
+    const [retrogrades, setRetrogrades] = useState([]);
+
     const [errorState, setError] = useState('');
 
 
@@ -118,9 +120,17 @@ const LandingPageComponent = () => {
     };
     
 
+    const handleFetchRetrogrades = async (startDate) => {
+        try {
+            const retrogrades = await postDailyRetrogrades(startDate);
+            setRetrogrades(retrogrades);
+            console.log("retrogrades ----")
+            console.log(retrogrades)
+        } catch (error) {
+            setError(error.message);
+        }
+        };
 
-
-    
 
     useEffect(() => {
         async function getTodaysData() {
@@ -131,6 +141,7 @@ const LandingPageComponent = () => {
     
             await handleFetchDailyTransits(laterDateKey);
             await handleFetchDailyAspects(laterDateKey);
+            await handleFetchRetrogrades(laterDateKey)
             // Optionally, fetch period aspects if needed
             // await handleFetchPeriodAspects(closestDateKey, laterDateKey);
     
