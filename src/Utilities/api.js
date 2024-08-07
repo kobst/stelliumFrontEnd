@@ -31,7 +31,7 @@ export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
 }
 
 
-// Function to post daily transits data
+// Function to post daily transits data from the DB
 export const postDailyTransits = async (date) => {
   try {
     console.log(`${SERVER_URL}/dailyTransits`);
@@ -57,10 +57,59 @@ export const postDailyTransits = async (date) => {
 };
 
 
-
-export const postPeriodTransits = async (startDate, endDate, birthChart)=> {
+// Function to post period transits data from the DB
+export const postPeriodTransits = async (startDate, endDate)=> {
   try {
       const response = await fetch(`${SERVER_URL}/periodTransits`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ startDate, endDate})
+      });
+
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      console.log('Transits:', data);
+      return data;
+  } catch (error) {
+      console.error('Error fetching transits:', error);
+  }
+}
+
+
+export const createUserProfile = async (email, firstName, lastName, dateOfBirth, placeOfBirth, time, totalOffsetHours, birthChart) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/saveUserProfile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        email, 
+        firstName, 
+        lastName, 
+        dateOfBirth, 
+        placeOfBirth, 
+        time, 
+        totalOffsetHours, 
+        birthChart
+      })
+    });
+    return response;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+
+export const postPeriodTransitsForUserChart = async (startDate, endDate, birthChart)=> {
+  try {
+      const response = await fetch(`${SERVER_URL}/generatePeriodTransitsForChart`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'
@@ -79,6 +128,7 @@ export const postPeriodTransits = async (startDate, endDate, birthChart)=> {
       console.error('Error fetching transits:', error);
   }
 }
+
 
 
 
@@ -215,7 +265,7 @@ export const postProgressedChart = async (birthData) => {
 // Function to post birth data
 export const postDailyTransit = async (birthData) => {
   try {
-    const response = await fetch(`${SERVER_URL}/dayTransits`, {
+    const response = await fetch(`${SERVER_URL}/instantTransits`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

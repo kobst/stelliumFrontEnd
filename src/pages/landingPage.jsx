@@ -22,8 +22,6 @@ import aspectsData from '../data/groupedTransitAspects.json';
 import { postDailyTransits, postDailyAspects, postPeriodAspects, postDailyRetrogrades } from '../Utilities/api'
 
 
-
-
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 
 
@@ -136,17 +134,24 @@ const LandingPageComponent = () => {
         async function getTodaysData() {
           try {
             
-            const closestDateKey = "2024-07-01T09:00:00Z"; // Use ISO 8601 format
-            const laterDateKey = "2025-03-30T09:00:00Z"; // Use ISO 8601 format
+            // const closestDateKey = "2024-07-01T09:00:00Z"; // Use ISO 8601 format
+            // const laterDateKey = "2025-03-30T09:00:00Z"; // Use ISO 8601 format
     
-            await handleFetchDailyTransits(laterDateKey);
-            await handleFetchDailyAspects(laterDateKey);
-            await handleFetchRetrogrades(laterDateKey)
+            const currentDateISO = new Date().toISOString();
+            const oneMonthLater = new Date();
+            oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+        const oneMonthLaterISO = oneMonthLater.toISOString();
+
+
+            await handleFetchDailyTransits(currentDateISO);
+            await handleFetchDailyAspects(currentDateISO);
+            await handleFetchRetrogrades(currentDateISO)
+            await handleFetchPeriodAspects(currentDateISO, oneMonthLaterISO);
             // Optionally, fetch period aspects if needed
             // await handleFetchPeriodAspects(closestDateKey, laterDateKey);
     
             // Set today's date (you might want to format it as needed)
-            setTodaysDate(laterDateKey);
+            setTodaysDate(currentDateISO);
   
           } catch (error) {
             setError(error.message);
@@ -176,11 +181,17 @@ const LandingPageComponent = () => {
                     <p>{todaysDate}</p>
                 </div>
             </span>
-            <TransitAspects transits={dailyTransitAspects}/>
+            <div>
+                <h2>Daily Transits</h2>
+                <TransitAspects transits={dailyTransitAspects}/>
+            </div>
+    
+            <div>
+                <h2>Monthly Transits</h2>
+                <TransitAspects transits={periodTransitAspects} isMonthly={true} />
+            </div>
 
-
-
-            {/* <DailyReading transitAspectObjects={dailyTransitAspects} transits={dailyTransits} /> */}
+            <DailyReading transitAspectObjects={dailyTransitAspects} transits={dailyTransits} />
 
 
             <div className="email_form">

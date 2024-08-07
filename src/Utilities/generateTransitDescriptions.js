@@ -17,227 +17,36 @@ const orbDescription = (orb) => {
     }
   }
 
-//   function calculateAspect(degree1, degree2, isRetro) {
-//     const aspects = [0, 60, 90, 120, 150, 180]; // Conjunction, Sextile, Square, Trine, Opposite
-//     let aspectType = '';
-//     let isApplying = false;
-
-//     for (let aspectDegree of aspects) {
-//         let perfectAspectDegree = degree1 + aspectDegree;
-
-//         // Adjust if over 360 degrees
-//         if (perfectAspectDegree >= 360) {
-//             perfectAspectDegree -= 360;
-//         }
-
-//         // Calculate diff considering the circular nature of zodiac
-//         let diff = Math.abs(degree2 - perfectAspectDegree);
-//         if (diff > 180) {
-//             diff = 360 - diff;
-//         }
-
-//         if (perfectAspectDegree > 357) {
-//             if (degree2 >= perfectAspectDegree || degree2 < (3 - (360 - perfectAspectDegree))) {
-//                 isApplying = true
-//             } 
-//         // } else if (perfectAspectDegree < 3) {
-//         //     if (degree2 >= perfectAspectDegree || degree2 < (3 - (360 - perfectAspectDegree))) {
-//         //         isApplying = true
-//         //     } 
-//         } else {
-//             if (degree2 >= perfectAspectDegree && degree2 <= perfectAspectDegree) {
-//                 isApplying = true;
-//             } 
-//         }
-
-//         isApplying = isRetro ? !isApplying : isApplying
-
-//         // Check if the aspect is within orb
-//         if (diff <= 3) {
-//             let exactness = diff < 1 ? 'exact ' : '';
-//             switch (aspectDegree) {
-//                 case 0: aspectType = `${exactness}Conjunction`; break;
-//                 case 60: aspectType = `${exactness}Sextile`; break;
-//                 case 90: aspectType = `${exactness}Square`; break;
-//                 case 120: aspectType = `${exactness}Trine`; break;
-//                 case 150: aspectType =  `${exactness}Quincunx`; break;
-//                 case 180: aspectType = `${exactness}Opposite`; break;
-//                 default: break;
-//             }
-//             break; // Exit the loop as aspect is found
-//         }
-//     }
-
-//     if (aspectType !== '') {
-//         const aspectStatus = isApplying ? 'applying' : 'separating';
-//         return `${aspectType} (${aspectStatus})`;
-//     }
-
-//     return '';
-// }
-
-  
-
-//   function calculateAspect3(degree1, degree2, isRetro) {
-//     let diff = Math.abs(degree1 - degree2);
-//     let aspectType = '';
-//     let code = ''
-
-//     diff = diff > 180 ? 360 - diff : diff; 
-
-//     if (diff <= 3) {
-//         let orbDiff = Math.abs(diff - 0);
-//         aspectType = 'conjunction'
-//         code = transitCodes[aspectType]
-//         if (orbDiff < 1) {
-//             aspectType = 'exact ' + aspectType
-//             code = 'e' + code
-//         } else {
-//             aspectType = '' + aspectType
-//             code = 'g' + code
-//         }
-//         if (degree1 < degree2 || (degree2 < 3 && degree1 > 360 - degree2)){
-//             aspectType = '(applying)' + aspectType
-//             code = 'ap' + code
-//         }
-//     } else if (diff >= 57 && diff <= 63) {
-//         let orbDiff = Math.abs(diff - 60);
-//         aspectType = 'sextile'
-//         code = transitCodes[aspectType]
-//         if (orbDiff < 1) {
-//             aspectType = 'exact ' + aspectType
-//             code = 'e' + code
-//         } else {
-//             aspectType = '' + aspectType
-//             code = 'g' + code
-//         }
-//         if (degree1 < degree2 || (degree2 < 3 && degree1 > 360 - degree2)){
-//             aspectType = '(applying)' + aspectType
-//             code = 'ap' + code
-//         }
-//     } else if (diff >= 87 && diff <= 93) {
-//         let orbDiff = Math.abs(diff - 90);
-//         aspectType = 'square'
-//         code = transitCodes[aspectType]
-//         if (orbDiff < 1) {
-//             aspectType = 'exact ' + aspectType
-//             code = 'e' + code
-//         } else {
-//             aspectType = '' + aspectType
-//             code = 'g' + code
-//         }
-//         if (degree1 < degree2 || (degree2 < 3 && degree1 > 360 - degree2)){
-//             aspectType = '(applying)' + aspectType
-//             code = 'ap' + code
-//         }
-//     } else if (diff >= 117 && diff <= 123) {
-//         let orbDiff = Math.abs(diff - 120);
-//         aspectType = 'trine'
-//         code = transitCodes[aspectType]
-//         if (orbDiff < 1) {
-//             aspectType = 'exact ' + aspectType
-//             code = 'e' + code
-//         } else {
-//             aspectType = '' + aspectType
-//             code = 'g' + code
-//         }
-//         if (degree1 < degree2 || (degree2 < 3 && degree1 > 360 - degree2)){
-//             aspectType = '(applying)' + aspectType
-//             code = 'ap' + code
-//         }
-//     } else if (diff >= 147 && diff <= 150) {
-//         let orbDiff = Math.abs(diff - 150);
-//         aspectType = 'quincunx'
-//         code = transitCodes[aspectType]
-//         if (orbDiff < 1) {
-//             aspectType = 'exact ' + aspectType
-//             code = 'e' + code
-//         } else {
-//             aspectType = '' + aspectType
-//             code = 'g' + code
-//         }
-//         if (degree1 < degree2 || (degree2 < 3 && degree1 > 360 - degree2)){
-//             aspectType = '(applying)' + aspectType
-//             code = 'ap' + code
-//         }
-//     } else if (diff >= 177 && diff <= 183) {
-//         let orbDiff = Math.abs(diff - 180);
-//         aspectType = 'opposition'
-//         code = transitCodes[aspectType]
-//         if (orbDiff < 1) {
-//             aspectType = 'exact ' + aspectType
-//             code = 'e' + code
-//         } else {
-//             aspectType = '' + aspectType
-//             code = 'g' + code
-//         }
-//         if (degree1 < degree2 || (degree2 < 3 && degree1 > 360 - degree2)){
-//             aspectType = '(applying)' + aspectType
-//             code = 'ap' + code
-//         }
-//     } 
-
-//     if (aspectType !== '') {
-//         return [`${aspectType}`, code];
-//     }
-
-//     return ['', ''];
-// }
-
-
-
 function calculateAspect(degree1, degree2, isRetro) {
-    let diff = Math.abs(degree1 - degree2);
-    diff = diff > 180 ? 360 - diff : diff;
-  
-    // Define the aspects in an array to simplify the checks
-    const aspects = [
-      { name: 'conjunction', min: 0, max: 3, orb: 0 },
-      { name: 'sextile', min: 57, max: 63, orb: 60 },
-      { name: 'square', min: 87, max: 93, orb: 90 },
-      { name: 'trine', min: 117, max: 123, orb: 120 },
-      { name: 'quincunx', min: 147, max: 150, orb: 150 },
-      { name: 'opposition', min: 177, max: 183, orb: 180 },
-    ];
-  
-    for (let aspect of aspects) {
-      if (diff >= aspect.min && diff <= aspect.max) {
-        let orbDiff = Math.abs(diff - aspect.orb);
-        let aspectType = aspect.name;
-        let code = transitCodes[aspect.name];
-  
-        aspectType = orbDiff < 1 ? 'exact ' + aspectType : aspectType;
-        code = orbDiff < 1 ? 'e' + code : 'g' + code;
+  const diff = Math.abs(degree1 - degree2);
+  const adjustedDiff = diff > 180 ? 360 - diff : diff;
 
+  const aspects = [
+    { name: 'conjunction', orb: 0, maxDiff: 3 },
+    { name: 'sextile', orb: 60, maxDiff: 3 },
+    { name: 'square', orb: 90, maxDiff: 3 },
+    { name: 'trine', orb: 120, maxDiff: 3 },
+    { name: 'quincunx', orb: 150, maxDiff: 3 },
+    { name: 'opposition', orb: 180, maxDiff: 3 },
+  ];
 
-        let perfectOrbDegree = degree1 + aspect.orb
-        perfectOrbDegree = perfectOrbDegree > 360 ? perfectOrbDegree - 360 : perfectOrbDegree
-  
-        if (perfectOrbDegree < degree2 || (degree2 < 3 && perfectOrbDegree > 360 - degree2)) {
-            if (!isRetro) {
-                aspectType = '(applying) ' + aspectType;
-                code = 'ap' + code;
-            } else{
-                aspectType = '(seperating) ' + aspectType;
-                code = 'sp' + code
-            }
-        } else {
-            if (isRetro) {
-                aspectType = '(applying) ' + aspectType;
-                code = 'ap' + code;
-            } else{
-                aspectType = '(separating) ' + aspectType;
-                code = 'sp' + code
-            }
-        }
-  
-        return code;
-      }
+  for (const aspect of aspects) {
+    if (Math.abs(adjustedDiff - aspect.orb) <= aspect.maxDiff) {
+      const orbDiff = Math.abs(adjustedDiff - aspect.orb);
+      const isExact = orbDiff < 1;
+      const perfectOrbDegree = (degree1 + aspect.orb) % 360;
+      const isApplying = perfectOrbDegree < degree2 || (degree2 < 3 && perfectOrbDegree > 357);
+
+      let code = transitCodes[aspect.name];
+      code = (isExact ? 'e' : 'g') + code;
+      code = ((isApplying !== isRetro) ? 'ap' : 'sp') + code;
+
+      return code;
     }
-  
-    return '';
   }
 
+  return '';
+}
 
 function findTransitingHouse(transit, sortedHouses) {
 
@@ -310,7 +119,6 @@ export const findAspects = (updatedTransits, birthChart, type) => {
 
     return aspects;
 }
-
 
 
 

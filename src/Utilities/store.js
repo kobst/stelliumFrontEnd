@@ -12,7 +12,7 @@ const useStore = create(set => ({
   ascendantDegree: 0,
   setAscendantDegree: (response) => set({ ascendantDegree: response }),
 
-  dailyTransits: '',
+  dailyTransits: [],
   setDailyTransits: (response) => set({dailyTransits: response}),
 
   dailyPersonalTransitDescriptions: '',

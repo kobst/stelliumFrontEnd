@@ -6,7 +6,7 @@ import { updateObjectKeys } from '../../Utilities/helpers';
 
 
 import GoogleAutocomplete from 'react-google-autocomplete';
-import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits} from '../../Utilities/api'; 
+import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits, postPeriodTransitsForUserChart} from '../../Utilities/api'; 
 import useStore from '../../Utilities/store';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
@@ -83,7 +83,7 @@ const SimpleForm = () => {
 
         console.log(" CHART DATA ")
         console.log(response.chartData)
-        const periodTransitsTest = await postPeriodTransits(startDate, endDate, response.chartData.planets)
+        const periodTransitsTest = await postPeriodTransitsForUserChart(startDate, endDate, response.chartData.planets)
         console.log(periodTransitsTest)
 
         setDailyTransits(todaysPositions.chartData)

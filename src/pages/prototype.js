@@ -1,5 +1,6 @@
 import React from 'react';
 import SimpleForm from '../UI/birthChart/SimpleForm';
+import UserSignUpForm from '../UI/birthChart/UserSignUpForm';
 import RawBirthDataComponent from '../UI/birthChart/RawBirthDataComponent';
 import TabbedBigFourMenu from '../UI/birthChart/TabbedBigFourComponent';
 import Emphemeris from '../UI/shared/Ephemeris';
@@ -19,14 +20,14 @@ function PrototypePage() {
         <h1 className="logotxt">STELLIUM</h1>
       </div>
       <div className="horoscope-container">
-        <SimpleForm />
-        {rawBirthData.planets && rawBirthData.houses && ascendantDegree ? (
+        <UserSignUpForm />  
+        {/* {rawBirthData.planets && rawBirthData.houses && ascendantDegree ? (
           <Emphemeris planets={rawBirthData.planets} houses={rawBirthData.houses} transits={[]} ascendantDegree={ascendantDegree} />
         ) : (
           <Emphemeris />
         )}
         <RawBirthDataComponent />
-        <TabbedBigFourMenu />
+        <TabbedBigFourMenu /> */}
       </div>
     </div>
   );
