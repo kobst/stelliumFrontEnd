@@ -81,7 +81,7 @@ export const postPeriodTransits = async (startDate, endDate)=> {
 }
 
 
-export const createUserProfile = async (email, firstName, lastName, dateOfBirth, placeOfBirth, time, totalOffsetHours, birthChart) => {
+export const createUserProfile = async (email, firstName, lastName, dateOfBirth, placeOfBirth, time, totalOffsetHours, birthChart, houses, aspects) => {
   try {
     const response = await fetch(`${SERVER_URL}/saveUserProfile`, {
       method: 'POST',
@@ -96,7 +96,9 @@ export const createUserProfile = async (email, firstName, lastName, dateOfBirth,
         placeOfBirth, 
         time, 
         totalOffsetHours, 
-        birthChart
+        birthChart,
+        houses,
+        aspects
       })
     });
     return response;

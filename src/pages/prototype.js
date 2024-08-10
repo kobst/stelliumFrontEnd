@@ -21,6 +21,7 @@ function PrototypePage() {
       </div>
       <div className="horoscope-container">
         <UserSignUpForm />  
+        {/* <SimpleForm /> */}
         {/* {rawBirthData.planets && rawBirthData.houses && ascendantDegree ? (
           <Emphemeris planets={rawBirthData.planets} houses={rawBirthData.houses} transits={[]} ascendantDegree={ascendantDegree} />
         ) : (

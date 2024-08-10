@@ -68,8 +68,21 @@ const UserSignUpForm = () => {
           const response = await postBirthData(birthData);
           console.log(" CHART DATA ");
           console.log(response.chartData);
-          const userid = await createUserProfile(email, firstName, lastName, date, placeOfBirth, time, totalOffsetHours, response.chartData.planets);
-          console.log(userid + " userid");
+          
+          // pass in response.chartData.houses (and maybe response.chartData.aspects) to createUserProfile
+          const userid = await createUserProfile(
+            email, 
+            firstName, 
+            lastName, 
+            date, 
+            placeOfBirth, 
+            time, 
+            totalOffsetHours, 
+            response.chartData.planets,
+            response.chartData.houses,
+            response.chartData.aspects
+            );
+          console.log(JSON.stringify(userid) + " userid");
           setAscendantDegree(response.chartData['ascendant']);
           setRawBirthData(response.chartData);
       } catch (error) {
@@ -136,7 +149,8 @@ const UserSignUpForm = () => {
               }}
           />
           </div>
-          <input type="submit" value="Submit" style={{ color: 'white' }}/>
+          <input className="email-submit-btn" type="submit" value="Submit" style={{ color: 'white' }}/>
+
         </form>
         {Object.keys(formErrors).length > 0 && (
           <div style={{ color: 'red' }}>
