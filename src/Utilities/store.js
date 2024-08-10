@@ -6,6 +6,9 @@ const useStore = create(set => ({
     birthDate: {},
     setBirthDate: (response) => set({ birthDate: response}),
 
+    userId: '',
+    setUserId: (response) => set({ userId: response }),
+
   rawBirthData: '',
   setRawBirthData: (response) => set({ rawBirthData: response }),
 

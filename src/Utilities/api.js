@@ -101,7 +101,8 @@ export const createUserProfile = async (email, firstName, lastName, dateOfBirth,
         aspects
       })
     });
-    return response;
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error('Error in API call:', error);
     throw error;

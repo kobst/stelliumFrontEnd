@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { Loader } from "@googlemaps/js-api-loader";
 import ResponseContext from '../../Utilities/ResponseContext';
 import { updateObjectKeys } from '../../Utilities/helpers';
@@ -14,6 +16,8 @@ const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 
 
 const UserSignUpForm = () => {
+    const navigate = useNavigate();
+
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -26,8 +30,7 @@ const UserSignUpForm = () => {
     const setRawBirthData = useStore(state => state.setRawBirthData);
     const setBirthDate = useStore(state => state.setBirthDate);
     const setAscendantDegree = useStore(state => state.setAscendantDegree)
-
-    // ... existing state and functions ...
+    const setUserId = useStore(state => state.setUserId);
   
     const validateForm = () => {
       const errors = {};
@@ -68,7 +71,7 @@ const UserSignUpForm = () => {
           const response = await postBirthData(birthData);
           console.log(" CHART DATA ");
           console.log(response.chartData);
-          
+
           // pass in response.chartData.houses (and maybe response.chartData.aspects) to createUserProfile
           const userid = await createUserProfile(
             email, 
@@ -85,9 +88,15 @@ const UserSignUpForm = () => {
           console.log(JSON.stringify(userid) + " userid");
           setAscendantDegree(response.chartData['ascendant']);
           setRawBirthData(response.chartData);
+          if (userid) {
+            console.log('User profile created successfully');
+            setUserId(userid);
+            navigate('/confirmation');
+          } else {
+            console.error('Failed to create user profile');
+          }
       } catch (error) {
         console.error('Error submitting form:', error);
-        setRawBirthData(`Error: ${error.message}`);
       }
     };
     

@@ -22,13 +22,15 @@ function PrototypePage() {
       <div className="horoscope-container">
         <UserSignUpForm />  
         {/* <SimpleForm /> */}
-        {/* {rawBirthData.planets && rawBirthData.houses && ascendantDegree ? (
+        {rawBirthData.planets && rawBirthData.houses && ascendantDegree ? (
           <Emphemeris planets={rawBirthData.planets} houses={rawBirthData.houses} transits={[]} ascendantDegree={ascendantDegree} />
         ) : (
           <Emphemeris />
-        )}
-        <RawBirthDataComponent />
-        <TabbedBigFourMenu /> */}
+        )} 
+
+
+        {/* <RawBirthDataComponent />
+        <TabbedBigFourMenu />  */}
       </div>
     </div>
   );
