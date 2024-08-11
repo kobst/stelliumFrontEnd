@@ -12,6 +12,15 @@ const useStore = create(set => ({
   rawBirthData: '',
   setRawBirthData: (response) => set({ rawBirthData: response }),
 
+  userPlanets: [],
+  setUserPlanets: (response) => set({ userPlanets: response }),
+
+  userHouses: [],
+  setUserHouses: (response) => set({ userHouses: response }),
+
+  userAspects: [],
+  setUserAspects: (response) => set({ userAspects: response }),
+
   ascendantDegree: 0,
   setAscendantDegree: (response) => set({ ascendantDegree: response }),
 

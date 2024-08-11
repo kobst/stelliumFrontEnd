@@ -81,7 +81,7 @@ export const postPeriodTransits = async (startDate, endDate)=> {
 }
 
 
-export const createUserProfile = async (email, firstName, lastName, dateOfBirth, placeOfBirth, time, totalOffsetHours, birthChart, houses, aspects) => {
+export const createUserProfile = async (email, firstName, lastName, dateOfBirth, placeOfBirth, time, totalOffsetHours, birthChart) => {
   try {
     const response = await fetch(`${SERVER_URL}/saveUserProfile`, {
       method: 'POST',
@@ -96,9 +96,7 @@ export const createUserProfile = async (email, firstName, lastName, dateOfBirth,
         placeOfBirth, 
         time, 
         totalOffsetHours, 
-        birthChart,
-        houses,
-        aspects
+        birthChart
       })
     });
     const data = await response.json();
@@ -109,6 +107,27 @@ export const createUserProfile = async (email, firstName, lastName, dateOfBirth,
   }
 }
 
+export const fetchUsers = async () => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getUsers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      // Add a body if needed
+      // body: JSON.stringify({})
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    console.log('Users:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
+};
 
 export const postPeriodTransitsForUserChart = async (startDate, endDate, birthChart)=> {
   try {
@@ -291,7 +310,13 @@ export const postDailyTransit = async (birthData) => {
 
 
 // Function to post birth data
-export const postPromptGeneration = async (birthchart) => {
+export const postPromptGeneration = async (planets, houses, aspects) => {
+ console.log('planets')
+ console.log(planets)
+ console.log('houses')
+ console.log(houses)
+  const body = JSON.stringify({planets, houses, aspects});
+
   try {
     console.log(`${SERVER_URL}/promptGeneration`)
     const response = await fetch(`${SERVER_URL}/promptGeneration`, {
@@ -299,7 +324,7 @@ export const postPromptGeneration = async (birthchart) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(birthchart)
+      body: body
     });
 
     if (!response.ok) {

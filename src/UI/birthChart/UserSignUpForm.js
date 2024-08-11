@@ -13,8 +13,6 @@ import useStore from '../../Utilities/store';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 
-
-
 const UserSignUpForm = () => {
     const navigate = useNavigate();
 
@@ -81,10 +79,8 @@ const UserSignUpForm = () => {
             placeOfBirth, 
             time, 
             totalOffsetHours, 
-            response.chartData.planets,
-            response.chartData.houses,
-            response.chartData.aspects
-            );
+            response.chartData
+        );
           console.log(JSON.stringify(userid) + " userid");
           setAscendantDegree(response.chartData['ascendant']);
           setRawBirthData(response.chartData);

@@ -47,7 +47,7 @@ const DominanceComponent = ({ dominanceTopic }) => {
                 )}
             </div>
             {dominanceResponsesMap[dominanceTopic] !== "" && (
-                <div className="planet-response">
+                <div className="planet-response" color='white'>
                     <pre>{dominanceResponsesMap[dominanceTopic]}</pre>  
                 </div>
             )}
