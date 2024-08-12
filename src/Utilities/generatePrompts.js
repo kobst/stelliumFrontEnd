@@ -27,6 +27,14 @@ export const orbDescription = (orb) => {
   }
   
 
+
+
+
+
+
+
+
+  
 function findAspects(planetName, birthData) {
     let aspectList = [];
     birthData.aspects.forEach(aspect => {
@@ -69,6 +77,12 @@ function findAspects(planetName, birthData) {
   
 
 export const generateResponse = (promptKey, birthData) => {
+  console.log('promptKey')
+  console.log(promptKey)
+
+  console.log('birthData:', birthData);
+  console.log('birthData type:', typeof birthData);
+  console.log('birthData.planets:', birthData.planets);
     const prompt = relevantPromptAspects[promptKey];
     let responses = [];
     

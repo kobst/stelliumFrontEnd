@@ -24,10 +24,10 @@ function UsersTable() {
 
   const handleUserSelect = (user) => {
     setSelectedUser(user);
-    setUserPlanets(user.birthChart);
-    setUserHouses(user.houses);
-    setUserAspects(user.aspectsComputed);
-    const ascendant = user.birthChart.find(planet => planet.name === 'Ascendant');
+    setUserPlanets(user.birthChart.planets  );
+    setUserHouses(user.birthChart.houses);
+    setUserAspects(user.birthChart.aspectsComputed);
+    const ascendant = user.birthChart.planets.find(planet => planet.name === 'Ascendant');
     if (ascendant) {
       setAscendantDegree(ascendant.full_degree);
     } else {

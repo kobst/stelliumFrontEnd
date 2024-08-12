@@ -7,6 +7,8 @@ import UsersTable from '../UI/prototype/UsersTable';
 import Ephemeris from '../UI/shared/Ephemeris';
 import useStore from '../Utilities/store';
 import { postPromptGeneration } from '../Utilities/api';
+import { generateResponse } from '../Utilities/generatePrompts'
+import { findAspectsComputed, describePlanets, describeHouses } from '../Utilities/generateBirthDataDescriptions'
 
 function PrototypePage() {
   const rawBirthData = useStore(state => state.rawBirthData)
@@ -28,14 +30,18 @@ function PrototypePage() {
     console.log('userPlanets before API call:', userPlanets);
     try {
      
-        const promptMapResponse = await postPromptGeneration(userPlanets, userHouses, userAspects)
-        const promptDescriptionsMap = promptMapResponse.promptDescriptionsMap
-        
-        setPromptDescriptionsMap('everything', promptDescriptionsMap['everything'])
-        setPromptDescriptionsMap('Quadrants', promptDescriptionsMap['quadrants'])
-        setPromptDescriptionsMap('Elements', promptDescriptionsMap['elements'])
-        setPromptDescriptionsMap('Modalities', promptDescriptionsMap['modalities'])
-        setPromptDescriptionsMap('Pattern', promptDescriptionsMap['pattern'])
+        const birthData = { planets: userPlanets, houses: userHouses, aspectsComputed: userAspects };
+
+        const response = describePlanets(birthData)
+        const houseResponse = describeHouses(birthData)
+        const aspects = findAspectsComputed(birthData)
+
+        console.log(response)
+        console.log(aspects)
+        console.log(houseResponse)
+
+
+
 
 
     } catch (error) {
