@@ -394,6 +394,20 @@ input {
   margin: 0; /* Remove margin */
 }
 
+
+.birth-chart-summary {
+  color: white;
+}
+
+.summary-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.summary-item {
+  margin-bottom: 8px;
+}
+
 /* Planets motion Styles */
 
 .planet-cont{

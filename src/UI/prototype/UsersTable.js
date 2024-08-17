@@ -42,23 +42,24 @@ function UsersTable() {
         <table className="user-table">
           <thead>
             <tr>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Email</th>
+            <th style={{ color: 'orange' }}>First Name</th>
+            <th style={{ color: 'orange' }}>Last Name</th>
+            <th style={{ color: 'orange' }}>Email</th>
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr
+          {users.map((user) => (
+            <tr
                 key={user._id}
                 onClick={() => handleUserSelect(user)}
                 className={selectedUser && selectedUser._id === user._id ? 'selected' : ''}
-              >
+                style={{ color: 'white' }}
+            >
                 <td>{user.firstName}</td>
                 <td>{user.lastName}</td>
                 <td>{user.email}</td>
-              </tr>
-            ))}
+            </tr>
+        ))}
           </tbody>
         </table>
       </div>

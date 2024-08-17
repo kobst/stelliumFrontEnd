@@ -147,7 +147,7 @@ function getDominanceDescriptionQuadrant(percent) {
     return category;
   }
   
-  export const findPlanetsInQuadrant = (chartData) => {
+  export function findPlanetsInQuadrant(chartData) {
     const planetsInQuadrants = {
       'SouthEast': [],
       'SouthWest': [],
@@ -216,7 +216,7 @@ function getDominanceDescriptionQuadrant(percent) {
     return category;
   }
   
-  export const findPlanetsInElements = (chartData) =>  {
+  export function findPlanetsInElements(chartData) {
     const planetsInElements = { 'Fire': [], 'Earth': [], 'Air': [], 'Water': [] };
     const elementPercentiles = {};
     chartData.planets.forEach(planetData => {
@@ -259,7 +259,7 @@ const ignoreModalityPoints = [
 "Chiron", "Part of Fortune", "South Node", "Midheaven", "Node"
 ]
 
-export const findPlanetsInModalities = (chartData) => {
+export function findPlanetsInModalities(chartData) {
     const planetsInModalities = { 'Cardinal': [], 'Fixed': [], 'Mutable': [] };
     const modalityPercentiles = {};
   

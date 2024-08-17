@@ -7,18 +7,18 @@ import useStore from '../../Utilities/store';
 const BigFourComponent = ({ bigFourType }) => {
     // const [responses, setResponses] = useState({});
     const [subHeadings, setSubHeadings] = useState([]);
-    const [promptData, setPromptData] = useState("")
+    // const [promptData, setPromptData] = useState("")
     const [everythingData, setEverythingData] = useState("")
-
     const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
-    const setBigFourMap = useStore(state => state.setBigFourMap)
-    const bigFourMap = useStore(state => state.bigFourResponsesMap)
-
+    const setHeadingInterpretationMap = useStore(state => state.setHeadingInterpretationMap)
+    const headingInterpretationMap = useStore(state => state.headingInterpretationMap)
+    const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
+    const subHeadingsPromptDescriptionsMap = useStore(state => state.subHeadingsPromptDescriptionsMap)
     // console.log(bigFourMap)
 
     useEffect(() => {
         setSubHeadings(heading_map[bigFourType]);
-        setPromptData(promptDescriptionsMap[bigFourType])
+        // setPromptData(promptDescriptionsMap[bigFourType])
         setEverythingData(promptDescriptionsMap['everything'])
 
 
@@ -28,26 +28,11 @@ const BigFourComponent = ({ bigFourType }) => {
         // const modifiedInput = promptData + "\n" + heading + "\nEvery time you mention a particular aspect or position, please include its reference number provided";
 
         const modifiedInput = `${everythingData}\n${bigFourType.toUpperCase()}: ${heading}`;
-
         try {
-            const response = await postPromptGPT(modifiedInput)
-        //   const response1 = await postGptResponse(modifiedInput);
-
-        //   setResponses(prevResponses => ({
-        //     ...prevResponses,
-        //     [heading]: response
-        // }));
-        // const formattedResponse = response.response.replace(/\n/g, '<br />');
-
-        const linesWithRefs = response.response.split('\n').map((line, index) => `${line}`);
-        const formattedResponse = linesWithRefs.join('\n');
-
-            setBigFourMap(heading, formattedResponse)
-            // console.log(response1)
-
-            // console.log(response)
-        
-        
+            const responseObject = await postPromptGPT(modifiedInput)
+            console.log(responseObject)
+            // setBigFourMap(heading, responseObject.response)
+            setSubHeadingsPromptDescriptionsMap(heading, responseObject.response)
         } catch (error) {
           console.error('Error:', error);
         }
@@ -57,24 +42,29 @@ const BigFourComponent = ({ bigFourType }) => {
         generateResponse(heading);
     };
 
-    const renderPromptDataWithRefs = () => {
-        if (!promptData) {
-            return null;
-        }
 
-        // Splitting the promptData into lines and adding ref IDs
-        const linesWithRefs = promptData.split('\n').map((line, index) => `${line}`);
-        return linesWithRefs.join('\n');
-    };
+    async function generateInterpretation(heading) {
+        const modifiedInput = `${subHeadingsPromptDescriptionsMap[heading]}: ${heading}`;
+        try {
+            const responseObject = await postGptResponse(modifiedInput)
+            console.log(responseObject)
+            setHeadingInterpretationMap(heading, responseObject)
+        } catch (error) {
+          console.error('Error:', error);
+        }
+    }
 
     const renderResponseForHeading = (heading) => {
         return (
             <div key={heading}>
                 <h4 className="heading"> {heading}</h4>
-                <button className="redo-button" onClick={() => handleRedo(heading)}>Redo</button>
-                {/* <p>{bigFourMap[heading]}</p> */}
+                <button className="redo-button" onClick={() => handleRedo(heading)}> Generate Relevant Birth Data for this Subheading</button>
                 <div className="planet-response">
-                    <pre>{bigFourMap[heading]}</pre>  
+                    <pre>{subHeadingsPromptDescriptionsMap[heading]}</pre>  
+                </div>
+                <button className="redo-button" onClick={() => generateInterpretation(heading)}> Generate Interpretation</button>
+                <div className="planet-response">
+                    <pre>{headingInterpretationMap[heading]}</pre>  
                 </div>
             </div>
         );
@@ -82,12 +72,10 @@ const BigFourComponent = ({ bigFourType }) => {
 
     return (
         <div>
-            {promptData !== "" && (
-                <div>
-                    <pre className='prompts'>{renderPromptDataWithRefs()}</pre>  
-                    <button onClick={() => subHeadings.forEach(generateResponse)}>Generate Responses</button>
-                </div>
-            )}
+         
+            <div>
+                <button onClick={() => subHeadings.forEach(generateResponse)}>Generate Relevant Birth Data for all Subheadings</button>
+            </div>
             {subHeadings.map(renderResponseForHeading)}
         </div>
     );

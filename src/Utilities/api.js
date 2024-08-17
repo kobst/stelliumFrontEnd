@@ -346,7 +346,6 @@ export const postPromptGeneration = async (planets, houses, aspects) => {
 export const postPromptGPT = async (input) => {
   // console.log(JSON.stringify({input}))
   console.log('json strigify')
-  console.log(JSON.stringify(input))
   console.log(input)
   try {
     console.log(`${SERVER_URL}/getPrompts`)

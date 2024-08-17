@@ -64,17 +64,95 @@ export const rulers = {
   export const planets = ["Sun", "Moon", "Ascendant", "Mercury", "Venus", "Mars", "Saturn", "Jupiter", "Uranus", "Neptune", "Pluto"]  
   export const transitTopics = ['Progressed', 'Transits']
 
-  const personality_headings = ["Personal Identity and Self-Image", "Outward Expression and Appearance", "Inner Self and Emotional Dynamics", "Challenges and Tension", "Path of Integration"]
+  export const HeadingEnum = {
+    // Personality
+    PERSONAL_IDENTITY: "Personal Identity and Self-Image",
+    OUTWARD_EXPRESSION: "Outward Expression and Appearance",
+    INNER_SELF: "Inner Self and Emotional Dynamics",
+    CHALLENGES_TENSION: "Challenges and Tension",
+    PATH_INTEGRATION: "Path of Integration",
   
-  const home_headings = ["Emotional Foundations and Security Needs", "Family Dynamics and Past Influences", "Home Environment and Preferences", "Challenges and Growth in Family Life", "Synthesizing a Harmonious Physical and Emotional Home"]
+    // Home
+    EMOTIONAL_FOUNDATIONS: "Emotional Foundations and Security Needs",
+    FAMILY_DYNAMICS: "Family Dynamics and Past Influences",
+    HOME_ENVIRONMENT: "Home Environment and Preferences",
+    FAMILY_CHALLENGES: "Challenges and Growth in Family Life",
+    HARMONIOUS_HOME: "Synthesizing a Harmonious Physical and Emotional Home",
   
-  const relationship_headings = ["Core Relationship Desires and Boundaries", "Love Style: Expression and Attraction", "Sexual Nature and Intimacy", "Commitment Approach and Long-term Vision", "Challenges and Growth in Relationships", "Romantic Summary", "Social Networks and Community"]
+    // Relationships
+    RELATIONSHIP_DESIRES: "Core Relationship Desires and Boundaries",
+    LOVE_STYLE: "Love Style: Expression and Attraction",
+    SEXUAL_NATURE: "Sexual Nature and Intimacy",
+    COMMITMENT_APPROACH: "Commitment Approach and Long-term Vision",
+    RELATIONSHIP_CHALLENGES: "Challenges and Growth in Relationships",
+    ROMANTIC_SUMMARY: "Romantic Summary",
+    SOCIAL_NETWORKS: "Social Networks and Community",
   
-  const career_headings = ["Career Motivations and Ambitions", "Public Image, Reputation, and Leadership Style", "Challenges and Growth Opportunities in Profession", "Skills, Talents, and Strengths", "Summary and Path To Success"]
-
-  const unconscious_headings = ["Deep Psychological Patterns", "Spiritual Growth and Hidden Strengths", "Karmic Lessons and Past Life Influences", "Transformative Events and Personal Metamorphosis"]
-
-  const communication_headings = ["Communication and Learning Styles", "Philosophical Beliefs and Higher Learning", "Travel and Cross-Cultural Experiences"]
+    // Career
+    CAREER_MOTIVATIONS: "Career Motivations and Ambitions",
+    PUBLIC_IMAGE: "Public Image, Reputation, and Leadership Style",
+    CAREER_CHALLENGES: "Challenges and Growth Opportunities in Profession",
+    SKILLS_TALENTS: "Skills, Talents, and Strengths",
+    CAREER_SUMMARY: "Summary and Path To Success",
+  
+    // Unconscious
+    PSYCHOLOGICAL_PATTERNS: "Deep Psychological Patterns",
+    SPIRITUAL_GROWTH: "Spiritual Growth and Hidden Strengths",
+    KARMIC_LESSONS: "Karmic Lessons and Past Life Influences",
+    TRANSFORMATIVE_EVENTS: "Transformative Events and Personal Metamorphosis",
+  
+    // Communication
+    COMMUNICATION_STYLES: "Communication and Learning Styles",
+    PHILOSOPHICAL_BELIEFS: "Philosophical Beliefs and Higher Learning",
+    TRAVEL_EXPERIENCES: "Travel and Cross-Cultural Experiences"
+  };
+  
+  const personality_headings = [
+    HeadingEnum.PERSONAL_IDENTITY,
+    HeadingEnum.OUTWARD_EXPRESSION,
+    HeadingEnum.INNER_SELF,
+    HeadingEnum.CHALLENGES_TENSION,
+    HeadingEnum.PATH_INTEGRATION
+  ];
+  
+  const home_headings = [
+    HeadingEnum.EMOTIONAL_FOUNDATIONS,
+    HeadingEnum.FAMILY_DYNAMICS,
+    HeadingEnum.HOME_ENVIRONMENT,
+    HeadingEnum.FAMILY_CHALLENGES,
+    HeadingEnum.HARMONIOUS_HOME
+  ];
+  
+  const relationship_headings = [
+    HeadingEnum.RELATIONSHIP_DESIRES,
+    HeadingEnum.LOVE_STYLE,
+    HeadingEnum.SEXUAL_NATURE,
+    HeadingEnum.COMMITMENT_APPROACH,
+    HeadingEnum.RELATIONSHIP_CHALLENGES,
+    HeadingEnum.ROMANTIC_SUMMARY,
+    HeadingEnum.SOCIAL_NETWORKS
+  ];
+  
+  const career_headings = [
+    HeadingEnum.CAREER_MOTIVATIONS,
+    HeadingEnum.PUBLIC_IMAGE,
+    HeadingEnum.CAREER_CHALLENGES,
+    HeadingEnum.SKILLS_TALENTS,
+    HeadingEnum.CAREER_SUMMARY
+  ];
+  
+  const unconscious_headings = [
+    HeadingEnum.PSYCHOLOGICAL_PATTERNS,
+    HeadingEnum.SPIRITUAL_GROWTH,
+    HeadingEnum.KARMIC_LESSONS,
+    HeadingEnum.TRANSFORMATIVE_EVENTS
+  ];
+  
+  const communication_headings = [
+    HeadingEnum.COMMUNICATION_STYLES,
+    HeadingEnum.PHILOSOPHICAL_BELIEFS,
+    HeadingEnum.TRAVEL_EXPERIENCES
+  ];
   
 export const heading_map = {
   "personality": personality_headings,
@@ -83,8 +161,6 @@ export const heading_map = {
   "career": career_headings,
   "unconscious": unconscious_headings,
   "communication": communication_headings,
-  "everything": personality_headings,
-
 }
 
 export const elements = {

@@ -40,8 +40,8 @@ const DominanceComponent = ({ dominanceTopic }) => {
             <div>
                 <h4>{dominanceTopic}</h4>
                 {promptData !== "" && (
-                <div>
-                    <pre className="pre-container">{promptData}</pre>  
+                <div style={{ color: 'white' }}>
+                    <pre style={{ color: 'white' }}>{promptData}</pre>  
                     <button onClick={generateResponse}>Generate Responses</button>
                 </div>
                 )}

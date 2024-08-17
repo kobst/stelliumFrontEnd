@@ -1,5 +1,7 @@
 // store.js
 import create from 'zustand';
+import { HeadingEnum } from './constants';
+
 
 const useStore = create(set => ({
 
@@ -93,7 +95,43 @@ const useStore = create(set => ({
         dominanceResponsesMap: { ...state.dominanceResponsesMap, [key]: description }
     })),
 
-    bigFourResponsesMap: {
+    headingInterpretationMap: {
+        [HeadingEnum.PERSONAL_IDENTITY]: '',
+        [HeadingEnum.OUTWARD_EXPRESSION]: '',
+        [HeadingEnum.INNER_SELF]: '',
+        [HeadingEnum.CHALLENGES_TENSION]: '',
+        [HeadingEnum.PATH_INTEGRATION]: '',
+        [HeadingEnum.EMOTIONAL_FOUNDATIONS]: '',
+        [HeadingEnum.FAMILY_DYNAMICS]: '',
+        [HeadingEnum.HOME_ENVIRONMENT]: '',
+        [HeadingEnum.FAMILY_CHALLENGES]: '',
+        [HeadingEnum.HARMONIOUS_HOME]: '',
+        [HeadingEnum.RELATIONSHIP_DESIRES]: '',
+        [HeadingEnum.LOVE_STYLE]: '',
+        [HeadingEnum.SEXUAL_NATURE]: '',
+        [HeadingEnum.COMMITMENT_APPROACH]: '',
+        [HeadingEnum.RELATIONSHIP_CHALLENGES]: '',
+        [HeadingEnum.ROMANTIC_SUMMARY]: '',
+        [HeadingEnum.SOCIAL_NETWORKS]: '',
+        [HeadingEnum.CAREER_MOTIVATIONS]: '',
+        [HeadingEnum.PUBLIC_IMAGE]: '',
+        [HeadingEnum.CAREER_CHALLENGES]: '',
+        [HeadingEnum.SKILLS_TALENTS]: '',
+        [HeadingEnum.CAREER_SUMMARY]: '',
+        [HeadingEnum.PSYCHOLOGICAL_PATTERNS]: '',
+        [HeadingEnum.SPIRITUAL_GROWTH]: '',
+        [HeadingEnum.KARMIC_LESSONS]: '',
+        [HeadingEnum.TRANSFORMATIVE_EVENTS]: '',
+        [HeadingEnum.COMMUNICATION_STYLES]: '',
+        [HeadingEnum.PHILOSOPHICAL_BELIEFS]: '',
+        [HeadingEnum.TRAVEL_EXPERIENCES]: ''
+    },
+
+    setHeadingInterpretationMap: (key, description) => set(state => ({
+        headingInterpretationMap: { ...state.headingInterpretationMap, [key]: description }
+    })),
+
+    subHeadingsPromptDescriptionsMap: {
         'Personal Identity and Self-Image': '',
         'Outward Expression and Appearance': '',
         'Inner Self and Emotional Dynamics': '',
@@ -118,8 +156,8 @@ const useStore = create(set => ({
         'Summary and Path To Success': ''
     },
 
-    setBigFourMap: (key, description) => set(state => ({
-        bigFourResponsesMap: { ...state.bigFourResponsesMap, [key]: description }
+    setSubHeadingsPromptDescriptionsMap: (key, description) => set(state => ({
+        subHeadingsPromptDescriptionsMap: { ...state.subHeadingsPromptDescriptionsMap, [key]: description }
     })),
 }));
 

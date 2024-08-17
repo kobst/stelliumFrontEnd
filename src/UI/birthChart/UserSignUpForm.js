@@ -70,12 +70,15 @@ const UserSignUpForm = () => {
           console.log(" CHART DATA ");
           console.log(response.chartData);
 
+          const dateOfBirth = dateTimeString
+          console.log("date of birth " + dateOfBirth)
+
           // pass in response.chartData.houses (and maybe response.chartData.aspects) to createUserProfile
           const userid = await createUserProfile(
             email, 
             firstName, 
             lastName, 
-            date, 
+            dateOfBirth, 
             placeOfBirth, 
             time, 
             totalOffsetHours, 
