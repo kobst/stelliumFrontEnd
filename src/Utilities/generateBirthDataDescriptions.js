@@ -288,12 +288,4 @@ export function findPlanetsInModalities(chartData) {
   
 
 
-// Usage
-// export const generateResponse = (promptKey, birthData) => {
-// // ... existing code ...
-
-// const aspectDescriptions = findAspectsComputed(birthData);
-// responses = responses.concat(aspectDescriptions);
-
-// // ... rest of the existing code ...
-// }
+//

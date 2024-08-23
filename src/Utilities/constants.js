@@ -60,7 +60,13 @@ export const rulers = {
     "Pisces": "Neptune"
   }
 
-  export const dominanceTopics = ['Quadrants', 'Elements', 'Modalities', 'Pattern']
+  export const DominanceEnum = {
+    QUADRANTS: "Quadrants",
+    ELEMENTS: "Elements",
+    MODALITIES: "Modalities",
+    PATTERN: "Pattern"
+  }
+  export const dominanceTopics = [DominanceEnum.QUADRANTS, DominanceEnum.ELEMENTS, DominanceEnum.MODALITIES, DominanceEnum.PATTERN]
   export const planets = ["Sun", "Moon", "Ascendant", "Mercury", "Venus", "Mars", "Saturn", "Jupiter", "Uranus", "Neptune", "Pluto"]  
   export const transitTopics = ['Progressed', 'Transits']
 

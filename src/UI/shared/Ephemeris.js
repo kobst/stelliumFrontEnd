@@ -209,9 +209,11 @@ const Emphemeris = ({ planets = [], houses = [], transits = [], ascendantDegree 
 
 
     return (
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <canvas ref={canvasRef} width={600} height={600} />
-            <PlanetPositions planets={planetsArray}/>
+            <div style={{ width: '800px', display: 'flex', justifyContent: 'center' }}>
+                <PlanetPositions planets={planetsArray}/>
+            </div>
         </div>
 
     );

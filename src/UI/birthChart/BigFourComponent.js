@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { postGptResponse, postPromptGPT } from '../../Utilities/api'; 
+import { postGptResponse, postPromptGPT, updateHeadingInterpretation } from '../../Utilities/api'; 
 import { heading_map } from '../../Utilities/constants';
 
 import useStore from '../../Utilities/store';
@@ -14,7 +14,8 @@ const BigFourComponent = ({ bigFourType }) => {
     const headingInterpretationMap = useStore(state => state.headingInterpretationMap)
     const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
     const subHeadingsPromptDescriptionsMap = useStore(state => state.subHeadingsPromptDescriptionsMap)
-    // console.log(bigFourMap)
+    const userId = useStore(state => state.userId)
+
 
     useEffect(() => {
         setSubHeadings(heading_map[bigFourType]);
@@ -23,6 +24,7 @@ const BigFourComponent = ({ bigFourType }) => {
 
 
     }, [bigFourType, promptDescriptionsMap]);
+
 
     async function generateResponse(heading) {
         // const modifiedInput = promptData + "\n" + heading + "\nEvery time you mention a particular aspect or position, please include its reference number provided";
@@ -54,17 +56,44 @@ const BigFourComponent = ({ bigFourType }) => {
         }
     }
 
+
+    const saveHeadingInterpretation = async (heading) => {
+        try {
+            const interpretation = headingInterpretationMap[heading];
+            const promptDescription = subHeadingsPromptDescriptionsMap[heading];
+            // if intepretation and/or promptDescription are empty strings, don't save
+            if (!interpretation || !promptDescription) {
+                return;
+            }
+
+            await updateHeadingInterpretation(userId, heading, promptDescription, interpretation);
+            // No need to update the store as the interpretation is already there
+        } catch (error) {
+            console.error('Failed to save interpretation:', error);
+        }
+    };
+
+
+
+
     const renderResponseForHeading = (heading) => {
         return (
             <div key={heading}>
-                <h4 className="heading"> {heading}</h4>
-                <button className="redo-button" onClick={() => handleRedo(heading)}> Generate Relevant Birth Data for this Subheading</button>
-                <div className="planet-response">
-                    <pre>{subHeadingsPromptDescriptionsMap[heading]}</pre>  
+                <h4 className="heading">{heading}</h4>
+                <div className="button-container">
+                    <button className="redo-button" onClick={() => handleRedo(heading)}>Generate Relevant Birth Data</button>
+                    <button className="redo-button" onClick={() => generateInterpretation(heading)}>Generate Interpretation</button>
                 </div>
-                <button className="redo-button" onClick={() => generateInterpretation(heading)}> Generate Interpretation</button>
-                <div className="planet-response">
-                    <pre>{headingInterpretationMap[heading]}</pre>  
+                <div className="response-container">
+                    <div className="prompt-description" style={{backgroundColor: '#f0f0f0'}}>
+                        <pre>{subHeadingsPromptDescriptionsMap[heading]}</pre>
+                    </div>
+                    <div className="interpretation">
+                        <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', color: 'white' }}>
+                                {headingInterpretationMap[heading]}
+                            </pre>
+                        </div>
+                        <button className="redo-button" onClick={() => saveHeadingInterpretation(heading)}>Save Interpretation</button>
                 </div>
             </div>
         );

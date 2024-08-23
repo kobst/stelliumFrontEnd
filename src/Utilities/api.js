@@ -129,9 +129,9 @@ export const fetchUsers = async () => {
   }
 };
 
-export const postPeriodTransitsForUserChart = async (startDate, endDate, birthChart)=> {
+export const postPeriodAspectsForUserChart = async (startDate, endDate, birthChart)=> {
   try {
-      const response = await fetch(`${SERVER_URL}/generatePeriodTransitsForChart`, {
+      const response = await fetch(`${SERVER_URL}/generatePeriodAspectsForChart`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'
@@ -150,6 +150,36 @@ export const postPeriodTransitsForUserChart = async (startDate, endDate, birthCh
       console.error('Error fetching transits:', error);
   }
 }
+
+export const postPeriodHouseTransitsForUserChart = async (startDate, endDate, birthChartHouses)=> {
+  try {
+    console.log("startDate")
+    console.log(startDate)
+    console.log("endDate")
+    console.log(endDate)
+    console.log("birthChartHouses")
+    console.log(birthChartHouses.length)
+    console.log(birthChartHouses[0])
+      const response = await fetch(`${SERVER_URL}/generateSummaryTransitHousesForBirthChart`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ startDate, endDate, birthChartHouses})
+      });
+
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      console.log('Transits:', data);
+      return data;
+  } catch (error) {
+      console.error('Error fetching transits:', error);
+  }
+}
+
 
 
 
@@ -420,7 +450,53 @@ export const postGptResponsePlanets = async (prompt) => {
 };
 
 
+export const updateHeadingInterpretation = async (userId, heading, promptDescription, interpretation) => {
+  console.log('userId')
+  console.log(userId)
+  console.log('heading')
+  console.log(heading)
+  console.log('interpretation')
+  console.log(interpretation)
+  const response = await fetch(`${SERVER_URL}/saveBirthChartInterpretation`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, heading, promptDescription, interpretation })
+  });
+  return response.json();
+};
+
+export const fetchBirthChartInterpretation = async (userId) => {
+  console.log('userId')
+  console.log(userId)
+  const response = await fetch(`${SERVER_URL}/getBirthChartInterpretation`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId })
+  });
+  return response.json();
+};
 
 
+export const getPeriodAspectsForUser = async (startDate, endDate, userId) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getPeriodAspectsForUser`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ startDate, endDate, userId })
+    });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Grouped Aspects for user:', data.groupedAspects);
+    return data;
+  } catch (error) {
+    console.error('Error fetching period aspects for user:', error);
+    throw error;
+  }
+};
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import SimpleForm from '../UI/birthChart/SimpleForm';
 import UserSignUpForm from '../UI/birthChart/UserSignUpForm';
 import RawBirthDataComponent from '../UI/birthChart/RawBirthDataComponent';
@@ -8,6 +8,7 @@ import Ephemeris from '../UI/shared/Ephemeris';
 import useStore from '../Utilities/store';
 import { postPromptGeneration } from '../Utilities/api';
 import { generateResponse } from '../Utilities/generatePrompts'
+import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
 import { findAspectsComputed, describePlanets, describeHouses, findPlanetsInQuadrant, findPlanetsInElements, findPlanetsInModalities } from '../Utilities/generateBirthDataDescriptions'
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 
@@ -27,6 +28,13 @@ function PrototypePage() {
 
   const isDataPopulated = userPlanets.length > 1 && userHouses.length > 1 && ascendantDegree
 
+  useEffect(() => {
+    if (isDataPopulated) {
+      generateDescriptions();
+    }
+  }, [userPlanets, userHouses, userAspects, ascendantDegree]);
+
+
   const generateDescriptions = async (event) => { 
     console.log('userPlanets before API call:', userPlanets);
     try {
@@ -39,17 +47,15 @@ function PrototypePage() {
         const quadrantResponse = findPlanetsInQuadrant(birthData)
         const elementResponse = findPlanetsInElements(birthData)
         const modalityResponse = findPlanetsInModalities(birthData)
+        const patternResponse = identifyBirthChartPattern(birthData)
 
         const everythingResponse = response.concat(houseResponse, aspects)
-        console.log(everythingResponse)
-        console.log(quadrantResponse)
-        console.log(elementResponse)
-        console.log(modalityResponse) 
 
         setPromptDescriptionsMap('everything', everythingResponse)
         setPromptDescriptionsMap('Elements', elementResponse)
         setPromptDescriptionsMap('Modalities', modalityResponse)
         setPromptDescriptionsMap('Quadrants', quadrantResponse)
+        setPromptDescriptionsMap('Pattern', patternResponse)
 
 
     } catch (error) {
@@ -72,21 +78,14 @@ function PrototypePage() {
   
       <div className="horoscope-container">
         {selectedUser && (
-          <div className="user-info">
-            <h2>Selected User: {selectedUser.name}</h2>
+          <div className="user-info" style={{ color: 'white' }}>
+            <h2>Selected User: {selectedUser.firstName} {selectedUser.lastName}</h2>
           </div>
         )}
   
         {isDataPopulated ? (
           <div>
             <Ephemeris planets={userPlanets} houses={userHouses} transits={[]} ascendantDegree={ascendantDegree} />
-            <button 
-              onClick={generateDescriptions}
-              disabled={!isDataPopulated}
-              className="generate-prompts-btn"
-            >
-              Generate Birth Chart Descriptions
-            </button>
           </div>
         ) : (
           <Ephemeris />

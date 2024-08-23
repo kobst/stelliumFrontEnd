@@ -57,7 +57,7 @@ const calculateAspect = (degree1, degree2, isRetro, transitName) => {
     return { aspectType: '', orb: 0 };
   };
 
-const DailyReading = ({ transitAspectObjects, transits, risingSign ="Scorpio" }) => {
+const DailyReading = ({ transitAspectObjects, transits, risingSign =null }) => {
     const getPlanetData = (planetName) => {
         return transits.find(transit => transit.name === planetName);
     };
@@ -159,13 +159,13 @@ const DailyReading = ({ transitAspectObjects, transits, risingSign ="Scorpio" })
     return (
         <div style={{ color: 'white' }}>
           <div style={{ marginBottom: '20px' }}>
-            <h4>Transit Descriptions</h4>
+            <h4>Today's Transit Descriptions</h4>
             {transits.map((transit, index) => (
               <div key={index}>{formatTransits(transit, risingSign)}</div>
             ))}
           </div>
           <div style={{ marginBottom: '20px' }}>
-            <h4>Aspect Descriptions</h4>
+            <h4>Today's Aspect Descriptions</h4>
             {transitAspectObjects.map((aspect, index) => (
               <div key={index}>{formatTransitData(aspect, transits, risingSign)}</div>
             ))}

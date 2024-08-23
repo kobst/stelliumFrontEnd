@@ -8,7 +8,7 @@ import { updateObjectKeys } from '../../Utilities/helpers';
 
 
 import GoogleAutocomplete from 'react-google-autocomplete';
-import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits, postPeriodTransitsForUserChart, createUserProfile} from '../../Utilities/api'; 
+import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits, postPeriodAspectsForUserChart, createUserProfile} from '../../Utilities/api'; 
 import useStore from '../../Utilities/store';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY

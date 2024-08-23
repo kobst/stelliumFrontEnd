@@ -36,6 +36,9 @@
   margin-top: 20px; /* Optional: adds some space above the container */
   font-size: small;
   background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* App.css */

@@ -4,14 +4,11 @@ export const TransitAspects = ({ transits, isMonthly=false }) => {
         return normalTransit
     };
 
-    const filteredTransits = isMonthly
-        ? transits.filter(transit => transit.transitingPlanet !== "Moon")
-        : transits;
 
     return (
         <div style={{ display: 'flex', color: 'white'}}>
             <div>
-                {filteredTransits.map((planet, index) => (
+                {transits.map((planet, index) => (
                     <div key={index}>{formatTransitData(planet)}</div>
                 ))}
             </div>

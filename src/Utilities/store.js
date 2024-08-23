@@ -1,6 +1,6 @@
 // store.js
 import create from 'zustand';
-import { HeadingEnum } from './constants';
+import { HeadingEnum, DominanceEnum } from './constants';
 
 
 const useStore = create(set => ({
@@ -10,6 +10,9 @@ const useStore = create(set => ({
 
     userId: '',
     setUserId: (response) => set({ userId: response }),
+
+    selectedUser: {},
+    setSelectedUser: (response) => set({ selectedUser: response }),
 
   rawBirthData: '',
   setRawBirthData: (response) => set({ rawBirthData: response }),
@@ -124,7 +127,11 @@ const useStore = create(set => ({
         [HeadingEnum.TRANSFORMATIVE_EVENTS]: '',
         [HeadingEnum.COMMUNICATION_STYLES]: '',
         [HeadingEnum.PHILOSOPHICAL_BELIEFS]: '',
-        [HeadingEnum.TRAVEL_EXPERIENCES]: ''
+        [HeadingEnum.TRAVEL_EXPERIENCES]: '',
+        [DominanceEnum.QUADRANTS]: '',
+        [DominanceEnum.ELEMENTS]: '',
+        [DominanceEnum.MODALITIES]: '',
+        [DominanceEnum.PATTERN]: ''
     },
 
     setHeadingInterpretationMap: (key, description) => set(state => ({
@@ -132,28 +139,39 @@ const useStore = create(set => ({
     })),
 
     subHeadingsPromptDescriptionsMap: {
-        'Personal Identity and Self-Image': '',
-        'Outward Expression and Appearance': '',
-        'Inner Self and Emotional Dynamics': '',
-        'Challenges and Tension': '',
-        'Path of Integration': '',
-        'Emotional Foundations and Security Needs': '',
-        'Family Dynamics and Past Influences': '',
-        'Home Environment and Preferences': '',
-        'Challenges and Growth in Family Life': '',
-        'Role of Tradition and Legacy': '',
-        'Synthesizing a Harmonious Physical and Emotional Home': '',
-        'Core Relationship Desires and Boundaries': '',
-        'Love Style: Expression and Attraction': '',
-        'Sexual Nature and Intimacy': '',
-        'Commitment Approach and Long-term Vision': '',
-        'Challenges and Growth in Relationships': '',
-        'Romantic Summary': '',
-        'Career Motivations and Ambitions': '',
-        'Public Image, Reputation, and Leadership Style': '',
-        'Challenges and Growth Opportunities in Profession': '',
-        'Skills, Talents, and Strengths': '',
-        'Summary and Path To Success': ''
+        [HeadingEnum.PERSONAL_IDENTITY]: '',
+        [HeadingEnum.OUTWARD_EXPRESSION]: '',
+        [HeadingEnum.INNER_SELF]: '',
+        [HeadingEnum.CHALLENGES_TENSION]: '',
+        [HeadingEnum.PATH_INTEGRATION]: '',
+        [HeadingEnum.EMOTIONAL_FOUNDATIONS]: '',
+        [HeadingEnum.FAMILY_DYNAMICS]: '',
+        [HeadingEnum.HOME_ENVIRONMENT]: '',
+        [HeadingEnum.FAMILY_CHALLENGES]: '',
+        [HeadingEnum.HARMONIOUS_HOME]: '',
+        [HeadingEnum.RELATIONSHIP_DESIRES]: '',
+        [HeadingEnum.LOVE_STYLE]: '',
+        [HeadingEnum.SEXUAL_NATURE]: '',
+        [HeadingEnum.COMMITMENT_APPROACH]: '',
+        [HeadingEnum.RELATIONSHIP_CHALLENGES]: '',
+        [HeadingEnum.ROMANTIC_SUMMARY]: '',
+        [HeadingEnum.SOCIAL_NETWORKS]: '',
+        [HeadingEnum.CAREER_MOTIVATIONS]: '',
+        [HeadingEnum.PUBLIC_IMAGE]: '',
+        [HeadingEnum.CAREER_CHALLENGES]: '',
+        [HeadingEnum.SKILLS_TALENTS]: '',
+        [HeadingEnum.CAREER_SUMMARY]: '',
+        [HeadingEnum.PSYCHOLOGICAL_PATTERNS]: '',
+        [HeadingEnum.SPIRITUAL_GROWTH]: '',
+        [HeadingEnum.KARMIC_LESSONS]: '',
+        [HeadingEnum.TRANSFORMATIVE_EVENTS]: '',
+        [HeadingEnum.COMMUNICATION_STYLES]: '',
+        [HeadingEnum.PHILOSOPHICAL_BELIEFS]: '',
+        [HeadingEnum.TRAVEL_EXPERIENCES]: '',
+        [DominanceEnum.QUADRANTS]: '',
+        [DominanceEnum.ELEMENTS]: '',
+        [DominanceEnum.MODALITIES]: '',
+        [DominanceEnum.PATTERN]: ''
     },
 
     setSubHeadingsPromptDescriptionsMap: (key, description) => set(state => ({

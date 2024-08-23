@@ -1,0 +1,47 @@
+.birth-chart-summary {
+    width: 100%;
+    max-width: 600px; /* Adjust this value as needed */
+    margin: 0 auto;
+  }
+  
+  .summary-container {
+    max-height: 300px; /* Adjust this value to set the desired height */
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+  }
+  
+  .summary-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .summary-item {
+    margin-bottom: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .summary-item:last-child {
+    border-bottom: none;
+  }
+  
+  /* Customize scrollbar for webkit browsers */
+  .summary-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .summary-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .summary-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  .summary-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
