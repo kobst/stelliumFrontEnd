@@ -4,6 +4,7 @@ import UsersTable from '../UI/prototype/UsersTable';
 import Ephemeris from '../UI/shared/Ephemeris';
 import useStore from '../Utilities/store';
 import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
+import { DominanceEnum, HeadingEnum, dominance_headings } from '../Utilities/constants';
 import { 
   findAspectsComputed, 
   describePlanets, 
@@ -21,6 +22,7 @@ function PrototypePage() {
   const userHouses = useStore(state => state.userHouses)
   const userAspects = useStore(state => state.userAspects)  
   const selectedUser = useStore(state => state.selectedUser);
+  const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
   const isDataPopulated = userPlanets.length > 1 && userHouses.length > 1 && ascendantDegree
 
   useEffect(() => {
@@ -42,15 +44,27 @@ function PrototypePage() {
         const quadrantResponse = findPlanetsInQuadrant(birthData)
         const elementResponse = findPlanetsInElements(birthData)
         const modalityResponse = findPlanetsInModalities(birthData)
+        console.log('quadrantResponse')
+        console.log(quadrantResponse)
+        console.log('modalityResponse')
+        console.log(modalityResponse)
         const patternResponse = identifyBirthChartPattern(birthData)
+        console.log('patternResponse')
+        console.log(patternResponse)
 
         const everythingResponse = response.concat(houseResponse, aspects)
 
         setPromptDescriptionsMap('everything', everythingResponse)
-        setPromptDescriptionsMap('Elements', elementResponse)
-        setPromptDescriptionsMap('Modalities', modalityResponse)
-        setPromptDescriptionsMap('Quadrants', quadrantResponse)
-        setPromptDescriptionsMap('Pattern', patternResponse)
+        setPromptDescriptionsMap(HeadingEnum.ELEMENTS, elementResponse)
+        setPromptDescriptionsMap(HeadingEnum.MODALITIES, modalityResponse)
+        setPromptDescriptionsMap(HeadingEnum.QUADRANTS, quadrantResponse)
+        setPromptDescriptionsMap(HeadingEnum.PATTERN, patternResponse)
+        setSubHeadingsPromptDescriptionsMap('everything', everythingResponse)
+        setSubHeadingsPromptDescriptionsMap(HeadingEnum.ELEMENTS, elementResponse)
+        setSubHeadingsPromptDescriptionsMap(HeadingEnum.MODALITIES, modalityResponse)
+        setSubHeadingsPromptDescriptionsMap(HeadingEnum.QUADRANTS, quadrantResponse)
+        setSubHeadingsPromptDescriptionsMap(HeadingEnum.PATTERN, patternResponse)
+
 
 
     } catch (error) {

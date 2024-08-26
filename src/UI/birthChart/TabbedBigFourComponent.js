@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { planets, heading_map, dominanceTopics, transitTopics } from '../../Utilities/constants';
+import { planets, heading_map, transitTopics, dominance_headings } from '../../Utilities/constants';
 
 import BigFourComponent from './BigFourComponent';
 import PlanetComponent from '../PlanetComponent'
@@ -23,7 +23,7 @@ const getTabButtonClass = (tabName) => (
     <div>
 
         <div className="planet-menu">
-        {dominanceTopics.map(topic => (
+        {dominance_headings.map(topic => (
             <button
                 key={topic}
                 className={`${getTabButtonClass(topic)} button-white-text`}
@@ -81,7 +81,7 @@ const getTabButtonClass = (tabName) => (
         {planets.includes(activeTab) && (
           <PlanetComponent planet={activeTab} />
         )}
-        {dominanceTopics.includes(activeTab) && (
+        {dominance_headings.includes(activeTab) && (
           <DominanceComponent dominanceTopic={activeTab} />
         )}
         {transitTopics.includes(activeTab) && (

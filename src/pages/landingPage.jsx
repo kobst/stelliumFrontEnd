@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
-// import './landingPage.css'
-// import SimpleForm from '../UI/SimpleForm';
 
-import GoogleAutocomplete from 'react-google-autocomplete'; // Make sure to import GoogleAutocomplete
-import { fetchTimeZone, postDailyTransit } from '../Utilities/api'; 
-import { updateObjectKeys, trackPlanetaryTransits, trackPlanetaryHouses } from '../Utilities/helpers';
+import { updateObjectKeys } from '../Utilities/helpers';
 
 import lightLogo from '../assets/Light logo.png'
 
@@ -15,23 +11,13 @@ import { PeriodTransits } from '../UI/landingPage/PeriodTransits';
 import Ephemeris from '../UI/shared/Ephemeris';
 import { TransitAspects } from '../UI/landingPage/transitAspects';
 
-import transitsData from '../data/transits.json';
-import aspectsData from '../data/groupedTransitAspects.json';
-
 import UserSignUpForm from '../UI/birthChart/UserSignUpForm';
 
 
 import { postDailyTransits, postPeriodTransits, postDailyAspects, postPeriodAspects, postDailyRetrogrades } from '../Utilities/api'
 
-const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
-
 
 const LandingPageComponent = () => {
-    const [date, setDate] = useState('');
-    const [time, setTime] = useState('');
-
-    const [lat, setLat] = useState(38.8995914);
-    const [lng, setLng] = useState(-77.0679584);
     const [todaysDate, setTodaysDate] = useState('')
 
     const [dailyTransitAspects, setDailyTransitAspects] = useState([]);
@@ -42,11 +28,8 @@ const LandingPageComponent = () => {
 
     const [errorState, setError] = useState('');
 
-
     const setDailyTransits = useStore(state => state.setDailyTransits)
     const dailyTransits = useStore(state => state.dailyTransits)
-    // const setDailyTransitAspects = useStore(state => state.setDailyTransits)
-    // const dailyTransitAspects = useStore(state => state.dailyTransits)
 
  
     const handleFetchDailyTransits = async (date) => {
@@ -126,24 +109,15 @@ const LandingPageComponent = () => {
     useEffect(() => {
         async function getTodaysData() {
           try {
-            
-            // const closestDateKey = "2024-07-01T09:00:00Z"; // Use ISO 8601 format
-            // const laterDateKey = "2025-03-30T09:00:00Z"; // Use ISO 8601 format
-    
             const currentDateISO = new Date().toISOString();
             const oneMonthLater = new Date();
             oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
            const oneMonthLaterISO = oneMonthLater.toISOString();
             await handleFetchDailyTransits(currentDateISO);
             await handleFetchDailyAspects(currentDateISO);
-            await handleFetchRetrogrades(currentDateISO)
+            await handleFetchRetrogrades(currentDateISO);
             await handleFetchPeriodAspects(currentDateISO, oneMonthLaterISO);
             await handleFetchPeriodTransits(currentDateISO, oneMonthLaterISO);
-
-            // Optionally, fetch period aspects if needed
-            // await handleFetchPeriodAspects(closestDateKey, laterDateKey);
-    
-            // Set today's date (you might want to format it as needed)
 
             setTodaysDate(currentDateISO);
   
@@ -203,50 +177,3 @@ const LandingPageComponent = () => {
 }
 
 export default LandingPageComponent;
-
-
-
-
-
-
-
-
-   // async function loadTransits() {
-    //     const totalOffsetHours = await fetchTimeZone(lat, lng, 1719677677);
-    //         console.log(`Time Zone Offset in Hours: ${totalOffsetHours}`);
-    //         // const birthData = {
-    //         //     date: date,
-    //         //     time: time,
-    //         //     lat: lat,
-    //         //     lon: lng,
-    //         //     tzone: totalOffsetHours,
-    //         // };
-    //         // return the transitsData
-    //         // const todaysPositions = await postDailyTransit(birthData);
-    //     return transitsData;
-    //   }
-
-    // function getTransitsForDate(transits, targetDate) {
-    //     // Convert targetDate to a Date object if it's a string
-    //     const date = typeof targetDate === 'string' ? new Date(targetDate) : targetDate;
-    //     
-    //     return transits.filter(transit => {
-    //       const startDate = new Date(transit["date_range"][0]);
-    //       const endDate = new Date(transit["date_range"][1]);
-    //       return date >= startDate && date <= endDate;
-    //     });
-    // }
-
-    // function getTransitsForDateSpan(transits, dateSpan) {
-    //     // Convert dateSpan start and end to Date objects if they are strings
-    //     const dateSpanStart = typeof dateSpan[0] === 'string' ? new Date(dateSpan[0]) : dateSpan[0];
-    //     const dateSpanEnd = typeof dateSpan[1] === 'string' ? new Date(dateSpan[1]) : dateSpan[1];
-    //    
-    //     return transits.filter(transit => {
-    //         const transitStart = new Date(transit["date_range"][0]);
-    //         const transitEnd = new Date(transit["date_range"][1]);
-    //    
-    //         // Check if the date spans overlap
-    //         return (dateSpanStart <= transitEnd) && (dateSpanEnd >= transitStart);
-    //     });
-    // }

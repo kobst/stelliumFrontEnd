@@ -1,6 +1,6 @@
 // store.js
 import create from 'zustand';
-import { HeadingEnum, DominanceEnum } from './constants';
+import { HeadingEnum } from './constants';
 
 
 const useStore = create(set => ({
@@ -56,10 +56,10 @@ const useStore = create(set => ({
         'relationships': '',
         'communication': '',
         'unconscious': '',
-        'quadrants': '',
-        'elements': '',
-        'modalities': '',
-        'pattern': ''
+        'Quadrants': '',
+        'Elements': '',
+        'Modalities': '',
+        'Pattern': ''
         },
 
         // Function to set prompt descriptions in the map
@@ -128,10 +128,10 @@ const useStore = create(set => ({
         [HeadingEnum.COMMUNICATION_STYLES]: '',
         [HeadingEnum.PHILOSOPHICAL_BELIEFS]: '',
         [HeadingEnum.TRAVEL_EXPERIENCES]: '',
-        [DominanceEnum.QUADRANTS]: '',
-        [DominanceEnum.ELEMENTS]: '',
-        [DominanceEnum.MODALITIES]: '',
-        [DominanceEnum.PATTERN]: ''
+        [HeadingEnum.QUADRANTS]: '',
+        [HeadingEnum.ELEMENTS]: '',
+        [HeadingEnum.MODALITIES]: '',
+        [HeadingEnum.PATTERN]: ''
     },
 
     setHeadingInterpretationMap: (key, description) => set(state => ({
@@ -168,10 +168,10 @@ const useStore = create(set => ({
         [HeadingEnum.COMMUNICATION_STYLES]: '',
         [HeadingEnum.PHILOSOPHICAL_BELIEFS]: '',
         [HeadingEnum.TRAVEL_EXPERIENCES]: '',
-        [DominanceEnum.QUADRANTS]: '',
-        [DominanceEnum.ELEMENTS]: '',
-        [DominanceEnum.MODALITIES]: '',
-        [DominanceEnum.PATTERN]: ''
+        [HeadingEnum.QUADRANTS]: '',
+        [HeadingEnum.ELEMENTS]: '',
+        [HeadingEnum.MODALITIES]: '',
+        [HeadingEnum.PATTERN]: ''
     },
 
     setSubHeadingsPromptDescriptionsMap: (key, description) => set(state => ({

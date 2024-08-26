@@ -60,57 +60,64 @@ export const rulers = {
     "Pisces": "Neptune"
   }
 
-  export const DominanceEnum = {
-    QUADRANTS: "Quadrants",
-    ELEMENTS: "Elements",
-    MODALITIES: "Modalities",
-    PATTERN: "Pattern"
-  }
-  export const dominanceTopics = [DominanceEnum.QUADRANTS, DominanceEnum.ELEMENTS, DominanceEnum.MODALITIES, DominanceEnum.PATTERN]
+  // export const DominanceEnum = {
+  //   QUADRANTS: "Quadrants",
+  //   ELEMENTS: "Elements",
+  //   MODALITIES: "Modalities",
+  //   PATTERN: "Pattern"
+  // }
+  // export const dominanceTopics = [DominanceEnum.QUADRANTS, DominanceEnum.ELEMENTS, DominanceEnum.MODALITIES, DominanceEnum.PATTERN]
   export const planets = ["Sun", "Moon", "Ascendant", "Mercury", "Venus", "Mars", "Saturn", "Jupiter", "Uranus", "Neptune", "Pluto"]  
   export const transitTopics = ['Progressed', 'Transits']
 
   export const HeadingEnum = {
     // Personality
-    PERSONAL_IDENTITY: "Personal Identity and Self-Image",
-    OUTWARD_EXPRESSION: "Outward Expression and Appearance",
-    INNER_SELF: "Inner Self and Emotional Dynamics",
-    CHALLENGES_TENSION: "Challenges and Tension",
-    PATH_INTEGRATION: "Path of Integration",
+    PERSONAL_IDENTITY: "Personal_Identity_and_Self-Image",
+    OUTWARD_EXPRESSION: "Outward_Expression_and_Appearance",
+    INNER_SELF: "Inner_Self_and_Emotional_Dynamics",
+    CHALLENGES_TENSION: "Challenges_and_Tension",
+    PATH_INTEGRATION: "Path_of_Integration",
   
     // Home
-    EMOTIONAL_FOUNDATIONS: "Emotional Foundations and Security Needs",
-    FAMILY_DYNAMICS: "Family Dynamics and Past Influences",
-    HOME_ENVIRONMENT: "Home Environment and Preferences",
-    FAMILY_CHALLENGES: "Challenges and Growth in Family Life",
-    HARMONIOUS_HOME: "Synthesizing a Harmonious Physical and Emotional Home",
+    EMOTIONAL_FOUNDATIONS: "Emotional_Foundations_and_Security_Needs",
+    FAMILY_DYNAMICS: "Family_Dynamics_and_Past_Influences",
+    HOME_ENVIRONMENT: "Home_Environment_and_Preferences",
+    FAMILY_CHALLENGES: "Challenges_and_Growth_in_Family_Life",
+    HARMONIOUS_HOME: "Synthesizing_a_Harmonious_Physical_and_Emotional_Home",
   
     // Relationships
-    RELATIONSHIP_DESIRES: "Core Relationship Desires and Boundaries",
-    LOVE_STYLE: "Love Style: Expression and Attraction",
-    SEXUAL_NATURE: "Sexual Nature and Intimacy",
-    COMMITMENT_APPROACH: "Commitment Approach and Long-term Vision",
-    RELATIONSHIP_CHALLENGES: "Challenges and Growth in Relationships",
-    ROMANTIC_SUMMARY: "Romantic Summary",
-    SOCIAL_NETWORKS: "Social Networks and Community",
+    RELATIONSHIP_DESIRES: "Core_Relationship_Desires_and_Boundaries",
+    LOVE_STYLE: "Love_Style:_Expression_and_Attraction",
+    SEXUAL_NATURE: "Sexual_Nature_and_Intimacy",
+    COMMITMENT_APPROACH: "Commitment_Approach_and_Long-term_Vision",
+    RELATIONSHIP_CHALLENGES: "Challenges_and_Growth_in_Relationships",
+    ROMANTIC_SUMMARY: "Romantic_Summary",
+    SOCIAL_NETWORKS: "Social_Networks_and_Community",
   
     // Career
-    CAREER_MOTIVATIONS: "Career Motivations and Ambitions",
-    PUBLIC_IMAGE: "Public Image, Reputation, and Leadership Style",
-    CAREER_CHALLENGES: "Challenges and Growth Opportunities in Profession",
-    SKILLS_TALENTS: "Skills, Talents, and Strengths",
-    CAREER_SUMMARY: "Summary and Path To Success",
+    CAREER_MOTIVATIONS: "Career_Motivations_and_Ambitions",
+    PUBLIC_IMAGE: "Public_Image,_Reputation,_and_Leadership_Style",
+    CAREER_CHALLENGES: "Challenges_and_Growth_Opportunities_in_Profession",
+    SKILLS_TALENTS: "Skills,_Talents,_and_Strengths",
+    CAREER_SUMMARY: "Summary_and_Path_To_Success",
   
     // Unconscious
-    PSYCHOLOGICAL_PATTERNS: "Deep Psychological Patterns",
-    SPIRITUAL_GROWTH: "Spiritual Growth and Hidden Strengths",
-    KARMIC_LESSONS: "Karmic Lessons and Past Life Influences",
-    TRANSFORMATIVE_EVENTS: "Transformative Events and Personal Metamorphosis",
+    PSYCHOLOGICAL_PATTERNS: "Deep_Psychological_Patterns",
+    SPIRITUAL_GROWTH: "Spiritual_Growth_and_Hidden_Strengths",
+    KARMIC_LESSONS: "Karmic_Lessons_and_Past_Life_Influences",
+    TRANSFORMATIVE_EVENTS: "Transformative_Events_and_Personal_Metamorphosis",
   
     // Communication
-    COMMUNICATION_STYLES: "Communication and Learning Styles",
-    PHILOSOPHICAL_BELIEFS: "Philosophical Beliefs and Higher Learning",
-    TRAVEL_EXPERIENCES: "Travel and Cross-Cultural Experiences"
+    COMMUNICATION_STYLES: "Communication_and_Learning_Styles",
+    PHILOSOPHICAL_BELIEFS: "Philosophical_Beliefs_and_Higher_Learning",
+    TRAVEL_EXPERIENCES: "Travel_and_Cross-Cultural_Experiences",
+
+
+    // Dominance
+    QUADRANTS: "Quadrants",
+    ELEMENTS: "Elements",
+    MODALITIES: "Modalities",
+    PATTERN: "Pattern"
   };
   
   const personality_headings = [
@@ -158,6 +165,13 @@ export const rulers = {
     HeadingEnum.COMMUNICATION_STYLES,
     HeadingEnum.PHILOSOPHICAL_BELIEFS,
     HeadingEnum.TRAVEL_EXPERIENCES
+  ];
+
+  export const dominance_headings = [
+    HeadingEnum.QUADRANTS,
+    HeadingEnum.ELEMENTS,
+    HeadingEnum.MODALITIES,
+    HeadingEnum.PATTERN
   ];
   
 export const heading_map = {

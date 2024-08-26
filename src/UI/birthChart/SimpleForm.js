@@ -1,8 +1,5 @@
 
 import React, { useState, useEffect, useContext } from 'react';
-import { Loader } from "@googlemaps/js-api-loader";
-import ResponseContext from '../../Utilities/ResponseContext';
-import { updateObjectKeys } from '../../Utilities/helpers';
 
 
 import GoogleAutocomplete from 'react-google-autocomplete';
