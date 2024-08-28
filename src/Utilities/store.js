@@ -131,7 +131,18 @@ const useStore = create(set => ({
         [HeadingEnum.QUADRANTS]: '',
         [HeadingEnum.ELEMENTS]: '',
         [HeadingEnum.MODALITIES]: '',
-        [HeadingEnum.PATTERN]: ''
+        [HeadingEnum.PATTERN]: '',
+        [HeadingEnum.SUN]: '',
+        [HeadingEnum.MOON]: '',
+        [HeadingEnum.ASCENDANT]: '',
+        [HeadingEnum.MERCURY]: '',
+        [HeadingEnum.VENUS]: '',
+        [HeadingEnum.MARS]: '',
+        [HeadingEnum.SATURN]: '',
+        [HeadingEnum.JUPITER]: '',
+        [HeadingEnum.URANUS]: '',
+        [HeadingEnum.NEPTUNE]: '',
+        [HeadingEnum.PLUTO]: ''
     },
 
     setHeadingInterpretationMap: (key, description) => set(state => ({
@@ -171,7 +182,18 @@ const useStore = create(set => ({
         [HeadingEnum.QUADRANTS]: '',
         [HeadingEnum.ELEMENTS]: '',
         [HeadingEnum.MODALITIES]: '',
-        [HeadingEnum.PATTERN]: ''
+        [HeadingEnum.PATTERN]: '',
+        [HeadingEnum.SUN]: '',
+        [HeadingEnum.MOON]: '',
+        [HeadingEnum.ASCENDANT]: '',
+        [HeadingEnum.MERCURY]: '',
+        [HeadingEnum.VENUS]: '',
+        [HeadingEnum.MARS]: '',
+        [HeadingEnum.SATURN]: '',
+        [HeadingEnum.JUPITER]: '',
+        [HeadingEnum.URANUS]: '',
+        [HeadingEnum.NEPTUNE]: '',
+        [HeadingEnum.PLUTO]: ''
     },
 
     setSubHeadingsPromptDescriptionsMap: (key, description) => set(state => ({

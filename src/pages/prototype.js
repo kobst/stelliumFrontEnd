@@ -37,7 +37,6 @@ function PrototypePage() {
     try {
      
         const birthData = { planets: userPlanets, houses: userHouses, aspectsComputed: userAspects };
-
         const response = describePlanets(birthData)
         const houseResponse = describeHouses(birthData)
         const aspects = findAspectsComputed(birthData)
@@ -64,6 +63,8 @@ function PrototypePage() {
         setSubHeadingsPromptDescriptionsMap(HeadingEnum.MODALITIES, modalityResponse)
         setSubHeadingsPromptDescriptionsMap(HeadingEnum.QUADRANTS, quadrantResponse)
         setSubHeadingsPromptDescriptionsMap(HeadingEnum.PATTERN, patternResponse)
+
+
 
 
 

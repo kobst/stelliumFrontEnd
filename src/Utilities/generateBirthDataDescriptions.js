@@ -15,17 +15,18 @@ import {
 
 
 // planets
-export function describePlanets(birthData) {
-    let planetDescriptions = [];
-    
-    birthData.planets.forEach(planet => {
-      const description = describePlanet(planet);
-      planetDescriptions.push(description);
-    });
-    
-    return planetDescriptions;
-  }
+export function describePlanets(birthData, planet = null) {
+  let planetDescriptions = [];
   
+  birthData.planets.forEach(planetData => {
+      if (!planet || planetData.name === planet) {
+          const description = describePlanet(planetData);
+          planetDescriptions.push(description);
+      }
+  });
+  
+  return planetDescriptions;
+}
   
 function describePlanet(planet) {
     let description = `${planet.name} in ${planet.sign} in the ${getOrdinal(planet.house)} house`;
@@ -53,13 +54,13 @@ function getOrdinal(n) {
 
 // houses
 
-export function describeHouses(birthData) {
-    let responses = [];
-    birthData.houses.forEach(houseData => {
-        const sign = houseData.sign;
-        const houseNum = houseData.house;
-        const rulerPlanet = rulers[sign]; 
-        if (rulerPlanet) {
+export function describeHouses(birthData, planet = null) {
+  let responses = [];
+  birthData.houses.forEach(houseData => {
+      const sign = houseData.sign;
+      const houseNum = houseData.house;
+      const rulerPlanet = rulers[sign]; 
+      if (rulerPlanet && (!planet || rulerPlanet === planet)) {
           const planetData = birthData.planets.find(p => p.name === rulerPlanet);
           const rulerRetroCode = planetData.is_retro === 'true' ? 'Rr-' : 'Rp-'
           const houseCode = houseNum.toString().padStart(2, '0'); // Pad the house number to ensure it's 2 digits
@@ -69,23 +70,25 @@ export function describeHouses(birthData) {
           const code =  rulerRetroCode + rulerRetroCode.substring(1, 2) + planetCodes[rulerPlanet] + signCodes[sign] + houseCode + signCodes[planetData.sign] + houseCodePlanet
           responses.push(`${description} (${code})`)
           // responses = responses.concat(findAspects(rulerPlanet, birthData));
-        }
-    })
-    return responses;
+      }
+  })
+  return responses;
 }
 
 
 // aspects
-export function findAspectsComputed(birthData) {
-    let aspectDescriptions = [];
-    
-    birthData.aspectsComputed.forEach(aspect => {
-      const description = addAspectDescriptionComputed(aspect, birthData);
-      aspectDescriptions.push(description);
-    });
-    
-    return aspectDescriptions;
-  }
+export function findAspectsComputed(birthData, planet = null) {
+  let aspectDescriptions = [];
+  
+  birthData.aspectsComputed.forEach(aspect => {
+      if (!planet || aspect.transitingPlanet === planet || aspect.aspectingPlanet === planet) {
+          const description = addAspectDescriptionComputed(aspect, birthData);
+          aspectDescriptions.push(description);
+      }
+  });
+  
+  return aspectDescriptions;
+}
   
 function addAspectDescriptionComputed(aspect, birthData) {
     const transitingPlanetData = birthData.planets.find(p => p.name === aspect.transitingPlanet);

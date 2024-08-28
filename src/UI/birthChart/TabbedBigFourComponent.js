@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { planets, heading_map, transitTopics, dominance_headings } from '../../Utilities/constants';
+import { heading_map, transitTopics, dominance_headings, planet_headings } from '../../Utilities/constants';
 
 import BigFourComponent from './BigFourComponent';
-import PlanetComponent from '../PlanetComponent'
+import PlanetComponent from './PlanetComponent'
 import DominanceComponent from './DominanceComponent';
 import ProgressedTransitComponent from '../ProgressedTransitComponent';
  
@@ -36,7 +36,7 @@ const getTabButtonClass = (tabName) => (
 
         {/* Planet Tabs */}
        <div className="planet-menu">
-        {planets.map(planet => (
+        {planet_headings.map(planet => (
           <button
             key={planet}
             className={`${getTabButtonClass(planet)} button-white-text`}
@@ -78,7 +78,7 @@ const getTabButtonClass = (tabName) => (
             bigFourType={activeTab}
           />
         )}
-        {planets.includes(activeTab) && (
+        {planet_headings.includes(activeTab) && (
           <PlanetComponent planet={activeTab} />
         )}
         {dominance_headings.includes(activeTab) && (

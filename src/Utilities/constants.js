@@ -67,8 +67,38 @@ export const rulers = {
   //   PATTERN: "Pattern"
   // }
   // export const dominanceTopics = [DominanceEnum.QUADRANTS, DominanceEnum.ELEMENTS, DominanceEnum.MODALITIES, DominanceEnum.PATTERN]
-  export const planets = ["Sun", "Moon", "Ascendant", "Mercury", "Venus", "Mars", "Saturn", "Jupiter", "Uranus", "Neptune", "Pluto"]  
+
   export const transitTopics = ['Progressed', 'Transits']
+
+
+  export const PlanetEnum = {
+    SUN: "Sun",
+    MOON: "Moon",
+    ASCENDANT: "Ascendant",
+    MERCURY: "Mercury",
+    VENUS: "Venus",
+    MARS: "Mars",
+    SATURN: "Saturn",
+    JUPITER: "Jupiter",
+    URANUS: "Uranus",
+    NEPTUNE: "Neptune",
+    PLUTO: "Pluto"
+  }
+
+  export const planets = [
+    PlanetEnum.SUN,
+    PlanetEnum.MOON,
+    PlanetEnum.ASCENDANT,
+    PlanetEnum.MERCURY,
+    PlanetEnum.VENUS,
+    PlanetEnum.MARS,
+    PlanetEnum.SATURN,
+    PlanetEnum.JUPITER,
+    PlanetEnum.URANUS,
+    PlanetEnum.NEPTUNE,
+    PlanetEnum.PLUTO
+  ]  
+
 
   export const HeadingEnum = {
     // Personality
@@ -112,12 +142,24 @@ export const rulers = {
     PHILOSOPHICAL_BELIEFS: "Philosophical_Beliefs_and_Higher_Learning",
     TRAVEL_EXPERIENCES: "Travel_and_Cross-Cultural_Experiences",
 
-
     // Dominance
     QUADRANTS: "Quadrants",
     ELEMENTS: "Elements",
     MODALITIES: "Modalities",
-    PATTERN: "Pattern"
+    PATTERN: "Pattern",
+
+    // Planets
+    SUN: "Sun",
+    MOON: "Moon",
+    ASCENDANT: "Ascendant",
+    MERCURY: "Mercury",
+    VENUS: "Venus",
+    MARS: "Mars",
+    SATURN: "Saturn",
+    JUPITER: "Jupiter",
+    URANUS: "Uranus",
+    NEPTUNE: "Neptune",
+    PLUTO: "Pluto"
   };
   
   const personality_headings = [
@@ -173,6 +215,20 @@ export const rulers = {
     HeadingEnum.MODALITIES,
     HeadingEnum.PATTERN
   ];
+
+  export const planet_headings = [
+    HeadingEnum.SUN,
+    HeadingEnum.MOON,
+    HeadingEnum.ASCENDANT,
+    HeadingEnum.MERCURY,
+    HeadingEnum.VENUS,
+    HeadingEnum.MARS,
+    HeadingEnum.SATURN,
+    HeadingEnum.JUPITER,
+    HeadingEnum.URANUS,
+    HeadingEnum.NEPTUNE,
+    HeadingEnum.PLUTO
+  ]
   
 export const heading_map = {
   "personality": personality_headings,
