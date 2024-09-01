@@ -1,11 +1,5 @@
-
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { Loader } from "@googlemaps/js-api-loader";
-import ResponseContext from '../../Utilities/ResponseContext';
-import { updateObjectKeys } from '../../Utilities/helpers';
-
 
 import GoogleAutocomplete from 'react-google-autocomplete';
 import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits, postPeriodAspectsForUserChart, createUserProfile} from '../../Utilities/api'; 
@@ -29,6 +23,9 @@ const UserSignUpForm = () => {
     const setBirthDate = useStore(state => state.setBirthDate);
     const setAscendantDegree = useStore(state => state.setAscendantDegree)
     const setUserId = useStore(state => state.setUserId);
+    const setUserPlanets = useStore(state => state.setUserPlanets);
+    const setUserHouses = useStore(state => state.setUserHouses);
+    const setUserAspects = useStore(state => state.setUserAspects);
   
     const validateForm = () => {
       const errors = {};
@@ -49,8 +46,8 @@ const UserSignUpForm = () => {
         return;
       }
   
-      setRawBirthData('');
-      setBirthDate({});
+      setRawBirthData({});
+      setBirthDate('');
    
       try {
           const dateTimeString = `${date}T${time}:00`;
@@ -87,6 +84,9 @@ const UserSignUpForm = () => {
           console.log(JSON.stringify(userid) + " userid");
           setAscendantDegree(response.chartData['ascendant']);
           setRawBirthData(response.chartData);
+          setUserPlanets(response.chartData.planets);
+          setUserHouses(response.chartData.houses);
+          setUserAspects(response.chartData.aspects);
           if (userid) {
             console.log('User profile created successfully');
             setUserId(userid);
@@ -98,12 +98,57 @@ const UserSignUpForm = () => {
         console.error('Error submitting form:', error);
       }
     };
+
+    const headerStyle = {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: '24px',
+      textAlign: 'center',
+      width: '100%',
+      marginBottom: '20px',
+      padding: '10px 0',
+      borderBottom: '1px solid white'
+    };    
     
+    const inputStyle = {
+      color: 'white',
+      width: '140px',
+      marginRight: '10px',
+      backgroundColor: 'transparent',
+      border: '1px solid white',
+      padding: '5px',
+      borderRadius: '3px'
+    };
+
+    const googleAutoCompleteStyle = {
+      ...inputStyle,
+      width: '290px',
+      backgroundColor: 'transparent',
+      color: 'white',
+    };
+
+    const labelStyle = {
+      color: 'white',
+      width: '140px',
+      display: 'inline-block',
+      marginRight: '10px'
+    };
+
+    const formGroupStyle = {
+      marginBottom: '15px',
+      display: 'flex',
+      alignItems: 'center'
+    };
+
+
+
     return (
       <div className="email_form">
         <form onSubmit={handleSubmit}>
-          <div>
-            <span style={{ color: 'white' }}>I'm </span>
+        <h2 style={headerStyle}>Hello Stellium!</h2>
+
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>My name is</label>
             <input 
               type="text" 
               id="fname" 
@@ -111,7 +156,8 @@ const UserSignUpForm = () => {
               placeholder="First Name" 
               value={firstName}
               onChange={e => setFirstName(e.target.value)}
-              style={{ color: 'white' }}
+              style={inputStyle}
+              className="input-dark-placeholder"
             />
             <input 
               type="text" 
@@ -120,9 +166,57 @@ const UserSignUpForm = () => {
               placeholder="Last Name" 
               value={lastName}
               onChange={e => setLastName(e.target.value)}
-              style={{ color: 'white' }}
+              style={inputStyle}
+              className="input-dark-placeholder"
             />
-            <span style={{ color: 'white' }}>. My Email is </span>
+          </div>
+
+          <div style={formGroupStyle}>
+            <label htmlFor="location" style={labelStyle}>I was born in</label>
+            <GoogleAutocomplete
+              inputProps={{
+                name: 'location',
+                placeholder: 'Place of Birth',
+                style: googleAutoCompleteStyle,
+                className: 'input-dark-placeholder'
+              }}
+              apiKey={GOOGLE_API}
+              onPlaceSelected={(place) => {
+                var lat = place.geometry.location.lat();
+                var lon = place.geometry.location.lng();
+                console.log(lat + "lat" + lon + "lon");
+                setLat(lat);
+                setLon(lon);
+                setPlaceOfBirth(place.formatted_address);
+              }}
+            />
+          </div>
+
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>on this date</label>
+            <input 
+              type="date" 
+              id="date" 
+              name="date" 
+              value={date} 
+              onChange={e => setDate(e.target.value)} 
+              style={inputStyle}
+              className="input-dark-placeholder"
+            />
+            <label style={{ ...labelStyle, width: 'auto' }}>at</label>
+            <input 
+              type="time" 
+              id="time" 
+              name="time" 
+              value={time} 
+              onChange={e => setTime(e.target.value)} 
+              style={inputStyle}
+              className="input-dark-placeholder"
+            />
+          </div>
+
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>My email is</label>
             <input 
               type="email" 
               id="email" 
@@ -130,38 +224,29 @@ const UserSignUpForm = () => {
               placeholder="Email Address" 
               value={email}
               onChange={e => setEmail(e.target.value)}
-              style={{ color: 'white' }}
+              style={{ ...inputStyle, width: '290px' }}
+              className="input-dark-placeholder"
             />
           </div>
-          <label htmlFor="date" style={{ color: 'white' }}>Date:</label>
-        <input type="date" id="date" name="date" value={date} onChange={e => setDate(e.target.value)} /><br /><br />
 
-        <label htmlFor="time" style={{ color: 'white' }}>Time:</label>
-        <input type="time" id="time" name="time" value={time} onChange={e => setTime(e.target.value)} /><br /><br />
-
-        <label htmlFor="location" style={{ color: 'white' }}>Location:</label>
-          <div>
-          <GoogleAutocomplete
-              inputProps={{
-                  name: 'location',
-                  placeholder: 'Place of Birth',
+          <div style={formGroupStyle}>
+            <input 
+              className="email-submit-btn" 
+              type="submit" 
+              value="Submit" 
+              style={{ 
+                ...inputStyle, 
+                width: 'auto', 
+                cursor: 'pointer', 
+                backgroundColor: 'white', 
+                color: 'black', 
+                fontWeight: 'bold' 
               }}
-              apiKey={GOOGLE_API}
-              onPlaceSelected={(place) => {
-                  var lat = place.geometry.location.lat();
-                  var lon = place.geometry.location.lng();
-                  console.log(lat + "lat" + lon + "lon");
-                  setLat(lat);
-                  setLon(lon);
-                  setPlaceOfBirth(place.formatted_address);
-              }}
-          />
+            />
           </div>
-          <input className="email-submit-btn" type="submit" value="Submit" style={{ color: 'white' }}/>
-
         </form>
         {Object.keys(formErrors).length > 0 && (
-          <div style={{ color: 'red' }}>
+          <div style={{ color: 'red', marginTop: '15px' }}>
             {Object.values(formErrors).map((error, index) => (
               <p key={index}>{error}</p>
             ))}
@@ -172,108 +257,6 @@ const UserSignUpForm = () => {
   };
   
   export default UserSignUpForm;
-
-
-
-// const UserSignUpForm = () => {
-//   const [date, setDate] = useState('');
-//   const [time, setTime] = useState('');
-//   const [lat, setLat] = useState('');
-//   const [lon, setLon] = useState('');
-
-//   const setRawBirthData = useStore(state => state.setRawBirthData);
-//   const setBirthDate = useStore(state => state.setBirthDate);
-
-//   const setAscendantDegree = useStore(state => state.setAscendantDegree)
-//   const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
-
-//   function getStartAndEndDate() {
-//     const currentDate = new Date();
-//     const startDate = currentDate.toISOString();
-
-//     const endDate = new Date(currentDate);
-//     endDate.setMonth(endDate.getMonth() + 1);
-//     const endDateString = endDate.toISOString();
-
-//     return { startDate, endDate: endDateString };
-// }
-
-
-//   const handleSubmit = async (event) => {
-//     event.preventDefault();
-//     setRawBirthData('')
-//     setBirthDate({})
- 
-//     try {
-//         const dateTimeString = `${date}T${time}:00`; // Adding ':00' for seconds
-//         const dateTime = new Date(dateTimeString);
-//         const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
-//         const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-//         console.log(`Time Zone Offset in Hours: ${totalOffsetHours}`);
-//         const birthData = {
-//             date: date,
-//             time: time,
-//             lat: lat,
-//             lon: lon,
-//             tzone: totalOffsetHours,
-//         };
-//         setBirthDate(birthData)
-//         const response = await postBirthData(birthData)
-//         console.log(" CHART DATA ")
-//         console.log(response.chartData)
-//         const periodTransitsTest = await createUserProfile(email, firstName, lastName, dateOrBirth, placeOfBirth, response.chartData.planets)
-//         console.log(periodTransitsTest)
-//         setAscendantDegree(response.chartData['ascendant'])
-//         setRawBirthData(response.chartData);
-
-
-//     } catch (error) {
-//       console.error('Error submitting form:', error);
-//       setRawBirthData(`Error: ${error.message}`);
-//     }
-//   };
-  
-
-//   return (
-//     <div className="email_form">
-//       <form onSubmit={handleSubmit}>
-//       `<div>
-//           <span style={{ color: 'white' }}>I'm </span>
-//           <input type="text" id="fname" name="fname" placeholder="Enter your Full Name" style={{ color: 'white' }}/>
-//           <span style={{ color: 'white' }}>. My Email is </span>
-//           <input type="text" id="email" name="email" placeholder="Email Address" style={{ color: 'white' }}/>
-//         </div>
-//         <label htmlFor="date" style={{ color: 'white' }}>Date:</label>
-//         <input type="date" id="date" name="date" value={date} onChange={e => setDate(e.target.value)} /><br /><br />
-
-//         <label htmlFor="time" style={{ color: 'white' }}>Time:</label>
-//         <input type="time" id="time" name="time" value={time} onChange={e => setTime(e.target.value)} /><br /><br />
-
-//         <label htmlFor="location" style={{ color: 'white' }}>Location:</label>
-
-//         <div>
-//         <GoogleAutocomplete
-//             inputProps={{
-//                 name: 'location',
-//             }}
-//             apiKey={GOOGLE_API}
-//             onPlaceSelected={(place) => {
-//                 var lat = place.geometry.location.lat();
-//                 var lon = place.geometry.location.lng();
-//                 console.log(lat + "lat" + lon + "lon")
-//                 setLat(lat)
-//                 setLon(lon)
-//                 }}
-//             />
-            
-//         </div>
-//         <input type="submit" value="Submit" style={{ color: 'white' }}/>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default UserSignUpForm;
 
 
 

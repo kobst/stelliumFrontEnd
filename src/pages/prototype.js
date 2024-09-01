@@ -65,9 +65,6 @@ function PrototypePage() {
         setSubHeadingsPromptDescriptionsMap(HeadingEnum.PATTERN, patternResponse)
 
 
-
-
-
     } catch (error) {
       console.error('Error submitting form:', error);
     }

@@ -5,7 +5,7 @@ const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 
 
 export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
-  const apiKey = process.env.REACT_APP_GOOGLE_API_KEY; // Replace with your API key
+  const apiKey = process.env.REACT_APP_GOOGLE_API_KEY; 
   const url = `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lon}&timestamp=${epochTimeSeconds}&key=${apiKey}`;
 
   try {
@@ -371,7 +371,7 @@ export const postPromptGeneration = async (planets, houses, aspects) => {
 
 
 
-// Function to post birth data
+// Function to post birth data and get gpt response for relevant aspects and trransits
 export const postPromptGPT = async (input) => {
   // console.log(JSON.stringify({input}))
   console.log('json strigify')

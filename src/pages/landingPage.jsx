@@ -31,6 +31,20 @@ const LandingPageComponent = () => {
     const setDailyTransits = useStore(state => state.setDailyTransits)
     const dailyTransits = useStore(state => state.dailyTransits)
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = date.toLocaleDateString('en-US', options);
+        const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        
+        return (
+          <>
+            <div className="timesubtxt">{formattedDate}</div>
+            <div className="timesubtxt">{formattedTime}</div>
+          </>
+        );
+      };
+
  
     const handleFetchDailyTransits = async (date) => {
         try {
@@ -143,33 +157,34 @@ const LandingPageComponent = () => {
 
             {/* Form */}
 
-            <Ephemeris transits={dailyTransits}/>
-            <span>
-                <div style={{color:'whitesmoke'}}>
-                    <p>{todaysDate}</p>
+            <div>
+                 <div style={{ marginTop: '40px', marginBottom: '10px', color: 'whitesmoke' }}>
+                    {formatDate(todaysDate)}
                 </div>
-            </span>
-            <div style={{color: 'white'}}>
-                <h2>Daily Aspects</h2>
-                <TransitAspects transits={dailyTransitAspects}/>
+                <Ephemeris transits={dailyTransits}/>
+
             </div>
-
-
-            <div style={{color: 'white'}}>
-                <h2>Monthly Transits</h2>
-                <PeriodTransits periodTransits={periodTransits} />
-            </div>
-
-    
-            <div style={{color: 'white'}}>
-                <h2>Monthly Aspects</h2>
-                <TransitAspects transits={periodAspects} isMonthly={true} />
-            </div>
-
+                {/* <div style={{color: 'white'}}>
+                    <h2>Daily Aspects</h2>
+                    <TransitAspects transits={dailyTransitAspects}/>
+                </div>
+                <div style={{color: 'white'}}>
+                    <h2>Monthly Transits</h2>
+                    <PeriodTransits periodTransits={periodTransits} />
+                </div>
+                <div style={{color: 'white'}}>
+                    <h2>Monthly Aspects</h2>
+                    <TransitAspects transits={periodAspects} isMonthly={true} />
+                </div> */}
 
 
             <DailyReading transitAspectObjects={dailyTransitAspects} transits={dailyTransits} />
 
+
+            <div>
+                <h2>Cast your Chart, Get Your Free Horoscope</h2>
+                <p>Enter your birth information and let Stellium translate the tapestry of the Cosmos into a personalized guide to your life's destiny</p>
+            </div>
 
             <UserSignUpForm />
         </div>

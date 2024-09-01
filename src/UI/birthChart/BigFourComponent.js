@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { postGptResponse, postPromptGPT, updateHeadingInterpretation } from '../../Utilities/api'; 
 import { heading_map } from '../../Utilities/constants';
 
@@ -61,18 +64,35 @@ const BigFourComponent = ({ bigFourType }) => {
         try {
             const interpretation = headingInterpretationMap[heading];
             const promptDescription = subHeadingsPromptDescriptionsMap[heading];
-            // if intepretation and/or promptDescription are empty strings, don't save
+            // if interpretation and/or promptDescription are empty strings, don't save
             if (!interpretation || !promptDescription) {
                 return;
             }
 
-            await updateHeadingInterpretation(userId, heading, promptDescription, interpretation);
-            // No need to update the store as the interpretation is already there
+            const response = await updateHeadingInterpretation(userId, heading, promptDescription, interpretation);
+            console.log(response);
+            // Show success toast
+            toast.success('Interpretation saved successfully!', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
         } catch (error) {
             console.error('Failed to save interpretation:', error);
+            // Show error toast
+            toast.error('Failed to save interpretation. Please try again.', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
         }
     };
-
 
 
 
@@ -106,6 +126,8 @@ const BigFourComponent = ({ bigFourType }) => {
                 <button onClick={() => subHeadings.forEach(generateResponse)}>Generate Relevant Birth Data for all Subheadings</button>
             </div>
             {subHeadings.map(renderResponseForHeading)}
+            <ToastContainer />
+
         </div>
     );
 };

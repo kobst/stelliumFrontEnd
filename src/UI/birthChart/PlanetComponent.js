@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { postGptResponsePlanets, updateHeadingInterpretation } from '../../Utilities/api'; 
 import useStore from '../../Utilities/store';
 import { 
@@ -9,9 +11,7 @@ import {
 
 const PlanetComponent = ({ planet }) => {
     const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap);
-    const planetResponsesMap = useStore(state => state.planetResponsesMap);
-    const setPlanetResponsesMap = useStore(state => state.setPlanetResponsesMap);
-
+ 
     const userPlanets = useStore(state => state.userPlanets)
     const userHouses = useStore(state => state.userHouses)
     const userAspects = useStore(state => state.userAspects)  
@@ -51,7 +51,8 @@ const PlanetComponent = ({ planet }) => {
             return;
         }
         console.log("generate planet response");
-        const modifiedInput = promptDescriptionsMap['everything'] + "\n" +  planet.toUpperCase() + " ANALYSIS";
+        // const modifiedInput = promptDescriptionsMap['everything'] + "\n" +  planet.toUpperCase() + " ANALYSIS";
+        const modifiedInput = subHeadingsPromptDescriptionsMap[planet].join('\n') + "\n" +  planet.toUpperCase() + " ANALYSIS";
         try {
             const response = await postGptResponsePlanets(modifiedInput);
             // setPlanetResponsesMap(planet, response);
@@ -66,14 +67,34 @@ const PlanetComponent = ({ planet }) => {
         try {
             const interpretation = headingInterpretationMap[heading];
             const promptDescription = subHeadingsPromptDescriptionsMap[heading];
-            // if intepretation and/or promptDescription are empty strings, don't save
+            // if interpretation and/or promptDescription are empty strings, don't save
             if (!interpretation || !promptDescription) {
                 return;
             }
 
             await updateHeadingInterpretation(userId, heading, promptDescription, interpretation);
+            
+            // Show success toast
+            toast.success('Interpretation saved successfully!', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
         } catch (error) {
             console.error('Failed to save interpretation:', error);
+            
+            // Show error toast
+            toast.error('Failed to save interpretation. Please try again.', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
         }
     };
 
@@ -98,6 +119,7 @@ const PlanetComponent = ({ planet }) => {
                     <button onClick={() => saveHeadingInterpretation(planet)}>Save Interpretation</button>
                 </div>
             )}
+            <ToastContainer />
         </div>
     );
 };

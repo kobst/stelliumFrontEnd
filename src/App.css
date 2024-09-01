@@ -13,6 +13,123 @@
   }
 }
 
+.landing-page-container {
+  display: flex;
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  min-height: 100vh; /* Ensure it takes at least the full viewport height */
+}
+
+.landing-page-half {
+  width: 50%;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Align content to the top */
+  overflow: hidden; /* Prevent content from spilling out */
+}
+
+.maintxt {
+  color: white;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  margin-top: 20px; /* Add some space at the top */
+}
+
+.logotxt {
+  font-weight: 600;
+  font-size: 4vw; /* Responsive font size */
+  letter-spacing: 1vw; /* Responsive letter spacing */
+  text-shadow: 0 0 9px rgba(255, 255, 255);
+  margin-bottom: 25px;
+  white-space: nowrap; /* Prevent wrapping */
+}
+
+.logosubtxt {
+  font-weight: 500;
+  font-size: 1.5vw; /* Responsive font size */
+  letter-spacing: 0.5vw; /* Responsive letter spacing */
+  max-width: 80%; /* Limit width to prevent overflow */
+  margin: 0 auto 20px; /* Add bottom margin */
+}
+
+.soon {
+  font-weight: 600;
+  font-size: 2.5vw; /* Responsive font size */
+  letter-spacing: 1vw; /* Responsive letter spacing */
+  margin-bottom: 20px; /* Add bottom margin */
+}
+
+.timesubtxt {
+  color: #d4138d;
+  font-weight: 400;
+  font-size: 2.0vw; /* Responsive font size */
+  letter-spacing: 0.5vw; /* Responsive letter spacing */
+  max-width: 80%; /* Limit width to prevent overflow */
+  margin: 0 auto 20px; /* Add bottom margin */
+}
+
+.lightlogo {
+  mix-blend-mode: screen;
+  max-width: 80%; /* Limit logo size */
+  height: auto; /* Maintain aspect ratio */
+  margin-top: 20px; /* Add some space at the top */
+}
+
+/* Ensure the white line doesn't cause overflow */
+.landing-page-half img[src*="whiteLine"] {
+  max-width: 100%;
+  height: auto;
+  margin-top: 20px; /* Add some space at the top */
+}
+
+/* Styles for the right half */
+.landing-page-half:last-child {
+  justify-content: flex-start; /* Align content to the top */
+}
+
+.input-dark-placeholder::placeholder {
+  color: #5116b5; /* This is a dark grey color, adjust as needed */
+  opacity: 1; /* Firefox */
+}
+
+.input-dark-placeholder:-ms-input-placeholder {
+  color: #5116b5; /* Internet Explorer 10-11 */
+}
+
+.input-dark-placeholder::-ms-input-placeholder {
+  color: #5116b5; /* Microsoft Edge */
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .landing-page-container {
+    flex-direction: column;
+  }
+
+  .landing-page-half {
+    width: 100%;
+  }
+
+  .logotxt {
+    font-size: 8vw;
+    letter-spacing: 2vw;
+  }
+
+  .logosubtxt {
+    font-size: 3vw;
+    letter-spacing: 1vw;
+  }
+
+  .soon {
+    font-size: 5vw;
+    letter-spacing: 2vw;
+  }
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 20vh;
@@ -42,6 +159,24 @@
 }
 
 /* App.css */
+
+.pac-container {
+  background-color: #333;
+  color: white;
+}
+
+.pac-item {
+  color: white;
+  padding: 5px;
+}
+
+.pac-item:hover {
+  background-color: #555;
+}
+
+.pac-item-query {
+  color: white;
+}
 
 .form-group {
   display: flex;
@@ -212,8 +347,10 @@ form {
 /* LANDING PAGE CSS ENDS*/
 
 body {
-  background: url("/public/NebulaeBG.png") no-repeat center center fixed;
-
+  /* background: url("/public/NebulaeBG.png") no-repeat center center fixed; */
+  background: url("/public/newNebulae2.png") no-repeat center center fixed;
+  background-color: rgb(28, 104, 140);
+  background-blend-mode: screen; 
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -355,7 +492,26 @@ input {
   text-align: center;
 }
 
+.location-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
 
+.location-label {
+  color: white;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+.location-input-container {
+  flex-grow: 1;
+}
+
+.location-input {
+  width: 100%;
+  color: white;
+}
 
 
 

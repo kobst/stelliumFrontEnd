@@ -336,3 +336,34 @@ export const transitCodes = {
     "transiting": "Tr-"
   }
 
+
+  export const orbDegrees = {
+    'Moon': 8,
+    'Mercury': 5,
+    'Venus': 5,
+    'Sun': 5,
+    'Mars': 3,
+    'Jupiter': 3,
+    'Saturn': 3,
+    'Uranus': 3,
+    'Neptune': 3,
+    'Pluto': 3
+  };
+
+  export const aspects = [
+    { 'name': 'conjunction', 'orb': 0 },
+    { 'name': 'sextile', 'orb': 60 },
+    { 'name': 'square', 'orb': 90 },
+    { 'name': 'trine', 'orb': 120 },
+    { 'name': 'quincunx', 'orb': 150 },
+    { 'name': 'opposition', 'orb': 180 },
+  ];
+
+  export const moonPhases = {
+    conjunction: 'New Moon',
+    square: 'Quarter Moon',
+    opposition: 'Full Moon',
+    sextile: 'Waxing/Waning Moon',
+    trine: 'Waxing/Waning Moon'
+  };
+  

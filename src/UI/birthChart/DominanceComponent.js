@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { postGptResponse, updateHeadingInterpretation } from '../../Utilities/api'; 
 import useStore from '../../Utilities/store';
 
@@ -50,14 +52,34 @@ const DominanceComponent = ({ dominanceTopic }) => {
         try {
             const interpretation = headingInterpretationMap[heading];
             const promptDescription = subHeadingsPromptDescriptionsMap[heading];
-            // if intepretation and/or promptDescription are empty strings, don't save
+            // if interpretation and/or promptDescription are empty strings, don't save
             if (!interpretation || !promptDescription) {
                 return;
             }
 
             await updateHeadingInterpretation(userId, heading, promptDescription, interpretation);
+            
+            // Show success toast
+            toast.success('Interpretation saved successfully!', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
         } catch (error) {
             console.error('Failed to save interpretation:', error);
+            
+            // Show error toast
+            toast.error('Failed to save interpretation. Please try again.', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
         }
     };
 
@@ -81,6 +103,7 @@ const DominanceComponent = ({ dominanceTopic }) => {
                     <button onClick={() => saveHeadingInterpretation(dominanceTopic)}>Save Interpretation</button>
                 </div>
             )}
+            <ToastContainer />
         </div>
     );
 }

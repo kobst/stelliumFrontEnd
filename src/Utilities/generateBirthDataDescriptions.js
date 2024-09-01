@@ -89,6 +89,19 @@ export function findAspectsComputed(birthData, planet = null) {
   
   return aspectDescriptions;
 }
+
+export function findAspectsNonComputed(birthData, planet = null) {
+  let aspectDescriptions = [];
+  
+  birthData.aspects.forEach(aspect => {
+      if (!planet || aspect.transitingPlanet === planet || aspect.aspectingPlanet === planet) {
+          const description = addAspectDescriptionComputed(aspect, birthData);
+          aspectDescriptions.push(description);
+      }
+  });
+  
+  return aspectDescriptions;
+}
   
 function addAspectDescriptionComputed(aspect, birthData) {
     const transitingPlanetData = birthData.planets.find(p => p.name === aspect.transitingPlanet);

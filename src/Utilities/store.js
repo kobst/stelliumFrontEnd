@@ -5,7 +5,7 @@ import { HeadingEnum } from './constants';
 
 const useStore = create(set => ({
 
-    birthDate: {},
+    birthDate: '',
     setBirthDate: (response) => set({ birthDate: response}),
 
     userId: '',
@@ -14,7 +14,7 @@ const useStore = create(set => ({
     selectedUser: {},
     setSelectedUser: (response) => set({ selectedUser: response }),
 
-  rawBirthData: '',
+  rawBirthData: {},
   setRawBirthData: (response) => set({ rawBirthData: response }),
 
   userPlanets: [],
