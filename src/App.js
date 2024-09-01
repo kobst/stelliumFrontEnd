@@ -13,7 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPageComponent />} />
           <Route path="/confirmation" element={<Confirmation />} />
-          <Route path="/prototype" element={<PrototypePage />} />
+          {/* <Route path="/prototype" element={<PrototypePage />} /> */}
         </Routes>
       </div>
     </Router>
