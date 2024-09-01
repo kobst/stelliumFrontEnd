@@ -1,7 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import PrototypePage from './pages/prototype';
-import ProtectedRoute from './pages/protectedRoute'
 import LandingPageComponent from './pages/landingPage';
 import Confirmation from './pages/confirmationPage';
 import './App.css';
