@@ -4,6 +4,7 @@ import Ephemeris from '../UI/shared/Ephemeris';
 import { heading_map } from '../Utilities/constants';
 import { postPromptGPT, postGptResponse } from '../Utilities/api';
 import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
+import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 import { 
     describePlanets, 
     describeHouses, 
@@ -20,7 +21,9 @@ const Confirmation = () => {
     const userPlanets = useStore(state => state.userPlanets)
     const userHouses = useStore(state => state.userHouses)
     const userAspects = useStore(state => state.userAspects) 
- 
+    const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
+    const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
+
     const [randomBigFourType, setRandomBigFourType] = useState(null);
     const [randomHeading, setRandomHeading] = useState(null);
     const [sampleReading, setSampleReading] = useState(null);
@@ -78,6 +81,8 @@ const Confirmation = () => {
             console.log(patternResponse)
             const everythingResponse = response.concat(houseResponse, aspects)
             generateRelevanceResponse(everythingResponse)
+            setPromptDescriptionsMap('everything', everythingResponse)
+
            
 
         } catch (error) {
@@ -113,6 +118,11 @@ const Confirmation = () => {
                     transits={[]} 
                     ascendantDegree={ascendantDegree} 
                  />
+                </div>
+            )}
+            {promptDescriptionsMap.everything && (
+                <div>
+                    <BirthChartSummary summary={promptDescriptionsMap.everything} />
                 </div>
             )}
             {sampleReading && (

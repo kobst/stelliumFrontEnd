@@ -1,0 +1,23 @@
+.planet-positions-table {
+  width: 100%; /* Changed from 25vw to 100% */
+  border-collapse: separate;
+  border-spacing: 5px 3px;
+  margin: 0 auto;
+  font-size: 0.8em;
+  border: 1px solid #ddd; /* Added border */
+  padding: 10px; /* Added padding */
+}
+
+/* ... rest of the CSS remains the same ... */
+
+.planet-positions-table td {
+  padding: 5px;
+  text-align: center;
+  border: none; /* Removes cell borders */
+}
+
+.symbol-img {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}

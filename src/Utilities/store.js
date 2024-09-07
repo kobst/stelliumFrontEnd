@@ -26,9 +26,6 @@ const useStore = create(set => ({
   userAspects: [],
   setUserAspects: (response) => set({ userAspects: response }),
 
-  ascendantDegree: 0,
-  setAscendantDegree: (response) => set({ ascendantDegree: response }),
-
   dailyTransits: [],
   setDailyTransits: (response) => set({dailyTransits: response}),
 

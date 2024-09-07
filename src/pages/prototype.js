@@ -13,9 +13,11 @@ import {
   findPlanetsInElements, 
   findPlanetsInModalities } from '../Utilities/generateBirthDataDescriptions'
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
+import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
+import HousePositionTable from '../UI/birthChart/tables/HousePositionTable';
 
 function PrototypePage() {
-  const ascendantDegree = useStore(state => state.ascendantDegree)
+  // const ascendantDegree = useStore(state => state.ascendantDegree)
   const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
   const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
   const userPlanets = useStore(state => state.userPlanets)
@@ -23,13 +25,13 @@ function PrototypePage() {
   const userAspects = useStore(state => state.userAspects)  
   const selectedUser = useStore(state => state.selectedUser);
   const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
-  const isDataPopulated = userPlanets.length > 1 && userHouses.length > 1 && ascendantDegree
+  const isDataPopulated = userPlanets.length > 1 && userHouses.length > 1
 
   useEffect(() => {
     if (isDataPopulated) {
       generateDescriptions();
     }
-  }, [userPlanets, userHouses, userAspects, ascendantDegree]);
+  }, [userPlanets, userHouses, userAspects]);
 
 
   const generateDescriptions = async (event) => { 
@@ -37,19 +39,17 @@ function PrototypePage() {
     try {
      
         const birthData = { planets: userPlanets, houses: userHouses, aspectsComputed: userAspects };
+        console.log('birthData')
+        console.log(birthData)
         const response = describePlanets(birthData)
         const houseResponse = describeHouses(birthData)
         const aspects = findAspectsComputed(birthData)
         const quadrantResponse = findPlanetsInQuadrant(birthData)
         const elementResponse = findPlanetsInElements(birthData)
         const modalityResponse = findPlanetsInModalities(birthData)
-        console.log('quadrantResponse')
-        console.log(quadrantResponse)
-        console.log('modalityResponse')
-        console.log(modalityResponse)
+    
         const patternResponse = identifyBirthChartPattern(birthData)
-        console.log('patternResponse')
-        console.log(patternResponse)
+  
 
         const everythingResponse = response.concat(houseResponse, aspects)
 
@@ -90,11 +90,17 @@ function PrototypePage() {
   
         {isDataPopulated ? (
           <div>
-            <Ephemeris planets={userPlanets} houses={userHouses} transits={[]} ascendantDegree={ascendantDegree} />
+            {/* <Ephemeris planets={userPlanets} houses={userHouses} transits={[]} ascendantDegree={ascendantDegree} /> */}
+            <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={userAspects}/>
           </div>
         ) : (
           <Ephemeris />
         )} 
+
+
+        <span>
+          <h2>birth chart interpretation</h2>
+        </span>
   
         {promptDescriptionsMap.everything && (
           <div>

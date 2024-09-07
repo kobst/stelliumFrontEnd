@@ -28,6 +28,26 @@ const BigFourComponent = ({ bigFourType }) => {
 
     }, [bigFourType, promptDescriptionsMap]);
 
+    function checkResponseAgainstEverything(response, everythingData) {
+        // Extract codes from the response
+        const responseCodes = response.match(/\(([^)]+)\)/g) || [];
+        
+        // Extract codes from everythingData
+        const everythingCodes = everythingData.flatMap(item => {
+            const matches = item.match(/\(([^)]+)\)/g) || [];
+            return matches.map(match => match.trim());
+          });        
+        // Check if all response codes are in everythingCodes
+        const missingCodes = responseCodes.filter(code => !everythingCodes.includes(code));
+        
+        if (missingCodes.length > 0) {
+          console.warn('The following codes from the response are not in everythingData:', missingCodes);
+          return false;
+        }
+        
+        return true;
+      }
+
 
     async function generateResponse(heading) {
         // const modifiedInput = promptData + "\n" + heading + "\nEvery time you mention a particular aspect or position, please include its reference number provided";
@@ -37,11 +57,21 @@ const BigFourComponent = ({ bigFourType }) => {
             const responseObject = await postPromptGPT(modifiedInput)
             console.log(responseObject)
             // setBigFourMap(heading, responseObject.response)
-            setSubHeadingsPromptDescriptionsMap(heading, responseObject.response)
+            // add check to see if responseObject contains aspects and/or transits included in everythingData
+            if (checkResponseAgainstEverything(responseObject.response, everythingData)) {
+                console.log('Response contains codes found in everythingData')
+                setSubHeadingsPromptDescriptionsMap(heading, responseObject.response);
+              } else {
+                console.error('Response contains codes not found in everythingData');
+                // regenerate response
+                generateResponse(heading);
+              }
         } catch (error) {
           console.error('Error:', error);
         }
     }
+
+
 
     const handleRedo = (heading) => {
         generateResponse(heading);

@@ -12,7 +12,6 @@ function UsersTable() {
   const setUserPlanets = useStore(state => state.setUserPlanets);
   const setUserHouses = useStore(state => state.setUserHouses);
   const setUserAspects = useStore(state => state.setUserAspects);
-  const setAscendantDegree = useStore(state => state.setAscendantDegree);
   const setHeadingInterpretationMap = useStore(state => state.setHeadingInterpretationMap)
   const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
 
@@ -85,12 +84,7 @@ function UsersTable() {
     setUserPlanets(user.birthChart.planets  );
     setUserHouses(user.birthChart.houses);
     setUserAspects(user.birthChart.aspectsComputed);
-    const ascendant = user.birthChart.planets.find(planet => planet.name === 'Ascendant');
-    if (ascendant) {
-      setAscendantDegree(ascendant.full_degree);
-    } else {
-      console.warn('Ascendant not found in birth chart');
-    }
+
 
     const startDate = new Date();
     const endDate = new Date();

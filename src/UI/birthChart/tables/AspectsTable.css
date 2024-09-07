@@ -1,0 +1,32 @@
+.aspect-table {
+  width: 50%; /* Changed from 25vw to 50% */
+  border-collapse: separate;
+  border-spacing: 5px 3px;
+  margin: 0 auto;
+  font-size: 0.8em;
+  border: 1px solid #ddd; /* Added border */
+  padding: 10px; /* Added padding */
+}
+
+/* ... rest of the CSS remains the same ... */
+.aspect-table td {
+  padding: 2px;
+  text-align: left;
+  border: none; /* Removes cell borders */
+  white-space: nowrap; /* Prevents text wrapping */
+}
+
+.aspect-table td:last-child {
+  text-align: right; /* Aligns orb to the right */
+}
+
+.symbol-img {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+.aspect-symbol {
+  font-size: 1.2em;
+  font-weight: bold;
+}

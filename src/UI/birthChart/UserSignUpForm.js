@@ -21,7 +21,6 @@ const UserSignUpForm = () => {
     const [formErrors, setFormErrors] = useState({});
     const setRawBirthData = useStore(state => state.setRawBirthData);
     const setBirthDate = useStore(state => state.setBirthDate);
-    const setAscendantDegree = useStore(state => state.setAscendantDegree)
     const setUserId = useStore(state => state.setUserId);
     const setUserPlanets = useStore(state => state.setUserPlanets);
     const setUserHouses = useStore(state => state.setUserHouses);
@@ -82,7 +81,6 @@ const UserSignUpForm = () => {
             response.chartData
         );
           console.log(JSON.stringify(userid) + " userid");
-          setAscendantDegree(response.chartData['ascendant']);
           setRawBirthData(response.chartData);
           setUserPlanets(response.chartData.planets);
           setUserHouses(response.chartData.houses);
