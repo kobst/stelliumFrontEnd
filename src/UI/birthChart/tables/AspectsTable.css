@@ -1,0 +1,29 @@
+.aspects-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8em;
+}
+
+.aspects-table td {
+  padding: 2px;
+  text-align: left;
+  border: none;
+  white-space: nowrap;
+}
+
+.aspects-table td:last-child {
+  text-align: right;
+}
+
+.symbol-img {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 2px;
+}
+
+.aspect-symbol {
+  font-size: 1.2em;
+  font-weight: bold;
+}

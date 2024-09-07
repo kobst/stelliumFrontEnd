@@ -20,7 +20,6 @@ const SimpleForm = () => {
   const setDailyTransits = useStore(state => state.setDailyTransits)
   const setDailyTransitDescriptions = useStore(state => state.setDailyTransitDescriptions)
 
-  const setAscendantDegree = useStore(state => state.setAscendantDegree)
   const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
 
   function getStartAndEndDate() {
@@ -86,7 +85,6 @@ const SimpleForm = () => {
         setDailyTransits(todaysPositions.chartData)
         setDailyTransitDescriptions(todaysPositions.transitAspects)
         setProgressedBirthData(responseProgressed.chartData)
-        setAscendantDegree(response.chartData['ascendant'])
         setRawBirthData(response.chartData);
 
 

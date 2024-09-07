@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { fetchUsers } from '../../Utilities/api'
+import { fetchUsers, postPeriodTransit } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
-import { fetchBirthChartInterpretation, postPeriodHouseTransitsForUserChart, postPeriodAspectsForUserChart } from '../../Utilities/api';
+import { fetchBirthChartInterpretation, postPeriodHouseTransitsForUserChart, postPeriodAspectsForUserChart, postPeriodTransits } from '../../Utilities/api';
+import { formatTransitDataForUser } from '../../Utilities/generateUserTranstiDescriptions';
 import { HeadingEnum } from '../../Utilities/constants';
 
 function UsersTable() {
@@ -12,9 +13,16 @@ function UsersTable() {
   const setUserPlanets = useStore(state => state.setUserPlanets);
   const setUserHouses = useStore(state => state.setUserHouses);
   const setUserAspects = useStore(state => state.setUserAspects);
-  const setAscendantDegree = useStore(state => state.setAscendantDegree);
+  const setUserPeriodTransits = useStore(state => state.setUserPeriodTransits);
+  const setUserPeriodHouseTransits = useStore(state => state.setUserPeriodHouseTransits);
   const setHeadingInterpretationMap = useStore(state => state.setHeadingInterpretationMap)
   const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
+
+  const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
+  const subHeadingsPromptDescriptionsMap = useStore(state => state.subHeadingsPromptDescriptionsMap)
+
+
+
 
   useEffect(() => {
     async function loadUsers() {
@@ -25,81 +33,91 @@ function UsersTable() {
         console.error('Error fetching users:', error);
       }
     }
+
     loadUsers();
   }, []);
 
 
+
+
+// maybe move this to the prototype page
+  const handleUserSelect = async (user) => {
+    setSelectedUser(user);
+    setUserId(user._id);
+    setUserPlanets(user.birthChart.planets  );
+    setUserHouses(user.birthChart.houses);
+    setUserAspects(user.birthChart.aspectsComputed);
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 30);
+    fetchUserBirthChartInterpretation(user._id);
+    fetchUserPeriodTransits(user, startDate, endDate)
+  };
+
   const fetchUserBirthChartInterpretation = async (userId) => {
     try {
       const fetchedInterpretation = await fetchBirthChartInterpretation(userId);
-      console.log('fetchedInterpretation')
-      console.log(fetchedInterpretation)
+      console.log('fetchedInterpretation');
+      console.log(fetchedInterpretation);
+  
       const validHeadings = Object.values(HeadingEnum);
-      
-      // const birthChart = fetchedInterpretation.birthChartInterpretation;
+  
+      // Clear previous interpretation data for all headings
+      validHeadings.forEach(heading => {
+        setHeadingInterpretationMap(heading, '');
+        setSubHeadingsPromptDescriptionsMap(heading, '');
+      });
+  
       Object.entries(fetchedInterpretation).forEach(([heading, data]) => {
         if (validHeadings.includes(heading) && typeof data === 'object') {
-          console.log('Heading:', heading);
-          console.log('Prompt Description:', data.promptDescription);
-          console.log('Interpretation:', data.interpretation);
-          
-          // Set the interpretation
-          setHeadingInterpretationMap(heading, data.interpretation);
-          
-          // Set the prompt description
-          setSubHeadingsPromptDescriptionsMap(heading, data.promptDescription);
+          setHeadingInterpretationMap(heading, data.interpretation || '');
+          setSubHeadingsPromptDescriptionsMap(heading, data.promptDescription || '');
         } else {
           console.warn(`Invalid or unexpected data for heading: ${heading}`);
         }
       });
-
     } catch (error) {
       console.error('Error fetching birth chart interpretation:', error);
     }
   };
 
   const fetchUserPeriodTransits = async (user, startDate, endDate) => {
-    
     const birthChartPlanets = user.birthChart.planets
+    const birthChartHouses = user.birthChart.houses
     const periodTransitsTest = await postPeriodAspectsForUserChart(startDate, endDate, birthChartPlanets)
+    const periodHouseTransitsTest = await postPeriodHouseTransitsForUserChart(startDate, endDate, birthChartHouses)
     // remove transits with Moon as transitingPlanet
     const filteredTransits = periodTransitsTest.filter(transit => transit.transitingPlanet !== 'Moon');
     console.log(" period transits")
     console.log(filteredTransits)
-
-  }
-
-  const fetchUserPeriodHouseTransits = async (user, startDate, endDate) => {
-    const birthChartHouses = user.birthChart.houses
-    const periodHouseTransits = await postPeriodHouseTransitsForUserChart(startDate, endDate, birthChartHouses)
     console.log(" period house transits")
-    console.log(periodHouseTransits)
+    console.log(periodHouseTransitsTest)
+    // setUserPeriodHouseTransits(periodHouseTransitsTest)
+    const formattedTransits = await formatUserPeriodTransits(filteredTransits, birthChartPlanets)
+    setUserPeriodTransits(formattedTransits)
+    setUserPeriodHouseTransits(periodHouseTransitsTest)
 
   }
 
-
-  const handleUserSelect = async (user) => {
-    setSelectedUser(user);
-    setUserId(user._id);
-    fetchUserBirthChartInterpretation(user._id);
-    setUserPlanets(user.birthChart.planets  );
-    setUserHouses(user.birthChart.houses);
-    setUserAspects(user.birthChart.aspectsComputed);
-    const ascendant = user.birthChart.planets.find(planet => planet.name === 'Ascendant');
-    if (ascendant) {
-      setAscendantDegree(ascendant.full_degree);
-    } else {
-      console.warn('Ascendant not found in birth chart');
-    }
-
+  const formatUserPeriodTransits = async (userPeriodTransits, userPlanets) => {
     const startDate = new Date();
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 30);
-    fetchUserPeriodHouseTransits(user, startDate, endDate)
-    fetchUserPeriodTransits(user, startDate, endDate)
+    const periodTransits = await postPeriodTransits(startDate, endDate);
+    const formattedTransits = userPeriodTransits.map(transit => {
+      return formatTransitDataForUser(transit, periodTransits, userPlanets)
+    })
+    console.log("formattedTransits")
+    console.log(formattedTransits)
+    return formattedTransits
+    // setUserPeriodTransits(formattedTransits)
+    // setUserPeriodTransits(formattedTransits)
+  }
 
 
-  };
+
+
+
 
   return (
     <div className="user-table-container">

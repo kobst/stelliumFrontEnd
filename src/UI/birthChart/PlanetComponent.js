@@ -44,17 +44,37 @@ const PlanetComponent = ({ planet }) => {
     }, [planet, userPlanets, userHouses, userAspects]);
 
 
+    // useEffect(() => {
+    //     const generatePlanetInterpretation = async () => {
+    //       if (!headingInterpretationMap[planet] || headingInterpretationMap[planet] === '' || !subHeadingsPromptDescriptionsMap[planet] || subHeadingsPromptDescriptionsMap[planet].length === 0) {
+    //         await generateResponse();
+    //       }
+    //     };
+    
+    //     generatePlanetInterpretation();
+    //   }, [planet, subHeadingsPromptDescriptionsMap, headingInterpretationMap]);
+    
 
     async function generateResponse() {
         if (!planet || planet === '') {
             console.error('Planet or planet type is undefined');
             return;
         }
+        if (!subHeadingsPromptDescriptionsMap[planet] || subHeadingsPromptDescriptionsMap[planet].length === 0) {
+            console.log(`No prompt descriptions available for ${planet}`);
+            return;
+          }
         console.log("generate planet response");
         // const modifiedInput = promptDescriptionsMap['everything'] + "\n" +  planet.toUpperCase() + " ANALYSIS";
-        const modifiedInput = subHeadingsPromptDescriptionsMap[planet].join('\n') + "\n" +  planet.toUpperCase() + " ANALYSIS";
+        const modifiedInput = subHeadingsPromptDescriptionsMap[planet].join('\n');
+
+        const inputData = {
+            heading: planet.toUpperCase(),
+            description: modifiedInput
+        };
+
         try {
-            const response = await postGptResponsePlanets(modifiedInput);
+            const response = await postGptResponsePlanets(inputData);
             // setPlanetResponsesMap(planet, response);
             setHeadingInterpretationMap(planet, response)
         
@@ -100,27 +120,31 @@ const PlanetComponent = ({ planet }) => {
 
     return (
         <div className="planet-component">
+        {subHeadingsPromptDescriptionsMap && subHeadingsPromptDescriptionsMap[planet] && subHeadingsPromptDescriptionsMap[planet].length > 0 ? (
+          <>
             <div>
-                <h4 style={{ color: 'white' }}>{planet}</h4>
-                {subHeadingsPromptDescriptionsMap[planet] && subHeadingsPromptDescriptionsMap[planet].length > 0 && (
-                    <div style={{ color: 'white' }}>
-                        <pre style={{ color: 'white' }}>
-                            {subHeadingsPromptDescriptionsMap[planet].join('\n')}
-                        </pre>
-                        <button onClick={generateResponse}>Generate Planet Interpretation</button>
-                    </div>
-                )}
+              <h4 style={{ color: 'white' }}>{planet}</h4>
+              <div style={{ color: 'white' }}>
+                <pre style={{ color: 'white' }}>
+                  {subHeadingsPromptDescriptionsMap[planet].join('\n')}
+                </pre>
+                <button onClick={generateResponse}>Generate Planet Interpretation</button>
+              </div>
             </div>
-            {headingInterpretationMap[planet] !== "" && (
-                <div>
-                    <div className="planet-response">
-                        <pre>{headingInterpretationMap[planet]}</pre>  
-                    </div>
-                    <button onClick={() => saveHeadingInterpretation(planet)}>Save Interpretation</button>
+            {headingInterpretationMap && headingInterpretationMap[planet] !== "" && (
+              <div>
+                <div className="planet-response">
+                  <pre>{headingInterpretationMap[planet]}</pre>
                 </div>
+                <button onClick={() => saveHeadingInterpretation(planet)}>Save Interpretation</button>
+              </div>
             )}
-            <ToastContainer />
-        </div>
+          </>
+        ) : (
+          <p>No birth chart interpretation available for this planet.</p>
+        )}
+        <ToastContainer />
+      </div>
     );
 };
 

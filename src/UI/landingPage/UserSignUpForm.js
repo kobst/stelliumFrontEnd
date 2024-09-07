@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import GoogleAutocomplete from 'react-google-autocomplete';
+import Autocomplete from 'react-google-autocomplete';
 import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits, postPeriodAspectsForUserChart, createUserProfile} from '../../Utilities/api'; 
 import useStore from '../../Utilities/store';
+import './UserSignUpForm.css';  // Add this line
+
+
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 
@@ -21,7 +24,7 @@ const UserSignUpForm = () => {
     const [formErrors, setFormErrors] = useState({});
     const setRawBirthData = useStore(state => state.setRawBirthData);
     const setBirthDate = useStore(state => state.setBirthDate);
-    const setAscendantDegree = useStore(state => state.setAscendantDegree)
+    const setUserData = useStore(state => state.setUserData);
     const setUserId = useStore(state => state.setUserId);
     const setUserPlanets = useStore(state => state.setUserPlanets);
     const setUserHouses = useStore(state => state.setUserHouses);
@@ -45,58 +48,72 @@ const UserSignUpForm = () => {
         setFormErrors(errors);
         return;
       }
+
+
+    const userData = {
+      firstName,
+      lastName,
+      email,
+      date,
+      time,
+      lat,
+      lon,
+      placeOfBirth
+    };
+
+    setUserData(userData);
+    navigate('/confirmation');
   
       setRawBirthData({});
       setBirthDate('');
    
-      try {
-          const dateTimeString = `${date}T${time}:00`;
-          const dateTime = new Date(dateTimeString);
-          const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
-          const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-          console.log(`Time Zone Offset in Hours: ${totalOffsetHours}`);
-          const birthData = {
-              date: date,
-              time: time,
-              lat: lat,
-              lon: lon,
-              tzone: totalOffsetHours,
-          };
-          setBirthDate(birthData);
-          const response = await postBirthData(birthData);
-          console.log(" CHART DATA ");
-          console.log(response.chartData);
+      // try {
+      //     const dateTimeString = `${date}T${time}:00`;
+      //     const dateTime = new Date(dateTimeString);
+      //     const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
+      //     const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
+      //     console.log(`Time Zone Offset in Hours: ${totalOffsetHours}`);
+      //     const birthData = {
+      //         date: date,
+      //         time: time,
+      //         lat: lat,
+      //         lon: lon,
+      //         tzone: totalOffsetHours,
+      //     };
+      //     setBirthDate(birthData);
+      //     const response = await postBirthData(birthData);
+      //     console.log(" CHART DATA ");
+      //     console.log(response.chartData);
 
-          const dateOfBirth = dateTimeString
-          console.log("date of birth " + dateOfBirth)
+      //     const dateOfBirth = dateTimeString
+      //     console.log("date of birth " + dateOfBirth)
 
-          // pass in response.chartData.houses (and maybe response.chartData.aspects) to createUserProfile
-          const userid = await createUserProfile(
-            email, 
-            firstName, 
-            lastName, 
-            dateOfBirth, 
-            placeOfBirth, 
-            time, 
-            totalOffsetHours, 
-            response.chartData
-        );
-          console.log(JSON.stringify(userid) + " userid");
-          setAscendantDegree(response.chartData['ascendant']);
-          setRawBirthData(response.chartData);
-          setUserPlanets(response.chartData.planets);
-          setUserHouses(response.chartData.houses);
-          setUserAspects(response.chartData.aspects);
-          if (userid) {
-            console.log('User profile created successfully');
-            setUserId(userid);
-            navigate('/confirmation');
-          } else {
-            console.error('Failed to create user profile');
-          }
-      } catch (error) {
-        console.error('Error submitting form:', error);
-      }
+      //     // pass in response.chartData.houses (and maybe response.chartData.aspects) to createUserProfile
+      //     const userid = await createUserProfile(
+      //       email, 
+      //       firstName, 
+      //       lastName, 
+      //       dateOfBirth, 
+      //       placeOfBirth, 
+      //       time, 
+      //       totalOffsetHours, 
+      //       response.chartData
+      //   );
+      //     console.log(JSON.stringify(userid) + " userid");
+      //     setRawBirthData(response.chartData);
+      //     setUserPlanets(response.chartData.planets);
+      //     setUserHouses(response.chartData.houses);
+      //     setUserAspects(response.chartData.aspects);
+      //     if (userid) {
+      //       console.log('User profile created successfully');
+      //       setUserId(userid);
+      //       navigate('/confirmation');
+      //     } else {
+      //       console.error('Failed to create user profile');
+      //     }
+      // } catch (error) {
+      //   console.error('Error submitting form:', error);
+      // }
     };
 
     const headerStyle = {
@@ -111,7 +128,7 @@ const UserSignUpForm = () => {
     };    
     
     const inputStyle = {
-      color: 'white',
+      color: '#5116b5',
       width: '140px',
       marginRight: '10px',
       backgroundColor: 'transparent',
@@ -120,12 +137,6 @@ const UserSignUpForm = () => {
       borderRadius: '3px'
     };
 
-    const googleAutoCompleteStyle = {
-      ...inputStyle,
-      width: '290px',
-      backgroundColor: 'transparent',
-      color: 'white',
-    };
 
     const labelStyle = {
       color: 'white',
@@ -173,12 +184,21 @@ const UserSignUpForm = () => {
 
           <div style={formGroupStyle}>
             <label htmlFor="location" style={labelStyle}>I was born in</label>
-            <GoogleAutocomplete
-              inputProps={{
-                name: 'location',
-                placeholder: 'Place of Birth',
-                style: googleAutoCompleteStyle,
-                className: 'input-dark-placeholder'
+            <Autocomplete
+              placeholder="City, Country"
+              textInputProps={{ placeholderTextColor: '#fff' }}
+              styles={{
+                textInputContainer: {
+                  backgroundColor: '#5116b5',
+                },
+                textInput: {
+                  height: 38,
+                  color: '#5116b5',
+                  fontSize: 16,
+                },
+                predefinedPlacesDescription: {
+                  color: '#1faadb',
+                },
               }}
               apiKey={GOOGLE_API}
               onPlaceSelected={(place) => {
@@ -201,7 +221,7 @@ const UserSignUpForm = () => {
               value={date} 
               onChange={e => setDate(e.target.value)} 
               style={inputStyle}
-              className="input-dark-placeholder"
+              // className="input-dark-placeholder"
             />
             <label style={{ ...labelStyle, width: 'auto' }}>at</label>
             <input 
@@ -211,7 +231,7 @@ const UserSignUpForm = () => {
               value={time} 
               onChange={e => setTime(e.target.value)} 
               style={inputStyle}
-              className="input-dark-placeholder"
+              // className="input-dark-placeholder"
             />
           </div>
 

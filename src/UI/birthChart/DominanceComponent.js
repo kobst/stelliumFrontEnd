@@ -32,15 +32,16 @@ const DominanceComponent = ({ dominanceTopic }) => {
         }
         console.log("generate dominance response " + dominanceTopic);
 
-        let modifiedInput
-        if (dominanceTopic === 'Elements') {
-            modifiedInput = promptDescriptionsMap['everything'] + "\nELEMENTAL ANALYSIS\n" + promptDescriptionsMap[dominanceTopic];
-        } else {
-            modifiedInput = promptDescriptionsMap['everything'] + "\n" +  dominanceTopic.toUpperCase() + " ANALYSIS\n" + promptDescriptionsMap[dominanceTopic];
-        }
+        const inputData = {
+            heading: dominanceTopic,
+            everythingData: promptDescriptionsMap['everything'],
+            description: subHeadingsPromptDescriptionsMap[dominanceTopic],
+        };
+
+        console.log('inputData', inputData)
 
         try {
-            const response = await postGptResponse(modifiedInput);
+            const response = await postGptResponse(inputData);
             // setDominanceResponsesMap(dominanceTopic, response);
             setHeadingInterpretationMap(dominanceTopic, response);
         } catch (error) {
@@ -85,26 +86,34 @@ const DominanceComponent = ({ dominanceTopic }) => {
 
 
     return (
-        <div className="planet-component">
+        <div className="dominance-component">
+        {subHeadingsPromptDescriptionsMap && Object.keys(subHeadingsPromptDescriptionsMap).length > 0 > 0 ? (
+          <>
             <div>
-                <h4 style={{ color: 'white' }}>{dominanceTopic}</h4>
-                {subHeadingsPromptDescriptionsMap[dominanceTopic] !== "" && (
-                <div style={{ color: 'white' }}>
-                    <pre style={{ color: 'white' }}>{subHeadingsPromptDescriptionsMap[dominanceTopic]}</pre>  
-                    <button onClick={generateResponse}>Generate Responses</button>
-                </div>
-                )}
+              <h4 style={{ color: 'white' }}>Dominance {dominanceTopic}</h4>
+              <div style={{ color: 'white' }}>
+                <pre style={{ color: 'white' }}>
+                  {/* {subHeadingsPromptDescriptionsMap['dominance'].join('\n')} */}
+                  {subHeadingsPromptDescriptionsMap[dominanceTopic]}
+
+                </pre>
+                <button onClick={generateResponse}>Generate Dominance Interpretation</button>
+              </div>
             </div>
-            {headingInterpretationMap[dominanceTopic] !== "" && (
-                <div>
-                    <div className="planet-response" color='white'>
-                        <pre>{headingInterpretationMap[dominanceTopic]}</pre>
-                    </div>
-                    <button onClick={() => saveHeadingInterpretation(dominanceTopic)}>Save Interpretation</button>
+            {headingInterpretationMap && headingInterpretationMap[dominanceTopic] !== "" && (
+              <div>
+                <div className="dominance-response">
+                  <div style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{headingInterpretationMap[dominanceTopic]}</div>
                 </div>
+                <button onClick={() => saveHeadingInterpretation(dominanceTopic)}>Save Interpretation</button>
+              </div>
             )}
-            <ToastContainer />
-        </div>
+          </>
+        ) : (
+          <p>No birth chart interpretation available for dominance.</p>
+        )}
+        <ToastContainer />
+      </div>
     );
 }
 

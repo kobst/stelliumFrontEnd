@@ -5,6 +5,9 @@ import { HeadingEnum } from './constants';
 
 const useStore = create(set => ({
 
+    userData: null,
+    setUserData: (data) => set({ userData: data }),
+
     birthDate: '',
     setBirthDate: (response) => set({ birthDate: response}),
 
@@ -26,8 +29,11 @@ const useStore = create(set => ({
   userAspects: [],
   setUserAspects: (response) => set({ userAspects: response }),
 
-  ascendantDegree: 0,
-  setAscendantDegree: (response) => set({ ascendantDegree: response }),
+  userPeriodTransits: [],
+  setUserPeriodTransits: (response) => set({ userPeriodTransits: response }),
+
+  userPeriodHouseTransits: {},
+  setUserPeriodHouseTransits: (response) => set({ userPeriodHouseTransits: response }),
 
   dailyTransits: [],
   setDailyTransits: (response) => set({dailyTransits: response}),

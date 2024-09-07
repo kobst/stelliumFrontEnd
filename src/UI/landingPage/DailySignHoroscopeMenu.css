@@ -1,0 +1,42 @@
+.daily-sign-horoscope-menu {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .zodiac-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .zodiac-square {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.3s ease;
+  }
+  
+  .zodiac-square:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .zodiac-icon {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+  }
+  
+  .zodiac-name {
+    margin-top: 10px;
+    font-size: 14px;
+    text-align: center;
+  }

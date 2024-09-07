@@ -1,4 +1,32 @@
 
+export const zodiacIcons = [
+  '/assets/signs/aries.svg',
+  '/assets/signs/taurus.svg',
+  '/assets/signs/gemini.svg',
+  '/assets/signs/cancer.svg',
+  '/assets/signs/leo.svg',
+  '/assets/signs/virgo.svg',
+  '/assets/signs/libra.svg',
+  '/assets/signs/scorpio.svg',
+  '/assets/signs/sagittarius.svg',
+  '/assets/signs/capricorn.svg',
+  '/assets/signs/aquarius.svg',
+  '/assets/signs/pisces.svg'
+];
+
+export const planetIcons = [
+  '/assets/planets/Sun.svg',
+  '/assets/planets/Moon.svg',
+  '/assets/planets/Mercury.svg',
+  '/assets/planets/Venus.svg',
+  '/assets/planets/Mars.svg',
+  '/assets/planets/Jupiter.svg',
+  '/assets/planets/Saturn.svg',
+  '/assets/planets/Uranus.svg',
+  '/assets/planets/Neptune.svg',
+  '/assets/planets/Pluto.svg'
+];
+
 export const relevantPromptAspects = {
     "personality": {
       "planets": ["Sun", "Moon", "Ascendant"],
@@ -229,6 +257,43 @@ export const rulers = {
     HeadingEnum.NEPTUNE,
     HeadingEnum.PLUTO
   ]
+
+  export function getBigFourType(subheading) {
+    for (const [bigFourType, headings] of Object.entries(heading_map)) {
+      if (headings.includes(subheading)) {
+        return bigFourType;
+      }
+    }
+    return null; // Return null if the subheading doesn't match any big four type
+  }
+
+  export const HeadingTransitEnum = {
+    // Personal Growth
+    PERSONAL_GROWTH: "Personal Growth and Self-Improvement",
+
+    // Relationships
+    RELATIONSHIPS: "Relationships and Social Connections",
+
+    // Career & Finances
+    CAREER_FINANCES: "Career, Finances, and Professional Life",
+
+    // Health & Well-being
+    HEALTH_WELLBEING: "Health, Wellness, and Vitality",
+
+    // Home & Environment
+    HOME_ENVIRONMENT: "Home Life and Living Environment",
+
+    // Social Life
+    SOCIAL_LIFE: "Social Life and Community Involvement",
+
+    // Spirituality & Inner Peace
+    SPIRITUALITY_INNER_PEACE: "Spirituality and Inner Peace",
+
+    // Opportunities & Challenges
+    OPPORTUNITIES_CHALLENGES: "Opportunities and Challenges Ahead",
+};
+
+  
   
 export const heading_map = {
   "personality": personality_headings,

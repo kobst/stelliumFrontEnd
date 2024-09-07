@@ -25,14 +25,6 @@ export const orbDescription = (orb) => {
       return "";
     }
   }
-  
-
-
-
-
-
-
-
 
   
 function findAspects(planetName, birthData) {

@@ -139,6 +139,24 @@ function orbDescription(orb) {
 }
 
 
+export const generatePlanetPromptDescription = (planet, userPlanets, userHouses, userAspects) =>  {
+  // Find the relevant planet data from userPlanets
+  const birthData = { planets: userPlanets, houses: userHouses, aspectsComputed: userAspects };
+
+  const planetDescription = describePlanets(birthData, planet)
+  const houseDescription = describeHouses(birthData, planet)
+  const aspectDescription = findAspectsComputed(birthData, planet)
+
+  const combinedDescriptions = [
+      ...(Array.isArray(planetDescription) ? planetDescription : [planetDescription]),
+      ...houseDescription,
+      ...aspectDescription
+  ];
+
+  // Generate the prompt description based on the planet, house, and aspect data
+  return combinedDescriptions
+}
+
 
 
 
@@ -303,5 +321,75 @@ export function findPlanetsInModalities(chartData) {
   }
   
 
+  // export const generateBirthChartInterpretation = async (birthData) => {
+  //   // const birthData = { planets: userPlanets, houses: userHouses, aspects: userAspects };
+  //   const response = describePlanets(birthData)
+  //   const houseResponse = describeHouses(birthData)
+  //   const aspects = findAspectsNonComputed(birthData)
+  //   // const quadrantResponse = findPlanetsInQuadrant(birthData)
+  //   // const elementResponse = findPlanetsInElements(birthData)
+  //   // const modalityResponse = findPlanetsInModalities(birthData)
+  //   // const patternResponse = identifyBirthChartPattern(birthData)
+  //   // const everythingResponse = response.concat(houseResponse, aspects)
+  //   const promptMapResponse = await postPromptGeneration(response.chartData)
+  //   const promptDescriptionsMap = promptMapResponse.promptDescriptionsMap
+  //   // setPromptDescriptionsMap('personality', promptDescriptionsMap['personality'])
+  //   // setPromptDescriptionsMap('home', promptDescriptionsMap['home'])
+  //   // setPromptDescriptionsMap('relationships', promptDescriptionsMap['relationships'])
+  //   // setPromptDescriptionsMap('career', promptDescriptionsMap['career'])
+  //   // setPromptDescriptionsMap('everything', promptDescriptionsMap['everything'])
+  //   // setPromptDescriptionsMap('unconscious', promptDescriptionsMap['unconscious'])
+  //   // setPromptDescriptionsMap('communication', promptDescriptionsMap['communication'])
+  //   // setPromptDescriptionsMap('Quadrants', promptDescriptionsMap['quadrants'])
+  //   // setPromptDescriptionsMap('Elements', promptDescriptionsMap['elements'])
+  //   // setPromptDescriptionsMap('Modalities', promptDescriptionsMap['modalities'])
+  //   // setPromptDescriptionsMap('Pattern', promptDescriptionsMap['pattern'])
 
-//
+  //   console.log(promptDescriptionsMap)
+  //   // big fourinterpretations
+  //   for (const heading in heading_map) {
+  //     const subHeadings = heading_map[heading];
+  //     for (const subHeading of subHeadings) {
+  //       const promptDescription = promptDescriptionsMap[heading];
+  //       // console.log(promptDescription)
+  //       const interpretation = await generateInterpretation(subHeading, promptDescription);
+  //       console.log(interpretation)
+  //       setHeadingInterpretationMap(subHeading, interpretation)
+  //     }
+  //   }
+
+  //   // quadrant interpretations
+  //   const quadrantInterpretation = await generateInterpretation("Quadrants", promptDescriptionsMap['quadrants'])
+  //   const elementInterpretation = await generateInterpretation("Elements", promptDescriptionsMap['elements'])
+  //   const modalityInterpretation = await generateInterpretation("Modalities", promptDescriptionsMap['modalities'])
+  //   const patternInterpretation = await generateInterpretation("Pattern", promptDescriptionsMap['pattern'])
+  //   setHeadingInterpretationMap('Quadrants', quadrantInterpretation)
+  //   setHeadingInterpretationMap('Elements', elementInterpretation)
+  //   setHeadingInterpretationMap('Modalities', modalityInterpretation)
+  //   setHeadingInterpretationMap('Pattern', patternInterpretation)
+
+
+  //   // planet interpretations
+  //   for ( const planet in userPlanets) {
+  //     const planetDescription = describePlanets(birthData, planet)
+  //     const houseDescription = describeHouses(birthData, planet)
+  //     const aspectDescription = findAspectsComputed(birthData, planet)
+
+  //     const combinedDescriptions = [
+  //         ...(Array.isArray(planetDescription) ? planetDescription : [planetDescription]),
+  //         ...houseDescription,
+  //         ...aspectDescription
+  //     ];
+
+  //     const inputData = {
+  //       heading: planet.toUpperCase(),
+  //       description: combinedDescriptions.join('\n')
+  //     };
+
+  //     const planetInterpretation = await postGptResponsePlanets(inputData)
+  //     setHeadingInterpretationMap(planet, planetInterpretation)
+
+  //   }
+
+  // }
+

@@ -1,5 +1,3 @@
-
-
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 
 
@@ -56,6 +54,8 @@ export const postDailyTransits = async (date) => {
 
 
 // Function to post period transits data from the DB
+// returns an object
+//{sun: {planet: Sun, transitSigns: [{sign: Virgo, dateRange: [dateString, dateString]}], }}
 export const postPeriodTransits = async (startDate, endDate)=> {
   try {
       const response = await fetch(`${SERVER_URL}/periodTransits`, {
@@ -142,7 +142,7 @@ export const postPeriodAspectsForUserChart = async (startDate, endDate, birthCha
       }
 
       const data = await response.json();
-      console.log('Transits:', data);
+      // console.log('Transits:', data);
       return data;
   } catch (error) {
       console.error('Error fetching transits:', error);
@@ -171,8 +171,13 @@ export const postPeriodHouseTransitsForUserChart = async (startDate, endDate, bi
       }
 
       const data = await response.json();
-      console.log('Transits:', data);
-      return data;
+      console.log("data")
+      console.log(data)
+      // returns an object with keys as planets
+      // deconstructs the object into an array of transits
+      const transitData = Object.values(data)
+      console.log('Transit Data:', transitData);
+      return transitData;
   } catch (error) {
       console.error('Error fetching transits:', error);
   }
@@ -210,6 +215,17 @@ export const postDailyAspects = async (date) => {
 
 
 // Function to post period aspects data
+// returns an array of aspects
+// aspectType
+// aspectingPlanet
+// closestOrbDate
+// closestOrbValue
+// date_range
+// (2) ['2024-09-22T03:00:00.000Z', '2024-09-27T09:00:00.000Z']
+// earliestOrb
+// latestOrb
+// transitingPlanet
+// :"Mercury
 export const postPeriodAspects = async (startDate, endDate) => {
   try {
     console.log(`${SERVER_URL}/periodAspects`);
@@ -371,18 +387,27 @@ export const postPromptGeneration = async (planets, houses, aspects) => {
 
 
 // Function to post birth data and get gpt response for relevant aspects and trransits
-export const postPromptGPT = async (input) => {
-  // console.log(JSON.stringify({input}))
-  console.log('json strigify')
-  console.log(input)
+export const postPromptGPT = async (inputData) => {
+  console.log('Preparing data for GPT prompt');
+  
+  // Ensure description is a single string
+  const preparedData = {
+    ...inputData,
+    description: Array.isArray(inputData.description) 
+      ? inputData.description.join('\n') 
+      : inputData.description
+  };
+
+  console.log('Prepared data:', preparedData);
+
   try {
-    console.log(`${SERVER_URL}/getPrompts`)
+    console.log(`Sending request to ${SERVER_URL}/getPrompts`);
     const response = await fetch(`${SERVER_URL}/getPrompts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({input})
+      body: JSON.stringify(preparedData)
     });
 
     if (!response.ok) {
@@ -390,7 +415,6 @@ export const postPromptGPT = async (input) => {
     }
 
     const responseData = await response.json();
-    // console.log(responseData)
     return responseData;
   } catch (error) {
     console.error('Error in API call:', error);
@@ -399,15 +423,73 @@ export const postPromptGPT = async (input) => {
 };
 
 
+export const postGptResponseForDailyTransit = async (input) => {
+  console.log("inputData: ", input);
+
+  try {
+    const body = typeof input === 'string' ? input : JSON.stringify(input);
+
+
+    const response = await fetch(`${SERVER_URL}/getDailyTransitInterpretation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': input.length.toString()
+      },
+      body: JSON.stringify({ input: body }) // Wrap the input in an object
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error response:', response.status, errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    const responseData = await response.json();
+    console.log("Response data:", responseData);
+    return responseData.response;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
+
+
+
 // Function to post birth data
-export const postGptResponse = async (prompt) => {
+export const postGptDominanceResponse = async (inputData) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getDominance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(inputData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    // console.log(responseData)
+    return responseData.response;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
+
+
+// Function to post birth chart interpretation
+export const postGptResponse = async (inputData) => {
   try {
     const response = await fetch(`${SERVER_URL}/getBigFour`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({prompt})
+      body: JSON.stringify(inputData)
     });
 
     if (!response.ok) {
@@ -424,14 +506,17 @@ export const postGptResponse = async (prompt) => {
 };
 
 // Function to post birth data
-export const postGptResponsePlanets = async (prompt) => {
+export const postGptResponsePlanets = async (inputData) => {
   try {
+    console.log(inputData)
+    console.log(`${SERVER_URL}/getPlanetsVer2`)
+
     const response = await fetch(`${SERVER_URL}/getPlanetsVer2`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({prompt})
+      body: JSON.stringify(inputData)
     });
 
     if (!response.ok) {
@@ -446,6 +531,65 @@ export const postGptResponsePlanets = async (prompt) => {
     throw error;
   }
 };
+
+export const postGptResponseForFormattedTransits = async (heading,formattedUserTransits) => {
+
+  try {
+    console.log(`${SERVER_URL}/getGptResponseForFormattedUserTransits`)
+
+    const response = await fetch(`${SERVER_URL}/getGptResponseForFormattedUserTransits`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({heading, formattedUserTransits})
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    // console.log(responseData)
+    return responseData.response;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+
+}
+
+
+export const postGptPromptsForWeeklyTransits = async (heading, transitDescriptions) => {
+  console.log('heading')
+  console.log(heading)
+  console.log('transitDescriptions')
+  console.log(transitDescriptions)
+
+  try {
+    console.log(`${SERVER_URL}/postGptPromptsForWeeklyTransits`)
+
+    const response = await fetch(`${SERVER_URL}/getGptPromptsForWeeklyCategoryTransits`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({heading, transitDescriptions})
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    // console.log(responseData)
+    return responseData.response;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+
+}
 
 
 export const updateHeadingInterpretation = async (userId, heading, promptDescription, interpretation) => {
@@ -453,6 +597,8 @@ export const updateHeadingInterpretation = async (userId, heading, promptDescrip
   console.log(userId)
   console.log('heading')
   console.log(heading)
+  console.log('promptDescription')
+  console.log(promptDescription)
   console.log('interpretation')
   console.log(interpretation)
   const response = await fetch(`${SERVER_URL}/saveBirthChartInterpretation`, {
@@ -498,3 +644,148 @@ export const getPeriodAspectsForUser = async (startDate, endDate, userId) => {
   }
 };
 
+
+export const saveDailyTransitInterpretationData = async (date, combinedAspectsDescription, dailyTransitInterpretation) => {
+  try {
+    const response =await fetch(`${SERVER_URL}/saveDailyTransitInterpretationData`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          date,
+        combinedAspectsDescription,
+        dailyTransitInterpretation
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save daily transit data');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error saving daily transit data:', error);
+    throw error;
+  }
+};
+
+
+export const getDailyTransitInterpretationData = async (date) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getDailyTransitInterpretationData`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ date }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch daily transit data');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching daily transit data:', error);
+    throw error;
+  }
+};
+
+export const saveWeeklyTransitInterpretationData = async (date, combinedAspectsDescription, weeklyTransitInterpretation, sign) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/saveWeeklyTransitInterpretationData`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        date,
+        combinedAspectsDescription,
+        weeklyTransitInterpretation,
+        sign
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save weekly transit data');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error saving weekly transit data:', error);
+    throw error;
+  }
+};
+
+export const getWeeklyTransitInterpretationData = async (date) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getWeeklyTransitInterpretationData`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ date }), 
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch weekly transit data');
+    }
+
+    const data = await response.json();
+    return data;    
+  } catch (error) {
+    console.error('Error fetching weekly transit data:', error);
+    throw error;
+  }
+};
+
+
+
+export const postWeeklyTransitInterpretation = async (transitsWithinNextSevenDays, transitsWithinCurrentDateRange) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/generateWeeklyTransitInterpretation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transitsWithinNextSevenDays, transitsWithinCurrentDateRange })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const handleUserInput = async (userId, query) => {
+  console.log(query)
+  try {
+    console.log("query:", query)
+    console.log("userId:", userId)      
+    const response = await fetch(`${SERVER_URL}/handleUserQuery`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId, query }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}

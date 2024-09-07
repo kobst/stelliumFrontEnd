@@ -1,4 +1,4 @@
-import { updateObjectKeys, degreeDifference } from "./helpers";
+import { updateObjectKeys, degreeDifference } from "./generateUserTranstiDescriptions";
 import { decodeHouseTransitCode, decodeTransitNatalAspectCode } from "./decoder";
 import { planetCodes, signCodes, transitCodes } from "./constants";
 

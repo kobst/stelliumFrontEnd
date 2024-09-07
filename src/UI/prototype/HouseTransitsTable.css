@@ -1,0 +1,48 @@
+.house-transits-table-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .house-transits-table-wrapper {
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+  }
+  
+  .house-transits-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .house-transits-table thead {
+    position: sticky;
+    top: 0;
+    background-color: #f8f8f8;
+    z-index: 1;
+  }
+  
+  .house-transits-table th,
+  .house-transits-table td {
+    padding: 5px;
+    text-align: left;
+    border: none;
+    white-space: nowrap;
+  }
+  
+  .house-transits-table th {
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .house-transits-table tr {
+    cursor: pointer;
+  }
+  
+  .house-transits-table tr.selected {
+    background-color: #e0e0e0;
+  }
+  
+  .house-transits-table tr:hover {
+    background-color: #f0f0f0;
+  }
