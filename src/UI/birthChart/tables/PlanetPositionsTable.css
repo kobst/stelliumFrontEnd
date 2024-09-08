@@ -1,23 +1,35 @@
 .planet-positions-table {
-  width: 100%; /* Changed from 25vw to 100% */
+  width: 100%;
   border-collapse: separate;
-  border-spacing: 5px 3px;
+  border-spacing: 0; /* Remove default spacing */
   margin: 0 auto;
   font-size: 0.8em;
-  border: 1px solid #ddd; /* Added border */
-  padding: 10px; /* Added padding */
+  border: 1px solid #ddd;
+  padding: 10px;
 }
 
-/* ... rest of the CSS remains the same ... */
-
 .planet-positions-table td {
-  padding: 5px;
-  text-align: center;
-  border: none; /* Removes cell borders */
+  padding: 2px;
+  text-align: left;
+  border: none;
+  white-space: nowrap;
+}
+
+/* Adjust spacing for the first three columns */
+.planet-positions-table td:nth-child(1),
+.planet-positions-table td:nth-child(2),
+.planet-positions-table td:nth-child(3) {
+  padding-right: 5px; /* Reduce right padding */
+}
+
+/* Add some space before the sign symbol */
+.planet-positions-table td:nth-child(4) {
+  padding-left: 10px; /* Add left padding to create space */
 }
 
 .symbol-img {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   vertical-align: middle;
+  margin-right: 2px; /* Reduce space between image and text */
 }

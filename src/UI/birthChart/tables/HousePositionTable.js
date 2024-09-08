@@ -14,27 +14,39 @@ const HousePositionTable = ({ houseArray }) => {
     return (degree % 30).toFixed(2);
   };
 
+  // Filter out "South Node" and "Part of Fortune"
+  const filteredHouses = houseArray.filter(house => house.house !== "South Node" && house.house !== "Part of Fortune");
+
+  // Create an array of 3 columns, each containing 4 houses
+  const columns = [
+    filteredHouses.slice(0, 4),
+    filteredHouses.slice(4, 8),
+    filteredHouses.slice(8, 12)
+  ];
+
   return (
-    <table className="house-position-table">
-      <tbody>
-        {houseArray
-          .filter(house => house.house !== "South Node" && house.house !== "Part of Fortune")
-          .map((house, index) => (
-            <tr key={index}>
-              <td>{house.house}</td>
-              <td>
-                <img 
-                  src={getSignImagePath(house.sign)} 
-                  alt={house.sign} 
-                  className="symbol-img"
-                />
-              </td>
-              <td>{house.sign}</td>
-              <td>{calculateRemainder(house.degree)}°</td>
-            </tr>
-          ))}
-      </tbody>
-    </table>
+    <div className="house-position-table">
+      {columns.map((column, columnIndex) => (
+        <table key={columnIndex} className="house-column">
+          <tbody>
+            {column.map((house, index) => (
+              <tr key={index}>
+                <td>{house.house}</td>
+                <td>
+                  <img 
+                    src={getSignImagePath(house.sign)} 
+                    alt={house.sign} 
+                    className="symbol-img"
+                  />
+                </td>
+                <td>{house.sign}</td>
+                <td>{calculateRemainder(house.degree)}°</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ))}
+    </div>
   );
 };
 

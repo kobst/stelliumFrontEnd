@@ -65,7 +65,7 @@ const getColorForZodiac = (index) => {
 
 
 
-const Emphemeris = ({ key, planets = [], houses = [], aspects = [], transits = [], ascendantDegree = 0}) => {
+const Emphemeris = ({ key, planets, houses, aspects, transits, ascendantDegree = 0}) => {
     const canvasRef = useRef(null);
     const [planetsArray, setPlanetsArray] = useState([]);
     const centerX = 300;
@@ -75,7 +75,7 @@ const Emphemeris = ({ key, planets = [], houses = [], aspects = [], transits = [
     const houseCircleRadius = 180;
 
 
-    if (houses.length !== 0) {
+    if (houses && houses.length !== 0) {
         ascendantDegree = houses[0].degree
     }
 
@@ -171,9 +171,7 @@ const Emphemeris = ({ key, planets = [], houses = [], aspects = [], transits = [
     }, []);
 
     const drawTransits = useCallback((ctx, transits, rotationRadians, houseRotationRadians) => {
-        console.log("drawing transits")
-        setPlanetsArray(transits);
-        setPlanetsArray(transits);
+        console.log("Drawing transits", transits);
         transits.forEach(planet => {
             const planetIndex = planetNameToIndex[planet.name];
             if (planetIndex !== undefined) {
@@ -182,10 +180,15 @@ const Emphemeris = ({ key, planets = [], houses = [], aspects = [], transits = [
                 const planetX = centerX + (outerRadius + 50) * Math.cos(planetRadians) - 25;
                 const planetY = centerY + (outerRadius + 50) * Math.sin(planetRadians) - 25;
 
+                console.log(`Drawing transit for ${planet.name} at (${planetX}, ${planetY})`);
+
                 const planetImage = new Image();
                 planetImage.src = planetIcons[planetIndex];
                 planetImage.onload = () => {
                     ctx.drawImage(planetImage, planetX, planetY, 50, 50);
+                };
+                planetImage.onerror = (error) => {
+                    console.error(`Error loading image for ${planet.name}:`, error);
                 };
 
                 const planetHashRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + houseRotationRadians;
@@ -196,8 +199,7 @@ const Emphemeris = ({ key, planets = [], houses = [], aspects = [], transits = [
                 ctx.stroke();
             }
         });
- 
-    }, []);
+    }, [centerX, outerRadius, houseCircleRadius, planetNameToIndex, planetIcons]);
 
 
     const drawZodiacWheel = useCallback(async (ctx, planets, houses, transits) => {
@@ -236,8 +238,6 @@ const Emphemeris = ({ key, planets = [], houses = [], aspects = [], transits = [
         }
 
         zodiacIcons.forEach(async (iconAddress, index) => {
-
-            
             const icon = await loadAndModifySVG(iconAddress, getColorForZodiac(index));
             const iconDegree = 15 + index * 30;
             const iconRadians = ((270 - iconDegree) % 360) * Math.PI / 180 + rotationRadians;
@@ -251,91 +251,26 @@ const Emphemeris = ({ key, planets = [], houses = [], aspects = [], transits = [
             };
         });
 
-        console.log("planets: " + planets)
-        console.log("transits: " + transits)
-        if (planets.length !== 0) {
+        if (planets && planets.length !== 0) {
             drawPlanets(ctx, planets, rotationRadians)
-            // console.log("drawing planets")
-            // setPlanetsArray(planets);
-            // planets.forEach(async planet => {
-            //     const planetIndex = planetNameToIndex[planet.name];
-            //     if (planetIndex !== undefined) {
-            //         const planetDegree = planet.full_degree;
-            //         const planetRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
-            //         const planetX = centerX + (outerRadius + 60) * Math.cos(planetRadians) - 10;
-            //         const planetY = centerY + (outerRadius + 60) * Math.sin(planetRadians) - 10;
-
-            //         const planetIcon = await loadAndModifySVG(planetIcons[planetIndex], 'red');
-            //         const planetImage = new Image();
-            //         planetImage.src = planetIcon;
-            //         planetImage.onload = () => {
-            //             ctx.drawImage(planetImage, planetX, planetY, 40, 40);
-            //         };
-
-            //         const planetHashRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
-            //         ctx.beginPath();
-            //         ctx.moveTo(centerX + outerRadius * Math.cos(planetHashRadians), centerY + outerRadius * Math.sin(planetHashRadians));
-            //         ctx.lineTo(centerX + houseCircleRadius * Math.cos(planetHashRadians), centerY + houseCircleRadius * Math.sin(planetHashRadians));
-            //         ctx.strokeStyle = 'red';
-            //         ctx.stroke();
-            //     }
-            // });
         }
 
-        if (houses.length !== 0) {
+        if (houses && houses.length !== 0) {
             drawHouses(ctx, houses, houseRotationRadians)
-            // houses.forEach(house => {
-            //     const houseDegree = house.degree;
-            //     const houseRadians = ((270 - houseDegree) % 360) * Math.PI / 180 + houseRotationRadians;
-            //     ctx.beginPath();
-            //     ctx.moveTo(centerX + outerRadius * Math.cos(houseRadians), centerY + outerRadius * Math.sin(houseRadians));
-            //     ctx.lineTo(centerX + houseCircleRadius * Math.cos(houseRadians), centerY + houseCircleRadius * Math.sin(houseRadians));
-            //     if ([1, 10].includes(house.house)) {
-            //         ctx.lineWidth = 6;
-            //     } else {
-            //         ctx.lineWidth = 1;
-            //     }
-            //     ctx.strokeStyle = 'white';
-            //     ctx.stroke();
-            //     ctx.lineWidth = 1;
-            // });
         }
 
-        if (aspects.length !== 0) {
-            console.log("drawing aspects")
+        if (aspects && aspects.length !== 0) {
             drawAspectLines(ctx, aspects, innerRadius, houseRotationRadians);
         }
 
-        if (transits.length !== 0) {
-            drawTransits(ctx, transits, rotationRadians, houseRotationRadians)
-            // setPlanetsArray(transits);
-            // transits.forEach(planet => {
-            //     const planetIndex = planetNameToIndex[planet.name];
-            //     if (planetIndex !== undefined) {
-            //         const planetDegree = planet.full_degree;
-            //         const planetRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
-            //         const planetX = centerX + (outerRadius + 50) * Math.cos(planetRadians) - 25;
-            //         const planetY = centerY + (outerRadius + 50) * Math.sin(planetRadians) - 25;
-
-            //         const planetImage = new Image();
-            //         planetImage.src = planetIcons[planetIndex];
-            //         planetImage.onload = () => {
-            //             ctx.drawImage(planetImage, planetX, planetY, 50, 50);
-            //         };
-
-            //         const planetHashRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + houseRotationRadians;
-            //         ctx.beginPath();
-            //         ctx.moveTo(centerX + outerRadius * Math.cos(planetHashRadians), centerY + outerRadius * Math.sin(planetHashRadians));
-            //         ctx.lineTo(centerX + houseCircleRadius * Math.cos(planetHashRadians), centerY + houseCircleRadius * Math.sin(planetHashRadians));
-            //         ctx.strokeStyle = 'blue';
-            //         ctx.stroke();
-            //     }
-            // });
+        if (transits && transits.length !== 0) {
+            console.log("Calling drawTransits");
+            drawTransits(ctx, transits, rotationRadians, houseRotationRadians);
         }
 
         ctx.restore();
         ctx.strokeStyle = '#000000';
-    }, [drawAspectLines]);
+    }, [drawAspectLines, drawTransits]);
 
     useEffect(() => {
 
@@ -350,7 +285,7 @@ const Emphemeris = ({ key, planets = [], houses = [], aspects = [], transits = [
 
         drawZodiacWheel(context, planets, houses, aspects, transits);
 
-    }, [planets, houses, aspects, transits]);
+    }, [planets, houses, aspects, transits, drawZodiacWheel]);
 
 
     return (

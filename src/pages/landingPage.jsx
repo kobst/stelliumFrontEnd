@@ -161,7 +161,11 @@ const LandingPageComponent = () => {
                  <div style={{ marginTop: '40px', marginBottom: '10px', color: 'whitesmoke' }}>
                     {formatDate(todaysDate)}
                 </div>
-                <Ephemeris transits={dailyTransits}/>
+                {
+                    dailyTransits.length > 0 && (
+                        <Ephemeris planets={dailyTransits} houses={[]} transits={[]} />
+                    )
+                }
 
             </div>
                 {/* <div style={{color: 'white'}}>

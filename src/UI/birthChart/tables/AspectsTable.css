@@ -1,29 +1,26 @@
-.aspect-table {
-  width: 50%; /* Changed from 25vw to 50% */
+.aspects-table {
+  width: 100%;
   border-collapse: separate;
-  border-spacing: 5px 3px;
-  margin: 0 auto;
+  border-spacing: 0;
   font-size: 0.8em;
-  border: 1px solid #ddd; /* Added border */
-  padding: 10px; /* Added padding */
 }
 
-/* ... rest of the CSS remains the same ... */
-.aspect-table td {
+.aspects-table td {
   padding: 2px;
   text-align: left;
-  border: none; /* Removes cell borders */
-  white-space: nowrap; /* Prevents text wrapping */
+  border: none;
+  white-space: nowrap;
 }
 
-.aspect-table td:last-child {
-  text-align: right; /* Aligns orb to the right */
+.aspects-table td:last-child {
+  text-align: right;
 }
 
 .symbol-img {
   width: 16px;
   height: 16px;
   vertical-align: middle;
+  margin-right: 2px;
 }
 
 .aspect-symbol {

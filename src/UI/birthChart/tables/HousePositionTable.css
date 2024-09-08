@@ -1,30 +1,37 @@
 .house-position-table {
-  width: 100%; /* Changed from 25vw to 100% */
-  border-collapse: separate;
-  border-spacing: 5px 3px;
-  margin: 0 auto;
-  font-size: 0.8em;
-  border: 1px solid #ddd; /* Added border */
-  padding: 10px; /* Added padding */
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.house-position-table td {
+.house-column {
+  width: 32%; /* Adjust as needed */
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8em;
+  border: 1px solid #ddd;
+  padding: 5px;
+}
+
+.house-column td {
   padding: 2px;
   text-align: left;
-  border: none; /* Removes cell borders */
-  white-space: nowrap; /* Prevents text wrapping */
+  border: none;
+  white-space: nowrap;
 }
 
-.house-position-table td:first-child {
-  text-align: right; /* Aligns house numbers to the right */
+.house-column td:first-child {
+  text-align: right;
+  padding-right: 5px;
 }
 
-.house-position-table td:last-child {
-  text-align: right; /* Aligns degrees to the right */
+.house-column td:last-child {
+  text-align: right;
 }
 
 .symbol-img {
   width: 16px;
   height: 16px;
   vertical-align: middle;
+  margin-right: 2px;
 }
