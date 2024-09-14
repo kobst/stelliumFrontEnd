@@ -152,3 +152,36 @@ export const formatTransitData = (aspect, transits, risingSign = null) => {
   
     return transitDescription;
   };
+
+
+  export const formatTransitDataForTable = (aspect, transits ) => {
+    const transitingPlanetData = getPlanetData(transits,aspect.transitingPlanet);
+    const aspectingPlanetData = getPlanetData(transits,aspect.aspectingPlanet);
+
+    if (!transitingPlanetData || !aspectingPlanetData) {
+      return "Data not available";
+    }
+
+    const { aspectType, orb } = calculateAspect(
+      transitingPlanetData.full_degree,
+      aspectingPlanetData.full_degree,
+      transitingPlanetData.is_retro === "true",
+      aspect.transitingPlanet
+    );
+
+    if (!aspectType) {
+      return "No valid aspect found";
+    }
+
+    return {
+        aspectType,
+        orb,
+        transitingPlanet: aspect.transitingPlanet,
+        transitingPlanetDegree: transitingPlanetData.full_degree,
+        aspectingPlanet: aspect.aspectingPlanet,
+        aspectingPlanetDegree: aspectingPlanetData.full_degree
+    }
+
+  
+
+  };

@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import GoogleAutocomplete from 'react-google-autocomplete';
 import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits, postPeriodAspectsForUserChart, createUserProfile} from '../../Utilities/api'; 
 import useStore from '../../Utilities/store';
+import './UserSignUpForm.css';  // Add this line
+
+
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 
@@ -109,7 +112,7 @@ const UserSignUpForm = () => {
     };    
     
     const inputStyle = {
-      color: 'white',
+      color: '#5116b5',
       width: '140px',
       marginRight: '10px',
       backgroundColor: 'transparent',
@@ -118,12 +121,6 @@ const UserSignUpForm = () => {
       borderRadius: '3px'
     };
 
-    const googleAutoCompleteStyle = {
-      ...inputStyle,
-      width: '290px',
-      backgroundColor: 'transparent',
-      color: 'white',
-    };
 
     const labelStyle = {
       color: 'white',
@@ -172,11 +169,20 @@ const UserSignUpForm = () => {
           <div style={formGroupStyle}>
             <label htmlFor="location" style={labelStyle}>I was born in</label>
             <GoogleAutocomplete
-              inputProps={{
-                name: 'location',
-                placeholder: 'Place of Birth',
-                style: googleAutoCompleteStyle,
-                className: 'input-dark-placeholder'
+              placeholder="Place of Birth X X X"
+              textInputProps={{ placeholderTextColor: '#666' }}
+              styles={{
+                textInputContainer: {
+                  backgroundColor: '#5116b5',
+                },
+                textInput: {
+                  height: 38,
+                  color: '#5116b5',
+                  fontSize: 16,
+                },
+                predefinedPlacesDescription: {
+                  color: '#1faadb',
+                },
               }}
               apiKey={GOOGLE_API}
               onPlaceSelected={(place) => {
@@ -199,7 +205,7 @@ const UserSignUpForm = () => {
               value={date} 
               onChange={e => setDate(e.target.value)} 
               style={inputStyle}
-              className="input-dark-placeholder"
+              // className="input-dark-placeholder"
             />
             <label style={{ ...labelStyle, width: 'auto' }}>at</label>
             <input 
@@ -209,7 +215,7 @@ const UserSignUpForm = () => {
               value={time} 
               onChange={e => setTime(e.target.value)} 
               style={inputStyle}
-              className="input-dark-placeholder"
+              // className="input-dark-placeholder"
             />
           </div>
 

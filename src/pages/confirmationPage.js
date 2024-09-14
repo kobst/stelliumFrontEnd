@@ -5,6 +5,7 @@ import { heading_map } from '../Utilities/constants';
 import { postPromptGPT, postGptResponse } from '../Utilities/api';
 import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
+import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 import { 
     describePlanets, 
     describeHouses, 
@@ -29,6 +30,32 @@ const Confirmation = () => {
     const [sampleReading, setSampleReading] = useState(null);
     const [relevanceResponse, setRelevanceResponse] = useState(null);
 
+
+    const [modifiedUserAspects, setModifiedUserAspects] = useState([]);
+    const [isDataComplete, setIsDataComplete] = useState(false);
+
+    useEffect(() => {
+        const dataComplete = 
+            userPlanets && 
+            userHouses && 
+            userAspects && 
+            Object.keys(userPlanets).length > 0 && 
+            Object.keys(userHouses).length > 0 && 
+            userAspects.length > 0;
+
+        setIsDataComplete(dataComplete);
+
+        if (dataComplete && userAspects.length > 0) {
+            const modifiedAspects = userAspects.map(aspect => ({
+                ...aspect,
+                aspectType: aspect.type,
+                transitingPlanet: aspect.aspecting_planet,
+                aspectingPlanet: aspect.aspected_planet,
+                type: undefined  // Remove the original 'type' field
+            }));
+            setModifiedUserAspects(modifiedAspects);
+        }
+    }, [userPlanets, userHouses, userAspects]);
 
 
     async function generateSampleInterpretation(relevanceResponse, heading) {
@@ -109,16 +136,8 @@ const Confirmation = () => {
         <div style={{ padding: '20px' }}>
             <h1 style={{ color: 'white' }}>Thank you for signing up!</h1>
             <p style={{ color: 'white' }}>Your profile has been created successfully.</p>
-            {rawBirthData.planets && rawBirthData.houses && ascendantDegree && (
-                <div>
-                    <h2 style={{color:'white'}}>Your Birth Chart</h2>
-                    <Ephemeris 
-                    planets={rawBirthData.planets} 
-                    houses={rawBirthData.houses} 
-                    transits={[]} 
-                    ascendantDegree={ascendantDegree} 
-                 />
-                </div>
+            {isDataComplete && (
+                <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={modifiedUserAspects}/>
             )}
             {promptDescriptionsMap.everything && (
                 <div>

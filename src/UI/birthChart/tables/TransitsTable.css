@@ -1,0 +1,40 @@
+.transits-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.8em;
+  }
+  
+  .transits-table th,
+  .transits-table td {
+    padding: 5px;
+    text-align: left;
+    border: none;
+    white-space: nowrap;
+  }
+  
+  .transits-table th {
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .transits-table th[onClick] {
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .transits-table th[onClick]:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .symbol-img {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 5px;
+  }
+  
+  .aspect-symbol {
+    font-size: 1.2em;
+    font-weight: bold;
+  }

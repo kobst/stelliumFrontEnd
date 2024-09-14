@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { orbDegrees, aspects, moonPhases } from '../../Utilities/constants';
-import { formatTransits, formatTransitData } from '../../Utilities/helpers';
+import { formatTransits, formatTransitData, formatTransitDataForTable } from '../../Utilities/helpers';
 import { postGptResponse } from '../../Utilities/api';
-
+import TodaysAspectsTable from './TodaysAspectsTable';
 // const signOrder = [
 //     "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
 //     "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
@@ -31,24 +31,35 @@ import { postGptResponse } from '../../Utilities/api';
 //   };
 
 const DailyReading = ({ transitAspectObjects, transits, risingSign = null }) => {
-    const [dailyTransitDescriptions, setDailyTransitDescriptions] = useState('')
+  const [dailyTransitDescriptionsGeneral, setDailyTransitDescriptionsGeneral] = useState('')
 
+    const [dailyTransitDescriptionsForSign, setDailyTransitDescriptionsForSign] = useState('')
+    const [dailyTransitDescriptionsForTable, setDailyTransitDescriptionsForTable] = useState([])
     const [dailyTransitInterpretation, setDailyTransitInterpretation] = useState('');
 
     useEffect(() => {
       const descriptions = transitAspectObjects.map(aspect => 
           formatTransitData(aspect, transits, risingSign)
       );
+      const descriptionsGeneral = transitAspectObjects.map(aspect => 
+        formatTransitData(aspect, transits, null)
+      );
+      const descriptionsForTable = transitAspectObjects.map(aspect => 
+        formatTransitDataForTable(aspect, transits)
+      );
       const combinedDescriptions = descriptions.join('\n');
+      const combinedDescriptionsGeneral = descriptionsGeneral.join('\n');
       console.log(combinedDescriptions)
-      setDailyTransitDescriptions(combinedDescriptions);
+      setDailyTransitDescriptionsForSign(combinedDescriptions);
+      setDailyTransitDescriptionsGeneral(combinedDescriptionsGeneral);
+      setDailyTransitDescriptionsForTable(descriptionsForTable);
   }, [transitAspectObjects, transits, risingSign]);
 
     useEffect(() => {
-      if (dailyTransitDescriptions && dailyTransitDescriptions !== '') {
-          generateResponse(dailyTransitDescriptions);
+      if (dailyTransitDescriptionsForSign && dailyTransitDescriptionsForSign !== '') {
+          generateResponse(dailyTransitDescriptionsForSign);
       }
-  }, [dailyTransitDescriptions]);
+  }, [dailyTransitDescriptionsForSign]);
 
     async function generateResponse(descriptions) {
       console.log(descriptions)
@@ -64,21 +75,19 @@ const DailyReading = ({ transitAspectObjects, transits, risingSign = null }) => 
 
     return (
         <div style={{ color: 'white' }}>
-          {/* <div style={{ marginBottom: '20px' }}>
-            <h4>Today's Transit Descriptions</h4>
-            {transits.map((transit, index) => (
-              <div key={index}>{formatTransits(transit, risingSign)}</div>
-            ))}
-          </div> */}
-          <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '20px' }}>
             <h4>Today's Aspects</h4>
             {transitAspectObjects.map((aspect, index) => (
-              <div key={index}>{formatTransitData(aspect, transits, risingSign)}</div>
+              <div key={index}>{formatTransitData(aspect, transits, null)}</div>
             ))}
+            {dailyTransitDescriptionsForTable.length > 0 && (
+              <TodaysAspectsTable aspectsArray={dailyTransitDescriptionsForTable} />
+            )}
           </div>
           <div style={{ marginBottom: '20px' }}>
             <h4>Today's Reading</h4>
-            {dailyTransitInterpretation && <p>{dailyTransitInterpretation}</p>}          </div>
+            {dailyTransitInterpretation && <p>{dailyTransitInterpretation}</p>}          
+          </div>
         </div>
       );
 

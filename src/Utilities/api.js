@@ -171,6 +171,7 @@ export const postPeriodHouseTransitsForUserChart = async (startDate, endDate, bi
       }
 
       const data = await response.json();
+      // returns an object with keys as planets
       console.log('Transits:', data);
       return data;
   } catch (error) {

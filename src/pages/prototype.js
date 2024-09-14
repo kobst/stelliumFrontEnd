@@ -14,7 +14,7 @@ import {
   findPlanetsInModalities } from '../Utilities/generateBirthDataDescriptions'
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
-import HousePositionTable from '../UI/birthChart/tables/HousePositionTable';
+import TransitsTable from '../UI/birthChart/tables/TransitsTable';
 
 function PrototypePage() {
   // const ascendantDegree = useStore(state => state.ascendantDegree)
@@ -23,15 +23,30 @@ function PrototypePage() {
   const userPlanets = useStore(state => state.userPlanets)
   const userHouses = useStore(state => state.userHouses)
   const userAspects = useStore(state => state.userAspects)  
+  const userPeriodTransits = useStore(state => state.userPeriodTransits)
+  const userPeriodHouseTransits = useStore(state => state.userPeriodHouseTransits)
   const selectedUser = useStore(state => state.selectedUser);
   const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
   const isDataPopulated = userPlanets.length > 1 && userHouses.length > 1
+  const isTransitsPopulated = userPeriodTransits.length > 1
 
   useEffect(() => {
     if (isDataPopulated) {
       generateDescriptions();
     }
   }, [userPlanets, userHouses, userAspects]);
+
+  useEffect(() => {
+    if (isTransitsPopulated) {
+      generateTransitDescriptions();
+    }
+  }, [userPeriodTransits, userPeriodHouseTransits]);
+
+
+  const generateTransitDescriptions = async (event) => {
+    console.log('userPeriodTransits before API call:', userPeriodTransits);
+    console.log('userPeriodHouseTransits before API call:', userPeriodHouseTransits);
+  }
 
 
   const generateDescriptions = async (event) => { 
@@ -50,7 +65,6 @@ function PrototypePage() {
     
         const patternResponse = identifyBirthChartPattern(birthData)
   
-
         const everythingResponse = response.concat(houseResponse, aspects)
 
         setPromptDescriptionsMap('everything', everythingResponse)
@@ -97,6 +111,14 @@ function PrototypePage() {
           <Ephemeris />
         )} 
 
+        {isTransitsPopulated ? (
+          <div>
+            <h2>Period Transits</h2>
+            <TransitsTable transits={userPeriodTransits} />
+          </div>
+        ) : (
+          <p>Loading period transits...</p>
+        )}
 
         <span>
           <h2>birth chart interpretation</h2>

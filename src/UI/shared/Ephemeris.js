@@ -13,7 +13,7 @@ const zodiacIcons = [
     '/assets/signs/virgo.svg',
     '/assets/signs/libra.svg',
     '/assets/signs/scorpio.svg',
-    '/assets/signs/sagitarius.svg',
+    '/assets/signs/sagittarius.svg',
     '/assets/signs/capricorn.svg',
     '/assets/signs/aquarius.svg',
     '/assets/signs/pisces.svg'
@@ -56,11 +56,11 @@ const loadAndModifySVG = async (url, color) => {
 };
 
 const getColorForZodiac = (index) => {
-    if (index === 0 || index === 4 || index === 8) return 'red';
-    if (index === 1 || index === 5 || index === 9) return 'brown';
-    if (index === 2 || index === 6 || index === 10) return 'green';
-    if (index === 3 || index === 7 || index === 11) return 'blue';
-    return 'white';
+    // if (index === 0 || index === 4 || index === 8) return 'red';
+    // if (index === 1 || index === 5 || index === 9) return 'brown';
+    // if (index === 2 || index === 6 || index === 10) return 'green';
+    // if (index === 3 || index === 7 || index === 11) return 'blue';
+    return 'purple';
   };
 
 
@@ -70,8 +70,8 @@ const Emphemeris = ({ key, planets, houses, aspects, transits, ascendantDegree =
     const [planetsArray, setPlanetsArray] = useState([]);
     const centerX = 300;
     const centerY = 300;
-    const outerRadius = 160;
-    const innerRadius = 130;
+    const outerRadius = 170;
+    const innerRadius = 105;
     const houseCircleRadius = 180;
 
 
@@ -202,7 +202,7 @@ const Emphemeris = ({ key, planets, houses, aspects, transits, ascendantDegree =
     }, [centerX, outerRadius, houseCircleRadius, planetNameToIndex, planetIcons]);
 
 
-    const drawZodiacWheel = useCallback(async (ctx, planets, houses, transits) => {
+    const drawZodiacWheel = useCallback(async (ctx, planets, houses, aspects,transits) => {
 
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -241,8 +241,8 @@ const Emphemeris = ({ key, planets, houses, aspects, transits, ascendantDegree =
             const icon = await loadAndModifySVG(iconAddress, getColorForZodiac(index));
             const iconDegree = 15 + index * 30;
             const iconRadians = ((270 - iconDegree) % 360) * Math.PI / 180 + rotationRadians;
-            const iconX = centerX + (innerRadius + 35) * Math.cos(iconRadians) - 25;
-            const iconY = centerY + (innerRadius + 35) * Math.sin(iconRadians) - 25;
+            const iconX = centerX + (innerRadius + 32) * Math.cos(iconRadians) - 25;
+            const iconY = centerY + (innerRadius + 32) * Math.sin(iconRadians) - 25;
 
             const image = new Image();
             image.src = icon;

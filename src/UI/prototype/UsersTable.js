@@ -12,6 +12,8 @@ function UsersTable() {
   const setUserPlanets = useStore(state => state.setUserPlanets);
   const setUserHouses = useStore(state => state.setUserHouses);
   const setUserAspects = useStore(state => state.setUserAspects);
+  const setUserPeriodTransits = useStore(state => state.setUserPeriodTransits);
+  const setUserPeriodHouseTransits = useStore(state => state.setUserPeriodHouseTransits);
   const setHeadingInterpretationMap = useStore(state => state.setHeadingInterpretationMap)
   const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
 
@@ -60,11 +62,17 @@ function UsersTable() {
   const fetchUserPeriodTransits = async (user, startDate, endDate) => {
     
     const birthChartPlanets = user.birthChart.planets
+    const birthChartHouses = user.birthChart.houses
     const periodTransitsTest = await postPeriodAspectsForUserChart(startDate, endDate, birthChartPlanets)
+    const periodHouseTransitsTest = await postPeriodHouseTransitsForUserChart(startDate, endDate, birthChartHouses)
     // remove transits with Moon as transitingPlanet
     const filteredTransits = periodTransitsTest.filter(transit => transit.transitingPlanet !== 'Moon');
     console.log(" period transits")
     console.log(filteredTransits)
+    console.log(" period house transits")
+    console.log(periodHouseTransitsTest)
+    setUserPeriodTransits(filteredTransits)
+    setUserPeriodHouseTransits(periodHouseTransitsTest)
 
   }
 

@@ -7,11 +7,14 @@ import lightLogo from '../assets/Light logo.png'
 import whiteLine from '../assets/whiteline.png'
 import useStore from '../Utilities/store';
 import DailyReading from '../UI/landingPage/DailyReading'
+import DailySignHoroscopeMenu from '../UI/landingPage/DailySignHoroscopeMenu';
 import { PeriodTransits } from '../UI/landingPage/PeriodTransits';
 import Ephemeris from '../UI/shared/Ephemeris';
 import { TransitAspects } from '../UI/landingPage/transitAspects';
+import TodaysAspectsTable from '../UI/landingPage/TodaysAspectsTable';
+import UserSignUpForm from '../UI/landingPage/UserSignUpForm';
+import { formatTransitDataForTable } from '../Utilities/helpers';
 
-import UserSignUpForm from '../UI/birthChart/UserSignUpForm';
 
 
 import { postDailyTransits, postPeriodTransits, postDailyAspects, postPeriodAspects, postDailyRetrogrades } from '../Utilities/api'
@@ -23,7 +26,7 @@ const LandingPageComponent = () => {
     const [dailyTransitAspects, setDailyTransitAspects] = useState([]);
     const [periodAspects, setPeriodAspects] = useState([]);
     const [periodTransits, setPeriodTransits] = useState([]);
-
+    const [dailyTransitDescriptionsForTable, setDailyTransitDescriptionsForTable] = useState([]);
     const [retrogrades, setRetrogrades] = useState([]);
 
     const [errorState, setError] = useState('');
@@ -50,10 +53,9 @@ const LandingPageComponent = () => {
         try {
           const transitsData = await postDailyTransits(date);
           const cleanedTransits = updateObjectKeys(transitsData);
-          setDailyTransits(cleanedTransits);
-        console.log("dailyTransits")
-        console.log(dailyTransits)
-
+          console.log("dailyTransits")
+          console.log(dailyTransits)
+          return cleanedTransits
         } catch (error) {
           setError(error.message);
         }
@@ -65,6 +67,9 @@ const LandingPageComponent = () => {
             const aspectsData = await postDailyAspects(date);
             console.log("aspectsData", aspectsData);
             setDailyTransitAspects(aspectsData);
+            return aspectsData
+  
+            
         } catch (error) {
             setError(error.message);
         }
@@ -78,7 +83,8 @@ const LandingPageComponent = () => {
         //   const planetaryTransits = trackPlanetaryTransits(transitsData);
         //   console.log("planetaryTransits")
         //   console.log(planetaryTransits)
-            setPeriodTransits(transitsData);    
+            setPeriodTransits(transitsData);   
+            return transitsData
         } catch (error) {
           setError(error.message);
         }
@@ -103,6 +109,7 @@ const LandingPageComponent = () => {
 
         console.log("Filtered periodAspectsData", filteredAspects);
         setPeriodAspects(filteredAspects);
+        return filteredAspects
     } catch (error) {
         setError(error.message);
     }
@@ -118,7 +125,7 @@ const LandingPageComponent = () => {
         } catch (error) {
             setError(error.message);
         }
-        };
+      };
 
     useEffect(() => {
         async function getTodaysData() {
@@ -127,13 +134,27 @@ const LandingPageComponent = () => {
             const oneMonthLater = new Date();
             oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
            const oneMonthLaterISO = oneMonthLater.toISOString();
-            await handleFetchDailyTransits(currentDateISO);
-            await handleFetchDailyAspects(currentDateISO);
-            await handleFetchRetrogrades(currentDateISO);
-            await handleFetchPeriodAspects(currentDateISO, oneMonthLaterISO);
-            await handleFetchPeriodTransits(currentDateISO, oneMonthLaterISO);
+            const cleanedTransits = await handleFetchDailyTransits(currentDateISO);
+            const dailyAspects = await handleFetchDailyAspects(currentDateISO);
+            const retrogrades = await handleFetchRetrogrades(currentDateISO);
+            const periodAspects = await handleFetchPeriodAspects(currentDateISO, oneMonthLaterISO);
+            const periodTransits = await handleFetchPeriodTransits(currentDateISO, oneMonthLaterISO);
 
             setTodaysDate(currentDateISO);
+            setDailyTransits(cleanedTransits);
+            setDailyTransitAspects(dailyAspects);
+            setRetrogrades(retrogrades);
+            setPeriodTransits(periodTransits);
+            setPeriodAspects(periodAspects);
+
+
+            const descriptionsForTable = dailyAspects.map(aspect => 
+              formatTransitDataForTable(aspect, cleanedTransits)
+            );
+            
+            console.log("descriptionsForTable")
+            console.log(descriptionsForTable) 
+            setDailyTransitDescriptionsForTable(descriptionsForTable);
   
           } catch (error) {
             setError(error.message);
@@ -142,6 +163,10 @@ const LandingPageComponent = () => {
     
         getTodaysData();
       }, []);
+
+
+
+
       
     return (
         <div className="container">
@@ -155,18 +180,18 @@ const LandingPageComponent = () => {
             </div>
             <img src={whiteLine} alt="" />
 
-            {/* Form */}
-
             <div>
                  <div style={{ marginTop: '40px', marginBottom: '10px', color: 'whitesmoke' }}>
                     {formatDate(todaysDate)}
                 </div>
                 {
-                    dailyTransits.length > 0 && (
-                        <Ephemeris planets={dailyTransits} houses={[]} transits={[]} />
+                    dailyTransitDescriptionsForTable.length > 0 && dailyTransits.length > 0 && (
+                      <div>
+                        <Ephemeris planets={dailyTransits} houses={[]} aspects={dailyTransitDescriptionsForTable} transits={[]} />
+                        <TodaysAspectsTable aspectsArray={dailyTransitDescriptionsForTable} />
+                      </div>
                     )
                 }
-
             </div>
                 {/* <div style={{color: 'white'}}>
                     <h2>Daily Aspects</h2>
@@ -181,8 +206,9 @@ const LandingPageComponent = () => {
                     <TransitAspects transits={periodAspects} isMonthly={true} />
                 </div> */}
 
+            <DailySignHoroscopeMenu transitAspectObjects={dailyTransitAspects} transits={dailyTransits} />
 
-            <DailyReading transitAspectObjects={dailyTransitAspects} transits={dailyTransits} />
+            {/* <DailyReading transitAspectObjects={dailyTransitAspects} transits={dailyTransits} /> */}
 
 
             <div>
