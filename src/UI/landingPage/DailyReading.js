@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { orbDegrees, aspects, moonPhases } from '../../Utilities/constants';
-import { formatTransits, formatTransitData, formatTransitDataForTable } from '../../Utilities/helpers';
+import { formatTransits, formatTransitData, formatTransitDataForTable, findMostRelevantAspects } from '../../Utilities/helpers';
 import { postGptResponse } from '../../Utilities/api';
 import TodaysAspectsTable from './TodaysAspectsTable';
 // const signOrder = [
@@ -36,6 +36,7 @@ const DailyReading = ({ transitAspectObjects, transits, risingSign = null }) => 
     const [dailyTransitDescriptionsForSign, setDailyTransitDescriptionsForSign] = useState('')
     const [dailyTransitDescriptionsForTable, setDailyTransitDescriptionsForTable] = useState([])
     const [dailyTransitInterpretation, setDailyTransitInterpretation] = useState('');
+    const [mostRelevantAspect, setMostRelevantAspect] = useState(null)
 
     useEffect(() => {
       const descriptions = transitAspectObjects.map(aspect => 
@@ -56,14 +57,32 @@ const DailyReading = ({ transitAspectObjects, transits, risingSign = null }) => 
   }, [transitAspectObjects, transits, risingSign]);
 
     useEffect(() => {
-      if (dailyTransitDescriptionsForSign && dailyTransitDescriptionsForSign !== '') {
-          generateResponse(dailyTransitDescriptionsForSign);
+      if (mostRelevantAspect) {
+          generateResponse(mostRelevantAspect);
       }
-  }, [dailyTransitDescriptionsForSign]);
+  }, [mostRelevantAspect]);
+
+
+  useEffect(() => {
+    if (dailyTransitDescriptionsForTable.length > 0) {
+      const result = findMostRelevantAspects(dailyTransitDescriptionsForTable, transits);
+      console.log(result)
+      const relevantAspect = result.mostRelevantAspect;
+      // console.log('Most relevant aspect:', relevantAspect);
+      // setMostRelevantAspect(relevantAspect);
+
+      if (relevantAspect) {
+        const formattedRelevantAspect = formatTransitData(relevantAspect, transits, null);
+        console.log("Formatted most relevant aspect:", formattedRelevantAspect);
+        setMostRelevantAspect(formattedRelevantAspect)
+      }
+    }
+  }, [dailyTransitDescriptionsForTable, transits]);
+
 
     async function generateResponse(descriptions) {
       console.log(descriptions)
-      const prompt = "Above are today's transits. Please provide me a short descriptoin of the most relevant 2 or 3 transits that are occuring today"
+      const prompt = "Above are today's transits. Please provide me a short descriptoin of this transit that is occuring today. Please make it applicable generally to all signs and people. "
        const modifiedInput = `${descriptions}\n: ${prompt}`;
         const response = await postGptResponse(modifiedInput);
         setDailyTransitInterpretation(response)
@@ -76,13 +95,19 @@ const DailyReading = ({ transitAspectObjects, transits, risingSign = null }) => 
     return (
         <div style={{ color: 'white' }}>
             <div style={{ marginBottom: '20px' }}>
-            <h4>Today's Aspects</h4>
-            {transitAspectObjects.map((aspect, index) => (
+            {/* <h4>Today's Aspects</h4> */}
+            {/* {transitAspectObjects.map((aspect, index) => (
               <div key={index}>{formatTransitData(aspect, transits, null)}</div>
-            ))}
-            {dailyTransitDescriptionsForTable.length > 0 && (
-              <TodaysAspectsTable aspectsArray={dailyTransitDescriptionsForTable} />
+            ))} */}
+           {mostRelevantAspect && (
+            <div>
+              <h4>Most Relevant Aspect</h4>
+              <p>{mostRelevantAspect}</p>
+            </div>
             )}
+            {/* {dailyTransitDescriptionsForTable.length > 0 && (
+              <TodaysAspectsTable aspectsArray={dailyTransitDescriptionsForTable} />
+            )} */}
           </div>
           <div style={{ marginBottom: '20px' }}>
             <h4>Today's Reading</h4>

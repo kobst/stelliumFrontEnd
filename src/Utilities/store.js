@@ -5,6 +5,9 @@ import { HeadingEnum } from './constants';
 
 const useStore = create(set => ({
 
+    userData: null,
+    setUserData: (data) => set({ userData: data }),
+
     birthDate: '',
     setBirthDate: (response) => set({ birthDate: response}),
 

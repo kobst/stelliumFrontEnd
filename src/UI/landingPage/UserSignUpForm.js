@@ -24,6 +24,7 @@ const UserSignUpForm = () => {
     const [formErrors, setFormErrors] = useState({});
     const setRawBirthData = useStore(state => state.setRawBirthData);
     const setBirthDate = useStore(state => state.setBirthDate);
+    const setUserData = useStore(state => state.setUserData);
     const setUserId = useStore(state => state.setUserId);
     const setUserPlanets = useStore(state => state.setUserPlanets);
     const setUserHouses = useStore(state => state.setUserHouses);
@@ -47,57 +48,72 @@ const UserSignUpForm = () => {
         setFormErrors(errors);
         return;
       }
+
+
+    const userData = {
+      firstName,
+      lastName,
+      email,
+      date,
+      time,
+      lat,
+      lon,
+      placeOfBirth
+    };
+
+    setUserData(userData);
+    navigate('/confirmation');
   
       setRawBirthData({});
       setBirthDate('');
    
-      try {
-          const dateTimeString = `${date}T${time}:00`;
-          const dateTime = new Date(dateTimeString);
-          const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
-          const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-          console.log(`Time Zone Offset in Hours: ${totalOffsetHours}`);
-          const birthData = {
-              date: date,
-              time: time,
-              lat: lat,
-              lon: lon,
-              tzone: totalOffsetHours,
-          };
-          setBirthDate(birthData);
-          const response = await postBirthData(birthData);
-          console.log(" CHART DATA ");
-          console.log(response.chartData);
+      // try {
+      //     const dateTimeString = `${date}T${time}:00`;
+      //     const dateTime = new Date(dateTimeString);
+      //     const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
+      //     const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
+      //     console.log(`Time Zone Offset in Hours: ${totalOffsetHours}`);
+      //     const birthData = {
+      //         date: date,
+      //         time: time,
+      //         lat: lat,
+      //         lon: lon,
+      //         tzone: totalOffsetHours,
+      //     };
+      //     setBirthDate(birthData);
+      //     const response = await postBirthData(birthData);
+      //     console.log(" CHART DATA ");
+      //     console.log(response.chartData);
 
-          const dateOfBirth = dateTimeString
-          console.log("date of birth " + dateOfBirth)
+      //     const dateOfBirth = dateTimeString
+      //     console.log("date of birth " + dateOfBirth)
 
-          // pass in response.chartData.houses (and maybe response.chartData.aspects) to createUserProfile
-          const userid = await createUserProfile(
-            email, 
-            firstName, 
-            lastName, 
-            dateOfBirth, 
-            placeOfBirth, 
-            time, 
-            totalOffsetHours, 
-            response.chartData
-        );
-          console.log(JSON.stringify(userid) + " userid");
-          setRawBirthData(response.chartData);
-          setUserPlanets(response.chartData.planets);
-          setUserHouses(response.chartData.houses);
-          setUserAspects(response.chartData.aspects);
-          if (userid) {
-            console.log('User profile created successfully');
-            setUserId(userid);
-            navigate('/confirmation');
-          } else {
-            console.error('Failed to create user profile');
-          }
-      } catch (error) {
-        console.error('Error submitting form:', error);
-      }
+      //     // pass in response.chartData.houses (and maybe response.chartData.aspects) to createUserProfile
+      //     const userid = await createUserProfile(
+      //       email, 
+      //       firstName, 
+      //       lastName, 
+      //       dateOfBirth, 
+      //       placeOfBirth, 
+      //       time, 
+      //       totalOffsetHours, 
+      //       response.chartData
+      //   );
+      //     console.log(JSON.stringify(userid) + " userid");
+      //     setRawBirthData(response.chartData);
+      //     setUserPlanets(response.chartData.planets);
+      //     setUserHouses(response.chartData.houses);
+      //     setUserAspects(response.chartData.aspects);
+      //     if (userid) {
+      //       console.log('User profile created successfully');
+      //       setUserId(userid);
+      //       navigate('/confirmation');
+      //     } else {
+      //       console.error('Failed to create user profile');
+      //     }
+      // } catch (error) {
+      //   console.error('Error submitting form:', error);
+      // }
     };
 
     const headerStyle = {

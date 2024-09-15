@@ -53,8 +53,8 @@ const LandingPageComponent = () => {
         try {
           const transitsData = await postDailyTransits(date);
           const cleanedTransits = updateObjectKeys(transitsData);
-          console.log("dailyTransits")
-          console.log(dailyTransits)
+          // console.log("dailyTransits")
+          // console.log(dailyTransits)
           return cleanedTransits
         } catch (error) {
           setError(error.message);
@@ -65,8 +65,7 @@ const LandingPageComponent = () => {
     const handleFetchDailyAspects = async (date) => {
         try {
             const aspectsData = await postDailyAspects(date);
-            console.log("aspectsData", aspectsData);
-            setDailyTransitAspects(aspectsData);
+            // setDailyTransitAspects(aspectsData);
             return aspectsData
   
             
@@ -78,12 +77,10 @@ const LandingPageComponent = () => {
       const handleFetchPeriodTransits = async (startDate, endDate) => {
         try {
           const transitsData = await postPeriodTransits(startDate, endDate);
-          console.log("transitsData")
-          console.log(transitsData)
         //   const planetaryTransits = trackPlanetaryTransits(transitsData);
         //   console.log("planetaryTransits")
         //   console.log(planetaryTransits)
-            setPeriodTransits(transitsData);   
+            // setPeriodTransits(transitsData);   
             return transitsData
         } catch (error) {
           setError(error.message);
@@ -106,9 +103,6 @@ const LandingPageComponent = () => {
             (aspect.aspectType === "opposition" || aspect.aspectType === "conjunction")
           );
         });
-
-        console.log("Filtered periodAspectsData", filteredAspects);
-        setPeriodAspects(filteredAspects);
         return filteredAspects
     } catch (error) {
         setError(error.message);
@@ -119,9 +113,7 @@ const LandingPageComponent = () => {
     const handleFetchRetrogrades = async (startDate) => {
         try {
             const retrogrades = await postDailyRetrogrades(startDate);
-            setRetrogrades(retrogrades);
-            console.log("retrogrades ----")
-            console.log(retrogrades)
+            return retrogrades
         } catch (error) {
             setError(error.message);
         }
@@ -133,7 +125,7 @@ const LandingPageComponent = () => {
             const currentDateISO = new Date().toISOString();
             const oneMonthLater = new Date();
             oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
-           const oneMonthLaterISO = oneMonthLater.toISOString();
+            const oneMonthLaterISO = oneMonthLater.toISOString();
             const cleanedTransits = await handleFetchDailyTransits(currentDateISO);
             const dailyAspects = await handleFetchDailyAspects(currentDateISO);
             const retrogrades = await handleFetchRetrogrades(currentDateISO);
@@ -146,6 +138,17 @@ const LandingPageComponent = () => {
             setRetrogrades(retrogrades);
             setPeriodTransits(periodTransits);
             setPeriodAspects(periodAspects);
+            console.log("periodAspects")
+            console.log(periodAspects)    
+            console.log("dailyAspects")
+            console.log(dailyAspects)
+            console.log("retrogrades")
+            console.log(retrogrades)
+            console.log("periodTransits")
+            console.log(periodTransits)
+            console.log("cleanedTransits")
+            console.log(cleanedTransits)
+
 
 
             const descriptionsForTable = dailyAspects.map(aspect => 
@@ -192,12 +195,18 @@ const LandingPageComponent = () => {
                       </div>
                     )
                 }
-            </div>
-                {/* <div style={{color: 'white'}}>
+            </div>    
+                <div>
+                <div className="daily-reading-container">
+                  <h2>Aspect of the day</h2>
+                  <DailyReading transitAspectObjects={dailyTransitAspects} transits={dailyTransits} risingSign={null} />
+                </div>
+                </div>
+                <div style={{color: 'white'}}>
                     <h2>Daily Aspects</h2>
                     <TransitAspects transits={dailyTransitAspects}/>
                 </div>
-                <div style={{color: 'white'}}>
+                {/* <div style={{color: 'white'}}>
                     <h2>Monthly Transits</h2>
                     <PeriodTransits periodTransits={periodTransits} />
                 </div>

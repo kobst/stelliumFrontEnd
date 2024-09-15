@@ -56,6 +56,8 @@ export const postDailyTransits = async (date) => {
 
 
 // Function to post period transits data from the DB
+// returns an object
+//{sun: {planet: Sun, transitSigns: [{sign: Virgo, dateRange: [dateString, dateString]}], }}
 export const postPeriodTransits = async (startDate, endDate)=> {
   try {
       const response = await fetch(`${SERVER_URL}/periodTransits`, {
@@ -211,6 +213,17 @@ export const postDailyAspects = async (date) => {
 
 
 // Function to post period aspects data
+// returns an array of aspects
+// aspectType
+// aspectingPlanet
+// closestOrbDate
+// closestOrbValue
+// date_range
+// (2) ['2024-09-22T03:00:00.000Z', '2024-09-27T09:00:00.000Z']
+// earliestOrb
+// latestOrb
+// transitingPlanet
+// :"Mercury
 export const postPeriodAspects = async (startDate, endDate) => {
   try {
     console.log(`${SERVER_URL}/periodAspects`);

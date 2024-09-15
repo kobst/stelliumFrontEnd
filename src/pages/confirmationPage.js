@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import useStore from '../Utilities/store';
 import Ephemeris from '../UI/shared/Ephemeris';
 import { heading_map } from '../Utilities/constants';
-import { postPromptGPT, postGptResponse } from '../Utilities/api';
+import { postBirthData,postPromptGPT, postGptResponse, createUserProfile, fetchTimeZone} from '../Utilities/api';
 import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
@@ -16,14 +18,25 @@ import {
 
 
 const Confirmation = () => {
+    const navigate = useNavigate();
+
     const userId = useStore(state => state.userId);
     const rawBirthData = useStore(state => state.rawBirthData);
     const ascendantDegree = useStore(state => state.ascendantDegree);
+    const setRawBirthData = useStore(state => state.setRawBirthData);
+    const setUserPlanets = useStore(state => state.setUserPlanets);
+    const setUserHouses = useStore(state => state.setUserHouses);
+    const setUserAspects = useStore(state => state.setUserAspects);
+    const userData = useStore(state => state.userData);
     const userPlanets = useStore(state => state.userPlanets)
     const userHouses = useStore(state => state.userHouses)
     const userAspects = useStore(state => state.userAspects) 
+    const setUserId = useStore(state => state.setUserId)
     const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
     const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);  
 
     const [randomBigFourType, setRandomBigFourType] = useState(null);
     const [randomHeading, setRandomHeading] = useState(null);
@@ -33,6 +46,54 @@ const Confirmation = () => {
 
     const [modifiedUserAspects, setModifiedUserAspects] = useState([]);
     const [isDataComplete, setIsDataComplete] = useState(false);
+
+    useEffect(() => {
+        const createProfile = async () => {
+          try {
+            const { firstName, lastName, email, date, time, lat, lon, placeOfBirth } = userData;
+    
+            const dateTimeString = `${date}T${time}:00`;
+            const dateTime = new Date(dateTimeString);
+            const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
+            const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
+    
+            const birthData = {
+              date,
+              time,
+              lat,
+              lon,
+              tzone: totalOffsetHours,
+            };
+    
+            const response = await postBirthData(birthData);
+    
+            const userid = await createUserProfile(
+              email,
+              firstName,
+              lastName,
+              dateTimeString,
+              placeOfBirth,
+              time,
+              totalOffsetHours,
+              response.chartData
+            );
+
+            console.log(JSON.stringify(userid) + " userid");
+            setRawBirthData(response.chartData);
+            setUserPlanets(response.chartData.planets);
+            setUserHouses(response.chartData.houses);
+            setUserAspects(response.chartData.aspects);
+            setUserId(userid);
+            setIsLoading(false);
+          } catch (error) {
+            console.error('Error creating user profile:', error);
+            setError('An error occurred while creating your profile. Please try again.');
+            setIsLoading(false);
+          }
+        };
+    
+        createProfile();
+      }, [userData, setUserId]);
 
     useEffect(() => {
         const dataComplete = 
@@ -131,6 +192,32 @@ const Confirmation = () => {
             generateSampleReading(birthData);
         }
     }, [userPlanets, userHouses, userAspects])
+
+
+
+
+
+
+
+    if (isLoading) {
+        return (
+          <div className="confirmation-page">
+            <h1>Creating Your Profile</h1>
+            {/* <LoadingSpinner /> */}
+            <p>Please wait while we create your profile...</p>
+          </div>
+        );
+      }
+    
+      if (error) {
+        return (
+          <div className="confirmation-page">
+            <h1>Error</h1>
+            <p>{error}</p>
+            <button onClick={() => navigate('/')}>Go Back</button>
+          </div>
+        );
+      }
 
     return (
         <div style={{ padding: '20px' }}>

@@ -91,19 +91,6 @@
   justify-content: flex-start; /* Align content to the top */
 }
 
-.input-dark-placeholder::placeholder {
-  color: #5116b5; /* This is a dark grey color, adjust as needed */
-  opacity: 1; /* Firefox */
-}
-
-.input-dark-placeholder:-ms-input-placeholder {
-  color: #5116b5; /* Internet Explorer 10-11 */
-}
-
-.input-dark-placeholder::-ms-input-placeholder {
-  color: #5116b5; /* Microsoft Edge */
-}
-
 /* Media query for smaller screens */
 @media (max-width: 768px) {
   .landing-page-container {

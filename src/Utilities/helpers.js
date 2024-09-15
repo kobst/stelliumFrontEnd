@@ -59,7 +59,7 @@ const calculateAspect = (degree1, degree2, isRetro, transitName) => {
         return { aspectType: aspect.name, orb: orbDiff.toFixed(1) };
       }
     }
-    return { aspectType: '', orb: 0 };
+    return { aspectType: '', orb: 100 };
   };
 
 
@@ -85,7 +85,7 @@ const calculateAspect = (degree1, degree2, isRetro, transitName) => {
 
 export const formatTransitData = (aspect, transits, risingSign = null) => {
     const transitingPlanetData = getPlanetData(transits,aspect.transitingPlanet);
-    const aspectingPlanetData = getPlanetData(transits,aspect.aspectingPlanet);
+    const aspectingPlanetData = getPlanetData(transits, aspect.aspectingPlanet);
 
     if (!transitingPlanetData || !aspectingPlanetData) {
       return "Data not available";
@@ -178,10 +178,53 @@ export const formatTransitData = (aspect, transits, risingSign = null) => {
         orb,
         transitingPlanet: aspect.transitingPlanet,
         transitingPlanetDegree: transitingPlanetData.full_degree,
+        transitingPlanetSign: transitingPlanetData.sign,
         aspectingPlanet: aspect.aspectingPlanet,
-        aspectingPlanetDegree: aspectingPlanetData.full_degree
+        aspectingPlanetDegree: aspectingPlanetData.full_degree,
+        aspectingPlanetSign: aspectingPlanetData.sign
+    }
+  };
+
+
+
+
+  export const findMostRelevantAspects = (transitAspectObjects, transits) => {
+    console.log(transitAspectObjects);
+    console.log(transits);
+
+    const relevantPlanets = ['Venus', 'Mercury', 'Mars', 'Moon', 'Jupiter', 'Saturn', 'Sun'];
+
+    // Filter aspects to only include those with relevant transiting planets
+    const relevantAspects = transitAspectObjects.filter(aspect => 
+      relevantPlanets.includes(aspect.transitingPlanet)
+    );
+
+    // If no relevant aspects, return null
+    if (relevantAspects.length === 0) {
+      return null;
     }
 
-  
+    // Sort aspects by orb value (ascending) and then by planet priority
+    const sortedAspects = relevantAspects.sort((a, b) => {
+      // First, compare orb values
+      if (a.orb !== b.orb) {
+        return a.orb - b.orb;
+      }
+      
+      // If orbs are equal, compare planet priority
+      return relevantPlanets.indexOf(a.transitingPlanet) - relevantPlanets.indexOf(b.transitingPlanet);
+    });
 
-  };
+    // Find transits with norm_degree below 1.5 or above 28.5
+    const criticalTransits = transits.filter(transit => 
+      (transit.norm_degree < 1.5 || transit.norm_degree > 28.5) && relevantPlanets.includes(transit.name)
+    );
+
+    // Prepare the result object
+    const result = {
+      mostRelevantAspect: sortedAspects[0],
+      criticalTransits: criticalTransits.length > 0 ? criticalTransits : null
+    };
+
+    return result;
+  }
