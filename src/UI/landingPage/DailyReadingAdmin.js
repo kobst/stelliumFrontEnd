@@ -3,34 +3,12 @@ import { orbDegrees, aspects, moonPhases } from '../../Utilities/constants';
 import { formatTransits, formatTransitData, formatTransitDataForTable, findMostRelevantAspects } from '../../Utilities/helpers';
 import { postGptResponse } from '../../Utilities/api';
 import TodaysAspectsTable from './TodaysAspectsTable';
-// const signOrder = [
-//     "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
-//     "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
-//   ];
-  
-//   const getHouseNumber = (risingSign, planetSign) => {
-//     const risingIndex = signOrder.indexOf(risingSign);
-//     const planetIndex = signOrder.indexOf(planetSign);
-//     if (risingIndex === -1 || planetIndex === -1) return -1; // Error handling if sign not found
-//     return ((planetIndex - risingIndex + 12) % 12) + 1;
-//   };
-  
 
-// const calculateAspect = (degree1, degree2, isRetro, transitName) => {
-//     let diff = Math.abs(degree1 - degree2);
-//     diff = diff > 180 ? 360 - diff : diff;
-//     const maxOrb = orbDegrees[transitName];
-  
-//     for (let aspect of aspects) {
-//       let orbDiff = Math.abs(diff - aspect.orb);
-//       if (orbDiff <= maxOrb) {
-//         return { aspectType: aspect.name, orb: orbDiff.toFixed(1) };
-//       }
-//     }
-//     return { aspectType: '', orb: 0 };
-//   };
 
-const DailyReading = ({ transitAspectObjects, transits, risingSign = null }) => {
+const DailyReadingAdmin = ({ transitAspectObjects, transits, risingSign = null }) => {
+
+
+    const [selectedAspects, setSelectedAspects] = useState([]);
   const [dailyTransitDescriptionsGeneral, setDailyTransitDescriptionsGeneral] = useState('')
 
     const [dailyTransitDescriptionsForSign, setDailyTransitDescriptionsForSign] = useState('')
@@ -82,15 +60,17 @@ const DailyReading = ({ transitAspectObjects, transits, risingSign = null }) => 
 
     async function generateResponse(descriptions) {
       console.log(descriptions)
-      const prompt = "Above are today's transits. Please provide me a short descriptoin of this transit that is occuring today. Please make it applicable generally to all signs and people. "
+      const prompt = "Above are today's transits. Please provide me a short description of this transit that is occuring today. Please make it applicable generally to all signs and people. "
        const modifiedInput = `${descriptions}\n: ${prompt}`;
         const response = await postGptResponse(modifiedInput);
         setDailyTransitInterpretation(response)
     }
 
-    // useEffect(() => {
 
-    // }, [dailyTransitDescriptions])
+    async function saveResponse() {
+      console.log(dailyTransitInterpretation)
+
+    }
 
     return (
         <div style={{ color: 'white' }}>
@@ -112,7 +92,8 @@ const DailyReading = ({ transitAspectObjects, transits, risingSign = null }) => 
           <div style={{ marginBottom: '20px' }}>
             <h4>Today's Reading</h4>
             {dailyTransitInterpretation && <p>{dailyTransitInterpretation}</p>}
-            <button onClick={() => generateResponse(mostRelevantAspect)}>Generate Response</button>          
+            <button onClick={() => generateResponse(mostRelevantAspect)}>Generate Response</button> 
+                     
           </div>
         </div>
       );
@@ -120,5 +101,5 @@ const DailyReading = ({ transitAspectObjects, transits, risingSign = null }) => 
 
 };
 
-export default DailyReading;
+export default DailyReadingAdmin;
 

@@ -7,6 +7,7 @@ import lightLogo from '../assets/Light logo.png'
 import whiteLine from '../assets/whiteline.png'
 import useStore from '../Utilities/store';
 import DailyReading from '../UI/landingPage/DailyReading'
+import DailyReadingFromDb from '../UI/landingPage/DailyReadingFromDb';
 import DailySignHoroscopeMenu from '../UI/landingPage/DailySignHoroscopeMenu';
 import { PeriodTransits } from '../UI/landingPage/PeriodTransits';
 import Ephemeris from '../UI/shared/Ephemeris';
@@ -183,6 +184,7 @@ const LandingPageComponent = () => {
             </div>
             <img src={whiteLine} alt="" />
 
+   
             <div>
                  <div style={{ marginTop: '40px', marginBottom: '10px', color: 'whitesmoke' }}>
                     {formatDate(todaysDate)}
@@ -196,7 +198,12 @@ const LandingPageComponent = () => {
                     )
                 }
             </div>    
-                <div>
+
+            <div>
+              <DailyReadingFromDb />
+            </div>
+
+                {/* <div>
                 <div className="daily-reading-container">
                   <h2>Aspect of the day</h2>
                   <DailyReading transitAspectObjects={dailyTransitAspects} transits={dailyTransits} risingSign={null} />
@@ -205,7 +212,7 @@ const LandingPageComponent = () => {
                 <div style={{color: 'white'}}>
                     <h2>Daily Aspects</h2>
                     <TransitAspects transits={dailyTransitAspects}/>
-                </div>
+                </div> */}
                 {/* <div style={{color: 'white'}}>
                     <h2>Monthly Transits</h2>
                     <PeriodTransits periodTransits={periodTransits} />

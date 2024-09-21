@@ -512,3 +512,52 @@ export const getPeriodAspectsForUser = async (startDate, endDate, userId) => {
   }
 };
 
+
+export const saveDailyTransitInterpretationData = async (date, combinedAspectsDescription, dailyTransitInterpretation) => {
+  try {
+    const response =await fetch(`${SERVER_URL}/saveDailyTransitInterpretationData`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        date,
+        combinedAspectsDescription,
+        dailyTransitInterpretation
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save daily transit data');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error saving daily transit data:', error);
+    throw error;
+  }
+};
+
+
+export const getDailyTransitInterpretationData = async (date) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getDailyTransitInterpretationData`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ date }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch daily transit data');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching daily transit data:', error);
+    throw error;
+  }
+};
