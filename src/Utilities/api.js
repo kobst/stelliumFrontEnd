@@ -521,7 +521,7 @@ export const saveDailyTransitInterpretationData = async (date, combinedAspectsDe
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        date,
+          date,
         combinedAspectsDescription,
         dailyTransitInterpretation
       }),
@@ -558,6 +558,55 @@ export const getDailyTransitInterpretationData = async (date) => {
     return data;
   } catch (error) {
     console.error('Error fetching daily transit data:', error);
+    throw error;
+  }
+};
+
+export const saveWeeklyTransitInterpretationData = async (date, combinedAspectsDescription, weeklyTransitInterpretation, sign) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/saveWeeklyTransitInterpretationData`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        date,
+        combinedAspectsDescription,
+        weeklyTransitInterpretation,
+        sign
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save weekly transit data');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error saving weekly transit data:', error);
+    throw error;
+  }
+};
+
+export const getWeeklyTransitInterpretationData = async (date) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getWeeklyTransitInterpretationData`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ date }), 
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch weekly transit data');
+    }
+
+    const data = await response.json();
+    return data;    
+  } catch (error) {
+    console.error('Error fetching weekly transit data:', error);
     throw error;
   }
 };

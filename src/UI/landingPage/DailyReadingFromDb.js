@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { getDailyTransitInterpretationData } from '../../Utilities/api';
+import DailyReading from './DailyReading';
 
 
-const DailyReadingFromDb = () => {
+const DailyReadingFromDb = ({ transitAspectObjects = [], transits = [], risingSign = null }) => {
 
     const [mostRelevantAspects, setMostRelevantAspects] = useState('');
     const [dailyTransitInterpretation, setDailyTransitInterpretation] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [useBackup, setUseBackup] = useState(false);
+
 
     useEffect(() => {
         fetchTodaysTransitData();
@@ -25,12 +28,15 @@ const DailyReadingFromDb = () => {
         const aspects = todayData.combinedDescription.split('\n').filter(aspect => aspect.trim() !== '');
         setMostRelevantAspects(aspects);
         setDailyTransitInterpretation(todayData.dailyTransitInterpretation);
+        setUseBackup(false);
         } else {
         setError('No data available for today');
+
         }
     } catch (err) {
         console.error('Error fetching transit data:', err);
         setError('Failed to fetch transit data');
+        setUseBackup(true);
     } finally {
         setLoading(false);
     }
@@ -38,7 +44,9 @@ const DailyReadingFromDb = () => {
 
 
     if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (useBackup) {
+        return <DailyReading transitAspectObjects={transitAspectObjects} transits={transits} risingSign={risingSign} />;
+      }
 
 
     return (

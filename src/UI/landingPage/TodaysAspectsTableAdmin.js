@@ -3,7 +3,7 @@
  import './TodaysAspectsTable.css';
  import { planetIcons } from '../../Utilities/constants';
 
- const TodaysAspectsTableAdmin = ({ aspectsArray, onSaveAspects  }) => {
+const TodaysAspectsTableAdmin = ({ aspectsArray, onSaveAspects  }) => {
 
     console.log(aspectsArray);
 

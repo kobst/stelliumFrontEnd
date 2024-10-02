@@ -170,6 +170,7 @@ export const formatTransitData = (aspect, transits, risingSign = null) => {
     );
 
     if (!aspectType) {
+      console.log(aspect)
       return "No valid aspect found";
     }
 
@@ -185,6 +186,75 @@ export const formatTransitData = (aspect, transits, risingSign = null) => {
     }
   };
 
+  export const isValidPeriodTransits = (transits) => {
+    if (!transits || typeof transits !== 'object') return false;
+    return Object.values(transits).some(planetData => 
+      planetData && 
+      Array.isArray(planetData.transitSigns) && 
+      planetData.transitSigns.length > 0
+    );
+  };
+
+
+  export const formatTransitDataForTableWeekly = (aspect, periodTransits) => {
+    const transitingPlanetData = periodTransits[aspect.transitingPlanet];
+    const aspectingPlanetData = periodTransits[aspect.aspectingPlanet];
+  
+    // Find the sign at the closest orb date
+    const getSignAtDate = (planetData, date) => {
+      return planetData.transitSigns.find(sign => 
+        new Date(sign.dateRange[0]) <= new Date(date) && new Date(date) <= new Date(sign.dateRange[1])
+      )?.transitingSign || 'Unknown';
+    };
+  
+    return {
+      aspectType: aspect.aspectType,
+      closestOrbDate: aspect.closestOrbDate,
+      transitingPlanetSignAtOrb: getSignAtDate(transitingPlanetData, aspect.closestOrbDate),
+      aspectingPlanetSignAtOrb: getSignAtDate(aspectingPlanetData, aspect.closestOrbDate),
+      transitingPlanet: aspect.transitingPlanet,
+      transitingPlanetAllSigns: transitingPlanetData.transitSigns.map(sign => sign.transitingSign),
+      aspectingPlanet: aspect.aspectingPlanet,
+      aspectingPlanetAllSigns: aspectingPlanetData.transitSigns.map(sign => sign.transitingSign)
+    };
+  };
+
+
+
+  export const formatTransitDataDescriptionsForTableWeekly = (transit) => {
+    const {
+      planet,
+      transitingSign,
+      dateRange,
+      signChange
+    } = transit;
+  
+    const startDate = new Date(dateRange[0]).toLocaleDateString();
+    const endDate = new Date(dateRange[1]).toLocaleDateString();
+  
+    let description;
+    if (signChange === 'entering') {
+      description = `Transiting ${planet} is entering ${transitingSign} on ${startDate}`;
+    } else if (signChange === 'exiting') {
+      description = `${planet} is exiting ${transitingSign} on ${endDate}`;
+    } else {
+      description = `Transiting ${planet} in ${transitingSign} from ${startDate} to ${endDate}`;
+    }
+  
+    return description;
+  };
+
+  export const formatAspecttDataDescriptionForTableDataWeekly = (aspectData) => {
+    const {
+      transitingPlanet,
+      transitingPlanetSignAtOrb,
+      aspectType,
+      aspectingPlanet,
+      aspectingPlanetSignAtOrb
+    } = aspectData;
+  
+    return `Transiting ${transitingPlanet} in ${transitingPlanetSignAtOrb} ${aspectType} ${aspectingPlanet} in ${aspectingPlanetSignAtOrb}`;
+  };
 
 
 
@@ -228,3 +298,59 @@ export const formatTransitData = (aspect, transits, risingSign = null) => {
 
     return result;
   }
+
+
+
+
+  const houseMapping = {
+    Aries: 1,
+    Taurus: 2,
+    Gemini: 3,
+    Cancer: 4,
+    Leo: 5,
+    Virgo: 6,
+    Libra: 7,
+    Scorpio: 8,
+    Sagittarius: 9,
+    Capricorn: 10,
+    Aquarius: 11,
+    Pisces: 12
+  };
+  
+  const houseNumberGetter = (baseSign, targetSign) => {
+    const baseHouse = houseMapping[baseSign];
+    const targetHouse = houseMapping[targetSign];
+    let houseNumber = targetHouse - baseHouse + 1;
+    if (houseNumber <= 0) {
+      houseNumber += 12;
+    }
+    return houseNumber;
+  };
+
+  export const appendHouseDescriptions = (formattedTransits, formattedAspects, sign) => {
+    const appendHouseToTransit = (transit) => {
+      const match = transit.match(/Transiting (\w+) is entering (\w+) on (\d{1,2}\/\d{1,2}\/\d{4})/);
+      if (match) {
+        const [_, planet, transitingSign, date] = match;
+        const houseNumber = houseNumberGetter(sign, transitingSign);
+        return `Transiting ${planet} is entering ${transitingSign} and your ${houseNumber} house on ${date}`;
+      }
+      return transit;
+    };
+  
+    const appendHouseToAspect = (aspect) => {
+      const match = aspect.match(/Transiting (\w+) in (\w+) (\w+) (\w+) in (\w+)/);
+      if (match) {
+        const [_, transitingPlanet, transitingSign, aspectType, aspectingPlanet, aspectingSign] = match;
+        const transitingHouse = houseNumberGetter(sign, transitingSign);
+        const aspectingHouse = houseNumberGetter(sign, aspectingSign);
+        return `Transiting ${transitingPlanet} in ${transitingSign} in your ${transitingHouse} house ${aspectType} ${aspectingPlanet} in ${aspectingSign} in your ${aspectingHouse} house`;
+      }
+      return aspect;
+    };
+  
+    const updatedTransits = formattedTransits.map(appendHouseToTransit);
+    const updatedAspects = formattedAspects.map(appendHouseToAspect);
+  
+    return { updatedTransits, updatedAspects };
+  };

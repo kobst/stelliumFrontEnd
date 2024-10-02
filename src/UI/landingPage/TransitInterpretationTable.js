@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getDailyTransitInterpretationData } from '../../Utilities/api';
+import './TransitInterpretationTable.css'; // Create this CSS file
 
 function TransitInterpretationTable() {
   const [selectedMonth, setSelectedMonth] = useState('');
@@ -39,9 +40,9 @@ function TransitInterpretationTable() {
   };
 
   return (
-    <div>
+    <div className="transit-interpretation">
       <h2>Transit Interpretation</h2>
-      <div>
+      <div className="controls">
         <select
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
@@ -65,7 +66,7 @@ function TransitInterpretationTable() {
         </button>
       </div>
 
-     
+      <div className="table-container">
         <table>
           <thead>
             <tr>
@@ -84,7 +85,7 @@ function TransitInterpretationTable() {
             ))}
           </tbody>
         </table>
-
+      </div>
     </div>
   );
 }

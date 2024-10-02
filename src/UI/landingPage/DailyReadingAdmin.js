@@ -9,8 +9,7 @@ const DailyReadingAdmin = ({ transitAspectObjects, transits, risingSign = null }
 
 
     const [selectedAspects, setSelectedAspects] = useState([]);
-  const [dailyTransitDescriptionsGeneral, setDailyTransitDescriptionsGeneral] = useState('')
-
+   const [dailyTransitDescriptionsGeneral, setDailyTransitDescriptionsGeneral] = useState('')
     const [dailyTransitDescriptionsForSign, setDailyTransitDescriptionsForSign] = useState('')
     const [dailyTransitDescriptionsForTable, setDailyTransitDescriptionsForTable] = useState([])
     const [dailyTransitInterpretation, setDailyTransitInterpretation] = useState('');

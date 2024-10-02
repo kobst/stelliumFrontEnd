@@ -200,7 +200,7 @@ const LandingPageComponent = () => {
             </div>    
 
             <div>
-              <DailyReadingFromDb />
+              <DailyReadingFromDb transitAspectObjects={dailyTransitAspects} transits={dailyTransits} risingSign={null} />
             </div>
 
                 {/* <div>
