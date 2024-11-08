@@ -1,5 +1,5 @@
 import { orbDegrees, aspects, moonPhases } from './constants';
-
+import { postDailyAspects, postDailyTransits, postPeriodAspects, postPeriodTransits, postDailyRetrogrades } from './api';
 
 export const signOrder = [
     "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
@@ -49,12 +49,18 @@ const getHouseNumber = (risingSign, planetSign) => {
   
 
 const calculateAspect = (degree1, degree2, isRetro, transitName) => {
+    console.log(degree1, degree2, isRetro, transitName)
     let diff = Math.abs(degree1 - degree2);
     diff = diff > 180 ? 360 - diff : diff;
     const maxOrb = orbDegrees[transitName];
+    console.log(maxOrb)
   
     for (let aspect of aspects) {
+      console.log(aspect.name)
+      console.log(diff)
+      console.log(aspect.orb)
       let orbDiff = Math.abs(diff - aspect.orb);
+
       if (orbDiff <= maxOrb) {
         return { aspectType: aspect.name, orb: orbDiff.toFixed(1) };
       }
@@ -155,8 +161,8 @@ export const formatTransitData = (aspect, transits, risingSign = null) => {
 
 
   export const formatTransitDataForTable = (aspect, transits ) => {
-    const transitingPlanetData = getPlanetData(transits,aspect.transitingPlanet);
-    const aspectingPlanetData = getPlanetData(transits,aspect.aspectingPlanet);
+    const transitingPlanetData = getPlanetData(transits, aspect.transitingPlanet);
+    const aspectingPlanetData = getPlanetData(transits, aspect.aspectingPlanet);
 
     if (!transitingPlanetData || !aspectingPlanetData) {
       return "Data not available";
@@ -258,6 +264,34 @@ export const formatTransitData = (aspect, transits, risingSign = null) => {
 
 
 
+  export const formatTransitDataForUser = (aspect, periodTransits, userPlanets) => {
+    const transitingPlanetData = periodTransits[aspect.transitingPlanet];
+  console.log("transitingPlanetData")
+  console.log(transitingPlanetData)
+    // Find the sign at the closest orb date
+    const getSignAtDate = (planetData, date) => {
+      return planetData.transitSigns.find(sign => 
+        new Date(sign.dateRange[0]) <= new Date(date) && new Date(date) <= new Date(sign.dateRange[1])
+      )?.transitingSign || 'Unknown';
+    };
+
+    const aspectingPlanetData = userPlanets.find(planet => planet.name === aspect.aspectingPlanet);
+  
+    return {
+      aspectType: aspect.aspectType,
+      dateRange: aspect.dateRange,
+      closestOrbDate: aspect.closestOrbDate,
+      transitingPlanetSignAtOrb: getSignAtDate(transitingPlanetData, aspect.closestOrbDate),
+      transitingPlanet: aspect.transitingPlanet,
+      transitingPlanetAllSigns: transitingPlanetData.transitSigns.map(sign => sign.transitingSign),
+      aspectingPlanet: aspect.aspectingPlanet,
+      aspectingPlanetSign: aspectingPlanetData.sign,
+      aspectPlanetHouse: aspectingPlanetData.house
+    };
+  };
+
+
+
   export const findMostRelevantAspects = (transitAspectObjects, transits) => {
     console.log(transitAspectObjects);
     console.log(transits);
@@ -353,4 +387,94 @@ export const formatTransitData = (aspect, transits, risingSign = null) => {
     const updatedAspects = formattedAspects.map(appendHouseToAspect);
   
     return { updatedTransits, updatedAspects };
+  };
+
+
+
+
+  export const handleFetchDailyTransits = async (date) => {
+    try {
+      const transitsData = await postDailyTransits(date);
+      const cleanedTransits = updateObjectKeys(transitsData);
+      // console.log("dailyTransits")
+      // console.log(dailyTransits)
+      return cleanedTransits
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
+
+  export const handleFetchInstantAspects = async (date) => {
+    try {
+        const aspectsData = await postDailyAspects(date);
+        return aspectsData
+
+        
+    } catch (error) {
+        throw new Error(error.message);
+  }
+};
+
+
+
+  export const handleFetchDailyAspects = async (date) => {
+      try {
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+          // const aspectsData = await postDailyAspects(date);
+          // setDailyTransitAspects(aspectsData);
+          const aspectsData = await postPeriodAspects(date, endOfDay);
+          return aspectsData
+
+          
+      } catch (error) {
+          throw new Error(error.message);
+    }
+  };
+
+export const handleFetchPeriodTransits = async (startDate, endDate) => {
+  try {
+    const transitsData = await postPeriodTransits(startDate, endDate);
+  //   const planetaryTransits = trackPlanetaryTransits(transitsData);
+  //   console.log("planetaryTransits")
+  //   console.log(planetaryTransits)
+      // setPeriodTransits(transitsData);   
+      return transitsData
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const handleFetchPeriodAspects = async (startDate, endDate) => {
+    try {
+        const periodAspectsData = await postPeriodAspects(startDate, endDate);
+        console.log("periodAspectsData (before filtering)", periodAspectsData);
+
+        const filteredAspects = periodAspectsData.filter(aspect => {
+            // return true;
+          // Keep all aspects where Moon is not the transiting planet
+          if (aspect.transitingPlanet !== "Moon") {
+            return true;
+          }
+          // For Moon transits, only keep Sun oppositions and conjunctions
+          return (
+            aspect.aspectingPlanet === "Sun" &&
+            (aspect.aspectType === "opposition" || aspect.aspectType === "conjunction")
+          );
+        });
+        return filteredAspects
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
+
+  export const handleFetchRetrogrades = async (startDate) => {
+    try {
+        const retrogrades = await postDailyRetrogrades(startDate);
+        return retrogrades
+    } catch (error) {
+      throw new Error(error.message);
+    }
   };

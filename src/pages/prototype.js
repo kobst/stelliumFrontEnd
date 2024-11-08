@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import TabbedBigFourMenu from '../UI/birthChart/TabbedBigFourComponent';
 import UsersTable from '../UI/prototype/UsersTable';
 import Ephemeris from '../UI/shared/Ephemeris';
 import useStore from '../Utilities/store';
 import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
 import { DominanceEnum, HeadingEnum, dominance_headings } from '../Utilities/constants';
+import { formatTransitDataForUser } from '../Utilities/helpers';
 import { 
   findAspectsComputed, 
   describePlanets, 
@@ -15,6 +16,7 @@ import {
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 import TransitsTable from '../UI/birthChart/tables/TransitsTable';
+import { postGptResponseForFormattedTransits, handleUserInput } from '../Utilities/api';
 
 function PrototypePage() {
   // const ascendantDegree = useStore(state => state.ascendantDegree)
@@ -25,10 +27,18 @@ function PrototypePage() {
   const userAspects = useStore(state => state.userAspects)  
   const userPeriodTransits = useStore(state => state.userPeriodTransits)
   const userPeriodHouseTransits = useStore(state => state.userPeriodHouseTransits)
+  
   const selectedUser = useStore(state => state.selectedUser);
   const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
   const isDataPopulated = userPlanets.length > 1 && userHouses.length > 1
   const isTransitsPopulated = userPeriodTransits.length > 1
+
+  const [formattedTransits, setFormattedTransits] = useState([]);
+  const [userInput, setUserInput] = useState('');
+  const [submittedText, setSubmittedText] = useState('');
+  const [transitResponse, setTransitResponse] = useState('');
+  const [queryResponse, setQueryResponse] = useState('');
+
 
   useEffect(() => {
     if (isDataPopulated) {
@@ -86,6 +96,59 @@ function PrototypePage() {
 
 
 
+  const generateTransitString = (transit, userPlanets) => {
+    const {
+      transitingPlanet,
+      transitingPlanetSignAtOrb,
+      aspectType,
+      aspectingPlanet,
+      aspectingPlanetSign,
+      aspectPlanetHouse,
+      closestOrbDate
+    } = transit;
+  
+    const formattedDate = new Date(closestOrbDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  
+    return `${transitingPlanet} in ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}`;
+  };
+
+  const handleSaveSelected = async (selectedTransits) => {
+    console.log('Selected Transits:', selectedTransits);
+    const formattedTransits = selectedTransits.map(transit => generateTransitString(transit, userPlanets));
+    console.log('Formatted Transits:', formattedTransits);
+    setFormattedTransits(formattedTransits);
+    const everythingData = promptDescriptionsMap['everything'] 
+    console.log(everythingData)
+    try {
+      const response = await postGptResponseForFormattedTransits(everythingData, formattedTransits)
+      console.log(response)
+      setTransitResponse(response)
+    } catch (error) {
+      console.log(error.message);
+  }
+
+  };
+
+
+  const handleInputChange = (event) => {
+    setUserInput(event.target.value);
+  };
+
+  const handleQuestionSubmit = async(event) => {
+    event.preventDefault();
+    setSubmittedText(userInput);
+    setUserInput('');
+    // Here you can add any additional logic to handle the submitted text
+    console.log('Submitted text:', userInput);
+    console.log('formattedTransits', formattedTransits);
+    const response = await handleUserInput(selectedUser._id, userInput)
+    console.log("vector response:", response.gptResponse)
+    setQueryResponse(response.gptResponse)
+  };
 
   return (
     <div className="prototype-page" style={{ marginBottom: '50px' }}>
@@ -114,11 +177,64 @@ function PrototypePage() {
         {isTransitsPopulated ? (
           <div>
             <h2>Period Transits</h2>
-            <TransitsTable transits={userPeriodTransits} />
+            <TransitsTable transits={userPeriodTransits} onSaveSelected={handleSaveSelected} />
           </div>
         ) : (
           <p>Loading period transits...</p>
         )}
+
+<div>
+        <h2>Selected Transits</h2>
+        {formattedTransits.length > 0 ? (
+          formattedTransits.map((transit, index) => (
+            <p key={index}>{transit}</p>
+          ))
+        ) : (
+          <p>No transits selected</p>
+        )}
+      </div>
+
+        <div>
+          <h2>Transit Response</h2>
+          {transitResponse != '' && (
+            <p>{transitResponse}</p>
+          )}
+        </div>
+
+
+        <div className="user-input-section" style={{ marginTop: '20px' }}>
+          <h2>Ask a Question</h2>
+          <form onSubmit={handleQuestionSubmit}>
+          <input
+            type="text"
+            value={userInput}
+            onChange={handleInputChange}
+            placeholder="Type your question here..."
+            style={{
+              marginTop: '10px',
+              backgroundColor: 'lightblue',
+              color: 'black',
+              padding: '10px',
+              borderRadius: '5px',
+              width: '300px',
+              wordWrap: 'break-word'
+            }}
+          />
+          <button type="submit" style={{ padding: '10px 20px' }}>Submit</button>
+        </form>
+      </div>
+
+      <div>
+        <h2>Query Response</h2>
+        {queryResponse != '' && (
+          <p>{queryResponse}</p>
+        )}
+        
+      </div>
+
+     
+     
+
 
         <span>
           <h2>birth chart interpretation</h2>

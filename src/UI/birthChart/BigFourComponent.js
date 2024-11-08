@@ -52,10 +52,17 @@ const BigFourComponent = ({ bigFourType }) => {
     async function generateResponse(heading) {
         // const modifiedInput = promptData + "\n" + heading + "\nEvery time you mention a particular aspect or position, please include its reference number provided";
 
-        const modifiedInput = `${everythingData}\n${bigFourType.toUpperCase()}: ${heading}`;
+        // const modifiedInput = `${everythingData}\n${bigFourType.toUpperCase()}: ${heading}`;
+        const inputData = {
+            heading: `${bigFourType.toUpperCase()}: ${heading}`,
+            description: everythingData
+        };
+
+        console.log(inputData)
         try {
-            const responseObject = await postPromptGPT(modifiedInput)
+            const responseObject = await postPromptGPT(inputData)
             console.log(responseObject)
+            console.log(responseObject.response)
             // setBigFourMap(heading, responseObject.response)
             // add check to see if responseObject contains aspects and/or transits included in everythingData
             if (checkResponseAgainstEverything(responseObject.response, everythingData)) {
@@ -79,9 +86,13 @@ const BigFourComponent = ({ bigFourType }) => {
 
 
     async function generateInterpretation(heading) {
+        const inputData = {
+            heading: heading,
+            description: subHeadingsPromptDescriptionsMap[heading]
+        };
         const modifiedInput = `${subHeadingsPromptDescriptionsMap[heading]}: ${heading}`;
         try {
-            const responseObject = await postGptResponse(modifiedInput)
+            const responseObject = await postGptResponse(inputData)
             console.log(responseObject)
             setHeadingInterpretationMap(heading, responseObject)
         } catch (error) {

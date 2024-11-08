@@ -14,7 +14,13 @@ import Ephemeris from '../UI/shared/Ephemeris';
 import { TransitAspects } from '../UI/landingPage/transitAspects';
 import TodaysAspectsTable from '../UI/landingPage/TodaysAspectsTable';
 import UserSignUpForm from '../UI/landingPage/UserSignUpForm';
-import { formatTransitDataForTable } from '../Utilities/helpers';
+import { formatTransitDataForTable, 
+  handleFetchDailyAspects, 
+  handleFetchDailyTransits,
+  handleFetchPeriodAspects,
+  handleFetchRetrogrades,
+  handleFetchInstantAspects,
+  handleFetchPeriodTransits  } from '../Utilities/helpers';
 
 
 
@@ -49,77 +55,6 @@ const LandingPageComponent = () => {
         );
       };
 
- 
-    const handleFetchDailyTransits = async (date) => {
-        try {
-          const transitsData = await postDailyTransits(date);
-          const cleanedTransits = updateObjectKeys(transitsData);
-          // console.log("dailyTransits")
-          // console.log(dailyTransits)
-          return cleanedTransits
-        } catch (error) {
-          setError(error.message);
-        }
-      };
-
-
-    const handleFetchDailyAspects = async (date) => {
-        try {
-            const aspectsData = await postDailyAspects(date);
-            // setDailyTransitAspects(aspectsData);
-            return aspectsData
-  
-            
-        } catch (error) {
-            setError(error.message);
-        }
-    };
-
-      const handleFetchPeriodTransits = async (startDate, endDate) => {
-        try {
-          const transitsData = await postPeriodTransits(startDate, endDate);
-        //   const planetaryTransits = trackPlanetaryTransits(transitsData);
-        //   console.log("planetaryTransits")
-        //   console.log(planetaryTransits)
-            // setPeriodTransits(transitsData);   
-            return transitsData
-        } catch (error) {
-          setError(error.message);
-        }
-      };
-
-    const handleFetchPeriodAspects = async (startDate, endDate) => {
-    try {
-        const periodAspectsData = await postPeriodAspects(startDate, endDate);
-        console.log("periodAspectsData (before filtering)", periodAspectsData);
-
-        const filteredAspects = periodAspectsData.filter(aspect => {
-          // Keep all aspects where Moon is not the transiting planet
-          if (aspect.transitingPlanet !== "Moon") {
-            return true;
-          }
-          // For Moon transits, only keep Sun oppositions and conjunctions
-          return (
-            aspect.aspectingPlanet === "Sun" &&
-            (aspect.aspectType === "opposition" || aspect.aspectType === "conjunction")
-          );
-        });
-        return filteredAspects
-    } catch (error) {
-        setError(error.message);
-    }
-    };
-    
-
-    const handleFetchRetrogrades = async (startDate) => {
-        try {
-            const retrogrades = await postDailyRetrogrades(startDate);
-            return retrogrades
-        } catch (error) {
-            setError(error.message);
-        }
-      };
-
     useEffect(() => {
         async function getTodaysData() {
           try {
@@ -128,7 +63,7 @@ const LandingPageComponent = () => {
             oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
             const oneMonthLaterISO = oneMonthLater.toISOString();
             const cleanedTransits = await handleFetchDailyTransits(currentDateISO);
-            const dailyAspects = await handleFetchDailyAspects(currentDateISO);
+            const dailyAspects = await handleFetchInstantAspects(currentDateISO);
             const retrogrades = await handleFetchRetrogrades(currentDateISO);
             const periodAspects = await handleFetchPeriodAspects(currentDateISO, oneMonthLaterISO);
             const periodTransits = await handleFetchPeriodTransits(currentDateISO, oneMonthLaterISO);
@@ -187,7 +122,7 @@ const LandingPageComponent = () => {
    
             <div>
                  <div style={{ marginTop: '40px', marginBottom: '10px', color: 'whitesmoke' }}>
-                    {formatDate(todaysDate)}
+                    {todaysDate && formatDate(todaysDate)}
                 </div>
                 {
                     dailyTransitDescriptionsForTable.length > 0 && dailyTransits.length > 0 && (
@@ -222,7 +157,7 @@ const LandingPageComponent = () => {
                     <TransitAspects transits={periodAspects} isMonthly={true} />
                 </div> */}
 
-            <DailySignHoroscopeMenu transitAspectObjects={dailyTransitAspects} transits={dailyTransits} />
+            {/* <DailySignHoroscopeMenu transitAspectObjects={dailyTransitAspects} transits={dailyTransits} /> */}
 
             {/* <DailyReading transitAspectObjects={dailyTransitAspects} transits={dailyTransits} /> */}
 

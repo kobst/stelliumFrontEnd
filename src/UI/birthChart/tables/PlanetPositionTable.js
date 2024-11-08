@@ -36,6 +36,7 @@ const PlanetPositionsTable = ({ planetsArray }) => {
                   />
                 </td>
                 <td>{planet.sign}</td>
+                <td>{planet.is_retro == "true" ? "Retro" : ""}</td>
               </tr>
           ))}
       </tbody>

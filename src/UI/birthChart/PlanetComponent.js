@@ -52,9 +52,15 @@ const PlanetComponent = ({ planet }) => {
         }
         console.log("generate planet response");
         // const modifiedInput = promptDescriptionsMap['everything'] + "\n" +  planet.toUpperCase() + " ANALYSIS";
-        const modifiedInput = subHeadingsPromptDescriptionsMap[planet].join('\n') + "\n" +  planet.toUpperCase() + " ANALYSIS";
+        const modifiedInput = subHeadingsPromptDescriptionsMap[planet].join('\n');
+
+        const inputData = {
+            heading: planet.toUpperCase(),
+            description: modifiedInput
+        };
+
         try {
-            const response = await postGptResponsePlanets(modifiedInput);
+            const response = await postGptResponsePlanets(inputData);
             // setPlanetResponsesMap(planet, response);
             setHeadingInterpretationMap(planet, response)
         

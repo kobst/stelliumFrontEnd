@@ -28,11 +28,15 @@ import { formatTransitDataForTable,
     formatTransitDataDescriptionsForTableWeekly,
     formatAspecttDataDescriptionForTableDataWeekly, 
     appendHouseDescriptions,
+    handleFetchDailyAspects,
+    handleFetchDailyTransits,
+    handleFetchPeriodAspects,
+    handleFetchPeriodTransits,
     formatTransitDataDescriptionsForTableWeekl} from '../Utilities/helpers';
 import { postGptResponse,
+    postGptResponseForDailyTransit,
      saveDailyTransitInterpretationData,
     saveWeeklyTransitInterpretationData } from '../Utilities/api';
-
 
 
 
@@ -118,11 +122,11 @@ const LandingPageAdmin = () => {
         try {
             const currentDateISO = selectedWeeklyDate.toISOString();
             const oneWeekLater = new Date(selectedWeeklyDate);
-            const oneMonthLater = new Date(selectedWeeklyDate);
+            // const oneMonthLater = new Date(selectedWeeklyDate);
             oneWeekLater.setDate(oneWeekLater.getDate() + 8);
-            oneMonthLater.setDate(oneMonthLater.getDate() + 30);    
+            // oneMonthLater.setDate(oneMonthLater.getDate() + 30);    
             const oneWeekLaterISO = oneWeekLater.toISOString();
-            const oneMonthLaterISO = oneMonthLater.toISOString();
+            // const oneMonthLaterISO = oneMonthLater.toISOString();
 
             const retrogrades = await handleFetchRetrogrades(currentDateISO);
             const periodAspects = await handleFetchPeriodAspects(currentDateISO, oneWeekLaterISO);
@@ -169,44 +173,6 @@ const LandingPageAdmin = () => {
         handleFetchWeeklyData();
     }, [selectedWeeklyDate]);
 
- 
-    const handleFetchDailyTransits = async (date) => {
-        try {
-          const transitsData = await postDailyTransits(date);
-          const cleanedTransits = updateObjectKeys(transitsData);
-          // console.log("dailyTransits")
-          // console.log(dailyTransits)
-          return cleanedTransits
-        } catch (error) {
-          setError(error.message);
-        }
-      };
-
-
-    const handleFetchDailyAspects = async (date) => {
-        try {
-            const aspectsData = await postDailyAspects(date);
-            // setDailyTransitAspects(aspectsData);
-            return aspectsData
-  
-            
-        } catch (error) {
-            setError(error.message);
-        }
-    };
-
-      const handleFetchPeriodTransits = async (startDate, endDate) => {
-        try {
-          const transitsData = await postPeriodTransits(startDate, endDate);
-        //   const planetaryTransits = trackPlanetaryTransits(transitsData);
-        //   console.log("planetaryTransits")
-        //   console.log(planetaryTransits)
-            // setPeriodTransits(transitsData);   
-            return transitsData
-        } catch (error) {
-          setError(error.message);
-        }
-      };
 
     const handleSaveAspects = (selectedAspects) => {
         console.log('Saved aspects:', selectedAspects);
@@ -247,39 +213,17 @@ const LandingPageAdmin = () => {
             console.log("saving weekly transits and aspects");
             console.log(formattedTransits);
             console.log(formattedAspects);
-            const combinedWeeklyDescriptions = [...formattedTransits, ...formattedAspects];
-            setCombinedWeeklyDescriptions(combinedWeeklyDescriptions);
+
             const { updatedTransits, updatedAspects } = appendHouseDescriptions(formattedTransits, formattedAspects, sign);
             console.log("updated weekly transits and aspects with house descriptions");
             console.log(updatedTransits);
             console.log(updatedAspects);
-            generateResponseForWeeklySign(combinedWeeklyDescriptions)
+            const combinedWeeklyDescriptions = [...updatedTransits, ...updatedAspects];
+            setCombinedWeeklyDescriptions(combinedWeeklyDescriptions);
+            generateResponseForWeeklySign(combinedWeeklyDescriptions, selectedSign)
           }
 
       };
-
-    const handleFetchPeriodAspects = async (startDate, endDate) => {
-    try {
-        const periodAspectsData = await postPeriodAspects(startDate, endDate);
-        console.log("periodAspectsData (before filtering)", periodAspectsData);
-
-        const filteredAspects = periodAspectsData.filter(aspect => {
-            // return true;
-          // Keep all aspects where Moon is not the transiting planet
-          if (aspect.transitingPlanet !== "Moon") {
-            return true;
-          }
-          // For Moon transits, only keep Sun oppositions and conjunctions
-          return (
-            aspect.aspectingPlanet === "Sun" &&
-            (aspect.aspectType === "opposition" || aspect.aspectType === "conjunction")
-          );
-        });
-        return filteredAspects
-    } catch (error) {
-        setError(error.message);
-    }
-    };
     
 
     const handleFetchRetrogrades = async (startDate) => {
@@ -294,18 +238,17 @@ const LandingPageAdmin = () => {
 
       async function generateResponseForWeeklySign(descriptions) {
         console.log(descriptions)
-        const prompt = "Above are transits occuring in a specific sign for this week. Please provide me a short horoscope for this sign for this week given these transits and aspects. "
+        const prompt = "Above are astrological aspects and transits occuring for this week. Please provide me a short horoscope for the sign " + selectedSign + ". "
          const modifiedInput = `${descriptions}\n: ${prompt}`;
+         console.log(modifiedInput)
           const response = await postGptResponse(modifiedInput);
           console.log(response)
           setWeeklyTransitInterpretation(response)
       }
 
     async function generateResponse(descriptions) {
-        console.log(descriptions)
-        const prompt = "Above are today's transits. Please provide me a short description of this transit that is occuring today. Please make it applicable generally to all signs and people. "
-         const modifiedInput = `${descriptions}\n: ${prompt}`;
-          const response = await postGptResponse(modifiedInput);
+            console.log(descriptions)
+          const response = await postGptResponseForDailyTransit(descriptions);
           console.log(response)
           setDailyTransitInterpretation(response)
       }
@@ -334,11 +277,11 @@ const LandingPageAdmin = () => {
 
       const handleSaveWeeklyInterpretation = async () => {
         console.log("saving weekly interpretation");
-        if (weeklyTransitInterpretation && selectedDate) {
+        if (weeklyTransitInterpretation && selectedWeeklyDate) {
           console.log("saving weekly interpretation");
           console.log(weeklyTransitInterpretation);
-          console.log(selectedDate);
-          const formattedDate = selectedDate.toISOString();
+          console.log(selectedWeeklyDate);
+          const formattedDate = selectedWeeklyDate.toISOString();
           console.log(formattedDate);
           const combinedAspectsDescription = combinedWeeklyDescriptions;
           try {
@@ -382,9 +325,6 @@ const LandingPageAdmin = () => {
           </>
         );
     };
-
-    // useEffect(() => {
-    //     async function getTodaysData() {
     //       try {
     //         const currentDateISO = new Date().toISOString();
     //         const oneMonthLater = new Date();
@@ -460,17 +400,6 @@ const LandingPageAdmin = () => {
                     )
             }
 
-            <div className="admin-section">
-                <TransitInterpretationTable />
-            </div>
-
-            <div className="section-divider"></div>
-
-
-
-
-
-
 
             {dailyTransitInterpretation && combinedDescriptions && (
                 <div>
@@ -485,6 +414,19 @@ const LandingPageAdmin = () => {
                     </div>
                 </div>
             ) }
+
+            <div className="admin-section">
+                <TransitInterpretationTable />
+            </div>
+
+            <div className="section-divider"></div>
+
+
+
+
+
+
+
                 {/* <div>
                 <div className="daily-reading-container">
                   <h2>Aspect of the day</h2>
@@ -515,17 +457,17 @@ const LandingPageAdmin = () => {
                 </div>   
 
 
-                {periodTransits && Object.keys(periodTransits).length > 0 && (
+                {/* {periodTransits && Object.keys(periodTransits).length > 0 && (
                         <div style={{color: 'white'}}>
                         <PeriodTransits periodTransits={periodTransits} />
                     </div>
 
-                )}
+                )} */}
 
-                <div style={{color: 'white'}}>
+                {/* <div style={{color: 'white'}}>
                     <h2>Weekly Aspects</h2>
                     <TransitAspects transits={periodAspects} />
-                </div>
+                </div> */}
 
                 {isValidPeriodTransits(periodTransits) && (
                     <WeeklyTransitsTableAdmin 

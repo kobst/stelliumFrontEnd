@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { fetchUsers } from '../../Utilities/api'
+import { fetchUsers, postPeriodTransit } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
-import { fetchBirthChartInterpretation, postPeriodHouseTransitsForUserChart, postPeriodAspectsForUserChart } from '../../Utilities/api';
+import { fetchBirthChartInterpretation, postPeriodHouseTransitsForUserChart, postPeriodAspectsForUserChart, postPeriodTransits } from '../../Utilities/api';
+import { formatTransitDataForUser } from '../../Utilities/helpers';
 import { HeadingEnum } from '../../Utilities/constants';
 
 function UsersTable() {
@@ -26,6 +27,7 @@ function UsersTable() {
         console.error('Error fetching users:', error);
       }
     }
+
     loadUsers();
   }, []);
 
@@ -71,10 +73,28 @@ function UsersTable() {
     console.log(filteredTransits)
     console.log(" period house transits")
     console.log(periodHouseTransitsTest)
-    setUserPeriodTransits(filteredTransits)
+    // setUserPeriodHouseTransits(periodHouseTransitsTest)
+    formatUserPeriodTransits(filteredTransits, birthChartPlanets)
     setUserPeriodHouseTransits(periodHouseTransitsTest)
 
   }
+
+  const formatUserPeriodTransits = async (userPeriodTransits, userPlanets) => {
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 30);
+    const periodTransits = await postPeriodTransits(startDate, endDate);
+    // setPeriodTransits(periodTransits)
+
+    const formattedTransits = userPeriodTransits.map(transit => {
+      return formatTransitDataForUser(transit, periodTransits, userPlanets)
+    })
+    console.log("formattedTransits")
+    console.log(formattedTransits)
+    setUserPeriodTransits(formattedTransits)
+    // setUserPeriodTransits(formattedTransits)
+  }
+
 
   const fetchUserPeriodHouseTransits = async (user, startDate, endDate) => {
     const birthChartHouses = user.birthChart.houses
@@ -102,6 +122,8 @@ function UsersTable() {
 
 
   };
+
+
 
   return (
     <div className="user-table-container">

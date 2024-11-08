@@ -5,12 +5,24 @@ import { planetIcons } from '../../../Utilities/constants';
 const AspectsTable = ({ aspectsArray }) => {
   // Function to get the correct image path for planets
   const getPlanetImagePath = (planetName) => {
+    if (typeof planetName !== 'string' || !planetName) {
+      console.warn(`Invalid planet name: ${planetName}`);
+      return '';
+    }
+
     const formattedName = planetName.toLowerCase();
-    return planetIcons.find(path => path.toLowerCase().includes(formattedName)) || '';
+    return planetIcons.find(path => 
+      typeof path === 'string' && path.toLowerCase().includes(formattedName)
+    ) || '';
   };
 
   // Function to get the aspect symbol
   const getAspectSymbol = (aspectType) => {
+    if (typeof aspectType !== 'string' || !aspectType) {
+      console.warn(`Invalid aspect type: ${aspectType}`);
+      return '?';
+    }
+
     switch (aspectType.toLowerCase()) {
       case 'conjunction': return '☌';
       case 'opposition': return '☍';

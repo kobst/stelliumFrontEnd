@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import GoogleAutocomplete from 'react-google-autocomplete';
+import Autocomplete from 'react-google-autocomplete';
 import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits, postPeriodAspectsForUserChart, createUserProfile} from '../../Utilities/api'; 
 import useStore from '../../Utilities/store';
 import './UserSignUpForm.css';  // Add this line
@@ -184,9 +184,9 @@ const UserSignUpForm = () => {
 
           <div style={formGroupStyle}>
             <label htmlFor="location" style={labelStyle}>I was born in</label>
-            <GoogleAutocomplete
-              placeholder="Place of Birth X X X"
-              textInputProps={{ placeholderTextColor: '#666' }}
+            <Autocomplete
+              placeholder="City, Country"
+              textInputProps={{ placeholderTextColor: '#fff' }}
               styles={{
                 textInputContainer: {
                   backgroundColor: '#5116b5',

@@ -1,5 +1,3 @@
-
-
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 
 
@@ -385,18 +383,27 @@ export const postPromptGeneration = async (planets, houses, aspects) => {
 
 
 // Function to post birth data and get gpt response for relevant aspects and trransits
-export const postPromptGPT = async (input) => {
-  // console.log(JSON.stringify({input}))
-  console.log('json strigify')
-  console.log(input)
+export const postPromptGPT = async (inputData) => {
+  console.log('Preparing data for GPT prompt');
+  
+  // Ensure description is a single string
+  const preparedData = {
+    ...inputData,
+    description: Array.isArray(inputData.description) 
+      ? inputData.description.join('\n') 
+      : inputData.description
+  };
+
+  console.log('Prepared data:', preparedData);
+
   try {
-    console.log(`${SERVER_URL}/getPrompts`)
+    console.log(`Sending request to ${SERVER_URL}/getPrompts`);
     const response = await fetch(`${SERVER_URL}/getPrompts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({input})
+      body: JSON.stringify(preparedData)
     });
 
     if (!response.ok) {
@@ -404,7 +411,6 @@ export const postPromptGPT = async (input) => {
     }
 
     const responseData = await response.json();
-    // console.log(responseData)
     return responseData;
   } catch (error) {
     console.error('Error in API call:', error);
@@ -413,15 +419,46 @@ export const postPromptGPT = async (input) => {
 };
 
 
+export const postGptResponseForDailyTransit = async (input) => {
+  console.log("inputData: ", input);
+
+  try {
+    const body = typeof input === 'string' ? input : JSON.stringify(input);
+
+
+    const response = await fetch(`${SERVER_URL}/getDailyTransitInterpretation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': input.length.toString()
+      },
+      body: JSON.stringify({ input: body }) // Wrap the input in an object
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error response:', response.status, errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    const responseData = await response.json();
+    console.log("Response data:", responseData);
+    return responseData.response;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
+
 // Function to post birth data
-export const postGptResponse = async (prompt) => {
+export const postGptResponse = async (inputData) => {
   try {
     const response = await fetch(`${SERVER_URL}/getBigFour`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({prompt})
+      body: JSON.stringify(inputData)
     });
 
     if (!response.ok) {
@@ -438,14 +475,17 @@ export const postGptResponse = async (prompt) => {
 };
 
 // Function to post birth data
-export const postGptResponsePlanets = async (prompt) => {
+export const postGptResponsePlanets = async (inputData) => {
   try {
+    console.log(inputData)
+    console.log(`${SERVER_URL}/getPlanetsVer2`)
+
     const response = await fetch(`${SERVER_URL}/getPlanetsVer2`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({prompt})
+      body: JSON.stringify(inputData)
     });
 
     if (!response.ok) {
@@ -460,6 +500,33 @@ export const postGptResponsePlanets = async (prompt) => {
     throw error;
   }
 };
+
+export const postGptResponseForFormattedTransits = async (everythingData,formattedUserTransits) => {
+
+  try {
+    console.log(`${SERVER_URL}/getGptResponseForFormattedUserTransits`)
+
+    const response = await fetch(`${SERVER_URL}/getGptResponseForFormattedUserTransits`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({everythingData, formattedUserTransits})
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    // console.log(responseData)
+    return responseData.response;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+
+}
 
 
 export const updateHeadingInterpretation = async (userId, heading, promptDescription, interpretation) => {
@@ -610,3 +677,28 @@ export const getWeeklyTransitInterpretationData = async (date) => {
     throw error;
   }
 };
+
+export const handleUserInput = async (userId, query) => {
+  console.log(query)
+  try {
+    console.log("query:", query)
+    console.log("userId:", userId)      
+    const response = await fetch(`${SERVER_URL}/handleUserQuery`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId, query }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
