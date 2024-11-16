@@ -5,7 +5,7 @@ import Ephemeris from '../UI/shared/Ephemeris';
 import useStore from '../Utilities/store';
 import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
 import { DominanceEnum, HeadingEnum, dominance_headings } from '../Utilities/constants';
-import { formatTransitDataForUser } from '../Utilities/helpers';
+import { formatTransitDataForUser, findWeeklyTransits, generateTransitString } from '../Utilities/helpers';
 import { 
   findAspectsComputed, 
   describePlanets, 
@@ -16,8 +16,9 @@ import {
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 import TransitsTable from '../UI/birthChart/tables/TransitsTable';
-import { postGptResponseForFormattedTransits, handleUserInput } from '../Utilities/api';
-
+import HouseTransitsTable from '../UI/birthChart/tables/HouseTransitsTable';
+import { postGptResponseForFormattedTransits, handleUserInput, postWeeklyTransitInterpretation } from '../Utilities/api';
+import { handleFetchDailyTransits } from '../Utilities/helpers';
 function PrototypePage() {
   // const ascendantDegree = useStore(state => state.ascendantDegree)
   const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
@@ -27,7 +28,8 @@ function PrototypePage() {
   const userAspects = useStore(state => state.userAspects)  
   const userPeriodTransits = useStore(state => state.userPeriodTransits)
   const userPeriodHouseTransits = useStore(state => state.userPeriodHouseTransits)
-  
+  const dailyTransits = useStore(state => state.dailyTransits)
+  const setDailyTransits = useStore(state => state.setDailyTransits)
   const selectedUser = useStore(state => state.selectedUser);
   const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
   const isDataPopulated = userPlanets.length > 1 && userHouses.length > 1
@@ -38,6 +40,8 @@ function PrototypePage() {
   const [submittedText, setSubmittedText] = useState('');
   const [transitResponse, setTransitResponse] = useState('');
   const [queryResponse, setQueryResponse] = useState('');
+  const [weeklyTransitInterpretations, setWeeklyTransitInterpretations] = useState([]);
+  const [dailyTransitInterpretations, setDailyTransitInterpretations] = useState([]);
 
 
   useEffect(() => {
@@ -52,6 +56,26 @@ function PrototypePage() {
     }
   }, [userPeriodTransits, userPeriodHouseTransits]);
 
+  useEffect( () => {
+    async function getTodaysData() {
+      if (dailyTransits.length === 0) {
+        const currentDateISO = new Date().toISOString();
+        const cleanedTransits = await handleFetchDailyTransits(currentDateISO);
+        setDailyTransits(cleanedTransits)
+      }
+    }
+    getTodaysData()
+  }, [])
+
+
+  useEffect(() => {
+    if (userPeriodTransits.length > 0) {
+      console.log('userPeriodTransits:', userPeriodTransits)
+      const weeklyTransits = findWeeklyTransits(userPeriodTransits, userPlanets)
+      setWeeklyTransitInterpretations(weeklyTransits)
+      console.log('weeklyTransits:', weeklyTransits)
+    }
+  }, [userPeriodTransits])
 
   const generateTransitDescriptions = async (event) => {
     console.log('userPeriodTransits before API call:', userPeriodTransits);
@@ -96,29 +120,9 @@ function PrototypePage() {
 
 
 
-  const generateTransitString = (transit, userPlanets) => {
-    const {
-      transitingPlanet,
-      transitingPlanetSignAtOrb,
-      aspectType,
-      aspectingPlanet,
-      aspectingPlanetSign,
-      aspectPlanetHouse,
-      closestOrbDate
-    } = transit;
-  
-    const formattedDate = new Date(closestOrbDate).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  
-    return `${transitingPlanet} in ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}`;
-  };
-
   const handleSaveSelected = async (selectedTransits) => {
     console.log('Selected Transits:', selectedTransits);
-    const formattedTransits = selectedTransits.map(transit => generateTransitString(transit, userPlanets));
+    const formattedTransits = selectedTransits.map(transit => generateTransitString(transit, userPeriodHouseTransits));
     console.log('Formatted Transits:', formattedTransits);
     setFormattedTransits(formattedTransits);
     const everythingData = promptDescriptionsMap['everything'] 
@@ -168,7 +172,7 @@ function PrototypePage() {
         {isDataPopulated ? (
           <div>
             {/* <Ephemeris planets={userPlanets} houses={userHouses} transits={[]} ascendantDegree={ascendantDegree} /> */}
-            <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={userAspects}/>
+            <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={userAspects} transits={dailyTransits}/>
           </div>
         ) : (
           <Ephemeris />
@@ -176,14 +180,23 @@ function PrototypePage() {
 
         {isTransitsPopulated ? (
           <div>
-            <h2>Period Transits</h2>
             <TransitsTable transits={userPeriodTransits} onSaveSelected={handleSaveSelected} />
           </div>
         ) : (
           <p>Loading period transits...</p>
         )}
+        {Object.keys(userPeriodHouseTransits).length > 0 && (
+          <div>
+            <HouseTransitsTable houseTransits={userPeriodHouseTransits} userHouses={userHouses}/>
+          </div>
+        )}
 
-<div>
+        <div>
+          <h2>Transit Interpretations</h2>
+
+        </div>
+
+    <div>
         <h2>Selected Transits</h2>
         {formattedTransits.length > 0 ? (
           formattedTransits.map((transit, index) => (
@@ -199,7 +212,7 @@ function PrototypePage() {
           {transitResponse != '' && (
             <p>{transitResponse}</p>
           )}
-        </div>
+      </div>
 
 
         <div className="user-input-section" style={{ marginTop: '20px' }}>
@@ -242,7 +255,7 @@ function PrototypePage() {
   
         {promptDescriptionsMap.everything && (
           <div>
-            <BirthChartSummary summary={promptDescriptionsMap.everything} />
+            {/* <BirthChartSummary summary={promptDescriptionsMap.everything} /> */}
             <TabbedBigFourMenu /> 
           </div>
         )}

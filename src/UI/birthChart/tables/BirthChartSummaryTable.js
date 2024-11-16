@@ -19,14 +19,16 @@ const BirthChartSummaryTable = ({planets, houses, aspects, transits = []}) => {
             transits={transits} 
           />
         </div>
+
+      </div>
+      <div className="right-section">
+      <h3>Planetary Positions</h3>
         <div className="house-position-container">
           <h3>House Positions</h3>
           <HousePositionTable houseArray={houses} />
         </div>
-      </div>
-      <div className="right-section">
+        <h3>Planetary Positions</h3>
         <div className="table-container">
-          <h3>Planetary Positions</h3>
           <PlanetPositionTable planetsArray={planets} />
         </div>
         <div className="aspects-container">

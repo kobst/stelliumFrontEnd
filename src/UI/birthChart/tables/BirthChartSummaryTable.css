@@ -42,10 +42,17 @@
   overflow: hidden; /* Hide overflow */
 }
 
+.planet-position-table,
 .aspects-table-wrapper {
+  max-height: 100%;
   overflow-y: auto;
-  flex-grow: 1;
-  border: 1px solid #ddd;
+  border: 2px solid white; /* Add a white border */
+  border-radius: 4px; /* Add border radius for rounded corners */
+  padding: 10px; /* Add some padding for spacing */
+}
+
+.aspects-table-wrapper {
+  max-height: 200px; /* Adjust the height as needed */
 }
 
 h3 {

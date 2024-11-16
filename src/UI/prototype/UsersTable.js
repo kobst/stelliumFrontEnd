@@ -74,7 +74,8 @@ function UsersTable() {
     console.log(" period house transits")
     console.log(periodHouseTransitsTest)
     // setUserPeriodHouseTransits(periodHouseTransitsTest)
-    formatUserPeriodTransits(filteredTransits, birthChartPlanets)
+    const formattedTransits = await formatUserPeriodTransits(filteredTransits, birthChartPlanets)
+    setUserPeriodTransits(formattedTransits)
     setUserPeriodHouseTransits(periodHouseTransitsTest)
 
   }
@@ -91,7 +92,8 @@ function UsersTable() {
     })
     console.log("formattedTransits")
     console.log(formattedTransits)
-    setUserPeriodTransits(formattedTransits)
+    return formattedTransits
+    // setUserPeriodTransits(formattedTransits)
     // setUserPeriodTransits(formattedTransits)
   }
 

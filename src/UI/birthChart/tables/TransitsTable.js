@@ -107,6 +107,7 @@ const TransitsTable = ({ transits, onSaveSelected }) => {
 
   return (
     <div className="transits-table-container">
+      <h2>Upcoming Transits</h2>
       <div className="transits-table-wrapper">
       <table className="transits-table">
         <thead>

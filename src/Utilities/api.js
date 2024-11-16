@@ -678,6 +678,28 @@ export const getWeeklyTransitInterpretationData = async (date) => {
   }
 };
 
+
+
+export const postWeeklyTransitInterpretation = async (transitsWithinNextSevenDays, transitsWithinCurrentDateRange) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/generateWeeklyTransitInterpretation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transitsWithinNextSevenDays, transitsWithinCurrentDateRange })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
 export const handleUserInput = async (userId, query) => {
   console.log(query)
   try {

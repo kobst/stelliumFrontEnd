@@ -266,8 +266,8 @@ export const formatTransitData = (aspect, transits, risingSign = null) => {
 
   export const formatTransitDataForUser = (aspect, periodTransits, userPlanets) => {
     const transitingPlanetData = periodTransits[aspect.transitingPlanet];
-  console.log("transitingPlanetData")
-  console.log(transitingPlanetData)
+  // console.log("transitingPlanetData")
+  // console.log(transitingPlanetData)
     // Find the sign at the closest orb date
     const getSignAtDate = (planetData, date) => {
       return planetData.transitSigns.find(sign => 
@@ -477,4 +477,95 @@ export const handleFetchPeriodAspects = async (startDate, endDate) => {
     } catch (error) {
       throw new Error(error.message);
     }
+  };
+
+
+  export const findWeeklyTransits = (transits, userPlanets) => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+  
+    // Check if today is Sunday (0 represents Sunday)
+    // if (dayOfWeek !== 0) {
+    //   console.log("not a sunday")
+    //   return null;
+      
+    // }
+  
+    const nextSevenDays = new Date(today);
+    nextSevenDays.setDate(today.getDate() + 7);
+  
+    const transitsWithinNextSevenDays = transits
+      .filter(transit => {
+        const closestOrbDate = new Date(transit.closestOrbDate);
+        return closestOrbDate >= today && closestOrbDate <= nextSevenDays;
+      })
+      .map(transit => generateTransitString(transit, userPlanets));
+
+      console.log("transitsWithinNextSevenDays")
+      console.log(transitsWithinNextSevenDays)
+  
+    const transitsWithinCurrentDateRange = transits
+      .filter(transit => {
+        const startDate = new Date(transit.dateRange[0]);
+        const endDate = new Date(transit.dateRange[1]);
+        return today >= startDate && today <= endDate;
+      })
+      .map(transit => generateTransitString(transit, userPlanets));
+  
+
+      console.log("transitsWithinCurrentDateRange")
+      console.log(transitsWithinCurrentDateRange)
+    return {
+      transitsWithinNextSevenDays,
+      transitsWithinCurrentDateRange
+    };
+  };
+
+
+  export const generateTransitString = (transit, userPeriodHouseTransits) => {
+    const {
+      transitingPlanet,
+      transitingPlanetSignAtOrb,
+      aspectType,
+      aspectingPlanet,
+      aspectingPlanetSign,
+      aspectPlanetHouse,
+      closestOrbDate
+    } = transit;
+  
+    const formattedDate = new Date(closestOrbDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const transitingHouse = findTransitingHouse(transitingPlanet, closestOrbDate, userPeriodHouseTransits);
+
+  
+    return `${transitingPlanet} in the ${transitingHouse} house and ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}`;
+  };
+
+  const findTransitingHouse = (planet, date, houseTransits) => {
+    console.log("houseTransits")
+    console.log(houseTransits)
+    console.log("planet")
+    console.log(planet)
+    console.log("date")
+    console.log(date)
+    const planetTransits = houseTransits[planet];
+    if (!planetTransits) {
+      console.log("no planet transits")
+      return '';
+    }
+  
+    const transitHouse = planetTransits.transitHouses.find(transit => {
+      const startDate = new Date(transit.dateRange[0]);
+      const endDate = new Date(transit.dateRange[1]);
+      const compareDate = new Date(date);
+      return compareDate >= startDate && compareDate <= endDate;
+    });
+  
+    console.log("transitHouse")
+    console.log(transitHouse)
+    return transitHouse ? `${transitHouse.transitingHouse}` : '';
   };
