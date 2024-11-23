@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { updateObjectKeys } from '../Utilities/helpers';
+import { updateObjectKeys } from '../Utilities/generateUserTranstiDescriptions';
 
 import lightLogo from '../assets/Light logo.png'
 
@@ -20,7 +20,7 @@ import { formatTransitDataForTable,
   handleFetchPeriodAspects,
   handleFetchRetrogrades,
   handleFetchInstantAspects,
-  handleFetchPeriodTransits  } from '../Utilities/helpers';
+  handleFetchPeriodTransits  } from '../Utilities/generateUserTranstiDescriptions';
 
 
 

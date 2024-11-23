@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchUsers, postPeriodTransit } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
 import { fetchBirthChartInterpretation, postPeriodHouseTransitsForUserChart, postPeriodAspectsForUserChart, postPeriodTransits } from '../../Utilities/api';
-import { formatTransitDataForUser } from '../../Utilities/helpers';
+import { formatTransitDataForUser } from '../../Utilities/generateUserTranstiDescriptions';
 import { HeadingEnum } from '../../Utilities/constants';
 
 function UsersTable() {
@@ -42,9 +42,9 @@ function UsersTable() {
       // const birthChart = fetchedInterpretation.birthChartInterpretation;
       Object.entries(fetchedInterpretation).forEach(([heading, data]) => {
         if (validHeadings.includes(heading) && typeof data === 'object') {
-          console.log('Heading:', heading);
-          console.log('Prompt Description:', data.promptDescription);
-          console.log('Interpretation:', data.interpretation);
+          // console.log('Heading:', heading);
+          // console.log('Prompt Description:', data.promptDescription);
+          // console.log('Interpretation:', data.interpretation);
           
           // Set the interpretation
           setHeadingInterpretationMap(heading, data.interpretation);

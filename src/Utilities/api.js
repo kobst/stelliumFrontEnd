@@ -171,9 +171,13 @@ export const postPeriodHouseTransitsForUserChart = async (startDate, endDate, bi
       }
 
       const data = await response.json();
+      console.log("data")
+      console.log(data)
       // returns an object with keys as planets
-      console.log('Transits:', data);
-      return data;
+      // deconstructs the object into an array of transits
+      const transitData = Object.values(data)
+      console.log('Transit Data:', transitData);
+      return transitData;
   } catch (error) {
       console.error('Error fetching transits:', error);
   }
@@ -512,6 +516,34 @@ export const postGptResponseForFormattedTransits = async (everythingData,formatt
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({everythingData, formattedUserTransits})
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    // console.log(responseData)
+    return responseData.response;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+
+}
+
+
+export const postGptResponseForWeeklyCategoryTransits = async (heading, transitDescriptions) => {
+
+  try {
+    console.log(`${SERVER_URL}/postGptResponseForWeeklyCategoryTransits`)
+
+    const response = await fetch(`${SERVER_URL}/postGptResponseForWeeklyCategoryTransits`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({heading, transitDescriptions})
     });
 
     if (!response.ok) {

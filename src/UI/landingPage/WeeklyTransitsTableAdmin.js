@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { formatTransitDataDescriptionsForTableWeekly } from '../../Utilities/helpers';
+import { formatTransitDataDescriptionsForTableWeekly } from '../../Utilities/generateUserTranstiDescriptions';
 
 function WeeklyTransitsTableAdmin({ transits, startDate, onSaveTransits }) {
   const [selectedTransitIds, setSelectedTransitIds] = useState([]);
@@ -18,7 +18,7 @@ function WeeklyTransitsTableAdmin({ transits, startDate, onSaveTransits }) {
     const selectedTransits = flattenedTransits.filter(transit => 
       selectedTransitIds.includes(transit.id)
     );
-    // const formattedTransits = selectedTransits.map(transit => formatTransitDataDescriptionsForTableWeekly(transit));
+    const formattedTransits = selectedTransits.map(transit => formatTransitDataDescriptionsForTableWeekly(transit));
     // onSaveTransits(formattedTransits);
     onSaveTransits(selectedTransits);
   };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { format, addDays } from 'date-fns';
 
 import '../pages/landingPageAdmin.css';
-import { updateObjectKeys } from '../Utilities/helpers';
+import { updateObjectKeys } from '../Utilities/generateUserTranstiDescriptions';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import lightLogo from '../assets/Light logo.png'
@@ -32,7 +32,7 @@ import { formatTransitDataForTable,
     handleFetchDailyTransits,
     handleFetchPeriodAspects,
     handleFetchPeriodTransits,
-    formatTransitDataDescriptionsForTableWeekl} from '../Utilities/helpers';
+    formatTransitDataDescriptionsForTableWeekl} from '../Utilities/generateUserTranstiDescriptions';
 import { postGptResponse,
     postGptResponseForDailyTransit,
      saveDailyTransitInterpretationData,

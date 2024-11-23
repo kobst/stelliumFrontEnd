@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { orbDegrees, aspects, moonPhases } from '../../Utilities/constants';
-import { formatTransits, formatTransitData, formatTransitDataForTable, findMostRelevantAspects } from '../../Utilities/helpers';
+import { formatTransits, formatTransitData, formatTransitDataForTable, findMostRelevantAspects } from '../../Utilities/generateUserTranstiDescriptions';
 import { postGptResponse } from '../../Utilities/api';
 import TodaysAspectsTable from './TodaysAspectsTable';
 

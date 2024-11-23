@@ -1,5 +1,5 @@
 import { ignorePlanets } from "./constants";
-import { degreeDifference } from "./helpers";
+import { degreeDifference } from "./generateUserTranstiDescriptions";
 
 
 

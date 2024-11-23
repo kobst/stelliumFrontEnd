@@ -18,10 +18,10 @@ const HouseTransitsTable = ({ houseTransits, userHouses = [] }) => {
             </tr>
           </thead>
           <tbody>
-            {Object.entries(houseTransits).map(([planet, transitData]) => (
+            {houseTransits.flatMap((transitData) => (
               transitData.transitHouses.map((transit, index) => (
-                <tr key={`${planet}-${index}`}>
-                  <td>{planet}</td>
+                <tr key={`${transitData.planet}-${index}`}>
+                  <td>{transitData.planet}</td>
                   <td>{transit.transitingHouse}</td>
                   <td>{getHouseSign(transit.transitingHouse)}</td>
                   <td>{new Date(transit.dateRange[0]).toLocaleDateString()}</td>

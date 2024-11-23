@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './TransitsTable.css';
 import { planetIcons } from '../../../Utilities/constants';
-import { formatTransitDataForUser } from '../../../Utilities/helpers';
+import { formatTransitDataForUser } from '../../../Utilities/generateUserTranstiDescriptions';
 import { getAspectSymbol } from '../../../Utilities/constants'; // Assuming you have this utility function
 
 const TransitsTable = ({ transits, onSaveSelected }) => {

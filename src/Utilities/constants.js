@@ -257,6 +257,35 @@ export const rulers = {
     HeadingEnum.NEPTUNE,
     HeadingEnum.PLUTO
   ]
+
+
+  export const HeadingTransitEnum = {
+    // Personal Growth
+    PERSONAL_GROWTH: "Personal Growth and Self-Improvement",
+
+    // Relationships
+    RELATIONSHIPS: "Relationships and Social Connections",
+
+    // Career & Finances
+    CAREER_FINANCES: "Career, Finances, and Professional Life",
+
+    // Health & Well-being
+    HEALTH_WELLBEING: "Health, Wellness, and Vitality",
+
+    // Home & Environment
+    HOME_ENVIRONMENT: "Home Life and Living Environment",
+
+    // Social Life
+    SOCIAL_LIFE: "Social Life and Community Involvement",
+
+    // Spirituality & Inner Peace
+    SPIRITUALITY_INNER_PEACE: "Spirituality and Inner Peace",
+
+    // Opportunities & Challenges
+    OPPORTUNITIES_CHALLENGES: "Opportunities and Challenges Ahead",
+};
+
+  
   
 export const heading_map = {
   "personality": personality_headings,

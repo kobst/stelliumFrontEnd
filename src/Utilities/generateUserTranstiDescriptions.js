@@ -1,5 +1,6 @@
 import { orbDegrees, aspects, moonPhases } from './constants';
 import { postDailyAspects, postDailyTransits, postPeriodAspects, postPeriodTransits, postDailyRetrogrades } from './api';
+import { planetCodes, signCodes, transitCodes } from './constants';
 
 export const signOrder = [
     "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
@@ -480,7 +481,7 @@ export const handleFetchPeriodAspects = async (startDate, endDate) => {
   };
 
 
-  export const findWeeklyTransits = (transits, userPlanets) => {
+  export const generateWeeklyTransitDescriptions= (transits, userPlanets) => {
     const today = new Date();
     const dayOfWeek = today.getDay();
   
@@ -522,7 +523,256 @@ export const handleFetchPeriodAspects = async (startDate, endDate) => {
   };
 
 
-  export const generateTransitString = (transit, userPeriodHouseTransits) => {
+  export const generateHouseTransitString = (userHouseTransitData, transit) => {
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+  
+    const { planet, transitHouses } = userHouseTransitData;
+  
+    const currentTransit = transitHouses.find(transit => {
+      const startDate = new Date(transit.dateRange[0]);
+      const endDate = new Date(transit.dateRange[1]);
+      return today >= startDate && today <= endDate;
+    });
+  
+    if (currentTransit) {
+      const nextTransit = transitHouses.find(transit => {
+        const startDate = new Date(transit.dateRange[0]);
+        return startDate > today && startDate <= nextWeek;
+      });
+  
+      if (nextTransit) {
+        const changeDate = new Date(nextTransit.dateRange[0]);
+        const formattedChangeDate = changeDate.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric'
+        });
+        return `${planet} is transiting the ${currentTransit.transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedChangeDate}`;
+      } else {
+        return `${planet} is transiting the ${currentTransit.transitingHouse}th house for the next week`;
+      }
+    }
+  
+    return '';
+  };
+
+
+  export const generateHouseTransitStringComplete = (transit, planet, userPlanets) => {
+    // console.log("generateHouseTransitStringComplete");
+    // console.log(transit);
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+  
+    const { dateRange, transitingHouse } = transit;
+  
+    // Check if transitingHouse is null, and skip if it is
+    if (transitingHouse === null) {
+      return '';
+    }
+  
+    const currentTransit = transit;
+  
+    if (currentTransit) {
+      const nextTransit = userPlanets.find(planetData => 
+        planetData.planet === planet && 
+        planetData.transitHouses.some(t => {
+          const startDate = new Date(t.dateRange[0]);
+          return startDate > today && startDate <= nextWeek;
+        })
+      )?.transitHouses.find(t => {
+        const startDate = new Date(t.dateRange[0]);
+        return startDate > today && startDate <= nextWeek;
+      });
+  
+      let description = '';
+      let code = '';
+  
+      const planetCode = planetCodes[planet];
+      // console.log(planet);
+      // console.log(planetCode);
+      const currentHouseCode = currentTransit.transitingHouse.toString().padStart(2, '0');
+  
+      if (nextTransit) {
+        const houseChangeDate = new Date(nextTransit.dateRange[0]);
+        const formattedHouseChangeDate = houseChangeDate.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric'
+        });
+  
+        const nextHouseCode = nextTransit.transitingHouse.toString().padStart(2, '0');
+  
+        description = `${planet} is transiting the ${currentTransit.transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
+        code = `Ht-${planetCode}${currentHouseCode}-H${nextHouseCode}`;
+      } else {
+        description = `${planet} is transiting the ${currentTransit.transitingHouse}th house for the next week`;
+        code = `THt-${planetCode}${currentHouseCode}`;
+      }
+  
+      return `${description} (${code})`;
+    }
+  
+    return '';
+  };
+
+
+  export const generateHouseTransitStringCompleteVersion2 = (transit, planet, userPlanets) => {
+    console.log("generateHouseTransitStringComplete");
+    console.log(transit);
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+  
+    const { dateRange, transitingHouse } = transit;
+  
+    // Check if transitingHouse is null, and skip if it is
+    if (transitingHouse === null) {
+      return '';
+    }
+  
+    const currentTransit = transit;
+  
+    if (currentTransit) {
+      const nextTransit = userPlanets.find(planetData => 
+        planetData.planet === planet && 
+        planetData.transitHouses.some(t => {
+          const startDate = new Date(t.dateRange[0]);
+          return startDate > today && startDate <= nextWeek;
+        })
+      )?.transitHouses.find(t => {
+        const startDate = new Date(t.dateRange[0]);
+        return startDate > today && startDate <= nextWeek;
+      });
+  
+      let description = '';
+      let code = '';
+  
+      const planetCode = planetCodes[planet];
+      console.log(planet);
+      console.log(planetCode);
+      const currentHouseCode = currentTransit.transitingHouse.toString().padStart(2, '0');
+  
+      if (nextTransit) {
+        const houseChangeDate = new Date(nextTransit.dateRange[0]);
+        const formattedHouseChangeDate = houseChangeDate.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric'
+        });
+  
+        const nextHouseCode = nextTransit.transitingHouse.toString().padStart(2, '0');
+  
+        description = `${planet} is transiting the ${currentTransit.transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
+        code = `Tt-${planetCode}${currentHouseCode}-H${nextHouseCode}`;
+      } else {
+        description = `${planet} is transiting the ${currentTransit.transitingHouse}th house for the next week`;
+        code = `Tt-${planetCode}${currentHouseCode}`;
+      }
+  
+      return `${description} (${code})`;
+    }
+  
+    return '';
+  };
+
+  export const generateHouseTransitStringCompletePrevious = (transit, userPeriodHouseTransits) => {
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+  
+    const { planet, transitingSign, dateRange, signChange } = transit;
+  
+    const planetTransits = userPeriodHouseTransits[planet];
+    if (!planetTransits) {
+      return '';
+    }
+  
+    const currentTransit = planetTransits.transitHouses.find(transit => {
+      const startDate = new Date(transit.dateRange[0]);
+      const endDate = new Date(transit.dateRange[1]);
+      return today >= startDate && today <= endDate;
+    });
+  
+    if (currentTransit) {
+      const nextTransit = planetTransits.transitHouses.find(transit => {
+        const startDate = new Date(transit.dateRange[0]);
+        return startDate > today && startDate <= nextWeek;
+      });
+  
+      const signChangeDate = new Date(dateRange[1]);
+      const formattedSignChangeDate = signChangeDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      });
+  
+      if (nextTransit) {
+        const houseChangeDate = new Date(nextTransit.dateRange[0]);
+        const formattedHouseChangeDate = houseChangeDate.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric'
+        });
+  
+        if (signChange === 'entering') {
+          return `${planet} is transiting ${transitingSign} and the ${currentTransit.transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
+        } else if (signChange === 'exiting') {
+          return `${planet} is transiting ${transitingSign} and the ${currentTransit.transitingHouse}th house, then entering the next sign on ${formattedSignChangeDate} as it continues to transit the ${currentTransit.transitingHouse}th house, and then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
+        } else {
+          return `${planet} is transiting ${transitingSign} and the ${currentTransit.transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
+        }
+      } else {
+        if (signChange === 'entering') {
+          return `${planet} is transiting ${transitingSign} and the ${currentTransit.transitingHouse}th house for the next week`;
+        } else if (signChange === 'exiting') {
+          return `${planet} is transiting ${transitingSign} and the ${currentTransit.transitingHouse}th house, then entering the next sign on ${formattedSignChangeDate} as it continues to transit the ${currentTransit.transitingHouse}th house`;
+        } else {
+          return `${planet} is transiting ${transitingSign} and the ${currentTransit.transitingHouse}th house for the next week`;
+        }
+      }
+    }
+  
+    return '';
+  };
+
+
+
+
+export const generateTransitString = (transit, userPeriodHouseTransits) => {
+  const {
+    transitingPlanet,
+    transitingPlanetSignAtOrb,
+    aspectType,
+    aspectingPlanet,
+    aspectingPlanetSign,
+    aspectPlanetHouse,
+    closestOrbDate
+  } = transit;
+
+  const formattedDate = new Date(closestOrbDate).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const transitingHouse = findTransitingHouse(transitingPlanet, closestOrbDate, userPeriodHouseTransits);
+
+  const description = `${transitingPlanet} in the ${transitingHouse} house and ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}`;
+
+  const transitingPlanetCode = planetCodes[transitingPlanet];
+  const transitingSignCode = signCodes[transitingPlanetSignAtOrb];
+  const transitingHouseCode = transitingHouse.toString().padStart(2, '0');
+  const aspectCode = transitCodes[aspectType];
+
+
+  const aspectingPlanetCode = planetCodes[aspectingPlanet];
+  const aspectingSignCode = signCodes[aspectingPlanetSign];
+  const aspectingHouseCode = aspectPlanetHouse.toString().padStart(2, '0');
+
+  const code = `Tu-${transitingPlanetCode}${transitingSignCode}${transitingHouseCode}-${aspectCode}-Tn-${aspectingPlanetCode}${aspectingSignCode}${aspectingHouseCode}`;
+
+  return `${description} (${code})`;
+};
+
+  export const generateTransitStringPrevious = (transit, userPeriodHouseTransits) => {
     const {
       transitingPlanet,
       transitingPlanetSignAtOrb,
@@ -540,7 +790,6 @@ export const handleFetchPeriodAspects = async (startDate, endDate) => {
     });
 
     const transitingHouse = findTransitingHouse(transitingPlanet, closestOrbDate, userPeriodHouseTransits);
-
   
     return `${transitingPlanet} in the ${transitingHouse} house and ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}`;
   };
@@ -552,12 +801,11 @@ export const handleFetchPeriodAspects = async (startDate, endDate) => {
     console.log(planet)
     console.log("date")
     console.log(date)
-    const planetTransits = houseTransits[planet];
+    const planetTransits = houseTransits.find(transit => transit.planet === planet);
     if (!planetTransits) {
-      console.log("no planet transits")
+      console.log("No planet transits found for", planet);
       return '';
     }
-  
     const transitHouse = planetTransits.transitHouses.find(transit => {
       const startDate = new Date(transit.dateRange[0]);
       const endDate = new Date(transit.dateRange[1]);

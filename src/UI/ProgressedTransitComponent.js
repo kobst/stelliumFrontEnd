@@ -18,9 +18,6 @@ const ProgressedTransitComponent = ( {transitType} ) => {
     const dailyTransits = useStore(state => state.dailyTransits)
 
 
-
-
-
     async function generateTransits() {
         const today = new Date();
         // const oneYearFromNow = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());

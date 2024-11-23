@@ -3,9 +3,10 @@ import TabbedBigFourMenu from '../UI/birthChart/TabbedBigFourComponent';
 import UsersTable from '../UI/prototype/UsersTable';
 import Ephemeris from '../UI/shared/Ephemeris';
 import useStore from '../Utilities/store';
+import { HeadingTransitEnum } from '../Utilities/constants';
 import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
 import { DominanceEnum, HeadingEnum, dominance_headings } from '../Utilities/constants';
-import { formatTransitDataForUser, findWeeklyTransits, generateTransitString } from '../Utilities/helpers';
+import { formatTransitDataForUser, generateWeeklyTransitDescriptions, generateTransitString, generateHouseTransitStringComplete } from '../Utilities/generateUserTranstiDescriptions';
 import { 
   findAspectsComputed, 
   describePlanets, 
@@ -17,8 +18,8 @@ import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 import TransitsTable from '../UI/birthChart/tables/TransitsTable';
 import HouseTransitsTable from '../UI/birthChart/tables/HouseTransitsTable';
-import { postGptResponseForFormattedTransits, handleUserInput, postWeeklyTransitInterpretation } from '../Utilities/api';
-import { handleFetchDailyTransits } from '../Utilities/helpers';
+import { postGptResponseForFormattedTransits, handleUserInput, postWeeklyTransitInterpretation, postGptResponseForWeeklyCategoryTransits} from '../Utilities/api';
+import { handleFetchDailyTransits } from '../Utilities/generateUserTranstiDescriptions';
 function PrototypePage() {
   // const ascendantDegree = useStore(state => state.ascendantDegree)
   const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
@@ -50,11 +51,6 @@ function PrototypePage() {
     }
   }, [userPlanets, userHouses, userAspects]);
 
-  useEffect(() => {
-    if (isTransitsPopulated) {
-      generateTransitDescriptions();
-    }
-  }, [userPeriodTransits, userPeriodHouseTransits]);
 
   useEffect( () => {
     async function getTodaysData() {
@@ -69,18 +65,40 @@ function PrototypePage() {
 
 
   useEffect(() => {
-    if (userPeriodTransits.length > 0) {
-      console.log('userPeriodTransits:', userPeriodTransits)
-      const weeklyTransits = findWeeklyTransits(userPeriodTransits, userPlanets)
-      setWeeklyTransitInterpretations(weeklyTransits)
-      console.log('weeklyTransits:', weeklyTransits)
-    }
-  }, [userPeriodTransits])
+    const generateWeeklyTransitsAsync = async () => {
+      if (userPeriodTransits.length > 0) {
+        console.log('userPeriodTransits:', userPeriodTransits);
+        const weeklyTransits = generateWeeklyTransitDescriptions(userPeriodTransits, userPeriodHouseTransits);
+        // setWeeklyTransitInterpretations(weeklyTransits);
+        console.log('weeklyTransits:', weeklyTransits.transitsWithinNextSevenDays);
+  
+        // Go through each heading and generate the descriptions
+        // for (const heading of Object.values(HeadingTransitEnum)) {
+        //   console.log('heading:', heading);
+        //   const response = await generateWeeklyTransitsForCategory(heading, weeklyTransits.transitsWithinNextSevenDays);
+        //   console.log(response);
+        // }
+      }
+    };
+  
+    generateWeeklyTransitsAsync();
+  }, [userPeriodTransits]);
 
-  const generateTransitDescriptions = async (event) => {
-    console.log('userPeriodTransits before API call:', userPeriodTransits);
-    console.log('userPeriodHouseTransits before API call:', userPeriodHouseTransits);
-  }
+  useEffect(() => {
+    if (userPeriodHouseTransits.length > 0) {
+      console.log('userPeriodHouseTransits:', userPeriodHouseTransits);
+      
+      const weeklyTransits = userPeriodHouseTransits.flatMap(transitData => {
+        const { transitHouses } = transitData;
+        return transitHouses.map(transit => generateHouseTransitStringComplete(transit, transitData.planet, userPlanets));
+      });
+      // Flatten the array of arrays into a single array
+      const flattenedWeeklyTransits = weeklyTransits.flat();
+      
+      console.log('weeklyTransitsHouses:', flattenedWeeklyTransits);
+      // setWeeklyTransitInterpretations(flattenedWeeklyTransits);
+    }
+  }, [userPeriodHouseTransits]);
 
 
   const generateDescriptions = async (event) => { 
@@ -128,14 +146,27 @@ function PrototypePage() {
     const everythingData = promptDescriptionsMap['everything'] 
     console.log(everythingData)
     try {
-      const response = await postGptResponseForFormattedTransits(everythingData, formattedTransits)
-      console.log(response)
-      setTransitResponse(response)
-    } catch (error) {
-      console.log(error.message);
+        const response = await postGptResponseForFormattedTransits(everythingData, formattedTransits)
+        console.log(response)
+        setTransitResponse(response)
+      } catch (error) {
+        console.log(error.message);
+    }
+  };
+
+
+
+const generateWeeklyTransitsForCategory = async (heading, transits) => {
+    // console.log('Formatted Transits:', formattedTransits);
+    try {
+        const response = await postGptResponseForWeeklyCategoryTransits(heading, transits)
+        console.log(response)
+
+      } catch (error) {
+        console.log(error.message);
+    }
   }
 
-  };
 
 
   const handleInputChange = (event) => {
@@ -185,7 +216,7 @@ function PrototypePage() {
         ) : (
           <p>Loading period transits...</p>
         )}
-        {Object.keys(userPeriodHouseTransits).length > 0 && (
+        {userPeriodHouseTransits.length > 0 && (
           <div>
             <HouseTransitsTable houseTransits={userPeriodHouseTransits} userHouses={userHouses}/>
           </div>
@@ -246,9 +277,6 @@ function PrototypePage() {
       </div>
 
      
-     
-
-
         <span>
           <h2>birth chart interpretation</h2>
         </span>
