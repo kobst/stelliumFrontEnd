@@ -134,9 +134,9 @@ const LandingPageComponent = () => {
                 }
             </div>    
 
-            <div>
+            {/* <div>
               <DailyReadingFromDb transitAspectObjects={dailyTransitAspects} transits={dailyTransits} risingSign={null} />
-            </div>
+            </div> */}
 
                 {/* <div>
                 <div className="daily-reading-container">
