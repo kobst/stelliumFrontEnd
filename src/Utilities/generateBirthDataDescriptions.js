@@ -103,7 +103,7 @@ export function findAspectsNonComputed(birthData, planet = null) {
   return aspectDescriptions;
 }
   
-function addAspectDescriptionComputed(aspect, birthData) {
+export function addAspectDescriptionComputed(aspect, birthData) {
     const transitingPlanetData = birthData.planets.find(p => p.name === aspect.transitingPlanet);
     const aspectingPlanetData = birthData.planets.find(p => p.name === aspect.aspectingPlanet);
 
@@ -158,7 +158,38 @@ export const generatePlanetPromptDescription = (planet, userPlanets, userHouses,
 }
 
 
+export const getSynastryAspectDescription = (aspect, birthchartA, birthchartB, userAName, userBName) => {
+  
+  const getPlanetObject = (planetName, userPlanets) => {
+    return userPlanets.find(planet => planet.name === planetName);
+  };
 
+  const { aspectType, orb, planet1, planet2 } = aspect;
+
+  const planet1Object = getPlanetObject(planet1, birthchartA.planets);
+  const planet2Object = getPlanetObject(planet2, birthchartB.planets);
+
+  if (!planet1Object || !planet2Object) {
+    return 'Invalid planet data';
+  }
+
+  const planet1Retro = planet1Object.is_retro === 'true' ? 'retrograde ' : '';
+  const planet2Retro = planet2Object.is_retro === 'true' ? 'retrograde ' : '';
+
+  return `${userAName}'s ${planet1Retro}${planet1} in ${planet1Object.sign} in their ${planet1Object.house}th house is ${aspectType} ${userBName}'s ${planet2Retro}${planet2} in ${planet2Object.sign} in their ${planet2Object.house}th house with an orb of ${orb} degrees`;
+};
+
+export const findHouseSynastry = (planetDegree, houses) => {
+  for (let i = 0; i < houses.length; i++) {
+    const currentHouse = houses[i];
+    const nextHouse = houses[(i + 1) % houses.length];
+    
+    if (planetDegree >= currentHouse.degree && planetDegree < nextHouse.degree) {
+      return currentHouse.house;
+    }
+  }
+  return null;
+};
 
 
 // modalities

@@ -1,22 +1,33 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import PlanetPositionTable from './PlanetPositionTable';
 import HousePositionTable from './HousePositionTable';
 import AspectsTable from './AspectsTable';
 import Ephemeris from '../../shared/Ephemeris';
 import './BirthChartSummaryTable.css';
 
-const BirthChartSummaryTable = ({planets, houses, aspects, transits = []}) => {
+const BirthChartSummaryTable = memo(({planets, houses, aspects, transits = []}) => {
+  // Create a stable key that only changes when the data actually changes
+  const ephemerisKey = useMemo(() => {
+    return JSON.stringify({
+      planets: planets.map(p => p.name + p.full_degree),
+      houses: houses.map(h => h.house + h.degree),
+      aspects: aspects.map(a => a.transitingPlanet + a.aspectingPlanet),
+      transits: transits.map(t => t.name + t.full_degree)
+    });
+  }, [planets, houses, aspects, transits]);
+
   return (
     <div className="birth-chart">
       <div className="left-section">
         <div className="ephemeris-container">
           <h3>Ephemeris</h3>
           <Ephemeris 
-            key={`${planets.length}-${houses.length}-${aspects.length}-${transits.length}`}
+            key={ephemerisKey}
             planets={planets} 
             houses={houses} 
             aspects={aspects} 
-            transits={transits} 
+            transits={transits}
+            instanceId="summary" // Add unique identifier
           />
         </div>
 
@@ -40,6 +51,6 @@ const BirthChartSummaryTable = ({planets, houses, aspects, transits = []}) => {
       </div>
     </div>
   );
-};
+});
 
 export default BirthChartSummaryTable;

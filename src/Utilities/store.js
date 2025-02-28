@@ -38,6 +38,9 @@ const useStore = create(set => ({
   dailyTransits: [],
   setDailyTransits: (response) => set({dailyTransits: response}),
 
+  retrogradeTransits: [],
+  setRetrogradeTransits: (response) => set({retrogradeTransits: response}),
+
   dailyPersonalTransitDescriptions: '',
   setDailyPersonalTransitDescriptions: (response) => set({dailyPersonalTransitDescriptions: response}),
 
@@ -72,6 +75,34 @@ const useStore = create(set => ({
     setPromptDescriptionsMap: (key, description) => set(state => ({
         promptDescriptionsMap: { ...state.promptDescriptionsMap, [key]: description }
         })),
+
+    compositeChart: null,
+    setCompositeChart: (response) => set({ compositeChart: response }),
+
+    compositeChartPromptDescriptionsMap: {},
+    setCompositeChartPromptDescriptionsMap: (key, description) => set(state => ({
+        compositeChartPromptDescriptionsMap: { ...state.compositeChartPromptDescriptionsMap, [key]: description }
+        })),
+
+    compositeChartPlanetResponsesMap: {},
+    setCompositeChartPlanetResponsesMap: (key, description) => set(state => ({
+        compositeChartPlanetResponsesMap: { ...state.compositeChartPlanetResponsesMap, [key]: description }
+        })),
+
+    compositeChartHeadingInterpretationMap: {},
+    setCompositeChartHeadingInterpretationMap: (key, description) => set(state => ({
+        compositeChartHeadingInterpretationMap: { ...state.compositeChartHeadingInterpretationMap, [key]: description }
+        })),
+
+    synastryPromptDescriptionsMap: {},
+    setSynastryPromptDescriptionsMap: (key, description) => set(state => ({
+        synastryPromptDescriptionsMap: { ...state.synastryPromptDescriptionsMap, [key]: description }
+    })),
+
+    synastryHeadingInterpretationMap: {},
+    setSynastryHeadingInterpretationMap: (key, description) => set(state => ({
+        synastryHeadingInterpretationMap: { ...state.synastryHeadingInterpretationMap, [key]: description }
+    })),
 
         // Prompt descriptions mapping
     planetResponsesMap: {

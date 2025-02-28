@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { generateWeeklyTransitDescriptions, generateHouseTransitStringComplete } from '../../Utilities/generateUserTranstiDescriptions';
+import { 
+    generateWeeklyTransitDescriptions, 
+    generateWeeklyTransitDescriptionsWithRetrograde,
+    generateHouseTransitStringCompleteWithRetrograde,
+    generateHouseTransitStringComplete } from '../../Utilities/generateUserTranstiDescriptions';
 import { postGptPromptsForWeeklyTransits, postGptResponseForFormattedTransits } from '../../Utilities/api';
 import { HeadingTransitEnum } from '../../Utilities/constants';
 import { checkResponseAgainstEverything } from '../../Utilities/checkResponses';
 import WeeklyTransitInterpretationsTable from './WeeklyTransitInterpretations';
-const WeeklyTransitDescriptions = ({ userPeriodTransits, userPeriodHouseTransits, userPlanets }) => {
+
+const WeeklyTransitDescriptions = ({ userPeriodTransits, userPeriodHouseTransits, userPlanets, retrogradeTransits }) => {
   const [weeklyTransitsComplete, setWeeklyTransitsComplete] = useState(null);
   const [weeklyTransitPrompts, setWeeklyTransitPrompts] = useState({});
   const [weeklyTransitInterpretations, setWeeklyTransitInterpretations] = useState({});
 
   const [expandedSections, setExpandedSections] = useState({
-    transitsWithinNextSevenDays: true,
-    transitsWithinCurrentDateRange: true,
+    transitsExactWithinDateRange: true,
+    transitsInEffectWithinDateRange: true,
     weeklyHouseTransits: true,
   });
 
@@ -25,18 +30,19 @@ const WeeklyTransitDescriptions = ({ userPeriodTransits, userPeriodHouseTransits
   useEffect(() => {
     const generateWeeklyTransitsAsync = async () => {
       if (userPeriodTransits.length > 0 && userPeriodHouseTransits.length > 0) {
-        // console.log('userPeriodTransits:', userPeriodTransits);
-        const weeklyTransits = generateWeeklyTransitDescriptions(userPeriodTransits, userPeriodHouseTransits);
-        // console.log('weeklyTransits:', weeklyTransits.transitsWithinNextSevenDays);
-        // console.log('also in effectTransits:', weeklyTransits.transitsWithinCurrentDateRange);
+
+        console.log('userPeriodTransits:', userPeriodTransits);
+        const weeklyTransits = generateWeeklyTransitDescriptionsWithRetrograde(userPeriodTransits, userPeriodHouseTransits, 30, retrogradeTransits);
+        // console.log('weeklyTransits:', weeklyTransits.transitsExactWithinDateRange);
+        // console.log('also in effectTransits:', weeklyTransits.transitsInEffectWithinDateRange);
         // console.log('userPeriodHouseTransits:', userPeriodHouseTransits);
         const flattenedWeeklyTransits = userPeriodHouseTransits.flatMap(transitData => {
-          return generateHouseTransitStringComplete(transitData, userPlanets);
+          return generateHouseTransitStringCompleteWithRetrograde(transitData, retrogradeTransits);
         });
         // console.log('weeklyTransitsHouses:', flattenedWeeklyTransits);
         const weeklyTransitsComplete = {
-          transitsWithinNextSevenDays: weeklyTransits.transitsWithinNextSevenDays,
-          transitsWithinCurrentDateRange: weeklyTransits.transitsWithinCurrentDateRange,
+          transitsExactWithinDateRange: weeklyTransits.transitsExactWithinDateRange,
+          transitsInEffectWithinDateRange: weeklyTransits.transitsInEffectWithinDateRange,
           weeklyHouseTransits: flattenedWeeklyTransits
         };
 
@@ -56,8 +62,8 @@ const WeeklyTransitDescriptions = ({ userPeriodTransits, userPeriodHouseTransits
         let isValidPrompt = false;
 
         while (!isValidPrompt) {
-          prompt = await postGptPromptsForWeeklyTransits(heading, weeklyTransitsComplete.transitsWithinNextSevenDays.join(', '));
-          isValidPrompt = checkResponseAgainstEverything(prompt, weeklyTransitsComplete.transitsWithinNextSevenDays);
+          prompt = await postGptPromptsForWeeklyTransits(heading, weeklyTransitsComplete.transitsExactWithinDateRange.join(', '));
+          isValidPrompt = checkResponseAgainstEverything(prompt, weeklyTransitsComplete.transitsExactWithinDateRange);
         }
 
         const interpretation = await postGptResponseForFormattedTransits(heading, prompt);
@@ -84,15 +90,15 @@ const WeeklyTransitDescriptions = ({ userPeriodTransits, userPeriodHouseTransits
         <div>
           <div>
             <h2
-              onClick={() => toggleSection('transitsWithinNextSevenDays')}
+              onClick={() => toggleSection('transitsExactWithinDateRange')}
               style={{ cursor: 'pointer' }}
             >
-              Weekly Transits {expandedSections.transitsWithinNextSevenDays ? '▼' : '▶'}
+              Weekly Transits {expandedSections.transitsExactWithinDateRange ? '▼' : '▶'}
             </h2>
-            {expandedSections.transitsWithinNextSevenDays && (
+            {expandedSections.transitsExactWithinDateRange && (
               <table>
                 <tbody>
-                  {weeklyTransitsComplete.transitsWithinNextSevenDays.map((transit, index) => (
+                  {weeklyTransitsComplete.transitsExactWithinDateRange.map((transit, index) => (
                     <tr key={index}>
                       <td>{transit}</td>
                     </tr>
@@ -104,15 +110,15 @@ const WeeklyTransitDescriptions = ({ userPeriodTransits, userPeriodHouseTransits
 
           <div>
             <h2
-              onClick={() => toggleSection('transitsWithinCurrentDateRange')}
+              onClick={() => toggleSection('transitsInEffectWithinDateRange')}
               style={{ cursor: 'pointer' }}
             >
-              Transits Also in Effect {expandedSections.transitsWithinCurrentDateRange ? '▼' : '▶'}
+              Transits Also in Effect {expandedSections.transitsInEffectWithinDateRange ? '▼' : '▶'}
             </h2>
-            {expandedSections.transitsWithinCurrentDateRange && (
+            {expandedSections.transitsInEffectWithinDateRange && (
               <table>
                 <tbody>
-                  {weeklyTransitsComplete.transitsWithinCurrentDateRange.map((transit, index) => (
+                  {weeklyTransitsComplete.transitsInEffectWithinDateRange.map((transit, index) => (
                     <tr key={index}>
                       <td>{transit}</td>
                     </tr>

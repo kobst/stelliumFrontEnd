@@ -187,7 +187,11 @@ export const rulers = {
     JUPITER: "Jupiter",
     URANUS: "Uranus",
     NEPTUNE: "Neptune",
-    PLUTO: "Pluto"
+    PLUTO: "Pluto",
+
+
+    // Composite Chart
+
   };
   
   const personality_headings = [
@@ -432,3 +436,14 @@ export const transitCodes = {
     trine: 'Waxing/Waning Moon'
   };
   
+
+  export const CompositeChartHeadingEnums = {
+    ATTRACTION_CHEMISTRY: "Attraction & Chemistry",
+    EMOTIONAL_SECURITY_CONNECTION: "Emotional Security and Connection",
+    SEXUAL_NATURE: "Sexual Nature and Intimacy",
+    COMMITMENT_LONG_TERM_POTENTIAL: "Commitment Approach and Long-term potential",
+    RELATIONSHIP_CHALLENGES: "Challenges and Growth in Relationships",
+    SHARED_GOALS_VALUES: "Shared Goals and Values",
+    SOCIAL_COMMUNITY: "Social Community and Social Networks",
+    SPIRITUAL_KARMIC_LESSONS: "Spiritual Lessons and Karmic Patterns"
+}

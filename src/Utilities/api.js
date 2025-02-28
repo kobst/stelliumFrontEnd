@@ -127,6 +127,28 @@ export const fetchUsers = async () => {
   }
 };
 
+export const fetchComposites = async () => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getCompositeCharts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      // Add a body if needed
+      // body: JSON.stringify({})
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    console.log('Composites:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching composites:', error);
+    throw error;
+  }
+};
+
 export const postPeriodAspectsForUserChart = async (startDate, endDate, birthChart)=> {
   try {
       const response = await fetch(`${SERVER_URL}/generatePeriodAspectsForChart`, {
@@ -278,6 +300,29 @@ export const postDailyRetrogrades = async (date) => {
 
 // TODO - Retrogrades
 
+export const postRetrogradesForDateRange = async (startDate, endDate) => {
+  try {
+    console.log(`${SERVER_URL}/retrogradesForDateRange`);
+    const response = await fetch(`${SERVER_URL}/retrogradesForDateRange`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ startDate, endDate })  // Ensure the date is sent as a JSON object
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
+
 
 // Function to post birth data
 export const postBirthData = async (birthData) => {
@@ -355,10 +400,6 @@ export const postDailyTransit = async (birthData) => {
 
 // Function to post birth data
 export const postPromptGeneration = async (planets, houses, aspects) => {
- console.log('planets')
- console.log(planets)
- console.log('houses')
- console.log(houses)
   const body = JSON.stringify({planets, houses, aspects});
 
   try {
@@ -384,6 +425,82 @@ export const postPromptGeneration = async (planets, houses, aspects) => {
   }
 };
 
+
+export const postPromptGenerationCompositeChart = async (heading, descriptions) => {
+  const body = JSON.stringify({heading, descriptions});
+  console.log(`${SERVER_URL}/promptGenerationCompositeChart`)
+
+  // console.log("heading: ", heading)
+  // console.log("descriptions: ", descriptions)
+
+  try {
+    console.log(`${SERVER_URL}/promptGenerationCompositeChart`)
+    const response = await fetch(`${SERVER_URL}/promptGenerationCompositeChart`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: body
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    // console.log(responseData)
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
+
+
+export const postPromptGenerationSynastry = async (heading, descriptions) => {
+  console.log("heading: ", heading)
+  console.log("descriptions: ", descriptions)
+  const body = JSON.stringify({heading, descriptions});
+  console.log(`${SERVER_URL}/promptGenerationSynastry`)
+
+  try {
+    const response = await fetch(`${SERVER_URL}/promptGenerationSynastryChart`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: body
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+
+
+export const fetchUser = async (userId) => {
+  console.log("fetchUseruserId")
+  console.log(userId)
+  try {
+    const response = await fetch(`${SERVER_URL}/getUser`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId })
+    });
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error;
+  }
+};
 
 
 // Function to post birth data and get gpt response for relevant aspects and trransits
@@ -561,10 +678,10 @@ export const postGptResponseForFormattedTransits = async (heading,formattedUserT
 
 
 export const postGptPromptsForWeeklyTransits = async (heading, transitDescriptions) => {
-  console.log('heading')
-  console.log(heading)
-  console.log('transitDescriptions')
-  console.log(transitDescriptions)
+  // console.log('heading')
+  // console.log(heading)
+  // console.log('transitDescriptions')
+  // console.log(transitDescriptions)
 
   try {
     console.log(`${SERVER_URL}/postGptPromptsForWeeklyTransits`)
@@ -745,12 +862,12 @@ export const getWeeklyTransitInterpretationData = async (date) => {
 
 
 
-export const postWeeklyTransitInterpretation = async (transitsWithinNextSevenDays, transitsWithinCurrentDateRange) => {
+export const postWeeklyTransitInterpretation = async (transitsExactWithinDateRange, transitsInEffectWithinDateRange) => {
   try {
     const response = await fetch(`${SERVER_URL}/generateWeeklyTransitInterpretation`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transitsWithinNextSevenDays, transitsWithinCurrentDateRange })
+      body: JSON.stringify({ transitsExactWithinDateRange, transitsInEffectWithinDateRange })
     });
 
     if (!response.ok) {
@@ -782,6 +899,180 @@ export const handleUserInput = async (userId, query) => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const postSynastryAspects = async (birthData_1, birthData_2) => {
+  console.log("birthData_1")
+  console.log(birthData_1)
+  console.log("birthData_2")
+  console.log(birthData_2)
+  try {
+    const response = await fetch(`${SERVER_URL}/findSynastryAspects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({birthData_1, birthData_2})
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const postCompositeChart = async (birthChart1, birthChart2) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/generateCompositeChart`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({birthChart1, birthChart2})
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+
+
+export const createCompositeChartProfile = async (userAId, userBId, userAName, userBName, userA_dateOfBirth, userB_dateOfBirth, synastryAspects, compositeBirthChart) => {
+  console.log("compositeBirthChart x:");
+  console.log(compositeBirthChart);
+  try {
+    const response = await fetch(`${SERVER_URL}/saveCompositeChartProfile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        userA_id: userAId,
+        userB_id: userBId,
+        userA_name: userAName,
+        userB_name: userBName,
+        userA_dateOfBirth: userA_dateOfBirth,
+        userB_dateOfBirth: userB_dateOfBirth,
+        synastryAspects: synastryAspects,
+        compositeBirthChart: compositeBirthChart
+      })
+    });
+    const data = await response.json();
+    return data.compositeChartId;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
+
+export const postGptResponseCompositeChart = async (heading, promptDescription) => {
+  console.log("heading composite chart: ", heading)
+  console.log("promptDescription composite chart: ", promptDescription)
+  try {
+    const response = await fetch(`${SERVER_URL}/getGptResponseForCompositeChart`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({heading, promptDescription})
+    });
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const postGptResponseCompositeChartPlanet = async (planet, promptDescription) => {
+  console.log("planet composite chart: ", planet)
+  console.log("promptDescription composite chart: ", promptDescription)
+  try {
+    const response = await fetch(`${SERVER_URL}/getGptResponseForCompositeChartPlanet`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({planet, promptDescription})
+    });
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const postGptResponseSynastry = async (heading, promptDescription) => {
+  console.log("heading synastry: ", heading)
+  console.log("promptDescription synastry: ", promptDescription)
+  try {
+    const response = await fetch(`${SERVER_URL}/getGptResponseForSynastryAspects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({heading, promptDescription})
+    });
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const saveCompositeChartInterpretation = async (compositeChartId, heading, promptDescription, interpretation) => {
+  console.log("heading composite chart: ", heading)
+  console.log("interpretation composite chart: ", interpretation)
+  try {
+    const response = await fetch(`${SERVER_URL}/saveCompositeChartInterpretation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({compositeChartId, heading, promptDescription, interpretation})
+    });
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const getCompositeChartInterpretation = async (compositeChartId) => {
+  console.log("compositeChartId: ", compositeChartId)
+  try {
+    const response = await fetch(`${SERVER_URL}/getCompositeChartInterpretation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({compositeChartId})
+    });
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const getSynastryInterpretation = async (compositeChartId) => {
+  console.log("compositeChartId: ", compositeChartId)
+  try {
+    const response = await fetch(`${SERVER_URL}/getSynastryChartInterpretation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({compositeChartId})
+    });
     const responseData = await response.json();
     return responseData;
   } catch (error) {
