@@ -43,20 +43,21 @@ function PrototypePage() {
   const handleUserSelect = async (user) => {
     setSelectedUser(user);
     setUserId(user._id);
-    setUserPlanets(user.birthChart.planets  );
+    setUserPlanets(user.birthChart.planets );
     setUserHouses(user.birthChart.houses);
-    setUserAspects(user.birthChart.aspectsComputed);
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 30);
-    fetchUserBirthChartInterpretation(user._id);
-    fetchUserPeriodTransits(user, startDate, endDate)
+    setUserAspects(user.birthChart.aspects);
+    // const startDate = new Date();
+    // const endDate = new Date();
+    // endDate.setDate(endDate.getDate() + 30);
+    // fetchUserBirthChartInterpretation(user._id);
+    // fetchUserPeriodTransits(user, startDate, endDate)
 
     navigate(`/userDashboard`);
 
   };
 
   const handleCompositeChartSelect = (compositeChart) => {
+    console.log("compositeChart", compositeChart._id)
     setCompositeChart(compositeChart)
     navigate(`/compositeDashboard`);
   }

@@ -21,6 +21,7 @@ const UserSignUpForm = () => {
     const [lat, setLat] = useState('');
     const [lon, setLon] = useState('');
     const [placeOfBirth, setPlaceOfBirth] = useState('');
+    const [gender, setGender] = useState('');
     const [formErrors, setFormErrors] = useState({});
     const setRawBirthData = useStore(state => state.setRawBirthData);
     const setBirthDate = useStore(state => state.setBirthDate);
@@ -38,6 +39,7 @@ const UserSignUpForm = () => {
       if (!date) errors.date = "Date is required";
       if (!time) errors.time = "Time is required";
       if (!lat || !lon) errors.location = "Location is required";
+      if (!gender) errors.gender = "Gender/Sex is required";
       return errors;
     };
   
@@ -58,11 +60,12 @@ const UserSignUpForm = () => {
       time,
       lat,
       lon,
-      placeOfBirth
+      placeOfBirth,
+      gender
     };
 
     setUserData(userData);
-    navigate('/confirmation');
+    navigate('/signUpConfirmation');
   
       setRawBirthData({});
       setBirthDate('');
@@ -202,6 +205,7 @@ const UserSignUpForm = () => {
               }}
               apiKey={GOOGLE_API}
               onPlaceSelected={(place) => {
+                console.log("place: ", place)
                 var lat = place.geometry.location.lat();
                 var lon = place.geometry.location.lng();
                 console.log(lat + "lat" + lon + "lon");
@@ -233,6 +237,29 @@ const UserSignUpForm = () => {
               style={inputStyle}
               // className="input-dark-placeholder"
             />
+          </div>
+
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>My gender/sex is</label>
+            <select
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              style={{
+                ...inputStyle,
+                width: '140px',
+                backgroundColor: 'transparent',
+                color: '#5116b5',
+                border: '1px solid white',
+                padding: '5px',
+                borderRadius: '3px',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="">Select...</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="nonbinary">Non-binary</option>
+            </select>
           </div>
 
           <div style={formGroupStyle}>

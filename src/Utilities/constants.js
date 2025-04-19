@@ -441,6 +441,8 @@ export const transitCodes = {
     ATTRACTION_CHEMISTRY: "Attraction & Chemistry",
     EMOTIONAL_SECURITY_CONNECTION: "Emotional Security and Connection",
     SEXUAL_NATURE: "Sexual Nature and Intimacy",
+    COMMUNICATION_STYLE: "Communication Style and Learning Styles",
+    MENTAL_CONNECTION: "Mental Connection and Intellectual Compatibility",
     COMMITMENT_LONG_TERM_POTENTIAL: "Commitment Approach and Long-term potential",
     RELATIONSHIP_CHALLENGES: "Challenges and Growth in Relationships",
     SHARED_GOALS_VALUES: "Shared Goals and Values",

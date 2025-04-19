@@ -67,7 +67,7 @@ function CompositesTable({ onCompositeChartSelect }) {
 
   return (
     <div className="user-table-container">
-      <h2 style={{ color: 'grey' }}>Relationship List</h2>
+      <h2 style={{ color: 'grey' }}>User List</h2>
       <div className="user-table-scroll">
         <table className="user-table">
           <thead>

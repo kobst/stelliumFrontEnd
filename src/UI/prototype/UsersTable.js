@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import './UsersTable.css';
 import { fetchUsers, postPeriodTransit } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
 import { 
@@ -172,28 +172,30 @@ function UsersTable({ onUserSelect }) {
         <table className="user-table">
           <thead>
             <tr>
-            <th style={{ color: 'orange' }}>First Name</th>
-            <th style={{ color: 'orange' }}>Last Name</th>
-            <th style={{ color: 'orange' }}>Email</th>
-            <th style={{ color: 'orange' }}>Date of Birth</th>
+              <th style={{ color: 'orange' }}>First Name</th>
+              <th style={{ color: 'orange' }}>Last Name</th>
+              <th style={{ color: 'orange' }}>Email</th>
+              <th style={{ color: 'orange' }}>Date of Birth</th>
             </tr>
           </thead>
           <tbody>
-          {users.map((user) => (
+            {users.map((user) => (
               <tr
                 key={user._id}
                 onClick={() => handleUserSelect(user)}
-                className={selectedUser && selectedUser._id === user._id ? 'selected' : ''}
+                className={selectedUser && selectedUser._id === user._id ? 'selected-row' : ''}
                 style={{ 
-                  color: selectedUser && selectedUser._id === user._id ? 'purple' : 'white'
+                  cursor: 'pointer',
+                  backgroundColor: selectedUser && selectedUser._id === user._id ? 'rgba(128, 0, 128, 0.3)' : 'transparent',
+                  transition: 'background-color 0.2s ease'
                 }}
-            >
+              >
                 <td>{user.firstName}</td>
                 <td>{user.lastName}</td>
                 <td>{user.email}</td>
                 <td>{user.dateOfBirth}</td>
               </tr>
-        ))}
+            ))}
           </tbody>
         </table>
       </div>

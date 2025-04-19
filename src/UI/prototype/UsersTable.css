@@ -1,0 +1,21 @@
+.user-table tr {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.user-table tr:hover {
+  background-color: rgba(128, 0, 128, 0.1);
+}
+
+.user-table tr.selected-row {
+  background-color: rgba(128, 0, 128, 0.3);
+}
+
+.user-table tr.selected-row:hover {
+  background-color: rgba(128, 0, 128, 0.4);
+}
+
+.user-table td {
+  padding: 12px;
+  color: white;
+} 

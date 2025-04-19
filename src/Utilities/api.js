@@ -349,6 +349,33 @@ export const postBirthData = async (birthData) => {
   }
 };
 
+
+// create user profile
+export const postUserProfile = async (birthData) => {
+  try {
+    console.log(`${SERVER_URL}/createUser`)
+    const response = await fetch(`${SERVER_URL}/createUser`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(birthData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    // console.log(responseData)
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+};
+
+
 // Function to post birth data
 export const postProgressedChart = async (birthData) => {
   try {
@@ -907,6 +934,35 @@ export const handleUserInput = async (userId, query) => {
   }
 }
 
+
+export const postCreateRelationshipProfile = async (userA, userB) => {
+  console.log("userA")
+  console.log(userA)
+  console.log("userB")
+  console.log(userB)
+  try {
+    const response = await fetch(`${SERVER_URL}/createRelationship`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({userA, userB})
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+
+
+
+
 export const postSynastryAspects = async (birthData_1, birthData_2) => {
   console.log("birthData_1")
   console.log(birthData_1)
@@ -1049,6 +1105,24 @@ export const saveCompositeChartInterpretation = async (compositeChartId, heading
   }
 }
 
+export const saveSynastryChartInterpretation = async (compositeChartId, heading, promptDescription, interpretation) => {
+  console.log("heading synastry: ", heading)
+  console.log("promptDescription synastry: ", promptDescription)
+  console.log("interpretation synastry: ", interpretation)
+  try {
+    const response = await fetch(`${SERVER_URL}/saveSynastryChartInterpretation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({compositeChartId, heading, promptDescription, interpretation})
+    });
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
 export const getCompositeChartInterpretation = async (compositeChartId) => {
   console.log("compositeChartId: ", compositeChartId)
   try {
@@ -1072,6 +1146,58 @@ export const getSynastryInterpretation = async (compositeChartId) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({compositeChartId})
+    });
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const getRelationshipScore = async (synastryAspects, compositeChart, userA, userB, compositeChartId) => {
+  try {
+    console.log("Calling getRelationshipScore API");
+    console.log("synastryAspects: ", synastryAspects)
+    console.log("compositeChart: ", compositeChart)
+    console.log("birthChart1: ", userA.birthChart)
+    console.log("birthChart2: ", userB.birthChart)
+    const response = await fetch(`${SERVER_URL}/getRelationshipScore`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        synastryAspects,
+        compositeChart,
+        userA,
+        userB, 
+        compositeChartId
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const relationshipScore = await response.json();
+    console.log("Relationship score received:", relationshipScore);
+    return relationshipScore;
+  } catch (error) {
+    console.error('Error getting relationship score:', error);
+    throw error;
+  }
+};
+
+
+export const getShortOverview = async (birthData) => {
+
+  console.log("birthchart: ", birthData)
+  try {
+    const response = await fetch(`${SERVER_URL}/getShortOverview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({birthData})
     });
     const responseData = await response.json();
     return responseData;

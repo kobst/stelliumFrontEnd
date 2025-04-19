@@ -1,8 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import TabbedBigFourMenu from '../UI/birthChart/TabbedBigFourComponent';
-import UserChat from '../UI/prototype/UserChat';
-import UserHoroscopeContainer from '../UI/prototype/UserHoroscopeContainer';
-import WeeklyTransitDescriptions from '../UI/prototype/WeeklyTransitDescriptions';
 import useStore from '../Utilities/store';
 import { heading_map, planetCodes } from '../Utilities/constants';
 import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
@@ -35,40 +31,27 @@ import {
 import { handleFetchDailyTransits, handleFetchRetrogradeTransits } from '../Utilities/generateUserTranstiDescriptions';
 import { addAspectDescriptionComputed, describePlanets, getSynastryAspectDescription, findHouseSynastry } from '../Utilities/generateBirthDataDescriptions'
 
-function CompositeDashboard({}) {
+function CompositeDashboard_v2({}) {
   
-  const [isDataPopulated, setIsDataPopulated] = useState(false);
-  const [dailyTransits, setDailyTransits] = useState([]);
-  const [retrogradeTransits, setRetrogradeTransits] = useState([]);
-  const [compositeChartDescription, setCompositeChartDescription] = useState([]);
-  const [compositeChartPlanetDescriptions, setCompositeChartPlanetDescriptions] = useState([]);
-  const [synastryAspectDescriptions, setSynastryAspectDescriptions] = useState([]);
-  const [synastryPlanetDescriptions, setSynastryPlanetDescriptions] = useState([]);
-  const [combinedDescriptions, setCombinedDescriptions] = useState([]);
-  const [synastryAspects, setSynastryAspects] = useState([]);
 
-  const compositeChart = useStore(state => state.compositeChart)
-  const [compositeChartHeadingInterpretationMap, setCompositeChartHeadingInterpretationMap] = useStore(state => [state.compositeChartHeadingInterpretationMap, state.setCompositeChartHeadingInterpretationMap]);
-  const [compositeChartPromptDescriptionsMap, setCompositeChartPromptDescriptionsMap] = useStore(state => [state.compositeChartPromptDescriptionsMap, state.setCompositeChartPromptDescriptionsMap]);
-  const [synastryPromptDescriptionsMap, setSynastryPromptDescriptionsMap] = useStore(state => [state.synastryPromptDescriptionsMap, state.setSynastryPromptDescriptionsMap]);
-  const [synastryHeadingInterpretationMap, setSynastryHeadingInterpretationMap] = useStore(state => [state.synastryHeadingInterpretationMap, state.setSynastryHeadingInterpretationMap]);
-
-  const [userA, setUserA] = useState(null);
-  const [userB, setUserB] = useState(null);
-
-//   const [combinedDescriptions, setCombinedDescriptions] = useState([]);
-
-//   useEffect(() => {
-
-//     if (compositeChartDescription && compositeChartPlanetDescriptions && compositeChartDescription.length > 0 && compositeChartPlanetDescriptions.length > 0) {
-//       console.log('compositeChartDescription')
-//       console.log(compositeChartDescription)
-//       const combinedDescriptions = compositeChartDescription.concat(compositeChartPlanetDescriptions)
-//       console.log('combinedDescriptions')
-//       console.log(combinedDescriptions)
-//       setCombinedDescriptions(combinedDescriptions)
-//     }
-//   }, [compositeChartDescription, compositeChartPlanetDescriptions]);
+    const [isDataPopulated, setIsDataPopulated] = useState(false);
+    const [dailyTransits, setDailyTransits] = useState([]);
+    const [retrogradeTransits, setRetrogradeTransits] = useState([]);
+    const [compositeChartDescription, setCompositeChartDescription] = useState([]);
+    const [compositeChartPlanetDescriptions, setCompositeChartPlanetDescriptions] = useState([]);
+    const [synastryAspectDescriptions, setSynastryAspectDescriptions] = useState([]);
+    const [synastryPlanetDescriptions, setSynastryPlanetDescriptions] = useState([]);
+    const [combinedDescriptions, setCombinedDescriptions] = useState([]);
+    const [synastryAspects, setSynastryAspects] = useState([]);
+  
+    const compositeChart = useStore(state => state.compositeChart)
+    const [compositeChartHeadingInterpretationMap, setCompositeChartHeadingInterpretationMap] = useStore(state => [state.compositeChartHeadingInterpretationMap, state.setCompositeChartHeadingInterpretationMap]);
+    const [compositeChartPromptDescriptionsMap, setCompositeChartPromptDescriptionsMap] = useStore(state => [state.compositeChartPromptDescriptionsMap, state.setCompositeChartPromptDescriptionsMap]);
+    const [synastryPromptDescriptionsMap, setSynastryPromptDescriptionsMap] = useStore(state => [state.synastryPromptDescriptionsMap, state.setSynastryPromptDescriptionsMap]);
+    const [synastryHeadingInterpretationMap, setSynastryHeadingInterpretationMap] = useStore(state => [state.synastryHeadingInterpretationMap, state.setSynastryHeadingInterpretationMap]);
+  
+    const [userA, setUserA] = useState(null);
+    const [userB, setUserB] = useState(null);
 
 useEffect(() => {
     const getCompositeChartProfile = async (compositeChart) => {
@@ -77,19 +60,19 @@ useEffect(() => {
             const userB = await fetchUser(compositeChart.userB_id)
             console.log("userA fetched", userA)
             console.log("userB fetched", userB)
-            const compositeChartDescription = await generateCompositeChartDescription(compositeChart.compositeBirthChart)
-            const compositeChartPlanetDescriptions = await generateCompositeChartPlanetDescriptions(compositeChart.compositeBirthChart)
+            const compositeChartDescription = await generateCompositeChartDescription(compositeChart.compositeChart)
+            const compositeChartPlanetDescriptions = await generateCompositeChartPlanetDescriptions(compositeChart.compositeChart)
             setCompositeChartDescription(compositeChartDescription)
             setCompositeChartPlanetDescriptions(compositeChartPlanetDescriptions)
             setCombinedDescriptions(compositeChartDescription.concat(compositeChartPlanetDescriptions))
-            fetchCompositeChartInterpretation(compositeChart._id, compositeChartDescription, compositeChartPlanetDescriptions)
+            // fetchCompositeChartInterpretation(compositeChart._id, compositeChartDescription, compositeChartPlanetDescriptions)
             setSynastryAspects(compositeChart.synastryAspects)
             setUserA(userA)
             setUserB(userB)
             const synastryDescriptions= await generateSynastryChartDescription(compositeChart.synastryAspects, userA.birthChart, userB.birthChart, userA.firstName, userB.firstName)
             setSynastryAspectDescriptions(synastryDescriptions.synastryAspectDescriptions)
             setSynastryPlanetDescriptions(synastryDescriptions.synastryPlanetDescriptions)
-            fetchSynastryInterpretation(compositeChart._id, synastryDescriptions.synastryAspectDescriptions, synastryDescriptions.synastryPlanetDescriptions)
+            // fetchSynastryInterpretation(compositeChart._id, synastryDescriptions.synastryAspectDescriptions, synastryDescriptions.synastryPlanetDescriptions)
         }
     }
     getCompositeChartProfile(compositeChart)
@@ -177,7 +160,7 @@ const generateCompositeChartPlanetDescriptions = async (compositeChart) => {
 
 
 
-  const fetchCompositeChartInterpretation = async (compositeChartId, compositeChartDescription, compositeChartPlanetDescriptions) => {
+const fetchCompositeChartInterpretation = async (compositeChartId, compositeChartDescription, compositeChartPlanetDescriptions) => {
     const combinedDescriptions = compositeChartDescription.concat(compositeChartPlanetDescriptions)
     try {
         // need to add this api
@@ -223,15 +206,11 @@ const generateCompositeChartPlanetDescriptions = async (compositeChart) => {
             setCompositeChartPromptDescriptionsMap(planet, planetData.promptDescription || '');
           } else {
             // Generate the prompt description if not available in the fetched interpretation
-            const planetPromptDescription = generatePlanetPromptDescription(planet, compositeChart.compositeBirthChart.planets, compositeChart.compositeBirthChart.houses, compositeChart.compositeBirthChart.aspects);
+            const planetPromptDescription = generatePlanetPromptDescription(planet, compositeChart.compositeChart.planets, compositeChart.compositeChart.houses, compositeChart.compositeChart.aspects);
             console.log("planetPromptDescription for composite chart: ", planetPromptDescription)
             setCompositeChartPromptDescriptionsMap(planet, planetPromptDescription.join('\n'));
           }
         }
-
-
-
-
 
       }
   
@@ -322,7 +301,7 @@ const generateCompositeChartPlanetDescriptions = async (compositeChart) => {
 
   const generateCompatabilityScore = async () => {
     if (synastryAspects.length > 0 && compositeChart && compositeChartDescription && compositeChartPlanetDescriptions && userA && userB) {
-      const compatabilityScore = await getRelationshipScore(synastryAspects, compositeChart.compositeBirthChart.aspects, userA.birthChart, userB.birthChart);
+      const compatabilityScore = await getRelationshipScore(synastryAspects, compositeChart.compositeChart, userA, userB, compositeChart._id);
       console.log("compatabilityScore: ", compatabilityScore)
     } else {
       console.log("Not enough data to generate compatability score")
@@ -338,14 +317,20 @@ return (
           <>
             <h2 className="logotxt">User A: {userA.firstName} {userA.lastName}</h2>
             <h2 className="logotxt">User B: {userB.firstName} {userB.lastName}</h2>
+            <button onClick={() => {
+              generateCompatabilityScore()
+            }}>
+              Generate Compatability Score
+            </button>
           </>
+          
         )}
         
         {userA && userB && synastryAspects.length > 0 && compositeChart && compositeChartDescription && compositeChartPlanetDescriptions && (
           <SynastryBirthChartComparison 
             birthChartA={userA.birthChart} 
             birthChartB={userB.birthChart} 
-            compositeChart={compositeChart.compositeBirthChart} 
+            compositeChart={compositeChart.compositeChart} 
             userAName={userA.firstName} 
             userBName={userB.firstName} 
             compositeChartDescription={compositeChartDescription}
@@ -407,111 +392,9 @@ return (
             </div>
           </div>
         )}
-        
-        <div className="composite-chart-interpretation"> 
-          <h3>Composite Chart Interpretation</h3>
-          {Object.keys(compositeChartHeadingInterpretationMap).length > 0 && Object.keys(compositeChartPromptDescriptionsMap).length > 0 ? (
-            <table className="composite-chart-interpretation-table">
-              <thead>
-                <tr>
-                  <th>Heading</th>
-                  <th>Prompt Description</th>
-                  <th>Interpretation</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(compositeChartPromptDescriptionsMap).map(([heading, promptDescription], index) => (
-                  <tr key={index}>
-                    <td>{heading}</td>
-                    <td>{promptDescription}</td>
-                    <td>{compositeChartHeadingInterpretationMap[heading] ? compositeChartHeadingInterpretationMap[heading] : ''}</td>
-                    <td>
-                      <button 
-                        onClick={() => generateInterpretationComposite(heading, promptDescription)}
-                        disabled={compositeChartHeadingInterpretationMap[heading]}
-                      >
-                        {compositeChartHeadingInterpretationMap[heading] ? 'Generated' : 'Generate Interpretation'}
-                      </button>
-                      <button 
-                        onClick={() => saveCompositeInterpretation(heading, promptDescription, compositeChartHeadingInterpretationMap[heading])}
-                        disabled={!compositeChartHeadingInterpretationMap[heading]}
-                      >
-                        Save Interpretation
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>Loading...</p>
-          )}
-        </div>
-
-
-
-          {synastryAspectDescriptions && synastryPlanetDescriptions && (
-            <div className="synastry-chart-interpretation">
-              <h3>Synastry Aspect Interpretation</h3>
-              {synastryAspectDescriptions.map((description, index) => (
-                <p key={index}>{description}</p>
-              ))}
-            </div>
-          )}
-
-          {synastryPlanetDescriptions && (
-            <div className="synastry-chart-interpretation">
-              <h3>Synastry Planet Descriptions</h3>
-              {synastryPlanetDescriptions.map((description, index) => (
-                <p key={index}>{description}</p>
-              ))}
-            </div>
-          )}
-
-          <div className="synastry-chart-interpretation"> 
-            <h3>Synastry Chart Interpretation</h3>
-            {Object.keys(synastryHeadingInterpretationMap).length > 0 && Object.keys(synastryPromptDescriptionsMap).length > 0 ? (
-                <table className="synastry-chart-interpretation-table">
-                    <thead>
-                        <tr>
-                            <th>Heading</th>
-                            <th>Prompt Description</th>
-                            <th>Interpretation</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {Object.entries(synastryPromptDescriptionsMap).map(([heading, promptDescription], index) => (
-                            <tr key={index}>
-                                <td>{heading}</td>
-                                <td>{promptDescription}</td>
-                                <td>{synastryHeadingInterpretationMap[heading] ? synastryHeadingInterpretationMap[heading] : ''}</td>
-                                <td>
-                                    <button 
-                                        onClick={() => generateSynastryInterpretation(heading, promptDescription)}
-                                        disabled={synastryHeadingInterpretationMap[heading]}
-                                    >
-                                        {synastryHeadingInterpretationMap[heading] ? 'Generated' : 'Generate Interpretation'}
-                                    </button>
-                                    <button 
-                                        onClick={() => saveSynastryInterpretation(heading, promptDescription, synastryHeadingInterpretationMap[heading])}
-                                        disabled={!synastryHeadingInterpretationMap[heading]}
-                                    >
-                                        Save Interpretation
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            ) : (
-                <p>Loading...</p>
-            )}
-        </div>
       </div>
     </div>
   )
 }
 
-export default CompositeDashboard;
+export default CompositeDashboard_v2;

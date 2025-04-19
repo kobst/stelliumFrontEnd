@@ -1,4 +1,3 @@
-
 .input-dark-placeholder::placeholder {
     color: #5116b5; 
     opacity: 1; /* Firefox */
@@ -11,4 +10,24 @@
   .input-dark-placeholder::-ms-input-placeholder {
     color: #5116b5; /* Microsoft Edge */
   }
+  
+.gender-options {
+  display: flex;
+  gap: 8px;
+}
+
+.gender-option {
+  display: flex;
+  align-items: center;
+  color: white;
+  cursor: pointer;
+}
+
+.gender-option input {
+  margin-right: 5px;
+}
+
+.gender-option span {
+  color: white;
+}
   

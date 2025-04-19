@@ -1,8 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import TabbedBigFourMenu from '../UI/birthChart/TabbedBigFourComponent';
-import UserChat from '../UI/prototype/UserChat';
-import UserHoroscopeContainer from '../UI/prototype/UserHoroscopeContainer';
-import WeeklyTransitDescriptions from '../UI/prototype/WeeklyTransitDescriptions';
 import useStore from '../Utilities/store';
 import { heading_map, planetCodes } from '../Utilities/constants';
 import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
@@ -35,7 +31,7 @@ import {
 import { handleFetchDailyTransits, handleFetchRetrogradeTransits } from '../Utilities/generateUserTranstiDescriptions';
 import { addAspectDescriptionComputed, describePlanets, getSynastryAspectDescription, findHouseSynastry } from '../Utilities/generateBirthDataDescriptions'
 
-function CompositeDashboard({}) {
+function CompositeDashboard_v2({}) {
   
   const [isDataPopulated, setIsDataPopulated] = useState(false);
   const [dailyTransits, setDailyTransits] = useState([]);
@@ -72,7 +68,9 @@ function CompositeDashboard({}) {
 
 useEffect(() => {
     const getCompositeChartProfile = async (compositeChart) => {
+        console.log("compositeChart", compositeChart._id)
         if (compositeChart.userA_id && compositeChart.userB_id && compositeChart._id) {
+
             const userA = await fetchUser(compositeChart.userA_id)
             const userB = await fetchUser(compositeChart.userB_id)
             console.log("userA fetched", userA)
@@ -82,14 +80,14 @@ useEffect(() => {
             setCompositeChartDescription(compositeChartDescription)
             setCompositeChartPlanetDescriptions(compositeChartPlanetDescriptions)
             setCombinedDescriptions(compositeChartDescription.concat(compositeChartPlanetDescriptions))
-            fetchCompositeChartInterpretation(compositeChart._id, compositeChartDescription, compositeChartPlanetDescriptions)
+            // fetchCompositeChartInterpretation(compositeChart._id, compositeChartDescription, compositeChartPlanetDescriptions)
             setSynastryAspects(compositeChart.synastryAspects)
             setUserA(userA)
             setUserB(userB)
             const synastryDescriptions= await generateSynastryChartDescription(compositeChart.synastryAspects, userA.birthChart, userB.birthChart, userA.firstName, userB.firstName)
             setSynastryAspectDescriptions(synastryDescriptions.synastryAspectDescriptions)
             setSynastryPlanetDescriptions(synastryDescriptions.synastryPlanetDescriptions)
-            fetchSynastryInterpretation(compositeChart._id, synastryDescriptions.synastryAspectDescriptions, synastryDescriptions.synastryPlanetDescriptions)
+            // fetchSynastryInterpretation(compositeChart._id, synastryDescriptions.synastryAspectDescriptions, synastryDescriptions.synastryPlanetDescriptions)
         }
     }
     getCompositeChartProfile(compositeChart)
@@ -177,7 +175,7 @@ const generateCompositeChartPlanetDescriptions = async (compositeChart) => {
 
 
 
-  const fetchCompositeChartInterpretation = async (compositeChartId, compositeChartDescription, compositeChartPlanetDescriptions) => {
+const fetchCompositeChartInterpretation = async (compositeChartId, compositeChartDescription, compositeChartPlanetDescriptions) => {
     const combinedDescriptions = compositeChartDescription.concat(compositeChartPlanetDescriptions)
     try {
         // need to add this api
@@ -228,10 +226,6 @@ const generateCompositeChartPlanetDescriptions = async (compositeChart) => {
             setCompositeChartPromptDescriptionsMap(planet, planetPromptDescription.join('\n'));
           }
         }
-
-
-
-
 
       }
   
@@ -322,7 +316,7 @@ const generateCompositeChartPlanetDescriptions = async (compositeChart) => {
 
   const generateCompatabilityScore = async () => {
     if (synastryAspects.length > 0 && compositeChart && compositeChartDescription && compositeChartPlanetDescriptions && userA && userB) {
-      const compatabilityScore = await getRelationshipScore(synastryAspects, compositeChart.compositeBirthChart.aspects, userA.birthChart, userB.birthChart);
+      const compatabilityScore = await getRelationshipScore(synastryAspects, compositeChart.compositeBirthChart, userA, userB, compositeChart._id);
       console.log("compatabilityScore: ", compatabilityScore)
     } else {
       console.log("Not enough data to generate compatability score")
@@ -407,7 +401,7 @@ return (
             </div>
           </div>
         )}
-        
+{/*         
         <div className="composite-chart-interpretation"> 
           <h3>Composite Chart Interpretation</h3>
           {Object.keys(compositeChartHeadingInterpretationMap).length > 0 && Object.keys(compositeChartPromptDescriptionsMap).length > 0 ? (
@@ -447,11 +441,11 @@ return (
           ) : (
             <p>Loading...</p>
           )}
-        </div>
+        </div> */}
 
 
 
-          {synastryAspectDescriptions && synastryPlanetDescriptions && (
+          {/* {synastryAspectDescriptions && synastryPlanetDescriptions && (
             <div className="synastry-chart-interpretation">
               <h3>Synastry Aspect Interpretation</h3>
               {synastryAspectDescriptions.map((description, index) => (
@@ -467,9 +461,9 @@ return (
                 <p key={index}>{description}</p>
               ))}
             </div>
-          )}
+          )} */}
 
-          <div className="synastry-chart-interpretation"> 
+          {/* <div className="synastry-chart-interpretation"> 
             <h3>Synastry Chart Interpretation</h3>
             {Object.keys(synastryHeadingInterpretationMap).length > 0 && Object.keys(synastryPromptDescriptionsMap).length > 0 ? (
                 <table className="synastry-chart-interpretation-table">
@@ -508,10 +502,10 @@ return (
             ) : (
                 <p>Loading...</p>
             )}
-        </div>
+        </div> */}
       </div>
     </div>
   )
 }
 
-export default CompositeDashboard;
+export default CompositeDashboard_v2;

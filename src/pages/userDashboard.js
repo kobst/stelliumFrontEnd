@@ -15,6 +15,7 @@ import {
 import StatusList from '../UI/prototype/StatusList';
 import {
   fetchBirthChartInterpretation,
+  getShortOverview,
   postPromptGeneration } from '../Utilities/api';
 import { handleFetchDailyTransits, handleFetchRetrogradeTransits } from '../Utilities/generateUserTranstiDescriptions';
 
@@ -31,7 +32,6 @@ function UserDashboard() {
   const userPeriodTransits = useStore(state => state.userPeriodTransits);
   const userPeriodHouseTransits = useStore(state => state.userPeriodHouseTransits);
 
-  const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
   const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
   const setDailyTransits = useStore(state => state.setDailyTransits)
   const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
@@ -40,6 +40,7 @@ function UserDashboard() {
   const headingInterpretationMap = useStore(state => state.headingInterpretationMap)
   const isTransitsPopulated = userPeriodTransits.length > 1
 
+  const [shortOverview, setShortOverview] = useState('');
 
   const [isDataPopulated, setIsDataPopulated] = useState(false);
 
@@ -47,8 +48,11 @@ function UserDashboard() {
     if (userId) {
       console.log('userId')
       console.log(userId)
-      fetchUserBirthChartInterpretation(userId)
+      if (userAspects.length !== 0 || userHouses.length !== 0 || userPlanets.length !== 0) {
+      // fetchUserBirtishChartInterpretation(userId)
       // generateDescriptions();
+      setIsDataPopulated(true);
+      }
     }
   }, [userId]);
 
@@ -76,6 +80,18 @@ function UserDashboard() {
     getRetrogradeTransits()
   }, [])
 
+
+  const generateShortOverview = async () => {
+    const birthData = { planets: userPlanets, houses: userHouses, aspects: userAspects };
+    const responseObject = await getShortOverview(birthData);
+    console.log("Response object:", responseObject)
+    // Check if responseObject is an object with a response property
+    if (responseObject && typeof responseObject === 'object' && responseObject.response) {
+        setShortOverview(responseObject.response) // Set just the response string
+    } else {
+        setShortOverview(String(responseObject)) // Convert to string as fallback
+    }
+  };
 
   const fetchUserBirthChartInterpretation = async (userId) => {
     try {
@@ -174,16 +190,20 @@ function UserDashboard() {
 
   return (
     <div className="user-prototype-page">
-      <UserHoroscopeContainer
-        selectedUser={selectedUser}
-        isDataPopulated={isDataPopulated}
-        userPlanets={userPlanets}
-        userHouses={userHouses}
-        userAspects={userAspects}
-        dailyTransits={dailyTransits}
-      />
+   
+        <UserHoroscopeContainer
+          selectedUser={selectedUser}
+          isDataPopulated={isDataPopulated}
+          userPlanets={userPlanets}
+          userHouses={userHouses}
+          userAspects={userAspects}
+          dailyTransits={dailyTransits}
+        />
 
-      <WeeklyTransitDescriptions
+      <button onClick={generateShortOverview}>Generate Short Overview</button>
+      <p>{shortOverview}</p>
+
+      {/* <WeeklyTransitDescriptions
         userPeriodTransits={userPeriodTransits}
         userPeriodHouseTransits={userPeriodHouseTransits}
         userPlanets={userPlanets}
@@ -199,7 +219,7 @@ function UserDashboard() {
       <div>
         <StatusList />
         <TabbedBigFourMenu /> 
-      </div>
+      </div> */}
     </div>
   );
 }

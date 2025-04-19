@@ -104,18 +104,20 @@ export function findAspectsNonComputed(birthData, planet = null) {
 }
   
 export function addAspectDescriptionComputed(aspect, birthData) {
-    const transitingPlanetData = birthData.planets.find(p => p.name === aspect.transitingPlanet);
-    const aspectingPlanetData = birthData.planets.find(p => p.name === aspect.aspectingPlanet);
+    const transitingPlanetData = birthData.planets.find(p => p.name === aspect.aspectingPlanet);
+    const aspectingPlanetData = birthData.planets.find(p => p.name === aspect.aspectedPlanet);
 
     if (!transitingPlanetData || !aspectingPlanetData) {
-        console.error(`Could not find planet data for ${aspect.transitingPlanet} or ${aspect.aspectingPlanet}`);
+        console.error(`Could not find planet data for ${aspect.aspectingPlanet} or ${aspect.aspectedPlanet}`);
         return '';
     }
+    console.log("transitingPlanetData", JSON.stringify(transitingPlanetData))
+    console.log("aspectingPlanetData", JSON.stringify(aspectingPlanetData))
 
     const orbDesc = orbDescription(aspect.orb);
     const aspectTypeFormatted = aspect.aspectType.charAt(0).toUpperCase() + aspect.aspectType.slice(1);
 
-    const description = `${aspect.transitingPlanet} in ${transitingPlanetData.sign} in the ${transitingPlanetData.house} house ${orbDesc} ${aspectTypeFormatted} ${aspect.aspectingPlanet} in ${aspectingPlanetData.sign} in the ${aspectingPlanetData.house} house`;
+    const description = `${aspect.aspectingPlanet} in ${transitingPlanetData.sign} in the ${transitingPlanetData.house} house ${orbDesc} ${aspectTypeFormatted} ${aspect.aspectedPlanet} in ${aspectingPlanetData.sign} in the ${aspectingPlanetData.house} house`;
 
     const transitingPlanetCode = planetCodes[aspect.transitingPlanet];
     const aspectingPlanetCode = planetCodes[aspect.aspectingPlanet];
@@ -159,7 +161,6 @@ export const generatePlanetPromptDescription = (planet, userPlanets, userHouses,
 
 
 export const getSynastryAspectDescription = (aspect, birthchartA, birthchartB, userAName, userBName) => {
-  
   const getPlanetObject = (planetName, userPlanets) => {
     return userPlanets.find(planet => planet.name === planetName);
   };
@@ -176,19 +177,53 @@ export const getSynastryAspectDescription = (aspect, birthchartA, birthchartB, u
   const planet1Retro = planet1Object.is_retro === 'true' ? 'retrograde ' : '';
   const planet2Retro = planet2Object.is_retro === 'true' ? 'retrograde ' : '';
 
-  return `${userAName}'s ${planet1Retro}${planet1} in ${planet1Object.sign} in their ${planet1Object.house}th house is ${aspectType} ${userBName}'s ${planet2Retro}${planet2} in ${planet2Object.sign} in their ${planet2Object.house}th house with an orb of ${orb} degrees`;
+  const description = `${userAName}'s ${planet1Retro}${planet1} in ${planet1Object.sign} in their ${planet1Object.house}th house is ${aspectType} ${userBName}'s ${planet2Retro}${planet2} in ${planet2Object.sign} in their ${planet2Object.house}th house with an orb of ${orb} degrees`;
+
+  // Generate code similar to addAspectDescriptionComputed
+  const planet1Code = planetCodes[planet1];
+  const planet2Code = planetCodes[planet2];
+  const sign1Code = signCodes[planet1Object.sign];
+  const sign2Code = signCodes[planet2Object.sign];
+  const house1Code = planet1Object.house.toString().padStart(2, '0');
+  const house2Code = planet2Object.house.toString().padStart(2, '0');
+  const aspectTypeCode = transitCodes[aspectType];
+  const orbCode = orbCodes[orbDescription(orb)];
+  const retro1Code = planet1Object.is_retro === 'true' ? 'R-' : 'P-';
+  const retro2Code = planet2Object.is_retro === 'true' ? 'R-' : 'P-';
+
+  const code = `Syn-${retro1Code}${planet1Code}${sign1Code}${house1Code}${orbCode}${aspectTypeCode}${retro2Code}${planet2Code}${sign2Code}${house2Code}`;
+
+  return `${description} (${code})`;
 };
 
 export const findHouseSynastry = (planetDegree, houses) => {
-  for (let i = 0; i < houses.length; i++) {
-    const currentHouse = houses[i];
-    const nextHouse = houses[(i + 1) % houses.length];
+  // Normalize the planet degree to be between 0 and 360
+  const normalizedDegree = ((planetDegree % 360) + 360) % 360;
+  
+  // Sort houses by degree to ensure proper order
+  const sortedHouses = [...houses].sort((a, b) => a.degree - b.degree);
+  
+  // Check if the planet is between the last house and the first house (wrapping around 360)
+  const lastHouse = sortedHouses[sortedHouses.length - 1];
+  const firstHouse = sortedHouses[0];
+  
+  if (normalizedDegree >= lastHouse.degree || normalizedDegree < firstHouse.degree) {
+    return lastHouse.house;
+  }
+  
+  // Check other houses normally
+  for (let i = 0; i < sortedHouses.length - 1; i++) {
+    const currentHouse = sortedHouses[i];
+    const nextHouse = sortedHouses[i + 1];
     
-    if (planetDegree >= currentHouse.degree && planetDegree < nextHouse.degree) {
+    if (normalizedDegree >= currentHouse.degree && normalizedDegree < nextHouse.degree) {
       return currentHouse.house;
     }
   }
-  return null;
+  
+  // Fallback (should not reach here if data is valid)
+  console.warn("Could not determine house for planet degree:", planetDegree, "Houses:", houses);
+  return 1; // Return 1st house as fallback instead of null
 };
 
 
