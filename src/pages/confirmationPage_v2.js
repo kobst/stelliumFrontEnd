@@ -4,11 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import useStore from '../Utilities/store';
 import Ephemeris from '../UI/shared/Ephemeris';
 import {checkResponseAgainstEverything, generateInterpretation} from '../Utilities/checkResponses'
-import { postBirthData,postPromptGPT, postGptResponse, createUserProfile, fetchTimeZone, postPromptGeneration, getShortOverview, postUserProfile} from '../Utilities/api';
+import { postBirthData,postPromptGPT, postGptResponse, createUserProfile, fetchTimeZone, postPromptGeneration, getShortOverview, postUserProfile, getPlanetOverview} from '../Utilities/api';
 import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
-
 
 const ConfirmationV2 = () => {
     const navigate = useNavigate();
@@ -35,7 +34,15 @@ const ConfirmationV2 = () => {
     const [randomHeading, setRandomHeading] = useState(null);
     const [sampleReading, setSampleReading] = useState(null);
     const [relevanceResponse, setRelevanceResponse] = useState(null);
-
+    const [sunOverview, setSunOverview] = useState(null);
+    const [moonOverview, setMoonOverview] = useState(null);
+    const [mercuryOverview, setMercuryOverview] = useState(null);
+    const [venusOverview, setVenusOverview] = useState(null);
+    const [marsOverview, setMarsOverview] = useState(null);
+    const [jupiterOverview, setJupiterOverview] = useState(null);
+    const [saturnOverview, setSaturnOverview] = useState(null);
+    const [uranusOverview, setUranusOverview] = useState(null);
+    const [neptuneOverview, setNeptuneOverview] = useState(null);
 
     const [modifiedUserAspects, setModifiedUserAspects] = useState([]);
     const [isDataComplete, setIsDataComplete] = useState(false);
@@ -140,23 +147,72 @@ const ConfirmationV2 = () => {
         }
     }
 
-
-
-    useEffect(() => {
-        const isDataComplete = 
-            userPlanets && 
-            userHouses && 
-            userAspects && 
-            Object.keys(userPlanets).length > 0 && 
-            Object.keys(userHouses).length > 0 && 
-            userAspects.length > 0;
-
-        if (isDataComplete) {
-            const birthData = { planets: userPlanets, houses: userHouses, aspects: userAspects };
-            generateShortOverview(birthData);
+    async function generateAllPlanetOverviews(birthData) {
+        for (const planet in userPlanets) {
+            generatePlanetOverview(planet.name, birthData)
         }
-    }, [userPlanets, userHouses, userAspects])
+    }
 
+
+    // Generate planet overview
+    async function generatePlanetOverview(planetName, birthData) {
+        console.log("planet: ", planetName)
+        try {
+            const response = await getPlanetOverview(planetName, birthData)
+            console.log("response", response)
+            if (response && typeof response === 'object' && response.response) {
+                if (planetName === "Sun") {
+                    setSunOverview(response)
+                }
+                if (planetName === "Moon") {
+                    setMoonOverview(response)
+                }
+                if (planetName === "Mercury") {
+                    setMercuryOverview(response)
+                }
+                if (planetName === "Venus") {
+                    setVenusOverview(response)
+                }
+                if (planetName === "Mars") {
+                    setMarsOverview(response)
+                }
+                if (planetName === "Jupiter") {
+                    setJupiterOverview(response)
+                }
+                if (planetName === "Saturn") {
+                    setSaturnOverview(response)
+                }
+                if (planetName === "Uranus") {
+                    setUranusOverview(response)
+                }
+                if (planetName === "Neptune") {
+                    setNeptuneOverview(response)
+                }
+            } else {
+                return String(response)
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // useEffect(() => {
+    //     const isDataComplete = 
+    //         userPlanets && 
+    //         userHouses && 
+    //         userAspects && 
+    //         Object.keys(userPlanets).length > 0 && 
+    //         Object.keys(userHouses).length > 0 && 
+    //         userAspects.length > 0;
+
+    //     if (isDataComplete) {
+    //         const birthData = { planets: userPlanets, houses: userHouses, aspects: userAspects };
+    //         generateShortOverview(birthData);
+    //         for (const planet in userPlanets) {
+    //             generatePlanetOverview(planet.name, birthData)
+    //         }
+    //     }
+    // }, [userPlanets, userHouses, userAspects])
 
 
 
@@ -198,6 +254,9 @@ const ConfirmationV2 = () => {
             <button onClick={() => navigate('/')}>Go Back</button>
             <button onClick={() => generateShortOverview({ planets: userPlanets, houses: userHouses, aspects: userAspects })}>
                 Generate Short Overview
+            </button>
+            <button onClick={() => generateAllPlanetOverviews({ planets: userPlanets, houses: userHouses, aspects: userAspects })}>
+                Generate Planets Overview
             </button>
             {sampleReading && (
                 <div>

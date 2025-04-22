@@ -1199,10 +1199,48 @@ export const getShortOverview = async (birthData) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({birthData})
     });
+    console.log("response", response)
     const responseData = await response.json();
     return responseData;
   } catch (error) {
     console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+
+export const getPlanetOverview = async (planetName, birthData) => {
+  console.log("Sending request with:", { planetName, birthData });
+  try {
+    const response = await fetch(`${SERVER_URL}/getShortOverviewPlanet`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({planetName, birthData})
+    });
+
+    // Check if the response is ok
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    // Log the raw response
+    const rawResponse = await response.text();
+    console.log("Raw response:", rawResponse);
+
+    // Try to parse the response as JSON
+    let responseData;
+    try {
+      responseData = JSON.parse(rawResponse);
+    } catch (parseError) {
+      console.error("Failed to parse JSON response:", parseError);
+      throw new Error("Invalid JSON response from server");
+    }
+
+    console.log("Parsed response data:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error in getPlanetOverview API call:', error);
     throw error;
   }
 }

@@ -16,6 +16,7 @@ import StatusList from '../UI/prototype/StatusList';
 import {
   fetchBirthChartInterpretation,
   getShortOverview,
+  getPlanetOverview,
   postPromptGeneration } from '../Utilities/api';
 import { handleFetchDailyTransits, handleFetchRetrogradeTransits } from '../Utilities/generateUserTranstiDescriptions';
 
@@ -43,6 +44,15 @@ function UserDashboard() {
   const [shortOverview, setShortOverview] = useState('');
 
   const [isDataPopulated, setIsDataPopulated] = useState(false);
+  const [sunOverview, setSunOverview] = useState('');
+  const [moonOverview, setMoonOverview] = useState('');
+  const [mercuryOverview, setMercuryOverview] = useState('');
+  const [venusOverview, setVenusOverview] = useState('');
+  const [marsOverview, setMarsOverview] = useState('');
+  const [jupiterOverview, setJupiterOverview] = useState('');
+  const [saturnOverview, setSaturnOverview] = useState('');
+  const [uranusOverview, setUranusOverview] = useState('');
+  const [neptuneOverview, setNeptuneOverview] = useState('');
 
   useEffect(() => {
     if (userId) {
@@ -92,6 +102,60 @@ function UserDashboard() {
         setShortOverview(String(responseObject)) // Convert to string as fallback
     }
   };
+
+const planetNames = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "ascendant"];
+
+async function generateAllPlanetOverviews() {
+  const birthData = { planets: userPlanets, houses: userHouses, aspects: userAspects };
+  console.log("birthData", birthData)
+  for (const planet of birthData.planets) {
+    if (planetNames.includes(planet.name)) {
+      generatePlanetOverview(planet.name, birthData)
+    }
+  }
+}
+
+// Generate planet overview
+async function generatePlanetOverview(planetName, birthData) {
+    console.log("planet: ", planetName)
+    try {
+        const response = await getPlanetOverview(planetName, birthData)
+        console.log("response", response)
+        if (response && typeof response === 'object' && response.response) {
+            if (planetName === "Sun") {
+                setSunOverview(response.response)
+            }
+            if (planetName === "Moon") {
+                setMoonOverview(response.response)
+            }
+            if (planetName === "Mercury") {
+                setMercuryOverview(response.response)
+            }
+            if (planetName === "Venus") {
+                setVenusOverview(response.response)
+            }
+            if (planetName === "Mars") {
+                setMarsOverview(response.response)
+            }
+            if (planetName === "Jupiter") {
+                setJupiterOverview(response.response)
+            }
+            if (planetName === "Saturn") {
+                setSaturnOverview(response.response)
+            }
+            if (planetName === "Uranus") {
+                setUranusOverview(response.response)
+            }
+            if (planetName === "Neptune") {
+                setNeptuneOverview(response.response)
+            }
+        } else {
+            return String(response)
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
 
   const fetchUserBirthChartInterpretation = async (userId) => {
     try {
@@ -202,7 +266,21 @@ function UserDashboard() {
 
       <button onClick={generateShortOverview}>Generate Short Overview</button>
       <p>{shortOverview}</p>
-
+      <button onClick={generateAllPlanetOverviews}>Generate All Planet Overviews</button>
+      <p>Sun Overview</p>
+      <p>{sunOverview}</p>
+      <p>Moon Overview</p>
+      <p>{moonOverview}</p>
+      <p>Mercury Overview</p>
+      <p>{mercuryOverview}</p>
+      <p>Venus Overview</p>
+      <p>{venusOverview}</p>
+      <p>Mars Overview</p>
+      <p>{marsOverview}</p>
+      <p>Jupiter Overview</p>
+      <p>{saturnOverview}</p>
+      <p>{uranusOverview}</p>
+      <p>{neptuneOverview}</p>
       {/* <WeeklyTransitDescriptions
         userPeriodTransits={userPeriodTransits}
         userPeriodHouseTransits={userPeriodHouseTransits}
