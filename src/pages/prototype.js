@@ -19,6 +19,9 @@ function PrototypePage() {
   const setUserPlanets = useStore(state => state.setUserPlanets);
   const setUserHouses = useStore(state => state.setUserHouses);
   const setUserAspects = useStore(state => state.setUserAspects);
+  const setUserBirthChart = useStore(state => state.setUserBirthChart);
+  // const setUserElements = useStore(state => state.setUserElements);
+  // const setUserModalities = useStore(state => state.setUserModalities);
   const userPlanets = useStore(state => state.userPlanets)
   const userHouses = useStore(state => state.userHouses)
   const userPeriodTransits = useStore(state => state.userPeriodTransits)
@@ -43,9 +46,12 @@ function PrototypePage() {
   const handleUserSelect = async (user) => {
     setSelectedUser(user);
     setUserId(user._id);
+    setUserBirthChart(user.birthChart);
     setUserPlanets(user.birthChart.planets );
     setUserHouses(user.birthChart.houses);
     setUserAspects(user.birthChart.aspects);
+    // setElements(user.birthChart.elements);
+    // setModalities(user.birthChart.modalities);
     // const startDate = new Date();
     // const endDate = new Date();
     // endDate.setDate(endDate.getDate() + 30);

@@ -52,30 +52,30 @@ function UsersTable({ onUserSelect }) {
       }
     }
 
-    async function getTodaysData() {
-      if (dailyTransits.length === 0) {
-        const currentDateISO = new Date().toISOString();
-        const cleanedTransits = await handleFetchDailyTransits(currentDateISO);
-        setDailyTransits(cleanedTransits)
-      }
-    }
+    // async function getTodaysData() {
+    //   if (dailyTransits.length === 0) {
+    //     const currentDateISO = new Date().toISOString();
+    //     const cleanedTransits = await handleFetchDailyTransits(currentDateISO);
+    //     setDailyTransits(cleanedTransits)
+    //   }
+    // }
 
-    async function getRetrogradeTransits() {
-        if (retrogradeTransits.length === 0) {
-        // set date range to 30 days from today
-        const startDate = new Date().toISOString();
-        const endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + 30);
-        const retrogradeTransits = await handleFetchRetrogradeTransits(startDate, endDate);
-        console.log("retrogradeTransits")
-        console.log(retrogradeTransits)
-        setRetrogradeTransits(retrogradeTransits)
-      }
-    }
+    // async function getRetrogradeTransits() {
+    //     if (retrogradeTransits.length === 0) {
+    //     // set date range to 30 days from today
+    //     const startDate = new Date().toISOString();
+    //     const endDate = new Date(startDate);
+    //     endDate.setDate(endDate.getDate() + 30);
+    //     const retrogradeTransits = await handleFetchRetrogradeTransits(startDate, endDate);
+    //     console.log("retrogradeTransits")
+    //     console.log(retrogradeTransits)
+    //     setRetrogradeTransits(retrogradeTransits)
+    //   }
+    // }
 
     loadUsers();
-    getTodaysData()
-    getRetrogradeTransits()
+    // getTodaysData()
+    // getRetrogradeTransits()
   }, []);
 
 

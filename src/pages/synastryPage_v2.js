@@ -15,6 +15,7 @@ function SynastryPage() {
   const [compositeChart, setCompositeChart] = useState(null);
   const [compositeChartDescription, setCompositeChartDescription] = useState([])
   const [compositeChartPlanetDescriptions, setCompositeChartPlanetDescriptions] = useState([])
+  const [success, setSuccess] = useState(false);
 
   const handleUserASelect = (user) => {
     console.log("userA", user)
@@ -27,6 +28,7 @@ function SynastryPage() {
   } 
 
   const createRelationshipProfile = async () => {
+    setSuccess(false)
     console.log("userA", userA)
     console.log("userB", userB)
     if (userA && userB) {
@@ -34,6 +36,10 @@ function SynastryPage() {
       console.log("userB", userB.firstName)
       const response = await postCreateRelationshipProfile(userA, userB)
       console.log("response", response)
+      // if response is successful, set the relationship profile to the response
+      if (response && response.relationshipProfile._id) {
+        setSuccess(true)
+      }
     }
   }
 
@@ -79,6 +85,9 @@ function SynastryPage() {
 
         {userA && userB && synastryAspects && compositeChart && (
         <button onClick={saveCompositeChartProfile}>Save Composite Chart Profile</button>
+        )}
+        {success && (
+        <p>Relationship profile created successfully</p>
         )}
         {/* {userA && userB && (
         <>

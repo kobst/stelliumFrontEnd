@@ -1244,3 +1244,68 @@ export const getPlanetOverview = async (planetName, birthData) => {
     throw error;
   }
 }
+
+export const getAllPlanetOverview = async (birthData) => {
+  console.log("Sending request with:", { birthData });
+  try {
+    const response = await fetch(`${SERVER_URL}/getShortOverviewAllPlanets`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({birthData})
+    });
+
+    // Check if the response is ok
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    // Log the raw response
+    const rawResponse = await response.text();
+    console.log("Raw response:", rawResponse);
+
+    // Try to parse the response as JSON
+    let responseData;
+    try {
+      responseData = JSON.parse(rawResponse);
+    } catch (parseError) {
+      console.error("Failed to parse JSON response:", parseError);
+      throw new Error("Invalid JSON response from server");
+    }
+
+    console.log("Parsed response data:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error in getPlanetOverview API call:', error);
+    throw error;
+  }
+}
+
+export const getFullBirthChartAnalysis = async (user) => {
+
+  console.log("user: ", user)
+  try {
+    const response = await fetch(`${SERVER_URL}/getBirthChartAnalysis`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({user})
+    });
+    console.log("response", response)
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const generateTopicAnalysis = async (user) => {
+  console.log("user: ", user)
+  const response = await fetch(`${SERVER_URL}/generateTopicAnalysis`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({user})
+  });
+  const responseData = await response.json();
+  return responseData;
+}

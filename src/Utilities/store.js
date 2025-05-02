@@ -20,6 +20,9 @@ const useStore = create(set => ({
   rawBirthData: {},
   setRawBirthData: (response) => set({ rawBirthData: response }),
 
+  userBirthChart: {},
+  setUserBirthChart: (response) => set({ userBirthChart: response }),
+
   userPlanets: [],
   setUserPlanets: (response) => set({ userPlanets: response }),
 
