@@ -128,6 +128,74 @@ export const rulers = {
   ]  
 
 
+
+export const BroadTopicsEnum = {
+  PERSONALITY_IDENTITY: {
+    label: "Self-Expression and Identity",
+    subtopics: {
+      PERSONAL_IDENTITY: "Personal_Identity_and_Self-Image",
+      OUTWARD_EXPRESSION: "Outward_Expression_and_Appearance",
+      INNER_EMOTIONAL_SELF: "Inner_Self_and_Emotional_Dynamics",
+      CHALLENGES_SELF_EXPRESSION: "Challenges_and_Growth_of_Self-Expression",
+      // PATH_INTEGRATION: "Path_of_Integration_of_Self",
+    }
+  },
+  
+  EMOTIONAL_FOUNDATIONS_HOME: {
+    label: "Emotional Foundations and Home Life",
+    subtopics: {
+      EMOTIONAL_FOUNDATIONS: "Emotional_Foundations_and_Security_Needs",
+      FAMILY_DYNAMICS: "Family_Dynamics_and_Past_Influences",
+      HOME_ENVIRONMENT: "Home_Environment_and_Preferences",
+      FAMILY_CHALLENGES: "Challenges_and_Growth_in_Family_Life",
+    }
+  },
+
+  RELATIONSHIPS_SOCIAL: {
+    label: "Relationships and Social Connections",
+    subtopics: {
+      RELATIONSHIP_DESIRES: "Core_Relationship_Desires_and_Boundaries",
+      LOVE_STYLE: "Love_Style_and_Expression",
+      SEXUAL_NATURE: "Sexual_Nature_and_Intimacy",
+      COMMITMENT_APPROACH: "Commitment_Approach_and_Long-Term_Vision",
+      RELATIONSHIP_CHALLENGES: "Challenges_and_Growth_in_Relationships",
+      // ROMANTIC_SUMMARY: "Romantic_Summary_and_Synthesis",
+    }
+  },
+
+  CAREER_PURPOSE_PUBLIC_IMAGE: {
+    label: "Career, Purpose, and Public Image",
+    subtopics: {
+      CAREER_MOTIVATIONS: "Career_Motivations_and_Aspirations",
+      PUBLIC_IMAGE: "Public_Image_Reputation_and_Leadership_Style",
+      CAREER_CHALLENGES: "Career_Challenges_and_Opportunities",
+      SKILLS_TALENTS: "Skills_Talents_and_Strengths",
+      // CAREER_SUMMARY: "Summary_of_Career_Path_and_Success",
+    }
+  },
+
+  UNCONSCIOUS_SPIRITUALITY: {
+    label: "Unconscious Drives and Spiritual Growth",
+    subtopics: {
+      PSYCHOLOGICAL_PATTERNS: "Deep_Psychological_Patterns_and_Shadow_Self",
+      SPIRITUAL_GROWTH: "Spiritual_Growth_and_Higher_Purpose",
+      KARMIC_LESSONS: "Karmic_Lessons_and_Past_Life_Themes",
+      TRANSFORMATIVE_EVENTS: "Transformative_Events_and_Rebirths",
+    }
+  },
+
+  COMMUNICATION_BELIEFS: {
+    label: "Communication, Learning, and Belief Systems",
+    subtopics: {
+      COMMUNICATION_STYLES: "Communication_and_Learning_Styles",
+      PHILOSOPHICAL_BELIEFS: "Philosophical_Beliefs_and_Personal_Worldview",
+      TRAVEL_EXPERIENCES: "Travel_and_Cross-Cultural_Experiences",
+      MENTAL_GROWTH_CHALLENGES: "Challenges_to_Mental_Growth_and_Adaptability",
+    }
+  },
+}
+
+
   export const HeadingEnum = {
     // Personality
     PERSONAL_IDENTITY: "Personal_Identity_and_Self-Image",

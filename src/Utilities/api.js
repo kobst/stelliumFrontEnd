@@ -1,5 +1,6 @@
-const SERVER_URL = process.env.REACT_APP_SERVER_URL;
+import { BroadTopicsEnum } from "./constants";
 
+const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 
 export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
   const apiKey = process.env.REACT_APP_GOOGLE_API_KEY; 
@@ -1299,13 +1300,217 @@ export const getFullBirthChartAnalysis = async (user) => {
   }
 }
 
-export const generateTopicAnalysis = async (user) => {
-  console.log("user: ", user)
-  const response = await fetch(`${SERVER_URL}/generateTopicAnalysis`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({user})
-  });
-  const responseData = await response.json();
-  return responseData;
+export const fetchAnalysis = async (userId) => {
+  console.log("userId: ", userId)
+  try {
+    const response = await fetch(`${SERVER_URL}/fetchAnalysis`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({userId})
+    });
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
 }
+
+export const generateTopicAnalysis = async (userId) => {
+  console.log("Starting topic analysis for user:", userId);
+  
+  try {
+    const topics = Object.entries(BroadTopicsEnum);
+    const results = {};
+
+    for (const [broadTopic, topicData] of topics) {
+      console.log(`Processing topic: ${broadTopic}`);
+      results[broadTopic] = {
+        label: topicData.label,
+        subtopics: {}
+      };
+
+      // Process each subtopic
+      for (const [subtopicKey, subtopicLabel] of Object.entries(topicData.subtopics)) {
+        console.log(`Processing subtopic: ${subtopicKey}`);
+        
+        const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            broadTopic,
+            subtopicKey,
+            subtopicLabel
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const result = await response.json();
+        
+        if (!result.success) {
+          throw new Error(result.error || `Subtopic analysis failed for ${subtopicLabel}`);
+        }
+
+        // Store result for this subtopic
+        results[broadTopic].subtopics[subtopicKey] = result.result;
+        console.log(`Completed subtopic: ${subtopicKey}`);
+      }
+    }
+
+    console.log("All topics and subtopics completed");
+    return {
+      success: true,
+      message: "Topic analysis completed successfully",
+      results
+    };
+
+  } catch (error) {
+    console.error('Error in topic analysis:', error);
+    throw error;
+  }
+};
+
+// Process a single subtopic
+export const generateSingleSubtopicAnalysis = async (userId, broadTopic, subtopicKey) => {
+  const topicData = BroadTopicsEnum[broadTopic];
+  const subtopicLabel = topicData.subtopics[subtopicKey];
+  
+  console.log(`Processing subtopic: ${subtopicLabel}`);
+  
+  try {
+    const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId,
+        broadTopic,
+        subtopicKey,
+        subtopicLabel
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || `Subtopic analysis failed for ${subtopicLabel}`);
+    }
+
+    return {
+      success: true,
+      broadTopic,
+      subtopicKey,
+      result: result.result
+    };
+
+  } catch (error) {
+    console.error(`Error analyzing subtopic ${subtopicLabel}:`, error);
+    throw error;
+  }
+};
+
+export const processAndVectorizeBasicAnalysis = async (userId) => {
+  console.log("Starting vectorization for user:", userId);
+  let section = 'overview';
+  let index = 0;
+  let isComplete = false;
+
+  while (!isComplete) {
+    try {
+      console.log(`Processing section: ${section}, index: ${index}`);
+      const response = await fetch(`${SERVER_URL}/processBasicAnalysis`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, section, index })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Vectorization failed');
+      }
+
+      // Log progress
+      console.log(`Processed ${result.recordCount} records for ${section}`);
+      
+      // Update for next iteration
+      section = result.nextSection;
+      index = result.nextIndex;
+      isComplete = result.isComplete;
+
+    } catch (error) {
+      console.error('Error in vectorization process:', error);
+      throw error;
+    }
+  }
+
+  console.log("Vectorization complete for user:", userId);
+  return { success: true };
+};
+
+export const processAndVectorizeTopicAnalysis = async (userId) => {
+  let currentTopic = null;
+  let currentSubtopic = null;
+  let isComplete = false;
+
+  try {
+    while (!isComplete) {
+      console.log(`Processing topic: ${currentTopic}, subtopic: ${currentSubtopic}`);
+      
+      const response = await fetch(`${SERVER_URL}/processTopicAnalysis`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userId, 
+          topic: currentTopic, 
+          subtopic: currentSubtopic 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Vectorization failed');
+      }
+
+      isComplete = data.isComplete;
+      currentTopic = data.nextTopic;
+      currentSubtopic = data.nextSubtopic;
+
+      // Return progress update for UI
+      if (!isComplete) {
+        console.log(`Processed ${currentTopic} - ${currentSubtopic}`);
+      }
+    }
+
+    console.log('Topic analysis vectorization complete');
+    return { success: true, isComplete: true };
+
+  } catch (error) {
+    console.error('Error in vectorization process:', error);
+    return { 
+      success: false, 
+      error: error.message,
+      lastProcessedTopic: currentTopic,
+      lastProcessedSubtopic: currentSubtopic
+    };
+  }
+};
