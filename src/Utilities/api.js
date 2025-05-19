@@ -1190,6 +1190,38 @@ export const getRelationshipScore = async (synastryAspects, compositeChart, user
   }
 };
 
+export const generateRelationshipAnalysis = async (compositeChartId) => {
+  console.log("compositeChartId: ", compositeChartId)
+  try {
+    const response = await fetch(`${SERVER_URL}/generateRelationshipAnalysis`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({compositeChartId})
+    });
+    const responseData = await response.json();
+    console.log("responseData: ", responseData)
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
+
+export const fetchRelationshipScores = async (compositeChartId) => {
+  console.log("compositeChartId: ", compositeChartId)
+  try {
+    const response = await fetch(`${SERVER_URL}/fetchRelationshipScores`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({compositeChartId})
+    });
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in API call:', error);
+    throw error;
+  }
+}
 
 export const getShortOverview = async (birthData) => {
 
@@ -1514,3 +1546,53 @@ export const processAndVectorizeTopicAnalysis = async (userId) => {
     };
   }
 };
+
+
+export const processAndVectorizeRelationshipAnalysis = async (compositeChartId) => {
+  let currentCategory = null;
+  let isComplete = false;
+
+  try {
+    while (!isComplete) {
+      console.log(`Processing relationship category: ${currentCategory || 'initial'}`);
+      
+      const response = await fetch(`${SERVER_URL}/processRelationshipAnalysis`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          compositeChartId, 
+          category: currentCategory 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Relationship analysis processing failed');
+      }
+
+      isComplete = data.isComplete;
+      currentCategory = data.nextCategory;
+
+      // Return progress update for UI
+      if (!isComplete && currentCategory) {
+        console.log(`Processed category: ${currentCategory}`);
+      }
+    }
+
+    console.log('Relationship analysis processing complete');
+    return { success: true, isComplete: true };
+
+  } catch (error) {
+    console.error('Error in relationship analysis processing:', error);
+    return { 
+      success: false, 
+      error: error.message,
+      lastProcessedCategory: currentCategory
+    };
+  }
+}

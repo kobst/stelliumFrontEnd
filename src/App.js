@@ -11,6 +11,7 @@ import SynastryPage_v2 from './pages/synastryPage_v2';
 import CompositeDashboard from './pages/compositeDashboard';
 import CompositeDashboard_v2 from './pages/compositeDashBoard_v2';
 import CompositeDashboard_v3 from './pages/compositeDashboard_v3';
+import CompositeDashboard_v4 from './pages/compositeDashboard_v4';
 import ConfirmationV2 from './pages/confirmationPage_v2';
 import './App.css';
 
@@ -25,7 +26,7 @@ function App() {
           <Route path="/prototype" element={<PrototypePage />} />
           <Route path="/userDashboard" element={<UserDashboard />} />
           <Route path="/synastry" element={<SynastryPage_v2 />} />
-          <Route path="/compositeDashboard" element={<CompositeDashboard_v3 />} />
+          <Route path="/compositeDashboard" element={<CompositeDashboard_v4 />} />
 
           {/* <mobile flow> */}
           <Route path="/signUp" element={<SignUpPage />} />

@@ -56,8 +56,8 @@ function CompositesTable({ onCompositeChartSelect }) {
     }
 
     loadComposites();
-    getTodaysData()
-    getRetrogradeTransits()
+    // getTodaysData()
+    // getRetrogradeTransits()
   }, []);
 
 

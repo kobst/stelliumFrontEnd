@@ -5,6 +5,7 @@ import { identifyBirthChartPattern } from '../Utilities/generatePatternDescripti
 import SynastryAspectsDescriptionsTable from '../UI/birthChart/tables/SynastryAspectsDescriptionsTable'
 import SynastryBirthChartComparison from '../UI/birthChart/tables/SynastryBirthChartComparison'
 import SynastryHousePositionsTable from '../UI/birthChart/tables/SynastryHousePositionsTable'
+import RelationshipScores from '../UI/prototype/RelationshipScores';
 import { CompositeChartHeadingEnums, planet_headings } from '../Utilities/constants';
 import { 
   generatePlanetPromptDescription,
@@ -26,14 +27,15 @@ import {
   saveSynastryChartInterpretation,
   getCompositeChartInterpretation,
   getSynastryInterpretation,
-  getRelationshipScore
+  getRelationshipScore,
+  fetchRelationshipScores
   } from '../Utilities/api';
 import { handleFetchDailyTransits, handleFetchRetrogradeTransits } from '../Utilities/generateUserTranstiDescriptions';
 import { addAspectDescriptionComputed, describePlanets, getSynastryAspectDescription, findHouseSynastry } from '../Utilities/generateBirthDataDescriptions'
 
 function CompositeDashboard_v2({}) {
   
-
+    const [relationshipScores, setRelationshipScores] = useState(null);
     const [isDataPopulated, setIsDataPopulated] = useState(false);
     const [dailyTransits, setDailyTransits] = useState([]);
     const [retrogradeTransits, setRetrogradeTransits] = useState([]);
@@ -53,32 +55,92 @@ function CompositeDashboard_v2({}) {
     const [userA, setUserA] = useState(null);
     const [userB, setUserB] = useState(null);
 
-useEffect(() => {
-    const getCompositeChartProfile = async (compositeChart) => {
-        if (compositeChart.userA_id && compositeChart.userB_id && compositeChart._id) {
-            const userA = await fetchUser(compositeChart.userA_id)
-            const userB = await fetchUser(compositeChart.userB_id)
-            console.log("userA fetched", userA)
-            console.log("userB fetched", userB)
-            const compositeChartDescription = await generateCompositeChartDescription(compositeChart.compositeChart)
-            const compositeChartPlanetDescriptions = await generateCompositeChartPlanetDescriptions(compositeChart.compositeChart)
-            setCompositeChartDescription(compositeChartDescription)
-            setCompositeChartPlanetDescriptions(compositeChartPlanetDescriptions)
-            setCombinedDescriptions(compositeChartDescription.concat(compositeChartPlanetDescriptions))
-            // fetchCompositeChartInterpretation(compositeChart._id, compositeChartDescription, compositeChartPlanetDescriptions)
-            setSynastryAspects(compositeChart.synastryAspects)
-            setUserA(userA)
-            setUserB(userB)
-            const synastryDescriptions= await generateSynastryChartDescription(compositeChart.synastryAspects, userA.birthChart, userB.birthChart, userA.firstName, userB.firstName)
-            setSynastryAspectDescriptions(synastryDescriptions.synastryAspectDescriptions)
-            setSynastryPlanetDescriptions(synastryDescriptions.synastryPlanetDescriptions)
-            // fetchSynastryInterpretation(compositeChart._id, synastryDescriptions.synastryAspectDescriptions, synastryDescriptions.synastryPlanetDescriptions)
-        }
-    }
-    getCompositeChartProfile(compositeChart)
-  }, [compositeChart]);
+    useEffect(() => {
+        const initializeCompositeChartData = async () => {
+            try {
+                if (!compositeChart || !compositeChart._id) {
+                    console.log("No composite chart available yet");
+                    return;
+                }
 
-//   useEffect( () => {
+                if (compositeChart.userA_id && compositeChart.userB_id) {
+                    // Fetch users and generate chart descriptions
+                    const [userA, userB] = await Promise.all([
+                        fetchUser(compositeChart.userA_id),
+                        fetchUser(compositeChart.userB_id)
+                    ]);
+                    console.log("Users fetched:", { userA, userB });
+
+                    // Generate composite chart descriptions
+                    const compositeChartDescription = await generateCompositeChartDescription(compositeChart.compositeChart);
+                    const compositeChartPlanetDescriptions = await generateCompositeChartPlanetDescriptions(compositeChart.compositeChart);
+                    
+                    // Generate synastry descriptions
+                    const synastryDescriptions = await generateSynastryChartDescription(
+                        compositeChart.synastryAspects,
+                        userA.birthChart,
+                        userB.birthChart,
+                        userA.firstName,
+                        userB.firstName
+                    );
+
+                    // Fetch relationship scores
+                    const relationshipScores = await fetchRelationshipScores(compositeChart._id);
+                    
+                    // Update all state values
+                    setUserA(userA);
+                    setUserB(userB);
+                    // setCompositeChartDescription(compositeChartDescription);
+                    // setCompositeChartPlanetDescriptions(compositeChartPlanetDescriptions);
+                    // setCombinedDescriptions(compositeChartDescription.concat(compositeChartPlanetDescriptions));
+                    setSynastryAspects(compositeChart.synastryAspects);
+                    // setSynastryAspectDescriptions(synastryDescriptions.synastryAspectDescriptions);
+                    // setSynastryPlanetDescriptions(synastryDescriptions.synastryPlanetDescriptions);
+                    
+                    if (relationshipScores?.scores) {
+                        setRelationshipScores(relationshipScores.scores);
+                    }
+                }
+            } catch (error) {
+                console.error("Error initializing composite chart data:", error);
+            }
+        };
+
+        initializeCompositeChartData();
+    }, [compositeChart]);
+
+
+//     useEffect(() => {
+//         const fetchRelationshipScoresIfAvailable = async (id) => {
+//           try {
+//             console.log("Attempting to fetch relationship scores for id:", id);
+//             if (!id) {
+//               console.log("No composite chart ID available");
+//               return;
+//             }
+    
+//             const relationshipScores = await fetchRelationshipScores(id);
+//             console.log("Fetched relationshipScores:", JSON.stringify(relationshipScores));
+            
+//             if (relationshipScores && relationshipScores.scores) {
+//               console.log("Setting relationship scores:", relationshipScores.scores);
+//               setRelationshipScores(relationshipScores.scores);
+//             } else {
+//               console.log("No relationship scores found in response");
+//             }
+//           } catch (error) {
+//             console.error("Error fetching relationship scores:", error);
+//           }
+//         };
+    
+//         if (compositeChart && compositeChart._id) {
+//           console.log("Composite chart found, fetching scores for:", compositeChart._id);
+//           fetchRelationshipScoresIfAvailable(compositeChart._id);
+//         } else {
+//           console.log("No composite chart available yet");
+//         }
+//       }, [compositeChart]);
+// //   useEffect( () => {
 //     async function getTodaysData() {
 //       if (dailyTransits.length === 0) {
 //         const currentDateISO = new Date().toISOString();
@@ -265,8 +327,6 @@ const fetchCompositeChartInterpretation = async (compositeChartId, compositeChar
   };
 
 
-
-
   const generateInterpretationComposite = async (heading, promptDescription) => {
         if (planet_headings.includes(heading)) {
             const interpretation = await postGptResponseCompositeChartPlanet(heading, promptDescription)
@@ -302,12 +362,17 @@ const fetchCompositeChartInterpretation = async (compositeChartId, compositeChar
   const generateCompatabilityScore = async () => {
     if (synastryAspects.length > 0 && compositeChart && compositeChartDescription && compositeChartPlanetDescriptions && userA && userB) {
       const compatabilityScore = await getRelationshipScore(synastryAspects, compositeChart.compositeChart, userA, userB, compositeChart._id);
-      console.log("compatabilityScore: ", compatabilityScore)
+      console.log("compatabilityScore: ", JSON.stringify(compatabilityScore))
+      setRelationshipScores(compatabilityScore.relationshipScore.scores);
+
     } else {
       console.log("Not enough data to generate compatability score")
     }
   }
   
+
+
+
 
 return (
     <div>
@@ -317,6 +382,7 @@ return (
           <>
             <h2 className="logotxt">User A: {userA.firstName} {userA.lastName}</h2>
             <h2 className="logotxt">User B: {userB.firstName} {userB.lastName}</h2>
+            
             <button onClick={() => {
               generateCompatabilityScore()
             }}>
@@ -338,7 +404,12 @@ return (
           />
         )}
 
+    {relationshipScores && (
+      <RelationshipScores scores={relationshipScores} />
+    )}
 
+
+{/* 
         {userA && userB && (
           <SynastryHousePositionsTable 
             birthChartA={userA.birthChart} 
@@ -346,9 +417,9 @@ return (
             userAName={userA.firstName} 
             userBName={userB.firstName} 
           />
-        )}
+        )} */}
 
-        {synastryAspects.length > 0 && compositeChart && compositeChartDescription && (
+        {/* {synastryAspects.length > 0 && compositeChart && compositeChartDescription && (
           <SynastryAspectsDescriptionsTable 
             synastryAspects={synastryAspects} 
             birthchartA={userA.birthChart} 
@@ -356,9 +427,9 @@ return (
             userAName={userA.firstName} 
             userBName={userB.firstName} 
           />
-        )}
+        )} */}
 
-        {compositeChartDescription && compositeChartPlanetDescriptions && compositeChartDescription.length > 0 && compositeChartPlanetDescriptions.length > 0 && (
+        {/* {compositeChartDescription && compositeChartPlanetDescriptions && compositeChartDescription.length > 0 && compositeChartPlanetDescriptions.length > 0 && (
           <div>
             <h3>Composite Chart</h3>
             <button onClick={() => {
@@ -391,7 +462,7 @@ return (
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   )
