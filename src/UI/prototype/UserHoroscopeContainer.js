@@ -8,6 +8,7 @@ const UserHoroscopeContainer = ({ selectedUser, isDataPopulated, userPlanets, us
       {selectedUser && (
         <div className="user-info" style={{ color: 'white' }}>
           <h2>Selected User: {selectedUser.firstName} {selectedUser.lastName}</h2>
+          <h2>Selected UserID: {selectedUser._id}</h2>
         </div>
       )}
 

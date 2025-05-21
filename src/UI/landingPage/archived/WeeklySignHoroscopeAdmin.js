@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { zodiacIcons } from '../../Utilities/constants';
+import { zodiacIcons } from '../../../Utilities/constants';
 import './DailySignHoroscopeMenu.css';
 import DailyReading from './DailyReading';
 import { useState } from 'react';

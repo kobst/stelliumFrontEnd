@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { zodiacIcons } from '../../Utilities/constants';
+import { zodiacIcons } from '../../../Utilities/constants';
 import './DailySignHoroscopeMenu.css';
 import DailyReading from './DailyReading';
 import { useState } from 'react';
@@ -10,11 +10,12 @@ const zodiacSigns = [
   'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
 ];
 
-const DailySignHoroscopeMenu = ({transitAspectObjects, transits}) => {
+const WeeklySignHoroscopeMenu = ({selectSign}) => {
     const [selectedSign, setSelectedSign] = useState(null);
 
     const handleSignClick = (sign) => {
       setSelectedSign(sign);
+      selectSign(sign);
     };
   
   return (
@@ -35,13 +36,8 @@ const DailySignHoroscopeMenu = ({transitAspectObjects, transits}) => {
           </div>
         ))}
       </div>
-      {selectedSign && (
-        <div className="daily-reading-container">
-          <DailyReading transitAspectObjects={transitAspectObjects} transits={transits} risingSign={selectedSign} />
-        </div>
-      )}
     </div>
   );
 };
 
-export default DailySignHoroscopeMenu;
+export default WeeklySignHoroscopeMenu;

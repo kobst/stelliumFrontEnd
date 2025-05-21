@@ -3,8 +3,8 @@ import React, { useState, useEffect, useContext } from 'react';
 
 
 import GoogleAutocomplete from 'react-google-autocomplete';
-import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits, postPeriodAspectsForUserChart} from '../../Utilities/api'; 
-import useStore from '../../Utilities/store';
+import { fetchTimeZone, postBirthData, postDailyTransit, postProgressedChart, postPromptGeneration, postPeriodTransits, postPeriodAspectsForUserChart} from '../../../Utilities/api'; 
+import useStore from '../../../Utilities/store';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 

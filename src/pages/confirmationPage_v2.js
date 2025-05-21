@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import useStore from '../Utilities/store';
-import Ephemeris from '../UI/shared/Ephemeris';
-import {checkResponseAgainstEverything, generateInterpretation} from '../Utilities/checkResponses'
-import { postBirthData,postPromptGPT, postGptResponse, createUserProfile, fetchTimeZone, postPromptGeneration, getShortOverview, postUserProfile, getPlanetOverview} from '../Utilities/api';
-import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
+import { fetchTimeZone, getShortOverview, postUserProfile, getPlanetOverview} from '../Utilities/api';
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 
 const ConfirmationV2 = () => {
     const navigate = useNavigate();
 
-    const setRawBirthData = useStore(state => state.setRawBirthData);
     const setUserPlanets = useStore(state => state.setUserPlanets);
     const setUserHouses = useStore(state => state.setUserHouses);
     const setUserAspects = useStore(state => state.setUserAspects);
@@ -90,19 +85,6 @@ const ConfirmationV2 = () => {
 
                 console.log("response: ", JSON.stringify(response))
                 
-                // const userid = await createUserProfile(
-                //     email,
-                //     firstName,
-                //     lastName,
-                //     dateTimeString,
-                //     placeOfBirth,
-                //     time,
-                //     totalOffsetHours,
-                //     response.chartData
-                // );
-                
-                // console.log(`Profile created with userid: ${userid}`);
-                // setRawBirthData(response.chartData);
                 setUserPlanets(response.user.birthChart.planets);
                 setUserHouses(response.user.birthChart.houses);
                 setUserAspects(response.user.birthChart.aspects);

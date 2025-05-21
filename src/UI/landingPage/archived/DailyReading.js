@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { orbDegrees, aspects, moonPhases } from '../../Utilities/constants';
-import { formatTransits, formatTransitData, formatTransitDataForTable, findMostRelevantAspects } from '../../Utilities/generateUserTranstiDescriptions';
-import { postGptResponse } from '../../Utilities/api';
+import { orbDegrees, aspects, moonPhases } from '../../../Utilities/constants';
+import { formatTransits, formatTransitData, formatTransitDataForTable, findMostRelevantAspects } from '../../../Utilities/generateUserTranstiDescriptions';
+import { postGptResponse } from '../../../Utilities/api';
 import TodaysAspectsTable from './TodaysAspectsTable';
 // const signOrder = [
 //     "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 

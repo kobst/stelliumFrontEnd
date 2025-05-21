@@ -1,20 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import UsersTable from '../UI/prototype/UsersTable';
-import useStore from '../Utilities/store';
-import SynastryAspectsTable from '../UI/birthChart/tables/SynastryAspectsTable'
-import SynastryAspectsDescriptionsTable from '../UI/birthChart/tables/SynastryAspectsDescriptionsTable'
-import SynastryBirthChartComparison from '../UI/birthChart/tables/SynastryBirthChartComparison'
-import SynastryHousePositionsTable from '../UI/birthChart/tables/SynastryHousePositionsTable'
-import { postSynastryAspects, postCompositeChart, createCompositeChartProfile, postCreateRelationshipProfile } from '../Utilities/api';
-import CompositesTable from '../UI/prototype/CompositesTable'
+import { createCompositeChartProfile, postCreateRelationshipProfile } from '../Utilities/api';
 
 function SynastryPage() {
   const [userA, setUserA] = useState(null);
   const [userB, setUserB] = useState(null);
   const [synastryAspects, setSynastryAspects] = useState([]);
   const [compositeChart, setCompositeChart] = useState(null);
-  const [compositeChartDescription, setCompositeChartDescription] = useState([])
-  const [compositeChartPlanetDescriptions, setCompositeChartPlanetDescriptions] = useState([])
   const [success, setSuccess] = useState(false);
 
   const handleUserASelect = (user) => {
@@ -71,17 +63,6 @@ function SynastryPage() {
         <button onClick={createRelationshipProfile}>Create Relationship Profile</button>
         </>
         )}
-        {/* {synastryAspects.length > 0 && compositeChart &&
-        <SynastryBirthChartComparison 
-            birthChartA={userA.birthChart} 
-            birthChartB={userB.birthChart} 
-            compositeChart={compositeChart} 
-            userAName={userA.firstName} 
-            userBName={userB.firstName} 
-            compositeChartDescription={compositeChartDescription}
-            compositeChartPlanetDescriptions={compositeChartPlanetDescriptions}
-        />
-        } */}
 
         {userA && userB && synastryAspects && compositeChart && (
         <button onClick={saveCompositeChartProfile}>Save Composite Chart Profile</button>
@@ -89,21 +70,6 @@ function SynastryPage() {
         {success && (
         <p>Relationship profile created successfully</p>
         )}
-        {/* {userA && userB && (
-        <>
-        <SynastryHousePositionsTable birthChartA={userA.birthChart} birthChartB={userB.birthChart} userAName={userA.firstName} userBName={userB.firstName} />
-        </>
-        )} */}
-
-        {/* {synastryAspects.length > 0 && compositeChart && compositeChartDescription &&
-        <SynastryAspectsDescriptionsTable 
-            synastryAspects={synastryAspects} 
-            birthchartA={userA.birthChart} 
-            birthchartB={userB.birthChart} 
-            userAName={userA.firstName} 
-            userBName={userB.firstName} 
-        />
-        } */}
 
     </div>
   );

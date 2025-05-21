@@ -2,24 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { format, addDays } from 'date-fns';
 
 import '../pages/landingPageAdmin.css';
-import { updateObjectKeys } from '../Utilities/generateUserTranstiDescriptions';
+import { updateObjectKeys } from '../../Utilities/generateUserTranstiDescriptions';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import lightLogo from '../assets/Light logo.png'
 
 import whiteLine from '../assets/whiteline.png'
-import useStore from '../Utilities/store';
-import DailyReadingAdmin from '../UI/landingPage/DailyReadingAdmin'
-import DailySignHoroscopeMenu from '../UI/landingPage/DailySignHoroscopeMenu';
-import WeeklySignHoroscopeMenu from '../UI/landingPage/WeeklySignHoroscopeMenu';
-import { PeriodTransits } from '../UI/landingPage/PeriodTransits';
-import Ephemeris from '../UI/shared/Ephemeris';
-import { TransitAspects } from '../UI/landingPage/transitAspects';
-import TodaysAspectsTableAdmin from '../UI/landingPage/TodaysAspectsTableAdmin';
-import WeeklyAspectsTableAdmin from '../UI/landingPage/WeeklyAspectsTableAdmin';
-import WeeklyTransitsTableAdmin from '../UI/landingPage/WeeklyTransitsTableAdmin';
-import TransitInterpretationTable from '../UI/landingPage/TransitInterpretationTable';
-import UserSignUpForm from '../UI/landingPage/UserSignUpForm';
+import useStore from '../../Utilities/store';
+import DailyReadingAdmin from '../../UI/landingPage/DailyReadingAdmin'
+import DailySignHoroscopeMenu from '../../UI/landingPage/DailySignHoroscopeMenu';
+import WeeklySignHoroscopeMenu from '../../UI/landingPage/WeeklySignHoroscopeMenu';
+import { PeriodTransits } from '../../UI/landingPage/PeriodTransits';
+import Ephemeris from '../../UI/shared/Ephemeris';
+import { TransitAspects } from '../../UI/landingPage/transitAspects';
+import TodaysAspectsTableAdmin from '../../UI/landingPage/TodaysAspectsTableAdmin';
+import WeeklyAspectsTableAdmin from '../../UI/landingPage/WeeklyAspectsTableAdmin';
+import WeeklyTransitsTableAdmin from '../../UI/landingPage/WeeklyTransitsTableAdmin';
+import TransitInterpretationTable from '../../UI/landingPage/TransitInterpretationTable';
+import UserSignUpForm from '../../UI/landingPage/UserSignUpForm';
 import { formatTransitDataForTable, 
     formatTransitDataForTableWeekly, 
     formatTransitData, 
@@ -32,15 +32,15 @@ import { formatTransitDataForTable,
     handleFetchDailyTransits,
     handleFetchPeriodAspects,
     handleFetchPeriodTransits,
-    formatTransitDataDescriptionsForTableWeekl} from '../Utilities/generateUserTranstiDescriptions';
+    formatTransitDataDescriptionsForTableWeekl} from '../../Utilities/generateUserTranstiDescriptions';
 import { postGptResponse,
     postGptResponseForDailyTransit,
      saveDailyTransitInterpretationData,
-    saveWeeklyTransitInterpretationData } from '../Utilities/api';
+    saveWeeklyTransitInterpretationData } from '../../Utilities/api';
 
 
 
-import { postDailyTransits, postPeriodTransits, postDailyAspects, postPeriodAspects, postDailyRetrogrades } from '../Utilities/api'
+import { postDailyTransits, postPeriodTransits, postDailyAspects, postPeriodAspects, postDailyRetrogrades } from '../../Utilities/api'
 
 
 const LandingPageAdmin = () => {

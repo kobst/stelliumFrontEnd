@@ -1,31 +1,9 @@
-import React, { useEffect, useState } from 'react';
-
-import { updateObjectKeys } from '../Utilities/generateUserTranstiDescriptions';
+import React from 'react';
 
 import lightLogo from '../assets/Light logo.png'
 
 import whiteLine from '../assets/whiteline.png'
-import useStore from '../Utilities/store';
-import DailyReading from '../UI/landingPage/DailyReading'
-import DailyReadingFromDb from '../UI/landingPage/DailyReadingFromDb';
-import DailySignHoroscopeMenu from '../UI/landingPage/DailySignHoroscopeMenu';
-import { PeriodTransits } from '../UI/landingPage/PeriodTransits';
-import Ephemeris from '../UI/shared/Ephemeris';
-import { TransitAspects } from '../UI/landingPage/transitAspects';
-import TodaysAspectsTable from '../UI/landingPage/TodaysAspectsTable';
 import UserSignUpForm from '../UI/landingPage/UserSignUpForm';
-import { formatTransitDataForTable, 
-  handleFetchDailyAspects, 
-  handleFetchDailyTransits,
-  handleFetchPeriodAspects,
-  handleFetchRetrogrades,
-  handleFetchInstantAspects,
-  handleFetchPeriodTransits  } from '../Utilities/generateUserTranstiDescriptions';
-
-
-
-import { postDailyTransits, postPeriodTransits, postDailyAspects, postPeriodAspects, postDailyRetrogrades } from '../Utilities/api'
-
 
 const SignUpPage = () => {     
     return (

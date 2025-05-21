@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getDailyTransitInterpretationData } from '../../Utilities/api';
+import { getDailyTransitInterpretationData } from '../../../Utilities/api';
 import './TransitInterpretationTable.css'; // Create this CSS file
 
 function TransitInterpretationTable() {

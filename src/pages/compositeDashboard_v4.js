@@ -1,42 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import useStore from '../Utilities/store';
-import { heading_map, planetCodes } from '../Utilities/constants';
-import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
-import SynastryAspectsDescriptionsTable from '../UI/birthChart/tables/SynastryAspectsDescriptionsTable'
-import SynastryBirthChartComparison from '../UI/birthChart/tables/SynastryBirthChartComparison'
 import SynastryBirthChartComparison_v2 from '../UI/birthChart/tables/SynastryBirthChartComparison_v2'
-import SynastryHousePositionsTable from '../UI/birthChart/tables/SynastryHousePositionsTable'
 import RelationshipScores from '../UI/prototype/RelationshipScores';
-import RelationshipAspects from '../UI/prototype/RelationshipAspects';
 import RelationshipAnalysis from '../UI/prototype/RelationshipAnalysis';
-import { CompositeChartHeadingEnums, planet_headings } from '../Utilities/constants';
-import { 
-  generatePlanetPromptDescription,
-  findPlanetsInQuadrant, 
-  findPlanetsInElements, 
-  findPlanetsInModalities } from '../Utilities/generateBirthDataDescriptions'
-import StatusList from '../UI/prototype/StatusList';
 import {
-  fetchBirthChartInterpretation,
-  fetchCompositeChartInterpretation,
-  postPromptGeneration,
-  postPromptGenerationCompositeChart,
-  postPromptGenerationSynastry,
-  postGptResponseCompositeChartPlanet,
-  postGptResponseCompositeChart,
-  postGptResponseSynastry,
   fetchUser,
-  saveCompositeChartInterpretation,
-  saveSynastryChartInterpretation,
-  getCompositeChartInterpretation,
-  getSynastryInterpretation,
   getRelationshipScore,
-  fetchRelationshipScores,
+  fetchRelationshipAnalysis,
   generateRelationshipAnalysis,
   processAndVectorizeRelationshipAnalysis
   } from '../Utilities/api';
-import { handleFetchDailyTransits, handleFetchRetrogradeTransits } from '../Utilities/generateUserTranstiDescriptions';
-import { addAspectDescriptionComputed, describePlanets, getSynastryAspectDescription, findHouseSynastry } from '../Utilities/generateBirthDataDescriptions'
 
 function CompositeDashboard_v4({}) {
   
@@ -47,16 +20,30 @@ function CompositeDashboard_v4({}) {
     const [userB, setUserB] = useState(null);
     const [scoreDebugInfo, setScoreDebugInfo] = useState(null);
     const [detailedRelationshipAnalysis, setDetailedRelationshipAnalysis] = useState(null);
-    const [relationshipAnalysisProcessingStatus, setRelationshipAnalysisProcessingStatus] = useState({
+    const [processingStatus, setProcessingStatus] = useState({
         isProcessing: false,
-        error: null
+        error: null,
+        currentCategory: null
+    });
+    const [vectorizationStatus, setVectorizationStatus] = useState({
+        categories: {
+            OVERALL_ATTRACTION_CHEMISTRY: false,
+            EMOTIONAL_SECURITY_CONNECTION: false,
+            SEX_AND_INTIMACY: false,
+            COMMUNICATION_AND_MENTAL_CONNECTION: false,
+            COMMITMENT_LONG_TERM_POTENTIAL: false,
+            KARMIC_LESSONS_GROWTH: false,
+            PRACTICAL_GROWTH_SHARED_GOALS: false
+        },
+        lastUpdated: null,
+        relationshipAnalysis: false
     });
     
     useEffect(() => {
         const initializeCompositeChartData = async () => {
             try {
                 if (!compositeChart || !compositeChart._id) {
-                    console.log("No composite chart available yet");
+                    console.log("No composite chart available yet for initialization");
                     return;
                 }
 
@@ -69,36 +56,58 @@ function CompositeDashboard_v4({}) {
                     console.log("Users fetched:", { userA, userB });
 
                     // Fetch relationship scores
-                    const relationshipScores = await fetchRelationshipScores(compositeChart._id);
+                    const fetchedData = await fetchRelationshipAnalysis(compositeChart._id);
                     
                     // Update all state values
                     setUserA(userA);
                     setUserB(userB);
-                   setSynastryAspects(compositeChart.synastryAspects);
+                    setSynastryAspects(compositeChart.synastryAspects);
                     
-                    if (relationshipScores?.scores) {
-                        setRelationshipScores(relationshipScores.scores);
+                    // Handle relationship scores
+                    if (fetchedData?.scores) {
+                        setRelationshipScores(fetchedData.scores);
                     }
-                    if (relationshipScores?.debug) {
-                        setScoreDebugInfo(relationshipScores.debug);
+                    if (fetchedData?.debug) {
+                        setScoreDebugInfo(fetchedData.debug);
                     }
 
-                    if (relationshipScores?.analysis) {
-                        console.log("relationshipScores.analysis available ", relationshipScores.analysis);
+                    // Handle relationship analysis
+                    if (fetchedData?.analysis) {
+                        console.log("Detailed analysis available: ", fetchedData.analysis);
                         setDetailedRelationshipAnalysis({
-                            analysis: relationshipScores.analysis,
-                            userAName: relationshipScores?.debug?.inputSummary?.userAName || userA?.firstName,
-                            userBName: relationshipScores?.debug?.inputSummary?.userBName || userB?.firstName
+                            analysis: fetchedData.analysis,
+                            userAName: fetchedData.debug?.inputSummary?.userAName || userA?.firstName,
+                            userBName: fetchedData.debug?.inputSummary?.userBName || userB?.firstName
                         });
                     }
 
+                    // Handle vectorization status from the backend
+                    if (fetchedData?.vectorizationStatus) {
+                        console.log("Vectorization status received:", fetchedData.vectorizationStatus);
+                        
+                        // Update the vectorization status state with the structure from backend
+                        setVectorizationStatus({
+                            categories: fetchedData.vectorizationStatus.categories || {},
+                            lastUpdated: fetchedData.vectorizationStatus.lastUpdated || null,
+                            relationshipAnalysis: Boolean(fetchedData.vectorizationStatus.relationshipAnalysis)
+                        });
+                    } else {
+                        // If no vectorizationStatus field, assume not vectorized
+                        setVectorizationStatus(prev => ({
+                            ...prev,
+                            relationshipAnalysis: false,
+                            lastUpdated: null
+                        }));
+                    }
                 }
             } catch (error) {
                 console.error("Error initializing composite chart data:", error);
             }
         };
 
-        initializeCompositeChartData();
+
+            initializeCompositeChartData();
+
     }, [compositeChart]);
 
 
@@ -137,27 +146,27 @@ function CompositeDashboard_v4({}) {
 
   const processRelationshipAnalysis = async () => {
     if (!compositeChart || !compositeChart._id) {
-      console.error("No composite chart ID available");
+      console.error("No composite chart ID available for vectorization.");
+      setProcessingStatus({ isProcessing: false, error: "Composite chart ID is missing.", currentCategory: null });
       return;
     }
     
-    console.log("Starting relationship analysis processing for compositeChartId:", compositeChart._id);
+    console.log("Starting relationship analysis vectorization for compositeChartId:", compositeChart._id);
     
-    setRelationshipAnalysisProcessingStatus(prev => ({
-      ...prev,
+    setProcessingStatus({
       isProcessing: true,
-      error: null
-    }));
+      error: null,
+      currentCategory: null
+    });
 
     try {
       const response = await processAndVectorizeRelationshipAnalysis(compositeChart._id);
-      console.log("Processing response:", response);
+      console.log("Vectorization processing response:", response);
       
-      if (response.success) {
+      if (response.success && response.isComplete) {
         // Update vectorization status to reflect completion
-        setRelationshipAnalysisProcessingStatus(prev => ({
-          ...prev,
-          relationshipAnalysis: {
+        setVectorizationStatus({
+          categories: {
             OVERALL_ATTRACTION_CHEMISTRY: true,
             EMOTIONAL_SECURITY_CONNECTION: true,
             SEX_AND_INTIMACY: true,
@@ -165,21 +174,23 @@ function CompositeDashboard_v4({}) {
             COMMITMENT_LONG_TERM_POTENTIAL: true,
             KARMIC_LESSONS_GROWTH: true,
             PRACTICAL_GROWTH_SHARED_GOALS: true,
-            isComplete: true
           },
-          lastUpdated: new Date().toISOString()
-        }));
+          lastUpdated: new Date().toISOString(),
+          relationshipAnalysis: true
+        });
+        console.log("Relationship analysis vectorization completed successfully.");
       } else {
-        throw new Error(response.error || 'Processing failed');
+        throw new Error(response.error || 'Vectorization processing failed or did not complete.');
       }
     } catch (error) {
-      console.error('Error processing relationship analysis:', error);
-      setRelationshipAnalysisProcessingStatus(prev => ({
+      console.error('Error processing relationship analysis vectorization:', error);
+      setProcessingStatus(prev => ({
         ...prev,
-        error: error.message
+        error: error.message,
+        isProcessing: false
       }));
     } finally {
-      setRelationshipAnalysisProcessingStatus(prev => ({
+      setProcessingStatus(prev => ({
         ...prev,
         isProcessing: false,
         currentCategory: null
@@ -196,7 +207,7 @@ return (
           <>
             <h2 className="logotxt">User A: {userA.firstName} {userA.lastName}</h2>
             <h2 className="logotxt">User B: {userB.firstName} {userB.lastName}</h2>
-            
+            <h2 className="logotxt">Composite Chart: {compositeChart._id}</h2>
             {!relationshipScores && (
               <button onClick={() => generateCompatabilityScore()}>
                 Generate Compatibility Score
@@ -208,30 +219,40 @@ return (
                   Generate Relationship Analysis
                 </button>
                 
-                {/* Add the new button for vectorization process */}
-                {detailedRelationshipAnalysis && (
+                {/* Vectorization button:
+                    - Show if detailed analysis text exists
+                    - AND if it has NOT been fully vectorized yet (relationshipAnalysis is false)
+                */}
+                {detailedRelationshipAnalysis && !vectorizationStatus.relationshipAnalysis && (
                   <button 
-                    onClick={() => processRelationshipAnalysis()}
-                    disabled={relationshipAnalysisProcessingStatus?.isProcessing}
+                    onClick={processRelationshipAnalysis}
+                    disabled={processingStatus.isProcessing}
                     style={{ marginLeft: '10px' }}
                   >
-                    {relationshipAnalysisProcessingStatus?.isProcessing 
-                      ? "Processing Analysis..." 
+                    {processingStatus.isProcessing 
+                      ? "Vectorizing Analysis..." 
                       : "Vectorize Relationship Analysis"}
                   </button>
                 )}
                 
-                {/* Optional: Add processing status indicator */}
-                {relationshipAnalysisProcessingStatus?.isProcessing && (
+                {/* Display if processing is ongoing */}
+                {processingStatus.isProcessing && (
                   <div style={{ marginTop: '10px', color: '#666' }}>
-                    Processing category: {relationshipAnalysisProcessingStatus.currentCategory?.replace(/_/g, ' ').toLowerCase() || '...'}
+                    Vectorizing analysis, please wait...
                   </div>
                 )}
                 
-                {/* Optional: Add error message display */}
-                {relationshipAnalysisProcessingStatus?.error && (
+                {/* Display error if any during processing */}
+                {processingStatus.error && (
                   <div style={{ marginTop: '10px', color: 'red' }}>
-                    Error: {relationshipAnalysisProcessingStatus.error}
+                    Vectorization Error: {processingStatus.error}
+                  </div>
+                )}
+                
+                {/* Display success message when vectorization is complete */}
+                {vectorizationStatus.relationshipAnalysis && (
+                  <div style={{ marginTop: '10px', color: 'red' }}>
+                    Relationship analysis has been successfully vectorized. (Last updated: {vectorizationStatus.lastUpdated ? new Date(vectorizationStatus.lastUpdated).toLocaleString() : 'N/A'})
                   </div>
                 )}
               </>

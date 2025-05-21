@@ -1,7 +1,7 @@
  
  import React from 'react';
  import './TodaysAspectsTable.css';
- import { planetIcons } from '../../Utilities/constants';
+ import { planetIcons } from '../../../Utilities/constants';
 
  const TodaysAspectsTable = ({ aspectsArray }) => {
 

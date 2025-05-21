@@ -1,6 +1,6 @@
 import React from 'react';
 import './SynastryAspectsTable.css';
-import { planetIcons } from '../../../Utilities/constants';
+import { planetIcons } from '../../../../Utilities/constants';
 
 const SynastryAspectsTable = ({ synastryAspects }) => {
   // Function to get the correct image path for planets

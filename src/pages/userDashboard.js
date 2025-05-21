@@ -1,70 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import TabbedBigFourMenu from '../UI/birthChart/TabbedBigFourComponent';
-import UserChat from '../UI/prototype/UserChat';
 import UserHoroscopeContainer from '../UI/prototype/UserHoroscopeContainer';
-import WeeklyTransitDescriptions from '../UI/prototype/WeeklyTransitDescriptions';
 import useStore from '../Utilities/store';
-import { heading_map, BroadTopicsEnum } from '../Utilities/constants';
-import { identifyBirthChartPattern } from '../Utilities/generatePatternDescription'
-import { HeadingEnum, dominance_headings, planet_headings } from '../Utilities/constants';
-import { 
-  generatePlanetPromptDescription,
-  findPlanetsInQuadrant, 
-  findPlanetsInElements, 
-  findPlanetsInModalities } from '../Utilities/generateBirthDataDescriptions'
-import StatusList from '../UI/prototype/StatusList';
+import { BroadTopicsEnum } from '../Utilities/constants';
 import {
-  fetchBirthChartInterpretation,
-  getShortOverview,
-  getPlanetOverview,
-  getAllPlanetOverview,
   getFullBirthChartAnalysis,
   processAndVectorizeBasicAnalysis,
   processAndVectorizeTopicAnalysis,
   generateTopicAnalysis,
-  fetchAnalysis,
-  postPromptGeneration } from '../Utilities/api';
-import { handleFetchDailyTransits, handleFetchRetrogradeTransits } from '../Utilities/generateUserTranstiDescriptions';
+  fetchAnalysis } from '../Utilities/api';
 
 
 function UserDashboard() {
   const selectedUser = useStore(state => state.selectedUser);
   const userId = useStore(state => state.userId);
-  const userBirthChart = useStore(state => state.userBirthChart);
   const userPlanets = useStore(state => state.userPlanets);
   const userHouses = useStore(state => state.userHouses);
   const userAspects = useStore(state => state.userAspects);
   const dailyTransits = useStore(state => state.dailyTransits);
-  const retrogradeTransits = useStore(state => state.retrogradeTransits);
-  const setRetrogradeTransits = useStore(state => state.setRetrogradeTransits);
-  const userPeriodTransits = useStore(state => state.userPeriodTransits);
-  const userPeriodHouseTransits = useStore(state => state.userPeriodHouseTransits);
-
-  const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
-  const setDailyTransits = useStore(state => state.setDailyTransits)
-  const setSubHeadingsPromptDescriptionsMap = useStore(state => state.setSubHeadingsPromptDescriptionsMap)
-  const subHeadingsPromptDescriptionsMap = useStore(state => state.subHeadingsPromptDescriptionsMap)
-  const setHeadingInterpretationMap = useStore(state => state.setHeadingInterpretationMap)
-  const headingInterpretationMap = useStore(state => state.headingInterpretationMap)
-  const isTransitsPopulated = userPeriodTransits.length > 1
-
-  const [shortOverview, setShortOverview] = useState('');
 
   const [isDataPopulated, setIsDataPopulated] = useState(false);
-  const [sunOverview, setSunOverview] = useState('');
-  const [moonOverview, setMoonOverview] = useState('');
-  const [ascendantOverview, setAscendantOverview] = useState('');
-  const [mercuryOverview, setMercuryOverview] = useState('');
-  const [venusOverview, setVenusOverview] = useState('');
-  const [marsOverview, setMarsOverview] = useState('');
-  const [jupiterOverview, setJupiterOverview] = useState('');
-  const [saturnOverview, setSaturnOverview] = useState('');
-  const [uranusOverview, setUranusOverview] = useState('');
-  const [neptuneOverview, setNeptuneOverview] = useState('');
-  const [plutoOverview, setPlutoOverview] = useState('');
-  const [elementsOverview, setElementsOverview] = useState('');
-  const [modalitiesOverview, setModalitiesOverview] = useState('');
-  const [quadrantsOverview, setQuadrantsOverview] = useState('');
 
 
  const [basicAnalysis, setBasicAnalysis] = useState({
@@ -154,36 +108,11 @@ function UserDashboard() {
       console.log('userId')
       console.log(userId)
       if (userAspects.length !== 0 || userHouses.length !== 0 || userPlanets.length !== 0) {
-      // fetchUserBirtishChartInterpretation(userId)
-      // generateDescriptions();
       setIsDataPopulated(true);
       }
     }
   }, [userId]);
 
-
-  // useEffect( () => {
-  //   async function getTodaysData() {
-  //     if (dailyTransits.length === 0) {
-  //       const currentDateISO = new Date().toISOString();
-  //       const cleanedTransits = await handleFetchDailyTransits(currentDateISO);
-  //       setDailyTransits(cleanedTransits)
-  //     }
-  //   }
-
-  //   async function getRetrogradeTransits() {
-  //       if (retrogradeTransits.length === 0) {
-  //       // set date range to 30 days from today
-  //       const startDate = new Date().toISOString();
-  //       const endDate = new Date(startDate);
-  //       endDate.setDate(endDate.getDate() + 30);
-  //       const retrogradeTransits = await handleFetchRetrogradeTransits(startDate, endDate);
-  //       setRetrogradeTransits(retrogradeTransits)
-  //     }
-  //   }
-  //   getTodaysData()
-  //   getRetrogradeTransits()
-  // }, [])
 
 
   // check if user has analysis already
@@ -577,96 +506,6 @@ const generateAndReturnTopicAnalysis = async () => {
   
 }
 
-// const planetNames = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "ascendant", "Ascendant"];
-
-// async function generateAllPlanetOverviews() {
-//   const birthData = { planets: userPlanets, houses: userHouses, aspects: userAspects };
-//   console.log("birthData", birthData)
-//   for (const planet of birthData.planets) {
-//     if (planetNames.includes(planet.name)) {
-//       generatePlanetOverview(planet.name, birthData)
-//     }
-//   }
-// }
-
-// async function generateAllPlanetOverviewsAtOnce() {
-//     try {
-//       // const response = await getPlanetOverview(planetName, birthData)
-//       const birthData = { planets: userPlanets, houses: userHouses, aspects: userAspects };
-//       const response = await getAllPlanetOverview(birthData)
-
-//       console.log("response", response)
-//       if (response && typeof response === 'object' && response.responses) {
-//               setSunOverview(response.responses['Sun'])
-//               setMoonOverview(response.responses['Moon'])
-//               setAscendantOverview(response.responses['Ascendant'])
-//               setMercuryOverview(response.responses['Mercury'])
-//               setVenusOverview(response.responses['Venus'])
-//               setMarsOverview(response.responses['Mars'])
-//               setJupiterOverview(response.responses['Jupiter'])
-//               setSaturnOverview(response.responses['Saturn'])
-//               setUranusOverview(response.responses['Uranus'])
-//               setNeptuneOverview(response.responses['Neptune'])
-//               setPlutoOverview(response.responses['Pluto'])
-//           } else {
-//               console.log("response with no responses", response)
-//           }
-//       } catch (error) {
-//           console.error('Error:', error);
-//       }
-// }
-
-// // Generate planet overview
-// async function generatePlanetOverview(planetName, birthData) {
-//     console.log("planet: ", planetName)
-//     try {
-//         const response = await getPlanetOverview(planetName, birthData)
-//         // const response = await getAllPlanetOverview(birthData)
-
-//         console.log("response", response)
-//         if (response && typeof response === 'object' && response.response) {
-//             if (planetName === "Sun") {
-//                 setSunOverview(response.response)
-//             }
-//             if (planetName === "Moon") {
-//               setMoonOverview(response.response)
-//             }
-//             if (planetName === "Ascendant" || planetName === "ascendant") {
-//                 setAscendantOverview(response.response)
-//             }
-//             if (planetName === "Mercury") {
-//                 setMercuryOverview(response.response)
-//             }
-//             if (planetName === "Venus") {
-//                 setVenusOverview(response.response)
-//             }
-//             if (planetName === "Mars") {
-//                 setMarsOverview(response.response)
-//             }
-//             if (planetName === "Jupiter") {
-//                 setJupiterOverview(response.response)
-//             }
-//             if (planetName === "Saturn") {
-//                 setSaturnOverview(response.response)
-//             }
-//             if (planetName === "Uranus") {
-//                 setUranusOverview(response.response)
-//             }
-//             if (planetName === "Neptune") {
-//                 setNeptuneOverview(response.response)
-//             }
-//             if (planetName === "Pluto") {
-//                 setPlutoOverview(response.response)
-//             }
-
-//         } else {
-//             return String(response)
-//         }
-//     } catch (error) {
-//         console.error('Error:', error);
-//     }
-// }
-
 
   return (
     <div className="user-prototype-page">
@@ -803,26 +642,6 @@ const generateAndReturnTopicAnalysis = async () => {
         ))}
       </div>
     </div>
-
-
-      /* <WeeklyTransitDescriptions
-        userPeriodTransits={userPeriodTransits}
-        userPeriodHouseTransits={userPeriodHouseTransits}
-        userPlanets={userPlanets}
-        retrogradeTransits={retrogradeTransits}
-      />
-
-      <UserChat selectedUser={selectedUser} />   
-
-      <span>
-        <h2>birth chart interpretation</h2>
-      </span>
-
-      <div>
-        <StatusList />
-        <TabbedBigFourMenu /> 
-      </div> */
-    // </div>
   );
 }
 

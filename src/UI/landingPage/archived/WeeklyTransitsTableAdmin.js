@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { formatTransitDataDescriptionsForTableWeekly } from '../../Utilities/generateUserTranstiDescriptions';
+import { formatTransitDataDescriptionsForTableWeekly } from '../../../Utilities/generateUserTranstiDescriptions';
 
 function WeeklyTransitsTableAdmin({ transits, startDate, onSaveTransits }) {
   const [selectedTransitIds, setSelectedTransitIds] = useState([]);

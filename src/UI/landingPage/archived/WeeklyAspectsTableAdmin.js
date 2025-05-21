@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { formatAspecttDataDescriptionForTableDataWeekly } from '../../Utilities/generateUserTranstiDescriptions';
+import { formatAspecttDataDescriptionForTableDataWeekly } from '../../../Utilities/generateUserTranstiDescriptions';
 
 
 

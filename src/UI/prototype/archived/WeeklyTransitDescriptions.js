@@ -3,10 +3,10 @@ import {
     generateWeeklyTransitDescriptions, 
     generateWeeklyTransitDescriptionsWithRetrograde,
     generateHouseTransitStringCompleteWithRetrograde,
-    generateHouseTransitStringComplete } from '../../Utilities/generateUserTranstiDescriptions';
-import { postGptPromptsForWeeklyTransits, postGptResponseForFormattedTransits } from '../../Utilities/api';
-import { HeadingTransitEnum } from '../../Utilities/constants';
-import { checkResponseAgainstEverything } from '../../Utilities/checkResponses';
+    generateHouseTransitStringComplete } from '../../../Utilities/generateUserTranstiDescriptions';
+import { postGptPromptsForWeeklyTransits, postGptResponseForFormattedTransits } from '../../../Utilities/api';
+import { HeadingTransitEnum } from '../../../Utilities/constants';
+import { checkResponseAgainstEverything } from '../../../Utilities/checkResponses';
 import WeeklyTransitInterpretationsTable from './WeeklyTransitInterpretations';
 
 const WeeklyTransitDescriptions = ({ userPeriodTransits, userPeriodHouseTransits, userPlanets, retrogradeTransits }) => {

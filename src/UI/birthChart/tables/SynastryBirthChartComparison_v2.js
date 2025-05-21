@@ -2,7 +2,6 @@ import React, { memo, useMemo } from 'react';
 import './SynastryBirthChartComparison.css';
 import Ephemeris from '../../shared/Ephemeris';
 import BirthChartSummaryTable from './BirthChartSummaryTable';
-import { addAspectDescriptionComputed } from '../../../Utilities/generateBirthDataDescriptions';
 
 const SynastryBirthChartComparison_v2 = memo(({ birthChartA, birthChartB, compositeChart, userAName, userBName }) => {
 

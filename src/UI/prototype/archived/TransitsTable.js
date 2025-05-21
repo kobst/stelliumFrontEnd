@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './TransitsTable.css';
-import { planetIcons } from '../../Utilities/constants';
-import { formatTransitDataForUser } from '../../Utilities/generateUserTranstiDescriptions';
-import { getAspectSymbol } from '../../Utilities/constants'; // Assuming you have this utility function
+import { planetIcons } from '../../../Utilities/constants';
+import { formatTransitDataForUser } from '../../../Utilities/generateUserTranstiDescriptions';
+import { getAspectSymbol } from '../../../Utilities/constants'; // Assuming you have this utility function
 
 const TransitsTable = ({ transits, onSelectTransit }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });

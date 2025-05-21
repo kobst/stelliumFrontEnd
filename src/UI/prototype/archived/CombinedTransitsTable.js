@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
 // import { useStore } from '../../Utilities/store';
-import useStore from '../../Utilities/store';
+import useStore from '../../../Utilities/store';
 import TransitsTable from './TransitsTable';
-import HouseTransitsTable from './HouseTransitsTable';
-import { generateHouseTransitStringComplete, generateTransitString } from '../../Utilities/generateUserTranstiDescriptions';
-import { postGptResponseForFormattedTransits } from '../../Utilities/api';
+import HouseTransitsTable from '../HouseTransitsTable';
+import { generateHouseTransitStringComplete, generateTransitString } from '../../../Utilities/generateUserTranstiDescriptions';
+import { postGptResponseForFormattedTransits } from '../../../Utilities/api';
 
 
 const CombinedTransitsTables = ({ userPeriodTransits, userPeriodHouseTransits, userHouses }) => {

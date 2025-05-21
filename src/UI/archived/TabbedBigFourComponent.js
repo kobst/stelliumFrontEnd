@@ -4,7 +4,7 @@ import { heading_map, transitTopics, dominance_headings, planet_headings } from 
 import BigFourComponent from './BigFourComponent';
 import PlanetComponent from './PlanetComponent'
 import DominanceComponent from './DominanceComponent';
-import ProgressedTransitComponent from '../ProgressedTransitComponent';
+import ProgressedTransitComponent from './ProgressedTransitComponent';
  
 
 const TabbedBigFourMenu = () => {

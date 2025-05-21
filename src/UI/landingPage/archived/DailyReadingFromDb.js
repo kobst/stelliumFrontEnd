@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDailyTransitInterpretationData } from '../../Utilities/api';
+import { getDailyTransitInterpretationData } from '../../../Utilities/api';
 import DailyReading from './DailyReading';
 
 

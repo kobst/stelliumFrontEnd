@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Emphemeris from './shared/Ephemeris'
-import { PlanetPositions } from './PlanetPositions';
-import useStore from '../Utilities/store';
-import { findAspects } from '../Utilities/generateTransitDescriptions';
-import { getPeriodAspectsForUser } from '../Utilities/api';
+import Emphemeris from '../shared/Ephemeris'
+import useStore from '../../Utilities/store';
+import { findAspects } from '../../Utilities/generateTransitDescriptions';
+import { getPeriodAspectsForUser } from '../../Utilities/api';
 
 const ProgressedTransitComponent = ( {transitType} ) => {
     // const birthData = useStore(state => state.birthData)

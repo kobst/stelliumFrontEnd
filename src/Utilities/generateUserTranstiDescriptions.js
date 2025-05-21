@@ -1,5 +1,5 @@
 import { orbDegrees, aspects, moonPhases } from './constants';
-import { postDailyAspects, postDailyTransits, postPeriodAspects, postPeriodTransits, postDailyRetrogrades, postRetrogradesForDateRange} from './api';
+// import { postDailyAspects, postDailyTransits, postPeriodAspects, postPeriodTransits, postDailyRetrogrades, postRetrogradesForDateRange} from './api';
 import { planetCodes, signCodes, transitCodes } from './constants';
 
 export const signOrder = [
@@ -393,497 +393,497 @@ export const formatTransitData = (aspect, transits, risingSign = null) => {
 
 
 
-  export const handleFetchDailyTransits = async (date) => {
-    try {
-      const transitsData = await postDailyTransits(date);
-      const cleanedTransits = updateObjectKeys(transitsData);
-      // console.log("dailyTransits")
-      // console.log(dailyTransits)
-      return cleanedTransits
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  };
+//   export const handleFetchDailyTransits = async (date) => {
+//     try {
+//       const transitsData = await postDailyTransits(date);
+//       const cleanedTransits = updateObjectKeys(transitsData);
+//       // console.log("dailyTransits")
+//       // console.log(dailyTransits)
+//       return cleanedTransits
+//     } catch (error) {
+//       throw new Error(error.message);
+//     }
+//   };
 
 
-  export const handleFetchRetrogradeTransits = async (startDate, endDate) => {
-    try {
-      const retrogradeTransitsForDateRange = await postRetrogradesForDateRange(startDate, endDate);
-      return retrogradeTransitsForDateRange
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  };
+//   export const handleFetchRetrogradeTransits = async (startDate, endDate) => {
+//     try {
+//       const retrogradeTransitsForDateRange = await postRetrogradesForDateRange(startDate, endDate);
+//       return retrogradeTransitsForDateRange
+//     } catch (error) {
+//       throw new Error(error.message);
+//     }
+//   };
 
 
-  export const handleFetchInstantAspects = async (date) => {
-    try {
-        const aspectsData = await postDailyAspects(date);
-        return aspectsData
+//   export const handleFetchInstantAspects = async (date) => {
+//     try {
+//         const aspectsData = await postDailyAspects(date);
+//         return aspectsData
 
         
-    } catch (error) {
-        throw new Error(error.message);
-  }
-};
+//     } catch (error) {
+//         throw new Error(error.message);
+//   }
+// };
 
 
 
-  export const handleFetchDailyAspects = async (date) => {
-      try {
-        const endOfDay = new Date(date);
-        endOfDay.setHours(23, 59, 59, 999);
-          // const aspectsData = await postDailyAspects(date);
-          // setDailyTransitAspects(aspectsData);
-          const aspectsData = await postPeriodAspects(date, endOfDay);
-          return aspectsData
+//   export const handleFetchDailyAspects = async (date) => {
+//       try {
+//         const endOfDay = new Date(date);
+//         endOfDay.setHours(23, 59, 59, 999);
+//           // const aspectsData = await postDailyAspects(date);
+//           // setDailyTransitAspects(aspectsData);
+//           const aspectsData = await postPeriodAspects(date, endOfDay);
+//           return aspectsData
 
           
-      } catch (error) {
-          throw new Error(error.message);
-    }
-  };
+//       } catch (error) {
+//           throw new Error(error.message);
+//     }
+//   };
 
-export const handleFetchPeriodTransits = async (startDate, endDate) => {
-  try {
-    const transitsData = await postPeriodTransits(startDate, endDate);
-  //   const planetaryTransits = trackPlanetaryTransits(transitsData);
-  //   console.log("planetaryTransits")
-  //   console.log(planetaryTransits)
-      // setPeriodTransits(transitsData);   
-      return transitsData
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
+// export const handleFetchPeriodTransits = async (startDate, endDate) => {
+//   try {
+//     const transitsData = await postPeriodTransits(startDate, endDate);
+//   //   const planetaryTransits = trackPlanetaryTransits(transitsData);
+//   //   console.log("planetaryTransits")
+//   //   console.log(planetaryTransits)
+//       // setPeriodTransits(transitsData);   
+//       return transitsData
+//   } catch (error) {
+//     throw new Error(error.message);
+//   }
+// };
 
-export const handleFetchPeriodAspects = async (startDate, endDate) => {
-    try {
-        const periodAspectsData = await postPeriodAspects(startDate, endDate);
-        console.log("periodAspectsData (before filtering)", periodAspectsData);
+// export const handleFetchPeriodAspects = async (startDate, endDate) => {
+//     try {
+//         const periodAspectsData = await postPeriodAspects(startDate, endDate);
+//         console.log("periodAspectsData (before filtering)", periodAspectsData);
 
-        const filteredAspects = periodAspectsData.filter(aspect => {
-            // return true;
-          // Keep all aspects where Moon is not the transiting planet
-          if (aspect.transitingPlanet !== "Moon") {
-            return true;
-          }
-          // For Moon transits, only keep Sun oppositions and conjunctions
-          return (
-            aspect.aspectingPlanet === "Sun" &&
-            (aspect.aspectType === "opposition" || aspect.aspectType === "conjunction")
-          );
-        });
-        return filteredAspects
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  };
-
-
-  export const handleFetchRetrogrades = async (startDate) => {
-    try {
-        const retrogrades = await postDailyRetrogrades(startDate);
-        return retrogrades
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  };
+//         const filteredAspects = periodAspectsData.filter(aspect => {
+//             // return true;
+//           // Keep all aspects where Moon is not the transiting planet
+//           if (aspect.transitingPlanet !== "Moon") {
+//             return true;
+//           }
+//           // For Moon transits, only keep Sun oppositions and conjunctions
+//           return (
+//             aspect.aspectingPlanet === "Sun" &&
+//             (aspect.aspectType === "opposition" || aspect.aspectType === "conjunction")
+//           );
+//         });
+//         return filteredAspects
+//     } catch (error) {
+//       throw new Error(error.message);
+//     }
+//   };
 
 
-  export const generateWeeklyTransitDescriptions = (transits, userPeriodHouseTransits, numberOfDays) => {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-
-    const endDate = new Date(today);
-    endDate.setDate(today.getDate() + numberOfDays);
-
-    const transitsExactWithinDateRange = transits
-      .filter(transit => {
-        const closestOrbDate = new Date(transit.closestOrbDate);
-        return closestOrbDate >= today && closestOrbDate <= endDate;
-      })
-      .map(transit => generateTransitString(transit, userPeriodHouseTransits));
-
-    const transitsInEffectWithinDateRange = transits
-      .filter(transit => {
-        const startDate = new Date(transit.dateRange[0]);
-        const endDate = new Date(transit.dateRange[1]);
-        return today >= startDate && today <= endDate;
-      })
-      .map(transit => generateTransitString(transit, userPeriodHouseTransits));
-
-    return {
-      transitsExactWithinDateRange,
-      transitsInEffectWithinDateRange
-    };
-  };
+//   export const handleFetchRetrogrades = async (startDate) => {
+//     try {
+//         const retrogrades = await postDailyRetrogrades(startDate);
+//         return retrogrades
+//     } catch (error) {
+//       throw new Error(error.message);
+//     }
+//   };
 
 
-  export const generateWeeklyTransitDescriptionsWithRetrograde = (transits, userPeriodHouseTransits, numberOfDays, retrogradeTransits) => {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-  
-    const endDate = new Date(today);
-    endDate.setDate(today.getDate() + numberOfDays);
-  
-    const transitsExactWithinDateRange = transits
-      .flatMap(transit => {
-        const closestOrbDate = new Date(transit.closestOrbDate);
-        if (closestOrbDate >= today && closestOrbDate <= endDate) {
-          const retrogradeTransit = retrogradeTransits.find(
-            rt => rt.planet === transit.transitingPlanet && closestOrbDate >= new Date(rt.date_range[0]) && closestOrbDate <= new Date(rt.date_range[1])
-          );
-  
-          if (retrogradeTransit) {
-            const retrogradeEndDate = new Date(retrogradeTransit.date_range[1]);
-            const transitEndDate = new Date(transit.dateRange[1]);
+//   export const generateWeeklyTransitDescriptions = (transits, userPeriodHouseTransits, numberOfDays) => {
+//     const today = new Date();
+//     const dayOfWeek = today.getDay();
 
-            if (retrogradeEndDate < transitEndDate) {
-              const directStartDate = new Date(retrogradeEndDate);
-              directStartDate.setDate(directStartDate.getDate() + 1);
+//     const endDate = new Date(today);
+//     endDate.setDate(today.getDate() + numberOfDays);
 
-              return [
-                generateTransitStringWithRetrograde(transit, userPeriodHouseTransits, true, retrogradeEndDate),
-                generateTransitStringWithRetrograde(transit, userPeriodHouseTransits, false, transitEndDate, directStartDate)
-              ];
-            } else {
-              return [generateTransitStringWithRetrograde(transit, userPeriodHouseTransits, true, transitEndDate)];
-            }
-          } else {
-            return [generateTransitString(transit, userPeriodHouseTransits)];
-          }
-        }
-        return [];
-      });
-  
-    const transitsInEffectWithinDateRange = transits
-      .flatMap(transit => {
-        const startDate = new Date(transit.dateRange[0]);
-        const endDate = new Date(transit.dateRange[1]);
-        if (today >= startDate && today <= endDate) {
-          const retrogradeTransit = retrogradeTransits.find(
-            rt => rt.planet === transit.transitingPlanet && today >= new Date(rt.date_range[0]) && today <= new Date(rt.date_range[1])
-          );
-  
-          if (retrogradeTransit) {
-            const retrogradeEndDate = new Date(retrogradeTransit.date_range[1]);
-            const directStartDate = new Date(retrogradeEndDate);
-            directStartDate.setDate(directStartDate.getDate() + 1);
-  
-            return [
-              generateTransitStringWithRetrograde(transit, userPeriodHouseTransits, true, retrogradeEndDate),
-              generateTransitStringWithRetrograde(transit, userPeriodHouseTransits, false, directStartDate)
-            ];
-          } else {
-            return [generateTransitStringWithRetrograde(transit, userPeriodHouseTransits)];
-          }
-        }
-        return [];
-      });
-  
-    return {
-      transitsExactWithinDateRange,
-      transitsInEffectWithinDateRange
-    };
-  };
-  
-  export const generateTransitStringWithRetrograde = (transit, userPeriodHouseTransits, isRetrograde = false, endDate = null, directStartDate = null) => {
-    const {
-      transitingPlanet,
-      transitingPlanetSignAtOrb,
-      aspectType,
-      aspectingPlanet,
-      aspectingPlanetSign,
-      aspectPlanetHouse,
-      closestOrbDate
-    } = transit;
-  
-    const formattedDate = new Date(closestOrbDate).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  
-    const transitingHouse = findTransitingHouse(transitingPlanet, closestOrbDate, userPeriodHouseTransits);
-  
-    const retrogradeText = isRetrograde ? 'Retrograde ' : '';
-    const endDateText = endDate ? ` until ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : '';
-    const directStartDateText = directStartDate ? ` from ${directStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : '';
-  
-    const description = `${retrogradeText}${transitingPlanet} in the ${transitingHouse} house and ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}${endDateText}${directStartDateText}`;
-  
-    const transitingPlanetCode = planetCodes[transitingPlanet];
-    const transitingSignCode = signCodes[transitingPlanetSignAtOrb];
-    const transitingHouseCode = transitingHouse.toString().padStart(2, '0');
-    const aspectCode = transitCodes[aspectType];
-  
-    const aspectingPlanetCode = planetCodes[aspectingPlanet];
-    const aspectingSignCode = signCodes[aspectingPlanetSign];
-    const aspectingHouseCode = aspectPlanetHouse.toString().padStart(2, '0');
-  
-    const code = `Tu-${transitingPlanetCode}${transitingSignCode}${transitingHouseCode}-${aspectCode}-Tn-${aspectingPlanetCode}${aspectingSignCode}${aspectingHouseCode}`;
-  
-    return `${description} (${code})`;
-  };
+//     const transitsExactWithinDateRange = transits
+//       .filter(transit => {
+//         const closestOrbDate = new Date(transit.closestOrbDate);
+//         return closestOrbDate >= today && closestOrbDate <= endDate;
+//       })
+//       .map(transit => generateTransitString(transit, userPeriodHouseTransits));
 
-  export const generateHouseTransitString = (userHouseTransitData, transit) => {
-    const today = new Date();
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-  
-    const { planet, transitHouses } = userHouseTransitData;
-  
-    const currentTransit = transitHouses.find(transit => {
-      const startDate = new Date(transit.dateRange[0]);
-      const endDate = new Date(transit.dateRange[1]);
-      return today >= startDate && today <= endDate;
-    });
-  
-    if (currentTransit) {
-      const nextTransit = transitHouses.find(transit => {
-        const startDate = new Date(transit.dateRange[0]);
-        return startDate > today && startDate <= nextWeek;
-      });
-  
-      if (nextTransit) {
-        const changeDate = new Date(nextTransit.dateRange[0]);
-        const formattedChangeDate = changeDate.toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric'
-        });
-        return `${planet} is transiting the ${currentTransit.transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedChangeDate}`;
-      } else {
-        return `${planet} is transiting the ${currentTransit.transitingHouse}th house for the next week`;
-      }
-    }
-  
-    return '';
-  };
+//     const transitsInEffectWithinDateRange = transits
+//       .filter(transit => {
+//         const startDate = new Date(transit.dateRange[0]);
+//         const endDate = new Date(transit.dateRange[1]);
+//         return today >= startDate && today <= endDate;
+//       })
+//       .map(transit => generateTransitString(transit, userPeriodHouseTransits));
 
-  export const generateHouseTransitStringComplete = (transitData) => {
-    // console.log("generateHouseTransitStringComplete");
-    // console.log(transitData);
-    const today = new Date();
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-  
-    const { planet, transitHouses } = transitData;
-  
-    const currentTransit = transitHouses.find(transit => {
-      const startDate = new Date(transit.dateRange[0]);
-      const endDate = new Date(transit.dateRange[1]);
-      return startDate <= today && endDate >= today && transit.transitingHouse !== null;
-    });
-  
-    if (currentTransit) {
-      console.log("currentTransit")
-      // console.log(currentTransit)
-      const { transitingHouse } = currentTransit;
-  
-      let nextTransit = transitHouses.find(transit => {
-        const startDate = new Date(transit.dateRange[0]);
-        return startDate > today && startDate <= nextWeek && transit.transitingHouse !== null;
-      });
-  
-      let description = '';
-      let code = '';
-  
-      const planetCode = planetCodes[planet];
-      const currentHouseCode = transitingHouse.toString().padStart(2, '0');
-  
-      if (nextTransit) {
-        const houseChangeDate = new Date(nextTransit.dateRange[0]);
-        const formattedHouseChangeDate = houseChangeDate.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric'
-        });
-  
-        const nextHouseCode = nextTransit.transitingHouse.toString().padStart(2, '0');
-  
-        description = `${planet} is transiting the ${transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
-        code = `Ht-${planetCode}${currentHouseCode}-H${nextHouseCode}`;
-      } else {
-        const endDate = new Date(currentTransit.dateRange[1]);
-        const formattedEndDate = endDate.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric'
-        });
-  
-        description = `${planet} is transiting the ${transitingHouse}th house until ${formattedEndDate}`;
-        code = `THt-${planetCode}${currentHouseCode}`;
-      }
-  
-      return `${description} (${code})`;
-    }
-  
-    return '';
-  };
+//     return {
+//       transitsExactWithinDateRange,
+//       transitsInEffectWithinDateRange
+//     };
+//   };
 
 
-  export const generateHouseTransitStringCompleteWithRetrograde = (transitData, retrogradeTransits) => {
-    const today = new Date();
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
+//   export const generateWeeklyTransitDescriptionsWithRetrograde = (transits, userPeriodHouseTransits, numberOfDays, retrogradeTransits) => {
+//     const today = new Date();
+//     const dayOfWeek = today.getDay();
   
-    const { planet, transitHouses } = transitData;
+//     const endDate = new Date(today);
+//     endDate.setDate(today.getDate() + numberOfDays);
   
-    const currentTransit = transitHouses.find(transit => {
-      const startDate = new Date(transit.dateRange[0]);
-      const endDate = new Date(transit.dateRange[1]);
-      return startDate <= today && endDate >= today && transit.transitingHouse !== null;
-    });
+//     const transitsExactWithinDateRange = transits
+//       .flatMap(transit => {
+//         const closestOrbDate = new Date(transit.closestOrbDate);
+//         if (closestOrbDate >= today && closestOrbDate <= endDate) {
+//           const retrogradeTransit = retrogradeTransits.find(
+//             rt => rt.planet === transit.transitingPlanet && closestOrbDate >= new Date(rt.date_range[0]) && closestOrbDate <= new Date(rt.date_range[1])
+//           );
   
-    if (currentTransit) {
-      const { transitingHouse } = currentTransit;
+//           if (retrogradeTransit) {
+//             const retrogradeEndDate = new Date(retrogradeTransit.date_range[1]);
+//             const transitEndDate = new Date(transit.dateRange[1]);
+
+//             if (retrogradeEndDate < transitEndDate) {
+//               const directStartDate = new Date(retrogradeEndDate);
+//               directStartDate.setDate(directStartDate.getDate() + 1);
+
+//               return [
+//                 generateTransitStringWithRetrograde(transit, userPeriodHouseTransits, true, retrogradeEndDate),
+//                 generateTransitStringWithRetrograde(transit, userPeriodHouseTransits, false, transitEndDate, directStartDate)
+//               ];
+//             } else {
+//               return [generateTransitStringWithRetrograde(transit, userPeriodHouseTransits, true, transitEndDate)];
+//             }
+//           } else {
+//             return [generateTransitString(transit, userPeriodHouseTransits)];
+//           }
+//         }
+//         return [];
+//       });
   
-      let nextTransit = transitHouses.find(transit => {
-        const startDate = new Date(transit.dateRange[0]);
-        return startDate > today && startDate <= nextWeek && transit.transitingHouse !== null;
-      });
+//     const transitsInEffectWithinDateRange = transits
+//       .flatMap(transit => {
+//         const startDate = new Date(transit.dateRange[0]);
+//         const endDate = new Date(transit.dateRange[1]);
+//         if (today >= startDate && today <= endDate) {
+//           const retrogradeTransit = retrogradeTransits.find(
+//             rt => rt.planet === transit.transitingPlanet && today >= new Date(rt.date_range[0]) && today <= new Date(rt.date_range[1])
+//           );
   
-      let description = '';
-      let code = '';
+//           if (retrogradeTransit) {
+//             const retrogradeEndDate = new Date(retrogradeTransit.date_range[1]);
+//             const directStartDate = new Date(retrogradeEndDate);
+//             directStartDate.setDate(directStartDate.getDate() + 1);
   
-      const planetCode = planetCodes[planet];
-      const currentHouseCode = transitingHouse.toString().padStart(2, '0');
+//             return [
+//               generateTransitStringWithRetrograde(transit, userPeriodHouseTransits, true, retrogradeEndDate),
+//               generateTransitStringWithRetrograde(transit, userPeriodHouseTransits, false, directStartDate)
+//             ];
+//           } else {
+//             return [generateTransitStringWithRetrograde(transit, userPeriodHouseTransits)];
+//           }
+//         }
+//         return [];
+//       });
   
-      const retrogradeTransit = retrogradeTransits.find(
-        rt => rt.planet === planet && today >= new Date(rt.date_range[0]) && today <= new Date(rt.date_range[1])
-      );
+//     return {
+//       transitsExactWithinDateRange,
+//       transitsInEffectWithinDateRange
+//     };
+//   };
   
-      const isRetrograde = !!retrogradeTransit;
-      const retrogradeText = isRetrograde ? 'Retrograde ' : '';
+//   export const generateTransitStringWithRetrograde = (transit, userPeriodHouseTransits, isRetrograde = false, endDate = null, directStartDate = null) => {
+//     const {
+//       transitingPlanet,
+//       transitingPlanetSignAtOrb,
+//       aspectType,
+//       aspectingPlanet,
+//       aspectingPlanetSign,
+//       aspectPlanetHouse,
+//       closestOrbDate
+//     } = transit;
   
-      if (nextTransit) {
-        const houseChangeDate = new Date(nextTransit.dateRange[0]);
-        const formattedHouseChangeDate = houseChangeDate.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric'
-        });
+//     const formattedDate = new Date(closestOrbDate).toLocaleDateString('en-US', {
+//       year: 'numeric',
+//       month: 'long',
+//       day: 'numeric'
+//     });
   
-        const nextHouseCode = nextTransit.transitingHouse.toString().padStart(2, '0');
+//     const transitingHouse = findTransitingHouse(transitingPlanet, closestOrbDate, userPeriodHouseTransits);
   
-        if (isRetrograde) {
-          const retrogradeEndDate = new Date(retrogradeTransit.date_range[1]);
-          const formattedRetrogradeEndDate = retrogradeEndDate.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-          });
+//     const retrogradeText = isRetrograde ? 'Retrograde ' : '';
+//     const endDateText = endDate ? ` until ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : '';
+//     const directStartDateText = directStartDate ? ` from ${directStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : '';
   
-          description = `${retrogradeText}${planet} is transiting the ${transitingHouse}th house until ${formattedRetrogradeEndDate}, then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
-          code = `Ht-${planetCode}${currentHouseCode}-H${nextHouseCode}`;
-        } else {
-          description = `${planet} is transiting the ${transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
-          code = `Ht-${planetCode}${currentHouseCode}-H${nextHouseCode}`;
-        }
-      } else {
-        const endDate = new Date(currentTransit.dateRange[1]);
-        const formattedEndDate = endDate.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric'
-        });
+//     const description = `${retrogradeText}${transitingPlanet} in the ${transitingHouse} house and ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}${endDateText}${directStartDateText}`;
   
-        if (isRetrograde) {
-          const retrogradeEndDate = new Date(retrogradeTransit.date_range[1]);
-          const formattedRetrogradeEndDate = retrogradeEndDate.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-          });
+//     const transitingPlanetCode = planetCodes[transitingPlanet];
+//     const transitingSignCode = signCodes[transitingPlanetSignAtOrb];
+//     const transitingHouseCode = transitingHouse.toString().padStart(2, '0');
+//     const aspectCode = transitCodes[aspectType];
   
-          description = `${retrogradeText}${planet} is transiting the ${transitingHouse}th house until ${formattedRetrogradeEndDate}`;
-          code = `THt-${planetCode}${currentHouseCode}`;
-        } else {
-          description = `${planet} is transiting the ${transitingHouse}th house until ${formattedEndDate}`;
-          code = `THt-${planetCode}${currentHouseCode}`;
-        }
-      }
+//     const aspectingPlanetCode = planetCodes[aspectingPlanet];
+//     const aspectingSignCode = signCodes[aspectingPlanetSign];
+//     const aspectingHouseCode = aspectPlanetHouse.toString().padStart(2, '0');
   
-      return `${description} (${code})`;
-    }
+//     const code = `Tu-${transitingPlanetCode}${transitingSignCode}${transitingHouseCode}-${aspectCode}-Tn-${aspectingPlanetCode}${aspectingSignCode}${aspectingHouseCode}`;
   
-    return '';
-  };
+//     return `${description} (${code})`;
+//   };
+
+//   export const generateHouseTransitString = (userHouseTransitData, transit) => {
+//     const today = new Date();
+//     const nextWeek = new Date(today);
+//     nextWeek.setDate(today.getDate() + 7);
+  
+//     const { planet, transitHouses } = userHouseTransitData;
+  
+//     const currentTransit = transitHouses.find(transit => {
+//       const startDate = new Date(transit.dateRange[0]);
+//       const endDate = new Date(transit.dateRange[1]);
+//       return today >= startDate && today <= endDate;
+//     });
+  
+//     if (currentTransit) {
+//       const nextTransit = transitHouses.find(transit => {
+//         const startDate = new Date(transit.dateRange[0]);
+//         return startDate > today && startDate <= nextWeek;
+//       });
+  
+//       if (nextTransit) {
+//         const changeDate = new Date(nextTransit.dateRange[0]);
+//         const formattedChangeDate = changeDate.toLocaleDateString('en-US', {
+//           month: 'long',
+//           day: 'numeric'
+//         });
+//         return `${planet} is transiting the ${currentTransit.transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedChangeDate}`;
+//       } else {
+//         return `${planet} is transiting the ${currentTransit.transitingHouse}th house for the next week`;
+//       }
+//     }
+  
+//     return '';
+//   };
+
+//   export const generateHouseTransitStringComplete = (transitData) => {
+//     // console.log("generateHouseTransitStringComplete");
+//     // console.log(transitData);
+//     const today = new Date();
+//     const nextWeek = new Date(today);
+//     nextWeek.setDate(today.getDate() + 7);
+  
+//     const { planet, transitHouses } = transitData;
+  
+//     const currentTransit = transitHouses.find(transit => {
+//       const startDate = new Date(transit.dateRange[0]);
+//       const endDate = new Date(transit.dateRange[1]);
+//       return startDate <= today && endDate >= today && transit.transitingHouse !== null;
+//     });
+  
+//     if (currentTransit) {
+//       console.log("currentTransit")
+//       // console.log(currentTransit)
+//       const { transitingHouse } = currentTransit;
+  
+//       let nextTransit = transitHouses.find(transit => {
+//         const startDate = new Date(transit.dateRange[0]);
+//         return startDate > today && startDate <= nextWeek && transit.transitingHouse !== null;
+//       });
+  
+//       let description = '';
+//       let code = '';
+  
+//       const planetCode = planetCodes[planet];
+//       const currentHouseCode = transitingHouse.toString().padStart(2, '0');
+  
+//       if (nextTransit) {
+//         const houseChangeDate = new Date(nextTransit.dateRange[0]);
+//         const formattedHouseChangeDate = houseChangeDate.toLocaleDateString('en-US', {
+//           month: 'short',
+//           day: 'numeric'
+//         });
+  
+//         const nextHouseCode = nextTransit.transitingHouse.toString().padStart(2, '0');
+  
+//         description = `${planet} is transiting the ${transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
+//         code = `Ht-${planetCode}${currentHouseCode}-H${nextHouseCode}`;
+//       } else {
+//         const endDate = new Date(currentTransit.dateRange[1]);
+//         const formattedEndDate = endDate.toLocaleDateString('en-US', {
+//           month: 'short',
+//           day: 'numeric'
+//         });
+  
+//         description = `${planet} is transiting the ${transitingHouse}th house until ${formattedEndDate}`;
+//         code = `THt-${planetCode}${currentHouseCode}`;
+//       }
+  
+//       return `${description} (${code})`;
+//     }
+  
+//     return '';
+//   };
 
 
-export const generateTransitString = (transit, userPeriodHouseTransits) => {
-  const {
-    transitingPlanet,
-    transitingPlanetSignAtOrb,
-    aspectType,
-    aspectingPlanet,
-    aspectingPlanetSign,
-    aspectPlanetHouse,
-    closestOrbDate
-  } = transit;
-
-  const formattedDate = new Date(closestOrbDate).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-
-  const transitingHouse = findTransitingHouse(transitingPlanet, closestOrbDate, userPeriodHouseTransits);
-
-  const description = `${transitingPlanet} in the ${transitingHouse} house and ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}`;
-
-  const transitingPlanetCode = planetCodes[transitingPlanet];
-  const transitingSignCode = signCodes[transitingPlanetSignAtOrb];
-  const transitingHouseCode = transitingHouse.toString().padStart(2, '0');
-  const aspectCode = transitCodes[aspectType];
-
-
-  const aspectingPlanetCode = planetCodes[aspectingPlanet];
-  const aspectingSignCode = signCodes[aspectingPlanetSign];
-  const aspectingHouseCode = aspectPlanetHouse.toString().padStart(2, '0');
-
-  const code = `Tu-${transitingPlanetCode}${transitingSignCode}${transitingHouseCode}-${aspectCode}-Tn-${aspectingPlanetCode}${aspectingSignCode}${aspectingHouseCode}`;
-
-  return `${description} (${code})`;
-};
-
-  // export const generateTransitStringPrevious = (transit, userPeriodHouseTransits) => {
-  //   const {
-  //     transitingPlanet,
-  //     transitingPlanetSignAtOrb,
-  //     aspectType,
-  //     aspectingPlanet,
-  //     aspectingPlanetSign,
-  //     aspectPlanetHouse,
-  //     closestOrbDate
-  //   } = transit;
+//   export const generateHouseTransitStringCompleteWithRetrograde = (transitData, retrogradeTransits) => {
+//     const today = new Date();
+//     const nextWeek = new Date(today);
+//     nextWeek.setDate(today.getDate() + 7);
   
-  //   const formattedDate = new Date(closestOrbDate).toLocaleDateString('en-US', {
-  //     year: 'numeric',
-  //     month: 'long',
-  //     day: 'numeric'
-  //   });
-
-  //   const transitingHouse = findTransitingHouse(transitingPlanet, closestOrbDate, userPeriodHouseTransits);
+//     const { planet, transitHouses } = transitData;
   
-  //   return `${transitingPlanet} in the ${transitingHouse} house and ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}`;
-  // };
-
-  const findTransitingHouse = (planet, date, houseTransits) => {
-    // console.log("houseTransits")
-    // console.log(houseTransits)
-    // console.log("planet")
-    // console.log(planet)
-    // console.log("date")
-    // console.log(date)
-    const planetTransits = houseTransits.find(transit => transit.planet === planet);
-    if (!planetTransits) {
-      console.log("No planet transits found for", planet);
-      return '';
-    }
-    const transitHouse = planetTransits.transitHouses.find(transit => {
-      const startDate = new Date(transit.dateRange[0]);
-      const endDate = new Date(transit.dateRange[1]);
-      const compareDate = new Date(date);
-      return compareDate >= startDate && compareDate <= endDate;
-    });
+//     const currentTransit = transitHouses.find(transit => {
+//       const startDate = new Date(transit.dateRange[0]);
+//       const endDate = new Date(transit.dateRange[1]);
+//       return startDate <= today && endDate >= today && transit.transitingHouse !== null;
+//     });
   
-    // console.log("transitHouse")
-    // console.log(transitHouse)
-    return transitHouse ? `${transitHouse.transitingHouse}` : '';
-  };
+//     if (currentTransit) {
+//       const { transitingHouse } = currentTransit;
+  
+//       let nextTransit = transitHouses.find(transit => {
+//         const startDate = new Date(transit.dateRange[0]);
+//         return startDate > today && startDate <= nextWeek && transit.transitingHouse !== null;
+//       });
+  
+//       let description = '';
+//       let code = '';
+  
+//       const planetCode = planetCodes[planet];
+//       const currentHouseCode = transitingHouse.toString().padStart(2, '0');
+  
+//       const retrogradeTransit = retrogradeTransits.find(
+//         rt => rt.planet === planet && today >= new Date(rt.date_range[0]) && today <= new Date(rt.date_range[1])
+//       );
+  
+//       const isRetrograde = !!retrogradeTransit;
+//       const retrogradeText = isRetrograde ? 'Retrograde ' : '';
+  
+//       if (nextTransit) {
+//         const houseChangeDate = new Date(nextTransit.dateRange[0]);
+//         const formattedHouseChangeDate = houseChangeDate.toLocaleDateString('en-US', {
+//           month: 'short',
+//           day: 'numeric'
+//         });
+  
+//         const nextHouseCode = nextTransit.transitingHouse.toString().padStart(2, '0');
+  
+//         if (isRetrograde) {
+//           const retrogradeEndDate = new Date(retrogradeTransit.date_range[1]);
+//           const formattedRetrogradeEndDate = retrogradeEndDate.toLocaleDateString('en-US', {
+//             month: 'short',
+//             day: 'numeric'
+//           });
+  
+//           description = `${retrogradeText}${planet} is transiting the ${transitingHouse}th house until ${formattedRetrogradeEndDate}, then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
+//           code = `Ht-${planetCode}${currentHouseCode}-H${nextHouseCode}`;
+//         } else {
+//           description = `${planet} is transiting the ${transitingHouse}th house, then entering the ${nextTransit.transitingHouse}th house on ${formattedHouseChangeDate}`;
+//           code = `Ht-${planetCode}${currentHouseCode}-H${nextHouseCode}`;
+//         }
+//       } else {
+//         const endDate = new Date(currentTransit.dateRange[1]);
+//         const formattedEndDate = endDate.toLocaleDateString('en-US', {
+//           month: 'short',
+//           day: 'numeric'
+//         });
+  
+//         if (isRetrograde) {
+//           const retrogradeEndDate = new Date(retrogradeTransit.date_range[1]);
+//           const formattedRetrogradeEndDate = retrogradeEndDate.toLocaleDateString('en-US', {
+//             month: 'short',
+//             day: 'numeric'
+//           });
+  
+//           description = `${retrogradeText}${planet} is transiting the ${transitingHouse}th house until ${formattedRetrogradeEndDate}`;
+//           code = `THt-${planetCode}${currentHouseCode}`;
+//         } else {
+//           description = `${planet} is transiting the ${transitingHouse}th house until ${formattedEndDate}`;
+//           code = `THt-${planetCode}${currentHouseCode}`;
+//         }
+//       }
+  
+//       return `${description} (${code})`;
+//     }
+  
+//     return '';
+//   };
+
+
+// export const generateTransitString = (transit, userPeriodHouseTransits) => {
+//   const {
+//     transitingPlanet,
+//     transitingPlanetSignAtOrb,
+//     aspectType,
+//     aspectingPlanet,
+//     aspectingPlanetSign,
+//     aspectPlanetHouse,
+//     closestOrbDate
+//   } = transit;
+
+//   const formattedDate = new Date(closestOrbDate).toLocaleDateString('en-US', {
+//     year: 'numeric',
+//     month: 'long',
+//     day: 'numeric'
+//   });
+
+//   const transitingHouse = findTransitingHouse(transitingPlanet, closestOrbDate, userPeriodHouseTransits);
+
+//   const description = `${transitingPlanet} in the ${transitingHouse} house and ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}`;
+
+//   const transitingPlanetCode = planetCodes[transitingPlanet];
+//   const transitingSignCode = signCodes[transitingPlanetSignAtOrb];
+//   const transitingHouseCode = transitingHouse.toString().padStart(2, '0');
+//   const aspectCode = transitCodes[aspectType];
+
+
+//   const aspectingPlanetCode = planetCodes[aspectingPlanet];
+//   const aspectingSignCode = signCodes[aspectingPlanetSign];
+//   const aspectingHouseCode = aspectPlanetHouse.toString().padStart(2, '0');
+
+//   const code = `Tu-${transitingPlanetCode}${transitingSignCode}${transitingHouseCode}-${aspectCode}-Tn-${aspectingPlanetCode}${aspectingSignCode}${aspectingHouseCode}`;
+
+//   return `${description} (${code})`;
+// };
+
+//   // export const generateTransitStringPrevious = (transit, userPeriodHouseTransits) => {
+//   //   const {
+//   //     transitingPlanet,
+//   //     transitingPlanetSignAtOrb,
+//   //     aspectType,
+//   //     aspectingPlanet,
+//   //     aspectingPlanetSign,
+//   //     aspectPlanetHouse,
+//   //     closestOrbDate
+//   //   } = transit;
+  
+//   //   const formattedDate = new Date(closestOrbDate).toLocaleDateString('en-US', {
+//   //     year: 'numeric',
+//   //     month: 'long',
+//   //     day: 'numeric'
+//   //   });
+
+//   //   const transitingHouse = findTransitingHouse(transitingPlanet, closestOrbDate, userPeriodHouseTransits);
+  
+//   //   return `${transitingPlanet} in the ${transitingHouse} house and ${transitingPlanetSignAtOrb} ${aspectType} natal ${aspectingPlanet} in ${aspectingPlanetSign} and the ${aspectPlanetHouse} house on ${formattedDate}`;
+//   // };
+
+//   const findTransitingHouse = (planet, date, houseTransits) => {
+//     // console.log("houseTransits")
+//     // console.log(houseTransits)
+//     // console.log("planet")
+//     // console.log(planet)
+//     // console.log("date")
+//     // console.log(date)
+//     const planetTransits = houseTransits.find(transit => transit.planet === planet);
+//     if (!planetTransits) {
+//       console.log("No planet transits found for", planet);
+//       return '';
+//     }
+//     const transitHouse = planetTransits.transitHouses.find(transit => {
+//       const startDate = new Date(transit.dateRange[0]);
+//       const endDate = new Date(transit.dateRange[1]);
+//       const compareDate = new Date(date);
+//       return compareDate >= startDate && compareDate <= endDate;
+//     });
+  
+//     // console.log("transitHouse")
+//     // console.log(transitHouse)
+//     return transitHouse ? `${transitHouse.transitingHouse}` : '';
+//   };

@@ -3,20 +3,11 @@ import { useNavigate } from 'react-router-dom';
 
 import { fetchComposites } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
-import { 
-  formatTransitDataForUser, 
-  handleFetchDailyTransits, 
-  handleFetchRetrogradeTransits } from '../../Utilities/generateUserTranstiDescriptions';
-import { HeadingEnum } from '../../Utilities/constants';
 
 
 function CompositesTable({ onCompositeChartSelect }) {
   const [composites, setComposites] = useState([]);
   const selectedCompositeChart = useStore(state => state.selectedCompositeChart);
-  const setDailyTransits = useStore(state => state.setDailyTransits);
-  const dailyTransits = useStore(state => state.dailyTransits);
-  const setRetrogradeTransits = useStore(state => state.setRetrogradeTransits);
-  const retrogradeTransits = useStore(state => state.retrogradeTransits);
   const navigate = useNavigate();
 
 
@@ -31,27 +22,6 @@ function CompositesTable({ onCompositeChartSelect }) {
         } catch (error) {
           console.error('Error fetching composites:', error);
         }
-      }
-    }
-
-    async function getTodaysData() {
-      if (dailyTransits.length === 0) {
-        const currentDateISO = new Date().toISOString();
-        const cleanedTransits = await handleFetchDailyTransits(currentDateISO);
-        setDailyTransits(cleanedTransits)
-      }
-    }
-
-    async function getRetrogradeTransits() {
-        if (retrogradeTransits.length === 0) {
-        // set date range to 30 days from today
-        const startDate = new Date().toISOString();
-        const endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + 30);
-        const retrogradeTransits = await handleFetchRetrogradeTransits(startDate, endDate);
-        console.log("retrogradeTransits")
-        console.log(retrogradeTransits)
-        setRetrogradeTransits(retrogradeTransits)
       }
     }
 

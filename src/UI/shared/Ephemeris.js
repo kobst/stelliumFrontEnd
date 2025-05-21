@@ -1,6 +1,4 @@
 import React, { useRef, useEffect, useState, useCallback, memo, useMemo } from 'react';
-import {PlanetPositions} from '../PlanetPositions'
-import useStore from '../../Utilities/store';
 
 
   
