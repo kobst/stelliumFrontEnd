@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import useStore from '../../Utilities/store';
-import { heading_map, planet_headings, dominance_headings } from '../../Utilities/constants';
+import useStore from '../../../Utilities/store';
+import { heading_map, planet_headings, dominance_headings } from '../../../Utilities/constants';
 import './StatusList.css';
-import { generateInterpretation } from '../../Utilities/generateInterpretationsGlobal';
+import { generateInterpretation } from '../../../Utilities/generateInterpretationsGlobal';
 
 const StatusList = () => {
   const headingInterpretationMap = useStore(state => state.headingInterpretationMap);
