@@ -517,3 +517,9 @@ export const transitCodes = {
     SOCIAL_COMMUNITY: "Social Community and Social Networks",
     SPIRITUAL_KARMIC_LESSONS: "Spiritual Lessons and Karmic Patterns"
 }
+
+export const CONTENT_TYPE_HEADER = "Content-Type";
+export const APPLICATION_JSON = "application/json";
+export const HTTP_POST = "POST";
+export const JSON_HEADERS = { [CONTENT_TYPE_HEADER]: APPLICATION_JSON };
+export const ERROR_API_CALL = "Error in API call:";

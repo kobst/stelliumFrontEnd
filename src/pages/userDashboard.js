@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import UserHoroscopeContainer from '../UI/prototype/UserHoroscopeContainer';
 import useStore from '../Utilities/store';
-import { BroadTopicsEnum } from '../Utilities/constants';
+import { BroadTopicsEnum, ERROR_API_CALL } from '../Utilities/constants';
 import {
   getFullBirthChartAnalysis,
   processAndVectorizeBasicAnalysis,
@@ -217,7 +217,7 @@ function UserDashboard() {
       });
 
     } catch (error) {
-      console.error('Error in API call:', error);
+      console.error(ERROR_API_CALL, error);
       setError(error.message);
       
       // Set default states on error
