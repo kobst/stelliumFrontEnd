@@ -57,6 +57,18 @@ npm run build
 
 The compiled output will be placed in the `build/` directory.
 
+## Codex Setup
+
+If you are running this project in the [Codex](https://github.com/oxidic/codex) environment,
+execute the provided setup script before running any commands:
+
+```bash
+./.codex/setup.sh
+```
+
+The script installs dependencies and creates a default `.env` file if one does not
+exist. Update the `.env` values with your actual API keys and server URL.
+
 ## Project Structure
 
 ```
