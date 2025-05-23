@@ -1,8 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-// import LandingPageComponent from './pages/landingPage';
 import SignUpPage from './pages/signUpPage';
-// import LandingPageAdmin from './pages/landingPageAdmin';
 import PrototypePage from './pages/prototype';
 import UserDashboard from './pages/userDashboard';
 import SynastryPage_v2 from './pages/synastryPage_v2';
@@ -17,9 +15,6 @@ function App() {
       <div className="App">
         <PasswordProtection>
           <Routes>
-            {/* <Route path="/" element={<LandingPageComponent />} /> */}
-            {/* <Route path="/admin" element={<LandingPageAdmin />} /> */}
-            {/* <Route path="/confirmation" element={<Confirmation />} /> */}
             <Route path="/prototype" element={<PrototypePage />} />
             <Route path="/userDashboard" element={<UserDashboard />} />
             <Route path="/synastry" element={<SynastryPage_v2 />} />

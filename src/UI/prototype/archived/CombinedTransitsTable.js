@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-// import { useStore } from '../../Utilities/store';
 import useStore from '../../../Utilities/store';
 import TransitsTable from './TransitsTable';
 import HouseTransitsTable from '../HouseTransitsTable';

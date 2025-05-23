@@ -12,14 +12,11 @@ const TabbedBigFourMenu = () => {
 
    const headings = Object.keys(heading_map)
  
-//    const setEverythingPromptDescription = useStore(state => state.setEverythingPromptDescriptions)
- 
 const getTabButtonClass = (tabName) => (
     `tab-button ${activeTab === tabName ? 'active' : ''}`
-  );    
+  );
 
   return (
-    // <div className="prompt-container">
     <div>
 
         <div className="planet-menu">

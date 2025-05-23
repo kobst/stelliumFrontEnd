@@ -1,8 +1,4 @@
 import React from 'react';
-// To properly render Markdown, you'll want a library like react-markdown
-// You can install it by running: npm install react-markdown
-// Then uncomment the line below:
-// import ReactMarkdown from 'react-markdown';
 
 const RelationshipAnalysis = ({ analysis, userAName, userBName }) => {
     if (!analysis) {
@@ -24,10 +20,6 @@ const RelationshipAnalysis = ({ analysis, userAName, userBName }) => {
           {Object.entries(analysis).map(([category, text]) => (
             <div key={category} className="analysis-category-section">
               <h3>{formatCategoryTitle(category)}</h3>
-              {/* If you have react-markdown installed, use this: */}
-              {/* <ReactMarkdown>{text}</ReactMarkdown> */}
-              
-              {/* Simple alternative with line breaks preserved: */}
               <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{text}</div>
             </div>
           ))}
