@@ -3,19 +3,23 @@ import { decodeHouseTransitCode, decodeTransitNatalAspectCode } from "./decoder"
 import { planetCodes, signCodes, transitCodes } from "./constants";
 
 
-const orbDescription = (orb) => {
-    if (orb < 1) {
-      return "exact";
-    } else if (orb >= 1 && orb < 3) {
-      return "close";
-    } else if (orb >= 3 && orb < 5) {
-        return "loose";
-    } else if (orb >= 7 && orb < 10) {
-      return "loose";
-    } else {
-      return "-";
-    }
-  }
+/*
+ * Previously used to convert an orb value into a descriptor string. No current
+ * references remain in the code base so it is commented out for now.
+ */
+// const orbDescription = (orb) => {
+//     if (orb < 1) {
+//       return "exact";
+//     } else if (orb >= 1 && orb < 3) {
+//         return "close";
+//     } else if (orb >= 3 && orb < 5) {
+//         return "loose";
+//     } else if (orb >= 7 && orb < 10) {
+//       return "loose";
+//     } else {
+//       return "-";
+//     }
+//   }
 
 function calculateAspect(degree1, degree2, isRetro) {
   const diff = Math.abs(degree1 - degree2);
