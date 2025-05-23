@@ -317,41 +317,42 @@ export const getPlanetOverview = async (planetName, birthData) => {
   }
 }
 
-export const getAllPlanetOverview = async (birthData) => {
-  console.log("Sending request with:", { birthData });
-  try {
-    const response = await fetch(`${SERVER_URL}/getShortOverviewAllPlanets`, {
-      method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({birthData})
-    });
-
-    // Check if the response is ok
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-    }
-
-    // Log the raw response
-    const rawResponse = await response.text();
-    console.log("Raw response:", rawResponse);
-
-    // Try to parse the response as JSON
-    let responseData;
-    try {
-      responseData = JSON.parse(rawResponse);
-    } catch (parseError) {
-      console.error("Failed to parse JSON response:", parseError);
-      throw new Error("Invalid JSON response from server");
-    }
-
-    console.log("Parsed response data:", responseData);
-    return responseData;
-  } catch (error) {
-    console.error('Error in getPlanetOverview API call:', error);
-    throw error;
-  }
-}
+/*
+ * Retrieves overviews for all planets. Currently unused by any component but
+ * retained for potential future features.
+ */
+// export const getAllPlanetOverview = async (birthData) => {
+//   console.log("Sending request with:", { birthData });
+//   try {
+//     const response = await fetch(`${SERVER_URL}/getShortOverviewAllPlanets`, {
+//       method: HTTP_POST,
+//       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+//       body: JSON.stringify({birthData})
+//     });
+//
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+//     }
+//
+//     const rawResponse = await response.text();
+//     console.log("Raw response:", rawResponse);
+//
+//     let responseData;
+//     try {
+//       responseData = JSON.parse(rawResponse);
+//     } catch (parseError) {
+//       console.error("Failed to parse JSON response:", parseError);
+//       throw new Error("Invalid JSON response from server");
+//     }
+//
+//     console.log("Parsed response data:", responseData);
+//     return responseData;
+//   } catch (error) {
+//     console.error('Error in getPlanetOverview API call:', error);
+//     throw error;
+//   }
+// }
 
 export const getFullBirthChartAnalysis = async (user) => {
 
@@ -447,47 +448,51 @@ export const generateTopicAnalysis = async (userId) => {
 };
 
 // Process a single subtopic
-export const generateSingleSubtopicAnalysis = async (userId, broadTopic, subtopicKey) => {
-  const topicData = BroadTopicsEnum[broadTopic];
-  const subtopicLabel = topicData.subtopics[subtopicKey];
-  
-  console.log(`Processing subtopic: ${subtopicLabel}`);
-  
-  try {
-    const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
-      method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({
-        userId,
-        broadTopic,
-        subtopicKey,
-        subtopicLabel
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-    }
-
-    const result = await response.json();
-    
-    if (!result.success) {
-      throw new Error(result.error || `Subtopic analysis failed for ${subtopicLabel}`);
-    }
-
-    return {
-      success: true,
-      broadTopic,
-      subtopicKey,
-      result: result.result
-    };
-
-  } catch (error) {
-    console.error(`Error analyzing subtopic ${subtopicLabel}:`, error);
-    throw error;
-  }
-};
+/*
+ * Helper to analyse a single subtopic. Not referenced by any current UI but
+ * kept for completeness of the API layer.
+ */
+// export const generateSingleSubtopicAnalysis = async (userId, broadTopic, subtopicKey) => {
+//   const topicData = BroadTopicsEnum[broadTopic];
+//   const subtopicLabel = topicData.subtopics[subtopicKey];
+//
+//   console.log(`Processing subtopic: ${subtopicLabel}`);
+//
+//   try {
+//     const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
+//       method: HTTP_POST,
+//       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+//       body: JSON.stringify({
+//         userId,
+//         broadTopic,
+//         subtopicKey,
+//         subtopicLabel
+//       })
+//     });
+//
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+//     }
+//
+//     const result = await response.json();
+//
+//     if (!result.success) {
+//       throw new Error(result.error || `Subtopic analysis failed for ${subtopicLabel}`);
+//     }
+//
+//     return {
+//       success: true,
+//       broadTopic,
+//       subtopicKey,
+//       result: result.result
+//     };
+//
+//   } catch (error) {
+//     console.error(`Error analyzing subtopic ${subtopicLabel}:`, error);
+//     throw error;
+//   }
+// };
 
 export const processAndVectorizeBasicAnalysis = async (userId) => {
   console.log("Starting vectorization for user:", userId);
