@@ -69,6 +69,49 @@ export const fetchUser = async (userId) => {
   }
 };
 
+export const fetchUsers = async () => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getUsers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      // Add a body if needed
+      // body: JSON.stringify({})
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    console.log('Users:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
+};
+
+export const fetchComposites = async () => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getCompositeCharts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      // Add a body if needed
+      // body: JSON.stringify({})
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    console.log('Composites:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching composites:', error);
+    throw error;
+  }
+};
 
 export const handleUserInput = async (userId, query) => {
   console.log(query)
