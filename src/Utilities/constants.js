@@ -518,8 +518,26 @@ export const transitCodes = {
     SPIRITUAL_KARMIC_LESSONS: "Spiritual Lessons and Karmic Patterns"
 }
 
+
+// src/constants/relationshipCategories.js (Example - create this file if it doesn't exist)
+export const RelationshipCategoriesEnum = {
+  OVERALL_ATTRACTION_CHEMISTRY: { label: "Overall Attraction & Chemistry", order: 1 },
+  EMOTIONAL_SECURITY_CONNECTION: { label: "Emotional Security & Connection", order: 2 },
+  SEX_AND_INTIMACY: { label: "Sex & Intimacy", order: 3 },
+  COMMUNICATION_AND_MENTAL_CONNECTION: { label: "Communication & Mental Connection", order: 4 },
+  COMMITMENT_LONG_TERM_POTENTIAL: { label: "Commitment & Long-Term Potential", order: 5 },
+  KARMIC_LESSONS_GROWTH: { label: "Karmic Lessons & Growth", order: 6 },
+  PRACTICAL_GROWTH_SHARED_GOALS: { label: "Practical Growth & Shared Goals", order: 7 }
+};
+
+export const orderedCategoryKeys = Object.keys(RelationshipCategoriesEnum).sort(
+  (a, b) => RelationshipCategoriesEnum[a].order - RelationshipCategoriesEnum[b].order
+);
+
 export const CONTENT_TYPE_HEADER = "Content-Type";
 export const APPLICATION_JSON = "application/json";
 export const HTTP_POST = "POST";
 export const JSON_HEADERS = { [CONTENT_TYPE_HEADER]: APPLICATION_JSON };
 export const ERROR_API_CALL = "Error in API call:";
+
+
