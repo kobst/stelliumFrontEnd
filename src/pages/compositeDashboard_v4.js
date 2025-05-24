@@ -7,6 +7,7 @@ import {
   fetchUser,
   getRelationshipScore,
   fetchRelationshipAnalysis,
+  fetchAnalysis,
   generateRelationshipAnalysis,
   processAndVectorizeRelationshipAnalysis
   } from '../Utilities/api';
@@ -18,6 +19,8 @@ function CompositeDashboard_v4({}) {
     const compositeChart = useStore(state => state.compositeChart)
     const [userA, setUserA] = useState(null);
     const [userB, setUserB] = useState(null);
+    const [userAVectorizationStatus, setUserAVectorizationStatus] = useState(false);
+    const [userBVectorizationStatus, setUserBVectorizationStatus] = useState(false);
     const [scoreDebugInfo, setScoreDebugInfo] = useState(null);
     const [detailedRelationshipAnalysis, setDetailedRelationshipAnalysis] = useState(null);
     const [processingStatus, setProcessingStatus] = useState({
@@ -55,12 +58,21 @@ function CompositeDashboard_v4({}) {
                     ]);
                     console.log("Users fetched:", { userA, userB });
 
+                    const [userAResponse, userBResponse] = await Promise.all([
+                        fetchAnalysis(compositeChart.userA_id),
+                        fetchAnalysis(compositeChart.userB_id)
+                    ]);
+                    const userAVectorizationStatus = Boolean(userAResponse?.vectorizationStatus?.topicAnalysis?.isComplete);
+                    const userBVectorizationStatus = Boolean(userBResponse?.vectorizationStatus?.topicAnalysis?.isComplete);
+
                     // Fetch relationship scores
                     const fetchedData = await fetchRelationshipAnalysis(compositeChart._id);
                     
                     // Update all state values
                     setUserA(userA);
                     setUserB(userB);
+                    setUserAVectorizationStatus(userAVectorizationStatus);
+                    setUserBVectorizationStatus(userBVectorizationStatus);
                     setSynastryAspects(compositeChart.synastryAspects);
                     
                     // Handle relationship scores
@@ -215,24 +227,44 @@ return (
             )}
             {relationshipScores && (
               <>
-                <button onClick={() => generateRelationshipAnalysisForCompositeChart()}>
-                  Generate Relationship Analysis
-                </button>
-                
-                {/* Vectorization button:
-                    - Show if detailed analysis text exists
-                    - AND if it has NOT been fully vectorized yet (relationshipAnalysis is false)
-                */}
-                {detailedRelationshipAnalysis && !vectorizationStatus.relationshipAnalysis && (
-                  <button 
-                    onClick={processRelationshipAnalysis}
-                    disabled={processingStatus.isProcessing}
-                    style={{ marginLeft: '10px' }}
-                  >
-                    {processingStatus.isProcessing 
-                      ? "Vectorizing Analysis..." 
-                      : "Vectorize Relationship Analysis"}
-                  </button>
+                {userAVectorizationStatus && userBVectorizationStatus ? (
+                  <>
+                    <button onClick={() => generateRelationshipAnalysisForCompositeChart()}>
+                      Generate Relationship Analysis
+                    </button>
+                    
+                    {/* Vectorization button:
+                        - Show if detailed analysis text exists
+                        - AND if it has NOT been fully vectorized yet (relationshipAnalysis is false)
+                    */}
+                    {detailedRelationshipAnalysis && !vectorizationStatus.relationshipAnalysis && (
+                      <button 
+                        onClick={processRelationshipAnalysis}
+                        disabled={processingStatus.isProcessing}
+                        style={{ marginLeft: '10px' }}
+                      >
+                        {processingStatus.isProcessing 
+                          ? "Vectorizing Analysis..." 
+                          : "Vectorize Relationship Analysis"}
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '4px', color: '#856404' }}>
+                    <strong>Prerequisites Required:</strong> {
+                      (() => {
+                        const incompleteUsers = [];
+                        if (!userAVectorizationStatus) incompleteUsers.push(userA?.firstName || 'User A');
+                        if (!userBVectorizationStatus) incompleteUsers.push(userB?.firstName || 'User B');
+                        
+                        if (incompleteUsers.length === 1) {
+                          return `${incompleteUsers[0]} requires their birth chart analysis to be processed before relationship analysis can be generated.`;
+                        } else {
+                          return `${incompleteUsers.join(' and ')} require their birth chart analysis to be processed before relationship analysis can be generated.`;
+                        }
+                      })()
+                    }
+                  </div>
                 )}
                 
                 {/* Display if processing is ongoing */}

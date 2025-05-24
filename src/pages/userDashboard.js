@@ -8,7 +8,7 @@ import {
   processAndVectorizeTopicAnalysis,
   generateTopicAnalysis,
   fetchAnalysis } from '../Utilities/api';
-
+import './userDashboard.css';
 
 function UserDashboard() {
   const selectedUser = useStore(state => state.selectedUser);
