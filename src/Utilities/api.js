@@ -52,6 +52,13 @@ export const postUserProfile = async (birthData) => {
   }
 };
 
+// Stubbed API for handling profile creation when birth time is unknown
+export const postUserProfileUnknownTime = async (birthData) => {
+  console.warn('postUserProfileUnknownTime is a stub and should be implemented on the backend');
+  // In a real implementation this would POST to a dedicated endpoint
+  return Promise.resolve({ message: 'Stubbed response for unknown birth time' });
+};
+
 
 export const fetchUser = async (userId) => {
   console.log("fetchUseruserId")
