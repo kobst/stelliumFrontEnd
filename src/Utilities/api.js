@@ -98,6 +98,7 @@ export const fetchUsers = async () => {
   }
 };
 
+
 export const fetchComposites = async () => {
   try {
     const response = await fetch(`${SERVER_URL}/getCompositeCharts`, {
@@ -647,3 +648,42 @@ export const processAndVectorizeRelationshipAnalysis = async (compositeChartId) 
     };
   }
 }
+
+
+export const chatForUserBirthChart = async (userId, birthChartAnalysisId, query) => {
+  console.log("userId: ", userId)
+  console.log("birthChartAnalysisId: ", birthChartAnalysisId)
+  console.log("query: ", query)
+  try {
+    const response = await fetch(`${SERVER_URL}/userChatBirthChartAnalysis`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({userId, birthChartAnalysisId, query})
+    });
+    const responseData = await response.json();
+    console.log("responseData: ", responseData)
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+}
+
+export const fetchUserChatBirthChartAnalysis = async (userId, birthChartAnalysisId) => {
+  console.log("userId: ", userId)
+  console.log("birthChartAnalysisId: ", birthChartAnalysisId)
+  try {
+    const response = await fetch(`${SERVER_URL}/fetchUserChatBirthChartAnalysis`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({userId, birthChartAnalysisId})
+    });
+    const responseData = await response.json();
+    console.log("responseData: ", responseData)
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+}
+

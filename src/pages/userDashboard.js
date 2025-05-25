@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import UserHoroscopeContainer from '../UI/prototype/UserHoroscopeContainer';
 import useStore from '../Utilities/store';
 import { BroadTopicsEnum, ERROR_API_CALL } from '../Utilities/constants';
@@ -7,7 +7,11 @@ import {
   processAndVectorizeBasicAnalysis,
   processAndVectorizeTopicAnalysis,
   generateTopicAnalysis,
-  fetchAnalysis } from '../Utilities/api';
+  fetchAnalysis,
+  chatForUserBirthChart,
+  fetchUserChatBirthChartAnalysis
+ } from '../Utilities/api';
+ import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
 import './userDashboard.css';
 
 function UserDashboard() {
@@ -103,6 +107,14 @@ function UserDashboard() {
     lastUpdated: null
   });
 
+  const [chatMessages, setChatMessages] = useState([]);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [birthChartAnalysisId, setBirthChartAnalysisId] = useState(null);
+  const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(false);
+
+
+
   useEffect(() => {
     if (userId) {
       console.log('userId')
@@ -128,9 +140,14 @@ function UserDashboard() {
       const response = await fetchAnalysis(userId);
       console.log("response", response);
       
-      const { interpretation, vectorizationStatus } = response;
+      const { birthChartAnalysisId, interpretation, vectorizationStatus } = response;
+      console.log("birthChartAnalysisId", birthChartAnalysisId);
       console.log("interpretation", interpretation);
       console.log("vectorizationStatus", vectorizationStatus);
+
+      if (birthChartAnalysisId) {
+        setBirthChartAnalysisId(birthChartAnalysisId);
+      }
       
       // Set basicAnalysis state if it exists
       if (interpretation?.basicAnalysis) {
@@ -506,6 +523,106 @@ const generateAndReturnTopicAnalysis = async () => {
   
 }
 
+// Function to load chat history
+const loadChatHistory = useCallback(async () => {
+  if (!userId || !birthChartAnalysisId) {
+    return;
+  }
+
+  setIsChatHistoryLoading(true);
+  try {
+    const response = await fetchUserChatBirthChartAnalysis(userId, birthChartAnalysisId);
+    console.log("Chat history response:", response);
+    
+    // Transform the backend messages to match your frontend format
+    if (response && response.success && Array.isArray(response.chatHistory)) {
+      const transformedMessages = response.chatHistory.map((message, index) => ({
+        id: `history-${index}-${Date.now()}`, // Create unique IDs
+        type: message.role === 'user' ? 'user' : 'bot',
+        content: message.content,
+        timestamp: new Date(message.timestamp)
+      }));
+      
+      setChatMessages(transformedMessages);
+    } else {
+      console.log("No chat history found or invalid response format");
+      setChatMessages([]);
+    }
+  } catch (error) {
+    console.error('Error loading chat history:', error);
+    // Optionally show an error message to the user
+    setChatMessages([{
+      id: `error-${Date.now()}`,
+      type: 'error',
+      content: 'Failed to load chat history',
+      timestamp: new Date()
+    }]);
+  } finally {
+    setIsChatHistoryLoading(false);
+  }
+}, [userId, birthChartAnalysisId]);
+
+// Load chat history when component mounts or when userId/interpretation changes
+useEffect(() => {
+  if (vectorizationStatus.topicAnalysis.isComplete && userId && birthChartAnalysisId) {
+    loadChatHistory();
+  }
+}, [vectorizationStatus.topicAnalysis.isComplete, userId, birthChartAnalysisId, loadChatHistory]);
+
+const handleSendMessage = async () => {
+  if (!currentMessage.trim() || !userId) {
+    return;
+  }
+
+  const userMessage = currentMessage.trim();
+  setCurrentMessage(''); // Clear input immediately
+  setIsChatLoading(true);
+
+  // Add user message to chat
+  const newUserMessage = {
+    id: Date.now(),
+    type: 'user',
+    content: userMessage,
+    timestamp: new Date()
+  };
+
+  setChatMessages(prev => [...prev, newUserMessage]);
+
+  try {
+    const response = await chatForUserBirthChart(userId, birthChartAnalysisId, userMessage);
+    
+    // Add API response to chat
+    const botMessage = {
+      id: Date.now() + 1,
+      type: 'bot',
+      content: response.answer || 'No response received',
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, botMessage]);
+  } catch (error) {
+    console.error('Error sending chat message:', error);
+    
+    // Add error message to chat
+    const errorMessage = {
+      id: Date.now() + 1,
+      type: 'error',
+      content: `Error: ${error.message}`,
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, errorMessage]);
+  } finally {
+    setIsChatLoading(false);
+  }
+};
+
+const handleKeyPress = (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    handleSendMessage();
+  }
+};
 
   return (
     <div className="user-prototype-page">
@@ -569,6 +686,18 @@ const generateAndReturnTopicAnalysis = async () => {
         <div className="error-message">
           Error: {processingStatus.error}
         </div>
+      )}
+
+      {birthChartAnalysisId && userId && vectorizationStatus.topicAnalysis.isComplete && (
+        <UserChatBirthChart
+          chatMessages={chatMessages}
+          currentMessage={currentMessage}
+          setCurrentMessage={setCurrentMessage}
+          isChatLoading={isChatLoading}
+          isChatHistoryLoading={isChatHistoryLoading}
+          handleSendMessage={handleSendMessage}
+          handleKeyPress={handleKeyPress}
+        />
       )}
 
       <div className="basic-analysis">
