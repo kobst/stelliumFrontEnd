@@ -687,3 +687,40 @@ export const fetchUserChatBirthChartAnalysis = async (userId, birthChartAnalysis
   }
 }
 
+export const chatForUserRelationship = async (userId, compositeChartId, query) => {
+  console.log("userId: ", userId)
+  console.log("compositeChartId: ", compositeChartId)
+  console.log("query: ", query)
+  try {
+    const response = await fetch(`${SERVER_URL}/userChatRelationshipAnalysis`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({userId, compositeChartId, query})
+    });
+    const responseData = await response.json();
+    console.log("responseData: ", responseData)
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+}
+
+export const fetchUserChatRelationshipAnalysis = async (userId, compositeChartId) => {
+  console.log("userId: ", userId)
+  console.log("compositeChartId: ", compositeChartId)
+  try {
+    const response = await fetch(`${SERVER_URL}/fetchUserChatRelationshipAnalysis`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({userId, compositeChartId})
+    });
+    const responseData = await response.json();
+    console.log("responseData: ", responseData)
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+}
+

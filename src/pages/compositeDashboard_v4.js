@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import useStore from '../Utilities/store';
 import SynastryBirthChartComparison_v2 from '../UI/birthChart/tables/SynastryBirthChartComparison_v2'
 import RelationshipScores from '../UI/prototype/RelationshipScores';
@@ -9,8 +9,12 @@ import {
   fetchRelationshipAnalysis,
   fetchAnalysis,
   generateRelationshipAnalysis,
-  processAndVectorizeRelationshipAnalysis
-  } from '../Utilities/api';
+  processAndVectorizeRelationshipAnalysis,
+  chatForUserRelationship,
+  fetchUserChatRelationshipAnalysis
+} from '../Utilities/api';
+import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Reuse the same component
+
 
 function CompositeDashboard_v4({}) {
   
@@ -42,6 +46,12 @@ function CompositeDashboard_v4({}) {
         relationshipAnalysis: false
     });
     
+    // Add chat-related state
+    const [chatMessages, setChatMessages] = useState([]);
+    const [currentMessage, setCurrentMessage] = useState('');
+    const [isChatLoading, setIsChatLoading] = useState(false);
+    const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(false);
+
     useEffect(() => {
         const initializeCompositeChartData = async () => {
             try {
@@ -210,8 +220,125 @@ function CompositeDashboard_v4({}) {
     }
   };
   
+  // Function to load chat history for relationship
+  const loadRelationshipChatHistory = useCallback(async () => {
+    if (!userA?._id || !compositeChart?._id) {
+      return;
+    }
 
-return (
+    setIsChatHistoryLoading(true);
+    try {
+      const response = await fetchUserChatRelationshipAnalysis(userA._id, compositeChart._id);
+      console.log("Relationship chat history response:", response);
+      
+      // Transform the backend messages to match your frontend format
+      if (response && response.success && Array.isArray(response.chatHistory)) {
+        const transformedMessages = response.chatHistory.map((message, index) => ({
+          id: `history-${index}-${Date.now()}`,
+          type: message.role === 'user' ? 'user' : 'bot',
+          content: message.content,
+          timestamp: new Date(message.timestamp)
+        }));
+        
+        setChatMessages(transformedMessages);
+      } else {
+        console.log("No relationship chat history found or invalid response format");
+        setChatMessages([]);
+      }
+    } catch (error) {
+      console.error('Error loading relationship chat history:', error);
+      setChatMessages([{
+        id: `error-${Date.now()}`,
+        type: 'error',
+        content: 'Failed to load chat history',
+        timestamp: new Date()
+      }]);
+    } finally {
+      setIsChatHistoryLoading(false);
+    }
+  }, [userA?._id, compositeChart?._id]);
+
+  // Load chat history when vectorization is complete
+  useEffect(() => {
+    if (vectorizationStatus.relationshipAnalysis && userA?._id && compositeChart?._id) {
+      loadRelationshipChatHistory();
+    }
+  }, [vectorizationStatus.relationshipAnalysis, loadRelationshipChatHistory]);
+
+  // Handle sending new chat messages
+  const handleSendMessage = async () => {
+    if (!currentMessage.trim() || !userA?._id || !compositeChart?._id) {
+      return;
+    }
+
+    const userMessage = currentMessage.trim();
+    setCurrentMessage('');
+    setIsChatLoading(true);
+
+    // Add user message to chat immediately
+    const newUserMessage = {
+      id: Date.now(),
+      type: 'user',
+      content: userMessage,
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, newUserMessage]);
+
+    try {
+      const response = await chatForUserRelationship(userA._id, compositeChart._id, userMessage);
+      console.log('Relationship chat API response:', response);
+      
+      // Extract response content
+      let responseContent = 'No response received';
+      
+      if (typeof response === 'string') {
+        responseContent = response;
+      } else if (response && typeof response === 'object') {
+        responseContent = response.message || 
+                         response.response || 
+                         response.reply || 
+                         response.answer || 
+                         response.text || 
+                         response.content ||
+                         response.result ||
+                         JSON.stringify(response);
+      }
+
+      // Add API response to chat
+      const botMessage = {
+        id: Date.now() + 1,
+        type: 'bot',
+        content: responseContent,
+        timestamp: new Date()
+      };
+
+      setChatMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error('Error sending relationship chat message:', error);
+      
+      // Add error message to chat
+      const errorMessage = {
+        id: Date.now() + 1,
+        type: 'error',
+        content: `Error: ${error.message}`,
+        timestamp: new Date()
+      };
+
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  return (
     <div>
       <h1>Composite Dashboard</h1>
       <div className="composite-chart">
@@ -318,6 +445,21 @@ return (
         />
       )}
 
+        {/* Relationship Chat Interface - Only show when vectorization is complete */}
+        {vectorizationStatus.relationshipAnalysis && userA && userB && compositeChart && (
+          <div style={{ marginTop: '30px' }}>
+            <UserChatBirthChart
+              chatMessages={chatMessages}
+              currentMessage={currentMessage}
+              setCurrentMessage={setCurrentMessage}
+              isChatLoading={isChatLoading}
+              isChatHistoryLoading={isChatHistoryLoading}
+              handleSendMessage={handleSendMessage}
+              handleKeyPress={handleKeyPress}
+              // You can customize the title by passing it as a prop if needed
+            />
+          </div>
+        )}
       </div>
     </div>
   )
