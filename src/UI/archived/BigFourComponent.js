@@ -4,13 +4,10 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { postGptResponse, postPromptGPT, updateHeadingInterpretation } from '../../Utilities/api'; 
 import { heading_map } from '../../Utilities/constants';
-// import { checkResponseAgainstEverything } from '../../Utilities/checkResponses';
 import useStore from '../../Utilities/store';
 
 const BigFourComponent = ({ bigFourType }) => {
-    // const [responses, setResponses] = useState({});
     const [subHeadings, setSubHeadings] = useState([]);
-    // const [promptData, setPromptData] = useState("")
     const [everythingData, setEverythingData] = useState("")
     const [bigFourPromptDescriptions, setBigFourPromptDescriptions] = useState("")
     const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
@@ -23,41 +20,26 @@ const BigFourComponent = ({ bigFourType }) => {
 
     useEffect(() => {
         setSubHeadings(heading_map[bigFourType]);
-        // setPromptData(promptDescriptionsMap[bigFourType])
         setEverythingData(promptDescriptionsMap['everything'])
         setBigFourPromptDescriptions(promptDescriptionsMap[bigFourType])
 
     }, [bigFourType, promptDescriptionsMap]);
 
 
-    // useEffect(() => {
-    //     const generateAllResponses = async () => {
-    //       for (const heading of subHeadings) {
-    //         if (!subHeadingsPromptDescriptionsMap[heading] || !headingInterpretationMap[heading] || headingInterpretationMap[heading] === '') {
-    //           await generateResponse(heading);
-    //           await generateInterpretation(heading);
-    //         }
-    //       }
-    //     };
       
-    //     generateAllResponses();
-    //   }, [subHeadings, everythingData, subHeadingsPromptDescriptionsMap, headingInterpretationMap]);
 
 
 
     function checkResponseAgainstEverything(response, everythingData) {
         console.log("everythingData")
         console.log(everythingData)
-        // Extract codes from the response
         const responseCodes = response.match(/\(([^)]+)\)/g) || [];
         
-        // Extract codes from everythingData
 
         const everythingCodes = everythingData.flatMap(item => {
             const matches = item.match(/\(([^)]+)\)/g) || [];
             return matches.map(match => match.trim());
           });        
-        // Check if all response codes are in everythingCodes
         const missingCodes = responseCodes.filter(code => !everythingCodes.includes(code));
         
         if (missingCodes.length > 0) {
@@ -71,14 +53,11 @@ const BigFourComponent = ({ bigFourType }) => {
 
 
     async function generatePrompt(heading) {
-        // const modifiedInput = promptData + "\n" + heading + "\nEvery time you mention a particular aspect or position, please include its reference number provided";
 
-        // const modifiedInput = `${everythingData}\n${bigFourType.toUpperCase()}: ${heading}`;
 
         const inputData = {
             heading: `${bigFourType.toUpperCase()}: ${heading}`,
             description: bigFourPromptDescriptions
-            // description: everythingData
         };
 
         console.log('inputData')
@@ -88,15 +67,12 @@ const BigFourComponent = ({ bigFourType }) => {
             const responseObject = await postPromptGPT(inputData)
             console.log(responseObject)
             console.log(responseObject.response)
-            // setBigFourMap(heading, responseObject.response)
-            // add check to see if responseObject contains aspects and/or transits included in everythingData
             if (checkResponseAgainstEverything(responseObject.response, bigFourPromptDescriptions)) {
                 
                 console.log('Response contains codes found in everythingData')
                 setSubHeadingsPromptDescriptionsMap(heading, responseObject.response);
               } else {
                 console.error('Response contains codes not found in everythingData');
-                // regenerate response
                 generatePrompt(heading);
               }
         } catch (error) {
@@ -131,14 +107,12 @@ const BigFourComponent = ({ bigFourType }) => {
         try {
             const interpretation = headingInterpretationMap[heading];
             const promptDescription = subHeadingsPromptDescriptionsMap[heading];
-            // if interpretation and/or promptDescription are empty strings, don't save
             if (!interpretation || !promptDescription) {
                 return;
             }
 
             const response = await updateHeadingInterpretation(userId, heading, promptDescription, interpretation);
             console.log(response);
-            // Show success toast
             toast.success('Interpretation saved successfully!', {
                 position: "top-right",
                 autoClose: 3000,
@@ -149,7 +123,6 @@ const BigFourComponent = ({ bigFourType }) => {
             });
         } catch (error) {
             console.error('Failed to save interpretation:', error);
-            // Show error toast
             toast.error('Failed to save interpretation. Please try again.', {
                 position: "top-right",
                 autoClose: 3000,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../Utilities/store';
-import { fetchTimeZone, getShortOverview, postUserProfile, getPlanetOverview} from '../Utilities/api';
+import { fetchTimeZone, getShortOverview, postUserProfile, postUserProfileUnknownTime, getPlanetOverview} from '../Utilities/api';
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 
@@ -53,20 +53,38 @@ const ConfirmationV2 = () => {
             profileCreationAttempted.current = true;
             
             try {
-                const { firstName, lastName, email, date, time, lat, lon, placeOfBirth, gender } = userData;
+                const { firstName, lastName, email, date, time, lat, lon, placeOfBirth, gender, unknownTime } = userData;
                 
                 // Check if all required data is present
-                if (!firstName || !lastName || !email || !date || !time || !lat || !lon || !placeOfBirth) {
+                if (!firstName || !lastName || !email || !date || (!unknownTime && !time) || !lat || !lon || !placeOfBirth) {
                     console.warn('Missing required user data for profile creation');
                     setIsLoading(false);
                     return;
                 }
-                
+
+                if (unknownTime) {
+                    const birthData = {
+                        firstName,
+                        lastName,
+                        gender,
+                        placeOfBirth,
+                        date,
+                        email,
+                        lat,
+                        lon,
+                        unknownTime: true,
+                    };
+                    const response = await postUserProfileUnknownTime(birthData);
+                    console.log('Unknown time response: ', JSON.stringify(response));
+                    setIsLoading(false);
+                    return;
+                }
+
                 const dateTimeString = `${date}T${time}:00`;
                 const dateTime = new Date(dateTimeString);
                 const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
                 const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-                
+
                 const birthData = {
                     firstName,
                     lastName,
@@ -80,7 +98,7 @@ const ConfirmationV2 = () => {
                     lon,
                     tzone: totalOffsetHours,
                 };
-                
+
                 const response = await postUserProfile(birthData);
 
                 console.log("response: ", JSON.stringify(response))

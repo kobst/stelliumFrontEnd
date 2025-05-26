@@ -1,0 +1,28 @@
+button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover:not(:disabled) { /* Ensure hover only applies if not disabled */
+    background-color: #45a049; /* Darker green on hover */
+  }
+
+  /* Styles for the button when it's disabled */
+  button:disabled,
+  button[disabled] {
+    background-color: #cccccc; /* Light grey - common for disabled */
+    color: #666666;          /* Darker grey text */
+    cursor: not-allowed;     /* Show a 'not-allowed' cursor */
+    border: 1px solid #bbbbbb; /* Optional: a slightly darker border */
+    box-shadow: none; /* Remove any hover/active shadows */
+  }

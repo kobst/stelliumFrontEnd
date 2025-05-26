@@ -21,6 +21,7 @@ const UserSignUpForm = () => {
     const [lon, setLon] = useState('');
     const [placeOfBirth, setPlaceOfBirth] = useState('');
     const [gender, setGender] = useState('');
+    const [unknownTime, setUnknownTime] = useState(false);
     const [formErrors, setFormErrors] = useState({});
     const setRawBirthData = useStore(state => state.setRawBirthData);
     const setBirthDate = useStore(state => state.setBirthDate);
@@ -36,7 +37,7 @@ const UserSignUpForm = () => {
       if (!lastName.trim()) errors.lastName = "Last name is required";
       if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email is invalid";
       if (!date) errors.date = "Date is required";
-      if (!time) errors.time = "Time is required";
+      if (!unknownTime && !time) errors.time = "Time is required";
       if (!lat || !lon) errors.location = "Location is required";
       if (!gender) errors.gender = "Gender/Sex is required";
       return errors;
@@ -56,11 +57,12 @@ const UserSignUpForm = () => {
       lastName,
       email,
       date,
-      time,
+      time: unknownTime ? '' : time,
       lat,
       lon,
       placeOfBirth,
-      gender
+      gender,
+      unknownTime
     };
 
     setUserData(userData);
@@ -178,15 +180,29 @@ const UserSignUpForm = () => {
               // className="input-dark-placeholder"
             />
             <label style={{ ...labelStyle, width: 'auto' }}>at</label>
-            <input 
-              type="time" 
-              id="time" 
-              name="time" 
-              value={time} 
-              onChange={e => setTime(e.target.value)} 
+            <input
+              type="time"
+              id="time"
+              name="time"
+              value={time}
+              onChange={e => setTime(e.target.value)}
               style={inputStyle}
-              // className="input-dark-placeholder"
+              disabled={unknownTime}
             />
+            <label style={{ color: 'white', marginLeft: '10px' }}>
+              <input
+                type="checkbox"
+                checked={unknownTime}
+                onChange={(e) => {
+                  setUnknownTime(e.target.checked);
+                  if (e.target.checked) {
+                    setTime('');
+                  }
+                }}
+                style={{ marginRight: '4px' }}
+              />
+              Time Unknown
+            </label>
           </div>
 
           <div style={formGroupStyle}>
