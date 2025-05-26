@@ -1,0 +1,20 @@
+.synastry-aspects-descriptions-container {
+    max-height: 400px; /* Adjust the height as needed */
+    overflow-y: auto;
+  }
+  
+  .synastry-aspects-descriptions-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .synastry-aspects-descriptions-table th,
+  .synastry-aspects-descriptions-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .synastry-aspects-descriptions-table th {
+    background-color: #f2f2f2;
+  }
