@@ -447,8 +447,7 @@ function CompositeDashboard_v4({}) {
 
         {/* Relationship Chat Interface - Only show when vectorization is complete */}
         {vectorizationStatus.relationshipAnalysis && userA && userB && compositeChart && (
-          <div style={{ marginTop: '30px' }}>
-            <UserChatBirthChart
+          <UserChatBirthChart
               chatMessages={chatMessages}
               currentMessage={currentMessage}
               setCurrentMessage={setCurrentMessage}
@@ -458,7 +457,6 @@ function CompositeDashboard_v4({}) {
               handleKeyPress={handleKeyPress}
               // You can customize the title by passing it as a prop if needed
             />
-          </div>
         )}
       </div>
     </div>
