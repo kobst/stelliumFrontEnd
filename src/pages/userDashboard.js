@@ -111,6 +111,7 @@ function UserDashboard() {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [birthChartAnalysisId, setBirthChartAnalysisId] = useState(null);
   const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(false);
+  const [workflowStarted, setWorkflowStarted] = useState(false);
 
   const {
     execute: fetchAnalysisForUserAsync,
@@ -661,6 +662,12 @@ const handleKeyPress = (e) => {
   }
 };
 
+// Initialize the workflow on first button press
+const startWorkflow = () => {
+  setWorkflowStarted(true);
+  handleWorkflow();
+};
+
 // Determine which step of the workflow should run next
 const getNextAction = () => {
   if (!basicAnalysis.overview) return 'generateBasic';
@@ -719,6 +726,7 @@ const getButtonLabel = () => {
 
 // Automatically progress through the workflow when possible
 useEffect(() => {
+  if (!workflowStarted) return;
   const next = getNextAction();
   if (!globalLoading && !globalError && next !== 'complete') {
     handleWorkflow();
@@ -730,7 +738,8 @@ useEffect(() => {
   subTopicAnalysis,
   vectorizationStatus.topicAnalysis.isComplete,
   globalLoading,
-  globalError
+  globalError,
+  workflowStarted
 ]);
 
   return (
@@ -763,7 +772,7 @@ useEffect(() => {
         ))}
       </div>
       <button
-        onClick={handleWorkflow}
+        onClick={startWorkflow}
         disabled={globalLoading || getNextAction() === 'complete'}
       >
         {getButtonLabel()}

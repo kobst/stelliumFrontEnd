@@ -54,6 +54,7 @@ function CompositeDashboard_v4({}) {
     const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(false);
     const [scoreLoading, setScoreLoading] = useState(false);
     const [analysisLoading, setAnalysisLoading] = useState(false);
+    const [workflowStarted, setWorkflowStarted] = useState(false);
 
     useEffect(() => {
         const initializeCompositeChartData = async () => {
@@ -341,6 +342,11 @@ function CompositeDashboard_v4({}) {
     }
   };
 
+  const startWorkflow = () => {
+    setWorkflowStarted(true);
+    handleWorkflow();
+  };
+
   const getNextAction = () => {
     if (!relationshipScores) return 'generateScore';
     if (!detailedRelationshipAnalysis) {
@@ -398,6 +404,7 @@ function CompositeDashboard_v4({}) {
   };
 
   useEffect(() => {
+    if (!workflowStarted) return;
     const next = getNextAction();
     if (
       next !== 'complete' &&
@@ -417,7 +424,8 @@ function CompositeDashboard_v4({}) {
     userBVectorizationStatus,
     scoreLoading,
     analysisLoading,
-    processingStatus.isProcessing
+    processingStatus.isProcessing,
+    workflowStarted
   ]);
 
   return (
@@ -440,7 +448,7 @@ function CompositeDashboard_v4({}) {
               ))}
             </div>
             <button
-              onClick={handleWorkflow}
+              onClick={startWorkflow}
               disabled={
                 scoreLoading ||
                 analysisLoading ||
