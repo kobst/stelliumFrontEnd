@@ -717,6 +717,22 @@ const getButtonLabel = () => {
   }
 };
 
+// Automatically progress through the workflow when possible
+useEffect(() => {
+  const next = getNextAction();
+  if (!globalLoading && !globalError && next !== 'complete') {
+    handleWorkflow();
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [
+  basicAnalysis.overview,
+  vectorizationStatus.basicAnalysis,
+  subTopicAnalysis,
+  vectorizationStatus.topicAnalysis.isComplete,
+  globalLoading,
+  globalError
+]);
+
   return (
     <div className="user-prototype-page">
 
@@ -748,7 +764,7 @@ const getButtonLabel = () => {
       </div>
       <button
         onClick={handleWorkflow}
-        disabled={getNextAction() === 'complete'}
+        disabled={globalLoading || getNextAction() === 'complete'}
       >
         {getButtonLabel()}
       </button>
