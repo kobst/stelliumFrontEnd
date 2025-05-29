@@ -111,6 +111,7 @@ function UserDashboard() {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [birthChartAnalysisId, setBirthChartAnalysisId] = useState(null);
   const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(false);
+  const [workflowStarted, setWorkflowStarted] = useState(false);
 
   const {
     execute: fetchAnalysisForUserAsync,
@@ -661,6 +662,86 @@ const handleKeyPress = (e) => {
   }
 };
 
+// Initialize the workflow on first button press
+const startWorkflow = () => {
+  setWorkflowStarted(true);
+  handleWorkflow();
+};
+
+// Determine which step of the workflow should run next
+const getNextAction = () => {
+  if (!basicAnalysis.overview) return 'generateBasic';
+  if (!vectorizationStatus.basicAnalysis) return 'vectorizeBasic';
+  if (Object.keys(subTopicAnalysis).length === 0) return 'generateTopic';
+  if (!vectorizationStatus.topicAnalysis.isComplete) return 'vectorizeTopic';
+  return 'complete';
+};
+
+// Trigger the appropriate function based on the next action
+const handleWorkflow = async () => {
+  const action = getNextAction();
+  switch (action) {
+    case 'generateBasic':
+      await generateShortOverviewAsync();
+      break;
+    case 'vectorizeBasic':
+      await processBasicAnalysisAsync();
+      break;
+    case 'generateTopic':
+      await handleGenerateTopicAnalysis();
+      break;
+    case 'vectorizeTopic':
+      await handleProcessTopicAnalysis();
+      break;
+    default:
+      break;
+  }
+};
+
+// Compute progress step for the status tracker
+const computeProgressStep = () => {
+  let step = 0;
+  if (basicAnalysis.overview) step++;
+  if (vectorizationStatus.basicAnalysis) step++;
+  if (Object.keys(subTopicAnalysis).length > 0) step++;
+  if (vectorizationStatus.topicAnalysis.isComplete) step++;
+  return step;
+};
+
+const getButtonLabel = () => {
+  const action = getNextAction();
+  switch (action) {
+    case 'generateBasic':
+      return shortOverviewLoading ? 'Generating Basic Analysis...' : 'Generate Basic Analysis';
+    case 'vectorizeBasic':
+      return basicAnalysisLoading ? 'Vectorizing Basic Analysis...' : 'Vectorize Basic Analysis';
+    case 'generateTopic':
+      return topicAnalysisLoading ? 'Generating Topic Analysis...' : 'Generate Topic Analysis';
+    case 'vectorizeTopic':
+      return topicProcessingLoading ? 'Vectorizing Topic Analysis...' : 'Vectorize Topic Analysis';
+    default:
+      return 'Workflow Complete';
+  }
+};
+
+// Automatically progress through the workflow when possible
+useEffect(() => {
+  if (!workflowStarted) return;
+  const next = getNextAction();
+  if (!globalLoading && !globalError && next !== 'complete') {
+    handleWorkflow();
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [
+  basicAnalysis.overview,
+  vectorizationStatus.basicAnalysis,
+  subTopicAnalysis,
+  vectorizationStatus.topicAnalysis.isComplete,
+  globalLoading,
+  globalError,
+  workflowStarted
+]);
+
   return (
     <div className="user-prototype-page">
 
@@ -680,50 +761,21 @@ const handleKeyPress = (e) => {
           dailyTransits={dailyTransits}
         />
 
+      <div className="progress-tracker">
+        {['Basic Analysis', 'Vectorizing Basic Analysis', 'Topic Analysis', 'Vectorizing Topic Analysis'].map((stage, index) => (
+          <div
+            key={stage}
+            className={`progress-step ${computeProgressStep() > index ? 'completed' : ''} ${computeProgressStep() === index ? 'current' : ''}`}
+          >
+            {stage}
+          </div>
+        ))}
+      </div>
       <button
-        onClick={generateShortOverviewAsync}
-        disabled={vectorizationStatus.basicAnalysis}
+        onClick={startWorkflow}
+        disabled={globalLoading || getNextAction() === 'complete'}
       >
-        Generate Short Overview
-      </button>
-      <button
-        onClick={processBasicAnalysisAsync}
-        disabled={
-          !basicAnalysis.overview ||
-          vectorizationStatus.basicAnalysis
-        }
-      >
-        Process Basic Analysis
-      </button>
-      <button
-        onClick={handleGenerateTopicAnalysis}
-        disabled={
-          !vectorizationStatus.basicAnalysis ||
-          vectorizationStatus.topicAnalysis.isComplete
-        }
-      >
-        Generate Topic Analysis
-      </button>
-      <button
-        onClick={handleProcessTopicAnalysis}
-        disabled={
-          Object.keys(subTopicAnalysis).length === 0 ||
-          vectorizationStatus.topicAnalysis.isComplete ||
-          processingStatus.isProcessing
-        }
-        className={`
-          ${vectorizationStatus.topicAnalysis.isComplete ? 'completed' : ''}
-          ${processingStatus.isProcessing ? 'processing' : ''}
-        `}
-      >
-        {vectorizationStatus.topicAnalysis.isComplete 
-          ? 'Topic Analysis Processed'
-          : processingStatus.isProcessing
-            ? `Processing ${processingStatus.currentTopic} - ${processingStatus.currentSubtopic}...`
-            : Object.keys(subTopicAnalysis).length === 0 
-              ? 'Generate Topic Analysis First'
-              : 'Process Topic Analysis'
-        }
+        {getButtonLabel()}
       </button>
 
       {processingStatus.error && (
@@ -787,12 +839,6 @@ const handleKeyPress = (e) => {
     </div>
     
       <div className="topic-analysis-section">
-      <button
-        onClick={handleGenerateTopicAnalysis}
-        disabled={topicAnalysisLoading}
-      >
-        {topicAnalysisLoading ? 'Analyzing...' : 'Generate Topic Analysis'}
-      </button>
 
         {topicAnalysisError && (
           <div className="error-message">

@@ -1,0 +1,51 @@
+button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover:not(:disabled) {
+    background-color: #45a049;
+}
+
+button:disabled,
+button[disabled] {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    border: 1px solid #bbbbbb;
+    box-shadow: none;
+}
+
+.progress-tracker {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.progress-step {
+    flex: 1;
+    text-align: center;
+    padding: 5px;
+    border-bottom: 2px solid #ccc;
+}
+
+.progress-step.completed {
+    background-color: #4CAF50;
+    color: white;
+    border-bottom-color: #4CAF50;
+}
+
+.progress-step.current {
+    background-color: #ffc107;
+    border-bottom-color: #ffc107;
+}
