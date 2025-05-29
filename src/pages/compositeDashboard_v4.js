@@ -14,6 +14,7 @@ import {
   fetchUserChatRelationshipAnalysis
 } from '../Utilities/api';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Reuse the same component
+import './compositeDashboard_v4.css';
 
 
 function CompositeDashboard_v4({}) {
@@ -51,6 +52,8 @@ function CompositeDashboard_v4({}) {
     const [currentMessage, setCurrentMessage] = useState('');
     const [isChatLoading, setIsChatLoading] = useState(false);
     const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(false);
+    const [scoreLoading, setScoreLoading] = useState(false);
+    const [analysisLoading, setAnalysisLoading] = useState(false);
 
     useEffect(() => {
         const initializeCompositeChartData = async () => {
@@ -338,6 +341,85 @@ function CompositeDashboard_v4({}) {
     }
   };
 
+  const getNextAction = () => {
+    if (!relationshipScores) return 'generateScore';
+    if (!detailedRelationshipAnalysis) {
+      return userAVectorizationStatus && userBVectorizationStatus
+        ? 'generateAnalysis'
+        : 'awaitUserVectorization';
+    }
+    if (!vectorizationStatus.relationshipAnalysis) return 'vectorizeAnalysis';
+    return 'complete';
+  };
+
+  const handleWorkflow = async () => {
+    const action = getNextAction();
+    switch (action) {
+      case 'generateScore':
+        setScoreLoading(true);
+        await generateCompatabilityScore();
+        setScoreLoading(false);
+        break;
+      case 'generateAnalysis':
+        setAnalysisLoading(true);
+        await generateRelationshipAnalysisForCompositeChart();
+        setAnalysisLoading(false);
+        break;
+      case 'vectorizeAnalysis':
+        await processRelationshipAnalysis();
+        break;
+      default:
+        break;
+    }
+  };
+
+  const computeProgressStep = () => {
+    let step = 0;
+    if (relationshipScores) step++;
+    if (detailedRelationshipAnalysis) step++;
+    if (vectorizationStatus.relationshipAnalysis) step++;
+    return step;
+  };
+
+  const getButtonLabel = () => {
+    const action = getNextAction();
+    switch (action) {
+      case 'generateScore':
+        return scoreLoading ? 'Generating Score...' : 'Run Relationship Workflow';
+      case 'generateAnalysis':
+        return analysisLoading ? 'Generating Analysis...' : 'Run Relationship Workflow';
+      case 'vectorizeAnalysis':
+        return processingStatus.isProcessing ? 'Vectorizing Analysis...' : 'Run Relationship Workflow';
+      case 'awaitUserVectorization':
+        return 'Birth Chart Analysis Required';
+      default:
+        return 'Workflow Complete';
+    }
+  };
+
+  useEffect(() => {
+    const next = getNextAction();
+    if (
+      next !== 'complete' &&
+      next !== 'awaitUserVectorization' &&
+      !scoreLoading &&
+      !analysisLoading &&
+      !processingStatus.isProcessing
+    ) {
+      handleWorkflow();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    relationshipScores,
+    detailedRelationshipAnalysis,
+    vectorizationStatus.relationshipAnalysis,
+    userAVectorizationStatus,
+    userBVectorizationStatus,
+    scoreLoading,
+    analysisLoading,
+    processingStatus.isProcessing
+  ]);
+
   return (
     <div>
       <h1>Composite Dashboard</h1>
@@ -347,74 +429,55 @@ function CompositeDashboard_v4({}) {
             <h2 className="logotxt">User A: {userA.firstName} {userA.lastName}</h2>
             <h2 className="logotxt">User B: {userB.firstName} {userB.lastName}</h2>
             <h2 className="logotxt">Composite Chart: {compositeChart._id}</h2>
-            {!relationshipScores && (
-              <button onClick={() => generateCompatabilityScore()}>
-                Generate Compatibility Score
-              </button>
+            <div className="progress-tracker">
+              {['Score', 'Analysis', 'Vectorize'].map((stage, index) => (
+                <div
+                  key={stage}
+                  className={`progress-step ${computeProgressStep() > index ? 'completed' : ''} ${computeProgressStep() === index ? 'current' : ''}`}
+                >
+                  {stage}
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={handleWorkflow}
+              disabled={
+                scoreLoading ||
+                analysisLoading ||
+                processingStatus.isProcessing ||
+                getNextAction() === 'awaitUserVectorization' ||
+                getNextAction() === 'complete'
+              }
+            >
+              {getButtonLabel()}
+            </button>
+
+            {getNextAction() === 'awaitUserVectorization' && (
+              <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '4px', color: '#856404' }}>
+                <strong>Prerequisites Required:</strong>{' '}
+                {(() => {
+                  const incompleteUsers = [];
+                  if (!userAVectorizationStatus) incompleteUsers.push(userA?.firstName || 'User A');
+                  if (!userBVectorizationStatus) incompleteUsers.push(userB?.firstName || 'User B');
+                  if (incompleteUsers.length === 1) {
+                    return `${incompleteUsers[0]} requires their birth chart analysis to be processed before relationship analysis can be generated.`;
+                  } else {
+                    return `${incompleteUsers.join(' and ')} require their birth chart analysis to be processed before relationship analysis can be generated.`;
+                  }
+                })()}
+              </div>
             )}
-            {relationshipScores && (
-              <>
-                {userAVectorizationStatus && userBVectorizationStatus ? (
-                  <>
-                    <button onClick={() => generateRelationshipAnalysisForCompositeChart()}>
-                      Generate Relationship Analysis
-                    </button>
-                    
-                    {/* Vectorization button:
-                        - Show if detailed analysis text exists
-                        - AND if it has NOT been fully vectorized yet (relationshipAnalysis is false)
-                    */}
-                    {detailedRelationshipAnalysis && !vectorizationStatus.relationshipAnalysis && (
-                      <button 
-                        onClick={processRelationshipAnalysis}
-                        disabled={processingStatus.isProcessing}
-                        style={{ marginLeft: '10px' }}
-                      >
-                        {processingStatus.isProcessing 
-                          ? "Vectorizing Analysis..." 
-                          : "Vectorize Relationship Analysis"}
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '4px', color: '#856404' }}>
-                    <strong>Prerequisites Required:</strong> {
-                      (() => {
-                        const incompleteUsers = [];
-                        if (!userAVectorizationStatus) incompleteUsers.push(userA?.firstName || 'User A');
-                        if (!userBVectorizationStatus) incompleteUsers.push(userB?.firstName || 'User B');
-                        
-                        if (incompleteUsers.length === 1) {
-                          return `${incompleteUsers[0]} requires their birth chart analysis to be processed before relationship analysis can be generated.`;
-                        } else {
-                          return `${incompleteUsers.join(' and ')} require their birth chart analysis to be processed before relationship analysis can be generated.`;
-                        }
-                      })()
-                    }
-                  </div>
-                )}
-                
-                {/* Display if processing is ongoing */}
-                {processingStatus.isProcessing && (
-                  <div style={{ marginTop: '10px', color: '#666' }}>
-                    Vectorizing analysis, please wait...
-                  </div>
-                )}
-                
-                {/* Display error if any during processing */}
-                {processingStatus.error && (
-                  <div style={{ marginTop: '10px', color: 'red' }}>
-                    Vectorization Error: {processingStatus.error}
-                  </div>
-                )}
-                
-                {/* Display success message when vectorization is complete */}
-                {vectorizationStatus.relationshipAnalysis && (
-                  <div style={{ marginTop: '10px', color: 'red' }}>
-                    Relationship analysis has been successfully vectorized. (Last updated: {vectorizationStatus.lastUpdated ? new Date(vectorizationStatus.lastUpdated).toLocaleString() : 'N/A'})
-                  </div>
-                )}
-              </>
+
+            {processingStatus.error && (
+              <div style={{ marginTop: '10px', color: 'red' }}>
+                Vectorization Error: {processingStatus.error}
+              </div>
+            )}
+
+            {vectorizationStatus.relationshipAnalysis && (
+              <div style={{ marginTop: '10px', color: 'red' }}>
+                Relationship analysis has been successfully vectorized. (Last updated: {vectorizationStatus.lastUpdated ? new Date(vectorizationStatus.lastUpdated).toLocaleString() : 'N/A'})
+              </div>
             )}
             
           </>
