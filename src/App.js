@@ -7,6 +7,7 @@ import SynastryPage_v2 from './pages/synastryPage_v2';
 import CompositeDashboard_v4 from './pages/compositeDashboard_v4';
 import ConfirmationV2 from './pages/confirmationPage_v2';
 import PasswordProtection from './pages/passwordProtection';
+import NavBar from './UI/shared/NavBar';
 import './App.css';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
     <Router>
       <div className="App">
         <PasswordProtection>
+          <NavBar />
           <Routes>
             <Route path="/prototype" element={<PrototypePage />} />
             <Route path="/userDashboard" element={<UserDashboard />} />
@@ -22,7 +24,6 @@ function App() {
 
             <Route path="/signUp" element={<SignUpPage />} />
             <Route path="/signUpConfirmation" element={<ConfirmationV2 />} />
-
 
           </Routes>
         </PasswordProtection>

@@ -88,7 +88,6 @@ const CANVAS_DIMENSIONS = {
 
 const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 0, instanceId }) => {
     const canvasRef = useRef(null);
-    const [planetsArray, setPlanetsArray] = useState([]);
     
     // Get ascendant degree from houses
     const currentAscendantDegree = useMemo(() => {
@@ -115,41 +114,125 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         });
     }, []); // Empty dependency array since using constant CANVAS_DIMENSIONS
 
-    // Memoize planets state update
-    const updatePlanetsArray = useCallback((planets) => {
-        setPlanetsArray(planets);
-    }, []);
+    const drawPlanets = useCallback(async (ctx, planetsToDraw, rotationRadians) => {
+        const ICON_WIDTH = 40;
+        const ICON_HEIGHT = 40;
+        const ICON_DRAW_OFFSET_X = 10; // Original offset for drawImage top-left from anchor
+        const ICON_DRAW_OFFSET_Y = 10;
+        const BASE_PLANET_ICON_ANCHOR_RADIUS = CANVAS_DIMENSIONS.outerRadius + 50; // Base radius for the icon's anchor point
 
-    const drawPlanets = useCallback((ctx, planets, rotationRadians) => {
-        // Only update planets array if it's different
-        if (JSON.stringify(planetsArray) !== JSON.stringify(planets)) {
-            updatePlanetsArray(planets);
-        }
+        // Sort planets by degree to process them in order around the circle
+        const sortedPlanets = [...planetsToDraw].sort((a, b) => a.full_degree - b.full_degree);
         
-        planets.forEach(async planet => {
+        const planetDrawInfos = []; // Stores info needed for drawing after positions are set
+        const occupiedPositions = []; // Stores bounding boxes of already positioned icons
+
+        // Phase 1: Calculate non-overlapping positions
+        for (const planet of sortedPlanets) {
             const planetIndex = planetNameToIndex[planet.name];
-            if (planetIndex !== undefined) {
-                const planetDegree = planet.full_degree;
-                const planetRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
-                const planetX = CANVAS_DIMENSIONS.centerX + (CANVAS_DIMENSIONS.outerRadius + 60) * Math.cos(planetRadians) - 10;
-                const planetY = CANVAS_DIMENSIONS.centerY + (CANVAS_DIMENSIONS.outerRadius + 60) * Math.sin(planetRadians) - 10;
+            if (planetIndex === undefined) continue;
 
-                const planetIcon = await loadAndModifySVG(planetIcons[planetIndex], 'red', instanceId);
-                const planetImage = new Image();
-                planetImage.src = planetIcon;
-                planetImage.onload = () => {
-                    ctx.drawImage(planetImage, planetX, planetY, 40, 40);
-                };
+            const planetDegree = planet.full_degree;
+            // Calculate the true angular position for the planet, including chart rotation
+            const truePlanetRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
 
-                const planetHashRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
-                ctx.beginPath();
-                ctx.moveTo(CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.outerRadius * Math.cos(planetHashRadians), CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.outerRadius * Math.sin(planetHashRadians));
-                ctx.lineTo(CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.houseCircleRadius * Math.cos(planetHashRadians), CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.houseCircleRadius * Math.sin(planetHashRadians));
-                ctx.strokeStyle = 'red';
-                ctx.stroke();
+            let currentIconAnchorRadius = BASE_PLANET_ICON_ANCHOR_RADIUS;
+            let adjustedIconTopLeftX, adjustedIconTopLeftY;
+            let collisionDetected = true;
+            let attempts = 0;
+            const MAX_ADJUSTMENT_ATTEMPTS = 10; // Max times to push icon radially outward
+            const RADIAL_PUSH_INCREMENT = 15; // How much to push out on each attempt
+
+            while (collisionDetected && attempts < MAX_ADJUSTMENT_ATTEMPTS) {
+                const iconAnchorX = CANVAS_DIMENSIONS.centerX + currentIconAnchorRadius * Math.cos(truePlanetRadians);
+                const iconAnchorY = CANVAS_DIMENSIONS.centerY + currentIconAnchorRadius * Math.sin(truePlanetRadians);
+
+                adjustedIconTopLeftX = iconAnchorX - ICON_DRAW_OFFSET_X;
+                adjustedIconTopLeftY = iconAnchorY - ICON_DRAW_OFFSET_Y;
+
+                collisionDetected = false;
+                for (const pos of occupiedPositions) {
+                    if (
+                        adjustedIconTopLeftX < pos.x + pos.width &&
+                        adjustedIconTopLeftX + ICON_WIDTH > pos.x &&
+                        adjustedIconTopLeftY < pos.y + pos.height &&
+                        adjustedIconTopLeftY + ICON_HEIGHT > pos.y
+                    ) {
+                        collisionDetected = true;
+                        break;
+                    }
+                }
+
+                if (collisionDetected) {
+                    currentIconAnchorRadius += RADIAL_PUSH_INCREMENT;
+                    attempts++;
+                }
             }
-        });
-    }, [planetsArray, updatePlanetsArray, instanceId]);
+
+            occupiedPositions.push({
+                x: adjustedIconTopLeftX,
+                y: adjustedIconTopLeftY,
+                width: ICON_WIDTH,
+                height: ICON_HEIGHT
+            });
+
+            planetDrawInfos.push({
+                planetName: planet.name,
+                iconUrl: planetIcons[planetIndex],
+                drawX: adjustedIconTopLeftX,
+                drawY: adjustedIconTopLeftY,
+                truePlanetRadians: truePlanetRadians, // Save for drawing hash mark and indicator line
+                wasMoved: currentIconAnchorRadius !== BASE_PLANET_ICON_ANCHOR_RADIUS
+            });
+        }
+
+        // Phase 2: Draw planet icons and their hash marks (and indicator lines if moved)
+        for (const info of planetDrawInfos) {
+            const { planetName, iconUrl, drawX, drawY, truePlanetRadians, wasMoved } = info;
+
+            // Draw the planet hash mark first (so icon can draw over its end if needed)
+            ctx.beginPath();
+            ctx.moveTo(CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.outerRadius * Math.cos(truePlanetRadians), CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.outerRadius * Math.sin(truePlanetRadians));
+            ctx.lineTo(CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.houseCircleRadius * Math.cos(truePlanetRadians), CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.houseCircleRadius * Math.sin(truePlanetRadians));
+            ctx.strokeStyle = 'red'; // Planet hash mark color
+            ctx.stroke();
+
+            // Load and draw the planet icon
+            try {
+                const coloredIconUrl = await loadAndModifySVG(iconUrl, 'red', instanceId);
+                const planetImage = new Image();
+                planetImage.src = coloredIconUrl;
+                planetImage.onload = () => {
+                    ctx.drawImage(planetImage, drawX, drawY, ICON_WIDTH, ICON_HEIGHT);
+
+                    // If the icon was moved, draw an indicator line
+                    if (wasMoved) {
+                        ctx.beginPath();
+                        // Center of the (potentially moved) icon
+                        ctx.moveTo(drawX + ICON_WIDTH / 2, drawY + ICON_HEIGHT / 2);
+                        // Point on the main outerRadius circle along the planet's true radial line
+                        const targetX = CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.outerRadius * Math.cos(truePlanetRadians);
+                        const targetY = CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.outerRadius * Math.sin(truePlanetRadians);
+                        ctx.lineTo(targetX, targetY);
+                        ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)'; // Faded red for indicator
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                        ctx.lineWidth = 1; // Reset line width
+                    }
+                };
+                planetImage.onerror = () => {
+                    console.error(`Error loading image for ${planetName} at ${iconUrl}`);
+                    // Fallback drawing for failed image load
+                    ctx.fillStyle = 'red';
+                    ctx.fillRect(drawX, drawY, ICON_WIDTH, ICON_HEIGHT);
+                    ctx.strokeStyle = 'black';
+                    ctx.strokeRect(drawX, drawY, ICON_WIDTH, ICON_HEIGHT);
+                };
+            } catch (error) {
+                console.error(`Error processing SVG for ${planetName}:`, error);
+            }
+        }
+    }, [instanceId]); // Depends only on instanceId as CANVAS_DIMENSIONS is a constant
 
     const drawAspectLines = useCallback((ctx, aspects, innerRadius, rotationRadians) => {
   
