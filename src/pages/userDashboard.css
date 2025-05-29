@@ -39,3 +39,27 @@ button {
     background-color: #ffe6e6;
     color: #cc0000;
 }
+
+.progress-tracker {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.progress-step {
+    flex: 1;
+    text-align: center;
+    padding: 5px;
+    border-bottom: 2px solid #ccc;
+}
+
+.progress-step.completed {
+    background-color: #4CAF50;
+    color: white;
+    border-bottom-color: #4CAF50;
+}
+
+.progress-step.current {
+    background-color: #ffc107;
+    border-bottom-color: #ffc107;
+}
