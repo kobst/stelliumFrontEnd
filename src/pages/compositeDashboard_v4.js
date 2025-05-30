@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import useStore from '../Utilities/store';
 import SynastryBirthChartComparison_v2 from '../UI/birthChart/tables/SynastryBirthChartComparison_v2'
 import RelationshipScores from '../UI/prototype/RelationshipScores';
-import RelationshipAnalysis from '../UI/prototype/RelationshipAnalysis';
+import { RelationshipCategoriesEnum } from '../Utilities/constants';
 import {
   fetchUser,
   getRelationshipScore,
@@ -14,6 +14,7 @@ import {
   fetchUserChatRelationshipAnalysis
 } from '../Utilities/api';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Reuse the same component
+import TabMenu from '../UI/shared/TabMenu';
 import './compositeDashboard_v4.css';
 
 
@@ -428,6 +429,57 @@ function CompositeDashboard_v4({}) {
     workflowStarted
   ]);
 
+  const tabs = [];
+
+  if (relationshipScores) {
+    tabs.push({
+      id: 'scores',
+      label: 'Scores',
+      content: <RelationshipScores scores={relationshipScores} />
+    });
+  }
+
+  if (detailedRelationshipAnalysis) {
+    Object.entries(detailedRelationshipAnalysis.analysis).forEach(([cat, value]) => {
+      tabs.push({
+        id: cat,
+        label: RelationshipCategoriesEnum[cat]?.label || cat.replace(/_/g, ' '),
+        content: (
+          <div style={{ marginBottom: '10px' }}>
+            {value.relevantPositions && (
+              <div style={{ marginBottom: '10px' }}>
+                <strong>Relevant Astrological Positions:</strong>
+                <p style={{ whiteSpace: 'pre-wrap' }}>{value.relevantPositions}</p>
+              </div>
+            )}
+            <div>
+              <strong>Interpretation:</strong>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{value.interpretation}</p>
+            </div>
+          </div>
+        )
+      });
+    });
+  }
+
+  if (vectorizationStatus.relationshipAnalysis && userA && userB && compositeChart) {
+    tabs.push({
+      id: 'chat',
+      label: 'Chat',
+      content: (
+        <UserChatBirthChart
+          chatMessages={chatMessages}
+          currentMessage={currentMessage}
+          setCurrentMessage={setCurrentMessage}
+          isChatLoading={isChatLoading}
+          isChatHistoryLoading={isChatHistoryLoading}
+          handleSendMessage={handleSendMessage}
+          handleKeyPress={handleKeyPress}
+        />
+      )
+    });
+  }
+
   return (
     <div>
       <h1>Composite Dashboard</h1>
@@ -492,43 +544,16 @@ function CompositeDashboard_v4({}) {
         )}
         
         {userA && userB && synastryAspects.length > 0 && compositeChart && (
-          <SynastryBirthChartComparison_v2 
-            birthChartA={userA.birthChart} 
-            birthChartB={userB.birthChart} 
-            compositeChart={compositeChart.compositeChart} 
-            userAName={userA.firstName} 
-            userBName={userB.firstName} 
+          <SynastryBirthChartComparison_v2
+            birthChartA={userA.birthChart}
+            birthChartB={userB.birthChart}
+            compositeChart={compositeChart.compositeChart}
+            userAName={userA.firstName}
+            userBName={userB.firstName}
           />
         )}
 
-{relationshipScores && scoreDebugInfo && (
-        <>
-      <RelationshipScores scores={relationshipScores} />
-      {/* <RelationshipAspects debugInfo={scoreDebugInfo} userA={userA} userB={userB} /> */}
-      </>
-    )}
-
-{detailedRelationshipAnalysis && userA && userB && (
-        <RelationshipAnalysis 
-          analysis={detailedRelationshipAnalysis.analysis} 
-          userAName={detailedRelationshipAnalysis.userAName || userA.firstName}
-          userBName={detailedRelationshipAnalysis.userBName || userB.firstName}
-        />
-      )}
-
-        {/* Relationship Chat Interface - Only show when vectorization is complete */}
-        {vectorizationStatus.relationshipAnalysis && userA && userB && compositeChart && (
-          <UserChatBirthChart
-              chatMessages={chatMessages}
-              currentMessage={currentMessage}
-              setCurrentMessage={setCurrentMessage}
-              isChatLoading={isChatLoading}
-              isChatHistoryLoading={isChatHistoryLoading}
-              handleSendMessage={handleSendMessage}
-              handleKeyPress={handleKeyPress}
-              // You can customize the title by passing it as a prop if needed
-            />
-        )}
+        <TabMenu tabs={tabs} />
       </div>
     </div>
   )
