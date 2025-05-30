@@ -2,7 +2,7 @@ import React from 'react';
 import BirthChartSummaryTable from '../birthChart/tables/BirthChartSummaryTable'
 import Ephemeris from '../shared/Ephemeris';
 
-const UserHoroscopeContainer = ({ selectedUser, isDataPopulated, userPlanets, userHouses, userAspects, dailyTransits }) => {
+const UserBirthChartContainer= ({ selectedUser, isDataPopulated, userPlanets, userHouses, userAspects, dailyTransits }) => {
   return (
     <div className="horoscope-container">
       {selectedUser && (
@@ -23,4 +23,4 @@ const UserHoroscopeContainer = ({ selectedUser, isDataPopulated, userPlanets, us
   );
 };
 
-export default UserHoroscopeContainer;
+export default UserBirthChartContainer;

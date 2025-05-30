@@ -724,3 +724,23 @@ export const fetchUserChatRelationshipAnalysis = async (userId, compositeChartId
   }
 }
 
+
+
+export const getTransitWindows = async (natalPlanets, from, to) => {
+  console.log("natalPlanets: ", natalPlanets)
+  console.log("from: ", from)
+  console.log("to: ", to)
+  try {
+    const response = await fetch(`${SERVER_URL}/getTransitWindows`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({natalPlanets, from, to})
+    });
+    const responseData = await response.json();
+    console.log("responseData: ", responseData)
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+}
