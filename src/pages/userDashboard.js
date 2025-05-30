@@ -15,6 +15,7 @@ import {
 import useAsync from '../hooks/useAsync';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
 import HoroscopeContainer from '../UI/prototype/HoroscopeContainer';
+import TabMenu from '../UI/shared/TabMenu';
 import './userDashboard.css';
 
 function UserDashboard() {
@@ -792,6 +793,107 @@ useEffect(() => {
   }
 }, [userPlanets, isDataPopulated]);
 
+  const tabs = [];
+
+  if (birthChartAnalysisId && userId && vectorizationStatus.topicAnalysis.isComplete) {
+    tabs.push({
+      id: 'chat',
+      label: 'Chat',
+      content: (
+        <UserChatBirthChart
+          chatMessages={chatMessages}
+          currentMessage={currentMessage}
+          setCurrentMessage={setCurrentMessage}
+          isChatLoading={isChatLoading}
+          isChatHistoryLoading={isChatHistoryLoading}
+          handleSendMessage={handleSendMessage}
+          handleKeyPress={handleKeyPress}
+        />
+      )
+    });
+  }
+
+  tabs.push({
+    id: 'overview',
+    label: 'Overview',
+    content: (
+      <section className="overview-section">
+        <p>{basicAnalysis.overview}</p>
+      </section>
+    )
+  });
+
+  tabs.push({
+    id: 'patterns',
+    label: 'Chart Patterns',
+    content: (
+      <section className="dominance-section">
+        <div className="pattern-grid">
+          <div className="pattern-card">
+            <h4>Elements</h4>
+            <p>{basicAnalysis.dominance?.elements?.interpretation}</p>
+          </div>
+          <div className="pattern-card">
+            <h4>Modalities</h4>
+            <p>{basicAnalysis.dominance?.modalities?.interpretation}</p>
+          </div>
+          <div className="pattern-card">
+            <h4>Quadrants</h4>
+            <p>{basicAnalysis.dominance?.quadrants?.interpretation}</p>
+          </div>
+        </div>
+      </section>
+    )
+  });
+
+  tabs.push({
+    id: 'planets',
+    label: 'Planets',
+    content: (
+      <section className="planets-section">
+        <div className="planet-grid">
+          {Object.entries(basicAnalysis.planets || {}).map(([planet, data]) => (
+            <div key={planet} className="planet-card">
+              <h4>{planet}</h4>
+              <p>{data.interpretation}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  });
+
+  Object.entries(subTopicAnalysis).forEach(([topic, data]) => {
+    tabs.push({
+      id: topic,
+      label: data.label,
+      content: (
+        <div className="subtopics">
+          {Object.entries(data.subtopics).map(([subtopicKey, content]) => (
+            <div key={subtopicKey} className="subtopic">
+              <h4>{BroadTopicsEnum[topic].subtopics[subtopicKey].replace(/_/g, ' ')}</h4>
+              <p>{content}</p>
+            </div>
+          ))}
+        </div>
+      )
+    });
+  });
+
+  if (isDataPopulated) {
+    tabs.push({
+      id: 'horoscope',
+      label: 'Horoscope',
+      content: (
+        <HoroscopeContainer
+          transitWindows={transitWindows}
+          loading={transitLoading}
+          error={transitError}
+        />
+      )
+    });
+  }
+
   return (
     <div className="user-prototype-page">
 
@@ -829,96 +931,10 @@ useEffect(() => {
       </button>
 
       {processingStatus.error && (
-        <div className="error-message">
-          Error: {processingStatus.error}
-        </div>
+        <div className="error-message">Error: {processingStatus.error}</div>
       )}
 
-      {birthChartAnalysisId && userId && vectorizationStatus.topicAnalysis.isComplete && (
-        <UserChatBirthChart
-          chatMessages={chatMessages}
-          currentMessage={currentMessage}
-          setCurrentMessage={setCurrentMessage}
-          isChatLoading={isChatLoading}
-          isChatHistoryLoading={isChatHistoryLoading}
-          handleSendMessage={handleSendMessage}
-          handleKeyPress={handleKeyPress}
-        />
-      )}
-
-      <div className="basic-analysis">
-      <h2>Birth Chart Analysis</h2>
-      
-      {/* Main Overview */}
-      <section className="overview-section">
-        <h3>Overview</h3>
-        <p>{basicAnalysis.overview}</p>
-      </section>
-
-      {/* Dominance Section */}
-      <section className="dominance-section">
-        <h3>Chart Patterns</h3>
-        <div className="pattern-grid">
-          <div className="pattern-card">
-            <h4>Elements</h4>
-            <p>{basicAnalysis.dominance?.elements?.interpretation}</p>
-          </div>
-          <div className="pattern-card">
-            <h4>Modalities</h4>
-            <p>{basicAnalysis.dominance?.modalities?.interpretation}</p>
-          </div>
-          <div className="pattern-card">
-            <h4>Quadrants</h4>
-            <p>{basicAnalysis.dominance?.quadrants?.interpretation}</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Planets Section */}
-      <section className="planets-section">
-        <h3>Planetary Influences</h3>
-        <div className="planet-grid">
-          {Object.entries(basicAnalysis.planets || {}).map(([planet, data]) => (
-            <div key={planet} className="planet-card">
-              <h4>{planet}</h4>
-              <p>{data.interpretation}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
-    
-      <div className="topic-analysis-section">
-
-        {topicAnalysisError && (
-          <div className="error-message">
-            Error: {topicAnalysisError}
-          </div>
-        )}
-
-        {Object.entries(subTopicAnalysis).map(([topic, data]) => (
-          <div key={topic} className="topic-section">
-            <h3>{data.label}</h3>
-            <div className="subtopics">
-              {Object.entries(data.subtopics).map(([subtopicKey, content]) => (
-                <div key={subtopicKey} className="subtopic">
-                  <h4>{BroadTopicsEnum[topic].subtopics[subtopicKey].replace(/_/g, ' ')}</h4>
-                  <p>{content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Add HoroscopeContainer after the existing content */}
-      {isDataPopulated && (
-        <HoroscopeContainer 
-          transitWindows={transitWindows}
-          loading={transitLoading}
-          error={transitError}
-        />
-      )}
+      <TabMenu tabs={tabs} />
     </div>
   );
 }
