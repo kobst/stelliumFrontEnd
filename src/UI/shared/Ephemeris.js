@@ -45,6 +45,31 @@ const planetNameToIndex = {
     "Pluto": 9,
 };
 
+const PLANET_COLORS = {
+    Sun: '#FFD700',      // gold
+    Moon: '#A9A9A9',     // grey
+    Mercury: '#FFA500',  // orange
+    Venus: '#ADFF2F',    // greenish
+    Mars: '#FF4500',     // red/orange
+    Jupiter: '#FF8C00',  // dark orange
+    Saturn: '#DAA520',   // goldenrod
+    Uranus: '#40E0D0',   // turquoise
+    Neptune: '#1E90FF',  // blue
+    Pluto: '#8A2BE2',    // purple
+};
+
+const hexToRgba = (hex, alpha = 1) => {
+    let h = hex.replace('#', '');
+    if (h.length === 3) {
+        h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    }
+    const bigint = parseInt(h, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 // Cache for SVG URLs
 const svgCache = new Map();
 
@@ -190,16 +215,18 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         for (const info of planetDrawInfos) {
             const { planetName, iconUrl, drawX, drawY, truePlanetRadians, wasMoved } = info;
 
+            const planetColor = PLANET_COLORS[planetName] || 'red';
+
             // Draw the planet hash mark first (so icon can draw over its end if needed)
             ctx.beginPath();
             ctx.moveTo(CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.outerRadius * Math.cos(truePlanetRadians), CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.outerRadius * Math.sin(truePlanetRadians));
             ctx.lineTo(CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.houseCircleRadius * Math.cos(truePlanetRadians), CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.houseCircleRadius * Math.sin(truePlanetRadians));
-            ctx.strokeStyle = 'red'; // Planet hash mark color
+            ctx.strokeStyle = planetColor; // Planet hash mark color
             ctx.stroke();
 
             // Load and draw the planet icon
             try {
-                const coloredIconUrl = await loadAndModifySVG(iconUrl, 'red', instanceId);
+                const coloredIconUrl = await loadAndModifySVG(iconUrl, planetColor, instanceId);
                 const planetImage = new Image();
                 planetImage.src = coloredIconUrl;
                 planetImage.onload = () => {
@@ -214,7 +241,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                         const targetX = CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.outerRadius * Math.cos(truePlanetRadians);
                         const targetY = CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.outerRadius * Math.sin(truePlanetRadians);
                         ctx.lineTo(targetX, targetY);
-                        ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)'; // Faded red for indicator
+                        ctx.strokeStyle = hexToRgba(planetColor, 0.5); // Faded planet color for indicator
                         ctx.lineWidth = 0.5;
                         ctx.stroke();
                         ctx.lineWidth = 1; // Reset line width
@@ -223,7 +250,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                 planetImage.onerror = () => {
                     console.error(`Error loading image for ${planetName} at ${iconUrl}`);
                     // Fallback drawing for failed image load
-                    ctx.fillStyle = 'red';
+                    ctx.fillStyle = planetColor;
                     ctx.fillRect(drawX, drawY, ICON_WIDTH, ICON_HEIGHT);
                     ctx.strokeStyle = 'black';
                     ctx.strokeRect(drawX, drawY, ICON_WIDTH, ICON_HEIGHT);
