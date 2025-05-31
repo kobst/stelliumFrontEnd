@@ -763,11 +763,21 @@ const fetchTransitWindows = async () => {
   setTransitError(null);
 
   try {
-    // Get date ranges for the next month
+    // FIXED: Get wider date range to cover current + next month + some buffer
     const now = new Date();
-    const fromDate = new Date(now);
-    const toDate = new Date(now);
-    toDate.setMonth(now.getMonth() + 1); // Next month
+    
+    // Start from beginning of current month
+    const fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    // End at end of next month
+    const toDate = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+
+    console.log("Fetching transits for date range:", {
+      from: fromDate.toISOString(),
+      to: toDate.toISOString(),
+      fromFormatted: fromDate.toLocaleDateString(),
+      toFormatted: toDate.toLocaleDateString()
+    });
 
     // Format planets for the API call
     const natalPlanets = userPlanets.map(planet => ({
@@ -778,6 +788,7 @@ const fetchTransitWindows = async () => {
     const response = await getTransitWindows(natalPlanets, fromDate.toISOString(), toDate.toISOString());
     
     if (response && response.windows) {
+      console.log("Received transit windows:", response.windows.length);
       setTransitWindows(response.windows);
     } else {
       setTransitError("Invalid response format from transit API");
