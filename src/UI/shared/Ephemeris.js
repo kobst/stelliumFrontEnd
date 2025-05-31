@@ -236,27 +236,26 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
 
     const drawAspectLines = useCallback((ctx, aspects, innerRadius, rotationRadians) => {
   
-
+        console.log("Drawing aspects", aspects);
         aspects.forEach(aspect => {
-            if (aspect.transitingPlanet === "South Node"|| aspect.aspectingPlanet === "Chiron"
-                || aspect.transitingPlanet === "Chiron"|| aspect.aspectingPlanet === "South Node"
-                || aspect.transitingPlanet === "Part of Fortune"|| aspect.aspectingPlanet === "Part of Fortune"
+            if (aspect.aspectedPlanet === "South Node"|| aspect.aspectingPlanet === "Chiron"
+                || aspect.aspectedPlanet === "Chiron"|| aspect.aspectingPlanet === "South Node"
+                || aspect.aspectedPlanet === "Part of Fortune"|| aspect.aspectingPlanet === "Part of Fortune"
             ) {
                 return
             }
 
-            const transitingDegree = aspect.transitingPlanetDegree;
+            const aspectedDegree = aspect.aspectedPlanetDegree;
             const aspectingDegree = aspect.aspectingPlanetDegree;
 
-            const transitingRadians = ((270 - transitingDegree) % 360) * Math.PI / 180 + rotationRadians;
+            const aspectedRadians = ((270 - aspectedDegree) % 360) * Math.PI / 180 + rotationRadians;
             const aspectingRadians  = ((270 - aspectingDegree ) % 360) * Math.PI / 180 + rotationRadians;
-
 
             // const transitingRadians = ((270 - transitingDegree) % 360) * Math.PI / 180 + Math.PI/2;
             // const aspectingRadians = ((270 - aspectingDegree) % 360) * Math.PI / 180 + Math.PI/2;
 
-            const startX = CANVAS_DIMENSIONS.centerX + innerRadius * Math.cos(transitingRadians);
-            const startY = CANVAS_DIMENSIONS.centerY + innerRadius * Math.sin(transitingRadians);
+            const startX = CANVAS_DIMENSIONS.centerX + innerRadius * Math.cos(aspectedRadians);
+            const startY = CANVAS_DIMENSIONS.centerY + innerRadius * Math.sin(aspectedRadians);
             const endX = CANVAS_DIMENSIONS.centerX + innerRadius * Math.cos(aspectingRadians);
             const endY = CANVAS_DIMENSIONS.centerY + innerRadius * Math.sin(aspectingRadians);
 
