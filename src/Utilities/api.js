@@ -611,6 +611,8 @@ export const processAndVectorizeTopicAnalysis = async (userId, vectorization = {
       // Return progress update for UI
       if (!isComplete) {
         console.log(`Processed ${currentTopic} - ${currentSubtopic}`);
+        // Add delay before next request to prevent server timeout
+        await new Promise(resolve => setTimeout(resolve, 1500));
       }
     }
 
