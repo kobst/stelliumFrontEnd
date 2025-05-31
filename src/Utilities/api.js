@@ -396,24 +396,31 @@ export const fetchAnalysis = async (userId) => {
   }
 }
 
-export const generateTopicAnalysis = async (userId) => {
+export const generateTopicAnalysis = async (userId, existingAnalysis = {}) => {
   console.log("Starting topic analysis for user:", userId);
-  
+
   try {
     const topics = Object.entries(BroadTopicsEnum);
-    const results = {};
+    const results = JSON.parse(JSON.stringify(existingAnalysis || {}));
 
     for (const [broadTopic, topicData] of topics) {
       console.log(`Processing topic: ${broadTopic}`);
-      results[broadTopic] = {
-        label: topicData.label,
-        subtopics: {}
-      };
 
-      // Process each subtopic
+      if (!results[broadTopic]) {
+        results[broadTopic] = {
+          label: topicData.label,
+          subtopics: {}
+        };
+      }
+
       for (const [subtopicKey, subtopicLabel] of Object.entries(topicData.subtopics)) {
+        if (results[broadTopic].subtopics && results[broadTopic].subtopics[subtopicKey]) {
+          // Skip already generated subtopic
+          continue;
+        }
+
         console.log(`Processing subtopic: ${subtopicKey}`);
-        
+
         const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
           method: HTTP_POST,
           headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
@@ -431,12 +438,11 @@ export const generateTopicAnalysis = async (userId) => {
         }
 
         const result = await response.json();
-        
+
         if (!result.success) {
           throw new Error(result.error || `Subtopic analysis failed for ${subtopicLabel}`);
         }
 
-        // Store result for this subtopic
         results[broadTopic].subtopics[subtopicKey] = result.result;
         console.log(`Completed subtopic: ${subtopicKey}`);
       }
@@ -546,10 +552,33 @@ export const processAndVectorizeBasicAnalysis = async (userId) => {
   return { success: true };
 };
 
-export const processAndVectorizeTopicAnalysis = async (userId) => {
+export const processAndVectorizeTopicAnalysis = async (userId, vectorization = {}) => {
   let currentTopic = null;
   let currentSubtopic = null;
   let isComplete = false;
+
+  // Determine starting point based on vectorization status
+  const topics = Object.entries(BroadTopicsEnum);
+  outer: {
+    for (const [topicKey, topicData] of topics) {
+      const subtopics = Object.keys(topicData.subtopics);
+      for (const sub of subtopics) {
+        if (!vectorization?.topicAnalysis?.[topicKey]?.[sub]) {
+          currentTopic = topicKey;
+          currentSubtopic = sub;
+          break outer;
+        }
+      }
+    }
+    if (currentTopic === null && currentSubtopic === null) {
+      isComplete = true;
+    }
+  }
+
+  if (isComplete) {
+    console.log('Topic analysis vectorization already complete');
+    return { success: true, isComplete: true };
+  }
 
   try {
     while (!isComplete) {

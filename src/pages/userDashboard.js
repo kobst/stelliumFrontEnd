@@ -485,7 +485,7 @@ async function processTopicAnalysis() {
   }));
 
   try {
-    const response = await processAndVectorizeTopicAnalysis(userId);
+    const response = await processAndVectorizeTopicAnalysis(userId, vectorizationStatus);
     console.log("Processing response:", response);
     
     if (response.success) {
@@ -557,7 +557,7 @@ async function processTopicAnalysis() {
 async function generateAndReturnTopicAnalysis() {
   console.log("userId", userId);
   try {
-    const result = await generateTopicAnalysis(userId);
+    const result = await generateTopicAnalysis(userId, subTopicAnalysis);
     if (result.success) {
       setSubTopicAnalysis(result.results);
     }
