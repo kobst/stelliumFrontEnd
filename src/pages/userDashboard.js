@@ -81,27 +81,28 @@ function UserDashboard() {
         FAMILY_CHALLENGES: false
       },
       RELATIONSHIPS_SOCIAL: {
-        RELATIONSHIP_PATTERNS: false,
-        SOCIAL_CONNECTIONS: false,
-        RELATIONSHIP_CHALLENGES: false,
-        PARTNERSHIP_NEEDS: false
+        RELATIONSHIP_DESIRES: false,
+        LOVE_STYLE: false,
+        SEXUAL_NATURE: false,
+        COMMITMENT_APPROACH: false,
+        RELATIONSHIP_CHALLENGES: false
       },
       CAREER_PURPOSE_PUBLIC_IMAGE: {
-        CAREER_PATH: false,
-        LIFE_PURPOSE: false,
+        CAREER_MOTIVATIONS: false,
         PUBLIC_IMAGE: false,
+        CAREER_CHALLENGES: false,
         SKILLS_TALENTS: false
       },
       UNCONSCIOUS_SPIRITUALITY: {
-        SPIRITUAL_PATH: false,
-        UNCONSCIOUS_PATTERNS: false,
-        TRANSFORMATIVE_EVENTS: false,
-        HEALING_GROWTH: false
+        PSYCHOLOGICAL_PATTERNS: false,
+        SPIRITUAL_GROWTH: false,
+        KARMIC_LESSONS: false,
+        TRANSFORMATIVE_EVENTS: false
       },
       COMMUNICATION_BELIEFS: {
-        COMMUNICATION_STYLE: false,
-        LEARNING_PATTERNS: false,
-        BELIEF_SYSTEMS: false,
+        COMMUNICATION_STYLES: false,
+        PHILOSOPHICAL_BELIEFS: false,
+        TRAVEL_EXPERIENCES: false,
         MENTAL_GROWTH_CHALLENGES: false
       },
       isComplete: false
@@ -255,27 +256,28 @@ function UserDashboard() {
             FAMILY_CHALLENGES: false
           },
           RELATIONSHIPS_SOCIAL: vectorizationStatus?.topicAnalysis?.RELATIONSHIPS_SOCIAL || {
-            RELATIONSHIP_PATTERNS: false,
-            SOCIAL_CONNECTIONS: false,
-            RELATIONSHIP_CHALLENGES: false,
-            PARTNERSHIP_NEEDS: false
+            RELATIONSHIP_DESIRES: false,
+            LOVE_STYLE: false,
+            SEXUAL_NATURE: false,
+            COMMITMENT_APPROACH: false,
+            RELATIONSHIP_CHALLENGES: false
           },
           CAREER_PURPOSE_PUBLIC_IMAGE: vectorizationStatus?.topicAnalysis?.CAREER_PURPOSE_PUBLIC_IMAGE || {
-            CAREER_PATH: false,
-            LIFE_PURPOSE: false,
+            CAREER_MOTIVATIONS: false,
             PUBLIC_IMAGE: false,
+            CAREER_CHALLENGES: false,
             SKILLS_TALENTS: false
           },
           UNCONSCIOUS_SPIRITUALITY: vectorizationStatus?.topicAnalysis?.UNCONSCIOUS_SPIRITUALITY || {
-            SPIRITUAL_PATH: false,
-            UNCONSCIOUS_PATTERNS: false,
-            TRANSFORMATIVE_EVENTS: false,
-            HEALING_GROWTH: false
+            PSYCHOLOGICAL_PATTERNS: false,
+            SPIRITUAL_GROWTH: false,
+            KARMIC_LESSONS: false,
+            TRANSFORMATIVE_EVENTS: false
           },
           COMMUNICATION_BELIEFS: vectorizationStatus?.topicAnalysis?.COMMUNICATION_BELIEFS || {
-            COMMUNICATION_STYLE: false,
-            LEARNING_PATTERNS: false,
-            BELIEF_SYSTEMS: false,
+            COMMUNICATION_STYLES: false,
+            PHILOSOPHICAL_BELIEFS: false,
+            TRAVEL_EXPERIENCES: false,
             MENTAL_GROWTH_CHALLENGES: false
           },
           isComplete: vectorizationStatus?.topicAnalysis?.isComplete || false
@@ -331,27 +333,28 @@ function UserDashboard() {
             FAMILY_CHALLENGES: false
           },
           RELATIONSHIPS_SOCIAL: {
-            RELATIONSHIP_PATTERNS: false,
-            SOCIAL_CONNECTIONS: false,
-            RELATIONSHIP_CHALLENGES: false,
-            PARTNERSHIP_NEEDS: false
+            RELATIONSHIP_DESIRES: false,
+            LOVE_STYLE: false,
+            SEXUAL_NATURE: false,
+            COMMITMENT_APPROACH: false,
+            RELATIONSHIP_CHALLENGES: false
           },
           CAREER_PURPOSE_PUBLIC_IMAGE: {
-            CAREER_PATH: false,
-            LIFE_PURPOSE: false,
+            CAREER_MOTIVATIONS: false,
             PUBLIC_IMAGE: false,
+            CAREER_CHALLENGES: false,
             SKILLS_TALENTS: false
           },
           UNCONSCIOUS_SPIRITUALITY: {
-            SPIRITUAL_PATH: false,
-            UNCONSCIOUS_PATTERNS: false,
-            TRANSFORMATIVE_EVENTS: false,
-            HEALING_GROWTH: false
+            PSYCHOLOGICAL_PATTERNS: false,
+            SPIRITUAL_GROWTH: false,
+            KARMIC_LESSONS: false,
+            TRANSFORMATIVE_EVENTS: false
           },
           COMMUNICATION_BELIEFS: {
-            COMMUNICATION_STYLE: false,
-            LEARNING_PATTERNS: false,
-            BELIEF_SYSTEMS: false,
+            COMMUNICATION_STYLES: false,
+            PHILOSOPHICAL_BELIEFS: false,
+            TRAVEL_EXPERIENCES: false,
             MENTAL_GROWTH_CHALLENGES: false
           },
           isComplete: false
@@ -507,27 +510,28 @@ async function processTopicAnalysis() {
             FAMILY_CHALLENGES: true
           },
           RELATIONSHIPS_SOCIAL: {
-            RELATIONSHIP_PATTERNS: true,
-            SOCIAL_CONNECTIONS: true,
-            RELATIONSHIP_CHALLENGES: true,
-            PARTNERSHIP_NEEDS: true
+            RELATIONSHIP_DESIRES: true,
+            LOVE_STYLE: true,
+            SEXUAL_NATURE: true,
+            COMMITMENT_APPROACH: true,
+            RELATIONSHIP_CHALLENGES: true
           },
           CAREER_PURPOSE_PUBLIC_IMAGE: {
-            CAREER_PATH: true,
-            LIFE_PURPOSE: true,
+            CAREER_MOTIVATIONS: true,
             PUBLIC_IMAGE: true,
+            CAREER_CHALLENGES: true,
             SKILLS_TALENTS: true
           },
           UNCONSCIOUS_SPIRITUALITY: {
-            SPIRITUAL_PATH: true,
-            UNCONSCIOUS_PATTERNS: true,
-            TRANSFORMATIVE_EVENTS: true,
-            HEALING_GROWTH: true
+            PSYCHOLOGICAL_PATTERNS: true,
+            SPIRITUAL_GROWTH: true,
+            KARMIC_LESSONS: true,
+            TRANSFORMATIVE_EVENTS: true
           },
           COMMUNICATION_BELIEFS: {
-            COMMUNICATION_STYLE: true,
-            LEARNING_PATTERNS: true,
-            BELIEF_SYSTEMS: true,
+            COMMUNICATION_STYLES: true,
+            PHILOSOPHICAL_BELIEFS: true,
+            TRAVEL_EXPERIENCES: true,
             MENTAL_GROWTH_CHALLENGES: true
           },
           isComplete: true
