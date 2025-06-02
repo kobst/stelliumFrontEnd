@@ -179,6 +179,7 @@ function CompositeDashboard_v4({}) {
     }
     
     console.log("Starting relationship analysis vectorization for compositeChartId:", compositeChart._id);
+    console.log("Current vectorization status:", vectorizationStatus);
     
     setProcessingStatus({
       isProcessing: true,
@@ -187,7 +188,8 @@ function CompositeDashboard_v4({}) {
     });
 
     try {
-      const response = await processAndVectorizeRelationshipAnalysis(compositeChart._id);
+      // Pass the current vectorization status to resume from incomplete categories
+      const response = await processAndVectorizeRelationshipAnalysis(compositeChart._id, vectorizationStatus);
       console.log("Vectorization processing response:", response);
       
       if (response.success && response.isComplete) {
@@ -355,7 +357,12 @@ function CompositeDashboard_v4({}) {
         ? 'generateAnalysis'
         : 'awaitUserVectorization';
     }
-    if (!vectorizationStatus.relationshipAnalysis) return 'vectorizeAnalysis';
+    
+    // Check if relationship analysis vectorization is complete
+    const allCategoriesComplete = vectorizationStatus?.categories && 
+      Object.values(vectorizationStatus.categories).every(status => status === true);
+    
+    if (!allCategoriesComplete) return 'vectorizeAnalysis';
     return 'complete';
   };
 

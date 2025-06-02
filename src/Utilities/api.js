@@ -631,9 +631,35 @@ export const processAndVectorizeTopicAnalysis = async (userId, vectorization = {
 };
 
 
-export const processAndVectorizeRelationshipAnalysis = async (compositeChartId) => {
+export const processAndVectorizeRelationshipAnalysis = async (compositeChartId, vectorizationStatus = {}) => {
   let currentCategory = null;
   let isComplete = false;
+
+  // Define the categories in order (should match backend)
+  const RelationshipCategoriesEnum = {
+    OVERALL_ATTRACTION_CHEMISTRY: { label: "Overall Attraction & Chemistry" },
+    EMOTIONAL_SECURITY_CONNECTION: { label: "Emotional Security & Connection" },
+    SEX_AND_INTIMACY: { label: "Sex & Intimacy" },
+    COMMUNICATION_AND_MENTAL_CONNECTION: { label: "Communication & Mental Connection" },
+    COMMITMENT_LONG_TERM_POTENTIAL: { label: "Commitment & Long-Term Potential" },
+    KARMIC_LESSONS_GROWTH: { label: "Karmic Lessons & Growth" },
+    PRACTICAL_GROWTH_SHARED_GOALS: { label: "Practical Growth & Shared Goals" }
+  };
+
+  // Determine starting point based on vectorization status
+  const categories = Object.keys(RelationshipCategoriesEnum);
+  for (const category of categories) {
+    if (!vectorizationStatus?.categories?.[category]) {
+      currentCategory = category;
+      break;
+    }
+  }
+
+  // If all categories are complete, return early
+  if (currentCategory === null) {
+    console.log('Relationship analysis vectorization already complete');
+    return { success: true, isComplete: true };
+  }
 
   try {
     while (!isComplete) {
@@ -664,6 +690,8 @@ export const processAndVectorizeRelationshipAnalysis = async (compositeChartId) 
       // Return progress update for UI
       if (!isComplete && currentCategory) {
         console.log(`Processed category: ${currentCategory}`);
+        // Add delay before next request to prevent server timeout
+        await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
       }
     }
 
@@ -678,7 +706,7 @@ export const processAndVectorizeRelationshipAnalysis = async (compositeChartId) 
       lastProcessedCategory: currentCategory
     };
   }
-}
+};
 
 
 export const chatForUserBirthChart = async (userId, birthChartAnalysisId, query) => {
