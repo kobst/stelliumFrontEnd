@@ -79,6 +79,22 @@
     min-width: 120px;
   }
   
+  .transit-type {
+    text-align: center;
+    min-width: 60px;
+  }
+  
+  .type-badge {
+    display: inline-block;
+    padding: 3px 6px;
+    border-radius: 8px;
+    background-color: #6c757d;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  
   .transiting-planet {
     font-weight: 600;
     color: #007bff;
@@ -94,7 +110,12 @@
     text-transform: capitalize;
   }
   
-  .natal-planet {
+  .no-aspect {
+    color: #adb5bd;
+    font-style: italic;
+  }
+  
+  .target-planet {
     font-weight: 500;
     color: #6c757d;
   }
@@ -102,6 +123,39 @@
   .exact-date {
     font-size: 0.9rem;
     color: #6c757d;
+  }
+  
+  .priority {
+    text-align: center;
+    min-width: 60px;
+  }
+  
+  .priority-badge {
+    display: inline-block;
+    padding: 3px 6px;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+  }
+  
+  .priority-1, .priority-2, .priority-3 {
+    background-color: #28a745; /* Low priority - green */
+  }
+  
+  .priority-4, .priority-5, .priority-6 {
+    background-color: #ffc107; /* Medium priority - yellow */
+    color: #212529;
+  }
+  
+  .priority-7, .priority-8 {
+    background-color: #fd7e14; /* High priority - orange */
+  }
+  
+  .priority-9, .priority-10 {
+    background-color: #dc3545; /* Very high priority - red */
   }
   
   .loading-message,
@@ -136,5 +190,26 @@
     .tab-button {
       padding: 10px 16px;
       font-size: 0.9rem;
+    }
+    
+    /* Hide less important columns on mobile */
+    .transit-type,
+    .priority {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .exact-date {
+      display: none;
+    }
+    
+    .tab-navigation {
+      flex-wrap: wrap;
+    }
+    
+    .tab-button {
+      padding: 8px 12px;
+      font-size: 0.8rem;
     }
   }

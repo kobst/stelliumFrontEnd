@@ -779,17 +779,23 @@ const fetchTransitWindows = async () => {
       toFormatted: toDate.toLocaleDateString()
     });
 
-    // Format planets for the API call
-    const natalPlanets = userPlanets.map(planet => ({
-      name: planet.name,
-      lon: planet.full_degree || planet.fullDegree || planet.lon
-    }));
 
-    const response = await getTransitWindows(natalPlanets, fromDate.toISOString(), toDate.toISOString());
+    const response = await getTransitWindows(userPlanets, fromDate.toISOString(), toDate.toISOString());
     
-    if (response && response.windows) {
-      console.log("Received transit windows:", response.windows.length);
-      setTransitWindows(response.windows);
+    if (response && (response.transitEvents || response.transitToTransitEvents)) {
+      // Combine both types of transit events
+      const allTransitEvents = [
+        ...(response.transitEvents || []),
+        ...(response.transitToTransitEvents || [])
+      ];
+      
+      console.log("Received transit events:", {
+        transitToNatal: response.transitEvents?.length || 0,
+        transitToTransit: response.transitToTransitEvents?.length || 0,
+        total: allTransitEvents.length
+      });
+      
+      setTransitWindows(allTransitEvents);
     } else {
       setTransitError("Invalid response format from transit API");
     }

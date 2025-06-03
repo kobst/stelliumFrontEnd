@@ -78,14 +78,14 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     return { start: startOfNextMonth, end: endOfNextMonth };
   };
 
-  // UPDATED: Filter transit windows based on active tab
+  // UPDATED: Filter transit events based on active tab
   const filteredTransits = useMemo(() => {
     console.log("=== HOROSCOPE FILTERING DEBUG ===");
     console.log("activeTab:", activeTab);
     console.log("transitWindows length:", transitWindows?.length);
     
     if (!transitWindows || transitWindows.length === 0) {
-      console.log("No transit windows to filter");
+      console.log("No transit events to filter");
       return [];
     }
 
@@ -122,13 +122,14 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       return overlaps;
     }).sort((a, b) => new Date(a.start) - new Date(b.start));
 
-    console.log("Filtered transits count:", filtered.length);
+    console.log("Filtered transit events count:", filtered.length);
     
     return filtered;
   }, [transitWindows, activeTab]);
 
   // Helper function to capitalize aspect names
   const capitalizeAspect = (aspect) => {
+    if (!aspect) return 'N/A';
     return aspect.charAt(0).toUpperCase() + aspect.slice(1);
   };
 
@@ -144,6 +145,60 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       semisextile: '#74b9ff'
     };
     return aspectColors[aspect] || '#ddd';
+  };
+
+  // Helper function to get transit type display text
+  const getTransitTypeDisplay = (type) => {
+    switch (type) {
+      case 'transit-to-natal':
+        return 'T→N';
+      case 'transit-to-transit':
+        return 'T→T';
+      case 'moon-phase':
+        return 'Moon';
+      default:
+        return type || 'N/A';
+    }
+  };
+
+  // Helper function to get transit description
+  const getTransitDescription = (transit) => {
+    if (transit.description) {
+      return transit.description;
+    }
+    
+    let description = `${transit.transitingPlanet}`;
+    
+    // Add sign information
+    if (transit.transitingSigns && transit.transitingSigns.length > 1) {
+      description += ` (moving from ${transit.transitingSigns[0]} to ${transit.transitingSigns[transit.transitingSigns.length - 1]})`;
+    } else if (transit.transitingSign) {
+      description += ` in ${transit.transitingSign}`;
+    }
+    
+    if (transit.type === 'transit-to-natal') {
+      description += ` ${transit.aspect || ''} natal ${transit.targetPlanet || ''}`;
+      
+      // Add natal planet's sign and house
+      if (transit.targetSign) {
+        description += ` in ${transit.targetSign}`;
+      }
+      if (transit.targetHouse) {
+        description += ` in ${transit.targetHouse}th house`;
+      }
+    } else if (transit.type === 'transit-to-transit') {
+      description += ` ${transit.aspect || ''} ${transit.targetPlanet || ''}`;
+      
+      // Add target planet's sign and house
+      if (transit.targetSign) {
+        description += ` in ${transit.targetSign}`;
+      }
+      if (transit.targetHouse) {
+        description += ` in ${transit.targetHouse}th house`;
+      }
+    }
+    
+    return description;
   };
 
   if (loading) {
@@ -194,8 +249,8 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
         </button>
       </div>
 
-      {/* Transit Table */}
-      <div className="transit-table-container">
+      {/* Transit Description with Date Range and Exact Date */}
+      <div className="transit-description-container">
         {filteredTransits.length === 0 ? (
           <div className="no-transits-message">
             No significant transits found for {
@@ -205,39 +260,20 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
             }.
           </div>
         ) : (
-          <table className="transit-table">
+          <table className="transit-description-table">
             <thead>
               <tr>
+                <th>Description</th>
                 <th>Date Range</th>
-                <th>Transit</th>
-                <th>Aspect</th>
-                <th>Natal Planet</th>
                 <th>Exact Date</th>
               </tr>
             </thead>
             <tbody>
               {filteredTransits.map((transit, index) => (
-                <tr key={index} className="transit-row">
-                  <td className="date-range">
-                    {formatDateRange(transit.start, transit.end)}
-                  </td>
-                  <td className="transiting-planet">
-                    {transit.transiting}
-                  </td>
-                  <td className="aspect">
-                    <span 
-                      className="aspect-badge"
-                      style={{ backgroundColor: getAspectColor(transit.aspect) }}
-                    >
-                      {capitalizeAspect(transit.aspect)}
-                    </span>
-                  </td>
-                  <td className="natal-planet">
-                    {transit.natal}
-                  </td>
-                  <td className="exact-date">
-                    {formatDate(transit.exact)}
-                  </td>
+                <tr key={index} className="transit-description-row">
+                  <td>{getTransitDescription(transit)}</td>
+                  <td>{formatDateRange(transit.start, transit.end)}</td>
+                  <td>{formatDate(transit.exact)}</td>
                 </tr>
               ))}
             </tbody>
