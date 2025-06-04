@@ -51,22 +51,21 @@ const UserSignUpForm = () => {
         return;
       }
 
+      const userData = {
+        firstName,
+        lastName,
+        email,
+        date,
+        time: unknownTime ? '' : time,
+        lat,
+        lon,
+        placeOfBirth,
+        gender,
+        unknownTime
+      };
 
-    const userData = {
-      firstName,
-      lastName,
-      email,
-      date,
-      time: unknownTime ? '' : time,
-      lat,
-      lon,
-      placeOfBirth,
-      gender,
-      unknownTime
-    };
-
-    setUserData(userData);
-    navigate('/signUpConfirmation');
+      setUserData(userData);
+      navigate('/signUpConfirmation');
       setRawBirthData({});
       setBirthDate('');
     };

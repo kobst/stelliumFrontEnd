@@ -63,19 +63,35 @@ const ConfirmationV2 = () => {
                 }
 
                 if (unknownTime) {
+                    // Calculate epoch time for timezone lookup (using noon for unknown time)
+                    const dateTimeString = `${date}T12:00:00`;
+                    const dateTime = new Date(dateTimeString);
+                    const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
+                    const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
+
                     const birthData = {
                         firstName,
                         lastName,
                         gender,
                         placeOfBirth,
-                        date,
+                        dateOfBirth: date,
                         email,
-                        lat,
-                        lon,
-                        unknownTime: true,
+                        lat: parseFloat(lat),
+                        lon: parseFloat(lon),
+                        tzone: parseFloat(totalOffsetHours)
                     };
+                    
                     const response = await postUserProfileUnknownTime(birthData);
                     console.log('Unknown time response: ', JSON.stringify(response));
+                    
+                    // Update store with user data for unknown time
+                    if (response?.user) {
+                        setUserPlanets(response.user.birthChart?.planets || []);
+                        setUserHouses(response.user.birthChart?.houses || []); // Will be empty for unknown time
+                        setUserAspects(response.user.birthChart?.aspects || []);
+                        setUserId(response.user._id || response.saveUserResponse?.insertedId);
+                    }
+                    
                     setIsLoading(false);
                     return;
                 }
