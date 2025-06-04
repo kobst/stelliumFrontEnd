@@ -158,6 +158,13 @@ const UserSignUpForm = () => {
               apiKey={GOOGLE_API}
               onPlaceSelected={(place) => {
                 console.log("place: ", place)
+                
+                // Check if place and geometry exist
+                if (!place || !place.geometry || !place.geometry.location) {
+                  console.error("Invalid place object or missing geometry:", place);
+                  return;
+                }
+                
                 var lat = place.geometry.location.lat();
                 var lon = place.geometry.location.lng();
                 console.log(lat + "lat" + lon + "lon");
