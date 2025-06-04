@@ -5,13 +5,12 @@ import RelationshipScores from '../UI/prototype/RelationshipScores';
 import { RelationshipCategoriesEnum } from '../Utilities/constants';
 import {
   fetchUser,
-  getRelationshipScore,
   fetchRelationshipAnalysis,
   fetchAnalysis,
-  generateRelationshipAnalysis,
-  processAndVectorizeRelationshipAnalysis,
   chatForUserRelationship,
-  fetchUserChatRelationshipAnalysis
+  fetchUserChatRelationshipAnalysis,
+  startRelationshipWorkflow,
+  getRelationshipWorkflowStatus
 } from '../Utilities/api';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Reuse the same component
 import TabMenu from '../UI/shared/TabMenu';
@@ -29,11 +28,6 @@ function CompositeDashboard_v4({}) {
     const [userBVectorizationStatus, setUserBVectorizationStatus] = useState(false);
     const [scoreDebugInfo, setScoreDebugInfo] = useState(null);
     const [detailedRelationshipAnalysis, setDetailedRelationshipAnalysis] = useState(null);
-    const [processingStatus, setProcessingStatus] = useState({
-        isProcessing: false,
-        error: null,
-        currentCategory: null
-    });
     const [vectorizationStatus, setVectorizationStatus] = useState({
         categories: {
             OVERALL_ATTRACTION_CHEMISTRY: false,
@@ -48,183 +42,221 @@ function CompositeDashboard_v4({}) {
         relationshipAnalysis: false
     });
     
+    // Workflow state
+    const [workflowStatus, setWorkflowStatus] = useState(null);
+    const [isPolling, setIsPolling] = useState(false);
+    const [pollInterval, setPollInterval] = useState(null);
+    
     // Add chat-related state
     const [chatMessages, setChatMessages] = useState([]);
     const [currentMessage, setCurrentMessage] = useState('');
     const [isChatLoading, setIsChatLoading] = useState(false);
     const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(false);
-    const [scoreLoading, setScoreLoading] = useState(false);
-    const [analysisLoading, setAnalysisLoading] = useState(false);
-    const [workflowStarted, setWorkflowStarted] = useState(false);
 
-    useEffect(() => {
-        const initializeCompositeChartData = async () => {
-            try {
-                if (!compositeChart || !compositeChart._id) {
-                    console.log("No composite chart available yet for initialization");
-                    return;
-                }
-
-                if (compositeChart.userA_id && compositeChart.userB_id) {
-                    // Fetch users and generate chart descriptions
-                    const [userA, userB] = await Promise.all([
-                        fetchUser(compositeChart.userA_id),
-                        fetchUser(compositeChart.userB_id)
-                    ]);
-                    console.log("Users fetched:", { userA, userB });
-
-                    const [userAResponse, userBResponse] = await Promise.all([
-                        fetchAnalysis(compositeChart.userA_id),
-                        fetchAnalysis(compositeChart.userB_id)
-                    ]);
-                    const userAVectorizationStatus = Boolean(userAResponse?.vectorizationStatus?.topicAnalysis?.isComplete);
-                    const userBVectorizationStatus = Boolean(userBResponse?.vectorizationStatus?.topicAnalysis?.isComplete);
-
-                    // Fetch relationship scores
-                    const fetchedData = await fetchRelationshipAnalysis(compositeChart._id);
-                    
-                    // Update all state values
-                    setUserA(userA);
-                    setUserB(userB);
-                    setUserAVectorizationStatus(userAVectorizationStatus);
-                    setUserBVectorizationStatus(userBVectorizationStatus);
-                    setSynastryAspects(compositeChart.synastryAspects);
-                    
-                    // Handle relationship scores
-                    if (fetchedData?.scores) {
-                        setRelationshipScores(fetchedData.scores);
-                    }
-                    if (fetchedData?.debug) {
-                        setScoreDebugInfo(fetchedData.debug);
-                    }
-
-                    // Handle relationship analysis
-                    if (fetchedData?.analysis) {
-                        console.log("Detailed analysis available: ", fetchedData.analysis);
-                        setDetailedRelationshipAnalysis({
-                            analysis: fetchedData.analysis,
-                            userAName: fetchedData.debug?.inputSummary?.userAName || userA?.firstName,
-                            userBName: fetchedData.debug?.inputSummary?.userBName || userB?.firstName
-                        });
-                    }
-
-                    // Handle vectorization status from the backend
-                    if (fetchedData?.vectorizationStatus) {
-                        console.log("Vectorization status received:", fetchedData.vectorizationStatus);
-                        
-                        // Update the vectorization status state with the structure from backend
-                        setVectorizationStatus({
-                            categories: fetchedData.vectorizationStatus.categories || {},
-                            lastUpdated: fetchedData.vectorizationStatus.lastUpdated || null,
-                            relationshipAnalysis: Boolean(fetchedData.vectorizationStatus.relationshipAnalysis)
-                        });
-                    } else {
-                        // If no vectorizationStatus field, assume not vectorized
-                        setVectorizationStatus(prev => ({
-                            ...prev,
-                            relationshipAnalysis: false,
-                            lastUpdated: null
-                        }));
-                    }
-                }
-            } catch (error) {
-                console.error("Error initializing composite chart data:", error);
+    const initializeCompositeChartData = useCallback(async () => {
+        try {
+            if (!compositeChart || !compositeChart._id) {
+                console.log("No composite chart available yet for initialization");
+                return;
             }
-        };
 
+            if (compositeChart.userA_id && compositeChart.userB_id) {
+                // Fetch users and generate chart descriptions
+                const [userA, userB] = await Promise.all([
+                    fetchUser(compositeChart.userA_id),
+                    fetchUser(compositeChart.userB_id)
+                ]);
+                console.log("Users fetched:", { userA, userB });
 
-            initializeCompositeChartData();
+                const [userAResponse, userBResponse] = await Promise.all([
+                    fetchAnalysis(compositeChart.userA_id),
+                    fetchAnalysis(compositeChart.userB_id)
+                ]);
+                const userAVectorizationStatus = Boolean(userAResponse?.vectorizationStatus?.topicAnalysis?.isComplete);
+                const userBVectorizationStatus = Boolean(userBResponse?.vectorizationStatus?.topicAnalysis?.isComplete);
 
+                // Fetch relationship scores
+                const fetchedData = await fetchRelationshipAnalysis(compositeChart._id);
+                
+                // Update all state values
+                setUserA(userA);
+                setUserB(userB);
+                setUserAVectorizationStatus(userAVectorizationStatus);
+                setUserBVectorizationStatus(userBVectorizationStatus);
+                setSynastryAspects(compositeChart.synastryAspects);
+                
+                // Handle relationship scores
+                if (fetchedData?.scores) {
+                    setRelationshipScores(fetchedData.scores);
+                }
+                if (fetchedData?.debug) {
+                    setScoreDebugInfo(fetchedData.debug);
+                }
+
+                // Handle relationship analysis
+                if (fetchedData?.analysis) {
+                    console.log("Detailed analysis available: ", fetchedData.analysis);
+                    setDetailedRelationshipAnalysis({
+                        analysis: fetchedData.analysis,
+                        userAName: fetchedData.debug?.inputSummary?.userAName || userA?.firstName,
+                        userBName: fetchedData.debug?.inputSummary?.userBName || userB?.firstName
+                    });
+                }
+
+                // Handle vectorization status from the backend
+                if (fetchedData?.vectorizationStatus) {
+                    console.log("Vectorization status received:", fetchedData.vectorizationStatus);
+                    
+                    // Update the vectorization status state with the structure from backend
+                    setVectorizationStatus({
+                        categories: fetchedData.vectorizationStatus.categories || {},
+                        lastUpdated: fetchedData.vectorizationStatus.lastUpdated || null,
+                        relationshipAnalysis: Boolean(fetchedData.vectorizationStatus.relationshipAnalysis)
+                    });
+                } else {
+                    // If no vectorizationStatus field, assume not vectorized
+                    setVectorizationStatus(prev => ({
+                        ...prev,
+                        relationshipAnalysis: false,
+                        lastUpdated: null
+                    }));
+                }
+            }
+        } catch (error) {
+            console.error("Error initializing composite chart data:", error);
+        }
     }, [compositeChart]);
 
+    useEffect(() => {
+        initializeCompositeChartData();
+    }, [initializeCompositeChartData]);
 
-  const generateCompatabilityScore = async () => {
-    if (synastryAspects.length > 0 && compositeChart && userA && userB) {
-      try {
-        const compatabilityScore = await getRelationshipScore(synastryAspects, compositeChart.compositeChart, userA, userB, compositeChart._id);
-        console.log("compatabilityScore: ", JSON.stringify(compatabilityScore));
-        
-        if (compatabilityScore?.relationshipScore?.scores) {
-          setRelationshipScores(compatabilityScore.relationshipScore.scores);
-          
-          // If you want to store the debug information for displaying aspects later
-          if (compatabilityScore.relationshipScore.debug) {
-            // Store the debug information in state if needed
-            setScoreDebugInfo(compatabilityScore.relationshipScore.debug);
-          }
-        } else {
-          console.error("Unexpected response structure:", compatabilityScore);
-        }
-      } catch (error) {
-        console.error("Error generating compatibility score:", error);
-      }
-    } else {
-      console.log("Not enough data to generate compatibility score");
-    }
-  }
-
-  const generateRelationshipAnalysisForCompositeChart = async () => {
-    if (compositeChart) {
-      const relationshipAnalysis = await generateRelationshipAnalysis(compositeChart._id);
-      setDetailedRelationshipAnalysis(relationshipAnalysis);
-      console.log("relationshipAnalysis: ", JSON.stringify(relationshipAnalysis));
-    }
-  }
-
-  const processRelationshipAnalysis = async () => {
-    if (!compositeChart || !compositeChart._id) {
-      console.error("No composite chart ID available for vectorization.");
-      setProcessingStatus({ isProcessing: false, error: "Composite chart ID is missing.", currentCategory: null });
+  // Start workflow function
+  const handleStartWorkflow = async () => {
+    if (!userA?._id || !userB?._id || !compositeChart?._id) {
+      console.error('Missing required data to start workflow');
       return;
     }
-    
-    console.log("Starting relationship analysis vectorization for compositeChartId:", compositeChart._id);
-    console.log("Current vectorization status:", vectorizationStatus);
-    
-    setProcessingStatus({
-      isProcessing: true,
-      error: null,
-      currentCategory: null
-    });
 
     try {
-      // Pass the current vectorization status to resume from incomplete categories
-      const response = await processAndVectorizeRelationshipAnalysis(compositeChart._id, vectorizationStatus);
-      console.log("Vectorization processing response:", response);
-      
-      if (response.success && response.isComplete) {
-        // Update vectorization status to reflect completion
-        setVectorizationStatus({
-          categories: {
-            OVERALL_ATTRACTION_CHEMISTRY: true,
-            EMOTIONAL_SECURITY_CONNECTION: true,
-            SEX_AND_INTIMACY: true,
-            COMMUNICATION_AND_MENTAL_CONNECTION: true,
-            COMMITMENT_LONG_TERM_POTENTIAL: true,
-            KARMIC_LESSONS_GROWTH: true,
-            PRACTICAL_GROWTH_SHARED_GOALS: true,
-          },
-          lastUpdated: new Date().toISOString(),
-          relationshipAnalysis: true
-        });
-        console.log("Relationship analysis vectorization completed successfully.");
-      } else {
-        throw new Error(response.error || 'Vectorization processing failed or did not complete.');
+      const response = await startRelationshipWorkflow(userA._id, userB._id, compositeChart._id);
+      if (response.success) {
+        setWorkflowStatus(response.status);
+        startPolling();
       }
     } catch (error) {
-      console.error('Error processing relationship analysis vectorization:', error);
-      setProcessingStatus(prev => ({
+      console.error('Error starting workflow:', error);
+    }
+  };
+
+  // Polling function
+  const pollWorkflowStatus = useCallback(async () => {
+    if (!compositeChart?._id) return;
+
+    try {
+      const response = await getRelationshipWorkflowStatus(compositeChart._id);
+      if (response.success) {
+        setWorkflowStatus(response.status);
+        
+        // Update analysis data if available
+        if (response.analysisData) {
+          updateAnalysisFromWorkflow(response.analysisData);
+        }
+
+        // Stop polling if workflow is complete or has error
+        if (response.status.status === 'completed' || response.status.status === 'error') {
+          stopPolling();
+          // Refresh analysis data
+          await initializeCompositeChartData();
+        }
+      }
+    } catch (error) {
+      console.error('Error polling workflow status:', error);
+    }
+  }, [compositeChart?._id]);
+
+  // Update analysis data from workflow response
+  const updateAnalysisFromWorkflow = (analysisData) => {
+    if (analysisData.scores) {
+      setRelationshipScores(analysisData.scores);
+    }
+
+    if (analysisData.categoryAnalysis) {
+      setDetailedRelationshipAnalysis({
+        analysis: analysisData.categoryAnalysis,
+        userAName: userA?.firstName,
+        userBName: userB?.firstName
+      });
+    }
+
+    if (analysisData.isVectorized !== undefined) {
+      setVectorizationStatus(prev => ({
         ...prev,
-        error: error.message,
-        isProcessing: false
-      }));
-    } finally {
-      setProcessingStatus(prev => ({
-        ...prev,
-        isProcessing: false,
-        currentCategory: null
+        relationshipAnalysis: analysisData.isVectorized,
+        lastUpdated: new Date().toISOString()
       }));
     }
+  };
+
+  // Start polling
+  const startPolling = () => {
+    setIsPolling(true);
+    const interval = setInterval(pollWorkflowStatus, 3000); // Poll every 3 seconds
+    setPollInterval(interval);
+  };
+
+  // Stop polling
+  const stopPolling = () => {
+    setIsPolling(false);
+    if (pollInterval) {
+      clearInterval(pollInterval);
+      setPollInterval(null);
+    }
+  };
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+  }, [pollInterval]);
+
+  // Determine workflow status for UI
+  const isWorkflowRunning = workflowStatus?.status === 'running';
+  const workflowComplete = workflowStatus?.status === 'completed';
+  const workflowError = workflowStatus?.status === 'error';
+
+  // Progress calculation
+  const computeWorkflowProgress = () => {
+    if (!workflowStatus?.progress) return 0;
+    
+    const steps = ['generateScores', 'generateAnalysis', 'vectorizeAnalysis'];
+    const completedSteps = steps.filter(step => 
+      workflowStatus.progress[step]?.status === 'completed'
+    ).length;
+    
+    return (completedSteps / steps.length) * 100;
+  };
+
+  // Get current step description
+  const getCurrentStepDescription = () => {
+    if (!workflowStatus) return '';
+    
+    const currentStep = workflowStatus.currentStep;
+    const stepDescriptions = {
+      generateScores: 'Calculating compatibility scores...',
+      generateAnalysis: 'Generating AI relationship analysis...',
+      vectorizeAnalysis: 'Processing analysis for search...'
+    };
+    
+    return stepDescriptions[currentStep] || '';
+  };
+
+  // Check if users have birth chart analysis complete
+  const canStartWorkflow = () => {
+    return userAVectorizationStatus && userBVectorizationStatus;
   };
   
   // Function to load chat history for relationship
@@ -345,97 +377,6 @@ function CompositeDashboard_v4({}) {
     }
   };
 
-  const startWorkflow = () => {
-    setWorkflowStarted(true);
-    handleWorkflow();
-  };
-
-  const getNextAction = () => {
-    if (!relationshipScores) return 'generateScore';
-    if (!detailedRelationshipAnalysis) {
-      return userAVectorizationStatus && userBVectorizationStatus
-        ? 'generateAnalysis'
-        : 'awaitUserVectorization';
-    }
-    
-    // Check if relationship analysis vectorization is complete
-    const allCategoriesComplete = vectorizationStatus?.categories && 
-      Object.values(vectorizationStatus.categories).every(status => status === true);
-    
-    if (!allCategoriesComplete) return 'vectorizeAnalysis';
-    return 'complete';
-  };
-
-  const handleWorkflow = async () => {
-    const action = getNextAction();
-    switch (action) {
-      case 'generateScore':
-        setScoreLoading(true);
-        await generateCompatabilityScore();
-        setScoreLoading(false);
-        break;
-      case 'generateAnalysis':
-        setAnalysisLoading(true);
-        await generateRelationshipAnalysisForCompositeChart();
-        setAnalysisLoading(false);
-        break;
-      case 'vectorizeAnalysis':
-        await processRelationshipAnalysis();
-        break;
-      default:
-        break;
-    }
-  };
-
-  const computeProgressStep = () => {
-    let step = 0;
-    if (relationshipScores) step++;
-    if (detailedRelationshipAnalysis) step++;
-    if (vectorizationStatus.relationshipAnalysis) step++;
-    return step;
-  };
-
-  const getButtonLabel = () => {
-    const action = getNextAction();
-    switch (action) {
-      case 'generateScore':
-        return scoreLoading ? 'Generating Score...' : 'Run Relationship Workflow';
-      case 'generateAnalysis':
-        return analysisLoading ? 'Generating Analysis...' : 'Run Relationship Workflow';
-      case 'vectorizeAnalysis':
-        return processingStatus.isProcessing ? 'Vectorizing Analysis...' : 'Run Relationship Workflow';
-      case 'awaitUserVectorization':
-        return 'Birth Chart Analysis Required';
-      default:
-        return 'Workflow Complete';
-    }
-  };
-
-  useEffect(() => {
-    if (!workflowStarted) return;
-    const next = getNextAction();
-    if (
-      next !== 'complete' &&
-      next !== 'awaitUserVectorization' &&
-      !scoreLoading &&
-      !analysisLoading &&
-      !processingStatus.isProcessing
-    ) {
-      handleWorkflow();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    relationshipScores,
-    detailedRelationshipAnalysis,
-    vectorizationStatus.relationshipAnalysis,
-    userAVectorizationStatus,
-    userBVectorizationStatus,
-    scoreLoading,
-    analysisLoading,
-    processingStatus.isProcessing,
-    workflowStarted
-  ]);
-
   const tabs = [];
 
   if (relationshipScores) {
@@ -496,56 +437,73 @@ function CompositeDashboard_v4({}) {
             <h2 className="logotxt">User A: {userA.firstName} {userA.lastName}</h2>
             <h2 className="logotxt">User B: {userB.firstName} {userB.lastName}</h2>
             <h2 className="logotxt">Composite Chart: {compositeChart._id}</h2>
-            <div className="progress-tracker">
-              {['Score', 'Analysis', 'Vectorize'].map((stage, index) => (
-                <div
-                  key={stage}
-                  className={`progress-step ${computeProgressStep() > index ? 'completed' : ''} ${computeProgressStep() === index ? 'current' : ''}`}
+
+            {/* Workflow Control Section */}
+            <div className="workflow-section">
+              {!workflowStatus && !workflowComplete && (
+                <button
+                  onClick={handleStartWorkflow}
+                  disabled={isWorkflowRunning || !canStartWorkflow()}
+                  className="workflow-button primary"
                 >
-                  {stage}
+                  {canStartWorkflow() ? 'Start Relationship Analysis Workflow' : 'Birth Chart Analysis Required'}
+                </button>
+              )}
+
+              {isWorkflowRunning && (
+                <div className="workflow-progress">
+                  <div className="progress-header">
+                    <h3>Generating Your Relationship Analysis</h3>
+                    <p>{getCurrentStepDescription()}</p>
+                  </div>
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill" 
+                      style={{ width: `${computeWorkflowProgress()}%` }}
+                    ></div>
+                  </div>
+                  <div className="progress-percentage">
+                    {Math.round(computeWorkflowProgress())}% Complete
+                  </div>
+                  {isPolling && <div className="polling-indicator">Checking status...</div>}
                 </div>
-              ))}
+              )}
+
+              {workflowComplete && (
+                <div className="workflow-complete">
+                  <h3>✅ Analysis Complete!</h3>
+                  <p>Your relationship analysis has been generated and is ready to explore.</p>
+                </div>
+              )}
+
+              {workflowError && (
+                <div className="workflow-error">
+                  <h3>❌ Workflow Error</h3>
+                  <p>Error: {workflowStatus?.error}</p>
+                  <button onClick={handleStartWorkflow} className="workflow-button retry">
+                    Retry Workflow
+                  </button>
+                </div>
+              )}
+
+              {!canStartWorkflow() && (
+                <div className="workflow-prerequisites">
+                  <h4>Prerequisites Required:</h4>
+                  <p>
+                    {(() => {
+                      const incompleteUsers = [];
+                      if (!userAVectorizationStatus) incompleteUsers.push(userA?.firstName || 'User A');
+                      if (!userBVectorizationStatus) incompleteUsers.push(userB?.firstName || 'User B');
+                      if (incompleteUsers.length === 1) {
+                        return `${incompleteUsers[0]} requires their birth chart analysis to be processed before relationship analysis can be generated.`;
+                      } else {
+                        return `${incompleteUsers.join(' and ')} require their birth chart analysis to be processed before relationship analysis can be generated.`;
+                      }
+                    })()}
+                  </p>
+                </div>
+              )}
             </div>
-            <button
-              onClick={startWorkflow}
-              disabled={
-                scoreLoading ||
-                analysisLoading ||
-                processingStatus.isProcessing ||
-                getNextAction() === 'awaitUserVectorization' ||
-                getNextAction() === 'complete'
-              }
-            >
-              {getButtonLabel()}
-            </button>
-
-            {getNextAction() === 'awaitUserVectorization' && (
-              <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '4px', color: '#856404' }}>
-                <strong>Prerequisites Required:</strong>{' '}
-                {(() => {
-                  const incompleteUsers = [];
-                  if (!userAVectorizationStatus) incompleteUsers.push(userA?.firstName || 'User A');
-                  if (!userBVectorizationStatus) incompleteUsers.push(userB?.firstName || 'User B');
-                  if (incompleteUsers.length === 1) {
-                    return `${incompleteUsers[0]} requires their birth chart analysis to be processed before relationship analysis can be generated.`;
-                  } else {
-                    return `${incompleteUsers.join(' and ')} require their birth chart analysis to be processed before relationship analysis can be generated.`;
-                  }
-                })()}
-              </div>
-            )}
-
-            {processingStatus.error && (
-              <div style={{ marginTop: '10px', color: 'red' }}>
-                Vectorization Error: {processingStatus.error}
-              </div>
-            )}
-
-            {vectorizationStatus.relationshipAnalysis && (
-              <div style={{ marginTop: '10px', color: 'red' }}>
-                Relationship analysis has been successfully vectorized. (Last updated: {vectorizationStatus.lastUpdated ? new Date(vectorizationStatus.lastUpdated).toLocaleString() : 'N/A'})
-              </div>
-            )}
             
           </>
         )}

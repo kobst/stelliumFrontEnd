@@ -52,11 +52,27 @@ export const postUserProfile = async (birthData) => {
   }
 };
 
-// Stubbed API for handling profile creation when birth time is unknown
+// API for handling profile creation when birth time is unknown
 export const postUserProfileUnknownTime = async (birthData) => {
-  console.warn('postUserProfileUnknownTime is a stub and should be implemented on the backend');
-  // In a real implementation this would POST to a dedicated endpoint
-  return Promise.resolve({ message: 'Stubbed response for unknown birth time' });
+  try {
+    const response = await fetch(`${SERVER_URL}/createUserUnknownTime`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(birthData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
 };
 
 
@@ -803,3 +819,96 @@ export const getTransitWindows = async (userId, from, to) => {
     throw error;
   }
 }
+
+
+
+export const startWorkflow = async (userId) => {
+  console.log("Starting workflow for userId:", userId);
+  try {
+    const response = await fetch(`${SERVER_URL}/startWorkflow`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ userId })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Workflow started:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error starting workflow:', error);
+    throw error;
+  }
+};
+
+export const getWorkflowStatus = async (userId) => {
+  console.log("Getting workflow status for userId:", userId);
+  try {
+    const response = await fetch(`${SERVER_URL}/getWorkflowStatus`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ userId })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Workflow status:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error getting workflow status:', error);
+    throw error;
+  }
+};
+
+// Relationship Workflow API Functions
+
+export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChartId) => {
+  console.log("Starting relationship workflow:", { userIdA, userIdB, compositeChartId });
+  try {
+    const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ userIdA, userIdB, compositeChartId })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Relationship workflow started:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error starting relationship workflow:', error);
+    throw error;
+  }
+};
+
+export const getRelationshipWorkflowStatus = async (compositeChartId) => {
+  console.log("Getting relationship workflow status for compositeChartId:", compositeChartId);
+  try {
+    const response = await fetch(`${SERVER_URL}/workflow/relationship/status`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ compositeChartId })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Relationship workflow status:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error getting relationship workflow status:', error);
+    throw error;
+  }
+};
+
