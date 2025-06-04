@@ -780,7 +780,7 @@ const fetchTransitWindows = async () => {
     });
 
 
-    const response = await getTransitWindows(userPlanets, fromDate.toISOString(), toDate.toISOString());
+    const response = await getTransitWindows(userId, fromDate.toISOString(), toDate.toISOString());
     
     if (response && (response.transitEvents || response.transitToTransitEvents)) {
       // Combine both types of transit events
