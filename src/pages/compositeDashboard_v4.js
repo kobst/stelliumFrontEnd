@@ -77,7 +77,7 @@ function CompositeDashboard_v4({}) {
 
                 // Fetch relationship scores
                 const fetchedData = await fetchRelationshipAnalysis(compositeChart._id);
-                
+                console.log("fetchedData: ", fetchedData)
                 // Update all state values
                 setUserA(userA);
                 setUserB(userB);
@@ -94,10 +94,10 @@ function CompositeDashboard_v4({}) {
                 }
 
                 // Handle relationship analysis
-                if (fetchedData?.analysis) {
-                    console.log("Detailed analysis available: ", fetchedData.analysis);
+                if (fetchedData?.categoryAnalysis) {
+                    console.log("Detailed analysis available: ", fetchedData.categoryAnalysis);
                     setDetailedRelationshipAnalysis({
-                        analysis: fetchedData.analysis,
+                        analysis: fetchedData.categoryAnalysis,
                         userAName: fetchedData.debug?.inputSummary?.userAName || userA?.firstName,
                         userBName: fetchedData.debug?.inputSummary?.userBName || userB?.firstName
                     });
@@ -107,12 +107,37 @@ function CompositeDashboard_v4({}) {
                 if (fetchedData?.vectorizationStatus) {
                     console.log("Vectorization status received:", fetchedData.vectorizationStatus);
                     
-                    // Update the vectorization status state with the structure from backend
-                    setVectorizationStatus({
-                        categories: fetchedData.vectorizationStatus.categories || {},
-                        lastUpdated: fetchedData.vectorizationStatus.lastUpdated || null,
-                        relationshipAnalysis: Boolean(fetchedData.vectorizationStatus.relationshipAnalysis)
-                    });
+                    // Check if this is the new structure with categoryAnalysis keys
+                    const isNewStructure = Object.keys(fetchedData.vectorizationStatus).some(key => 
+                        key.startsWith('categoryAnalysis.')
+                    );
+                    
+                    if (isNewStructure) {
+                        // New structure: extract category statuses and check if all are complete
+                        const categoryStatuses = {};
+                        let allCategoriesComplete = true;
+                        
+                        Object.entries(fetchedData.vectorizationStatus).forEach(([key, value]) => {
+                            if (key.startsWith('categoryAnalysis.')) {
+                                const categoryName = key.replace('categoryAnalysis.', '');
+                                categoryStatuses[categoryName] = value;
+                                if (!value) allCategoriesComplete = false;
+                            }
+                        });
+                        
+                        setVectorizationStatus({
+                            categories: categoryStatuses,
+                            lastUpdated: new Date().toISOString(),
+                            relationshipAnalysis: allCategoriesComplete
+                        });
+                    } else {
+                        // Legacy structure
+                        setVectorizationStatus({
+                            categories: fetchedData.vectorizationStatus.categories || {},
+                            lastUpdated: fetchedData.vectorizationStatus.lastUpdated || null,
+                            relationshipAnalysis: Boolean(fetchedData.vectorizationStatus.relationshipAnalysis)
+                        });
+                    }
                 } else {
                     // If no vectorizationStatus field, assume not vectorized
                     setVectorizationStatus(prev => ({
@@ -177,6 +202,8 @@ function CompositeDashboard_v4({}) {
 
   // Update analysis data from workflow response
   const updateAnalysisFromWorkflow = (analysisData) => {
+    console.log("Updating analysis from workflow:", analysisData);
+    
     if (analysisData.scores) {
       setRelationshipScores(analysisData.scores);
     }
@@ -189,7 +216,43 @@ function CompositeDashboard_v4({}) {
       });
     }
 
-    if (analysisData.isVectorized !== undefined) {
+    // Handle vectorization status from workflow response
+    if (analysisData.vectorizationStatus) {
+      console.log("Vectorization status from workflow:", analysisData.vectorizationStatus);
+      
+      // Check if this is the new structure with categoryAnalysis keys
+      const isNewStructure = Object.keys(analysisData.vectorizationStatus).some(key => 
+        key.startsWith('categoryAnalysis.')
+      );
+      
+      if (isNewStructure) {
+        // New structure: extract category statuses and check if all are complete
+        const categoryStatuses = {};
+        let allCategoriesComplete = true;
+        
+        Object.entries(analysisData.vectorizationStatus).forEach(([key, value]) => {
+          if (key.startsWith('categoryAnalysis.')) {
+            const categoryName = key.replace('categoryAnalysis.', '');
+            categoryStatuses[categoryName] = value;
+            if (!value) allCategoriesComplete = false;
+          }
+        });
+        
+        setVectorizationStatus({
+          categories: categoryStatuses,
+          lastUpdated: new Date().toISOString(),
+          relationshipAnalysis: allCategoriesComplete
+        });
+      } else {
+        // Legacy structure or isVectorized flag
+        setVectorizationStatus(prev => ({
+          ...prev,
+          relationshipAnalysis: analysisData.vectorizationStatus.relationshipAnalysis || analysisData.isVectorized,
+          lastUpdated: new Date().toISOString()
+        }));
+      }
+    } else if (analysisData.isVectorized !== undefined) {
+      // Fallback to isVectorized flag
       setVectorizationStatus(prev => ({
         ...prev,
         relationshipAnalysis: analysisData.isVectorized,
