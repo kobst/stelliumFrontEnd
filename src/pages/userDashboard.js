@@ -61,6 +61,8 @@ function UserDashboard() {
   const [workflowStatus, setWorkflowStatus] = useState(null);
   const [isPolling, setIsPolling] = useState(false);
   const [pollInterval, setPollInterval] = useState(null);
+  const [connectionError, setConnectionError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const [chatMessages, setChatMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState('');
@@ -168,7 +170,7 @@ function UserDashboard() {
     }
   };
 
-  // Polling function
+  // Polling function with retry logic
   const pollWorkflowStatus = useCallback(async () => {
     if (!userId) {
       console.error('Cannot poll workflow status: userId is missing');
@@ -181,16 +183,15 @@ function UserDashboard() {
       console.log('Workflow status response:', response);
       
       if (response.success) {
+        // Reset connection error state on successful response
+        setConnectionError(false);
+        setRetryCount(0);
+        
         setWorkflowStatus(response.status);
         
         // Update analysis data if available in response
         if (response.analysisData) {
           updateAnalysisFromWorkflow(response.analysisData);
-        }
-        
-        // Check if workflow response contains analysis data directly
-        if (response.basicAnalysis || response.SubtopicAnalysis || response.vectorizationStatus) {
-          updateAnalysisFromWorkflow(response);
         }
 
         // Stop polling if workflow is complete or has error
@@ -200,35 +201,50 @@ function UserDashboard() {
           if (response.status.error) {
             console.error('Workflow error:', response.status.error);
           }
-          // Note: Don't call fetchAnalysisForUserAsync() here as it hits the wrong endpoint
-          // The workflow status response already contains the analysis data
         }
       }
     } catch (error) {
       console.error('Error polling workflow status:', error);
+      setConnectionError(true);
+      setRetryCount(prev => prev + 1);
+      
+      // Stop polling after too many failed attempts
+      if (retryCount >= 10) {
+        console.error('Too many failed polling attempts, stopping');
+        stopPolling();
+      }
     }
-  }, [userId]);
+  }, [userId, retryCount]);
 
   // Update analysis data from workflow response
   const updateAnalysisFromWorkflow = (analysisData) => {
     console.log('Updating analysis from workflow:', analysisData);
     
-    if (analysisData.basicAnalysis) {
+    // Check if data is nested under interpretation key
+    const interpretation = analysisData.interpretation || analysisData;
+    
+    // Handle basic analysis updates
+    const basicAnalysisData = interpretation.basicAnalysis || analysisData.basicAnalysis;
+    if (basicAnalysisData) {
       setBasicAnalysis({
-        overview: analysisData.basicAnalysis.overview || '',
+        overview: basicAnalysisData.overview || '',
         dominance: {
-          elements: analysisData.basicAnalysis.dominance?.elements || { interpretation: '' },
-          modalities: analysisData.basicAnalysis.dominance?.modalities || { interpretation: '' },
-          quadrants: analysisData.basicAnalysis.dominance?.quadrants || { interpretation: '' }
+          elements: basicAnalysisData.dominance?.elements || { interpretation: '' },
+          modalities: basicAnalysisData.dominance?.modalities || { interpretation: '' },
+          quadrants: basicAnalysisData.dominance?.quadrants || { interpretation: '' }
         },
-        planets: analysisData.basicAnalysis.planets || {}
+        planets: basicAnalysisData.planets || {}
       });
     }
 
-    if (analysisData.SubtopicAnalysis) {
-      setSubTopicAnalysis(analysisData.SubtopicAnalysis);
+    // Handle topic analysis updates (could be SubtopicAnalysis or topicAnalysis)
+    const subtopicData = interpretation.SubtopicAnalysis || analysisData.SubtopicAnalysis || 
+                        interpretation.topicAnalysis || analysisData.topicAnalysis;
+    if (subtopicData) {
+      setSubTopicAnalysis(subtopicData);
     }
 
+    // Handle vectorization status updates
     if (analysisData.vectorizationStatus) {
       setVectorizationStatus(prev => ({
         ...prev,
@@ -245,6 +261,8 @@ function UserDashboard() {
   // Start polling
   const startPolling = () => {
     setIsPolling(true);
+    setConnectionError(false);
+    setRetryCount(0);
     const interval = setInterval(pollWorkflowStatus, 3000); // Poll every 3 seconds
     setPollInterval(interval);
   };
@@ -252,11 +270,46 @@ function UserDashboard() {
   // Stop polling
   const stopPolling = () => {
     setIsPolling(false);
+    setConnectionError(false);
+    setRetryCount(0);
     if (pollInterval) {
       clearInterval(pollInterval);
       setPollInterval(null);
     }
   };
+
+  // Manual status check function
+  const checkWorkflowStatus = async () => {
+    if (!userId) return;
+    
+    try {
+      const response = await getWorkflowStatus(userId);
+      if (response.success) {
+        setWorkflowStatus(response.status);
+        setConnectionError(false);
+        setRetryCount(0);
+        
+        if (response.analysisData) {
+          updateAnalysisFromWorkflow(response.analysisData);
+        }
+        
+        // If workflow is still running, resume polling
+        if (response.status.status === 'running' && !isPolling) {
+          startPolling();
+        }
+      }
+    } catch (error) {
+      console.error('Error checking workflow status:', error);
+      setConnectionError(true);
+    }
+  };
+
+  // Check for existing workflow on component mount
+  useEffect(() => {
+    if (userId && !workflowStatus) {
+      checkWorkflowStatus();
+    }
+  }, [userId]);
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -272,31 +325,48 @@ function UserDashboard() {
   const workflowComplete = workflowStatus?.status === 'completed';
   const workflowError = workflowStatus?.status === 'error';
 
-  // Progress calculation
+  // Progress calculation with granular step progress
   const computeWorkflowProgress = () => {
     if (!workflowStatus?.progress) return 0;
     
     const steps = ['generateBasic', 'vectorizeBasic', 'generateTopic', 'vectorizeTopic'];
-    const completedSteps = steps.filter(step => 
-      workflowStatus.progress[step]?.status === 'completed'
-    ).length;
+    let totalProgress = 0;
     
-    return (completedSteps / steps.length) * 100;
+    steps.forEach(step => {
+      const stepProgress = workflowStatus.progress[step];
+      if (stepProgress?.status === 'completed') {
+        totalProgress += 25; // Each step is 25% of total
+      } else if (stepProgress?.status === 'running' && stepProgress?.total > 0) {
+        // Add partial progress for current running step
+        const stepPercent = (stepProgress.completed / stepProgress.total) * 25;
+        totalProgress += stepPercent;
+      }
+    });
+    
+    return Math.min(totalProgress, 100);
   };
 
-  // Get current step description
+  // Get current step description with progress details
   const getCurrentStepDescription = () => {
     if (!workflowStatus) return '';
     
     const currentStep = workflowStatus.currentStep;
+    const stepProgress = workflowStatus.progress?.[currentStep];
+    
     const stepDescriptions = {
-      generateBasic: 'Generating basic birth chart analysis...',
-      vectorizeBasic: 'Processing basic analysis for search...',
-      generateTopic: 'Generating detailed topic analysis...',
-      vectorizeTopic: 'Processing topic analysis for search...'
+      generateBasic: 'Generating basic birth chart analysis',
+      vectorizeBasic: 'Processing basic analysis for search',
+      generateTopic: 'Generating detailed topic analysis',
+      vectorizeTopic: 'Processing topic analysis for search'
     };
     
-    return stepDescriptions[currentStep] || '';
+    const baseDescription = stepDescriptions[currentStep] || '';
+    
+    if (stepProgress?.total > 0) {
+      return `${baseDescription} (${stepProgress.completed || 0}/${stepProgress.total})`;
+    }
+    
+    return baseDescription ? `${baseDescription}...` : '';
   };
 
   // Chat functions (simplified)
@@ -534,13 +604,23 @@ function UserDashboard() {
       {/* Workflow Control Section */}
       <div className="workflow-section">
         {!workflowStatus && !workflowComplete && (
-          <button
-            onClick={handleStartWorkflow}
-            disabled={isWorkflowRunning || fetchLoading || !userId}
-            className="workflow-button primary"
-          >
-            Start Analysis Workflow
-          </button>
+          <div>
+            <button
+              onClick={handleStartWorkflow}
+              disabled={isWorkflowRunning || fetchLoading || !userId}
+              className="workflow-button primary"
+            >
+              Start Analysis Workflow
+            </button>
+            <button
+              onClick={checkWorkflowStatus}
+              disabled={fetchLoading || !userId}
+              className="workflow-button"
+              style={{ marginLeft: '10px', backgroundColor: '#6c757d' }}
+            >
+              Check Status
+            </button>
+          </div>
         )}
 
         {isWorkflowRunning && (
@@ -558,7 +638,44 @@ function UserDashboard() {
             <div className="progress-percentage">
               {Math.round(computeWorkflowProgress())}% Complete
             </div>
-            {isPolling && <div className="polling-indicator">Checking status...</div>}
+            {workflowStatus?.progress && (
+              <div className="workflow-steps">
+                {Object.entries(workflowStatus.progress).map(([step, stepData]) => (
+                  <div key={step} className={`workflow-step ${stepData.status}`}>
+                    <span className="step-name">
+                      {step === 'generateBasic' && '1. Generate Basic Analysis'}
+                      {step === 'vectorizeBasic' && '2. Process Basic Analysis'}
+                      {step === 'generateTopic' && '3. Generate Topic Analysis'}
+                      {step === 'vectorizeTopic' && '4. Process Topic Analysis'}
+                    </span>
+                    <span className="step-status">
+                      {stepData.status === 'completed' && '✅'}
+                      {stepData.status === 'running' && '🔄'}
+                      {stepData.status === 'pending' && '⏳'}
+                      {stepData.status === 'error' && '❌'}
+                    </span>
+                    {stepData.total > 0 && stepData.status === 'running' && (
+                      <span className="step-progress">
+                        ({stepData.completed}/{stepData.total})
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {isPolling && !connectionError && <div className="polling-indicator">Checking status...</div>}
+            {connectionError && (
+              <div className="connection-error">
+                <span>⚠️ Connection lost (Attempt {retryCount}/10)</span>
+                <button 
+                  onClick={checkWorkflowStatus}
+                  className="workflow-button retry"
+                  style={{ marginLeft: '10px', padding: '6px 12px', fontSize: '12px' }}
+                >
+                  Retry Now
+                </button>
+              </div>
+            )}
           </div>
         )}
 
