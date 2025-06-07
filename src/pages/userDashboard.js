@@ -32,7 +32,8 @@ function UserDashboard() {
     dominance: {
       elements: { interpretation: '' },
       modalities: { interpretation: '' },
-      quadrants: { interpretation: '' }
+      quadrants: { interpretation: '' },
+      patterns: { interpretation: '' }
     },
     planets: {}
   });
@@ -110,9 +111,10 @@ function UserDashboard() {
         setBasicAnalysis({
           overview: interpretation.basicAnalysis.overview || '',
           dominance: {
-            elements: interpretation.basicAnalysis.dominance?.elements || { interpretation: '', description: [] },
-            modalities: interpretation.basicAnalysis.dominance?.modalities || { interpretation: '', description: [] },
-            quadrants: interpretation.basicAnalysis.dominance?.quadrants || { interpretation: '', description: [] }
+            elements: interpretation.basicAnalysis.dominance?.elements || { interpretation: '' },
+            modalities: interpretation.basicAnalysis.dominance?.modalities || { interpretation: '' },
+            quadrants: interpretation.basicAnalysis.dominance?.quadrants || { interpretation: '' },
+            patterns: interpretation.basicAnalysis.dominance?.patterns || { interpretation: '' }
           },
           planets: interpretation.basicAnalysis.planets || {}
         });
@@ -156,7 +158,8 @@ function UserDashboard() {
         dominance: {
           elements: { interpretation: '', description: [] },
           modalities: { interpretation: '', description: [] },
-          quadrants: { interpretation: '', description: [] }
+          quadrants: { interpretation: '', description: [] },
+          patterns: { interpretation: '', description: [] }
         },
         planets: {}
       });
@@ -246,7 +249,8 @@ function UserDashboard() {
         dominance: {
           elements: basicAnalysisData.dominance?.elements || { interpretation: '' },
           modalities: basicAnalysisData.dominance?.modalities || { interpretation: '' },
-          quadrants: basicAnalysisData.dominance?.quadrants || { interpretation: '' }
+          quadrants: basicAnalysisData.dominance?.quadrants || { interpretation: '' },
+          patterns: basicAnalysisData.dominance?.patterns || { interpretation: '' }
         },
         planets: basicAnalysisData.planets || {}
       });
@@ -544,6 +548,10 @@ function UserDashboard() {
           <div className="pattern-card">
             <h4>Quadrants</h4>
             <p>{basicAnalysis.dominance?.quadrants?.interpretation}</p>
+          </div>
+          <div className="pattern-card">
+            <h4>Patterns and Structures</h4>
+            <p>{basicAnalysis.dominance?.patterns?.interpretation}</p>
           </div>
         </div>
       </section>

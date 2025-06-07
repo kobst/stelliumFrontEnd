@@ -244,3 +244,30 @@ button {
     align-items: center;
     justify-content: center;
 }
+
+.pattern-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.pattern-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.pattern-card h4 {
+  color: #6a0dad;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.pattern-card p {
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
