@@ -30,13 +30,18 @@ const BirthChartSummaryTable = memo(({planets, houses, aspects, transits = []}) 
             instanceId="summary" // Add unique identifier
           />
         </div>
-
       </div>
       <div className="right-section">
-      <h3>Planetary Positions</h3>
+        <h3>Planetary Positions</h3>
         <div className="house-position-container">
           <h3>House Positions</h3>
-          <HousePositionTable houseArray={houses} />
+          {houses && houses.length > 0 ? (
+            <HousePositionTable houseArray={houses} />
+          ) : (
+            <div className="no-houses-message">
+              House data not available with unknown birth time
+            </div>
+          )}
         </div>
         <h3>Planetary Positions</h3>
         <div className="table-container">

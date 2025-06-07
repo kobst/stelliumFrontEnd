@@ -17,29 +17,13 @@ const ConfirmationV2 = () => {
     const userAspects = useStore(state => state.userAspects) 
     const setUserId = useStore(state => state.setUserId)
     const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
-    const setPromptDescriptionsMap = useStore(state => state.setPromptDescriptionsMap)
 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);  
     
     // Move the ref outside the useEffect
     const profileCreationAttempted = useRef(false);
-
-    const [randomBigFourType, setRandomBigFourType] = useState(null);
-    const [randomHeading, setRandomHeading] = useState(null);
     const [sampleReading, setSampleReading] = useState(null);
-    const [relevanceResponse, setRelevanceResponse] = useState(null);
-    const [sunOverview, setSunOverview] = useState(null);
-    const [moonOverview, setMoonOverview] = useState(null);
-    const [mercuryOverview, setMercuryOverview] = useState(null);
-    const [venusOverview, setVenusOverview] = useState(null);
-    const [marsOverview, setMarsOverview] = useState(null);
-    const [jupiterOverview, setJupiterOverview] = useState(null);
-    const [saturnOverview, setSaturnOverview] = useState(null);
-    const [uranusOverview, setUranusOverview] = useState(null);
-    const [neptuneOverview, setNeptuneOverview] = useState(null);
-
-    const [modifiedUserAspects, setModifiedUserAspects] = useState([]);
     const [isDataComplete, setIsDataComplete] = useState(false);
 
     useEffect(() => {
@@ -140,7 +124,6 @@ const ConfirmationV2 = () => {
             userHouses && 
             userAspects && 
             Object.keys(userPlanets).length > 0 && 
-            Object.keys(userHouses).length > 0 && 
             userAspects.length > 0;
 
         setIsDataComplete(dataComplete);
@@ -162,78 +145,6 @@ const ConfirmationV2 = () => {
             console.error('Error:', error);
         }
     }
-
-    async function generateAllPlanetOverviews(birthData) {
-        for (const planet in userPlanets) {
-            generatePlanetOverview(planet.name, birthData)
-        }
-    }
-
-
-    // Generate planet overview
-    async function generatePlanetOverview(planetName, birthData) {
-        console.log("planet: ", planetName)
-        try {
-            const response = await getPlanetOverview(planetName, birthData)
-            console.log("response", response)
-            if (response && typeof response === 'object' && response.response) {
-                if (planetName === "Sun") {
-                    setSunOverview(response)
-                }
-                if (planetName === "Moon") {
-                    setMoonOverview(response)
-                }
-                if (planetName === "Mercury") {
-                    setMercuryOverview(response)
-                }
-                if (planetName === "Venus") {
-                    setVenusOverview(response)
-                }
-                if (planetName === "Mars") {
-                    setMarsOverview(response)
-                }
-                if (planetName === "Jupiter") {
-                    setJupiterOverview(response)
-                }
-                if (planetName === "Saturn") {
-                    setSaturnOverview(response)
-                }
-                if (planetName === "Uranus") {
-                    setUranusOverview(response)
-                }
-                if (planetName === "Neptune") {
-                    setNeptuneOverview(response)
-                }
-            } else {
-                return String(response)
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
-
-    // useEffect(() => {
-    //     const isDataComplete = 
-    //         userPlanets && 
-    //         userHouses && 
-    //         userAspects && 
-    //         Object.keys(userPlanets).length > 0 && 
-    //         Object.keys(userHouses).length > 0 && 
-    //         userAspects.length > 0;
-
-    //     if (isDataComplete) {
-    //         const birthData = { planets: userPlanets, houses: userHouses, aspects: userAspects };
-    //         generateShortOverview(birthData);
-    //         for (const planet in userPlanets) {
-    //             generatePlanetOverview(planet.name, birthData)
-    //         }
-    //     }
-    // }, [userPlanets, userHouses, userAspects])
-
-
-
-
-
 
     if (isLoading) {
         return (
@@ -257,22 +168,14 @@ const ConfirmationV2 = () => {
 
     return (
         <div style={{ padding: '20px' }}>
-            <h1 style={{ color: 'white' }}>Thank you for signing up!</h1>
+            <h1 style={{ color: 'white' }}>Welcome to Stellium {userData.firstName}! Thank you for signing up!</h1>
             <p style={{ color: 'white' }}>Your profile has been created successfully.</p>
             {isDataComplete && (
                 <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={userAspects}/>
             )}
-            {promptDescriptionsMap.everything && (
-                <div>
-                    <BirthChartSummary summary={promptDescriptionsMap.everything} />
-                </div>
-            )}
             <button onClick={() => navigate('/')}>Go Back</button>
             <button onClick={() => generateShortOverview({ planets: userPlanets, houses: userHouses, aspects: userAspects })}>
                 Generate Short Overview
-            </button>
-            <button onClick={() => generateAllPlanetOverviews({ planets: userPlanets, houses: userHouses, aspects: userAspects })}>
-                Generate Planets Overview
             </button>
             {sampleReading && (
                 <div>

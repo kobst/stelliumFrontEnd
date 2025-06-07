@@ -59,5 +59,16 @@ h3 {
   text-align: center;
   margin-bottom: 10px;
 }
+
+.no-houses-message {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  margin: 1rem 0;
+}
   
   /* Rest of the CSS remains the same */
