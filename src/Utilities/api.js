@@ -1038,3 +1038,25 @@ export const deleteHoroscope = async (userId, horoscopeId) => {
   }
 };
 
+export const generateCustomHoroscope = async (userId, transitEvents) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/custom`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify({ transitEvents })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error generating custom horoscope:', error);
+    throw error;
+  }
+};
+

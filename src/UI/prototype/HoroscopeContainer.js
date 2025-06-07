@@ -1,10 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { generateWeeklyHoroscope, generateMonthlyHoroscope } from '../../Utilities/api';
+import { generateWeeklyHoroscope, generateMonthlyHoroscope, generateCustomHoroscope } from '../../Utilities/api';
 import './HoroscopeContainer.css';
 
 const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null, userId }) => {
   const [activeTab, setActiveTab] = useState('thisWeek');
   const [showTransits, setShowTransits] = useState(true);
+  const [selectedTransits, setSelectedTransits] = useState(new Set());
+  const [customHoroscope, setCustomHoroscope] = useState(null);
+  const [generatingCustom, setGeneratingCustom] = useState(false);
+  const [customHoroscopeError, setCustomHoroscopeError] = useState(null);
   const [horoscopeCache, setHoroscopeCache] = useState({
     thisWeek: null,
     nextWeek: null,
@@ -275,6 +279,62 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     fetchAllHoroscopes();
   }, [userId]);
 
+  // Add new function to handle transit selection
+  const handleTransitSelection = (transitId) => {
+    setSelectedTransits(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(transitId)) {
+        newSet.delete(transitId);
+      } else {
+        newSet.add(transitId);
+      }
+      return newSet;
+    });
+  };
+
+  // Add new function to generate custom horoscope
+  const handleGenerateCustomHoroscope = async () => {
+    if (selectedTransits.size === 0) {
+      setCustomHoroscopeError('Please select at least one transit event');
+      return;
+    }
+
+    setGeneratingCustom(true);
+    setCustomHoroscopeError(null);
+
+    try {
+      const selectedTransitEvents = filteredTransits
+        .filter((_, index) => selectedTransits.has(index))
+        .map(transit => ({
+          type: transit.type,
+          transitingPlanet: transit.transitingPlanet,
+          exact: transit.exact,
+          targetPlanet: transit.targetPlanet,
+          aspect: transit.aspect,
+          start: transit.start,
+          end: transit.end,
+          description: transit.description,
+          transitingSign: transit.transitingSign,
+          targetSign: transit.targetSign,
+          transitingHouse: transit.transitingHouse,
+          targetHouse: transit.targetHouse,
+          moonPhaseData: transit.moonPhaseData
+        }));
+
+      const response = await generateCustomHoroscope(userId, selectedTransitEvents);
+      if (response.success) {
+        setCustomHoroscope(response.horoscope);
+      } else {
+        throw new Error('Failed to generate custom horoscope');
+      }
+    } catch (error) {
+      console.error('Error generating custom horoscope:', error);
+      setCustomHoroscopeError(error.message);
+    } finally {
+      setGeneratingCustom(false);
+    }
+  };
+
   if (loading || horoscopeLoading) {
     return (
       <div className="horoscope-container">
@@ -348,6 +408,17 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
           </div>
         )}
 
+        {/* Custom Horoscope Section */}
+        {customHoroscope && (
+          <div className="custom-horoscope-section">
+            <h3>Custom Horoscope</h3>
+            <p>{customHoroscope.text}</p>
+            <p className="horoscope-date-range">
+              {formatDateRange(customHoroscope.startDate, customHoroscope.endDate)}
+            </p>
+          </div>
+        )}
+
         {/* Collapsible Transit Section */}
         <div className="transit-section">
           <button 
@@ -368,24 +439,46 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
                   }.
                 </div>
               ) : (
-                <table className="transit-description-table">
-                  <thead>
-                    <tr>
-                      <th>Description</th>
-                      <th>Date Range</th>
-                      <th>Exact Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredTransits.map((transit, index) => (
-                      <tr key={index} className="transit-description-row">
-                        <td>{getTransitDescription(transit)}</td>
-                        <td>{formatDateRange(transit.start, transit.end)}</td>
-                        <td>{formatDate(transit.exact)}</td>
+                <>
+                  <div className="transit-actions">
+                    <button 
+                      className="generate-custom-button"
+                      onClick={handleGenerateCustomHoroscope}
+                      disabled={selectedTransits.size === 0 || generatingCustom}
+                    >
+                      {generatingCustom ? 'Generating...' : 'Generate Custom Horoscope'}
+                    </button>
+                    {customHoroscopeError && (
+                      <div className="error-message">{customHoroscopeError}</div>
+                    )}
+                  </div>
+                  <table className="transit-description-table">
+                    <thead>
+                      <tr>
+                        <th>Select</th>
+                        <th>Description</th>
+                        <th>Date Range</th>
+                        <th>Exact Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredTransits.map((transit, index) => (
+                        <tr key={index} className="transit-description-row">
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={selectedTransits.has(index)}
+                              onChange={() => handleTransitSelection(index)}
+                            />
+                          </td>
+                          <td>{getTransitDescription(transit)}</td>
+                          <td>{formatDateRange(transit.start, transit.end)}</td>
+                          <td>{formatDate(transit.exact)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
               )}
             </div>
           )}
