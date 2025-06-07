@@ -133,6 +133,21 @@ function UserDashboard() {
         lastUpdated: vectorizationStatus?.lastUpdated || null
       }));
 
+      // Set workflow status if analysis is complete
+      if (vectorizationStatus?.topicAnalysis?.isComplete && 
+          vectorizationStatus?.basicAnalysis && 
+          vectorizationStatus?.overview) {
+        setWorkflowStatus({
+          status: 'completed',
+          progress: {
+            generateBasic: { status: 'completed', completed: 1, total: 1 },
+            vectorizeBasic: { status: 'completed', completed: 1, total: 1 },
+            generateTopic: { status: 'completed', completed: 1, total: 1 },
+            vectorizeTopic: { status: 'completed', completed: 1, total: 1 }
+          }
+        });
+      }
+
     } catch (error) {
       console.error(ERROR_API_CALL, error);
       // Reset to defaults on error
@@ -684,6 +699,13 @@ function UserDashboard() {
           <div className="workflow-complete">
             <h3>✅ Analysis Complete!</h3>
             <p>Your birth chart analysis has been generated and is ready to explore.</p>
+            <button
+              onClick={checkWorkflowStatus}
+              className="workflow-button"
+              style={{ marginTop: '10px', backgroundColor: '#6c757d' }}
+            >
+              Check Status
+            </button>
           </div>
         )}
 
