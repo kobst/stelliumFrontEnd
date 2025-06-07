@@ -219,56 +219,58 @@ export const createCompositeChartProfile = async (userAId, userBId, userAName, u
   }
 };
 
-export const getRelationshipScore = async (synastryAspects, compositeChart, userA, userB, compositeChartId) => {
-  try {
-    console.log("Calling getRelationshipScore API");
-    console.log("synastryAspects: ", synastryAspects)
-    console.log("compositeChart: ", compositeChart)
-    console.log("birthChart1: ", userA.birthChart)
-    console.log("birthChart2: ", userB.birthChart)
-    const response = await fetch(`${SERVER_URL}/getRelationshipScore`, {
-      method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
-      body: JSON.stringify({
-        synastryAspects,
-        compositeChart,
-        userA,
-        userB, 
-        compositeChartId
-      })
-    });
+// UNUSED - Commented out as it's not being used in the current codebase
+// export const getRelationshipScore = async (synastryAspects, compositeChart, userA, userB, compositeChartId) => {
+//   try {
+//     console.log("Calling getRelationshipScore API");
+//     console.log("synastryAspects: ", synastryAspects)
+//     console.log("compositeChart: ", compositeChart)
+//     console.log("birthChart1: ", userA.birthChart)
+//     console.log("birthChart2: ", userB.birthChart)
+//     const response = await fetch(`${SERVER_URL}/getRelationshipScore`, {
+//       method: HTTP_POST,
+//       headers: {
+//         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+//       },
+//       body: JSON.stringify({
+//         synastryAspects,
+//         compositeChart,
+//         userA,
+//         userB, 
+//         compositeChartId
+//       })
+//     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
 
-    const relationshipScore = await response.json();
-    console.log("Relationship score received:", relationshipScore);
-    return relationshipScore;
-  } catch (error) {
-    console.error('Error getting relationship score:', error);
-    throw error;
-  }
-};
+//     const relationshipScore = await response.json();
+//     console.log("Relationship score received:", relationshipScore);
+//     return relationshipScore;
+//   } catch (error) {
+//     console.error('Error getting relationship score:', error);
+//     throw error;
+//   }
+// };
 
-export const generateRelationshipAnalysis = async (compositeChartId) => {
-  console.log("compositeChartId: ", compositeChartId)
-  try {
-    const response = await fetch(`${SERVER_URL}/generateRelationshipAnalysis`, {
-      method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({compositeChartId})
-    });
-    const responseData = await response.json();
-    console.log("responseData: ", responseData)
-    return responseData;
-  } catch (error) {
-    console.error(ERROR_API_CALL, error);
-    throw error;
-  }
-}
+// UNUSED - Commented out as it's not being used in the current codebase
+// export const generateRelationshipAnalysis = async (compositeChartId) => {
+//   console.log("compositeChartId: ", compositeChartId)
+//   try {
+//     const response = await fetch(`${SERVER_URL}/generateRelationshipAnalysis`, {
+//       method: HTTP_POST,
+//       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+//       body: JSON.stringify({compositeChartId})
+//     });
+//     const responseData = await response.json();
+//     console.log("responseData: ", responseData)
+//     return responseData;
+//   } catch (error) {
+//     console.error(ERROR_API_CALL, error);
+//     throw error;
+//   }
+// }
 
 export const fetchRelationshipAnalysis = async (compositeChartId) => {
   console.log("compositeChartId: ", compositeChartId)
@@ -378,23 +380,24 @@ export const getPlanetOverview = async (planetName, birthData) => {
 //   }
 // }
 
-export const getFullBirthChartAnalysis = async (user) => {
+// UNUSED - Commented out as it's not being used in the current codebase
+// export const getFullBirthChartAnalysis = async (user) => {
 
-  console.log("user: ", user)
-  try {
-    const response = await fetch(`${SERVER_URL}/getBirthChartAnalysis`, {
-      method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({user})
-    });
-    console.log("response", response)
-    const responseData = await response.json();
-    return responseData;
-  } catch (error) {
-    console.error(ERROR_API_CALL, error);
-    throw error;
-  }
-}
+//   console.log("user: ", user)
+//   try {
+//     const response = await fetch(`${SERVER_URL}/getBirthChartAnalysis`, {
+//       method: HTTP_POST,
+//       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+//       body: JSON.stringify({user})
+//     });
+//     console.log("response", response)
+//     const responseData = await response.json();
+//     return responseData;
+//   } catch (error) {
+//     console.error(ERROR_API_CALL, error);
+//     throw error;
+//   }
+// }
 
 export const fetchAnalysis = async (userId) => {
   console.log("userId: ", userId)
@@ -412,70 +415,71 @@ export const fetchAnalysis = async (userId) => {
   }
 }
 
-export const generateTopicAnalysis = async (userId, existingAnalysis = {}) => {
-  console.log("Starting topic analysis for user:", userId);
+// UNUSED - Commented out as it's not being used in the current codebase (replaced by workflow)
+// export const generateTopicAnalysis = async (userId, existingAnalysis = {}) => {
+//   console.log("Starting topic analysis for user:", userId);
 
-  try {
-    const topics = Object.entries(BroadTopicsEnum);
-    const results = JSON.parse(JSON.stringify(existingAnalysis || {}));
+//   try {
+//     const topics = Object.entries(BroadTopicsEnum);
+//     const results = JSON.parse(JSON.stringify(existingAnalysis || {}));
 
-    for (const [broadTopic, topicData] of topics) {
-      console.log(`Processing topic: ${broadTopic}`);
+//     for (const [broadTopic, topicData] of topics) {
+//       console.log(`Processing topic: ${broadTopic}`);
 
-      if (!results[broadTopic]) {
-        results[broadTopic] = {
-          label: topicData.label,
-          subtopics: {}
-        };
-      }
+//       if (!results[broadTopic]) {
+//         results[broadTopic] = {
+//           label: topicData.label,
+//           subtopics: {}
+//         };
+//       }
 
-      for (const [subtopicKey, subtopicLabel] of Object.entries(topicData.subtopics)) {
-        if (results[broadTopic].subtopics && results[broadTopic].subtopics[subtopicKey]) {
-          // Skip already generated subtopic
-          continue;
-        }
+//       for (const [subtopicKey, subtopicLabel] of Object.entries(topicData.subtopics)) {
+//         if (results[broadTopic].subtopics && results[broadTopic].subtopics[subtopicKey]) {
+//           // Skip already generated subtopic
+//           continue;
+//         }
 
-        console.log(`Processing subtopic: ${subtopicKey}`);
+//         console.log(`Processing subtopic: ${subtopicKey}`);
 
-        const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
-          method: HTTP_POST,
-          headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-          body: JSON.stringify({
-            userId,
-            broadTopic,
-            subtopicKey,
-            subtopicLabel
-          })
-        });
+//         const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
+//           method: HTTP_POST,
+//           headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+//           body: JSON.stringify({
+//             userId,
+//             broadTopic,
+//             subtopicKey,
+//             subtopicLabel
+//           })
+//         });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-        }
+//         if (!response.ok) {
+//           const errorText = await response.text();
+//           throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+//         }
 
-        const result = await response.json();
+//         const result = await response.json();
 
-        if (!result.success) {
-          throw new Error(result.error || `Subtopic analysis failed for ${subtopicLabel}`);
-        }
+//         if (!result.success) {
+//           throw new Error(result.error || `Subtopic analysis failed for ${subtopicLabel}`);
+//         }
 
-        results[broadTopic].subtopics[subtopicKey] = result.result;
-        console.log(`Completed subtopic: ${subtopicKey}`);
-      }
-    }
+//         results[broadTopic].subtopics[subtopicKey] = result.result;
+//         console.log(`Completed subtopic: ${subtopicKey}`);
+//       }
+//     }
 
-    console.log("All topics and subtopics completed");
-    return {
-      success: true,
-      message: "Topic analysis completed successfully",
-      results
-    };
+//     console.log("All topics and subtopics completed");
+//     return {
+//       success: true,
+//       message: "Topic analysis completed successfully",
+//       results
+//     };
 
-  } catch (error) {
-    console.error('Error in topic analysis:', error);
-    throw error;
-  }
-};
+//   } catch (error) {
+//     console.error('Error in topic analysis:', error);
+//     throw error;
+//   }
+// };
 
 // Process a single subtopic
 /*
@@ -524,205 +528,208 @@ export const generateTopicAnalysis = async (userId, existingAnalysis = {}) => {
 //   }
 // };
 
-export const processAndVectorizeBasicAnalysis = async (userId) => {
-  console.log("Starting vectorization for user:", userId);
-  let section = 'overview';
-  let index = 0;
-  let isComplete = false;
+// UNUSED - Commented out as it's not being used in the current codebase (replaced by workflow)
+// export const processAndVectorizeBasicAnalysis = async (userId) => {
+//   console.log("Starting vectorization for user:", userId);
+//   let section = 'overview';
+//   let index = 0;
+//   let isComplete = false;
 
-  while (!isComplete) {
-    try {
-      console.log(`Processing section: ${section}, index: ${index}`);
-      const response = await fetch(`${SERVER_URL}/processBasicAnalysis`, {
-        method: HTTP_POST,
-        headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-        body: JSON.stringify({ userId, section, index })
-      });
+//   while (!isComplete) {
+//     try {
+//       console.log(`Processing section: ${section}, index: ${index}`);
+//       const response = await fetch(`${SERVER_URL}/processBasicAnalysis`, {
+//         method: HTTP_POST,
+//         headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+//         body: JSON.stringify({ userId, section, index })
+//       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
+//       if (!response.ok) {
+//         const errorText = await response.text();
+//         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+//       }
 
-      const result = await response.json();
+//       const result = await response.json();
       
-      if (!result.success) {
-        throw new Error(result.error || 'Vectorization failed');
-      }
+//       if (!result.success) {
+//         throw new Error(result.error || 'Vectorization failed');
+//       }
 
-      // Log progress
-      console.log(`Processed ${result.recordCount} records for ${section}`);
+//       // Log progress
+//       console.log(`Processed ${result.recordCount} records for ${section}`);
       
-      // Update for next iteration
-      section = result.nextSection;
-      index = result.nextIndex;
-      isComplete = result.isComplete;
+//       // Update for next iteration
+//       section = result.nextSection;
+//       index = result.nextIndex;
+//       isComplete = result.isComplete;
 
-    } catch (error) {
-      console.error('Error in vectorization process:', error);
-      throw error;
-    }
-  }
+//     } catch (error) {
+//       console.error('Error in vectorization process:', error);
+//       throw error;
+//     }
+//   }
 
-  console.log("Vectorization complete for user:", userId);
-  return { success: true };
-};
+//   console.log("Vectorization complete for user:", userId);
+//   return { success: true };
+// };
 
-export const processAndVectorizeTopicAnalysis = async (userId, vectorization = {}) => {
-  let currentTopic = null;
-  let currentSubtopic = null;
-  let isComplete = false;
+// UNUSED - Commented out as it's not being used in the current codebase (replaced by workflow)
+// export const processAndVectorizeTopicAnalysis = async (userId, vectorization = {}) => {
+//   let currentTopic = null;
+//   let currentSubtopic = null;
+//   let isComplete = false;
 
-  // Determine starting point based on vectorization status
-  const topics = Object.entries(BroadTopicsEnum);
-  outer: {
-    for (const [topicKey, topicData] of topics) {
-      const subtopics = Object.keys(topicData.subtopics);
-      for (const sub of subtopics) {
-        if (!vectorization?.topicAnalysis?.[topicKey]?.[sub]) {
-          currentTopic = topicKey;
-          currentSubtopic = sub;
-          break outer;
-        }
-      }
-    }
-    if (currentTopic === null && currentSubtopic === null) {
-      isComplete = true;
-    }
-  }
+//   // Determine starting point based on vectorization status
+//   const topics = Object.entries(BroadTopicsEnum);
+//   outer: {
+//     for (const [topicKey, topicData] of topics) {
+//       const subtopics = Object.keys(topicData.subtopics);
+//       for (const sub of subtopics) {
+//         if (!vectorization?.topicAnalysis?.[topicKey]?.[sub]) {
+//           currentTopic = topicKey;
+//           currentSubtopic = sub;
+//           break outer;
+//         }
+//       }
+//     }
+//     if (currentTopic === null && currentSubtopic === null) {
+//       isComplete = true;
+//     }
+//   }
 
-  if (isComplete) {
-    console.log('Topic analysis vectorization already complete');
-    return { success: true, isComplete: true };
-  }
+//   if (isComplete) {
+//     console.log('Topic analysis vectorization already complete');
+//     return { success: true, isComplete: true };
+//   }
 
-  try {
-    while (!isComplete) {
-      console.log(`Processing topic: ${currentTopic}, subtopic: ${currentSubtopic}`);
+//   try {
+//     while (!isComplete) {
+//       console.log(`Processing topic: ${currentTopic}, subtopic: ${currentSubtopic}`);
       
-      const response = await fetch(`${SERVER_URL}/processTopicAnalysis`, {
-        method: HTTP_POST,
-        headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-        body: JSON.stringify({ 
-          userId, 
-          topic: currentTopic, 
-          subtopic: currentSubtopic 
-        })
-      });
+//       const response = await fetch(`${SERVER_URL}/processTopicAnalysis`, {
+//         method: HTTP_POST,
+//         headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+//         body: JSON.stringify({ 
+//           userId, 
+//           topic: currentTopic, 
+//           subtopic: currentSubtopic 
+//         })
+//       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+//       if (!response.ok) {
+//         throw new Error(`HTTP error! status: ${response.status}`);
+//       }
 
-      const data = await response.json();
+//       const data = await response.json();
       
-      if (!data.success) {
-        throw new Error(data.error || 'Vectorization failed');
-      }
+//       if (!data.success) {
+//         throw new Error(data.error || 'Vectorization failed');
+//       }
 
-      isComplete = data.isComplete;
-      currentTopic = data.nextTopic;
-      currentSubtopic = data.nextSubtopic;
+//       isComplete = data.isComplete;
+//       currentTopic = data.nextTopic;
+//       currentSubtopic = data.nextSubtopic;
 
-      // Return progress update for UI
-      if (!isComplete) {
-        console.log(`Processed ${currentTopic} - ${currentSubtopic}`);
-        // Add delay before next request to prevent server timeout
-        await new Promise(resolve => setTimeout(resolve, 1500));
-      }
-    }
+//       // Return progress update for UI
+//       if (!isComplete) {
+//         console.log(`Processed ${currentTopic} - ${currentSubtopic}`);
+//         // Add delay before next request to prevent server timeout
+//         await new Promise(resolve => setTimeout(resolve, 1500));
+//       }
+//     }
 
-    console.log('Topic analysis vectorization complete');
-    return { success: true, isComplete: true };
+//     console.log('Topic analysis vectorization complete');
+//     return { success: true, isComplete: true };
 
-  } catch (error) {
-    console.error('Error in vectorization process:', error);
-    return { 
-      success: false, 
-      error: error.message,
-      lastProcessedTopic: currentTopic,
-      lastProcessedSubtopic: currentSubtopic
-    };
-  }
-};
+//   } catch (error) {
+//     console.error('Error in vectorization process:', error);
+//     return { 
+//       success: false, 
+//       error: error.message,
+//       lastProcessedTopic: currentTopic,
+//       lastProcessedSubtopic: currentSubtopic
+//     };
+//   }
+// };
 
 
-export const processAndVectorizeRelationshipAnalysis = async (compositeChartId, vectorizationStatus = {}) => {
-  let currentCategory = null;
-  let isComplete = false;
+// UNUSED - Commented out as it's not being used in the current codebase (replaced by workflow)
+// export const processAndVectorizeRelationshipAnalysis = async (compositeChartId, vectorizationStatus = {}) => {
+//   let currentCategory = null;
+//   let isComplete = false;
 
-  // Define the categories in order (should match backend)
-  const RelationshipCategoriesEnum = {
-    OVERALL_ATTRACTION_CHEMISTRY: { label: "Overall Attraction & Chemistry" },
-    EMOTIONAL_SECURITY_CONNECTION: { label: "Emotional Security & Connection" },
-    SEX_AND_INTIMACY: { label: "Sex & Intimacy" },
-    COMMUNICATION_AND_MENTAL_CONNECTION: { label: "Communication & Mental Connection" },
-    COMMITMENT_LONG_TERM_POTENTIAL: { label: "Commitment & Long-Term Potential" },
-    KARMIC_LESSONS_GROWTH: { label: "Karmic Lessons & Growth" },
-    PRACTICAL_GROWTH_SHARED_GOALS: { label: "Practical Growth & Shared Goals" }
-  };
+//   // Define the categories in order (should match backend)
+//   const RelationshipCategoriesEnum = {
+//     OVERALL_ATTRACTION_CHEMISTRY: { label: "Overall Attraction & Chemistry" },
+//     EMOTIONAL_SECURITY_CONNECTION: { label: "Emotional Security & Connection" },
+//     SEX_AND_INTIMACY: { label: "Sex & Intimacy" },
+//     COMMUNICATION_AND_MENTAL_CONNECTION: { label: "Communication & Mental Connection" },
+//     COMMITMENT_LONG_TERM_POTENTIAL: { label: "Commitment & Long-Term Potential" },
+//     KARMIC_LESSONS_GROWTH: { label: "Karmic Lessons & Growth" },
+//     PRACTICAL_GROWTH_SHARED_GOALS: { label: "Practical Growth & Shared Goals" }
+//   };
 
-  // Determine starting point based on vectorization status
-  const categories = Object.keys(RelationshipCategoriesEnum);
-  for (const category of categories) {
-    if (!vectorizationStatus?.categories?.[category]) {
-      currentCategory = category;
-      break;
-    }
-  }
+//   // Determine starting point based on vectorization status
+//   const categories = Object.keys(RelationshipCategoriesEnum);
+//   for (const category of categories) {
+//     if (!vectorizationStatus?.categories?.[category]) {
+//       currentCategory = category;
+//       break;
+//     }
+//   }
 
-  // If all categories are complete, return early
-  if (currentCategory === null) {
-    console.log('Relationship analysis vectorization already complete');
-    return { success: true, isComplete: true };
-  }
+//   // If all categories are complete, return early
+//   if (currentCategory === null) {
+//     console.log('Relationship analysis vectorization already complete');
+//     return { success: true, isComplete: true };
+//   }
 
-  try {
-    while (!isComplete) {
-      console.log(`Processing relationship category: ${currentCategory || 'initial'}`);
+//   try {
+//     while (!isComplete) {
+//       console.log(`Processing relationship category: ${currentCategory || 'initial'}`);
       
-      const response = await fetch(`${SERVER_URL}/processRelationshipAnalysis`, {
-        method: HTTP_POST,
-        headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-        body: JSON.stringify({ 
-          compositeChartId, 
-          category: currentCategory 
-        })
-      });
+//       const response = await fetch(`${SERVER_URL}/processRelationshipAnalysis`, {
+//         method: HTTP_POST,
+//         headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+//         body: JSON.stringify({ 
+//           compositeChartId, 
+//           category: currentCategory 
+//         })
+//       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+//       if (!response.ok) {
+//         throw new Error(`HTTP error! status: ${response.status}`);
+//       }
 
-      const data = await response.json();
+//       const data = await response.json();
       
-      if (!data.success) {
-        throw new Error(data.error || 'Relationship analysis processing failed');
-      }
+//       if (!data.success) {
+//         throw new Error(data.error || 'Relationship analysis processing failed');
+//       }
 
-      isComplete = data.isComplete;
-      currentCategory = data.nextCategory;
+//       isComplete = data.isComplete;
+//       currentCategory = data.nextCategory;
 
-      // Return progress update for UI
-      if (!isComplete && currentCategory) {
-        console.log(`Processed category: ${currentCategory}`);
-        // Add delay before next request to prevent server timeout
-        await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
-      }
-    }
+//       // Return progress update for UI
+//       if (!isComplete && currentCategory) {
+//         console.log(`Processed category: ${currentCategory}`);
+//         // Add delay before next request to prevent server timeout
+//         await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
+//       }
+//     }
 
-    console.log('Relationship analysis processing complete');
-    return { success: true, isComplete: true };
+//     console.log('Relationship analysis processing complete');
+//     return { success: true, isComplete: true };
 
-  } catch (error) {
-    console.error('Error in relationship analysis processing:', error);
-    return { 
-      success: false, 
-      error: error.message,
-      lastProcessedCategory: currentCategory
-    };
-  }
-};
+//   } catch (error) {
+//     console.error('Error in relationship analysis processing:', error);
+//     return { 
+//       success: false, 
+//       error: error.message,
+//       lastProcessedCategory: currentCategory
+//     };
+//   }
+// };
 
 
 export const chatForUserBirthChart = async (userId, birthChartAnalysisId, query) => {
@@ -908,6 +915,125 @@ export const getRelationshipWorkflowStatus = async (compositeChartId) => {
     return responseData;
   } catch (error) {
     console.error('Error getting relationship workflow status:', error);
+    throw error;
+  }
+};
+
+// Horoscope API Functions
+
+export const generateWeeklyHoroscope = async (userId, startDate) => {
+  console.log("Generating weekly horoscope for userId:", userId, "startDate:", startDate);
+  try {
+    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/weekly`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ startDate })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Weekly horoscope generated:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error generating weekly horoscope:', error);
+    throw error;
+  }
+};
+
+export const generateMonthlyHoroscope = async (userId, startDate) => {
+  console.log("Generating monthly horoscope for userId:", userId, "startDate:", startDate);
+  try {
+    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/monthly`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ startDate })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Monthly horoscope generated:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error generating monthly horoscope:', error);
+    throw error;
+  }
+};
+
+export const getHoroscopeHistory = async (userId, type = null, limit = 10) => {
+  console.log("Getting horoscope history for userId:", userId, "type:", type, "limit:", limit);
+  try {
+    let url = `${SERVER_URL}/users/${userId}/horoscopes?limit=${limit}`;
+    if (type) {
+      url += `&type=${type}`;
+    }
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Horoscope history retrieved:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error getting horoscope history:', error);
+    throw error;
+  }
+};
+
+export const getLatestHoroscope = async (userId, type = null) => {
+  console.log("Getting latest horoscope for userId:", userId, "type:", type);
+  try {
+    let url = `${SERVER_URL}/users/${userId}/horoscope/latest`;
+    if (type) {
+      url += `?type=${type}`;
+    }
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Latest horoscope retrieved:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error getting latest horoscope:', error);
+    throw error;
+  }
+};
+
+export const deleteHoroscope = async (userId, horoscopeId) => {
+  console.log("Deleting horoscope for userId:", userId, "horoscopeId:", horoscopeId);
+  try {
+    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscopes/${horoscopeId}`, {
+      method: 'DELETE',
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Horoscope deleted:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error deleting horoscope:', error);
     throw error;
   }
 };

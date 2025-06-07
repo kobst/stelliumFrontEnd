@@ -1,10 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { generateWeeklyHoroscope, generateMonthlyHoroscope } from '../../Utilities/api';
 import './HoroscopeContainer.css';
 
-const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null }) => {
+const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null, userId }) => {
   const [activeTab, setActiveTab] = useState('thisWeek');
+  const [showTransits, setShowTransits] = useState(true);
+  const [horoscopeCache, setHoroscopeCache] = useState({
+    thisWeek: null,
+    nextWeek: null,
+    thisMonth: null,
+    nextMonth: null
+  });
+  const [horoscopeLoading, setHoroscopeLoading] = useState(false);
+  const [horoscopeError, setHoroscopeError] = useState(null);
 
-  // Helper function to format dates
+  // Helper function to format dates for display
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -26,35 +36,35 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     return `${formatDate(start)} - ${formatDate(end)}`;
   };
 
-  // UPDATED: Helper function to get current week's date range (Sunday to Saturday)
+  // Helper function to get current week's date range (Monday to Sunday)
   const getCurrentWeekRange = () => {
     const now = new Date();
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
-    startOfWeek.setHours(0, 0, 0, 0);
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
+    monday.setHours(0, 0, 0, 0);
     
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6); // End of week (Saturday)
-    endOfWeek.setHours(23, 59, 59, 999);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
     
-    return { start: startOfWeek, end: endOfWeek };
+    return { start: monday, end: sunday };
   };
 
-  // NEW: Helper function to get next week's date range
+  // Helper function to get next week's date range
   const getNextWeekRange = () => {
     const now = new Date();
-    const startOfNextWeek = new Date(now);
-    startOfNextWeek.setDate(now.getDate() - now.getDay() + 7); // Next Sunday
-    startOfNextWeek.setHours(0, 0, 0, 0);
+    const nextMonday = new Date(now);
+    nextMonday.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1) + 7);
+    nextMonday.setHours(0, 0, 0, 0);
     
-    const endOfNextWeek = new Date(startOfNextWeek);
-    endOfNextWeek.setDate(startOfNextWeek.getDate() + 6); // Next Saturday
-    endOfNextWeek.setHours(23, 59, 59, 999);
+    const nextSunday = new Date(nextMonday);
+    nextSunday.setDate(nextMonday.getDate() + 6);
+    nextSunday.setHours(23, 59, 59, 999);
     
-    return { start: startOfNextWeek, end: endOfNextWeek };
+    return { start: nextMonday, end: nextSunday };
   };
 
-  // UPDATED: Helper function to get current month's date range
+  // Helper function to get current month's date range
   const getCurrentMonthRange = () => {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -66,7 +76,7 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     return { start: startOfMonth, end: endOfMonth };
   };
 
-  // NEW: Helper function to get next month's date range
+  // Helper function to get next month's date range
   const getNextMonthRange = () => {
     const now = new Date();
     const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -76,6 +86,24 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     endOfNextMonth.setHours(23, 59, 59, 999);
     
     return { start: startOfNextMonth, end: endOfNextMonth };
+  };
+
+  // Helper function to get horoscope for a specific period
+  const getHoroscopeForPeriod = async (userId, startDate, type) => {
+    try {
+      const response = type === 'weekly'
+        ? await generateWeeklyHoroscope(userId, startDate)
+        : await generateMonthlyHoroscope(userId, startDate);
+
+      if (!response.success) {
+        throw new Error('Failed to fetch horoscope');
+      }
+
+      return response.horoscope;
+    } catch (error) {
+      console.error(`Error getting ${type} horoscope:`, error);
+      throw error;
+    }
   };
 
   // UPDATED: Filter transit events based on active tab
@@ -201,27 +229,73 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     return description;
   };
 
-  if (loading) {
+  // Fetch all horoscopes when component mounts
+  useEffect(() => {
+    const fetchAllHoroscopes = async () => {
+      if (!userId) return;
+      
+      setHoroscopeLoading(true);
+      setHoroscopeError(null);
+      
+      try {
+        // Get start dates for all periods
+        const thisWeekStart = getCurrentWeekRange().start;
+        const nextWeekStart = getNextWeekRange().start;
+        const thisMonthStart = getCurrentMonthRange().start;
+        const nextMonthStart = getNextMonthRange().start;
+
+        // Fetch all horoscopes in parallel
+        const [
+          thisWeekHoroscope,
+          nextWeekHoroscope,
+          thisMonthHoroscope,
+          nextMonthHoroscope
+        ] = await Promise.all([
+          getHoroscopeForPeriod(userId, thisWeekStart, 'weekly'),
+          getHoroscopeForPeriod(userId, nextWeekStart, 'weekly'),
+          getHoroscopeForPeriod(userId, thisMonthStart, 'monthly'),
+          getHoroscopeForPeriod(userId, nextMonthStart, 'monthly')
+        ]);
+
+        // Update cache with all horoscopes
+        setHoroscopeCache({
+          thisWeek: thisWeekHoroscope,
+          nextWeek: nextWeekHoroscope,
+          thisMonth: thisMonthHoroscope,
+          nextMonth: nextMonthHoroscope
+        });
+      } catch (error) {
+        console.error('Error fetching horoscopes:', error);
+        setHoroscopeError(error.message);
+      } finally {
+        setHoroscopeLoading(false);
+      }
+    };
+
+    fetchAllHoroscopes();
+  }, [userId]);
+
+  if (loading || horoscopeLoading) {
     return (
       <div className="horoscope-container">
-        <div className="loading-message">Loading transit data...</div>
+        <div className="loading-message">Loading horoscope data...</div>
       </div>
     );
   }
 
-  if (error) {
+  if (error || horoscopeError) {
     return (
       <div className="horoscope-container">
-        <div className="error-message">Error loading transits: {error}</div>
+        <div className="error-message">Error loading data: {error || horoscopeError}</div>
       </div>
     );
   }
 
   return (
     <div className="horoscope-container">
-      <h2>Transit Forecast</h2>
+      <h2>Horoscope Forecast</h2>
       
-      {/* UPDATED: Tab Navigation with 4 tabs */}
+      {/* Tab Navigation */}
       <div className="tab-navigation">
         <button 
           className={`tab-button ${activeTab === 'thisWeek' ? 'active' : ''}`}
@@ -249,36 +323,73 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
         </button>
       </div>
 
-      {/* Transit Description with Date Range and Exact Date */}
-      <div className="transit-description-container">
-        {filteredTransits.length === 0 ? (
-          <div className="no-transits-message">
-            No significant transits found for {
-              activeTab === 'thisWeek' ? 'this week' :
-              activeTab === 'nextWeek' ? 'next week' :
-              activeTab === 'thisMonth' ? 'this month' : 'next month'
-            }.
+      {/* Horoscope Content */}
+      <div className="horoscope-content">
+        {horoscopeCache[activeTab] && (
+          <div className="horoscope-text">
+            <h3>Your {activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope</h3>
+            <p>{horoscopeCache[activeTab].interpretation || 'No horoscope content available.'}</p>
+            <p className="horoscope-date-range">
+              {formatDateRange(horoscopeCache[activeTab].startDate, horoscopeCache[activeTab].endDate)}
+            </p>
+            {horoscopeCache[activeTab].analysis?.keyThemes && (
+              <div className="key-themes">
+                <h4>Key Themes</h4>
+                <ul>
+                  {horoscopeCache[activeTab].analysis.keyThemes.map((theme, index) => (
+                    <li key={index}>
+                      {theme.transitingPlanet} {theme.aspect} {theme.targetPlanet || ''} 
+                      {theme.exactDate && ` (${formatDate(theme.exactDate)})`}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
-        ) : (
-          <table className="transit-description-table">
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>Date Range</th>
-                <th>Exact Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransits.map((transit, index) => (
-                <tr key={index} className="transit-description-row">
-                  <td>{getTransitDescription(transit)}</td>
-                  <td>{formatDateRange(transit.start, transit.end)}</td>
-                  <td>{formatDate(transit.exact)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         )}
+
+        {/* Collapsible Transit Section */}
+        <div className="transit-section">
+          <button 
+            className="transit-toggle"
+            onClick={() => setShowTransits(!showTransits)}
+          >
+            {showTransits ? 'Hide' : 'Show'} Transit Details
+          </button>
+          
+          {showTransits && (
+            <div className="transit-description-container">
+              {filteredTransits.length === 0 ? (
+                <div className="no-transits-message">
+                  No significant transits found for {
+                    activeTab === 'thisWeek' ? 'this week' :
+                    activeTab === 'nextWeek' ? 'next week' :
+                    activeTab === 'thisMonth' ? 'this month' : 'next month'
+                  }.
+                </div>
+              ) : (
+                <table className="transit-description-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Date Range</th>
+                      <th>Exact Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTransits.map((transit, index) => (
+                      <tr key={index} className="transit-description-row">
+                        <td>{getTransitDescription(transit)}</td>
+                        <td>{formatDateRange(transit.start, transit.end)}</td>
+                        <td>{formatDate(transit.exact)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

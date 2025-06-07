@@ -578,6 +578,7 @@ function UserDashboard() {
           transitWindows={transitWindows}
           loading={transitLoading}
           error={transitError}
+          userId={userId}
         />
       )
     });
