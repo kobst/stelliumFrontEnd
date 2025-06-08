@@ -194,6 +194,38 @@ function UserDashboard() {
     }
   };
 
+  // Manual status check function
+  const checkWorkflowStatus = async () => {
+    if (!userId) return;
+    
+    try {
+      const response = await getWorkflowStatus(userId);
+      console.log('Workflow status response:', response);
+      
+      if (response.success) {
+        setWorkflowStatus(response.status);
+        setConnectionError(false);
+        setRetryCount(0);
+        
+        if (response.analysisData) {
+          updateAnalysisFromWorkflow(response.analysisData);
+        }
+        
+        // Stop polling if workflow is complete or has error
+        if (response.status.status === 'completed' || response.status.status === 'error') {
+          stopPolling();
+        }
+        // If workflow is still running, resume polling
+        else if (response.status.status === 'running' && !isPolling) {
+          startPolling();
+        }
+      }
+    } catch (error) {
+      console.error('Error checking workflow status:', error);
+      setConnectionError(true);
+    }
+  };
+
   // Polling function with retry logic
   const pollWorkflowStatus = useCallback(async () => {
     if (!userId) {
@@ -204,27 +236,20 @@ function UserDashboard() {
     
     try {
       const response = await getWorkflowStatus(userId);
-      console.log('Workflow status response:', response);
+      console.log('Polling workflow status:', response);
       
       if (response.success) {
-        // Reset connection error state on successful response
+        setWorkflowStatus(response.status);
         setConnectionError(false);
         setRetryCount(0);
         
-        setWorkflowStatus(response.status);
-        
-        // Update analysis data if available in response
         if (response.analysisData) {
           updateAnalysisFromWorkflow(response.analysisData);
         }
-
+        
         // Stop polling if workflow is complete or has error
         if (response.status.status === 'completed' || response.status.status === 'error') {
           stopPolling();
-          console.log('Workflow finished with status:', response.status.status);
-          if (response.status.error) {
-            console.error('Workflow error:', response.status.error);
-          }
         }
       }
     } catch (error) {
@@ -232,9 +257,8 @@ function UserDashboard() {
       setConnectionError(true);
       setRetryCount(prev => prev + 1);
       
-      // Stop polling after too many failed attempts
+      // Stop polling after 10 retries
       if (retryCount >= 10) {
-        console.error('Too many failed polling attempts, stopping');
         stopPolling();
       }
     }
@@ -300,32 +324,6 @@ function UserDashboard() {
     if (pollInterval) {
       clearInterval(pollInterval);
       setPollInterval(null);
-    }
-  };
-
-  // Manual status check function
-  const checkWorkflowStatus = async () => {
-    if (!userId) return;
-    
-    try {
-      const response = await getWorkflowStatus(userId);
-      if (response.success) {
-        setWorkflowStatus(response.status);
-        setConnectionError(false);
-        setRetryCount(0);
-        
-        if (response.analysisData) {
-          updateAnalysisFromWorkflow(response.analysisData);
-        }
-        
-        // If workflow is still running, resume polling
-        if (response.status.status === 'running' && !isPolling) {
-          startPolling();
-        }
-      }
-    } catch (error) {
-      console.error('Error checking workflow status:', error);
-      setConnectionError(true);
     }
   };
 

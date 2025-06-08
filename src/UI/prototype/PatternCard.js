@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, memo } from 'react';
 import { Pie, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -22,8 +22,10 @@ ChartJS.register(
   Title
 );
 
-const PatternCard = ({ title, data, type }) => {
-  console.log('PatternCard props:', { title, type, data });
+const PatternCard = memo(({ title, data, type }) => {
+  useEffect(() => {
+    console.log('PatternCard mounted/updated:', { title, type, data });
+  }, [title, type, data]);
 
   const getChartData = () => {
     switch (type) {
@@ -228,6 +230,6 @@ const PatternCard = ({ title, data, type }) => {
       )}
     </div>
   );
-};
+});
 
 export default PatternCard; 
