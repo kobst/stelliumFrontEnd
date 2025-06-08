@@ -1,7 +1,7 @@
 import { postGptResponse, postGptResponsePlanets, postGptDominanceResponse, postPromptGPT, updateHeadingInterpretation } from './api';
 import { heading_map, getBigFourType } from './constants';
 
-async function generatePrompt(heading, bigFourType, bigFourPromptDescriptions, setSubHeadingsPromptDescriptionsMap) {
+async function generatePrompt(heading, bigFourType, bigFourPromptDescriptions) {
     const inputData = {
       heading: `${bigFourType.toUpperCase()}: ${heading}`,
       description: bigFourPromptDescriptions
@@ -15,11 +15,10 @@ async function generatePrompt(heading, bigFourType, bigFourPromptDescriptions, s
   
       if (checkResponseAgainstEverything(responseObject.response, bigFourPromptDescriptions)) {
         console.log('Response contains codes found in everythingData');
-        setSubHeadingsPromptDescriptionsMap(heading, responseObject.response);
         return true;
       } else {
         console.error('Response contains codes not found in everythingData');
-        return await generatePrompt(heading, bigFourType, bigFourPromptDescriptions, setSubHeadingsPromptDescriptionsMap);
+        return await generatePrompt(heading, bigFourType, bigFourPromptDescriptions);
 
       }
     } catch (error) {
@@ -75,7 +74,7 @@ async function generatePrompt(heading, bigFourType, bigFourPromptDescriptions, s
 
 
 
-  async function generateInterpretation(userId, heading, componentType, subHeadingsPromptDescriptionsMap, promptDescriptionsMap, setHeadingInterpretationMap, setSubHeadingsPromptDescriptionsMap) {
+async function generateInterpretation(userId, heading, componentType, subHeadingsPromptDescriptionsMap, promptDescriptionsMap) {
     let inputData;
     console.log("generateInterpretation", heading, componentType)
     if (componentType === 'bigFour') {
@@ -85,7 +84,7 @@ async function generatePrompt(heading, bigFourType, bigFourPromptDescriptions, s
         const bigFourType = getBigFourType(heading)
         const promptDescriptions = subHeadingsPromptDescriptionsMap[heading]
 
-      const promptGenerated = await generatePrompt(heading, bigFourType, promptDescriptions, setSubHeadingsPromptDescriptionsMap);
+      const promptGenerated = await generatePrompt(heading, bigFourType, promptDescriptions);
       if (!promptGenerated) {
         console.error('Failed to generate prompt for BigFour component');
         return;
@@ -124,10 +123,7 @@ async function generatePrompt(heading, bigFourType, bigFourPromptDescriptions, s
       console.log("response from generateInterpretation", response)
       // save the response to the database
       const promptDescription = subHeadingsPromptDescriptionsMap[heading]
-      const saveSuccess = saveResponseToDatabase(userId, heading, promptDescription, response);
-      if (saveSuccess) {
-        setHeadingInterpretationMap(heading, response);
-      }
+      saveResponseToDatabase(userId, heading, promptDescription, response);
 
     } catch (error) {
       console.error('Error:', error);
