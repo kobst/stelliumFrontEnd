@@ -17,6 +17,7 @@ import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
 import HoroscopeContainer from '../UI/prototype/HoroscopeContainer';
 import TabMenu from '../UI/shared/TabMenu';
 import './userDashboard.css';
+import PatternCard from '../UI/prototype/PatternCard';
 
 function UserDashboard() {
   const selectedUser = useStore(state => state.selectedUser);
@@ -25,6 +26,10 @@ function UserDashboard() {
   const userHouses = useStore(state => state.userHouses);
   const userAspects = useStore(state => state.userAspects);
   const dailyTransits = useStore(state => state.dailyTransits);
+  const userElements = useStore(state => state.userElements);
+  const userModalities = useStore(state => state.userModalities);
+  const userQuadrants = useStore(state => state.userQuadrants);
+  const userPatterns = useStore(state => state.userPatterns);
 
   const [isDataPopulated, setIsDataPopulated] = useState(false);
   const [basicAnalysis, setBasicAnalysis] = useState({
@@ -537,18 +542,30 @@ function UserDashboard() {
     content: (
       <section className="dominance-section">
         <div className="pattern-grid">
-          <div className="pattern-card">
-            <h4>Elements</h4>
-            <p>{basicAnalysis.dominance?.elements?.interpretation}</p>
-          </div>
-          <div className="pattern-card">
-            <h4>Modalities</h4>
-            <p>{basicAnalysis.dominance?.modalities?.interpretation}</p>
-          </div>
-          <div className="pattern-card">
-            <h4>Quadrants</h4>
-            <p>{basicAnalysis.dominance?.quadrants?.interpretation}</p>
-          </div>
+          <PatternCard
+            title="Elements"
+            data={{
+              ...userElements,
+              interpretation: basicAnalysis.dominance?.elements?.interpretation
+            }}
+            type="elements"
+          />
+          <PatternCard
+            title="Modalities"
+            data={{
+              ...userModalities,
+              interpretation: basicAnalysis.dominance?.modalities?.interpretation
+            }}
+            type="modalities"
+          />
+          <PatternCard
+            title="Quadrants"
+            data={{
+              ...userQuadrants,
+              interpretation: basicAnalysis.dominance?.quadrants?.interpretation
+            }}
+            type="quadrants"
+          />
           <div className="pattern-card">
             <h4>Patterns and Structures</h4>
             <p>{basicAnalysis.dominance?.patterns?.interpretation}</p>

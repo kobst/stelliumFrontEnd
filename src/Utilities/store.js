@@ -22,6 +22,18 @@ const useStore = create(set => ({
   userHouses: [],
   setUserHouses: (response) => set({ userHouses: response }),
 
+  userElements: {},
+  setUserElements: (response) => set({ userElements: response }),
+
+  userModalities: {},
+  setUserModalities: (response) => set({ userModalities: response }),
+
+  userQuadrants: {},
+  setUserQuadrants: (response) => set({ userQuadrants: response }),
+
+  userPatterns: {},
+  setUserPatterns: (response) => set({ userPatterns: response }),
+
   userAspects: [],
   setUserAspects: (response) => set({ userAspects: response }),
 

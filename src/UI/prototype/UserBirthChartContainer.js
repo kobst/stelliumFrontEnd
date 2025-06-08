@@ -2,7 +2,7 @@ import React from 'react';
 import BirthChartSummaryTable from '../birthChart/tables/BirthChartSummaryTable'
 import Ephemeris from '../shared/Ephemeris';
 
-const UserBirthChartContainer= ({ selectedUser, isDataPopulated, userPlanets, userHouses, userAspects, dailyTransits }) => {
+const UserBirthChartContainer= ({ selectedUser, isDataPopulated, userPlanets, userHouses, userAspects }) => {
   return (
     <div className="horoscope-container">
       {selectedUser && (
@@ -14,7 +14,7 @@ const UserBirthChartContainer= ({ selectedUser, isDataPopulated, userPlanets, us
 
       {isDataPopulated ? (
         <div>
-          <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={userAspects} transits={dailyTransits} />
+          <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={userAspects} />
         </div>
       ) : (
         <Ephemeris />

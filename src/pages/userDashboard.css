@@ -246,28 +246,54 @@ button {
 }
 
 .pattern-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
-  width: 100%;
+  padding: 20px;
 }
 
 .pattern-card {
-  background-color: white;
-  padding: 20px;
+  background: white;
   border-radius: 8px;
+  padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .pattern-card h4 {
-  color: #6a0dad;
-  margin-bottom: 15px;
+  margin: 0;
+  color: #333;
   font-size: 1.2em;
+  font-weight: 600;
 }
 
-.pattern-card p {
-  color: #333;
-  line-height: 1.6;
-  white-space: pre-wrap;
+.pattern-card .interpretation {
+  margin-top: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.pattern-card .interpretation p {
+  margin: 0;
+  color: #666;
+  line-height: 1.5;
+  font-size: 0.95em;
+}
+
+/* Chart container styles */
+.pattern-card > div {
+  flex: 1;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pattern-grid {
+    grid-template-columns: 1fr;
+  }
 }
