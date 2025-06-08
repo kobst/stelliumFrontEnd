@@ -571,7 +571,7 @@ function CompositeDashboard_v4({}) {
 
             {/* Workflow Control Section */}
             <div className="workflow-section">
-              {!workflowStatus && !workflowComplete && (
+              {!workflowStatus && !workflowComplete && !vectorizationStatus.relationshipAnalysis && (
                 <div>
                   <button
                     onClick={handleStartWorkflow}
@@ -588,6 +588,13 @@ function CompositeDashboard_v4({}) {
                   >
                     Check Status
                   </button>
+                </div>
+              )}
+
+              {vectorizationStatus.relationshipAnalysis && !workflowStatus && !workflowComplete && (
+                <div className="workflow-complete">
+                  <h3>✅ Analysis Already Complete</h3>
+                  <p>Your relationship analysis has already been generated and is ready to explore in the tabs below.</p>
                 </div>
               )}
 
