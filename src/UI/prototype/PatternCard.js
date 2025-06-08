@@ -23,6 +23,8 @@ ChartJS.register(
 );
 
 const PatternCard = ({ title, data, type }) => {
+  console.log('PatternCard props:', { title, type, data });
+
   const getChartData = () => {
     switch (type) {
       case 'elements':
@@ -94,15 +96,107 @@ const PatternCard = ({ title, data, type }) => {
 
     if (type === 'quadrants') {
       return (
-        <div style={{ height: '200px' }}>
+        <div className="chart-container">
           <Bar data={chartData} options={chartOptions} />
         </div>
       );
     }
 
     return (
-      <div style={{ height: '200px' }}>
+      <div className="chart-container">
         <Pie data={chartData} options={chartOptions} />
+      </div>
+    );
+  };
+
+  const renderPlanetDistribution = () => {
+    switch (type) {
+      case 'elements':
+        return (
+          <div className="planet-distribution">
+            {data.elements.map((element, index) => (
+              <div key={element.name} className="distribution-item">
+                <span className="category-name">{element.name}</span>
+                <div className="planet-list">
+                  {element.planets.map(planet => (
+                    <span key={planet} className="planet-tag">
+                      {planet}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      case 'modalities':
+        return (
+          <div className="planet-distribution">
+            {data.modalities.map((modality, index) => (
+              <div key={modality.name} className="distribution-item">
+                <span className="category-name">{modality.name}</span>
+                <div className="planet-list">
+                  {modality.planets.map(planet => (
+                    <span key={planet} className="planet-tag">
+                      {planet}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      case 'quadrants':
+        return (
+          <div className="planet-distribution">
+            {data.quadrants.map((quadrant, index) => (
+              <div key={quadrant.name} className="distribution-item">
+                <span className="category-name">{quadrant.name}</span>
+                <div className="planet-list">
+                  {quadrant.planets.map(planet => (
+                    <span key={planet} className="planet-tag">
+                      {planet}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderPatterns = () => {
+    console.log('renderPatterns data:', data);
+    if (!data.patterns) {
+      console.log('No patterns data found');
+      return null;
+    }
+
+    const patternTypes = {
+      'Stelliums': data.patterns.stelliums,
+      'T-Squares': data.patterns.tSquares,
+      'Grand Trines': data.patterns.grandTrines,
+      'Grand Crosses': data.patterns.grandCrosses
+    };
+
+    console.log('Pattern types:', patternTypes);
+
+    return (
+      <div className="patterns-content">
+        {Object.entries(patternTypes).map(([type, patterns]) => (
+          patterns && patterns.length > 0 && (
+            <div key={type} className="pattern-section">
+              <h5>{type}</h5>
+              <ul>
+                {patterns.map((pattern, index) => (
+                  <li key={index}>{pattern}</li>
+                ))}
+              </ul>
+            </div>
+          )
+        ))}
       </div>
     );
   };
@@ -110,11 +204,27 @@ const PatternCard = ({ title, data, type }) => {
   return (
     <div className="pattern-card">
       <h4>{title}</h4>
-      {renderChart()}
-      {data.interpretation && (
-        <div className="interpretation">
-          <p>{data.interpretation}</p>
-        </div>
+      {type === 'patterns' ? (
+        <>
+          {renderPatterns()}
+          {data.interpretation && (
+            <div className="interpretation">
+              <p>{data.interpretation}</p>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <div className="card-content">
+            {renderChart()}
+            {renderPlanetDistribution()}
+          </div>
+          {data.interpretation && (
+            <div className="interpretation">
+              <p>{data.interpretation}</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

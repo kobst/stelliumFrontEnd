@@ -103,7 +103,7 @@ function UserDashboard() {
   async function fetchAnalysisForUser() {
     try {
       const response = await fetchAnalysis(userId);
-      console.log("response", response);
+      console.log("Analysis response:", response);
       
       const { birthChartAnalysisId, interpretation, vectorizationStatus } = response;
 
@@ -113,6 +113,7 @@ function UserDashboard() {
       
       // Set basicAnalysis state if it exists
       if (interpretation?.basicAnalysis) {
+        console.log("Basic analysis interpretation:", interpretation.basicAnalysis);
         setBasicAnalysis({
           overview: interpretation.basicAnalysis.overview || '',
           dominance: {
@@ -566,10 +567,18 @@ function UserDashboard() {
             }}
             type="quadrants"
           />
-          <div className="pattern-card">
-            <h4>Patterns and Structures</h4>
-            <p>{basicAnalysis.dominance?.patterns?.interpretation}</p>
-          </div>
+          {console.log('Patterns data:', {
+            patterns: userPatterns,
+            interpretation: basicAnalysis.dominance?.patterns?.interpretation
+          })}
+          <PatternCard
+            title="Patterns and Structures"
+            data={{
+              patterns: userPatterns,
+              interpretation: basicAnalysis.dominance?.patterns?.interpretation
+            }}
+            type="patterns"
+          />
         </div>
       </section>
     )
