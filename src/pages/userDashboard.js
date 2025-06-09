@@ -1,22 +1,6 @@
 // Updated UserDashboard component with polling workflow
 
 import React, { useEffect, useState, useCallback } from 'react';
-
-// Order in which planetary interpretations should appear
-const PLANET_ORDER = [
-  'Sun',
-  'Moon',
-  'Ascendant',
-  'Mercury',
-  'Venus',
-  'Mars',
-  'Jupiter',
-  'Saturn',
-  'Uranus',
-  'Neptune',
-  'Pluto',
-  'Node'
-];
 import UserBirthChartContainer from '../UI/prototype/UserBirthChartContainer';
 import useStore from '../Utilities/store';
 import { BroadTopicsEnum, ERROR_API_CALL } from '../Utilities/constants';
@@ -35,6 +19,22 @@ import TabMenu from '../UI/shared/TabMenu';
 import './userDashboard.css';
 import PatternCard from '../UI/prototype/PatternCard';
 import PlanetCard from '../UI/prototype/PlanetCard';
+
+// Order in which planetary interpretations should appear
+const PLANET_ORDER = [
+  'Sun',
+  'Moon',
+  'Ascendant',
+  'Mercury',
+  'Venus',
+  'Mars',
+  'Jupiter',
+  'Saturn',
+  'Uranus',
+  'Neptune',
+  'Pluto',
+  'Node'
+];
 
 function UserDashboard() {
   const selectedUser = useStore(state => state.selectedUser);
