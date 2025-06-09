@@ -34,6 +34,7 @@ import HoroscopeContainer from '../UI/prototype/HoroscopeContainer';
 import TabMenu from '../UI/shared/TabMenu';
 import './userDashboard.css';
 import PatternCard from '../UI/prototype/PatternCard';
+import PlanetCard from '../UI/prototype/PlanetCard';
 
 function UserDashboard() {
   const selectedUser = useStore(state => state.selectedUser);
@@ -597,10 +598,11 @@ function UserDashboard() {
         <div className="planet-grid">
           {PLANET_ORDER.filter(p => basicAnalysis.planets && basicAnalysis.planets[p])
             .map(planet => (
-              <div key={planet} className="planet-card">
-                <h4>{planet}</h4>
-                <p>{basicAnalysis.planets[planet].interpretation}</p>
-              </div>
+              <PlanetCard
+                key={planet}
+                planet={planet}
+                interpretation={basicAnalysis.planets[planet].interpretation}
+              />
             ))}
         </div>
       </section>
