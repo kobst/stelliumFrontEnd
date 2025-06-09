@@ -1,4 +1,20 @@
 import React, { useEffect, useState, useCallback } from 'react';
+
+// Order in which planetary interpretations should appear
+const PLANET_ORDER = [
+  'Sun',
+  'Moon',
+  'Ascendant',
+  'Mercury',
+  'Venus',
+  'Mars',
+  'Jupiter',
+  'Saturn',
+  'Uranus',
+  'Neptune',
+  'Pluto',
+  'Node'
+];
 import UserBirthChartContainerfrom '../UI/prototype/UserHoroscopeContainer';
 import useStore from '../Utilities/store';
 import { BroadTopicsEnum, ERROR_API_CALL } from '../Utilities/constants';
@@ -732,12 +748,13 @@ const handleKeyPress = (e) => {
       <section className="planets-section">
         <h3>Planetary Influences</h3>
         <div className="planet-grid">
-          {Object.entries(basicAnalysis.planets || {}).map(([planet, data]) => (
-            <div key={planet} className="planet-card">
-              <h4>{planet}</h4>
-              <p>{data.interpretation}</p>
-            </div>
-          ))}
+          {PLANET_ORDER.filter(p => basicAnalysis.planets && basicAnalysis.planets[p])
+            .map(planet => (
+              <div key={planet} className="planet-card">
+                <h4>{planet}</h4>
+                <p>{basicAnalysis.planets[planet].interpretation}</p>
+              </div>
+            ))}
         </div>
       </section>
     </div>
