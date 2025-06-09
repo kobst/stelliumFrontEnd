@@ -27,7 +27,8 @@ import {
   chatForUserBirthChart,
   fetchUserChatBirthChartAnalysis
  } from '../Utilities/api';
- import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
+import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
+import PlanetCard from '../UI/prototype/PlanetCard';
 import './userDashboard.css';
 
 function UserDashboard() {
@@ -750,10 +751,11 @@ const handleKeyPress = (e) => {
         <div className="planet-grid">
           {PLANET_ORDER.filter(p => basicAnalysis.planets && basicAnalysis.planets[p])
             .map(planet => (
-              <div key={planet} className="planet-card">
-                <h4>{planet}</h4>
-                <p>{basicAnalysis.planets[planet].interpretation}</p>
-              </div>
+              <PlanetCard
+                key={planet}
+                planet={planet}
+                interpretation={basicAnalysis.planets[planet].interpretation}
+              />
             ))}
         </div>
       </section>
