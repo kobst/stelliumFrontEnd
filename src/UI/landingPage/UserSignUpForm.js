@@ -11,6 +11,21 @@ const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 
 const UserSignUpForm = () => {
     const navigate = useNavigate();
+    const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
+
+    // Load Google Places API script
+    useEffect(() => {
+        if (!window.google) {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API}&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            script.onload = () => setIsGoogleLoaded(true);
+            document.head.appendChild(script);
+        } else {
+            setIsGoogleLoaded(true);
+        }
+    }, []);
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -105,7 +120,24 @@ const UserSignUpForm = () => {
       alignItems: 'center'
     };
 
-
+    const handlePlaceSelect = (place) => {
+        try {
+            if (!place || !place.geometry || !place.geometry.location) {
+                console.error("Invalid place object or missing geometry:", place);
+                return;
+            }
+            
+            const lat = place.geometry.location.lat();
+            const lon = place.geometry.location.lng();
+            console.log("Selected location:", { lat, lon, address: place.formatted_address });
+            
+            setLat(lat);
+            setLon(lon);
+            setPlaceOfBirth(place.formatted_address);
+        } catch (error) {
+            console.error("Error processing place selection:", error);
+        }
+    };
 
     return (
       <div className="email_form">
@@ -138,40 +170,33 @@ const UserSignUpForm = () => {
 
           <div style={formGroupStyle}>
             <label htmlFor="location" style={labelStyle}>I was born in</label>
-            <Autocomplete
-              placeholder="City, Country"
-              textInputProps={{ placeholderTextColor: '#fff' }}
-              styles={{
-                textInputContainer: {
-                  backgroundColor: '#5116b5',
-                },
-                textInput: {
-                  height: 38,
-                  color: '#5116b5',
-                  fontSize: 16,
-                },
-                predefinedPlacesDescription: {
-                  color: '#1faadb',
-                },
-              }}
-              apiKey={GOOGLE_API}
-              onPlaceSelected={(place) => {
-                console.log("place: ", place)
-                
-                // Check if place and geometry exist
-                if (!place || !place.geometry || !place.geometry.location) {
-                  console.error("Invalid place object or missing geometry:", place);
-                  return;
-                }
-                
-                var lat = place.geometry.location.lat();
-                var lon = place.geometry.location.lng();
-                console.log(lat + "lat" + lon + "lon");
-                setLat(lat);
-                setLon(lon);
-                setPlaceOfBirth(place.formatted_address);
-              }}
-            />
+            {isGoogleLoaded ? (
+                <Autocomplete
+                    apiKey={GOOGLE_API}
+                    onPlaceSelected={handlePlaceSelect}
+                    options={{
+                        types: ['(cities)'],
+                        componentRestrictions: { country: 'us' }
+                    }}
+                    style={{
+                        ...inputStyle,
+                        width: '290px',
+                        backgroundColor: 'white'
+                    }}
+                    placeholder="City, Country"
+                />
+            ) : (
+                <input
+                    type="text"
+                    style={{
+                        ...inputStyle,
+                        width: '290px',
+                        backgroundColor: 'white'
+                    }}
+                    placeholder="Loading location search..."
+                    disabled
+                />
+            )}
           </div>
 
           <div style={formGroupStyle}>
