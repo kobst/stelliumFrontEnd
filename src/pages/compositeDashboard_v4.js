@@ -346,43 +346,36 @@ function CompositeDashboard_v4({}) {
   const computeWorkflowProgress = () => {
     if (!workflowStatus?.progress) return 0;
     
-    const steps = ['generateScores', 'generateAnalysis', 'vectorizeAnalysis'];
-    let totalProgress = 0;
+    const stepProgress = workflowStatus.progress.processRelationshipAnalysis;
+    if (stepProgress?.status === 'completed') {
+      return 100;
+    } else if (stepProgress?.status === 'running' && stepProgress?.total > 0) {
+      return Math.min((stepProgress.completed / stepProgress.total) * 100, 100);
+    }
     
-    steps.forEach(step => {
-      const stepProgress = workflowStatus.progress[step];
-      if (stepProgress?.status === 'completed') {
-        totalProgress += 33.33; // Each step is ~33% of total
-      } else if (stepProgress?.status === 'running' && stepProgress?.total > 0) {
-        // Add partial progress for current running step
-        const stepPercent = (stepProgress.completed / stepProgress.total) * 33.33;
-        totalProgress += stepPercent;
-      }
-    });
-    
-    return Math.min(totalProgress, 100);
+    return 0;
   };
 
   // Get current step description with progress details
   const getCurrentStepDescription = () => {
     if (!workflowStatus) return '';
     
-    const currentStep = workflowStatus.currentStep;
-    const stepProgress = workflowStatus.progress?.[currentStep];
-    
-    const stepDescriptions = {
-      generateScores: 'Calculating compatibility scores',
-      generateAnalysis: 'Generating AI relationship analysis',
-      vectorizeAnalysis: 'Processing analysis for search'
-    };
-    
-    const baseDescription = stepDescriptions[currentStep] || '';
+    const stepProgress = workflowStatus.progress?.processRelationshipAnalysis;
     
     if (stepProgress?.total > 0) {
-      return `${baseDescription} (${stepProgress.completed || 0}/${stepProgress.total})`;
+      const completed = stepProgress.completed || 0;
+      const total = stepProgress.total;
+      
+      // Provide descriptive text based on progress  
+      if (completed === 1) {
+        return `Calculating compatibility scores... (${completed}/${total})`;
+      } else if (completed <= 8) {
+        return `Generating relationship insights... (${completed}/${total})`;
+      }
+      return `Finalizing relationship analysis... (${completed}/${total})`;
     }
     
-    return baseDescription ? `${baseDescription}...` : '';
+    return 'Processing your relationship analysis...';
   };
 
   // Check if users have birth chart analysis complete
@@ -613,28 +606,24 @@ function CompositeDashboard_v4({}) {
                   <div className="progress-percentage">
                     {Math.round(computeWorkflowProgress())}% Complete
                   </div>
-                  {workflowStatus?.progress && (
+                  {workflowStatus?.progress?.processRelationshipAnalysis && (
                     <div className="workflow-steps">
-                      {Object.entries(workflowStatus.progress).map(([step, stepData]) => (
-                        <div key={step} className={`workflow-step ${stepData.status}`}>
-                          <span className="step-name">
-                            {step === 'generateScores' && '1. Calculate Compatibility Scores'}
-                            {step === 'generateAnalysis' && '2. Generate AI Analysis'}
-                            {step === 'vectorizeAnalysis' && '3. Process for Search'}
+                      <div className={`workflow-step ${workflowStatus.progress.processRelationshipAnalysis.status}`}>
+                        <span className="step-name">
+                          Processing Relationship Analysis
+                        </span>
+                        <span className="step-status">
+                          {workflowStatus.progress.processRelationshipAnalysis.status === 'completed' && '✅'}
+                          {workflowStatus.progress.processRelationshipAnalysis.status === 'running' && '🔄'}
+                          {workflowStatus.progress.processRelationshipAnalysis.status === 'pending' && '⏳'}
+                          {workflowStatus.progress.processRelationshipAnalysis.status === 'error' && '❌'}
+                        </span>
+                        {workflowStatus.progress.processRelationshipAnalysis.total > 0 && workflowStatus.progress.processRelationshipAnalysis.status === 'running' && (
+                          <span className="step-progress">
+                            ({workflowStatus.progress.processRelationshipAnalysis.completed}/{workflowStatus.progress.processRelationshipAnalysis.total})
                           </span>
-                          <span className="step-status">
-                            {stepData.status === 'completed' && '✅'}
-                            {stepData.status === 'running' && '🔄'}
-                            {stepData.status === 'pending' && '⏳'}
-                            {stepData.status === 'error' && '❌'}
-                          </span>
-                          {stepData.total > 0 && stepData.status === 'running' && (
-                            <span className="step-progress">
-                              ({stepData.completed}/{stepData.total})
-                            </span>
-                          )}
-                        </div>
-                      ))}
+                        )}
+                      </div>
                     </div>
                   )}
                   {isPolling && !connectionError && <div className="polling-indicator">Checking status...</div>}

@@ -148,10 +148,7 @@ function UserDashboard() {
         setWorkflowStatus({
           status: 'completed',
           progress: {
-            generateBasic: { status: 'completed', completed: 1, total: 1 },
-            vectorizeBasic: { status: 'completed', completed: 1, total: 1 },
-            generateTopic: { status: 'completed', completed: 1, total: 1 },
-            vectorizeTopic: { status: 'completed', completed: 1, total: 1 }
+            processAllContent: { status: 'completed', completed: 48, total: 48 }
           }
         });
       }
@@ -352,44 +349,38 @@ function UserDashboard() {
   const computeWorkflowProgress = () => {
     if (!workflowStatus?.progress) return 0;
     
-    const steps = ['generateBasic', 'vectorizeBasic', 'generateTopic', 'vectorizeTopic'];
-    let totalProgress = 0;
+    const stepProgress = workflowStatus.progress.processAllContent;
+    if (stepProgress?.status === 'completed') {
+      return 100;
+    } else if (stepProgress?.status === 'running' && stepProgress?.total > 0) {
+      return Math.min((stepProgress.completed / stepProgress.total) * 100, 100);
+    }
     
-    steps.forEach(step => {
-      const stepProgress = workflowStatus.progress[step];
-      if (stepProgress?.status === 'completed') {
-        totalProgress += 25; // Each step is 25% of total
-      } else if (stepProgress?.status === 'running' && stepProgress?.total > 0) {
-        // Add partial progress for current running step
-        const stepPercent = (stepProgress.completed / stepProgress.total) * 25;
-        totalProgress += stepPercent;
-      }
-    });
-    
-    return Math.min(totalProgress, 100);
+    return 0;
   };
 
   // Get current step description with progress details
   const getCurrentStepDescription = () => {
     if (!workflowStatus) return '';
     
-    const currentStep = workflowStatus.currentStep;
-    const stepProgress = workflowStatus.progress?.[currentStep];
-    
-    const stepDescriptions = {
-      generateBasic: 'Generating basic birth chart analysis',
-      vectorizeBasic: 'Processing basic analysis for search',
-      generateTopic: 'Generating detailed topic analysis',
-      vectorizeTopic: 'Processing topic analysis for search'
-    };
-    
-    const baseDescription = stepDescriptions[currentStep] || '';
+    const stepProgress = workflowStatus.progress?.processAllContent;
     
     if (stepProgress?.total > 0) {
-      return `${baseDescription} (${stepProgress.completed || 0}/${stepProgress.total})`;
+      const completed = stepProgress.completed || 0;
+      const total = stepProgress.total;
+      
+      // Provide more descriptive text based on progress
+      if (completed <= 5) {
+        return `Analyzing chart patterns... (${completed}/${total})`;
+      } else if (completed <= 18) {
+        return `Interpreting planetary influences... (${completed}/${total})`;
+      } else if (completed <= 48) {
+        return `Generating life area insights... (${completed}/${total})`;
+      }
+      return `Finalizing analysis... (${completed}/${total})`;
     }
     
-    return baseDescription ? `${baseDescription}...` : '';
+    return 'Processing your birth chart analysis...';
   };
 
   // Chat functions (simplified)
@@ -686,29 +677,24 @@ function UserDashboard() {
             <div className="progress-percentage">
               {Math.round(computeWorkflowProgress())}% Complete
             </div>
-            {workflowStatus?.progress && (
+            {workflowStatus?.progress?.processAllContent && (
               <div className="workflow-steps">
-                {Object.entries(workflowStatus.progress).map(([step, stepData]) => (
-                  <div key={step} className={`workflow-step ${stepData.status}`}>
-                    <span className="step-name">
-                      {step === 'generateBasic' && '1. Generate Basic Analysis'}
-                      {step === 'vectorizeBasic' && '2. Process Basic Analysis'}
-                      {step === 'generateTopic' && '3. Generate Topic Analysis'}
-                      {step === 'vectorizeTopic' && '4. Process Topic Analysis'}
+                <div className={`workflow-step ${workflowStatus.progress.processAllContent.status}`}>
+                  <span className="step-name">
+                    Processing All Content
+                  </span>
+                  <span className="step-status">
+                    {workflowStatus.progress.processAllContent.status === 'completed' && '✅'}
+                    {workflowStatus.progress.processAllContent.status === 'running' && '🔄'}
+                    {workflowStatus.progress.processAllContent.status === 'pending' && '⏳'}
+                    {workflowStatus.progress.processAllContent.status === 'error' && '❌'}
+                  </span>
+                  {workflowStatus.progress.processAllContent.total > 0 && workflowStatus.progress.processAllContent.status === 'running' && (
+                    <span className="step-progress">
+                      ({workflowStatus.progress.processAllContent.completed}/{workflowStatus.progress.processAllContent.total})
                     </span>
-                    <span className="step-status">
-                      {stepData.status === 'completed' && '✅'}
-                      {stepData.status === 'running' && '🔄'}
-                      {stepData.status === 'pending' && '⏳'}
-                      {stepData.status === 'error' && '❌'}
-                    </span>
-                    {stepData.total > 0 && stepData.status === 'running' && (
-                      <span className="step-progress">
-                        ({stepData.completed}/{stepData.total})
-                      </span>
-                    )}
-                  </div>
-                ))}
+                  )}
+                </div>
               </div>
             )}
             {isPolling && !connectionError && <div className="polling-indicator">Checking status...</div>}

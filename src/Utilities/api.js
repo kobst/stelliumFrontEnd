@@ -832,7 +832,7 @@ export const getTransitWindows = async (userId, from, to) => {
 export const startWorkflow = async (userId) => {
   console.log("Starting workflow for userId:", userId);
   try {
-    const response = await fetch(`${SERVER_URL}/startWorkflow`, {
+    const response = await fetch(`${SERVER_URL}/workflow/individual/start`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ userId })
@@ -854,7 +854,7 @@ export const startWorkflow = async (userId) => {
 export const getWorkflowStatus = async (userId) => {
   console.log("Getting workflow status for userId:", userId);
   try {
-    const response = await fetch(`${SERVER_URL}/getWorkflowStatus`, {
+    const response = await fetch(`${SERVER_URL}/workflow/individual/status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ userId })

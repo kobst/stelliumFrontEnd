@@ -23,13 +23,13 @@ const UserSignUpForm = () => {
     const [gender, setGender] = useState('');
     const [unknownTime, setUnknownTime] = useState(false);
     const [formErrors, setFormErrors] = useState({});
-    const setRawBirthData = useStore(state => state.setRawBirthData);
-    const setBirthDate = useStore(state => state.setBirthDate);
+    // const setRawBirthData = useStore(state => state.setRawBirthData);
+    // const setBirthDate = useStore(state => state.setBirthDate);
     const setUserData = useStore(state => state.setUserData);
-    const setUserId = useStore(state => state.setUserId);
-    const setUserPlanets = useStore(state => state.setUserPlanets);
-    const setUserHouses = useStore(state => state.setUserHouses);
-    const setUserAspects = useStore(state => state.setUserAspects);
+    // const setUserId = useStore(state => state.setUserId);
+    // const setUserPlanets = useStore(state => state.setUserPlanets);
+    // const setUserHouses = useStore(state => state.setUserHouses);
+    // const setUserAspects = useStore(state => state.setUserAspects);
   
     const validateForm = () => {
       const errors = {};
@@ -66,8 +66,8 @@ const UserSignUpForm = () => {
 
       setUserData(userData);
       navigate('/signUpConfirmation');
-      setRawBirthData({});
-      setBirthDate('');
+      // setRawBirthData({});
+      // setBirthDate('');
     };
 
     const headerStyle = {
