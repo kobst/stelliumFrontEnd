@@ -80,7 +80,7 @@ function UserDashboard() {
     lastUpdated: null
   });
 
-  // Workflow state
+  // Initialize workflow status as null
   const [workflowStatus, setWorkflowStatus] = useState(null);
   const [isPolling, setIsPolling] = useState(false);
   const [pollInterval, setPollInterval] = useState(null);
@@ -158,17 +158,8 @@ function UserDashboard() {
         lastUpdated: vectorizationStatus?.lastUpdated || null
       }));
 
-      // Set workflow status if analysis is complete
-      if (vectorizationStatus?.topicAnalysis?.isComplete && 
-          vectorizationStatus?.basicAnalysis && 
-          vectorizationStatus?.overview) {
-        setWorkflowStatus({
-          status: 'completed',
-          progress: {
-            processAllContent: { status: 'completed', completed: 48, total: 48 }
-          }
-        });
-      }
+      // Check actual workflow status from backend
+      await checkWorkflowStatus();
 
     } catch (error) {
       console.error(ERROR_API_CALL, error);
@@ -208,7 +199,7 @@ function UserDashboard() {
     }
   };
 
-  // Manual status check function
+  // Update checkWorkflowStatus to properly handle initial state
   const checkWorkflowStatus = async () => {
     if (!userId) return;
     
@@ -217,7 +208,8 @@ function UserDashboard() {
       console.log('Workflow status response:', response);
       
       if (response.success) {
-        setWorkflowStatus(response.status);
+        // Set the entire response as the workflow status
+        setWorkflowStatus(response);
         setConnectionError(false);
         setRetryCount(0);
         
@@ -226,17 +218,24 @@ function UserDashboard() {
         }
         
         // Stop polling if workflow is complete or has error
-        if (response.status.status === 'completed' || response.status.status === 'error') {
+        if (response.workflowStatus?.status === 'completed' || response.workflowStatus?.status === 'error') {
           stopPolling();
         }
         // If workflow is still running, resume polling
-        else if (response.status.status === 'running' && !isPolling) {
+        else if (response.workflowStatus?.status === 'running' && !isPolling) {
           startPolling();
         }
+      } else {
+        // If request failed, ensure workflow is not running
+        setWorkflowStatus(null);
+        stopPolling();
       }
     } catch (error) {
       console.error('Error checking workflow status:', error);
       setConnectionError(true);
+      // On error, ensure workflow is not running
+      setWorkflowStatus(null);
+      stopPolling();
     }
   };
 
@@ -253,7 +252,8 @@ function UserDashboard() {
       console.log('Polling workflow status:', response);
       
       if (response.success) {
-        setWorkflowStatus(response.status);
+        // Set the entire response as the workflow status
+        setWorkflowStatus(response);
         setConnectionError(false);
         setRetryCount(0);
         
@@ -262,7 +262,7 @@ function UserDashboard() {
         }
         
         // Stop polling if workflow is complete or has error
-        if (response.status.status === 'completed' || response.status.status === 'error') {
+        if (response.workflowStatus?.status === 'completed' || response.workflowStatus?.status === 'error') {
           stopPolling();
         }
       }
@@ -323,6 +323,7 @@ function UserDashboard() {
 
   // Start polling
   const startPolling = () => {
+    if (isPolling) return; // Don't start if already polling
     setIsPolling(true);
     setConnectionError(false);
     setRetryCount(0);
@@ -343,7 +344,7 @@ function UserDashboard() {
 
   // Check for existing workflow on component mount
   useEffect(() => {
-    if (userId && !workflowStatus) {
+    if (userId) {
       checkWorkflowStatus();
     }
   }, [userId]);
@@ -366,6 +367,12 @@ function UserDashboard() {
   const computeWorkflowProgress = () => {
     if (!workflowStatus?.progress) return 0;
     
+    // Check for the new progress structure
+    if (workflowStatus.progress.percentage !== undefined) {
+      return workflowStatus.progress.percentage;
+    }
+    
+    // Fallback to the old structure if needed
     const stepProgress = workflowStatus.progress.processAllContent;
     if (stepProgress?.status === 'completed') {
       return 100;
@@ -378,15 +385,32 @@ function UserDashboard() {
 
   // Get current step description with progress details
   const getCurrentStepDescription = () => {
-    if (!workflowStatus) return '';
+    if (!workflowStatus?.progress) return 'Processing your birth chart analysis...';
     
-    const stepProgress = workflowStatus.progress?.processAllContent;
+    const progress = workflowStatus.progress;
     
+    // Use the new progress structure if available
+    if (progress.completed !== undefined && progress.total !== undefined) {
+      const completed = progress.completed;
+      const total = progress.total;
+      
+      // Provide more descriptive text based on progress
+      if (completed <= total * 0.2) {
+        return `Analyzing chart patterns... (${completed}/${total})`;
+      } else if (completed <= total * 0.4) {
+        return `Interpreting planetary influences... (${completed}/${total})`;
+      } else if (completed <= total * 0.8) {
+        return `Generating life area insights... (${completed}/${total})`;
+      }
+      return `Finalizing analysis... (${completed}/${total})`;
+    }
+    
+    // Fallback to the old structure if needed
+    const stepProgress = progress.processAllContent;
     if (stepProgress?.total > 0) {
       const completed = stepProgress.completed || 0;
       const total = stepProgress.total;
       
-      // Provide more descriptive text based on progress
       if (completed <= 5) {
         return `Analyzing chart patterns... (${completed}/${total})`;
       } else if (completed <= 18) {
@@ -641,6 +665,33 @@ function UserDashboard() {
     });
   }
 
+  // Debug info section
+  const renderDebugInfo = () => {
+    console.log('Current workflowStatus:', workflowStatus);
+    
+    // Handle both workflow status formats
+    const status = workflowStatus?.workflowStatus?.status || workflowStatus?.status?.status;
+    const progress = workflowStatus?.workflowStatus?.progress || workflowStatus?.status?.progress;
+    
+    return (
+      <div style={{ margin: '10px 0', padding: '10px', background: '#f5f5f5', borderRadius: '4px' }}>
+        <h4>Debug Info:</h4>
+        <pre>
+          {JSON.stringify({
+            "Workflow Status": {
+              status: status || 'No status available',
+              progress: progress || 'No progress available'
+            },
+            "Workflow Breakdown": workflowStatus?.workflowBreakdown || 'No workflow breakdown available',
+            "Debug Info": workflowStatus?.debug || 'No debug info available',
+            "Is polling active?": isPolling,
+            "Retry count": retryCount
+          }, null, 2)}
+        </pre>
+      </div>
+    );
+  };
+
   return (
     <div className="user-prototype-page">
       {fetchLoading && (
@@ -659,16 +710,23 @@ function UserDashboard() {
         dailyTransits={dailyTransits}
       />
 
+      {renderDebugInfo()}
+
       {/* Workflow Control Section */}
       <div className="workflow-section">
-        {!workflowStatus && !workflowComplete && (
+        {/* Show start/resume/retry button for not_started, incomplete, or completed_with_failures */}
+        {(workflowStatus?.workflowStatus?.status === 'not_started' || 
+          workflowStatus?.workflowStatus?.status === 'incomplete' || 
+          workflowStatus?.workflowStatus?.status === 'completed_with_failures') && (
           <div>
             <button
               onClick={handleStartWorkflow}
               disabled={isWorkflowRunning || fetchLoading || !userId}
               className="workflow-button primary"
             >
-              Start Analysis Workflow
+              {workflowStatus?.workflowStatus?.status === 'not_started' && 'Start Analysis'}
+              {workflowStatus?.workflowStatus?.status === 'incomplete' && 'Resume Analysis'}
+              {workflowStatus?.workflowStatus?.status === 'completed_with_failures' && 'Retry Failed Tasks'}
             </button>
             <button
               onClick={checkWorkflowStatus}
@@ -681,7 +739,8 @@ function UserDashboard() {
           </div>
         )}
 
-        {isWorkflowRunning && (
+        {/* Show progress for running state */}
+        {workflowStatus?.workflowStatus?.status === 'running' && (
           <div className="workflow-progress">
             <div className="progress-header">
               <h3>Generating Your Birth Chart Analysis</h3>
@@ -690,27 +749,29 @@ function UserDashboard() {
             <div className="progress-bar">
               <div 
                 className="progress-fill" 
-                style={{ width: `${computeWorkflowProgress()}%` }}
+                style={{ width: `${workflowStatus?.workflowStatus?.progress?.percentage || 0}%` }}
               ></div>
             </div>
             <div className="progress-percentage">
-              {Math.round(computeWorkflowProgress())}% Complete
+              {workflowStatus?.workflowStatus?.progress?.percentage || 0}% Complete
             </div>
-            {workflowStatus?.progress?.processAllContent && (
+            {workflowStatus?.workflowStatus?.progress?.processAllContent && (
               <div className="workflow-steps">
-                <div className={`workflow-step ${workflowStatus.progress.processAllContent.status}`}>
+                <div className={`workflow-step ${workflowStatus.workflowStatus.progress.processAllContent.status}`}>
                   <span className="step-name">
                     Processing All Content
                   </span>
                   <span className="step-status">
-                    {workflowStatus.progress.processAllContent.status === 'completed' && '✅'}
-                    {workflowStatus.progress.processAllContent.status === 'running' && '🔄'}
-                    {workflowStatus.progress.processAllContent.status === 'pending' && '⏳'}
-                    {workflowStatus.progress.processAllContent.status === 'error' && '❌'}
+                    {workflowStatus.workflowStatus.progress.processAllContent.status === 'completed' && '✅'}
+                    {workflowStatus.workflowStatus.progress.processAllContent.status === 'running' && '🔄'}
+                    {workflowStatus.workflowStatus.progress.processAllContent.status === 'pending' && '⏳'}
+                    {workflowStatus.workflowStatus.progress.processAllContent.status === 'error' && '❌'}
                   </span>
-                  {workflowStatus.progress.processAllContent.total > 0 && workflowStatus.progress.processAllContent.status === 'running' && (
+                  {workflowStatus.workflowStatus.progress.processAllContent.total > 0 && 
+                   workflowStatus.workflowStatus.progress.processAllContent.status === 'running' && (
                     <span className="step-progress">
-                      ({workflowStatus.progress.processAllContent.completed}/{workflowStatus.progress.processAllContent.total})
+                      ({workflowStatus.workflowStatus.progress.processAllContent.completed}/
+                       {workflowStatus.workflowStatus.progress.processAllContent.total})
                     </span>
                   )}
                 </div>
@@ -732,7 +793,8 @@ function UserDashboard() {
           </div>
         )}
 
-        {workflowComplete && (
+        {/* Show completion message for completed state */}
+        {workflowStatus?.workflowStatus?.status === 'completed' && (
           <div className="workflow-complete">
             <h3>✅ Analysis Complete!</h3>
             <p>Your birth chart analysis has been generated and is ready to explore.</p>
@@ -746,14 +808,44 @@ function UserDashboard() {
           </div>
         )}
 
-        {workflowError && (
+        {/* Show error message for unknown state */}
+        {workflowStatus?.workflowStatus?.status === 'unknown' && (
           <div className="workflow-error">
-            <h3>❌ Workflow Error</h3>
-            <p>Error: {workflowStatus?.error || 'Unknown error occurred'}</p>
-            <p>Step: {workflowStatus?.currentStep}</p>
+            <h3>❌ Unexpected Error</h3>
+            <p>An unexpected error occurred while processing your birth chart analysis.</p>
+            <p>Please contact support if this issue persists.</p>
             <button onClick={handleStartWorkflow} className="workflow-button retry">
-              Retry Workflow
+              Retry Analysis
             </button>
+          </div>
+        )}
+
+        {/* Show incomplete tasks for incomplete or completed_with_failures states */}
+        {(workflowStatus?.workflowStatus?.status === 'incomplete' || 
+          workflowStatus?.workflowStatus?.status === 'completed_with_failures') && 
+          workflowStatus?.workflowBreakdown && (
+          <div className="incomplete-tasks">
+            <h4>Tasks Requiring Attention:</h4>
+            {workflowStatus.workflowBreakdown.needsGeneration.length > 0 && (
+              <div>
+                <h5>Needs Generation:</h5>
+                <ul>
+                  {workflowStatus.workflowBreakdown.needsGeneration.map((task, index) => (
+                    <li key={`gen-${index}`}>{task}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {workflowStatus.workflowBreakdown.needsVectorization.length > 0 && (
+              <div>
+                <h5>Needs Vectorization:</h5>
+                <ul>
+                  {workflowStatus.workflowBreakdown.needsVectorization.map((task, index) => (
+                    <li key={`vec-${index}`}>{task}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
       </div>

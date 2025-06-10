@@ -132,6 +132,22 @@ function CompositeDashboard_v4({}) {
                             lastUpdated: new Date().toISOString(),
                             relationshipAnalysis: allCategoriesComplete
                         });
+                    } else if (fetchedData.vectorizationStatus.isComplete !== undefined || fetchedData.vectorizationStatus.relationshipAnalysis !== undefined) {
+                        // Handle structure with either isComplete or relationshipAnalysis at root level
+                        const isComplete = fetchedData.vectorizationStatus.isComplete;
+                        const hasRelationshipAnalysis = fetchedData.vectorizationStatus.relationshipAnalysis;
+                        
+                        console.log("Setting vectorization status with:", {
+                            isComplete,
+                            hasRelationshipAnalysis,
+                            categories: fetchedData.vectorizationStatus.categories
+                        });
+                        
+                        setVectorizationStatus({
+                            categories: fetchedData.vectorizationStatus.categories || {},
+                            lastUpdated: new Date().toISOString(),
+                            relationshipAnalysis: isComplete || hasRelationshipAnalysis // Either flag being true means it's complete
+                        });
                     } else {
                         // Legacy structure
                         setVectorizationStatus({
@@ -140,6 +156,20 @@ function CompositeDashboard_v4({}) {
                             relationshipAnalysis: Boolean(fetchedData.vectorizationStatus.relationshipAnalysis)
                         });
                     }
+                } else if (fetchedData?.isVectorized !== undefined) {
+                    // Fallback to isVectorized flag
+                    setVectorizationStatus(prev => ({
+                        ...prev,
+                        relationshipAnalysis: fetchedData.isVectorized,
+                        lastUpdated: new Date().toISOString()
+                    }));
+                } else if (fetchedData?.categoryAnalysis) {
+                    // If we have category analysis but no vectorization status, assume it's vectorized
+                    setVectorizationStatus(prev => ({
+                        ...prev,
+                        relationshipAnalysis: true,
+                        lastUpdated: new Date().toISOString()
+                    }));
                 } else {
                     // If no vectorizationStatus field, assume not vectorized
                     setVectorizationStatus(prev => ({
@@ -157,62 +187,6 @@ function CompositeDashboard_v4({}) {
     useEffect(() => {
         initializeCompositeChartData();
     }, [initializeCompositeChartData]);
-
-  // Start workflow function
-  const handleStartWorkflow = async () => {
-    if (!userA?._id || !userB?._id || !compositeChart?._id) {
-      console.error('Missing required data to start workflow');
-      return;
-    }
-
-    try {
-      const response = await startRelationshipWorkflow(userA._id, userB._id, compositeChart._id);
-      if (response.success) {
-        setWorkflowStatus(response.status);
-        startPolling();
-      }
-    } catch (error) {
-      console.error('Error starting workflow:', error);
-    }
-  };
-
-  // Polling function with retry logic
-  const pollWorkflowStatus = useCallback(async () => {
-    if (!compositeChart?._id) return;
-
-    try {
-      const response = await getRelationshipWorkflowStatus(compositeChart._id);
-      if (response.success) {
-        // Reset connection error state on successful response
-        setConnectionError(false);
-        setRetryCount(0);
-        
-        setWorkflowStatus(response.status);
-        
-        // Update analysis data if available
-        if (response.analysisData) {
-          updateAnalysisFromWorkflow(response.analysisData);
-        }
-
-        // Stop polling if workflow is complete or has error
-        if (response.status.status === 'completed' || response.status.status === 'error') {
-          stopPolling();
-          // Refresh analysis data
-          await initializeCompositeChartData();
-        }
-      }
-    } catch (error) {
-      console.error('Error polling workflow status:', error);
-      setConnectionError(true);
-      setRetryCount(prev => prev + 1);
-      
-      // Stop polling after too many failed attempts
-      if (retryCount >= 10) {
-        console.error('Too many failed polling attempts, stopping');
-        stopPolling();
-      }
-    }
-  }, [compositeChart?._id, retryCount, initializeCompositeChartData]);
 
   // Update analysis data from workflow response
   const updateAnalysisFromWorkflow = (analysisData) => {
@@ -273,25 +247,115 @@ function CompositeDashboard_v4({}) {
         lastUpdated: new Date().toISOString()
       }));
     }
+
+    // If workflow is complete, ensure relationshipAnalysis is set to true
+    if (workflowStatus?.workflowStatus?.status === 'completed') {
+      setVectorizationStatus(prev => ({
+        ...prev,
+        relationshipAnalysis: true,
+        lastUpdated: new Date().toISOString()
+      }));
+    }
   };
 
-  // Start polling
-  const startPolling = () => {
-    setIsPolling(true);
-    setConnectionError(false);
-    setRetryCount(0);
-    const interval = setInterval(pollWorkflowStatus, 3000); // Poll every 3 seconds
-    setPollInterval(interval);
-  };
+  // Start workflow function
+  const handleStartWorkflow = async () => {
+    if (!userA?._id || !userB?._id || !compositeChart?._id) {
+      console.error('Missing required data to start workflow');
+      return;
+    }
 
-  // Stop polling
-  const stopPolling = () => {
-    setIsPolling(false);
-    setConnectionError(false);
-    setRetryCount(0);
-    if (pollInterval) {
-      clearInterval(pollInterval);
-      setPollInterval(null);
+    try {
+      // Reset all workflow state
+      console.log('Resetting workflow state');
+      setWorkflowStatus(null);
+      setIsPolling(false);
+      setConnectionError(false);
+      setRetryCount(0);
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        setPollInterval(null);
+      }
+      
+      console.log('Starting workflow with:', {
+        userA: userA._id,
+        userB: userB._id,
+        compositeChart: compositeChart._id
+      });
+      
+      // Start the workflow
+      const startResponse = await startRelationshipWorkflow(userA._id, userB._id, compositeChart._id);
+      console.log('Start workflow response:', startResponse);
+      
+      if (startResponse.success) {
+        // Start polling immediately after successful start
+        console.log('Workflow started successfully, beginning polling');
+        setIsPolling(true);
+        
+        // Poll immediately
+        const pollResponse = await getRelationshipWorkflowStatus(compositeChart._id);
+        console.log('Initial poll response:', pollResponse);
+        
+        if (pollResponse.success) {
+          setWorkflowStatus(pollResponse);
+          console.log('Set initial workflow status to:', pollResponse);
+          
+          // Set up interval for subsequent polls
+          const interval = setInterval(async () => {
+            try {
+              const response = await getRelationshipWorkflowStatus(compositeChart._id);
+              console.log('Poll response:', response);
+              
+              if (response.success) {
+                setWorkflowStatus(response);
+                
+                // Update analysis data if available
+                if (response.analysisData) {
+                  updateAnalysisFromWorkflow(response.analysisData);
+                }
+                
+                // Stop polling if workflow is complete or has error
+                if (response.workflowStatus?.status === 'completed' || 
+                    response.workflowStatus?.status === 'error' || 
+                    response.workflowStatus?.status === 'unknown') {
+                  console.log('Workflow finished with status:', response.workflowStatus?.status);
+                  setIsPolling(false);
+                  clearInterval(interval);
+                  setPollInterval(null);
+                  
+                  // If workflow completed successfully, ensure vectorization status is updated
+                  if (response.workflowStatus?.status === 'completed') {
+                    setVectorizationStatus(prev => ({
+                      ...prev,
+                      relationshipAnalysis: true,
+                      lastUpdated: new Date().toISOString()
+                    }));
+                  }
+                  
+                  // Refresh analysis data
+                  await initializeCompositeChartData();
+                }
+              }
+            } catch (error) {
+              console.error('Error in polling interval:', error);
+              setIsPolling(false);
+              clearInterval(interval);
+              setPollInterval(null);
+            }
+          }, 3000);
+          
+          setPollInterval(interval);
+        }
+      }
+    } catch (error) {
+      console.error('Error starting workflow:', error);
+      // Reset state on error
+      setWorkflowStatus(null);
+      setIsPolling(false);
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        setPollInterval(null);
+      }
     }
   };
 
@@ -300,19 +364,26 @@ function CompositeDashboard_v4({}) {
     if (!compositeChart?._id) return;
     
     try {
+      console.log('Manually checking workflow status');
       const response = await getRelationshipWorkflowStatus(compositeChart._id);
+      console.log('Manual check response:', response);
+      
       if (response.success) {
-        setWorkflowStatus(response.status);
+        // Set the entire response as workflow status
+        setWorkflowStatus(response);
+        console.log('Updated workflow status to:', response);
         setConnectionError(false);
         setRetryCount(0);
         
         if (response.analysisData) {
+          console.log('Updating analysis data:', response.analysisData);
           updateAnalysisFromWorkflow(response.analysisData);
         }
         
         // If workflow is still running, resume polling
-        if (response.status.status === 'running' && !isPolling) {
-          startPolling();
+        if (response.workflowStatus?.status === 'running' && !isPolling) {
+          console.log('Workflow is running, resuming polling');
+          handleStartWorkflow();
         }
       }
     } catch (error) {
@@ -338,9 +409,9 @@ function CompositeDashboard_v4({}) {
   }, [pollInterval]);
 
   // Determine workflow status for UI
-  const isWorkflowRunning = workflowStatus?.status === 'running';
-  const workflowComplete = workflowStatus?.status === 'completed';
-  const workflowError = workflowStatus?.status === 'error';
+  const isWorkflowRunning = workflowStatus?.workflowStatus?.status === 'running';
+  const workflowComplete = workflowStatus?.workflowStatus?.status === 'completed';
+  const workflowError = workflowStatus?.workflowStatus?.status === 'error';
 
   // Progress calculation with granular step progress
   const computeWorkflowProgress = () => {
@@ -380,6 +451,13 @@ function CompositeDashboard_v4({}) {
 
   // Check if users have birth chart analysis complete
   const canStartWorkflow = () => {
+    console.log('Checking workflow prerequisites:', {
+      userAVectorizationStatus,
+      userBVectorizationStatus,
+      userA: userA?._id,
+      userB: userB?._id,
+      compositeChart: compositeChart?._id
+    });
     return userAVectorizationStatus && userBVectorizationStatus;
   };
   
@@ -423,10 +501,17 @@ function CompositeDashboard_v4({}) {
 
   // Load chat history when vectorization is complete
   useEffect(() => {
+    console.log("Checking chat history load conditions:", {
+        relationshipAnalysis: vectorizationStatus.relationshipAnalysis,
+        userA: userA?._id,
+        compositeChart: compositeChart?._id
+    });
+    
     if (vectorizationStatus.relationshipAnalysis && userA?._id && compositeChart?._id) {
-      loadRelationshipChatHistory();
+        console.log("Loading chat history...");
+        loadRelationshipChatHistory();
     }
-  }, [vectorizationStatus.relationshipAnalysis, loadRelationshipChatHistory]);
+  }, [vectorizationStatus.relationshipAnalysis, userA?._id, compositeChart?._id, loadRelationshipChatHistory]);
 
   // Handle sending new chat messages
   const handleSendMessage = async () => {
@@ -562,16 +647,41 @@ function CompositeDashboard_v4({}) {
             <h2 className="logotxt">User B: {userB.firstName} {userB.lastName}</h2>
             <h2 className="logotxt">Composite Chart: {compositeChart._id}</h2>
 
+            {/* Debug info */}
+            <div style={{ margin: '10px 0', padding: '10px', background: '#f5f5f5', borderRadius: '4px' }}>
+              <h4>Debug Info:</h4>
+              <pre>
+                {JSON.stringify({
+                  workflowStatus: workflowStatus?.workflowStatus,
+                  debug: workflowStatus?.debug,
+                  workflowBreakdown: workflowStatus?.workflowBreakdown,
+                  jobs: workflowStatus?.jobs,
+                  vectorizationStatus,
+                  userAVectorizationStatus,
+                  userBVectorizationStatus,
+                  canStart: canStartWorkflow(),
+                  hasUserA: !!userA,
+                  hasUserB: !!userB,
+                  hasCompositeChart: !!compositeChart
+                }, null, 2)}
+              </pre>
+            </div>
+
             {/* Workflow Control Section */}
             <div className="workflow-section">
-              {!workflowStatus && !workflowComplete && !vectorizationStatus.relationshipAnalysis && (
+              {/* Show start/resume/retry button for not_started, incomplete, or completed_with_failures */}
+              {(workflowStatus?.workflowStatus?.status === 'not_started' || 
+                workflowStatus?.workflowStatus?.status === 'incomplete' || 
+                workflowStatus?.workflowStatus?.status === 'completed_with_failures') && (
                 <div>
                   <button
                     onClick={handleStartWorkflow}
                     disabled={isWorkflowRunning || !canStartWorkflow()}
                     className="workflow-button primary"
                   >
-                    {canStartWorkflow() ? 'Start Relationship Analysis Workflow' : 'Birth Chart Analysis Required'}
+                    {workflowStatus?.workflowStatus?.status === 'not_started' && 'Start Analysis'}
+                    {workflowStatus?.workflowStatus?.status === 'incomplete' && 'Resume Analysis'}
+                    {workflowStatus?.workflowStatus?.status === 'completed_with_failures' && 'Retry Failed Tasks'}
                   </button>
                   <button
                     onClick={checkWorkflowStatus}
@@ -584,14 +694,8 @@ function CompositeDashboard_v4({}) {
                 </div>
               )}
 
-              {vectorizationStatus.relationshipAnalysis && !workflowStatus && !workflowComplete && (
-                <div className="workflow-complete">
-                  <h3>✅ Analysis Already Complete</h3>
-                  <p>Your relationship analysis has already been generated and is ready to explore in the tabs below.</p>
-                </div>
-              )}
-
-              {isWorkflowRunning && (
+              {/* Show progress for running state */}
+              {workflowStatus?.workflowStatus?.status === 'running' && (
                 <div className="workflow-progress">
                   <div className="progress-header">
                     <h3>Generating Your Relationship Analysis</h3>
@@ -600,30 +704,44 @@ function CompositeDashboard_v4({}) {
                   <div className="progress-bar">
                     <div 
                       className="progress-fill" 
-                      style={{ width: `${computeWorkflowProgress()}%` }}
+                      style={{ width: `${workflowStatus?.workflowStatus?.progress?.percentage || 0}%` }}
                     ></div>
                   </div>
                   <div className="progress-percentage">
-                    {Math.round(computeWorkflowProgress())}% Complete
+                    {workflowStatus?.workflowStatus?.progress?.percentage || 0}% Complete
                   </div>
-                  {workflowStatus?.progress?.processRelationshipAnalysis && (
+                  {workflowStatus?.workflowBreakdown && (
                     <div className="workflow-steps">
-                      <div className={`workflow-step ${workflowStatus.progress.processRelationshipAnalysis.status}`}>
-                        <span className="step-name">
-                          Processing Relationship Analysis
-                        </span>
-                        <span className="step-status">
-                          {workflowStatus.progress.processRelationshipAnalysis.status === 'completed' && '✅'}
-                          {workflowStatus.progress.processRelationshipAnalysis.status === 'running' && '🔄'}
-                          {workflowStatus.progress.processRelationshipAnalysis.status === 'pending' && '⏳'}
-                          {workflowStatus.progress.processRelationshipAnalysis.status === 'error' && '❌'}
-                        </span>
-                        {workflowStatus.progress.processRelationshipAnalysis.total > 0 && workflowStatus.progress.processRelationshipAnalysis.status === 'running' && (
-                          <span className="step-progress">
-                            ({workflowStatus.progress.processRelationshipAnalysis.completed}/{workflowStatus.progress.processRelationshipAnalysis.total})
-                          </span>
-                        )}
-                      </div>
+                      {workflowStatus.workflowBreakdown.needsGeneration.length > 0 && (
+                        <div className="workflow-step pending">
+                          <span className="step-name">Needs Generation:</span>
+                          <ul>
+                            {workflowStatus.workflowBreakdown.needsGeneration.map((task, index) => (
+                              <li key={`gen-${index}`}>{task}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {workflowStatus.workflowBreakdown.needsVectorization.length > 0 && (
+                        <div className="workflow-step pending">
+                          <span className="step-name">Needs Vectorization:</span>
+                          <ul>
+                            {workflowStatus.workflowBreakdown.needsVectorization.map((task, index) => (
+                              <li key={`vec-${index}`}>{task}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {workflowStatus.workflowBreakdown.completed.length > 0 && (
+                        <div className="workflow-step completed">
+                          <span className="step-name">Completed Tasks:</span>
+                          <ul>
+                            {workflowStatus.workflowBreakdown.completed.map((task, index) => (
+                              <li key={`comp-${index}`}>{task}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   )}
                   {isPolling && !connectionError && <div className="polling-indicator">Checking status...</div>}
@@ -642,38 +760,59 @@ function CompositeDashboard_v4({}) {
                 </div>
               )}
 
-              {workflowComplete && (
+              {/* Show completion message for completed state */}
+              {workflowStatus?.workflowStatus?.status === 'completed' && (
                 <div className="workflow-complete">
                   <h3>✅ Analysis Complete!</h3>
                   <p>Your relationship analysis has been generated and is ready to explore.</p>
-                </div>
-              )}
-
-              {workflowError && (
-                <div className="workflow-error">
-                  <h3>❌ Workflow Error</h3>
-                  <p>Error: {workflowStatus?.error}</p>
-                  <button onClick={handleStartWorkflow} className="workflow-button retry">
-                    Retry Workflow
+                  <button
+                    onClick={checkWorkflowStatus}
+                    className="workflow-button"
+                    style={{ marginTop: '10px', backgroundColor: '#6c757d' }}
+                  >
+                    Check Status
                   </button>
                 </div>
               )}
 
-              {!canStartWorkflow() && (
-                <div className="workflow-prerequisites">
-                  <h4>Prerequisites Required:</h4>
-                  <p>
-                    {(() => {
-                      const incompleteUsers = [];
-                      if (!userAVectorizationStatus) incompleteUsers.push(userA?.firstName || 'User A');
-                      if (!userBVectorizationStatus) incompleteUsers.push(userB?.firstName || 'User B');
-                      if (incompleteUsers.length === 1) {
-                        return `${incompleteUsers[0]} requires their birth chart analysis to be processed before relationship analysis can be generated.`;
-                      } else {
-                        return `${incompleteUsers.join(' and ')} require their birth chart analysis to be processed before relationship analysis can be generated.`;
-                      }
-                    })()}
-                  </p>
+              {/* Show error message for unknown state */}
+              {workflowStatus?.workflowStatus?.status === 'unknown' && (
+                <div className="workflow-error">
+                  <h3>❌ Unexpected Error</h3>
+                  <p>An unexpected error occurred while processing your relationship analysis.</p>
+                  <p>Please contact support if this issue persists.</p>
+                  <button onClick={handleStartWorkflow} className="workflow-button retry">
+                    Retry Analysis
+                  </button>
+                </div>
+              )}
+
+              {/* Show incomplete tasks for incomplete or completed_with_failures states */}
+              {(workflowStatus?.workflowStatus?.status === 'incomplete' || 
+                workflowStatus?.workflowStatus?.status === 'completed_with_failures') && 
+                workflowStatus?.workflowBreakdown && (
+                <div className="incomplete-tasks">
+                  <h4>Tasks Requiring Attention:</h4>
+                  {workflowStatus.workflowBreakdown.needsGeneration.length > 0 && (
+                    <div>
+                      <h5>Needs Generation:</h5>
+                      <ul>
+                        {workflowStatus.workflowBreakdown.needsGeneration.map((task, index) => (
+                          <li key={`gen-${index}`}>{task}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {workflowStatus.workflowBreakdown.needsVectorization.length > 0 && (
+                    <div>
+                      <h5>Needs Vectorization:</h5>
+                      <ul>
+                        {workflowStatus.workflowBreakdown.needsVectorization.map((task, index) => (
+                          <li key={`vec-${index}`}>{task}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

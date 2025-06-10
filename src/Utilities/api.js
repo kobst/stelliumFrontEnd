@@ -876,7 +876,8 @@ export const getWorkflowStatus = async (userId) => {
 // Relationship Workflow API Functions
 
 export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChartId) => {
-  console.log("Starting relationship workflow:", { userIdA, userIdB, compositeChartId });
+  console.log("Starting relationship workflow with:", { userIdA, userIdB, compositeChartId });
+  console.log("API URL:", `${SERVER_URL}/workflow/relationship/start`);
   try {
     const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
       method: HTTP_POST,
@@ -884,8 +885,11 @@ export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChart
       body: JSON.stringify({ userIdA, userIdB, compositeChartId })
     });
     
+    console.log("Start workflow response status:", response.status);
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error("Start workflow error response:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
     
     const responseData = await response.json();
@@ -898,7 +902,8 @@ export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChart
 };
 
 export const getRelationshipWorkflowStatus = async (compositeChartId) => {
-  console.log("Getting relationship workflow status for compositeChartId:", compositeChartId);
+  console.log("Getting relationship workflow status for:", compositeChartId);
+  console.log("API URL:", `${SERVER_URL}/workflow/relationship/status`);
   try {
     const response = await fetch(`${SERVER_URL}/workflow/relationship/status`, {
       method: HTTP_POST,
@@ -906,8 +911,11 @@ export const getRelationshipWorkflowStatus = async (compositeChartId) => {
       body: JSON.stringify({ compositeChartId })
     });
     
+    console.log("Status check response status:", response.status);
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error("Status check error response:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
     
     const responseData = await response.json();
