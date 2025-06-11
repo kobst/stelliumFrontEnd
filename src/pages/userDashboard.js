@@ -536,28 +536,10 @@ function UserDashboard() {
     }
   }, [userPlanets, isDataPopulated]);
 
-  // Build tabs
-  const tabs = [];
+  // Build analysis tabs
+  const analysisTabs = [];
 
-  if (birthChartAnalysisId && userId && vectorizationStatus.topicAnalysis.isComplete) {
-    tabs.push({
-      id: 'chat',
-      label: 'Chat',
-      content: (
-        <UserChatBirthChart
-          chatMessages={chatMessages}
-          currentMessage={currentMessage}
-          setCurrentMessage={setCurrentMessage}
-          isChatLoading={isChatLoading}
-          isChatHistoryLoading={isChatHistoryLoading}
-          handleSendMessage={handleSendMessage}
-          handleKeyPress={handleKeyPress}
-        />
-      )
-    });
-  }
-
-  tabs.push({
+  analysisTabs.push({
     id: 'overview',
     label: 'Overview',
     content: (
@@ -567,7 +549,7 @@ function UserDashboard() {
     )
   });
 
-  tabs.push({
+  analysisTabs.push({
     id: 'patterns',
     label: 'Chart Patterns',
     content: (
@@ -597,10 +579,6 @@ function UserDashboard() {
             }}
             type="quadrants"
           />
-          {console.log('Patterns data:', {
-            patterns: userPatterns,
-            interpretation: basicAnalysis.dominance?.patterns?.interpretation
-          })}
           <PatternCard
             title="Patterns and Structures"
             data={{
@@ -614,7 +592,7 @@ function UserDashboard() {
     )
   });
 
-  tabs.push({
+  analysisTabs.push({
     id: 'planets',
     label: 'Planets',
     content: (
@@ -634,7 +612,7 @@ function UserDashboard() {
   });
 
   Object.entries(subTopicAnalysis).forEach(([topic, data]) => {
-    tabs.push({
+    analysisTabs.push({
       id: topic,
       label: data.label,
       content: (
@@ -650,8 +628,17 @@ function UserDashboard() {
     });
   });
 
+  // Build main tabs
+  const mainTabs = [];
+
+  mainTabs.push({
+    id: 'analysis',
+    label: 'Birth Chart Analysis',
+    content: <TabMenu tabs={analysisTabs} />
+  });
+
   if (isDataPopulated) {
-    tabs.push({
+    mainTabs.push({
       id: 'horoscope',
       label: 'Horoscope',
       content: (
@@ -660,6 +647,24 @@ function UserDashboard() {
           loading={transitLoading}
           error={transitError}
           userId={userId}
+        />
+      )
+    });
+  }
+
+  if (birthChartAnalysisId && userId && vectorizationStatus.topicAnalysis.isComplete) {
+    mainTabs.push({
+      id: 'chat',
+      label: 'Chat',
+      content: (
+        <UserChatBirthChart
+          chatMessages={chatMessages}
+          currentMessage={currentMessage}
+          setCurrentMessage={setCurrentMessage}
+          isChatLoading={isChatLoading}
+          isChatHistoryLoading={isChatHistoryLoading}
+          handleSendMessage={handleSendMessage}
+          handleKeyPress={handleKeyPress}
         />
       )
     });
@@ -850,7 +855,7 @@ function UserDashboard() {
         )}
       </div>
 
-      <TabMenu tabs={tabs} />
+      <TabMenu tabs={mainTabs} />
     </div>
   );
 }
