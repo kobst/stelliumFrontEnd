@@ -604,6 +604,7 @@ function UserDashboard() {
                 key={planet}
                 planet={planet}
                 interpretation={basicAnalysis.planets[planet].interpretation}
+                description={basicAnalysis.planets[planet].description}
               />
             ))}
         </div>

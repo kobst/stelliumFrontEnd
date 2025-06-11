@@ -423,7 +423,28 @@ button {
   font-weight: 600;
 }
 
-.planet-card p {
+.planet-card .planet-positions {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.planet-card .planet-positions p {
+  margin: 0;
+  color: #495057;
+  font-size: 0.9em;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.planet-card .interpretation {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.planet-card .interpretation p {
   margin: 0;
   color: #666;
   line-height: 1.5;
