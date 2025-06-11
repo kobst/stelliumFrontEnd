@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import useStore from '../Utilities/store';
 import SynastryBirthChartComparison_v2 from '../UI/birthChart/tables/SynastryBirthChartComparison_v2'
 import RelationshipScores from '../UI/prototype/RelationshipScores';
-import { RelationshipCategoriesEnum } from '../Utilities/constants';
+import { RelationshipCategoriesEnum, orderedCategoryKeys } from '../Utilities/constants';
 import {
   fetchUser,
   fetchRelationshipAnalysis,
@@ -602,19 +602,13 @@ function CompositeDashboard_v4({}) {
     }
   };
 
-  const tabs = [];
-
-  if (relationshipScores) {
-    tabs.push({
-      id: 'scores',
-      label: 'Scores',
-      content: <RelationshipScores scores={relationshipScores} />
-    });
-  }
+  const analysisTabs = [];
 
   if (detailedRelationshipAnalysis) {
-    Object.entries(detailedRelationshipAnalysis.analysis).forEach(([cat, value]) => {
-      tabs.push({
+    orderedCategoryKeys.forEach(cat => {
+      const value = detailedRelationshipAnalysis.analysis[cat];
+      if (!value) return;
+      analysisTabs.push({
         id: cat,
         label: RelationshipCategoriesEnum[cat]?.label || cat.replace(/_/g, ' '),
         content: (
@@ -635,8 +629,26 @@ function CompositeDashboard_v4({}) {
     });
   }
 
+  const mainTabs = [];
+
+  if (relationshipScores) {
+    mainTabs.push({
+      id: 'scores',
+      label: 'Scores',
+      content: <RelationshipScores scores={relationshipScores} />
+    });
+  }
+
+  if (analysisTabs.length > 0) {
+    mainTabs.push({
+      id: 'analysis',
+      label: 'Analysis',
+      content: <TabMenu tabs={analysisTabs} />
+    });
+  }
+
   if (vectorizationStatus.relationshipAnalysis && userA && userB && compositeChart) {
-    tabs.push({
+    mainTabs.push({
       id: 'chat',
       label: 'Chat',
       content: (
@@ -846,7 +858,7 @@ function CompositeDashboard_v4({}) {
           />
         )}
 
-        <TabMenu tabs={tabs} />
+        <TabMenu tabs={mainTabs} />
       </div>
     </div>
   )
