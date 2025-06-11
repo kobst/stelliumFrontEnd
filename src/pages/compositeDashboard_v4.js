@@ -109,6 +109,17 @@ function CompositeDashboard_v4({}) {
                 if (fetchedData?.vectorizationStatus) {
                     console.log("Vectorization status received:", fetchedData.vectorizationStatus);
                     
+                    // Define required categories
+                    const requiredCategories = [
+                        'COMMITMENT_LONG_TERM_POTENTIAL',
+                        'COMMUNICATION_AND_MENTAL_CONNECTION',
+                        'EMOTIONAL_SECURITY_CONNECTION',
+                        'KARMIC_LESSONS_GROWTH',
+                        'OVERALL_ATTRACTION_CHEMISTRY',
+                        'PRACTICAL_GROWTH_SHARED_GOALS',
+                        'SEX_AND_INTIMACY'
+                    ];
+                    
                     // Check if this is the new structure with categoryAnalysis keys
                     const isNewStructure = Object.keys(fetchedData.vectorizationStatus).some(key => 
                         key.startsWith('categoryAnalysis.')
@@ -132,28 +143,33 @@ function CompositeDashboard_v4({}) {
                             lastUpdated: new Date().toISOString(),
                             relationshipAnalysis: allCategoriesComplete
                         });
-                    } else if (fetchedData.vectorizationStatus.isComplete !== undefined || fetchedData.vectorizationStatus.relationshipAnalysis !== undefined) {
-                        // Handle structure with either isComplete or relationshipAnalysis at root level
-                        const isComplete = fetchedData.vectorizationStatus.isComplete;
-                        const hasRelationshipAnalysis = fetchedData.vectorizationStatus.relationshipAnalysis;
+                    } else if (fetchedData.vectorizationStatus.categories) {
+                        // Check if all required categories are present and true
+                        const categories = fetchedData.vectorizationStatus.categories;
+                        const allCategoriesComplete = requiredCategories.every(category => 
+                            categories[category] === true
+                        );
                         
-                        console.log("Setting vectorization status with:", {
-                            isComplete,
-                            hasRelationshipAnalysis,
-                            categories: fetchedData.vectorizationStatus.categories
+                        console.log("Checking categories completion:", {
+                            categories,
+                            requiredCategories,
+                            allCategoriesComplete,
+                            missingCategories: requiredCategories.filter(cat => !categories[cat]),
+                            falseCategories: requiredCategories.filter(cat => categories[cat] === false)
                         });
                         
                         setVectorizationStatus({
-                            categories: fetchedData.vectorizationStatus.categories || {},
+                            categories: categories,
                             lastUpdated: new Date().toISOString(),
-                            relationshipAnalysis: isComplete || hasRelationshipAnalysis // Either flag being true means it's complete
+                            relationshipAnalysis: allCategoriesComplete
                         });
                     } else {
-                        // Legacy structure
+                        // No categories found, assume not complete
+                        console.log("No categories found in vectorization status");
                         setVectorizationStatus({
-                            categories: fetchedData.vectorizationStatus.categories || {},
-                            lastUpdated: fetchedData.vectorizationStatus.lastUpdated || null,
-                            relationshipAnalysis: Boolean(fetchedData.vectorizationStatus.relationshipAnalysis)
+                            categories: {},
+                            lastUpdated: new Date().toISOString(),
+                            relationshipAnalysis: false
                         });
                     }
                 } else if (fetchedData?.isVectorized !== undefined) {
