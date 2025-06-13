@@ -613,16 +613,41 @@ function CompositeDashboard_v4({}) {
         label: RelationshipCategoriesEnum[cat]?.label || cat.replace(/_/g, ' '),
         content: (
           <div style={{ marginBottom: '10px' }}>
-            {value.relevantPositions && (
-              <div style={{ marginBottom: '10px' }}>
-                <strong>Relevant Astrological Positions:</strong>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{value.relevantPositions}</p>
+            {value.panels?.shortSynopsis && (
+              <div style={{ marginBottom: '15px' }}>
+                <strong>Synopsis:</strong>
+                <p style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', margin: '5px 0 0 0' }}>
+                  {value.panels.shortSynopsis}
+                </p>
               </div>
             )}
-            <div>
-              <strong>Interpretation:</strong>
-              <p style={{ whiteSpace: 'pre-wrap' }}>{value.interpretation}</p>
-            </div>
+
+            {value.panels?.composite && (
+              <div style={{ marginBottom: '15px' }}>
+                <strong>Composite Analysis:</strong>
+                <p style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', margin: '5px 0 0 0' }}>
+                  {value.panels.composite}
+                </p>
+              </div>
+            )}
+
+            {value.panels?.fullAnalysis && (
+              <div style={{ marginBottom: '15px' }}>
+                <strong>Detailed Analysis:</strong>
+                <p style={{ whiteSpace: 'pre-wrap', margin: '5px 0 0 0', lineHeight: '1.6' }}>
+                  {value.panels.fullAnalysis}
+                </p>
+              </div>
+            )}
+
+            {value.relevantPosition && (
+              <div style={{ marginTop: '15px' }}>
+                <strong>Relevant Astrological Positions:</strong>
+                <p style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', margin: '5px 0 0 0' }}>
+                  {value.relevantPosition}
+                </p>
+              </div>
+            )}
           </div>
         )
       });
