@@ -1,4 +1,3 @@
-
 .relationship-scores {
   padding: 20px;
   max-width: 1200px;
@@ -59,4 +58,86 @@
 
 .score-value {
   color: #2196F3;
+}
+
+.flag-analysis {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f0f7ff;
+  border-radius: 8px;
+  border: 1px solid #d0e3ff;
+}
+
+.flag-analysis strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #1976D2;
+}
+
+.flag-analysis p {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.green-flags, .red-flags {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.green-flags {
+  background: #f0fff0;
+  border: 1px solid #d0ffd0;
+}
+
+.red-flags {
+  background: #fff0f0;
+  border: 1px solid #ffd0d0;
+}
+
+.green-flags strong, .red-flags strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.green-flags strong {
+  color: #2E7D32;
+}
+
+.red-flags strong {
+  color: #C62828;
+}
+
+.green-flags ul, .red-flags ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: none;
+}
+
+.green-flags li, .red-flags li {
+  margin-bottom: 12px;
+  padding: 10px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.green-flags li:last-child, .red-flags li:last-child {
+  margin-bottom: 0;
+}
+
+.green-flags li div, .red-flags li div {
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.green-flags li div:last-child, .red-flags li div:last-child {
+  margin-bottom: 0;
+}
+
+.green-flags li strong, .red-flags li strong {
+  display: inline;
+  margin: 0;
+  color: inherit;
 }

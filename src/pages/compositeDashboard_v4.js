@@ -660,7 +660,7 @@ function CompositeDashboard_v4({}) {
     mainTabs.push({
       id: 'scores',
       label: 'Scores',
-      content: <RelationshipScores scores={relationshipScores} />
+      content: <RelationshipScores scores={relationshipScores} scoreDebugInfo={scoreDebugInfo} />
     });
   }
 
