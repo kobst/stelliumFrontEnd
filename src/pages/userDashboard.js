@@ -15,6 +15,7 @@ import {
 import useAsync from '../hooks/useAsync';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
 import HoroscopeContainer from '../UI/prototype/HoroscopeContainer';
+import RelationshipsTab from '../UI/prototype/RelationshipsTab';
 import TabMenu from '../UI/shared/TabMenu';
 import './userDashboard.css';
 import PatternCard from '../UI/prototype/PatternCard';
@@ -650,6 +651,15 @@ function UserDashboard() {
           userId={userId}
         />
       )
+    });
+  }
+
+  // Add relationships tab only for accountSelf users
+  if (selectedUser && selectedUser.kind === 'accountSelf') {
+    mainTabs.push({
+      id: 'relationships',
+      label: 'Relationships',
+      content: <RelationshipsTab />
     });
   }
 

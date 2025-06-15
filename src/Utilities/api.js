@@ -1134,3 +1134,49 @@ export const createCelebrityUnknownTime = async (birthData) => {
   }
 };
 
+// User Subjects API Functions
+
+export const getUserSubjects = async (ownerUserId) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getUserSubjects`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify({ ownerUserId })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+};
+
+export const getUserCompositeCharts = async (ownerUserId) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getUserCompositeCharts`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify({ ownerUserId })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+};
+

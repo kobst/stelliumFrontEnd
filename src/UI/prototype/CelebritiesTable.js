@@ -4,9 +4,8 @@ import './UsersTable.css';
 import { fetchCelebrities } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
 
-function CelebritiesTable({ onCelebritySelect }) {
+function CelebritiesTable({ onCelebritySelect, selectedForRelationship }) {
   const [celebrities, setCelebrities] = useState([]);
-  const selectedUser = useStore(state => state.selectedUser);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,7 +24,9 @@ function CelebritiesTable({ onCelebritySelect }) {
   }, []);
 
   const handleCelebritySelect = (celebrity) => {
-    onCelebritySelect(celebrity);
+    if (onCelebritySelect) {
+      onCelebritySelect(celebrity);
+    }
   };
 
   return (
@@ -46,10 +47,10 @@ function CelebritiesTable({ onCelebritySelect }) {
               <tr
                 key={celebrity._id}
                 onClick={() => handleCelebritySelect(celebrity)}
-                className={selectedUser && selectedUser._id === celebrity._id ? 'selected-row' : ''}
+                className={selectedForRelationship && selectedForRelationship._id === celebrity._id ? 'selected-row' : ''}
                 style={{ 
                   cursor: 'pointer',
-                  backgroundColor: selectedUser && selectedUser._id === celebrity._id ? 'rgba(128, 0, 128, 0.3)' : 'transparent',
+                  backgroundColor: selectedForRelationship && selectedForRelationship._id === celebrity._id ? 'rgba(128, 0, 128, 0.3)' : 'transparent',
                   transition: 'background-color 0.2s ease'
                 }}
               >
