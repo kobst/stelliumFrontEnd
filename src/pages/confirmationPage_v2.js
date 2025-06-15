@@ -16,6 +16,7 @@ const ConfirmationV2 = () => {
     const userHouses = useStore(state => state.userHouses)
     const userAspects = useStore(state => state.userAspects) 
     const setUserId = useStore(state => state.setUserId)
+    const userId = useStore(state => state.userId)
     const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
 
     const [isLoading, setIsLoading] = useState(true);
@@ -174,6 +175,11 @@ const ConfirmationV2 = () => {
                 <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={userAspects}/>
             )}
             <button onClick={() => navigate('/')}>Go Back</button>
+            {userId && (
+                <button onClick={() => navigate('/userDashboard')} style={{marginLeft: '10px'}}>
+                    Go to Dashboard
+                </button>
+            )}
             <button onClick={() => generateShortOverview({ planets: userPlanets, houses: userHouses, aspects: userAspects })}>
                 Generate Short Overview
             </button>

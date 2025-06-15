@@ -1068,3 +1068,69 @@ export const generateCustomHoroscope = async (userId, transitEvents) => {
   }
 };
 
+// Celebrity API Functions
+
+export const fetchCelebrities = async () => {
+  try {
+    const response = await fetch(`${SERVER_URL}/getCelebs`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      }
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    console.log('Celebrities:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching celebrities:', error);
+    throw error;
+  }
+};
+
+export const createCelebrity = async (birthData) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/createCeleb`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(birthData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+};
+
+export const createCelebrityUnknownTime = async (birthData) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/createCelebUnknownTime`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(birthData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+};
+
