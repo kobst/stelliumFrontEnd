@@ -18,17 +18,17 @@ function RelationshipAnalysis({ analysis, userAName, userBName }) {
           // Check if categoryData and its panels exist
           if (categoryData && categoryData.panels) {
             const categoryLabel = RelationshipCategoriesEnum[categoryKey]?.label || categoryKey.replace(/_/g, ' ');
-            const { composite, fullAnalysis, shortSynopsis } = categoryData.panels;
+            const { composite, fullAnalysis, synastry } = categoryData.panels;
   
             return (
               <div key={categoryKey} style={{ marginBottom: '20px', paddingBottom: '15px', borderBottom: '1px solid #f0f0f0' }}>
                 <h4 style={{ color: '#333' }}>{categoryLabel}</h4>
                 
-                {shortSynopsis && (
+                {synastry && (
                   <div style={{ marginBottom: '15px' }}>
                     <strong style={{ color: '#555' }}>Synopsis:</strong>
                     <p style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', margin: '5px 0 0 0' }}>
-                      {shortSynopsis}
+                      {synastry}
                     </p>
                   </div>
                 )}

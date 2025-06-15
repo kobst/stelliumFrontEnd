@@ -613,11 +613,11 @@ function CompositeDashboard_v4({}) {
         label: RelationshipCategoriesEnum[cat]?.label || cat.replace(/_/g, ' '),
         content: (
           <div style={{ marginBottom: '10px' }}>
-            {value.panels?.shortSynopsis && (
+            {value.panels?.synastry && (
               <div style={{ marginBottom: '15px' }}>
-                <strong>Synopsis:</strong>
+                <strong>Synastry Analysis:</strong>
                 <p style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', margin: '5px 0 0 0' }}>
-                  {value.panels.shortSynopsis}
+                  {value.panels.synastry}
                 </p>
               </div>
             )}

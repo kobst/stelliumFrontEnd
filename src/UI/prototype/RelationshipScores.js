@@ -17,7 +17,7 @@ const RelationshipScores = ({ scores, scoreDebugInfo }) => {
         <h2>Relationship Compatibility Scores</h2>
         <div className="scores-grid">
           {Object.entries(scores).map(([key, value]) => {
-            const categoryFlags = scoreDebugInfo?.categories?.[key]?.flags;
+            const categoryScoreAnalysis = scoreDebugInfo?.categories?.[key]?.scoreAnalysis;
             
             return (
               <div key={key} className="score-card">
@@ -43,18 +43,18 @@ const RelationshipScores = ({ scores, scoreDebugInfo }) => {
                   </div>
                 </div>
                 
-                {categoryFlags?.flagAnalysis && (
+                {categoryScoreAnalysis?.scoreAnalysis && (
                   <div className="flag-analysis">
-                    <h4>Flag Analysis</h4>
-                    <p>{categoryFlags.flagAnalysis}</p>
+                    <h4>Score Analysis</h4>
+                    <p>{categoryScoreAnalysis.scoreAnalysis}</p>
                   </div>
                 )}
 
-                {categoryFlags?.greenFlags && categoryFlags.greenFlags.length > 0 && (
+                {categoryScoreAnalysis?.greenFlags && categoryScoreAnalysis.greenFlags.length > 0 && (
                   <div className="green-flags">
                     <h4>Green Flags</h4>
                     <ul>
-                      {categoryFlags.greenFlags.map((flag, index) => (
+                      {categoryScoreAnalysis.greenFlags.map((flag, index) => (
                         <li key={index}>
                           <p>{flag.description}</p>
                         </li>
@@ -63,11 +63,11 @@ const RelationshipScores = ({ scores, scoreDebugInfo }) => {
                   </div>
                 )}
 
-                {categoryFlags?.redFlags && categoryFlags.redFlags.length > 0 && (
+                {categoryScoreAnalysis?.redFlags && categoryScoreAnalysis.redFlags.length > 0 && (
                   <div className="red-flags">
                     <h4>Red Flags</h4>
                     <ul>
-                      {categoryFlags.redFlags.map((flag, index) => (
+                      {categoryScoreAnalysis.redFlags.map((flag, index) => (
                         <li key={index}>
                           <p>{flag.description}</p>
                         </li>
