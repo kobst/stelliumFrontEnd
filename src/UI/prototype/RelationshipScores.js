@@ -50,9 +50,9 @@ const RelationshipScores = ({ scores, scoreDebugInfo }) => {
                   </div>
                 )}
 
-                {categoryScoreAnalysis?.greenFlags && categoryScoreAnalysis.greenFlags.length > 0 && (
-                  <div className="green-flags">
-                    <h4>Green Flags</h4>
+                <div className="green-flags">
+                  <h4>Green Flags</h4>
+                  {categoryScoreAnalysis?.greenFlags && categoryScoreAnalysis.greenFlags.length > 0 ? (
                     <ul>
                       {categoryScoreAnalysis.greenFlags.map((flag, index) => (
                         <li key={index}>
@@ -60,12 +60,14 @@ const RelationshipScores = ({ scores, scoreDebugInfo }) => {
                         </li>
                       ))}
                     </ul>
-                  </div>
-                )}
+                  ) : (
+                    <p className="no-flags">(No significant green flags)</p>
+                  )}
+                </div>
 
-                {categoryScoreAnalysis?.redFlags && categoryScoreAnalysis.redFlags.length > 0 && (
-                  <div className="red-flags">
-                    <h4>Red Flags</h4>
+                <div className="red-flags">
+                  <h4>Red Flags</h4>
+                  {categoryScoreAnalysis?.redFlags && categoryScoreAnalysis.redFlags.length > 0 ? (
                     <ul>
                       {categoryScoreAnalysis.redFlags.map((flag, index) => (
                         <li key={index}>
@@ -73,8 +75,10 @@ const RelationshipScores = ({ scores, scoreDebugInfo }) => {
                         </li>
                       ))}
                     </ul>
-                  </div>
-                )}
+                  ) : (
+                    <p className="no-flags">(No significant red flags)</p>
+                  )}
+                </div>
               </div>
             );
           })}
