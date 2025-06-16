@@ -16,6 +16,7 @@ import useAsync from '../hooks/useAsync';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
 import HoroscopeContainer from '../UI/prototype/HoroscopeContainer';
 import RelationshipsTab from '../UI/prototype/RelationshipsTab';
+import GuestsTab from '../UI/prototype/GuestsTab';
 import TabMenu from '../UI/shared/TabMenu';
 import './userDashboard.css';
 import PatternCard from '../UI/prototype/PatternCard';
@@ -654,12 +655,18 @@ function UserDashboard() {
     });
   }
 
-  // Add relationships tab only for accountSelf users
+  // Add relationships and guests tabs only for accountSelf users
   if (selectedUser && selectedUser.kind === 'accountSelf') {
     mainTabs.push({
       id: 'relationships',
       label: 'Relationships',
       content: <RelationshipsTab />
+    });
+
+    mainTabs.push({
+      id: 'guests',
+      label: 'Guests',
+      content: <GuestsTab />
     });
   }
 

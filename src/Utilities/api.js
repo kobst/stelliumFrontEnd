@@ -1180,3 +1180,49 @@ export const getUserCompositeCharts = async (ownerUserId) => {
   }
 };
 
+// Guest Subject API Functions
+
+export const createGuestSubject = async (guestData) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/createGuestSubject`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(guestData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+};
+
+export const createGuestSubjectUnknownTime = async (guestData) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/createGuestSubjectUnknownTime`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(guestData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+};
+

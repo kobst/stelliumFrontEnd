@@ -15,7 +15,9 @@ function UsersTable({ onUserSelect }) {
         if (users.length === 0) {   
           try {
             const fetchedUsers = await fetchUsers();
-            setUsers(fetchedUsers);
+            // Filter to only show account owners (accountSelf), not guests
+            const accountOwners = fetchedUsers.filter(user => user.kind === 'accountSelf');
+            setUsers(accountOwners);
         } catch (error) {
           console.error('Error fetching users:', error);
         }
@@ -57,7 +59,7 @@ function UsersTable({ onUserSelect }) {
 
   return (
     <div className="user-table-container">
-      <h2 style={{ color: 'grey' }}>User List</h2>
+      <h2 style={{ color: 'grey' }}>Account Owners</h2>
       <div className="user-table-scroll">
         <table className="user-table">
           <thead>

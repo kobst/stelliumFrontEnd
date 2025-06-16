@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 
 import UsersTable from '../UI/prototype/UsersTable';
 import CelebritiesTable from '../UI/prototype/CelebritiesTable';
-import CompositesTable from '../UI/prototype/CompositesTable';
 import AddCelebrityForm from '../UI/admin/AddCelebrityForm';
 import useStore from '../Utilities/store';
 
@@ -15,7 +14,6 @@ function AdminPage() {
   const setUserPlanets = useStore(state => state.setUserPlanets);
   const setUserHouses = useStore(state => state.setUserHouses);
   const setUserAspects = useStore(state => state.setUserAspects);
-  const setCompositeChart = useStore(state => state.setCompositeChart);
   const setUserElements = useStore(state => state.setUserElements);
   const setUserModalities = useStore(state => state.setUserModalities);
   const setUserQuadrants = useStore(state => state.setUserQuadrants);
@@ -51,12 +49,6 @@ function AdminPage() {
     navigate(`/userDashboard`);
   };
 
-  const handleCompositeChartSelect = (compositeChart) => {
-    console.log("compositeChart", compositeChart._id);
-    setCompositeChart(compositeChart);
-    navigate(`/compositeDashboard`);
-  };
-
   const handleCelebrityAdded = () => {
     // Trigger refresh of celebrities table
     setRefreshCelebrities(prev => prev + 1);
@@ -70,7 +62,6 @@ function AdminPage() {
   
       <UsersTable onUserSelect={handleUserSelect} />
       <CelebritiesTable onCelebritySelect={handleCelebritySelect} key={refreshCelebrities} />
-      <CompositesTable onCompositeChartSelect={handleCompositeChartSelect} />
       <AddCelebrityForm onCelebrityAdded={handleCelebrityAdded} />
     </div>
   );
