@@ -733,7 +733,7 @@ function UserDashboard() {
         dailyTransits={dailyTransits}
       />
 
-      {renderDebugInfo()}
+      {/* {renderDebugInfo()} */}
 
       {/* Workflow Control Section */}
       <div className="workflow-section">

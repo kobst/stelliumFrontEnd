@@ -701,7 +701,7 @@ function CompositeDashboard_v4({}) {
             <h2 className="logotxt">Composite Chart: {compositeChart._id}</h2>
 
             {/* Debug info */}
-            <div style={{ margin: '10px 0', padding: '10px', background: '#f5f5f5', borderRadius: '4px' }}>
+            {/* <div style={{ margin: '10px 0', padding: '10px', background: '#f5f5f5', borderRadius: '4px' }}>
               <h4>Debug Info:</h4>
               <pre>
                 {JSON.stringify({
@@ -718,7 +718,7 @@ function CompositeDashboard_v4({}) {
                   hasCompositeChart: !!compositeChart
                 }, null, 2)}
               </pre>
-            </div>
+            </div> */}
 
             {/* Workflow Control Section */}
             <div className="workflow-section">
