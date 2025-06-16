@@ -8,9 +8,6 @@ function NavBar() {
       <ul>
         <li><NavLink to="/">Home</NavLink></li>
         <li><NavLink to="/admin">Admin</NavLink></li>
-        <li><NavLink to="/synastry">Synastry</NavLink></li>
-        <li><NavLink to="/compositeDashboard">Composite</NavLink></li>
-        <li><NavLink to="/signUpConfirmation">Confirmation</NavLink></li>
       </ul>
     </nav>
   );
