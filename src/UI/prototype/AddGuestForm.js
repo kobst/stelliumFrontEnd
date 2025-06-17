@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Autocomplete from 'react-google-autocomplete';
 import useStore from '../../Utilities/store';
 import { createGuestSubject, createGuestSubjectUnknownTime, fetchTimeZone } from '../../Utilities/api';
-import './AddGuestForm.css';
+import '../landingPage/UserSignUpForm.css';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY;
 
@@ -115,173 +115,207 @@ const AddGuestForm = ({ onGuestAdded }) => {
   };
 
   const handlePlaceSelected = (place) => {
-    if (place.geometry) {
-      setLat(place.geometry.location.lat());
-      setLon(place.geometry.location.lng());
+    try {
+      if (!place || !place.geometry || !place.geometry.location) {
+        console.error("Invalid place object or missing geometry:", place);
+        return;
+      }
+      
+      const lat = place.geometry.location.lat();
+      const lon = place.geometry.location.lng();
+      console.log("Selected location:", { lat, lon, address: place.formatted_address });
+      
+      setLat(lat);
+      setLon(lon);
       setPlaceOfBirth(place.formatted_address);
       setFormErrors(prev => ({ ...prev, location: null }));
+    } catch (error) {
+      console.error("Error processing place selection:", error);
     }
   };
 
+  const headerStyle = {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: '20px',
+    textAlign: 'center',
+    width: '100%',
+    marginBottom: '20px',
+    padding: '10px 0',
+    borderBottom: '1px solid white'
+  };
+  
   const inputStyle = {
     color: '#5116b5',
-    backgroundColor: 'white',
-    padding: '10px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-    width: '100%',
-    fontSize: '16px'
+    width: '140px',
+    marginRight: '10px',
+    backgroundColor: 'transparent',
+    border: '1px solid white',
+    padding: '5px',
+    borderRadius: '3px'
   };
 
   const labelStyle = {
     color: 'white',
-    marginBottom: '5px',
-    display: 'block',
-    fontWeight: 'bold'
+    width: '140px',
+    display: 'inline-block',
+    marginRight: '10px'
   };
 
-  const errorStyle = {
-    color: '#ff6b6b',
-    fontSize: '14px',
-    marginTop: '5px'
+  const formGroupStyle = {
+    marginBottom: '15px',
+    display: 'flex',
+    alignItems: 'center'
   };
 
   return (
-    <div className="add-guest-form" style={{ 
-      backgroundColor: 'rgba(81, 22, 181, 0.8)', 
-      padding: '30px', 
-      borderRadius: '10px',
-      marginTop: '20px',
-      maxWidth: '600px',
-      margin: '20px auto'
-    }}>
-      <h2 style={{ color: 'white', textAlign: 'center', marginBottom: '20px' }}>Add New Guest</h2>
-      
+    <div className="email_form" style={{ marginTop: '30px', padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={labelStyle}>First Name</label>
-          <input
-            type="text"
+        <h2 style={headerStyle}>Add New Guest</h2>
+
+        <div style={formGroupStyle}>
+          <label style={labelStyle}>Name</label>
+          <input 
+            type="text" 
+            placeholder="First Name" 
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={e => setFirstName(e.target.value)}
             style={inputStyle}
+            className="input-dark-placeholder"
+            disabled={isSubmitting}
           />
-          {formErrors.firstName && <div style={errorStyle}>{formErrors.firstName}</div>}
-        </div>
-
-        <div style={{ marginBottom: '15px' }}>
-          <label style={labelStyle}>Last Name</label>
-          <input
-            type="text"
+          <input 
+            type="text" 
+            placeholder="Last Name" 
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={e => setLastName(e.target.value)}
             style={inputStyle}
+            className="input-dark-placeholder"
+            disabled={isSubmitting}
           />
-          {formErrors.lastName && <div style={errorStyle}>{formErrors.lastName}</div>}
         </div>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label style={labelStyle}>Gender/Sex</label>
-          <select
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            style={inputStyle}
-          >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-          {formErrors.gender && <div style={errorStyle}>{formErrors.gender}</div>}
-        </div>
-
-        <div style={{ marginBottom: '15px' }}>
-          <label style={labelStyle}>Birth Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            style={inputStyle}
-          />
-          {formErrors.date && <div style={errorStyle}>{formErrors.date}</div>}
-        </div>
-
-        <div style={{ marginBottom: '15px' }}>
-          <label style={labelStyle}>
-            <input
-              type="checkbox"
-              checked={unknownTime}
-              onChange={(e) => setUnknownTime(e.target.checked)}
-              style={{ marginRight: '10px' }}
-            />
-            Birth time unknown
-          </label>
-          {!unknownTime && (
-            <>
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                style={inputStyle}
-              />
-              {formErrors.time && <div style={errorStyle}>{formErrors.time}</div>}
-            </>
-          )}
-        </div>
-
-        <div style={{ marginBottom: '15px' }}>
-          <label style={labelStyle}>Place of Birth</label>
+        <div style={formGroupStyle}>
+          <label htmlFor="location" style={labelStyle}>Born in</label>
           {isGoogleLoaded ? (
             <Autocomplete
               apiKey={GOOGLE_API}
               onPlaceSelected={handlePlaceSelected}
-              types={['(cities)']}
-              placeholder="Enter place of birth"
-              style={inputStyle}
+              options={{
+                types: ['(cities)']
+              }}
+              style={{
+                ...inputStyle,
+                width: '290px',
+                backgroundColor: 'white'
+              }}
+              placeholder="City, Country"
+              disabled={isSubmitting}
             />
           ) : (
             <input
               type="text"
-              placeholder="Loading Google Places..."
+              style={{
+                ...inputStyle,
+                width: '290px',
+                backgroundColor: 'white'
+              }}
+              placeholder="Loading location search..."
               disabled
-              style={inputStyle}
             />
           )}
-          {formErrors.location && <div style={errorStyle}>{formErrors.location}</div>}
         </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          style={{
-            backgroundColor: isSubmitting ? '#ccc' : 'white',
-            color: '#5116b5',
-            padding: '12px 30px',
-            border: 'none',
-            borderRadius: '5px',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            width: '100%',
-            marginTop: '20px'
-          }}
-        >
-          {isSubmitting ? 'Adding Guest...' : 'Add Guest'}
-        </button>
+        <div style={formGroupStyle}>
+          <label style={labelStyle}>Born on</label>
+          <input 
+            type="date" 
+            value={date} 
+            onChange={e => setDate(e.target.value)} 
+            style={inputStyle}
+            disabled={isSubmitting}
+          />
+          <label style={{ ...labelStyle, width: 'auto' }}>at</label>
+          <input
+            type="time"
+            value={time}
+            onChange={e => setTime(e.target.value)}
+            style={inputStyle}
+            disabled={unknownTime || isSubmitting}
+          />
+          <label style={{ color: 'white', marginLeft: '10px' }}>
+            <input
+              type="checkbox"
+              checked={unknownTime}
+              onChange={(e) => {
+                setUnknownTime(e.target.checked);
+                if (e.target.checked) {
+                  setTime('');
+                }
+              }}
+              style={{ marginRight: '4px' }}
+              disabled={isSubmitting}
+            />
+            Time Unknown
+          </label>
+        </div>
 
-        {submitMessage && (
-          <div style={{
-            marginTop: '15px',
-            padding: '10px',
-            borderRadius: '5px',
-            textAlign: 'center',
-            backgroundColor: submitMessage.includes('Error') ? '#ff6b6b' : '#4CAF50',
-            color: 'white'
-          }}>
-            {submitMessage}
-          </div>
-        )}
+        <div style={formGroupStyle}>
+          <label style={labelStyle}>Gender/Sex</label>
+          <select
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            style={{
+              ...inputStyle,
+              width: '140px',
+              backgroundColor: 'transparent',
+              color: '#5116b5',
+              border: '1px solid white',
+              padding: '5px',
+              borderRadius: '3px',
+              cursor: 'pointer'
+            }}
+            disabled={isSubmitting}
+          >
+            <option value="">Select...</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="nonbinary">Non-binary</option>
+          </select>
+        </div>
+
+        <div style={formGroupStyle}>
+          <input 
+            className="email-submit-btn" 
+            type="submit" 
+            value={isSubmitting ? "Adding..." : "Add Guest"}
+            style={{ 
+              ...inputStyle, 
+              width: 'auto', 
+              cursor: isSubmitting ? 'not-allowed' : 'pointer', 
+              backgroundColor: isSubmitting ? '#ccc' : 'white', 
+              color: 'black', 
+              fontWeight: 'bold',
+              opacity: isSubmitting ? 0.6 : 1
+            }}
+            disabled={isSubmitting}
+          />
+        </div>
       </form>
+      
+      {submitMessage && (
+        <div style={{ color: submitMessage.includes('Error') ? 'red' : 'green', marginTop: '15px', textAlign: 'center' }}>
+          <p>{submitMessage}</p>
+        </div>
+      )}
+      
+      {Object.keys(formErrors).length > 0 && (
+        <div style={{ color: 'red', marginTop: '15px' }}>
+          {Object.values(formErrors).map((error, index) => (
+            <p key={index}>{error}</p>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
