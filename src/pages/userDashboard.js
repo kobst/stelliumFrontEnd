@@ -139,7 +139,10 @@ function UserDashboard() {
             elements: interpretation.basicAnalysis.dominance?.elements || { interpretation: '' },
             modalities: interpretation.basicAnalysis.dominance?.modalities || { interpretation: '' },
             quadrants: interpretation.basicAnalysis.dominance?.quadrants || { interpretation: '' },
-            patterns: interpretation.basicAnalysis.dominance?.patterns || { interpretation: '' }
+            patterns: {
+              ...interpretation.basicAnalysis.dominance?.patterns,
+              interpretation: interpretation.basicAnalysis.dominance?.patterns?.interpretation || ''
+            }
           },
           planets: interpretation.basicAnalysis.planets || {}
         });
@@ -296,7 +299,10 @@ function UserDashboard() {
           elements: basicAnalysisData.dominance?.elements || { interpretation: '' },
           modalities: basicAnalysisData.dominance?.modalities || { interpretation: '' },
           quadrants: basicAnalysisData.dominance?.quadrants || { interpretation: '' },
-          patterns: basicAnalysisData.dominance?.patterns || { interpretation: '' }
+          patterns: {
+            ...basicAnalysisData.dominance?.patterns,
+            interpretation: basicAnalysisData.dominance?.patterns?.interpretation || ''
+          }
         },
         planets: basicAnalysisData.planets || {}
       });
@@ -733,7 +739,7 @@ function UserDashboard() {
         dailyTransits={dailyTransits}
       />
 
-      {/* {renderDebugInfo()} */}
+      {renderDebugInfo()}
 
       {/* Workflow Control Section */}
       <div className="workflow-section">
