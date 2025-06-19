@@ -35,7 +35,8 @@ const PLANET_ORDER = [
   'Uranus',
   'Neptune',
   'Pluto',
-  'Node'
+  'Node',
+  'Midheaven'
 ];
 
 function UserDashboard() {
@@ -293,6 +294,10 @@ function UserDashboard() {
     // Handle basic analysis updates
     const basicAnalysisData = interpretation.basicAnalysis || analysisData.basicAnalysis;
     if (basicAnalysisData) {
+      // Handle both singular and plural forms of pattern data
+      const patternData = basicAnalysisData.dominance?.patterns || basicAnalysisData.dominance?.pattern;
+      const patternDescriptions = patternData?.descriptions || patternData?.description || [];
+      
       setBasicAnalysis({
         overview: basicAnalysisData.overview || '',
         dominance: {
@@ -300,8 +305,9 @@ function UserDashboard() {
           modalities: basicAnalysisData.dominance?.modalities || { interpretation: '' },
           quadrants: basicAnalysisData.dominance?.quadrants || { interpretation: '' },
           patterns: {
-            ...basicAnalysisData.dominance?.patterns,
-            interpretation: basicAnalysisData.dominance?.patterns?.interpretation || ''
+            ...patternData,
+            descriptions: patternDescriptions,
+            interpretation: patternData?.interpretation || ''
           }
         },
         planets: basicAnalysisData.planets || {}
