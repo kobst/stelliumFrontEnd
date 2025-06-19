@@ -16,7 +16,7 @@ import useAsync from '../hooks/useAsync';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
 import HoroscopeContainer from '../UI/prototype/HoroscopeContainer';
 import RelationshipsTab from '../UI/prototype/RelationshipsTab';
-import GuestsTab from '../UI/prototype/GuestsTab';
+import OtherProfilesTab from '../UI/prototype/OtherProfilesTab';
 import TabMenu from '../UI/shared/TabMenu';
 import './userDashboard.css';
 import PatternCard from '../UI/prototype/PatternCard';
@@ -42,6 +42,8 @@ const PLANET_ORDER = [
 function UserDashboard() {
   const selectedUser = useStore(state => state.selectedUser);
   const userId = useStore(state => state.userId);
+  const setCurrentUserContext = useStore(state => state.setCurrentUserContext);
+  const setActiveUserContext = useStore(state => state.setActiveUserContext);
   const userPlanets = useStore(state => state.userPlanets);
   const userHouses = useStore(state => state.userHouses);
   const userAspects = useStore(state => state.userAspects);
@@ -98,6 +100,8 @@ function UserDashboard() {
   const [transitWindows, setTransitWindows] = useState([]);
   const [transitLoading, setTransitLoading] = useState(false);
   const [transitError, setTransitError] = useState(null);
+  const [showCompletionBanner, setShowCompletionBanner] = useState(false);
+  const [previousWorkflowStatus, setPreviousWorkflowStatus] = useState(null);
 
   const {
     execute: fetchAnalysisForUserAsync,
@@ -112,6 +116,15 @@ function UserDashboard() {
       }
     }
   }, [userId]);
+
+  // Set user context when dashboard loads
+  useEffect(() => {
+    if (selectedUser && selectedUser.kind === 'accountSelf') {
+      // Set currentUserContext as the dashboard owner for relationship creation
+      setCurrentUserContext(selectedUser);
+      setActiveUserContext(selectedUser);
+    }
+  }, [selectedUser, setCurrentUserContext, setActiveUserContext]);
 
   // Check if user has analysis already
   useEffect(() => {
@@ -363,6 +376,27 @@ function UserDashboard() {
     }
   }, [userId]);
 
+  // Show temporary completion banner when analysis just completed
+  useEffect(() => {
+    const currentStatus = workflowStatus?.workflowStatus?.status;
+    const prevStatus = previousWorkflowStatus?.workflowStatus?.status;
+    
+    // If workflow just changed from 'running' to 'completed', show temporary banner
+    if (prevStatus === 'running' && currentStatus === 'completed') {
+      setShowCompletionBanner(true);
+      
+      // Hide banner after 5 seconds
+      const timer = setTimeout(() => {
+        setShowCompletionBanner(false);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+    
+    // Update previous status for next comparison
+    setPreviousWorkflowStatus(workflowStatus);
+  }, [workflowStatus, previousWorkflowStatus]);
+
   // Cleanup polling on unmount
   useEffect(() => {
     return () => {
@@ -550,6 +584,28 @@ function UserDashboard() {
     }
   }, [userPlanets, isDataPopulated]);
 
+  // Build 360 Analysis subtabs from BroadTopicsEnum keys in order
+  const analysis360Tabs = [];
+  Object.keys(BroadTopicsEnum).forEach(topicKey => {
+    if (subTopicAnalysis[topicKey]) {
+      const topicData = subTopicAnalysis[topicKey];
+      analysis360Tabs.push({
+        id: topicKey,
+        label: topicData.label,
+        content: (
+          <div className="subtopics">
+            {Object.entries(topicData.subtopics).map(([subtopicKey, content]) => (
+              <div key={subtopicKey} className="subtopic">
+                <h4>{BroadTopicsEnum[topicKey].subtopics[subtopicKey].replace(/_/g, ' ')}</h4>
+                <p>{content}</p>
+              </div>
+            ))}
+          </div>
+        )
+      });
+    }
+  });
+
   // Build analysis tabs
   const analysisTabs = [];
 
@@ -626,22 +682,33 @@ function UserDashboard() {
     )
   });
 
-  Object.entries(subTopicAnalysis).forEach(([topic, data]) => {
+  // Add 360 Analysis tab if there are any subtopic analyses
+  if (analysis360Tabs.length > 0) {
     analysisTabs.push({
-      id: topic,
-      label: data.label,
+      id: '360analysis',
+      label: '360 Analysis',
+      content: <TabMenu tabs={analysis360Tabs} />
+    });
+  }
+
+  // Add Chat tab if vectorization is complete
+  if (birthChartAnalysisId && userId && vectorizationStatus.topicAnalysis.isComplete) {
+    analysisTabs.push({
+      id: 'chat',
+      label: 'Chat',
       content: (
-        <div className="subtopics">
-          {Object.entries(data.subtopics).map(([subtopicKey, content]) => (
-            <div key={subtopicKey} className="subtopic">
-              <h4>{BroadTopicsEnum[topic].subtopics[subtopicKey].replace(/_/g, ' ')}</h4>
-              <p>{content}</p>
-            </div>
-          ))}
-        </div>
+        <UserChatBirthChart
+          chatMessages={chatMessages}
+          currentMessage={currentMessage}
+          setCurrentMessage={setCurrentMessage}
+          isChatLoading={isChatLoading}
+          isChatHistoryLoading={isChatHistoryLoading}
+          handleSendMessage={handleSendMessage}
+          handleKeyPress={handleKeyPress}
+        />
       )
     });
-  });
+  }
 
   // Build main tabs
   const mainTabs = [];
@@ -667,7 +734,7 @@ function UserDashboard() {
     });
   }
 
-  // Add relationships and guests tabs only for accountSelf users
+  // Add relationships and other profiles tabs only for accountSelf users
   if (selectedUser && selectedUser.kind === 'accountSelf') {
     mainTabs.push({
       id: 'relationships',
@@ -676,56 +743,11 @@ function UserDashboard() {
     });
 
     mainTabs.push({
-      id: 'guests',
-      label: 'Guests',
-      content: <GuestsTab />
+      id: 'otherProfiles',
+      label: 'Other Profiles',
+      content: <OtherProfilesTab />
     });
   }
-
-  if (birthChartAnalysisId && userId && vectorizationStatus.topicAnalysis.isComplete) {
-    mainTabs.push({
-      id: 'chat',
-      label: 'Chat',
-      content: (
-        <UserChatBirthChart
-          chatMessages={chatMessages}
-          currentMessage={currentMessage}
-          setCurrentMessage={setCurrentMessage}
-          isChatLoading={isChatLoading}
-          isChatHistoryLoading={isChatHistoryLoading}
-          handleSendMessage={handleSendMessage}
-          handleKeyPress={handleKeyPress}
-        />
-      )
-    });
-  }
-
-  // Debug info section
-  const renderDebugInfo = () => {
-    console.log('Current workflowStatus:', workflowStatus);
-    
-    // Handle both workflow status formats
-    const status = workflowStatus?.workflowStatus?.status || workflowStatus?.status?.status;
-    const progress = workflowStatus?.workflowStatus?.progress || workflowStatus?.status?.progress;
-    
-    return (
-      <div style={{ margin: '10px 0', padding: '10px', background: '#f5f5f5', borderRadius: '4px' }}>
-        <h4>Debug Info:</h4>
-        <pre>
-          {JSON.stringify({
-            "Workflow Status": {
-              status: status || 'No status available',
-              progress: progress || 'No progress available'
-            },
-            "Workflow Breakdown": workflowStatus?.workflowBreakdown || 'No workflow breakdown available',
-            "Debug Info": workflowStatus?.debug || 'No debug info available',
-            "Is polling active?": isPolling,
-            "Retry count": retryCount
-          }, null, 2)}
-        </pre>
-      </div>
-    );
-  };
 
   return (
     <div className="user-prototype-page">
@@ -745,7 +767,7 @@ function UserDashboard() {
         dailyTransits={dailyTransits}
       />
 
-      {renderDebugInfo()}
+      {/* {renderDebugInfo()} */}
 
       {/* Workflow Control Section */}
       <div className="workflow-section">
@@ -828,18 +850,15 @@ function UserDashboard() {
           </div>
         )}
 
-        {/* Show completion message for completed state */}
-        {workflowStatus?.workflowStatus?.status === 'completed' && (
-          <div className="workflow-complete">
+        {/* Show temporary completion banner when analysis just finished */}
+        {showCompletionBanner && (
+          <div className="workflow-complete" style={{ 
+            position: 'relative',
+            animation: 'fadeIn 0.5s ease-in-out'
+          }}>
             <h3>✅ Analysis Complete!</h3>
             <p>Your birth chart analysis has been generated and is ready to explore.</p>
-            <button
-              onClick={checkWorkflowStatus}
-              className="workflow-button"
-              style={{ marginTop: '10px', backgroundColor: '#6c757d' }}
-            >
-              Check Status
-            </button>
+            <small style={{ color: '#666', fontStyle: 'italic' }}>This message will disappear in a few seconds...</small>
           </div>
         )}
 

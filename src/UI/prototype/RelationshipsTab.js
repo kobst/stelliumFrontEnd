@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import CelebritiesTable from './CelebritiesTable';
-import UserSubjectsTable from './UserSubjectsTable';
+import GuestSubjectsTable from './GuestSubjectsTable';
 import ExistingRelationshipsTable from './ExistingRelationshipsTable';
 import TabMenu from '../shared/TabMenu';
 import useStore from '../../Utilities/store';
@@ -10,20 +10,21 @@ function RelationshipsTab() {
   const userData = useStore(state => state.userData);
   const selectedUser = useStore(state => state.selectedUser);
   const userId = useStore(state => state.userId);
+  const currentUserContext = useStore(state => state.currentUserContext);
   const [selectedForRelationship, setSelectedForRelationship] = useState(null);
   const [isCreatingRelationship, setIsCreatingRelationship] = useState(false);
   const [relationshipMessage, setRelationshipMessage] = useState('');
   const [refreshKey, setRefreshKey] = useState(0); // Force refresh of relationships table
 
-  // Use selectedUser if userData is not available (selectedUser should be the current account user)
-  const currentUser = userData || selectedUser;
+  // Use currentUserContext (dashboard owner) for relationship creation
+  const dashboardOwner = currentUserContext || userData || selectedUser;
 
   const handleCelebritySelect = (celebrity) => {
     setSelectedForRelationship(celebrity);
   };
 
-  const handleSubjectSelect = (subject) => {
-    setSelectedForRelationship(subject);
+  const handleGuestSelect = (guest) => {
+    setSelectedForRelationship(guest);
   };
 
   const handleRelationshipSelect = (relationship) => {
@@ -32,7 +33,8 @@ function RelationshipsTab() {
 
   const handleCreateRelationship = async () => {
     console.log('Debug - selectedForRelationship:', selectedForRelationship);
-    console.log('Debug - currentUser:', currentUser);
+    console.log('Debug - dashboardOwner:', dashboardOwner);
+    console.log('Debug - currentUserContext:', currentUserContext);
     console.log('Debug - userData:', userData);
     console.log('Debug - selectedUser:', selectedUser);
     console.log('Debug - userId:', userId);
@@ -42,8 +44,8 @@ function RelationshipsTab() {
       return;
     }
     
-    if (!currentUser) {
-      setRelationshipMessage('Current user data not available. Please refresh the page.');
+    if (!dashboardOwner) {
+      setRelationshipMessage('Dashboard owner data not available. Please refresh the page.');
       return;
     }
 
@@ -51,7 +53,9 @@ function RelationshipsTab() {
     setRelationshipMessage('');
 
     try {
-      const result = await postCreateRelationshipProfile(currentUser, selectedForRelationship, userId);
+      // Use dashboard owner's ID for relationship creation
+      const ownerUserId = currentUserContext?._id || userId;
+      const result = await postCreateRelationshipProfile(dashboardOwner, selectedForRelationship, ownerUserId);
       setRelationshipMessage('Relationship created successfully!');
       setSelectedForRelationship(null); // Clear selection
       setRefreshKey(prev => prev + 1); // Trigger refresh of relationships table
@@ -70,14 +74,21 @@ function RelationshipsTab() {
 
   const relationshipTabs = [
     {
-      id: 'celebrities',
-      label: 'Celebrities',
-      content: <CelebritiesTable onCelebritySelect={handleCelebritySelect} selectedForRelationship={selectedForRelationship} />
-    },
-    {
-      id: 'userSubjects',
-      label: 'Your Subjects',
-      content: <UserSubjectsTable onSubjectSelect={handleSubjectSelect} selectedForRelationship={selectedForRelationship} />
+      id: 'potentialPartners',
+      label: 'Potential Partners',
+      content: (
+        <div>
+          <CelebritiesTable onCelebritySelect={handleCelebritySelect} selectedForRelationship={selectedForRelationship} />
+          <div style={{ marginTop: '20px' }}>
+            <GuestSubjectsTable onGuestSelect={handleGuestSelect} selectedForRelationship={selectedForRelationship} showViewOption={false} />
+          </div>
+          <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+            <p style={{ margin: '0', color: '#6c757d', fontStyle: 'italic' }}>
+              💡 <strong>Tip:</strong> You can also manage and view all your added people in the "Other Profiles" tab.
+            </p>
+          </div>
+        </div>
+      )
     },
     {
       id: 'existingRelationships',

@@ -66,6 +66,63 @@ const useStore = create(set => ({
     compositeChart: null,
     setCompositeChart: (response) => set({ compositeChart: response }),
 
+    // User context management for dashboard
+    currentUserContext: null, // The account owner (original user)
+    setCurrentUserContext: (user) => set({ currentUserContext: user }),
+    
+    activeUserContext: null, // Currently viewed user (could be owner or guest)
+    setActiveUserContext: (user) => set({ activeUserContext: user }),
+    
+    previousUserContext: null, // For breadcrumb navigation
+    setPreviousUserContext: (user) => set({ previousUserContext: user }),
+
+    // Helper function to switch user context
+    switchUserContext: (newUser) => set(state => {
+        // Store current active user as previous for breadcrumb
+        const previousUser = state.activeUserContext;
+        
+        return {
+            previousUserContext: previousUser,
+            activeUserContext: newUser,
+            selectedUser: newUser,
+            userId: newUser._id,
+            userPlanets: newUser.birthChart?.planets || [],
+            userHouses: newUser.birthChart?.houses || [],
+            userAspects: newUser.birthChart?.aspects || [],
+            userElements: newUser.birthChart?.elements || {},
+            userModalities: newUser.birthChart?.modalities || {},
+            userQuadrants: newUser.birthChart?.quadrants || {},
+            userPatterns: newUser.birthChart?.patterns || {}
+        };
+    }),
+
+    // Helper function to return to account owner context
+    returnToOwnerContext: () => set(state => {
+        const owner = state.currentUserContext;
+        if (!owner) return state;
+
+        return {
+            previousUserContext: null,
+            activeUserContext: owner,
+            selectedUser: owner,
+            userId: owner._id,
+            userPlanets: owner.birthChart?.planets || [],
+            userHouses: owner.birthChart?.houses || [],
+            userAspects: owner.birthChart?.aspects || [],
+            userElements: owner.birthChart?.elements || {},
+            userModalities: owner.birthChart?.modalities || {},
+            userQuadrants: owner.birthChart?.quadrants || {},
+            userPatterns: owner.birthChart?.patterns || {}
+        };
+    }),
+
+    // Helper function to check if currently viewing account owner
+    isViewingOwner: () => {
+        const state = useStore.getState();
+        return state.currentUserContext && state.activeUserContext && 
+               state.currentUserContext._id === state.activeUserContext._id;
+    },
+
 }));
 
 export default useStore;

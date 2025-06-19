@@ -6,7 +6,7 @@ import '../landingPage/UserSignUpForm.css';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY;
 
-const AddGuestForm = ({ onGuestAdded }) => {
+const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const userId = useStore(state => state.userId);
 
@@ -83,7 +83,7 @@ const AddGuestForm = ({ onGuestAdded }) => {
         ? await createGuestSubjectUnknownTime(guestData)
         : await createGuestSubject(guestData);
 
-      setSubmitMessage('Guest added successfully!');
+      setSubmitMessage('Profile added successfully!');
       
       // Clear form
       setFirstName('');
@@ -104,7 +104,7 @@ const AddGuestForm = ({ onGuestAdded }) => {
 
     } catch (error) {
       console.error('Error creating guest:', error);
-      setSubmitMessage('Error creating guest. Please try again.');
+      setSubmitMessage('Error creating profile. Please try again.');
     } finally {
       setIsSubmitting(false);
       // Clear message after 3 seconds
@@ -171,7 +171,7 @@ const AddGuestForm = ({ onGuestAdded }) => {
   return (
     <div className="email_form" style={{ marginTop: '30px', padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
       <form onSubmit={handleSubmit}>
-        <h2 style={headerStyle}>Add New Guest</h2>
+        <h2 style={headerStyle}>{title}</h2>
 
         <div style={formGroupStyle}>
           <label style={labelStyle}>Name</label>
@@ -288,7 +288,7 @@ const AddGuestForm = ({ onGuestAdded }) => {
           <input 
             className="email-submit-btn" 
             type="submit" 
-            value={isSubmitting ? "Adding..." : "Add Guest"}
+            value={isSubmitting ? "Adding..." : "Add Profile"}
             style={{ 
               ...inputStyle, 
               width: 'auto', 

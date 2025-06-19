@@ -4,25 +4,22 @@ import './UsersTable.css';
 import { getUserSubjects } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
 
-function GuestSubjectsTable() {
+function GuestSubjectsTable({ onGuestSelect, selectedForRelationship, showViewOption = false }) {
   const [guestSubjects, setGuestSubjects] = useState([]);
+  const currentUserContext = useStore(state => state.currentUserContext);
+  const activeUserContext = useStore(state => state.activeUserContext);
+  const switchUserContext = useStore(state => state.switchUserContext);
   const userId = useStore(state => state.userId);
-  const setSelectedUser = useStore(state => state.setSelectedUser);
-  const setUserId = useStore(state => state.setUserId);
-  const setUserPlanets = useStore(state => state.setUserPlanets);
-  const setUserHouses = useStore(state => state.setUserHouses);
-  const setUserAspects = useStore(state => state.setUserAspects);
-  const setUserElements = useStore(state => state.setUserElements);
-  const setUserModalities = useStore(state => state.setUserModalities);
-  const setUserQuadrants = useStore(state => state.setUserQuadrants);
-  const setUserPatterns = useStore(state => state.setUserPatterns);
   const navigate = useNavigate();
+  
+  // Use currentUserContext (dashboard owner) for fetching guests
+  const ownerId = currentUserContext?._id || userId;
 
   useEffect(() => {
     async function loadGuestSubjects() {
-      if (userId) {   
+      if (ownerId) {   
         try {
-          const fetchedGuestSubjects = await getUserSubjects(userId);
+          const fetchedGuestSubjects = await getUserSubjects(ownerId);
           setGuestSubjects(fetchedGuestSubjects);
         } catch (error) {
           console.error('Error fetching guest subjects:', error);
@@ -31,27 +28,23 @@ function GuestSubjectsTable() {
     }
 
     loadGuestSubjects();
-  }, [userId]); // This will re-run when component remounts due to key change
+  }, [ownerId]); // This will re-run when component remounts due to key change
 
   const handleGuestSelect = (guest) => {
-    // Set all the guest's data in the store similar to adminPage.js
-    setSelectedUser(guest);
-    setUserId(guest._id);
-    setUserPlanets(guest.birthChart.planets);
-    setUserHouses(guest.birthChart.houses);
-    setUserAspects(guest.birthChart.aspects);
-    setUserElements(guest.birthChart.elements);
-    setUserModalities(guest.birthChart.modalities);
-    setUserQuadrants(guest.birthChart.quadrants);
-    setUserPatterns(guest.birthChart.patterns);
+    if (onGuestSelect) {
+      onGuestSelect(guest);
+    }
+  };
 
-    // Navigate to userDashboard
-    navigate('/userDashboard');
+  const handleViewGuestDashboard = (guest) => {
+    // Switch to guest context and navigate to guest dashboard
+    switchUserContext(guest);
+    navigate('/guestDashboard');
   };
 
   return (
     <div className="user-table-container">
-      <h2 style={{ color: 'grey' }}>Your Guest Subjects</h2>
+      <h2 style={{ color: 'grey' }}>Your Added People</h2>
       <div className="user-table-scroll">
         <table className="user-table">
           <thead>
@@ -60,24 +53,67 @@ function GuestSubjectsTable() {
               <th style={{ color: 'orange' }}>Last Name</th>
               <th style={{ color: 'orange' }}>Date of Birth</th>
               <th style={{ color: 'orange' }}>Place of Birth</th>
+              {showViewOption && <th style={{ color: 'orange' }}>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {guestSubjects.map((guest) => (
               <tr
                 key={guest._id}
-                onClick={() => handleGuestSelect(guest)}
+                onClick={onGuestSelect ? () => handleGuestSelect(guest) : undefined}
+                className={selectedForRelationship && selectedForRelationship._id === guest._id ? 'selected-row' : ''}
                 style={{ 
-                  cursor: 'pointer',
+                  cursor: onGuestSelect ? 'pointer' : 'default',
+                  backgroundColor: selectedForRelationship && selectedForRelationship._id === guest._id ? 'rgba(128, 0, 128, 0.3)' : 'transparent',
                   transition: 'background-color 0.2s ease'
                 }}
-                onMouseEnter={(e) => e.target.parentElement.style.backgroundColor = 'rgba(128, 0, 128, 0.1)'}
-                onMouseLeave={(e) => e.target.parentElement.style.backgroundColor = 'transparent'}
               >
                 <td>{guest.firstName}</td>
                 <td>{guest.lastName}</td>
                 <td>{guest.dateOfBirth}</td>
                 <td>{guest.placeOfBirth}</td>
+                {showViewOption && (
+                  <td>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {onGuestSelect && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGuestSelect(guest);
+                          }}
+                          style={{
+                            padding: '4px 8px',
+                            backgroundColor: selectedForRelationship && selectedForRelationship._id === guest._id ? '#28a745' : '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          {selectedForRelationship && selectedForRelationship._id === guest._id ? 'Selected' : 'Select'}
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewGuestDashboard(guest);
+                        }}
+                        style={{
+                          padding: '4px 8px',
+                          backgroundColor: '#6c757d',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '12px'
+                        }}
+                      >
+                        View
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

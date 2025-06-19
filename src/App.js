@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import SignUpPage from './pages/signUpPage';
 import AdminPage from './pages/adminPage';
 import UserDashboard from './pages/userDashboard';
+import GuestDashboard from './UI/prototype/GuestDashboard';
 import SynastryPage_v2 from './pages/synastryPage_v2';
 import CompositeDashboard_v4 from './pages/compositeDashboard_v4';
 import ConfirmationV2 from './pages/confirmationPage_v2';
@@ -20,6 +21,7 @@ function App() {
             <Route path="/" element={<SignUpPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/userDashboard" element={<UserDashboard />} />
+            <Route path="/guestDashboard" element={<GuestDashboard />} />
             <Route path="/synastry" element={<SynastryPage_v2 />} />
             <Route path="/compositeDashboard" element={<CompositeDashboard_v4 />} />
             <Route path="/signUpConfirmation" element={<ConfirmationV2 />} />
