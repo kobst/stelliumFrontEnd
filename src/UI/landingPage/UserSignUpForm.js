@@ -207,32 +207,49 @@ const UserSignUpForm = () => {
               value={date} 
               onChange={e => setDate(e.target.value)} 
               style={inputStyle}
-              // className="input-dark-placeholder"
             />
-            <label style={{ ...labelStyle, width: 'auto' }}>at</label>
-            <input
-              type="time"
-              id="time"
-              name="time"
-              value={time}
-              onChange={e => setTime(e.target.value)}
-              style={inputStyle}
-              disabled={unknownTime}
-            />
-            <label style={{ color: 'white', marginLeft: '10px' }}>
+          </div>
+
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>at this time</label>
+            <select
+              value={unknownTime ? 'unknown' : 'known'}
+              onChange={(e) => {
+                if (e.target.value === 'unknown') {
+                  setUnknownTime(true);
+                  setTime('');
+                } else {
+                  setUnknownTime(false);
+                }
+              }}
+              style={{
+                ...inputStyle,
+                width: '120px',
+                backgroundColor: 'transparent',
+                color: '#5116b5',
+                border: '1px solid white',
+                padding: '5px',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                marginRight: '8px'
+              }}
+            >
+              <option value="known">Known Time</option>
+              <option value="unknown">Unknown</option>
+            </select>
+            {!unknownTime && (
               <input
-                type="checkbox"
-                checked={unknownTime}
-                onChange={(e) => {
-                  setUnknownTime(e.target.checked);
-                  if (e.target.checked) {
-                    setTime('');
-                  }
+                type="time"
+                id="time"
+                name="time"
+                value={time}
+                onChange={e => setTime(e.target.value)}
+                style={{
+                  ...inputStyle,
+                  margin: 0
                 }}
-                style={{ marginRight: '4px' }}
               />
-              Time Unknown
-            </label>
+            )}
           </div>
 
           <div style={formGroupStyle}>
