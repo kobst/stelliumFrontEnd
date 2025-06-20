@@ -74,8 +74,8 @@ function CompositeDashboard_v4({}) {
                     fetchAnalysis(compositeChart.userA_id),
                     fetchAnalysis(compositeChart.userB_id)
                 ]);
-                const userAVectorizationStatus = Boolean(userAResponse?.vectorizationStatus?.topicAnalysis?.isComplete);
-                const userBVectorizationStatus = Boolean(userBResponse?.vectorizationStatus?.topicAnalysis?.isComplete);
+                const userAVectorizationStatus = Boolean(userAResponse?.vectorizationStatus?.topicAnalysis?.isComplete || userAResponse?.vectorizationStatus?.workflowStatus?.isComplete);
+                const userBVectorizationStatus = Boolean(userBResponse?.vectorizationStatus?.topicAnalysis?.isComplete || userBResponse?.vectorizationStatus?.workflowStatus?.isComplete);
 
                 // Fetch relationship scores
                 const fetchedData = await fetchRelationshipAnalysis(compositeChart._id);
