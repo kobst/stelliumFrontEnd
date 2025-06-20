@@ -82,6 +82,7 @@ function UserDashboard() {
       COMMUNICATION_BELIEFS: { COMMUNICATION_STYLES: false, PHILOSOPHICAL_BELIEFS: false, TRAVEL_EXPERIENCES: false, MENTAL_GROWTH_CHALLENGES: false },
       isComplete: false
     },
+    workflowStatus: null,
     lastUpdated: null
   });
 
@@ -173,7 +174,16 @@ function UserDashboard() {
         planets: vectorizationStatus?.planets || prevStatus.planets,
         dominance: vectorizationStatus?.dominance || prevStatus.dominance,
         basicAnalysis: vectorizationStatus?.basicAnalysis || false,
-        topicAnalysis: vectorizationStatus?.topicAnalysis || prevStatus.topicAnalysis,
+        topicAnalysis: {
+          ...prevStatus.topicAnalysis,
+          ...vectorizationStatus?.topicAnalysis,
+          // Check if topic analysis is complete OR workflow is complete
+          isComplete: Boolean(
+            vectorizationStatus?.topicAnalysis?.isComplete || 
+            vectorizationStatus?.workflowStatus?.isComplete
+          )
+        },
+        workflowStatus: vectorizationStatus?.workflowStatus || prevStatus.workflowStatus,
         lastUpdated: vectorizationStatus?.lastUpdated || null
       }));
 
@@ -692,7 +702,10 @@ function UserDashboard() {
   }
 
   // Add Chat tab if vectorization is complete
-  if (birthChartAnalysisId && userId && vectorizationStatus.topicAnalysis.isComplete) {
+  if (birthChartAnalysisId && userId && (
+    vectorizationStatus.topicAnalysis.isComplete || 
+    vectorizationStatus.workflowStatus?.isComplete
+  )) {
     analysisTabs.push({
       id: 'chat',
       label: 'Chat',
