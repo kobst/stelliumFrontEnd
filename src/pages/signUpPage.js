@@ -13,7 +13,7 @@ const SignUpPage = () => {
             <img className="lightlogo" src={lightLogo} alt="Stellium logo" />
             <div className="maintxt mont-font">
                 <h1 className="logotxt">STELLIUM</h1>
-                <h3 className="logosubtxt">ancient wisdom of the stars, the technology of the future</h3>
+                <h3 className="logosubtxt">your personal AI-powered astrologer</h3>
                 <h2 className="soon">coming soon</h2>
             </div>
             <img src={whiteLine} alt="" />
