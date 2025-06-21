@@ -56,7 +56,7 @@ const ConfirmationV2 = () => {
             });
             
             // Skip if we've already attempted to create the profile or if userData is missing
-            if (profileCreationAttempted.current || !userData) {
+            if (profileCreationAttempted.current || !userData || !userData.firstName || !userData.email) {
                 console.log('Profile creation skipped due to conditions');
                 return;
             }
@@ -146,7 +146,7 @@ const ConfirmationV2 = () => {
         };
         
         createProfile();
-    }, []); // Empty dependency array to run only once on mount
+    }, [userData]); // Depend on userData but use ref to prevent duplicates
 
     useEffect(() => {
         const dataComplete = 
