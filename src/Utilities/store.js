@@ -134,6 +134,18 @@ const useStore = create(set => ({
         workflowState: { ...state.workflowState, ...updates }
     })),
 
+    // Relationship workflow state management for abbreviated analysis
+    relationshipWorkflowState: {
+        isPaused: false,
+        hasScores: false,
+        scores: {},
+        scoreAnalysis: {},
+        startedFromCreation: false
+    },
+    setRelationshipWorkflowState: (updates) => set(state => ({
+        relationshipWorkflowState: { ...state.relationshipWorkflowState, ...updates }
+    })),
+
 }));
 
 export default useStore;

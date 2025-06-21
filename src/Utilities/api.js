@@ -905,20 +905,26 @@ export const resumeWorkflow = async (userId) => {
 
 // Relationship Workflow API Functions
 
-export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChartId) => {
-  console.log("Starting relationship workflow with:", { userIdA, userIdB, compositeChartId });
-  console.log("API URL:", `${SERVER_URL}/workflow/relationship/start`);
+export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChartId, immediate = true) => {
+  console.log("🔥 startRelationshipWorkflow called:", { userIdA, userIdB, compositeChartId, immediate });
   try {
+    const requestBody = { userIdA, userIdB, compositeChartId };
+    if (!immediate) {
+      requestBody.immediate = false;
+    }
+    
+    console.log("📤 RELATIONSHIP REQUEST BODY:", JSON.stringify(requestBody));
+    console.log("📍 RELATIONSHIP REQUEST URL:", `${SERVER_URL}/workflow/relationship/start`);
+    
     const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({ userIdA, userIdB, compositeChartId })
+      body: JSON.stringify(requestBody)
     });
     
-    console.log("Start workflow response status:", response.status);
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Start workflow error response:", errorText);
+      console.error("Start relationship workflow error response:", errorText);
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
     
@@ -933,7 +939,6 @@ export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChart
 
 export const getRelationshipWorkflowStatus = async (compositeChartId) => {
   console.log("Getting relationship workflow status for:", compositeChartId);
-  console.log("API URL:", `${SERVER_URL}/workflow/relationship/status`);
   try {
     const response = await fetch(`${SERVER_URL}/workflow/relationship/status`, {
       method: HTTP_POST,
@@ -941,7 +946,6 @@ export const getRelationshipWorkflowStatus = async (compositeChartId) => {
       body: JSON.stringify({ compositeChartId })
     });
     
-    console.log("Status check response status:", response.status);
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Status check error response:", errorText);
@@ -949,10 +953,34 @@ export const getRelationshipWorkflowStatus = async (compositeChartId) => {
     }
     
     const responseData = await response.json();
-    console.log("Relationship workflow status:", responseData);
+    console.log("📊 RELATIONSHIP WORKFLOW STATUS:", JSON.stringify(responseData, null, 2));
     return responseData;
   } catch (error) {
     console.error('Error getting relationship workflow status:', error);
+    throw error;
+  }
+};
+
+export const resumeRelationshipWorkflow = async (compositeChartId) => {
+  console.log("🔄 Resuming relationship workflow for:", compositeChartId);
+  try {
+    const response = await fetch(`${SERVER_URL}/workflow/relationship/resume`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ compositeChartId })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Resume relationship workflow error:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("📥 RELATIONSHIP WORKFLOW RESUMED:", JSON.stringify(responseData, null, 2));
+    return responseData;
+  } catch (error) {
+    console.error('Error resuming relationship workflow:', error);
     throw error;
   }
 };

@@ -4,7 +4,8 @@
       "Bash(ls:*)",
       "Bash(rm:*)",
       "Bash(find:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

@@ -10,7 +10,8 @@ import {
   chatForUserRelationship,
   fetchUserChatRelationshipAnalysis,
   startRelationshipWorkflow,
-  getRelationshipWorkflowStatus
+  getRelationshipWorkflowStatus,
+  resumeRelationshipWorkflow
 } from '../Utilities/api';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Reuse the same component
 import TabMenu from '../UI/shared/TabMenu';
@@ -28,6 +29,11 @@ function CompositeDashboard_v4({}) {
     const [userBVectorizationStatus, setUserBVectorizationStatus] = useState(false);
     const [scoreDebugInfo, setScoreDebugInfo] = useState(null);
     const [detailedRelationshipAnalysis, setDetailedRelationshipAnalysis] = useState(null);
+    
+    // Preview mode state
+    const relationshipWorkflowState = useStore(state => state.relationshipWorkflowState);
+    const setRelationshipWorkflowState = useStore(state => state.setRelationshipWorkflowState);
+    const [isGeneratingScores, setIsGeneratingScores] = useState(false);
     const [vectorizationStatus, setVectorizationStatus] = useState({
         categories: {
             OVERALL_ATTRACTION_CHEMISTRY: false,
@@ -274,7 +280,7 @@ function CompositeDashboard_v4({}) {
     }
   };
 
-  // Start workflow function
+  // Start workflow function (full analysis)
   const handleStartWorkflow = async () => {
     if (!userA?._id || !userB?._id || !compositeChart?._id) {
       console.error('Missing required data to start workflow');
@@ -299,69 +305,14 @@ function CompositeDashboard_v4({}) {
         compositeChart: compositeChart._id
       });
       
-      // Start the workflow
-      const startResponse = await startRelationshipWorkflow(userA._id, userB._id, compositeChart._id);
+      // Start the workflow (full analysis, immediate=true)
+      const startResponse = await startRelationshipWorkflow(userA._id, userB._id, compositeChart._id, true);
       console.log('Start workflow response:', startResponse);
       
       if (startResponse.success) {
         // Start polling immediately after successful start
         console.log('Workflow started successfully, beginning polling');
-        setIsPolling(true);
-        
-        // Poll immediately
-        const pollResponse = await getRelationshipWorkflowStatus(compositeChart._id);
-        console.log('Initial poll response:', pollResponse);
-        
-        if (pollResponse.success) {
-          setWorkflowStatus(pollResponse);
-          console.log('Set initial workflow status to:', pollResponse);
-          
-          // Set up interval for subsequent polls
-          const interval = setInterval(async () => {
-            try {
-              const response = await getRelationshipWorkflowStatus(compositeChart._id);
-              console.log('Poll response:', response);
-              
-              if (response.success) {
-                setWorkflowStatus(response);
-                
-                // Update analysis data if available
-                if (response.analysisData) {
-                  updateAnalysisFromWorkflow(response.analysisData);
-                }
-                
-                // Stop polling if workflow is complete or has error
-                if (response.workflowStatus?.status === 'completed' || 
-                    response.workflowStatus?.status === 'error' || 
-                    response.workflowStatus?.status === 'unknown') {
-                  console.log('Workflow finished with status:', response.workflowStatus?.status);
-                  setIsPolling(false);
-                  clearInterval(interval);
-                  setPollInterval(null);
-                  
-                  // If workflow completed successfully, ensure vectorization status is updated
-                  if (response.workflowStatus?.status === 'completed') {
-                    setVectorizationStatus(prev => ({
-                      ...prev,
-                      relationshipAnalysis: true,
-                      lastUpdated: new Date().toISOString()
-                    }));
-                  }
-                  
-                  // Refresh analysis data
-                  await initializeCompositeChartData();
-                }
-              }
-            } catch (error) {
-              console.error('Error in polling interval:', error);
-              setIsPolling(false);
-              clearInterval(interval);
-              setPollInterval(null);
-            }
-          }, 3000);
-          
-          setPollInterval(interval);
-        }
+        startPolling();
       }
     } catch (error) {
       console.error('Error starting workflow:', error);
@@ -372,6 +323,74 @@ function CompositeDashboard_v4({}) {
         clearInterval(pollInterval);
         setPollInterval(null);
       }
+    }
+  };
+
+  // Start preview mode workflow (scores only)
+  const handleStartPreviewWorkflow = async () => {
+    if (!userA?._id || !userB?._id || !compositeChart?._id) {
+      console.error('Missing required data to start preview workflow');
+      return;
+    }
+
+    try {
+      setIsGeneratingScores(true);
+      console.log('🚀 STARTING PREVIEW WORKFLOW for composite:', compositeChart._id);
+      
+      // Start workflow with immediate=false for scores only
+      const startResponse = await startRelationshipWorkflow(userA._id, userB._id, compositeChart._id, false);
+      console.log('📥 PREVIEW WORKFLOW START RESPONSE:', JSON.stringify(startResponse, null, 2));
+      
+      if (startResponse.success) {
+        setRelationshipWorkflowState({
+          startedFromCreation: true,
+          isPaused: false
+        });
+        
+        // Wait 8 seconds before starting to poll (as recommended in API guide)
+        console.log('⏰ Waiting 8 seconds before starting to poll...');
+        setTimeout(() => {
+          console.log('🔄 Starting to poll relationship workflow status');
+          startRelationshipPolling();
+        }, 8000);
+      } else {
+        console.error('Preview workflow start failed:', startResponse);
+        setIsGeneratingScores(false);
+      }
+    } catch (error) {
+      console.error('Error starting preview workflow:', error);
+      setIsGeneratingScores(false);
+      stopRelationshipPolling();
+    }
+  };
+
+  // Resume workflow function for paused analyses
+  const handleResumeWorkflow = async () => {
+    if (!compositeChart?._id) {
+      console.error('Cannot resume workflow: compositeChartId is missing');
+      return;
+    }
+    
+    console.log('🔄 Resuming relationship workflow for composite:', compositeChart._id);
+    
+    try {
+      const response = await resumeRelationshipWorkflow(compositeChart._id);
+      console.log('📥 Resume relationship workflow response:', JSON.stringify(response, null, 2));
+      
+      if (response.success) {
+        console.log('✅ Relationship workflow resumed successfully, starting polling');
+        // Update workflow state to no longer be paused while preserving existing data
+        setRelationshipWorkflowState(prev => ({
+          ...prev,
+          isPaused: false
+        }));
+        // Start polling to track progress
+        startPolling();
+      } else {
+        console.log('❌ Resume response success was false:', response.success);
+      }
+    } catch (error) {
+      console.error('Error resuming relationship workflow:', error);
     }
   };
 
@@ -396,6 +415,27 @@ function CompositeDashboard_v4({}) {
           updateAnalysisFromWorkflow(response.analysisData);
         }
         
+        // Check for scores in manual check regardless of workflow status
+        const scores = response.analysisData?.scores;
+        const scoreAnalysis = response.analysisData?.scoreAnalysis;
+        
+        if (scores && !relationshipScores) {
+          console.log('🎯 Found scores in manual check - setting immediately');
+          console.log('📊 Workflow Status:', response.workflowStatus?.status);
+          console.log('📊 Scores:', scores);
+          console.log('📝 Score Analysis:', scoreAnalysis);
+          
+          setRelationshipScores(scores);
+          setRelationshipWorkflowState({
+            isPaused: response.workflowStatus?.status === 'paused_after_scores',
+            hasScores: true,
+            scores: scores,
+            scoreAnalysis: scoreAnalysis || {},
+            startedFromCreation: true
+          });
+          console.log('✅ Set scores from manual check');
+        }
+        
         // If workflow is still running, resume polling
         if (response.workflowStatus?.status === 'running' && !isPolling) {
           console.log('Workflow is running, resuming polling');
@@ -407,6 +447,183 @@ function CompositeDashboard_v4({}) {
       setConnectionError(true);
     }
   };
+
+  // Polling functions for preview workflow
+  const pollRelationshipStatus = async () => {
+    if (!compositeChart?._id) return;
+
+    try {
+      const response = await getRelationshipWorkflowStatus(compositeChart._id);
+      console.log('📊 RELATIONSHIP WORKFLOW STATUS RESPONSE:', JSON.stringify(response, null, 2));
+      
+      if (response.success) {
+        setWorkflowStatus(response);
+        
+        // Check for scores regardless of workflow status
+        const scores = response.analysisData?.scores;
+        const scoreAnalysis = response.analysisData?.scoreAnalysis;
+        
+        if (scores && !relationshipScores) {
+          console.log('🎯 FOUND SCORES IN RESPONSE!');
+          console.log('📊 Workflow Status:', response.workflowStatus?.status);
+          console.log('📊 Scores:', scores);
+          console.log('📝 Score Analysis:', scoreAnalysis);
+          
+          setRelationshipScores(scores);
+          setRelationshipWorkflowState({
+            isPaused: response.workflowStatus?.status === 'paused_after_scores',
+            hasScores: true,
+            scores: scores,
+            scoreAnalysis: scoreAnalysis || {},
+            startedFromCreation: true
+          });
+          console.log('✅ Set scores in workflow state');
+          
+          setIsGeneratingScores(false);
+          
+          // Only stop polling if truly paused, not if still running
+          if (response.workflowStatus?.status === 'paused_after_scores') {
+            stopRelationshipPolling();
+          }
+        }
+        // If workflow completed fully, also stop polling
+        else if (response.workflowStatus?.status === 'completed') {
+          if (response.analysisData) {
+            updateAnalysisFromWorkflow(response.analysisData);
+          }
+          setIsGeneratingScores(false);
+          stopRelationshipPolling();
+        }
+      }
+    } catch (error) {
+      console.error('Error polling relationship workflow status:', error);
+      setRetryCount(prev => prev + 1);
+      if (retryCount >= 3) {
+        console.log('Too many polling errors, stopping polling');
+        stopRelationshipPolling();
+        setIsGeneratingScores(false);
+      }
+    }
+  };
+
+  // Start relationship polling
+  const startRelationshipPolling = () => {
+    if (pollInterval) return; // Don't start if already polling
+    
+    const interval = setInterval(pollRelationshipStatus, 3000); // Poll every 3 seconds
+    setPollInterval(interval);
+  };
+
+  // Stop relationship polling
+  const stopRelationshipPolling = () => {
+    if (pollInterval) {
+      clearInterval(pollInterval);
+      setPollInterval(null);
+    }
+  };
+
+  // Start full analysis polling
+  const startPolling = () => {
+    if (isPolling) return; // Don't start if already polling
+    
+    setIsPolling(true);
+    const interval = setInterval(async () => {
+      try {
+        const response = await getRelationshipWorkflowStatus(compositeChart._id);
+        console.log('Poll response:', response);
+        
+        if (response.success) {
+          setWorkflowStatus(response);
+          
+          // Update analysis data if available
+          if (response.analysisData) {
+            updateAnalysisFromWorkflow(response.analysisData);
+          }
+          
+          // Stop polling if workflow is complete or has error
+          if (response.workflowStatus?.status === 'completed' || 
+              response.workflowStatus?.status === 'error' || 
+              response.workflowStatus?.status === 'unknown') {
+            console.log('Workflow finished with status:', response.workflowStatus?.status);
+            setIsPolling(false);
+            clearInterval(interval);
+            setPollInterval(null);
+            
+            // If workflow completed successfully, ensure vectorization status is updated
+            if (response.workflowStatus?.status === 'completed') {
+              setVectorizationStatus(prev => ({
+                ...prev,
+                relationshipAnalysis: true,
+                lastUpdated: new Date().toISOString()
+              }));
+            }
+            
+            // Refresh analysis data
+            await initializeCompositeChartData();
+          }
+        }
+      } catch (error) {
+        console.error('Error in polling interval:', error);
+        setIsPolling(false);
+        clearInterval(interval);
+        setPollInterval(null);
+      }
+    }, 3000);
+    
+    setPollInterval(interval);
+  };
+
+  // Track if we came from preview mode
+  const [cameFromPreview, setCameFromPreview] = useState(false);
+  
+  // Auto-start preview workflow if coming from relationship creation
+  useEffect(() => {
+    // Check if we should auto-start preview workflow
+    const params = new URLSearchParams(window.location.search);
+    const autoStartPreview = params.get('preview') === 'true';
+    
+    if (autoStartPreview) {
+      setCameFromPreview(true);
+      
+      if (compositeChart?._id && userA?._id && userB?._id && !relationshipScores && !isGeneratingScores && !workflowStatus) {
+        console.log('🚀 Auto-starting preview workflow from URL parameter');
+        handleStartPreviewWorkflow();
+        
+        // Remove the preview parameter from URL to avoid re-triggering
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.delete('preview');
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
+  }, [compositeChart?._id, userA?._id, userB?._id, relationshipScores, isGeneratingScores, workflowStatus]);
+
+  // Check for existing scores in workflow state when component mounts or when workflow state changes
+  useEffect(() => {
+    if (relationshipWorkflowState.hasScores && relationshipWorkflowState.scores && !relationshipScores) {
+      console.log('🔄 Loading existing scores from workflow state');
+      console.log('📊 Workflow state scores:', relationshipWorkflowState.scores);
+      setRelationshipScores(relationshipWorkflowState.scores);
+    }
+  }, [relationshipWorkflowState.hasScores, relationshipWorkflowState.scores, relationshipScores]);
+  
+  // Also check for scores immediately when workflowStatus updates
+  useEffect(() => {
+    if (workflowStatus?.analysisData?.scores && !relationshipScores) {
+      console.log('🚀 Setting scores immediately from workflowStatus update');
+      console.log('📊 Workflow Status:', workflowStatus?.workflowStatus?.status);
+      const scores = workflowStatus.analysisData.scores;
+      const scoreAnalysis = workflowStatus.analysisData.scoreAnalysis;
+      
+      setRelationshipScores(scores);
+      setRelationshipWorkflowState({
+        isPaused: workflowStatus?.workflowStatus?.status === 'paused_after_scores',
+        hasScores: true,
+        scores: scores,
+        scoreAnalysis: scoreAnalysis || {},
+        startedFromCreation: true
+      });
+    }
+  }, [workflowStatus?.analysisData?.scores, relationshipScores]);
 
   // Check for existing workflow on component mount
   useEffect(() => {
@@ -652,16 +869,82 @@ function CompositeDashboard_v4({}) {
         )
       });
     });
+  } else if (relationshipWorkflowState.isPaused) {
+    // Show complete analysis prompts for each category when paused
+    orderedCategoryKeys.forEach(cat => {
+      analysisTabs.push({
+        id: cat,
+        label: RelationshipCategoriesEnum[cat]?.label || cat.replace(/_/g, ' '),
+        content: (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>💕 {RelationshipCategoriesEnum[cat]?.label} Analysis</h3>
+            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+              Discover detailed insights about this aspect of your relationship compatibility, 
+              including synastry analysis, composite chart interpretation, and personalized guidance.
+            </p>
+            <button
+              onClick={handleResumeWorkflow}
+              style={{
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '16px'
+              }}
+            >
+              Complete Analysis to Unlock
+            </button>
+          </div>
+        )
+      });
+    });
   }
 
   const mainTabs = [];
 
-  if (relationshipScores) {
+  console.log('🔍 Building main tabs - relationshipScores:', relationshipScores);
+  console.log('🔍 relationshipWorkflowState:', relationshipWorkflowState);
+
+  // Check for scores in either relationshipScores state or workflow state
+  const availableScores = relationshipScores || relationshipWorkflowState.scores;
+  const availableScoreAnalysis = relationshipWorkflowState.scoreAnalysis;
+  
+  if (availableScores) {
+    console.log('✅ Adding Scores tab to mainTabs');
+    console.log('📊 Available scores:', availableScores);
+    console.log('📝 Available score analysis:', availableScoreAnalysis);
+    
+    // Transform score analysis to match component expectations
+    const formattedScoreDebugInfo = availableScoreAnalysis ? {
+      categories: Object.keys(availableScores).reduce((acc, categoryKey) => {
+        const analysis = availableScoreAnalysis[categoryKey];
+        if (analysis) {
+          acc[categoryKey] = {
+            scoreAnalysis: analysis
+          };
+        }
+        return acc;
+      }, {})
+    } : scoreDebugInfo;
+    
     mainTabs.push({
       id: 'scores',
       label: 'Scores',
-      content: <RelationshipScores scores={relationshipScores} scoreDebugInfo={scoreDebugInfo} />
+      content: <RelationshipScores scores={availableScores} scoreDebugInfo={formattedScoreDebugInfo} />
     });
+  } else {
+    console.log('❌ No scores available, Scores tab not added');
+    console.log('❌ relationshipScores:', relationshipScores);
+    console.log('❌ relationshipWorkflowState.scores:', relationshipWorkflowState.scores);
   }
 
   if (analysisTabs.length > 0) {
@@ -688,6 +971,42 @@ function CompositeDashboard_v4({}) {
         />
       )
     });
+  } else if (relationshipWorkflowState.isPaused) {
+    mainTabs.push({
+      id: 'chat',
+      label: 'Chat',
+      content: (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '40px 20px',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '8px',
+          border: '1px solid rgba(255, 255, 255, 0.1)'
+        }}>
+          <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>💬 Relationship AI Chat</h3>
+          <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+            Chat with your personal AI relationship astrologer! Ask questions about your compatibility, 
+            relationship dynamics, or any aspect of your astrological connection. 
+            Available after your complete analysis is ready.
+          </p>
+          <button
+            onClick={handleResumeWorkflow}
+            style={{
+              backgroundColor: '#8b5cf6',
+              color: 'white',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '16px'
+            }}
+          >
+            Complete Analysis to Unlock Chat
+          </button>
+        </div>
+      )
+    });
   }
 
   return (
@@ -705,27 +1024,103 @@ function CompositeDashboard_v4({}) {
               <h4>Debug Info:</h4>
               <pre>
                 {JSON.stringify({
-                  workflowStatus: workflowStatus?.workflowStatus,
-                  debug: workflowStatus?.debug,
-                  workflowBreakdown: workflowStatus?.workflowBreakdown,
-                  jobs: workflowStatus?.jobs,
-                  vectorizationStatus,
-                  userAVectorizationStatus,
-                  userBVectorizationStatus,
-                  canStart: canStartWorkflow(),
-                  hasUserA: !!userA,
-                  hasUserB: !!userB,
-                  hasCompositeChart: !!compositeChart
+                  relationshipScores: !!relationshipScores,
+                  relationshipWorkflowState: relationshipWorkflowState,
+                  isGeneratingScores,
+                  cameFromPreview,
+                  workflowStatus: workflowStatus?.workflowStatus?.status,
+                  hasWorkflowStatus: !!workflowStatus,
+                  shouldShowWorkflowControl: !relationshipScores && !relationshipWorkflowState.hasScores && !isGeneratingScores && !cameFromPreview && !workflowStatus
                 }, null, 2)}
               </pre>
             </div> */}
 
-            {/* Workflow Control Section */}
-            <div className="workflow-section">
-              {/* Show start/resume/retry button for not_started, incomplete, or completed_with_failures */}
-              {(workflowStatus?.workflowStatus?.status === 'not_started' || 
-                workflowStatus?.workflowStatus?.status === 'incomplete' || 
-                workflowStatus?.workflowStatus?.status === 'completed_with_failures') && (
+            {/* Preview Mode - Generating Scores Status */}
+            {isGeneratingScores && (
+              <div style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+                padding: '20px', 
+                borderRadius: '8px', 
+                margin: '20px 0',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                textAlign: 'center'
+              }}>
+                <div style={{ 
+                  width: '40px', 
+                  height: '40px', 
+                  border: '3px solid rgba(139, 92, 246, 0.3)',
+                  borderTop: '3px solid #8b5cf6',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                  margin: '0 auto 15px auto'
+                }} />
+                <h3 style={{ color: 'white', margin: '0 0 10px 0' }}>💕 Generating Your Compatibility Scores...</h3>
+                <p style={{ color: 'white', margin: '0' }}>
+                  We're analyzing your relationship dynamics to create personalized compatibility scores. This will be ready in about 30-45 seconds.
+                </p>
+                <style>{`
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                `}</style>
+              </div>
+            )}
+
+            {/* Preview Mode - Paused After Scores State */}
+            {relationshipWorkflowState.isPaused && relationshipWorkflowState.hasScores && (
+              <div style={{ 
+                backgroundColor: 'rgba(139, 92, 246, 0.1)', 
+                padding: '20px', 
+                borderRadius: '8px', 
+                margin: '20px 0',
+                border: '1px solid rgba(139, 92, 246, 0.3)'
+              }}>
+                <h2 style={{ color: '#a78bfa', margin: '0 0 15px 0' }}>✨ Your Compatibility Scores Are Ready!</h2>
+                <p style={{ 
+                  color: 'white', 
+                  lineHeight: '1.6', 
+                  margin: '0 0 15px 0',
+                  fontSize: '16px'
+                }}>
+                  Your relationship scores have been calculated and are displayed below. This is just the beginning! 
+                  Complete your full analysis to unlock detailed insights for each category.
+                </p>
+                <div style={{ marginTop: '15px', padding: '10px 0', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <button
+                    onClick={handleResumeWorkflow}
+                    style={{
+                      backgroundColor: '#8b5cf6',
+                      color: 'white',
+                      border: 'none',
+                      padding: '12px 24px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      fontSize: '16px',
+                      marginRight: '10px'
+                    }}
+                  >
+                    Complete Full Analysis
+                  </button>
+                  <p style={{ color: '#a78bfa', fontSize: '14px', margin: '10px 0 0 0' }}>
+                    Unlock detailed category analyses, personalized insights, and AI chat about your relationship.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Workflow Control Section - only show if no scores, not generating, not from preview, and no existing workflow */}
+            {!relationshipScores && 
+             !relationshipWorkflowState.hasScores && 
+             !isGeneratingScores && 
+             !cameFromPreview && 
+             !workflowStatus && (
+              <div className="workflow-section">
+                {/* Show start/resume/retry button for not_started, incomplete, or completed_with_failures */}
+                {(workflowStatus?.workflowStatus?.status === 'not_started' || 
+                  workflowStatus?.workflowStatus?.status === 'incomplete' || 
+                  workflowStatus?.workflowStatus?.status === 'completed_with_failures') && (
                 <div>
                   <button
                     onClick={handleStartWorkflow}
@@ -746,9 +1141,12 @@ function CompositeDashboard_v4({}) {
                   </button>
                 </div>
               )}
+              </div>
+            )}
 
-              {/* Show progress for running state */}
-              {workflowStatus?.workflowStatus?.status === 'running' && (
+            {/* Show progress for running state - always visible when running */}
+            {workflowStatus?.workflowStatus?.status === 'running' && (
+              <div className="workflow-section">
                 <div className="workflow-progress">
                   <div className="progress-header">
                     <h3>Generating Your Relationship Analysis</h3>
@@ -811,9 +1209,10 @@ function CompositeDashboard_v4({}) {
                     </div>
                   )}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Show completion message for completed state */}
+            {/* Show completion message for completed state */}
               {workflowStatus?.workflowStatus?.status === 'completed' && (
                 <div className="workflow-complete">
                   <h3>✅ Analysis Complete!</h3>
@@ -840,8 +1239,9 @@ function CompositeDashboard_v4({}) {
                 </div>
               )}
 
-              {/* Show incomplete tasks for incomplete or completed_with_failures states */}
-              {(workflowStatus?.workflowStatus?.status === 'incomplete' || 
+              {/* Show incomplete tasks for incomplete or completed_with_failures states - only when no scores */}
+              {!relationshipScores && !relationshipWorkflowState.hasScores && 
+                (workflowStatus?.workflowStatus?.status === 'incomplete' || 
                 workflowStatus?.workflowStatus?.status === 'completed_with_failures') && 
                 workflowStatus?.workflowBreakdown && (
                 <div className="incomplete-tasks">
@@ -868,7 +1268,6 @@ function CompositeDashboard_v4({}) {
                   )}
                 </div>
               )}
-            </div>
             
           </>
         )}

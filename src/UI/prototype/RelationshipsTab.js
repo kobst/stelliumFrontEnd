@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CelebritiesTable from './CelebritiesTable';
 import GuestSubjectsTable from './GuestSubjectsTable';
 import ExistingRelationshipsTable from './ExistingRelationshipsTable';
 import TabMenu from '../shared/TabMenu';
 import useStore from '../../Utilities/store';
-import { postCreateRelationshipProfile } from '../../Utilities/api';
+import { postCreateRelationshipProfile, getUserCompositeCharts } from '../../Utilities/api';
 
 function RelationshipsTab() {
+  const navigate = useNavigate();
   const userData = useStore(state => state.userData);
   const selectedUser = useStore(state => state.selectedUser);
   const userId = useStore(state => state.userId);
   const currentUserContext = useStore(state => state.currentUserContext);
+  const setCompositeChart = useStore(state => state.setCompositeChart);
   const [selectedForRelationship, setSelectedForRelationship] = useState(null);
   const [isCreatingRelationship, setIsCreatingRelationship] = useState(false);
   const [relationshipMessage, setRelationshipMessage] = useState('');
@@ -50,26 +53,49 @@ function RelationshipsTab() {
     }
 
     setIsCreatingRelationship(true);
-    setRelationshipMessage('');
+    setRelationshipMessage('Creating relationship and generating compatibility scores...');
 
     try {
       // Use dashboard owner's ID for relationship creation
       const ownerUserId = currentUserContext?._id || userId;
       const result = await postCreateRelationshipProfile(dashboardOwner, selectedForRelationship, ownerUserId);
-      setRelationshipMessage('Relationship created successfully!');
-      setSelectedForRelationship(null); // Clear selection
-      setRefreshKey(prev => prev + 1); // Trigger refresh of relationships table
       
-      // Clear the message after a delay
-      setTimeout(() => {
-        setRelationshipMessage('');
-      }, 3000);
+      console.log('🎉 Relationship created successfully:', result);
+      
+      // Check if we got a composite chart directly
+      if (result.compositeChart) {
+        console.log('📊 Got composite chart directly from creation response');
+        setCompositeChart(result.compositeChart);
+        navigate('/compositeDashboard?preview=true');
+      } else {
+        // If no composite chart in response, fetch the user's relationships to get the latest one
+        console.log('📊 No composite chart in response, fetching user relationships...');
+        setRelationshipMessage('Relationship created! Fetching composite chart data...');
+        
+        const relationships = await getUserCompositeCharts(ownerUserId);
+        console.log('📊 Fetched relationships:', relationships);
+        
+        if (relationships && relationships.length > 0) {
+          // Get the most recently created relationship (should be the one we just created)
+          const latestRelationship = relationships.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+          console.log('📊 Using latest relationship:', latestRelationship);
+          
+          setCompositeChart(latestRelationship);
+          navigate('/compositeDashboard?preview=true');
+        } else {
+          setRelationshipMessage('Relationship created but unable to fetch composite chart. Please refresh and try again.');
+          setSelectedForRelationship(null);
+          setRefreshKey(prev => prev + 1);
+          setIsCreatingRelationship(false);
+        }
+      }
     } catch (error) {
       console.error('Error creating relationship:', error);
       setRelationshipMessage('Error creating relationship. Please try again.');
-    } finally {
       setIsCreatingRelationship(false);
     }
+    // Note: Don't set isCreatingRelationship(false) here when navigating successfully, 
+    // let the new page handle the state
   };
 
   const relationshipTabs = [
