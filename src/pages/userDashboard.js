@@ -10,7 +10,8 @@ import {
   fetchUserChatBirthChartAnalysis,
   getTransitWindows,
   startWorkflow,
-  getWorkflowStatus
+  getWorkflowStatus,
+  resumeWorkflow
 } from '../Utilities/api';
 import useAsync from '../hooks/useAsync';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
@@ -52,6 +53,8 @@ function UserDashboard() {
   const userModalities = useStore(state => state.userModalities);
   const userQuadrants = useStore(state => state.userQuadrants);
   const userPatterns = useStore(state => state.userPatterns);
+  const workflowState = useStore(state => state.workflowState);
+  const setWorkflowState = useStore(state => state.setWorkflowState);
 
   const [isDataPopulated, setIsDataPopulated] = useState(false);
   const [basicAnalysis, setBasicAnalysis] = useState({
@@ -228,6 +231,35 @@ function UserDashboard() {
     }
   };
 
+  // Resume workflow function for paused analyses
+  const handleResumeWorkflow = async () => {
+    if (!userId) {
+      console.error('Cannot resume workflow: userId is missing');
+      return;
+    }
+    
+    console.log('🔄 Resuming workflow with userId:', userId);
+    
+    try {
+      const response = await resumeWorkflow(userId);
+      console.log('📥 Resume workflow response:', JSON.stringify(response, null, 2));
+      
+      if (response.success) {
+        console.log('✅ Workflow resumed successfully, starting polling');
+        // Update workflow state to no longer be paused
+        setWorkflowState({
+          isPaused: false
+        });
+        // Start polling to track progress
+        startPolling();
+      } else {
+        console.log('❌ Resume response success was false:', response.success);
+      }
+    } catch (error) {
+      console.error('Error resuming workflow:', error);
+    }
+  };
+
   // Update checkWorkflowStatus to properly handle initial state
   const checkWorkflowStatus = async () => {
     if (!userId) return;
@@ -246,9 +278,24 @@ function UserDashboard() {
           updateAnalysisFromWorkflow(response.analysisData);
         }
         
-        // Stop polling if workflow is complete or has error
-        if (response.workflowStatus?.status === 'completed' || response.workflowStatus?.status === 'error') {
+        // Stop polling if workflow is complete, paused after overview, or has error
+        if (response.workflowStatus?.status === 'completed' || 
+            response.workflowStatus?.status === 'error' ||
+            response.workflowStatus?.status === 'paused_after_overview') {
           stopPolling();
+          
+          // If paused after overview, update workflow state
+          if (response.workflowStatus?.status === 'paused_after_overview') {
+            const overviewContent = response.analysisData?.interpretation?.basicAnalysis?.overview;
+            if (overviewContent) {
+              setWorkflowState({
+                isPaused: true,
+                hasOverview: true,
+                overviewContent: overviewContent,
+                startedFromSignup: workflowState.startedFromSignup // preserve existing value
+              });
+            }
+          }
         }
         // If workflow is still running, resume polling
         else if (response.workflowStatus?.status === 'running' && !isPolling) {
@@ -290,9 +337,24 @@ function UserDashboard() {
           updateAnalysisFromWorkflow(response.analysisData);
         }
         
-        // Stop polling if workflow is complete or has error
-        if (response.workflowStatus?.status === 'completed' || response.workflowStatus?.status === 'error') {
+        // Stop polling if workflow is complete, paused after overview, or has error
+        if (response.workflowStatus?.status === 'completed' || 
+            response.workflowStatus?.status === 'error' ||
+            response.workflowStatus?.status === 'paused_after_overview') {
           stopPolling();
+          
+          // If paused after overview, update workflow state
+          if (response.workflowStatus?.status === 'paused_after_overview') {
+            const overviewContent = response.analysisData?.interpretation?.basicAnalysis?.overview;
+            if (overviewContent) {
+              setWorkflowState({
+                isPaused: true,
+                hasOverview: true,
+                overviewContent: overviewContent,
+                startedFromSignup: workflowState.startedFromSignup // preserve existing value
+              });
+            }
+          }
         }
       }
     } catch (error) {
@@ -360,7 +422,12 @@ function UserDashboard() {
 
   // Start polling
   const startPolling = () => {
-    if (isPolling) return; // Don't start if already polling
+    console.log('🚀 startPolling called. Current isPolling:', isPolling);
+    if (isPolling) {
+      console.log('⏭️ Already polling, skipping');
+      return; // Don't start if already polling
+    }
+    console.log('✅ Starting polling for workflow status');
     setIsPolling(true);
     setConnectionError(false);
     setRetryCount(0);
@@ -624,7 +691,28 @@ function UserDashboard() {
     label: 'Overview',
     content: (
       <section className="overview-section">
-        <p>{basicAnalysis.overview}</p>
+        {/* Show workflow overview if available, otherwise show basic analysis overview */}
+        {workflowState.hasOverview && workflowState.overviewContent ? (
+          <div>
+            <p>{workflowState.overviewContent}</p>
+            {workflowState.isPaused && (
+              <div style={{ 
+                marginTop: '20px', 
+                padding: '15px', 
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                borderRadius: '8px'
+              }}>
+                <p style={{ margin: '0', fontSize: '14px', color: '#a78bfa' }}>
+                  ✨ This is your personalized overview! To unlock detailed planetary interpretations, 
+                  life area insights, and personalized chat, complete your full analysis below.
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p>{basicAnalysis.overview}</p>
+        )}
       </section>
     )
   });
@@ -634,40 +722,72 @@ function UserDashboard() {
     label: 'Chart Patterns',
     content: (
       <section className="dominance-section">
-        <div className="pattern-grid">
-          <PatternCard
-            title="Elements"
-            data={{
-              ...userElements,
-              interpretation: basicAnalysis.dominance?.elements?.interpretation
-            }}
-            type="elements"
-          />
-          <PatternCard
-            title="Modalities"
-            data={{
-              ...userModalities,
-              interpretation: basicAnalysis.dominance?.modalities?.interpretation
-            }}
-            type="modalities"
-          />
-          <PatternCard
-            title="Quadrants"
-            data={{
-              ...userQuadrants,
-              interpretation: basicAnalysis.dominance?.quadrants?.interpretation
-            }}
-            type="quadrants"
-          />
-          <PatternCard
-            title="Patterns and Structures"
-            data={{
-              patterns: userPatterns,
-              interpretation: basicAnalysis.dominance?.patterns?.interpretation
-            }}
-            type="patterns"
-          />
-        </div>
+        {/* Show complete analysis prompt if paused and no dominance data */}
+        {workflowState.isPaused && !basicAnalysis.dominance?.elements?.interpretation ? (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>🔍 Chart Patterns Analysis</h3>
+            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+              Discover how the elements, modalities, and quadrants in your birth chart shape your personality, 
+              approach to life, and core patterns of behavior.
+            </p>
+            <button
+              onClick={handleResumeWorkflow}
+              style={{
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '16px'
+              }}
+            >
+              Complete Analysis to Unlock
+            </button>
+          </div>
+        ) : (
+          <div className="pattern-grid">
+            <PatternCard
+              title="Elements"
+              data={{
+                ...userElements,
+                interpretation: basicAnalysis.dominance?.elements?.interpretation
+              }}
+              type="elements"
+            />
+            <PatternCard
+              title="Modalities"
+              data={{
+                ...userModalities,
+                interpretation: basicAnalysis.dominance?.modalities?.interpretation
+              }}
+              type="modalities"
+            />
+            <PatternCard
+              title="Quadrants"
+              data={{
+                ...userQuadrants,
+                interpretation: basicAnalysis.dominance?.quadrants?.interpretation
+              }}
+              type="quadrants"
+            />
+            <PatternCard
+              title="Patterns and Structures"
+              data={{
+                patterns: userPatterns,
+                interpretation: basicAnalysis.dominance?.patterns?.interpretation
+              }}
+              type="patterns"
+            />
+          </div>
+        )}
       </section>
     )
   });
@@ -677,31 +797,101 @@ function UserDashboard() {
     label: 'Planets',
     content: (
       <section className="planets-section">
-        <div className="planet-grid">
-          {PLANET_ORDER.filter(p => basicAnalysis.planets && basicAnalysis.planets[p])
-            .map(planet => (
-              <PlanetCard
-                key={planet}
-                planet={planet}
-                interpretation={basicAnalysis.planets[planet].interpretation}
-                description={basicAnalysis.planets[planet].description}
-              />
-            ))}
-        </div>
+        {/* Show complete analysis prompt if paused and no planetary data */}
+        {workflowState.isPaused && (!basicAnalysis.planets || Object.keys(basicAnalysis.planets).length === 0) ? (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>🪐 Planetary Influences</h3>
+            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+              Explore detailed interpretations of how each planet in your birth chart influences different 
+              aspects of your personality, relationships, career, and life path.
+            </p>
+            <button
+              onClick={handleResumeWorkflow}
+              style={{
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '16px'
+              }}
+            >
+              Complete Analysis to Unlock
+            </button>
+          </div>
+        ) : (
+          <div className="planet-grid">
+            {PLANET_ORDER.filter(p => basicAnalysis.planets && basicAnalysis.planets[p])
+              .map(planet => (
+                <PlanetCard
+                  key={planet}
+                  planet={planet}
+                  interpretation={basicAnalysis.planets[planet].interpretation}
+                  description={basicAnalysis.planets[planet].description}
+                />
+              ))}
+          </div>
+        )}
       </section>
     )
   });
 
-  // Add 360 Analysis tab if there are any subtopic analyses
+  // Add 360 Analysis tab - show complete analysis prompt if paused and no subtopic data
   if (analysis360Tabs.length > 0) {
     analysisTabs.push({
       id: '360analysis',
       label: '360 Analysis',
       content: <TabMenu tabs={analysis360Tabs} />
     });
+  } else if (workflowState.isPaused) {
+    analysisTabs.push({
+      id: '360analysis',
+      label: '360 Analysis',
+      content: (
+        <section className="analysis-360-section">
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>🌟 360-Degree Life Analysis</h3>
+            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+              Unlock comprehensive insights into every area of your life - personality, relationships, 
+              career, spirituality, communication, and more. Get detailed analysis across 6 major life themes 
+              with 24 specific subtopics.
+            </p>
+            <button
+              onClick={handleResumeWorkflow}
+              style={{
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '16px'
+              }}
+            >
+              Complete Analysis to Unlock
+            </button>
+          </div>
+        </section>
+      )
+    });
   }
 
-  // Add Chat tab if vectorization is complete
+  // Add Chat tab if vectorization is complete or show complete analysis prompt if paused
   if (birthChartAnalysisId && userId && (
     vectorizationStatus.topicAnalysis.isComplete || 
     vectorizationStatus.workflowStatus?.isComplete
@@ -719,6 +909,44 @@ function UserDashboard() {
           handleSendMessage={handleSendMessage}
           handleKeyPress={handleKeyPress}
         />
+      )
+    });
+  } else if (workflowState.isPaused) {
+    analysisTabs.push({
+      id: 'chat',
+      label: 'Chat',
+      content: (
+        <section className="chat-section">
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>💬 Personalized AI Chat</h3>
+            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+              Chat with your personal AI astrologer about your birth chart! Ask questions about your 
+              personality, relationships, career path, or any aspect of your astrological profile. 
+              Available after your complete analysis is ready.
+            </p>
+            <button
+              onClick={handleResumeWorkflow}
+              style={{
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '16px'
+              }}
+            >
+              Complete Analysis to Unlock Chat
+            </button>
+          </div>
+        </section>
       )
     });
   }
@@ -784,19 +1012,21 @@ function UserDashboard() {
 
       {/* Workflow Control Section */}
       <div className="workflow-section">
-        {/* Show start/resume/retry button for not_started, incomplete, or completed_with_failures */}
+        {/* Show start/resume/retry button for not_started, incomplete, completed_with_failures, or paused_after_overview */}
         {(workflowStatus?.workflowStatus?.status === 'not_started' || 
           workflowStatus?.workflowStatus?.status === 'incomplete' || 
-          workflowStatus?.workflowStatus?.status === 'completed_with_failures') && (
+          workflowStatus?.workflowStatus?.status === 'completed_with_failures' ||
+          workflowStatus?.workflowStatus?.status === 'paused_after_overview') && (
           <div>
             <button
-              onClick={handleStartWorkflow}
+              onClick={workflowStatus?.workflowStatus?.status === 'paused_after_overview' ? handleResumeWorkflow : handleStartWorkflow}
               disabled={isWorkflowRunning || fetchLoading || !userId}
               className="workflow-button primary"
             >
               {workflowStatus?.workflowStatus?.status === 'not_started' && 'Start Analysis'}
               {workflowStatus?.workflowStatus?.status === 'incomplete' && 'Resume Analysis'}
               {workflowStatus?.workflowStatus?.status === 'completed_with_failures' && 'Retry Failed Tasks'}
+              {workflowStatus?.workflowStatus?.status === 'paused_after_overview' && 'Complete Full Analysis'}
             </button>
             <button
               onClick={checkWorkflowStatus}

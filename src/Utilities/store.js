@@ -123,6 +123,17 @@ const useStore = create(set => ({
                state.currentUserContext._id === state.activeUserContext._id;
     },
 
+    // Workflow state management for abbreviated analysis
+    workflowState: {
+        isPaused: false,
+        hasOverview: false,
+        overviewContent: '',
+        startedFromSignup: false
+    },
+    setWorkflowState: (updates) => set(state => ({
+        workflowState: { ...state.workflowState, ...updates }
+    })),
+
 }));
 
 export default useStore;

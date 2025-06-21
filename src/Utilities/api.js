@@ -829,13 +829,21 @@ export const getTransitWindows = async (userId, from, to) => {
 
 
 
-export const startWorkflow = async (userId) => {
-  console.log("Starting workflow for userId:", userId);
+export const startWorkflow = async (userId, immediate = true) => {
+  console.log("🔥 startWorkflow called - userId:", userId, "immediate:", immediate);
   try {
+    const requestBody = { userId };
+    if (!immediate) {
+      requestBody.immediate = false;
+    }
+    
+    console.log("📤 REQUEST BODY:", JSON.stringify(requestBody));
+    console.log("📍 REQUEST URL:", `${SERVER_URL}/workflow/individual/start`);
+    
     const response = await fetch(`${SERVER_URL}/workflow/individual/start`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({ userId })
+      body: JSON.stringify(requestBody)
     });
     
     if (!response.ok) {
@@ -857,7 +865,7 @@ export const getWorkflowStatus = async (userId) => {
     const response = await fetch(`${SERVER_URL}/workflow/individual/status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({ userId })
+      body: JSON.stringify({ workflowId: userId })
     });
     
     if (!response.ok) {
@@ -869,6 +877,28 @@ export const getWorkflowStatus = async (userId) => {
     return responseData;
   } catch (error) {
     console.error('Error getting workflow status:', error);
+    throw error;
+  }
+};
+
+export const resumeWorkflow = async (userId) => {
+  console.log("Resuming workflow for userId:", userId);
+  try {
+    const response = await fetch(`${SERVER_URL}/workflow/individual/resume`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ workflowId: userId })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Workflow resumed:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error resuming workflow:', error);
     throw error;
   }
 };
