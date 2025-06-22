@@ -298,7 +298,7 @@ const ConfirmationV2 = () => {
             {/* Navigation Buttons */}
             <div style={{ marginTop: '30px' }}>
                 <button onClick={() => navigate('/')} style={{ marginRight: '10px' }}>Go Back</button>
-                {userId && userData && (
+                {userId && userData && !isGeneratingOverview && (
                     <button 
                         onClick={() => {
                             // Set selectedUser for the dashboard to display user info
