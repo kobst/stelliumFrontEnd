@@ -1,36 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useStore from '../Utilities/store';
-import { fetchTimeZone, getShortOverview, postUserProfile, postUserProfileUnknownTime, getPlanetOverview, startWorkflow, getWorkflowStatus } from '../Utilities/api';
+import { getShortOverview, startWorkflow, getWorkflowStatus } from '../Utilities/api';
 import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 
 const ConfirmationV2 = () => {
     const navigate = useNavigate();
-
-    const setUserPlanets = useStore(state => state.setUserPlanets);
-    const setUserHouses = useStore(state => state.setUserHouses);
-    const setUserAspects = useStore(state => state.setUserAspects);
+    const { userId } = useParams(); // Get userId from URL parameter
+    
     const userData = useStore(state => state.userData);
-    const userPlanets = useStore(state => state.userPlanets)
-    const userHouses = useStore(state => state.userHouses)
-    const userAspects = useStore(state => state.userAspects) 
-    const setUserId = useStore(state => state.setUserId)
-    const userId = useStore(state => state.userId)
-    
-    // Debug userId changes
-    useEffect(() => {
-        console.log('userId changed to:', userId);
-    }, [userId]);
-    const promptDescriptionsMap = useStore(state => state.promptDescriptionsMap)
-    const setWorkflowState = useStore(state => state.setWorkflowState)
-    const workflowState = useStore(state => state.workflowState)
+    const userPlanets = useStore(state => state.userPlanets);
+    const userHouses = useStore(state => state.userHouses);
+    const userAspects = useStore(state => state.userAspects);
+    const setUserId = useStore(state => state.setUserId);
+    const setWorkflowState = useStore(state => state.setWorkflowState);
+    const workflowState = useStore(state => state.workflowState);
+    const setSelectedUser = useStore(state => state.setSelectedUser);
 
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);  
-    
-    // Move the ref outside the useEffect
-    const profileCreationAttempted = useRef(false);
+    const [error, setError] = useState(null);
     const workflowStartAttempted = useRef(false);
     const [sampleReading, setSampleReading] = useState(null);
     const [isDataComplete, setIsDataComplete] = useState(false);
@@ -38,6 +26,13 @@ const ConfirmationV2 = () => {
     const [isGeneratingOverview, setIsGeneratingOverview] = useState(false);
     const [pollInterval, setPollInterval] = useState(null);
     const [retryCount, setRetryCount] = useState(0);
+
+    // Set userId from URL parameter on mount
+    useEffect(() => {
+        if (userId) {
+            setUserId(userId);
+        }
+    }, [userId, setUserId]);
 
     // Hide loading UI if we have overview content (regardless of how we got it)
     useEffect(() => {
@@ -47,106 +42,18 @@ const ConfirmationV2 = () => {
         }
     }, [workflowState.hasOverview, workflowState.overviewContent, isGeneratingOverview]);
 
+    // Simple validation - profile should already be created by signup form
     useEffect(() => {
-        const createProfile = async () => {
-            console.log('Profile creation effect triggered. Conditions:', {
-                profileCreationAttempted: profileCreationAttempted.current,
-                hasUserData: !!userData,
-                userData: userData
-            });
-            
-            // Skip if we've already attempted to create the profile or if userData is missing
-            if (profileCreationAttempted.current || !userData || !userData.firstName || !userData.email) {
-                console.log('Profile creation skipped due to conditions');
-                return;
-            }
-            
-            // Mark that we've attempted profile creation
-            profileCreationAttempted.current = true;
-            
-            try {
-                const { firstName, lastName, email, date, time, lat, lon, placeOfBirth, gender, unknownTime } = userData;
-                
-                // Check if all required data is present
-                if (!firstName || !lastName || !email || !date || (!unknownTime && !time) || !lat || !lon || !placeOfBirth) {
-                    console.warn('Missing required user data for profile creation');
-                    setIsLoading(false);
-                    return;
-                }
-
-                if (unknownTime) {
-                    // Calculate epoch time for timezone lookup (using noon for unknown time)
-                    const dateTimeString = `${date}T12:00:00`;
-                    const dateTime = new Date(dateTimeString);
-                    const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
-                    const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-
-                    const birthData = {
-                        firstName,
-                        lastName,
-                        gender,
-                        placeOfBirth,
-                        dateOfBirth: date,
-                        email,
-                        lat: parseFloat(lat),
-                        lon: parseFloat(lon),
-                        tzone: parseFloat(totalOffsetHours)
-                    };
-                    
-                    const response = await postUserProfileUnknownTime(birthData);
-                    console.log('Unknown time response: ', JSON.stringify(response));
-                    console.log("Setting userId to:", response.user._id || response.saveUserResponse?.insertedId);
-                    
-                    // Update store with user data for unknown time
-                    if (response?.user) {
-                        setUserPlanets(response.user.birthChart?.planets || []);
-                        setUserHouses(response.user.birthChart?.houses || []); // Will be empty for unknown time
-                        setUserAspects(response.user.birthChart?.aspects || []);
-                        setUserId(response.user._id || response.saveUserResponse?.insertedId);
-                    }
-                    
-                    setIsLoading(false);
-                    return;
-                }
-
-                const dateTimeString = `${date}T${time}:00`;
-                const dateTime = new Date(dateTimeString);
-                const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
-                const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-
-                const birthData = {
-                    firstName,
-                    lastName,
-                    gender,
-                    placeOfBirth,
-                    dateOfBirth: dateTimeString,
-                    email,
-                    date,
-                    time,
-                    lat,
-                    lon,
-                    tzone: totalOffsetHours,
-                };
-
-                const response = await postUserProfile(birthData);
-
-                console.log("response: ", JSON.stringify(response))
-                console.log("Setting userId to:", response.saveUserResponse?.insertedId);
-                
-                setUserPlanets(response.user.birthChart.planets);
-                setUserHouses(response.user.birthChart.houses);
-                setUserAspects(response.user.birthChart.aspects);
-                setUserId(response.saveUserResponse?.insertedId);
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Error creating user profile:', error);
-                setError('An error occurred while creating your profile. Please try again.');
-                setIsLoading(false);
-            }
-        };
+        if (!userData || !userId) {
+            setError('Missing user data. Please try signing up again.');
+            return;
+        }
         
-        createProfile();
-    }, [userData]); // Depend on userData but use ref to prevent duplicates
+        console.log('Confirmation page loaded successfully:', { 
+            userId, 
+            firstName: userData.firstName
+        });
+    }, [userData, userId]);
 
     useEffect(() => {
         const dataComplete = 
@@ -166,12 +73,11 @@ const ConfirmationV2 = () => {
             console.log('Workflow start effect triggered. Conditions:', {
                 workflowStartAttempted: workflowStartAttempted.current,
                 userId,
-                isLoading,
                 userPlanetsLength: userPlanets?.length,
                 hasUserData: !!userData
             });
             
-            if (workflowStartAttempted.current || !userId || isLoading) {
+            if (workflowStartAttempted.current || !userId) {
                 console.log('Workflow start skipped due to conditions');
                 return;
             }
@@ -212,7 +118,7 @@ const ConfirmationV2 = () => {
         };
 
         startAbbreviatedWorkflow();
-    }, [userId, isLoading, setWorkflowState]);
+    }, [userId, setWorkflowState]);
 
     // Polling function for workflow status
     const pollWorkflowStatus = async () => {
@@ -305,22 +211,13 @@ const ConfirmationV2 = () => {
         }
     }
 
-    if (isLoading) {
-        return (
-          <div className="confirmation-page">
-            <h1>Creating Your Profile</h1>
-            {/* <LoadingSpinner /> */}
-            <p>Please wait while we create your profile...</p>
-          </div>
-        );
-      }
-    
-      if (error) {
+    // Show error state if data is missing
+    if (error) {
         return (
           <div className="confirmation-page">
             <h1>Error</h1>
             <p>{error}</p>
-            <button onClick={() => navigate('/')}>Go Back</button>
+            <button onClick={() => navigate('/')}>Go Back to Sign Up</button>
           </div>
         );
       }
@@ -401,9 +298,19 @@ const ConfirmationV2 = () => {
             {/* Navigation Buttons */}
             <div style={{ marginTop: '30px' }}>
                 <button onClick={() => navigate('/')} style={{ marginRight: '10px' }}>Go Back</button>
-                {userId && (
+                {userId && userData && (
                     <button 
-                        onClick={() => navigate('/userDashboard')} 
+                        onClick={() => {
+                            // Set selectedUser for the dashboard to display user info
+                            setSelectedUser({
+                                _id: userId,
+                                firstName: userData.firstName,
+                                lastName: userData.lastName,
+                                email: userData.email,
+                                kind: 'accountSelf'
+                            });
+                            navigate(`/userDashboard/${userId}`);
+                        }} 
                         style={{
                             marginLeft: '10px',
                             backgroundColor: '#8b5cf6',

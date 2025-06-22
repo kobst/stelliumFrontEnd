@@ -1,6 +1,7 @@
 // Updated UserDashboard component with polling workflow
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import UserBirthChartContainer from '../UI/prototype/UserBirthChartContainer';
 import useStore from '../Utilities/store';
 import { BroadTopicsEnum, ERROR_API_CALL } from '../Utilities/constants';
@@ -41,10 +42,12 @@ const PLANET_ORDER = [
 ];
 
 function UserDashboard() {
+  const { userId } = useParams(); // Get userId from URL parameter
   const selectedUser = useStore(state => state.selectedUser);
-  const userId = useStore(state => state.userId);
+  const storeUserId = useStore(state => state.userId);
   const setCurrentUserContext = useStore(state => state.setCurrentUserContext);
   const setActiveUserContext = useStore(state => state.setActiveUserContext);
+  const setUserId = useStore(state => state.setUserId);
   const userPlanets = useStore(state => state.userPlanets);
   const userHouses = useStore(state => state.userHouses);
   const userAspects = useStore(state => state.userAspects);
@@ -113,13 +116,64 @@ function UserDashboard() {
     error: fetchError
   } = useAsync(fetchAnalysisForUser);
 
+  // Sync URL userId with store and clear previous user's data
+  useEffect(() => {
+    if (userId && userId !== storeUserId) {
+      console.log('Setting userId from URL parameter:', userId);
+      setUserId(userId);
+      
+      // Clear previous user's analysis data to prevent contamination
+      console.log('Clearing previous user analysis data');
+      setBasicAnalysis({
+        overview: '',
+        dominance: {
+          elements: { interpretation: '' },
+          modalities: { interpretation: '' },
+          quadrants: { interpretation: '' },
+          patterns: { interpretation: '' }
+        },
+        planets: {}
+      });
+      setSubTopicAnalysis({});
+      setWorkflowStatus(null);
+      setVectorizationStatus({
+        overview: false,
+        planets: {
+          Sun: false, Moon: false, Mercury: false, Venus: false, Mars: false,
+          Jupiter: false, Saturn: false, Uranus: false, Neptune: false, Pluto: false, Ascendant: false
+        },
+        dominance: { elements: false, modalities: false, quadrants: false },
+        basicAnalysis: false,
+        topicAnalysis: {
+          PERSONALITY_IDENTITY: { PERSONAL_IDENTITY: false, OUTWARD_EXPRESSION: false, INNER_EMOTIONAL_SELF: false, CHALLENGES_SELF_EXPRESSION: false },
+          EMOTIONAL_FOUNDATIONS_HOME: { EMOTIONAL_FOUNDATIONS: false, FAMILY_DYNAMICS: false, HOME_ENVIRONMENT: false, FAMILY_CHALLENGES: false },
+          RELATIONSHIPS_SOCIAL: { RELATIONSHIP_DESIRES: false, LOVE_STYLE: false, SEXUAL_NATURE: false, COMMITMENT_APPROACH: false, RELATIONSHIP_CHALLENGES: false },
+          CAREER_PURPOSE_PUBLIC_IMAGE: { CAREER_MOTIVATIONS: false, PUBLIC_IMAGE: false, CAREER_CHALLENGES: false, SKILLS_TALENTS: false },
+          UNCONSCIOUS_SPIRITUALITY: { PSYCHOLOGICAL_PATTERNS: false, SPIRITUAL_GROWTH: false, KARMIC_LESSONS: false, TRANSFORMATIVE_EVENTS: false },
+          COMMUNICATION_BELIEFS: { COMMUNICATION_STYLES: false, PHILOSOPHICAL_BELIEFS: false, TRAVEL_EXPERIENCES: false, MENTAL_GROWTH_CHALLENGES: false },
+          isComplete: false
+        },
+        workflowStatus: null,
+        lastUpdated: null
+      });
+      
+      // Also clear workflow state from store
+      setWorkflowState({
+        isPaused: false,
+        hasOverview: false,
+        overviewContent: '',
+        startedFromSignup: false
+      });
+    }
+  }, [userId, storeUserId, setUserId, setWorkflowState]);
+
   useEffect(() => {
     if (userId) {
       if (userAspects.length !== 0 || userHouses.length !== 0 || userPlanets.length !== 0) {
         setIsDataPopulated(true);
       }
     }
-  }, [userId]);
+  }, [userId, userAspects, userHouses, userPlanets]);
 
   // Set user context when dashboard loads
   useEffect(() => {

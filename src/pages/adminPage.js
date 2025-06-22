@@ -32,7 +32,7 @@ function AdminPage() {
     setUserQuadrants(user.birthChart.quadrants);
     setUserPatterns(user.birthChart.patterns);
 
-    navigate(`/userDashboard`);
+    navigate(`/userDashboard/${user._id}`);
   };
 
   const handleCelebritySelect = async (celebrity) => {
@@ -46,7 +46,7 @@ function AdminPage() {
     setUserQuadrants(celebrity.birthChart.quadrants);
     setUserPatterns(celebrity.birthChart.patterns);
 
-    navigate(`/userDashboard`);
+    navigate(`/userDashboard/${celebrity._id}`);
   };
 
   const handleCelebrityAdded = () => {

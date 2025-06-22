@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import Autocomplete from 'react-google-autocomplete';
 import useStore from '../../Utilities/store';
+import { fetchTimeZone, postUserProfile, postUserProfileUnknownTime } from '../../Utilities/api';
 import './UserSignUpForm.css';  // Add this line
 
 
@@ -38,13 +39,12 @@ const UserSignUpForm = () => {
     const [gender, setGender] = useState('');
     const [unknownTime, setUnknownTime] = useState(false);
     const [formErrors, setFormErrors] = useState({});
-    // const setRawBirthData = useStore(state => state.setRawBirthData);
-    // const setBirthDate = useStore(state => state.setBirthDate);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const setUserData = useStore(state => state.setUserData);
-    // const setUserId = useStore(state => state.setUserId);
-    // const setUserPlanets = useStore(state => state.setUserPlanets);
-    // const setUserHouses = useStore(state => state.setUserHouses);
-    // const setUserAspects = useStore(state => state.setUserAspects);
+    const setUserPlanets = useStore(state => state.setUserPlanets);
+    const setUserHouses = useStore(state => state.setUserHouses);
+    const setUserAspects = useStore(state => state.setUserAspects);
+    const setUserId = useStore(state => state.setUserId);
   
     const validateForm = () => {
       const errors = {};
@@ -60,29 +60,109 @@ const UserSignUpForm = () => {
   
     const handleSubmit = async (event) => {
       event.preventDefault();
+      
+      if (isSubmitting) return; // Prevent double submission
+      
       const errors = validateForm();
       if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
         return;
       }
 
-      const userData = {
-        firstName,
-        lastName,
-        email,
-        date,
-        time: unknownTime ? '' : time,
-        lat,
-        lon,
-        placeOfBirth,
-        gender,
-        unknownTime
-      };
+      setIsSubmitting(true);
+      setFormErrors({});
 
-      setUserData(userData);
-      navigate('/signUpConfirmation');
-      // setRawBirthData({});
-      // setBirthDate('');
+      try {
+        const userData = {
+          firstName,
+          lastName,
+          email,
+          date,
+          time: unknownTime ? '' : time,
+          lat,
+          lon,
+          placeOfBirth,
+          gender,
+          unknownTime
+        };
+
+        // Store userData in Zustand for later use
+        setUserData(userData);
+
+        let response;
+        
+        if (unknownTime) {
+          // Calculate epoch time for timezone lookup (using noon for unknown time)
+          const dateTimeString = `${date}T12:00:00`;
+          const dateTime = new Date(dateTimeString);
+          const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
+          const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
+
+          const birthData = {
+            firstName,
+            lastName,
+            gender,
+            placeOfBirth,
+            dateOfBirth: date,
+            email,
+            lat: parseFloat(lat),
+            lon: parseFloat(lon),
+            tzone: parseFloat(totalOffsetHours)
+          };
+          
+          response = await postUserProfileUnknownTime(birthData);
+        } else {
+          const dateTimeString = `${date}T${time}:00`;
+          const dateTime = new Date(dateTimeString);
+          const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
+          const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
+
+          const birthData = {
+            firstName,
+            lastName,
+            gender,
+            placeOfBirth,
+            dateOfBirth: dateTimeString,
+            email,
+            date,
+            time,
+            lat,
+            lon,
+            tzone: totalOffsetHours,
+          };
+
+          response = await postUserProfile(birthData);
+        }
+
+        console.log("User profile created:", response);
+        
+        // Store the user data in Zustand
+        setUserPlanets(response.user.birthChart.planets);
+        setUserHouses(response.user.birthChart.houses || []);
+        setUserAspects(response.user.birthChart.aspects);
+        
+        const userId = response.user._id || response.saveUserResponse?.insertedId;
+        setUserId(userId);
+        
+        // Set selectedUser for dashboard compatibility
+        const setSelectedUser = useStore.getState().setSelectedUser;
+        setSelectedUser({
+          _id: userId,
+          firstName,
+          lastName,
+          email,
+          kind: 'accountSelf'
+        });
+
+        // Navigate to confirmation page with userId as URL parameter
+        navigate(`/signUpConfirmation/${userId}`);
+        
+      } catch (error) {
+        console.error('Error creating user profile:', error);
+        setFormErrors({ submit: 'An error occurred while creating your profile. Please try again.' });
+      } finally {
+        setIsSubmitting(false);
+      }
     };
 
     const headerStyle = {
@@ -293,14 +373,16 @@ const UserSignUpForm = () => {
             <input 
               className="email-submit-btn" 
               type="submit" 
-              value="Submit" 
+              value={isSubmitting ? "Creating Profile..." : "Submit"} 
+              disabled={isSubmitting}
               style={{ 
                 ...inputStyle, 
                 width: 'auto', 
-                cursor: 'pointer', 
-                backgroundColor: 'white', 
+                cursor: isSubmitting ? 'not-allowed' : 'pointer', 
+                backgroundColor: isSubmitting ? '#ccc' : 'white', 
                 color: 'black', 
-                fontWeight: 'bold' 
+                fontWeight: 'bold',
+                opacity: isSubmitting ? 0.7 : 1
               }}
             />
           </div>

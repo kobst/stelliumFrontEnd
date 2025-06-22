@@ -20,11 +20,11 @@ function App() {
           <Routes>
             <Route path="/" element={<SignUpPage />} />
             <Route path="/admin" element={<AdminPage />} />
-            <Route path="/userDashboard" element={<UserDashboard />} />
+            <Route path="/userDashboard/:userId" element={<UserDashboard />} />
             <Route path="/guestDashboard" element={<GuestDashboard />} />
             <Route path="/synastry" element={<SynastryPage_v2 />} />
             <Route path="/compositeDashboard" element={<CompositeDashboard_v4 />} />
-            <Route path="/signUpConfirmation" element={<ConfirmationV2 />} />
+            <Route path="/signUpConfirmation/:userId" element={<ConfirmationV2 />} />
           </Routes>
         </PasswordProtection>
 

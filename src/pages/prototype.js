@@ -39,7 +39,7 @@ function PrototypePage() {
     // fetchUserBirthChartInterpretation(user._id);
     // fetchUserPeriodTransits(user, startDate, endDate)
 
-    navigate(`/userDashboard`);
+    navigate(`/userDashboard/${user._id}`);
 
   };
 
