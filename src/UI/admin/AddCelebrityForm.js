@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Autocomplete from 'react-google-autocomplete';
-import { createCelebrity, createCelebrityUnknownTime, fetchTimeZone } from '../../Utilities/api';
+import { fetchTimeZone } from '../../Utilities/api';
+import useSubjectCreation from '../../hooks/useSubjectCreation';
 import '../landingPage/UserSignUpForm.css';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 
 const AddCelebrityForm = ({ onCelebrityAdded }) => {
     const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { createCelebrity, loading, error, workflowId, isCompleted, status, checkStatus } = useSubjectCreation();
 
     // Load Google Places API script
     useEffect(() => {
@@ -23,6 +24,61 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
         }
     }, []);
 
+    // Start polling when we get a workflow ID
+    useEffect(() => {
+        if (workflowId && !isCompleted) {
+            console.log('Starting to poll celebrity workflow status for:', workflowId);
+            const interval = setInterval(async () => {
+                try {
+                    const statusResponse = await checkStatus(workflowId);
+                    console.log('Celebrity polling status:', statusResponse);
+                    
+                    // Check if completed based on either completed flag or status + completedAt
+                    const isCompleted = statusResponse.completed || 
+                                       (statusResponse.completedAt && statusResponse.status?.includes('_created_with_overview'));
+                    
+                    if (isCompleted) {
+                        console.log('Celebrity workflow completed!');
+                        clearInterval(interval);
+                    }
+                } catch (error) {
+                    console.error('Celebrity polling error:', error);
+                    
+                    // Stop polling on 404 errors (workflow no longer exists)
+                    if (error.message?.includes('404')) {
+                        console.log('Stopping celebrity polling - workflow no longer trackable (404)');
+                        clearInterval(interval);
+                        
+                        // If we got a 404 and have a workflowId, assume the workflow completed
+                        // (backend removes completed workflows)
+                        if (workflowId) {
+                            setSuccessMessage(`Celebrity has been added successfully!`);
+                            setWorkflowStatus('completed');
+                            
+                            // Clear form
+                            setFirstName('');
+                            setLastName('');
+                            setDate('');
+                            setTime('');
+                            setLat('');
+                            setLon('');
+                            setPlaceOfBirth('');
+                            setGender('');
+                            setUnknownTime(false);
+                            
+                            // Notify parent component if callback provided
+                            if (onCelebrityAdded) {
+                                onCelebrityAdded();
+                            }
+                        }
+                    }
+                }
+            }, 3000);
+
+            return () => clearInterval(interval);
+        }
+    }, [workflowId, isCompleted, checkStatus]);
+
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [date, setDate] = useState('');
@@ -34,6 +90,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
     const [unknownTime, setUnknownTime] = useState(false);
     const [formErrors, setFormErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
+    const [workflowStatus, setWorkflowStatus] = useState(null);
 
     const validateForm = () => {
       const errors = {};
@@ -46,61 +103,11 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
       return errors;
     };
 
-    const handleSubmit = async (event) => {
-      event.preventDefault();
-      const errors = validateForm();
-      if (Object.keys(errors).length > 0) {
-        setFormErrors(errors);
-        return;
-      }
-
-      setIsSubmitting(true);
-      setFormErrors({});
-      setSuccessMessage('');
-
-      try {
-        if (unknownTime) {
-          // Calculate epoch time for timezone lookup (using noon for unknown time)
-          const dateTimeString = `${date}T12:00:00`;
-          const dateTime = new Date(dateTimeString);
-          const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
-          const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-
-          const birthData = {
-            firstName,
-            lastName,
-            gender,
-            placeOfBirth,
-            dateOfBirth: date,
-            lat: parseFloat(lat),
-            lon: parseFloat(lon),
-            tzone: parseFloat(totalOffsetHours)
-          };
-          
-          await createCelebrityUnknownTime(birthData);
-        } else {
-          const dateTimeString = `${date}T${time}:00`;
-          const dateTime = new Date(dateTimeString);
-          const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
-          const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-
-          const birthData = {
-            firstName,
-            lastName,
-            gender,
-            placeOfBirth,
-            dateOfBirth: dateTimeString,
-            date,
-            time,
-            lat,
-            lon,
-            tzone: totalOffsetHours,
-          };
-
-          await createCelebrity(birthData);
-        }
-
+    // Handle workflow completion
+    useEffect(() => {
+      if (isCompleted && workflowId) {
         setSuccessMessage(`${firstName} ${lastName} has been added successfully!`);
+        setWorkflowStatus('completed');
         
         // Clear form
         setFirstName('');
@@ -117,12 +124,49 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
         if (onCelebrityAdded) {
           onCelebrityAdded();
         }
+      }
+    }, [isCompleted, workflowId, firstName, lastName, onCelebrityAdded]);
 
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+      const errors = validateForm();
+      if (Object.keys(errors).length > 0) {
+        setFormErrors(errors);
+        return;
+      }
+
+      setFormErrors({});
+      setSuccessMessage('');
+      setWorkflowStatus(null);
+
+      try {
+        // Calculate timezone offset
+        const timeForTimezone = unknownTime ? '12:00' : time;
+        const dateTimeString = `${date}T${timeForTimezone}:00`;
+        const dateTime = new Date(dateTimeString);
+        const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
+        const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
+
+        // Prepare data for new API
+        const celebrityData = {
+          firstName,
+          lastName,
+          dateOfBirth: date,
+          placeOfBirth,
+          time: unknownTime ? 'unknown' : time,
+          lat: parseFloat(lat),
+          lon: parseFloat(lon),
+          tzone: parseFloat(totalOffsetHours),
+          gender
+        };
+
+        console.log('Creating celebrity with new API:', celebrityData);
+        await createCelebrity(celebrityData);
+        setWorkflowStatus('started');
+        
       } catch (error) {
         console.error('Error creating celebrity:', error);
-        setFormErrors({ submit: 'Error creating celebrity. Please try again.' });
-      } finally {
-        setIsSubmitting(false);
+        setFormErrors({ submit: error.message || 'Error creating celebrity. Please try again.' });
       }
     };
 
@@ -193,7 +237,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
               onChange={e => setFirstName(e.target.value)}
               style={inputStyle}
               className="input-dark-placeholder"
-              disabled={isSubmitting}
+              disabled={loading}
             />
             <input 
               type="text" 
@@ -202,7 +246,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
               onChange={e => setLastName(e.target.value)}
               style={inputStyle}
               className="input-dark-placeholder"
-              disabled={isSubmitting}
+              disabled={loading}
             />
           </div>
 
@@ -221,7 +265,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
                         backgroundColor: 'white'
                     }}
                     placeholder="City, Country"
-                    disabled={isSubmitting}
+                    disabled={loading}
                 />
             ) : (
                 <input
@@ -244,7 +288,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
               value={date} 
               onChange={e => setDate(e.target.value)} 
               style={inputStyle}
-              disabled={isSubmitting}
+              disabled={loading}
             />
           </div>
 
@@ -271,7 +315,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
                 cursor: 'pointer',
                 marginRight: '8px'
               }}
-              disabled={isSubmitting}
+              disabled={loading}
             >
               <option value="known">Known Time</option>
               <option value="unknown">Unknown</option>
@@ -285,7 +329,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
                   ...inputStyle,
                   margin: 0
                 }}
-                disabled={isSubmitting}
+                disabled={loading}
               />
             )}
           </div>
@@ -305,7 +349,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
                 borderRadius: '3px',
                 cursor: 'pointer'
               }}
-              disabled={isSubmitting}
+              disabled={loading}
             >
               <option value="">Select...</option>
               <option value="male">Male</option>
@@ -318,20 +362,54 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
             <input 
               className="email-submit-btn" 
               type="submit" 
-              value={isSubmitting ? "Adding..." : "Add Celebrity"}
+              value={loading ? "Adding..." : "Add Celebrity"}
               style={{ 
                 ...inputStyle, 
                 width: 'auto', 
-                cursor: isSubmitting ? 'not-allowed' : 'pointer', 
-                backgroundColor: isSubmitting ? '#ccc' : 'white', 
+                cursor: loading ? 'not-allowed' : 'pointer', 
+                backgroundColor: loading ? '#ccc' : 'white', 
                 color: 'black', 
                 fontWeight: 'bold',
-                opacity: isSubmitting ? 0.6 : 1
+                opacity: loading ? 0.6 : 1
               }}
-              disabled={isSubmitting}
+              disabled={loading}
             />
           </div>
         </form>
+        
+        {/* Workflow Status Display */}
+        {workflowStatus === 'started' && !isCompleted && (
+          <div style={{ 
+            backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+            padding: '15px', 
+            borderRadius: '6px', 
+            margin: '15px 0',
+            textAlign: 'center'
+          }}>
+            <p style={{ color: 'white', margin: '0' }}>Creating celebrity profile and generating overview...</p>
+            {status?.progress && (
+              <div style={{ marginTop: '10px' }}>
+                <p style={{ color: '#a78bfa', fontSize: '14px', margin: '5px 0' }}>
+                  Progress: {status.progress.completedTasks} of {status.progress.totalTasks} tasks
+                </p>
+                <div style={{ 
+                  width: '100%', 
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+                  borderRadius: '4px',
+                  height: '6px'
+                }}>
+                  <div style={{ 
+                    width: `${status.progress.percentage || 0}%`, 
+                    backgroundColor: '#8b5cf6',
+                    height: '100%',
+                    borderRadius: '4px',
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         
         {successMessage && (
           <div style={{ color: 'green', marginTop: '15px', textAlign: 'center' }}>
@@ -339,11 +417,12 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
           </div>
         )}
         
-        {Object.keys(formErrors).length > 0 && (
+        {(Object.keys(formErrors).length > 0 || error) && (
           <div style={{ color: 'red', marginTop: '15px' }}>
-            {Object.values(formErrors).map((error, index) => (
-              <p key={index}>{error}</p>
+            {Object.values(formErrors).map((err, index) => (
+              <p key={index}>{err}</p>
             ))}
+            {error && <p>{error}</p>}
           </div>
         )}
       </div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Autocomplete from 'react-google-autocomplete';
 import useStore from '../../Utilities/store';
-import { createGuestSubject, createGuestSubjectUnknownTime, fetchTimeZone } from '../../Utilities/api';
+import { fetchTimeZone } from '../../Utilities/api';
+import useSubjectCreation from '../../hooks/useSubjectCreation';
 import '../landingPage/UserSignUpForm.css';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY;
@@ -9,6 +10,7 @@ const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY;
 const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const userId = useStore(state => state.userId);
+  const { createGuest, loading, error, workflowId, isCompleted, status, checkStatus } = useSubjectCreation();
 
   // Load Google Places API script
   useEffect(() => {
@@ -24,6 +26,61 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
     }
   }, []);
 
+  // Start polling when we get a workflow ID
+  useEffect(() => {
+    if (workflowId && !isCompleted) {
+      console.log('Starting to poll guest workflow status for:', workflowId);
+      const interval = setInterval(async () => {
+        try {
+          const statusResponse = await checkStatus(workflowId);
+          console.log('Guest polling status:', statusResponse);
+          
+          // Check if completed based on either completed flag or status + completedAt
+          const isCompleted = statusResponse.completed || 
+                             (statusResponse.completedAt && statusResponse.status?.includes('_created_with_overview'));
+          
+          if (isCompleted) {
+            console.log('Guest workflow completed!');
+            clearInterval(interval);
+          }
+        } catch (error) {
+          console.error('Guest polling error:', error);
+          
+          // Stop polling on 404 errors (workflow no longer exists)
+          if (error.message?.includes('404')) {
+            console.log('Stopping guest polling - workflow no longer trackable (404)');
+            clearInterval(interval);
+            
+            // If we got a 404 and have a workflowId, assume the workflow completed
+            // (backend removes completed workflows)
+            if (workflowId) {
+              setSubmitMessage('Profile added successfully!');
+              setWorkflowStatus('completed');
+              
+              // Clear form
+              setFirstName('');
+              setLastName('');
+              setDate('');
+              setTime('');
+              setLat('');
+              setLon('');
+              setPlaceOfBirth('');
+              setGender('');
+              setUnknownTime(false);
+              
+              // Notify parent component if callback provided
+              if (onGuestAdded) {
+                onGuestAdded();
+              }
+            }
+          }
+        }
+      }, 3000);
+
+      return () => clearInterval(interval);
+    }
+  }, [workflowId, isCompleted, checkStatus]);
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [date, setDate] = useState('');
@@ -34,8 +91,8 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
   const [gender, setGender] = useState('');
   const [unknownTime, setUnknownTime] = useState(false);
   const [formErrors, setFormErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
+  const [workflowStatus, setWorkflowStatus] = useState(null);
 
   const validateForm = () => {
     const errors = {};
@@ -48,42 +105,11 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
     return errors;
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const errors = validateForm();
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitMessage('');
-
-    try {
-      // Calculate timezone offset
-      const birthDateTime = new Date(`${date}T${time || '12:00'}:00`);
-      const epochTimeSeconds = birthDateTime.getTime() / 1000;
-      const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-
-      const guestData = {
-        firstName,
-        lastName,
-        gender,
-        placeOfBirth,
-        dateOfBirth: birthDateTime.toISOString(),
-        time: unknownTime ? null : time,
-        lat: parseFloat(lat),
-        lon: parseFloat(lon),
-        tzone: totalOffsetHours,
-        ownerUserId: userId
-      };
-
-      // Use appropriate API based on whether time is known
-      const response = unknownTime 
-        ? await createGuestSubjectUnknownTime(guestData)
-        : await createGuestSubject(guestData);
-
+  // Handle workflow completion
+  useEffect(() => {
+    if (isCompleted && workflowId) {
       setSubmitMessage('Profile added successfully!');
+      setWorkflowStatus('completed');
       
       // Clear form
       setFirstName('');
@@ -102,15 +128,54 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
         onGuestAdded();
       }
 
-    } catch (error) {
-      console.error('Error creating guest:', error);
-      setSubmitMessage('Error creating profile. Please try again.');
-    } finally {
-      setIsSubmitting(false);
       // Clear message after 3 seconds
       setTimeout(() => {
         setSubmitMessage('');
+        setWorkflowStatus(null);
       }, 3000);
+    }
+  }, [isCompleted, workflowId, onGuestAdded]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setFormErrors({});
+    setSubmitMessage('');
+    setWorkflowStatus(null);
+
+    try {
+      // Calculate timezone offset
+      const timeForTimezone = unknownTime ? '12:00' : time;
+      const dateTimeString = `${date}T${timeForTimezone}:00`;
+      const dateTime = new Date(dateTimeString);
+      const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
+      const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
+
+      // Prepare data for new API
+      const guestData = {
+        firstName,
+        lastName,
+        dateOfBirth: date,
+        placeOfBirth,
+        time: unknownTime ? 'unknown' : time,
+        lat: parseFloat(lat),
+        lon: parseFloat(lon),
+        tzone: parseFloat(totalOffsetHours),
+        gender
+      };
+
+      console.log('Creating guest with new API:', guestData);
+      await createGuest(guestData, userId);
+      setWorkflowStatus('started');
+      
+    } catch (error) {
+      console.error('Error creating guest:', error);
+      setSubmitMessage(error.message || 'Error creating profile. Please try again.');
     }
   };
 
@@ -182,7 +247,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
             onChange={e => setFirstName(e.target.value)}
             style={inputStyle}
             className="input-dark-placeholder"
-            disabled={isSubmitting}
+            disabled={loading}
           />
           <input 
             type="text" 
@@ -191,7 +256,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
             onChange={e => setLastName(e.target.value)}
             style={inputStyle}
             className="input-dark-placeholder"
-            disabled={isSubmitting}
+            disabled={loading}
           />
         </div>
 
@@ -210,7 +275,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
                 backgroundColor: 'white'
               }}
               placeholder="City, Country"
-              disabled={isSubmitting}
+              disabled={loading}
             />
           ) : (
             <input
@@ -233,7 +298,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
             value={date} 
             onChange={e => setDate(e.target.value)} 
             style={inputStyle}
-            disabled={isSubmitting}
+            disabled={loading}
           />
         </div>
 
@@ -260,7 +325,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
               cursor: 'pointer',
               marginRight: '8px'
             }}
-            disabled={isSubmitting}
+            disabled={loading}
           >
             <option value="known">Known Time</option>
             <option value="unknown">Unknown</option>
@@ -274,7 +339,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
                 ...inputStyle,
                 margin: 0
               }}
-              disabled={isSubmitting}
+              disabled={loading}
             />
           )}
         </div>
@@ -294,7 +359,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
               borderRadius: '3px',
               cursor: 'pointer'
             }}
-            disabled={isSubmitting}
+            disabled={loading}
           >
             <option value="">Select...</option>
             <option value="male">Male</option>
@@ -307,20 +372,54 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
           <input 
             className="email-submit-btn" 
             type="submit" 
-            value={isSubmitting ? "Adding..." : "Add Profile"}
+            value={loading ? "Adding..." : "Add Profile"}
             style={{ 
               ...inputStyle, 
               width: 'auto', 
-              cursor: isSubmitting ? 'not-allowed' : 'pointer', 
-              backgroundColor: isSubmitting ? '#ccc' : 'white', 
+              cursor: loading ? 'not-allowed' : 'pointer', 
+              backgroundColor: loading ? '#ccc' : 'white', 
               color: 'black', 
               fontWeight: 'bold',
-              opacity: isSubmitting ? 0.6 : 1
+              opacity: loading ? 0.6 : 1
             }}
-            disabled={isSubmitting}
+            disabled={loading}
           />
         </div>
       </form>
+      
+      {/* Workflow Status Display */}
+      {workflowStatus === 'started' && !isCompleted && (
+        <div style={{ 
+          backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+          padding: '15px', 
+          borderRadius: '6px', 
+          margin: '15px 0',
+          textAlign: 'center'
+        }}>
+          <p style={{ color: 'white', margin: '0' }}>Creating guest profile and generating overview...</p>
+          {status?.progress && (
+            <div style={{ marginTop: '10px' }}>
+              <p style={{ color: '#a78bfa', fontSize: '14px', margin: '5px 0' }}>
+                Progress: {status.progress.completedTasks} of {status.progress.totalTasks} tasks
+              </p>
+              <div style={{ 
+                width: '100%', 
+                backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+                borderRadius: '4px',
+                height: '6px'
+              }}>
+                <div style={{ 
+                  width: `${status.progress.percentage || 0}%`, 
+                  backgroundColor: '#8b5cf6',
+                  height: '100%',
+                  borderRadius: '4px',
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       
       {submitMessage && (
         <div style={{ color: submitMessage.includes('Error') ? 'red' : 'green', marginTop: '15px', textAlign: 'center' }}>
@@ -328,11 +427,12 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
         </div>
       )}
       
-      {Object.keys(formErrors).length > 0 && (
+      {(Object.keys(formErrors).length > 0 || error) && (
         <div style={{ color: 'red', marginTop: '15px' }}>
-          {Object.values(formErrors).map((error, index) => (
-            <p key={index}>{error}</p>
+          {Object.values(formErrors).map((err, index) => (
+            <p key={index}>{err}</p>
           ))}
+          {error && <p>{error}</p>}
         </div>
       )}
     </div>

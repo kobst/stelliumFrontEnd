@@ -24,7 +24,7 @@ function App() {
             <Route path="/guestDashboard" element={<GuestDashboard />} />
             <Route path="/synastry" element={<SynastryPage_v2 />} />
             <Route path="/compositeDashboard" element={<CompositeDashboard_v4 />} />
-            <Route path="/signUpConfirmation/:userId" element={<ConfirmationV2 />} />
+            <Route path="/signUpConfirmation" element={<ConfirmationV2 />} />
           </Routes>
         </PasswordProtection>
 

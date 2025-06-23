@@ -28,48 +28,34 @@ export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
 }
 
 
-export const postUserProfile = async (birthData) => {
+// New unified creation API - creates user and starts overview generation automatically
+export const createUserWithOverview = async (userData) => {
   try {
-    console.log(`${SERVER_URL}/createUser`)
-    const response = await fetch(`${SERVER_URL}/createUser`, {
+    console.log('Creating user with overview:', userData);
+    const response = await fetch(`${SERVER_URL}/user/create-with-overview`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
       },
-      body: JSON.stringify(birthData)
+      body: JSON.stringify(userData)
     });
 
     if (!response.ok) {
+      // If 404, the new endpoint doesn't exist yet
+      if (response.status === 404) {
+        throw new Error('New API endpoint not available yet. Please check backend deployment.');
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const responseData = await response.json();
-    // console.log(responseData)
+    console.log('User creation with overview response:', responseData);
     return responseData;
   } catch (error) {
-    console.error(ERROR_API_CALL, error);
-    throw error;
-  }
-};
-
-// API for handling profile creation when birth time is unknown
-export const postUserProfileUnknownTime = async (birthData) => {
-  try {
-    const response = await fetch(`${SERVER_URL}/createUserUnknownTime`, {
-      method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
-      body: JSON.stringify(birthData)
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      console.error('Network/CORS error - likely the new API endpoint is not deployed yet');
+      throw new Error('Cannot connect to new API endpoint. The backend may not be updated with the new endpoints yet.');
     }
-
-    const responseData = await response.json();
-    return responseData;
-  } catch (error) {
     console.error(ERROR_API_CALL, error);
     throw error;
   }
@@ -829,6 +815,79 @@ export const getTransitWindows = async (userId, from, to) => {
 
 
 
+// Check user creation workflow status
+export const checkUserCreationStatus = async (workflowId) => {
+  console.log('Checking user creation status for workflowId:', workflowId);
+  try {
+    const response = await fetch(`${SERVER_URL}/user/creation-status`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ workflowId })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log('User creation status:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error checking user creation status:', error);
+    throw error;
+  }
+};
+
+// Check celebrity creation workflow status
+export const checkCelebrityCreationStatus = async (workflowId) => {
+  console.log('Checking celebrity creation status for workflowId:', workflowId);
+  try {
+    const response = await fetch(`${SERVER_URL}/celebrity/creation-status`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ workflowId })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log('Celebrity creation status:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error checking celebrity creation status:', error);
+    throw error;
+  }
+};
+
+// Check guest creation workflow status
+export const checkGuestCreationStatus = async (workflowId) => {
+  console.log('Checking guest creation status for workflowId:', workflowId);
+  try {
+    const response = await fetch(`${SERVER_URL}/guest/creation-status`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ workflowId })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log('Guest creation status:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error checking guest creation status:', error);
+    throw error;
+  }
+};
+
+// Legacy function - backwards compatibility
+export const checkCreationStatus = checkUserCreationStatus;
+
+// Legacy workflow functions for dashboard analysis workflows (not creation workflows)
 export const startWorkflow = async (userId, immediate = true) => {
   console.log("🔥 startWorkflow called - userId:", userId, "immediate:", immediate);
   try {
@@ -899,6 +958,33 @@ export const resumeWorkflow = async (userId) => {
     return responseData;
   } catch (error) {
     console.error('Error resuming workflow:', error);
+    throw error;
+  }
+};
+
+// Get complete workflow data (subject + analysis) after completion
+export const getCompleteWorkflowData = async (userId, workflowId) => {
+  console.log('Getting complete workflow data for userId:', userId, 'workflowId:', workflowId);
+  try {
+    const requestBody = {};
+    if (userId) requestBody.userId = userId;
+    if (workflowId) requestBody.workflowId = workflowId;
+    
+    const response = await fetch(`${SERVER_URL}/workflow/get-complete-data`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify(requestBody)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log('Complete workflow data:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error getting complete workflow data:', error);
     throw error;
   }
 };
@@ -1148,14 +1234,16 @@ export const fetchCelebrities = async () => {
   }
 };
 
-export const createCelebrity = async (birthData) => {
+// New unified celebrity creation API - creates celebrity and starts overview generation automatically
+export const createCelebrityWithOverview = async (celebrityData) => {
   try {
-    const response = await fetch(`${SERVER_URL}/createCeleb`, {
+    console.log('Creating celebrity with overview:', celebrityData);
+    const response = await fetch(`${SERVER_URL}/celebrity/create-with-overview`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
       },
-      body: JSON.stringify(birthData)
+      body: JSON.stringify(celebrityData)
     });
 
     if (!response.ok) {
@@ -1163,28 +1251,7 @@ export const createCelebrity = async (birthData) => {
     }
 
     const responseData = await response.json();
-    return responseData;
-  } catch (error) {
-    console.error(ERROR_API_CALL, error);
-    throw error;
-  }
-};
-
-export const createCelebrityUnknownTime = async (birthData) => {
-  try {
-    const response = await fetch(`${SERVER_URL}/createCelebUnknownTime`, {
-      method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
-      body: JSON.stringify(birthData)
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const responseData = await response.json();
+    console.log('Celebrity creation with overview response:', responseData);
     return responseData;
   } catch (error) {
     console.error(ERROR_API_CALL, error);
@@ -1240,9 +1307,11 @@ export const getUserCompositeCharts = async (ownerUserId) => {
 
 // Guest Subject API Functions
 
-export const createGuestSubject = async (guestData) => {
+// New unified guest creation API - creates guest subject and starts overview generation automatically
+export const createGuestWithOverview = async (guestData) => {
   try {
-    const response = await fetch(`${SERVER_URL}/createGuestSubject`, {
+    console.log('Creating guest with overview:', guestData);
+    const response = await fetch(`${SERVER_URL}/guest/create-with-overview`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1255,28 +1324,7 @@ export const createGuestSubject = async (guestData) => {
     }
 
     const responseData = await response.json();
-    return responseData;
-  } catch (error) {
-    console.error(ERROR_API_CALL, error);
-    throw error;
-  }
-};
-
-export const createGuestSubjectUnknownTime = async (guestData) => {
-  try {
-    const response = await fetch(`${SERVER_URL}/createGuestSubjectUnknownTime`, {
-      method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
-      body: JSON.stringify(guestData)
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const responseData = await response.json();
+    console.log('Guest creation with overview response:', responseData);
     return responseData;
   } catch (error) {
     console.error(ERROR_API_CALL, error);

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Autocomplete from 'react-google-autocomplete';
 import useStore from '../../Utilities/store';
-import { fetchTimeZone, postUserProfile, postUserProfileUnknownTime } from '../../Utilities/api';
-import './UserSignUpForm.css';  // Add this line
+import { fetchTimeZone } from '../../Utilities/api';
+import './UserSignUpForm.css';
 
 
 
@@ -39,12 +39,7 @@ const UserSignUpForm = () => {
     const [gender, setGender] = useState('');
     const [unknownTime, setUnknownTime] = useState(false);
     const [formErrors, setFormErrors] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const setUserData = useStore(state => state.setUserData);
-    const setUserPlanets = useStore(state => state.setUserPlanets);
-    const setUserHouses = useStore(state => state.setUserHouses);
-    const setUserAspects = useStore(state => state.setUserAspects);
-    const setUserId = useStore(state => state.setUserId);
   
     const validateForm = () => {
       const errors = {};
@@ -57,11 +52,10 @@ const UserSignUpForm = () => {
       if (!gender) errors.gender = "Gender/Sex is required";
       return errors;
     };
+
   
     const handleSubmit = async (event) => {
       event.preventDefault();
-      
-      if (isSubmitting) return; // Prevent double submission
       
       const errors = validateForm();
       if (Object.keys(errors).length > 0) {
@@ -69,99 +63,40 @@ const UserSignUpForm = () => {
         return;
       }
 
-      setIsSubmitting(true);
       setFormErrors({});
 
       try {
+        // Calculate timezone offset
+        const timeForTimezone = unknownTime ? '12:00' : time;
+        const dateTimeString = `${date}T${timeForTimezone}:00`;
+        const dateTime = new Date(dateTimeString);
+        const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
+        const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
+
+        // Prepare data for confirmation page
         const userData = {
           firstName,
           lastName,
           email,
-          date,
-          time: unknownTime ? '' : time,
-          lat,
-          lon,
+          dateOfBirth: date,
           placeOfBirth,
+          time: unknownTime ? 'unknown' : time,
+          lat: parseFloat(lat),
+          lon: parseFloat(lon),
+          tzone: parseFloat(totalOffsetHours),
           gender,
           unknownTime
         };
 
-        // Store userData in Zustand for later use
+        // Store form data in Zustand
         setUserData(userData);
 
-        let response;
-        
-        if (unknownTime) {
-          // Calculate epoch time for timezone lookup (using noon for unknown time)
-          const dateTimeString = `${date}T12:00:00`;
-          const dateTime = new Date(dateTimeString);
-          const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
-          const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-
-          const birthData = {
-            firstName,
-            lastName,
-            gender,
-            placeOfBirth,
-            dateOfBirth: date,
-            email,
-            lat: parseFloat(lat),
-            lon: parseFloat(lon),
-            tzone: parseFloat(totalOffsetHours)
-          };
-          
-          response = await postUserProfileUnknownTime(birthData);
-        } else {
-          const dateTimeString = `${date}T${time}:00`;
-          const dateTime = new Date(dateTimeString);
-          const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
-          const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
-
-          const birthData = {
-            firstName,
-            lastName,
-            gender,
-            placeOfBirth,
-            dateOfBirth: dateTimeString,
-            email,
-            date,
-            time,
-            lat,
-            lon,
-            tzone: totalOffsetHours,
-          };
-
-          response = await postUserProfile(birthData);
-        }
-
-        console.log("User profile created:", response);
-        
-        // Store the user data in Zustand
-        setUserPlanets(response.user.birthChart.planets);
-        setUserHouses(response.user.birthChart.houses || []);
-        setUserAspects(response.user.birthChart.aspects);
-        
-        const userId = response.user._id || response.saveUserResponse?.insertedId;
-        setUserId(userId);
-        
-        // Set selectedUser for dashboard compatibility
-        const setSelectedUser = useStore.getState().setSelectedUser;
-        setSelectedUser({
-          _id: userId,
-          firstName,
-          lastName,
-          email,
-          kind: 'accountSelf'
-        });
-
-        // Navigate to confirmation page with userId as URL parameter
-        navigate(`/signUpConfirmation/${userId}`);
+        // Navigate to confirmation page (no userId yet)
+        navigate('/signUpConfirmation');
         
       } catch (error) {
-        console.error('Error creating user profile:', error);
-        setFormErrors({ submit: 'An error occurred while creating your profile. Please try again.' });
-      } finally {
-        setIsSubmitting(false);
+        console.error('Error preparing user data:', error);
+        setFormErrors({ submit: error.message || 'An error occurred while preparing your profile. Please try again.' });
       }
     };
 
@@ -373,24 +308,23 @@ const UserSignUpForm = () => {
             <input 
               className="email-submit-btn" 
               type="submit" 
-              value={isSubmitting ? "Creating Profile..." : "Submit"} 
-              disabled={isSubmitting}
+              value="Submit" 
+              disabled={false}
               style={{ 
                 ...inputStyle, 
                 width: 'auto', 
-                cursor: isSubmitting ? 'not-allowed' : 'pointer', 
-                backgroundColor: isSubmitting ? '#ccc' : 'white', 
+                cursor: 'pointer', 
+                backgroundColor: 'white', 
                 color: 'black', 
-                fontWeight: 'bold',
-                opacity: isSubmitting ? 0.7 : 1
+                fontWeight: 'bold'
               }}
             />
           </div>
         </form>
         {Object.keys(formErrors).length > 0 && (
           <div style={{ color: 'red', marginTop: '15px' }}>
-            {Object.values(formErrors).map((error, index) => (
-              <p key={index}>{error}</p>
+            {Object.values(formErrors).map((err, index) => (
+              <p key={index}>{err}</p>
             ))}
           </div>
         )}

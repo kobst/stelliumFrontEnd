@@ -1,234 +1,147 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useStore from '../Utilities/store';
-import { getShortOverview, startWorkflow, getWorkflowStatus } from '../Utilities/api';
-import BirthChartSummary from '../UI/birthChart/BirthChartSummary';
+import useSubjectCreation from '../hooks/useSubjectCreation';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 
 const ConfirmationV2 = () => {
     const navigate = useNavigate();
-    const { userId } = useParams(); // Get userId from URL parameter
     
     const userData = useStore(state => state.userData);
-    const userPlanets = useStore(state => state.userPlanets);
-    const userHouses = useStore(state => state.userHouses);
-    const userAspects = useStore(state => state.userAspects);
     const setUserId = useStore(state => state.setUserId);
-    const setWorkflowState = useStore(state => state.setWorkflowState);
-    const workflowState = useStore(state => state.workflowState);
     const setSelectedUser = useStore(state => state.setSelectedUser);
+    const setUserPlanets = useStore(state => state.setUserPlanets);
+    const setUserHouses = useStore(state => state.setUserHouses);
+    const setUserAspects = useStore(state => state.setUserAspects);
+    
+    const { 
+        createUser, 
+        loading, 
+        error, 
+        workflowId, 
+        status, 
+        isCompleted,
+        checkStatus,
+        getCompleteData
+    } = useSubjectCreation();
+    
+    const creationStarted = useRef(false);
+    const [userId, setLocalUserId] = useState(null);
+    const [overviewContent, setOverviewContent] = useState(null);
+    const [birthChartData, setBirthChartData] = useState(null);
 
-    const [error, setError] = useState(null);
-    const workflowStartAttempted = useRef(false);
-    const [sampleReading, setSampleReading] = useState(null);
-    const [isDataComplete, setIsDataComplete] = useState(false);
-    const [workflowStatus, setWorkflowStatus] = useState(null);
-    const [isGeneratingOverview, setIsGeneratingOverview] = useState(false);
-    const [pollInterval, setPollInterval] = useState(null);
-    const [retryCount, setRetryCount] = useState(0);
-
-    // Set userId from URL parameter on mount
+    // Start user creation when component mounts
     useEffect(() => {
-        if (userId) {
-            setUserId(userId);
+        if (userData && !creationStarted.current && !workflowId) {
+            console.log('Starting user creation with data:', userData);
+            creationStarted.current = true;
+            createUser(userData);
         }
-    }, [userId, setUserId]);
+    }, [userData, createUser, workflowId]);
 
-    // Hide loading UI if we have overview content (regardless of how we got it)
+    // Start polling when we get a workflow ID
     useEffect(() => {
-        if (workflowState.hasOverview && workflowState.overviewContent && isGeneratingOverview) {
-            console.log('📝 Overview content available, hiding loading UI');
-            setIsGeneratingOverview(false);
-        }
-    }, [workflowState.hasOverview, workflowState.overviewContent, isGeneratingOverview]);
-
-    // Simple validation - profile should already be created by signup form
-    useEffect(() => {
-        if (!userData || !userId) {
-            setError('Missing user data. Please try signing up again.');
-            return;
-        }
-        
-        console.log('Confirmation page loaded successfully:', { 
-            userId, 
-            firstName: userData.firstName
-        });
-    }, [userData, userId]);
-
-    useEffect(() => {
-        const dataComplete = 
-            userPlanets && 
-            userHouses && 
-            userAspects && 
-            Object.keys(userPlanets).length > 0 && 
-            userAspects.length > 0;
-
-        setIsDataComplete(dataComplete);
-    }, [userPlanets, userHouses, userAspects]);
-
-
-    // Start abbreviated workflow after user creation
-    useEffect(() => {
-        const startAbbreviatedWorkflow = async () => {
-            console.log('Workflow start effect triggered. Conditions:', {
-                workflowStartAttempted: workflowStartAttempted.current,
-                userId,
-                userPlanetsLength: userPlanets?.length,
-                hasUserData: !!userData
-            });
-            
-            if (workflowStartAttempted.current || !userId) {
-                console.log('Workflow start skipped due to conditions');
-                return;
-            }
-
-            workflowStartAttempted.current = true;
-            
-            try {
-                setIsGeneratingOverview(true);
-                console.log('🚀 ATTEMPTING TO START WORKFLOW for userId:', userId);
-                console.log('🔧 About to call startWorkflow with immediate=false');
-                
-                // Start workflow with immediate=false for overview only
-                const startResponse = await startWorkflow(userId, false);
-                console.log('📥 WORKFLOW START RESPONSE:', JSON.stringify(startResponse, null, 2));
-                
-                if (startResponse.success) {
-                    setWorkflowState({
-                        startedFromSignup: true,
-                        isPaused: false
-                    });
+        if (workflowId && !isCompleted) {
+            console.log('Starting to poll workflow status for:', workflowId);
+            const interval = setInterval(async () => {
+                try {
+                    const statusResponse = await checkStatus(workflowId);
+                    console.log('Polling status:', statusResponse);
                     
-                    // Wait a bit before starting to poll to give Step Functions time to initialize
-                    console.log('⏰ Waiting 5 seconds before starting to poll...');
-                    setTimeout(() => {
-                        console.log('🔄 Starting to poll workflow status');
-                        startPolling();
-                    }, 5000);
-                } else {
-                    console.error('Workflow start failed:', startResponse);
-                    setIsGeneratingOverview(false);
-                }
-            } catch (error) {
-                console.error('Error starting abbreviated workflow:', error);
-                setIsGeneratingOverview(false);
-                // Stop polling on error
-                stopPolling();
-            }
-        };
-
-        startAbbreviatedWorkflow();
-    }, [userId, setWorkflowState]);
-
-    // Polling function for workflow status
-    const pollWorkflowStatus = async () => {
-        if (!userId) return;
-
-        try {
-            const response = await getWorkflowStatus(userId);
-            console.log('📊 FULL WORKFLOW STATUS RESPONSE:', JSON.stringify(response, null, 2));
-            
-            if (response.success) {
-                setWorkflowStatus(response);
-                
-                // Check if we've reached paused_after_overview state
-                if (response.workflowStatus?.status === 'paused_after_overview') {
-                    const overviewContent = response.analysisData?.interpretation?.basicAnalysis?.overview;
-                    
-                    console.log('🎯 FOUND PAUSED_AFTER_OVERVIEW STATE!');
-                    console.log('📝 Overview content:', overviewContent);
-                    
-                    if (overviewContent) {
-                        setWorkflowState({
-                            isPaused: true,
-                            hasOverview: true,
-                            overviewContent: overviewContent,
-                            startedFromSignup: true
-                        });
-                        console.log('✅ Set overview content in workflow state');
+                    if (statusResponse.completed) {
+                        console.log('Workflow completed!');
+                        clearInterval(interval);
                     }
-                    
-                    setIsGeneratingOverview(false);
-                    stopPolling();
+                } catch (error) {
+                    console.error('Polling error:', error);
                 }
-                // If workflow completed fully, also stop polling
-                else if (response.workflowStatus?.status === 'completed') {
-                    setIsGeneratingOverview(false);
-                    stopPolling();
-                }
-            }
-        } catch (error) {
-            console.error('Error polling workflow status:', error);
-            // Stop polling after a few errors to prevent spam
-            setRetryCount(prev => prev + 1);
-            if (retryCount >= 3) {
-                console.log('Too many polling errors, stopping polling');
-                stopPolling();
-                setIsGeneratingOverview(false);
-            }
+            }, 3000);
+
+            return () => clearInterval(interval);
         }
-    };
+    }, [workflowId, isCompleted, checkStatus]);
 
-    // Start polling
-    const startPolling = () => {
-        if (pollInterval) return; // Don't start if already polling
-        
-        const interval = setInterval(pollWorkflowStatus, 5000); // Poll every 5 seconds initially
-        setPollInterval(interval);
-    };
-
-    // Stop polling
-    const stopPolling = () => {
-        if (pollInterval) {
-            clearInterval(pollInterval);
-            setPollInterval(null);
-        }
-    };
-
-    // Cleanup polling on unmount
+    // Handle workflow completion
     useEffect(() => {
-        return () => {
-            if (pollInterval) {
-                clearInterval(pollInterval);
-            }
-        };
-    }, [pollInterval]);
+        if (isCompleted && status?.userId && !birthChartData) {
+            console.log('Workflow completed, fetching complete data...');
+            handleWorkflowCompletion();
+        }
+    }, [isCompleted, status?.userId, birthChartData]);
 
+    // Polling is handled by useSubjectCreation hook
 
-    async function generateShortOverview(birthData) {
-        console.log("birthData: ", birthData)
+    const handleWorkflowCompletion = async () => {
+        if (!status?.userId || !workflowId) return;
+
         try {
-            const responseObject = await getShortOverview(birthData)
-            console.log("Response object:", responseObject)
-            // Check if responseObject is an object with a response property
-            if (responseObject && typeof responseObject === 'object' && responseObject.response) {
-                setSampleReading(responseObject.response) // Set just the response string
-            } else {
-                setSampleReading(String(responseObject)) // Convert to string as fallback
+            const data = await getCompleteData(status.userId, workflowId);
+            
+            if (data?.subject && data?.analysis) {
+                // Store user ID
+                const createdUserId = data.subject._id;
+                setLocalUserId(createdUserId);
+                setUserId(createdUserId);
+                
+                // Store birth chart data
+                const birthChart = data.subject.birthChart;
+                if (birthChart) {
+                    setBirthChartData(birthChart);
+                    setUserPlanets(birthChart.planets || []);
+                    setUserHouses(birthChart.houses || []);
+                    setUserAspects(birthChart.aspects || []);
+                }
+                
+                // Store overview content
+                const overview = data.analysis?.interpretation?.basicAnalysis?.overview;
+                if (overview) {
+                    setOverviewContent(overview);
+                }
+                
+                // Set selected user for dashboard compatibility
+                setSelectedUser({
+                    _id: createdUserId,
+                    firstName: data.subject.firstName,
+                    lastName: data.subject.lastName,
+                    email: data.subject.email,
+                    kind: data.subject.kind || 'accountSelf'
+                });
+                
+                console.log('Complete data loaded successfully');
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error fetching complete data:', error);
         }
+    };
+
+    // Cleanup is handled by useSubjectCreation hook
+
+    // Show error if no user data
+    if (!userData) {
+        return (
+            <div style={{ padding: '20px' }}>
+                <h1 style={{ color: 'white' }}>Error</h1>
+                <p style={{ color: 'white' }}>No user data found. Please try signing up again.</p>
+                <button onClick={() => navigate('/')}>Go Back to Sign Up</button>
+            </div>
+        );
     }
 
-    // Show error state if data is missing
-    if (error) {
-        return (
-          <div className="confirmation-page">
-            <h1>Error</h1>
-            <p>{error}</p>
-            <button onClick={() => navigate('/')}>Go Back to Sign Up</button>
-          </div>
-        );
-      }
+    const isCreating = loading || (workflowId && !isCompleted);
+    const hasOverview = overviewContent && overviewContent.trim().length > 0;
+    const hasBirthChartData = birthChartData && Object.keys(birthChartData).length > 0;
 
     return (
         <div style={{ padding: '20px' }}>
-            <h1 style={{ color: 'white' }}>Welcome to Stellium {userData?.firstName || 'User'}! Thank you for signing up!</h1>
-            <p style={{ color: 'white' }}>Your profile has been created successfully.</p>
+            <h1 style={{ color: 'white' }}>
+                Welcome to Stellium {userData?.firstName || 'User'}!
+            </h1>
+            <p style={{ color: 'white' }}>
+                {isCreating ? 'Creating your profile...' : 'Your profile has been created successfully!'}
+            </p>
             
-            {/* Generating Overview Status */}
-            {isGeneratingOverview && (
+            {/* Creating User Status */}
+            {isCreating && (
                 <div style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
                     padding: '20px', 
@@ -246,10 +159,37 @@ const ConfirmationV2 = () => {
                         animation: 'spin 1s linear infinite',
                         margin: '0 auto 15px auto'
                     }} />
-                    <h3 style={{ color: 'white', margin: '0 0 10px 0' }}>🔮 Generating Your Personal Overview...</h3>
+                    <h3 style={{ color: 'white', margin: '0 0 10px 0' }}>
+                        {!workflowId ? '📝 Creating Your Profile...' : '🔮 Generating Your Personal Overview...'}
+                    </h3>
                     <p style={{ color: 'white', margin: '0' }}>
-                        We're analyzing your birth chart to create a personalized overview. This will be ready in about 30-60 seconds.
+                        {!workflowId 
+                            ? 'Setting up your account and birth chart data...'
+                            : 'We\'re analyzing your birth chart to create a personalized overview. This will be ready in about 30-60 seconds.'
+                        }
                     </p>
+                    {status?.progress && (
+                        <div style={{ marginTop: '15px' }}>
+                            <p style={{ color: '#a78bfa', fontSize: '14px' }}>
+                                Progress: {status.progress.completedTasks} of {status.progress.totalTasks} tasks complete
+                            </p>
+                            <div style={{ 
+                                width: '100%', 
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+                                borderRadius: '4px',
+                                height: '8px',
+                                margin: '10px 0'
+                            }}>
+                                <div style={{ 
+                                    width: `${status.progress.percentage || 0}%`, 
+                                    backgroundColor: '#8b5cf6',
+                                    height: '100%',
+                                    borderRadius: '4px',
+                                    transition: 'width 0.3s ease'
+                                }} />
+                            </div>
+                        </div>
+                    )}
                     <style>{`
                         @keyframes spin {
                             0% { transform: rotate(0deg); }
@@ -259,16 +199,34 @@ const ConfirmationV2 = () => {
                 </div>
             )}
             
+            {/* Error Display */}
+            {error && (
+                <div style={{ 
+                    backgroundColor: 'rgba(255, 0, 0, 0.1)', 
+                    padding: '20px', 
+                    borderRadius: '8px', 
+                    margin: '20px 0',
+                    border: '1px solid rgba(255, 0, 0, 0.3)'
+                }}>
+                    <h3 style={{ color: '#ff6b6b', margin: '0 0 10px 0' }}>Error</h3>
+                    <p style={{ color: 'white', margin: '0' }}>{error}</p>
+                </div>
+            )}
+            
             {/* Birth Chart Data */}
-            {isDataComplete && (
+            {hasBirthChartData && (
                 <div style={{ margin: '20px 0' }}>
                     <h3 style={{ color: 'white', marginBottom: '15px' }}>Your Birth Chart Data</h3>
-                    <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={userAspects}/>
+                    <BirthChartSummaryTable 
+                        planets={birthChartData.planets || []} 
+                        houses={birthChartData.houses || []} 
+                        aspects={birthChartData.aspects || []}
+                    />
                 </div>
             )}
             
             {/* Generated Overview Display */}
-            {workflowState.hasOverview && workflowState.overviewContent && (
+            {hasOverview && (
                 <div style={{ 
                     backgroundColor: 'rgba(139, 92, 246, 0.1)', 
                     padding: '20px', 
@@ -276,39 +234,34 @@ const ConfirmationV2 = () => {
                     margin: '20px 0',
                     border: '1px solid rgba(139, 92, 246, 0.3)'
                 }}>
-                    <h2 style={{ color: '#a78bfa', margin: '0 0 15px 0' }}>✨ Your Personal Birth Chart Overview</h2>
+                    <h2 style={{ color: '#a78bfa', margin: '0 0 15px 0' }}>
+                        ✨ Your Personal Birth Chart Overview
+                    </h2>
                     <p style={{ 
                         color: 'white', 
                         lineHeight: '1.6', 
                         margin: '0',
                         fontSize: '16px'
                     }}>
-                        {workflowState.overviewContent}
+                        {overviewContent}
                     </p>
-                    {workflowState.isPaused && (
-                        <div style={{ marginTop: '15px', padding: '10px 0', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                            <p style={{ color: '#a78bfa', fontSize: '14px', margin: '0' }}>
-                                This is just the beginning! Visit your dashboard to unlock your complete analysis including detailed planetary interpretations, life area insights, and personalized chat.
-                            </p>
-                        </div>
-                    )}
+                    <div style={{ marginTop: '15px', padding: '10px 0', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                        <p style={{ color: '#a78bfa', fontSize: '14px', margin: '0' }}>
+                            This is just the beginning! Visit your dashboard to unlock your complete analysis 
+                            including detailed planetary interpretations, life area insights, and personalized chat.
+                        </p>
+                    </div>
                 </div>
             )}
             
             {/* Navigation Buttons */}
             <div style={{ marginTop: '30px' }}>
-                <button onClick={() => navigate('/')} style={{ marginRight: '10px' }}>Go Back</button>
-                {userId && userData && !isGeneratingOverview && (
+                <button onClick={() => navigate('/')} style={{ marginRight: '10px' }}>
+                    Go Back
+                </button>
+                {userId && userData && !isCreating && (
                     <button 
                         onClick={() => {
-                            // Set selectedUser for the dashboard to display user info
-                            setSelectedUser({
-                                _id: userId,
-                                firstName: userData.firstName,
-                                lastName: userData.lastName,
-                                email: userData.email,
-                                kind: 'accountSelf'
-                            });
                             navigate(`/userDashboard/${userId}`);
                         }} 
                         style={{
@@ -322,23 +275,10 @@ const ConfirmationV2 = () => {
                             fontWeight: 'bold'
                         }}
                     >
-                        {workflowState.hasOverview ? 'Explore Your Complete Analysis' : 'Go to Dashboard'}
+                        {hasOverview ? 'Explore Your Complete Analysis' : 'Go to Dashboard'}
                     </button>
                 )}
             </div>
-            
-            {/* Legacy Short Overview Button - Keep for testing */}
-            {/* <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '20px' }}>
-                <button onClick={() => generateShortOverview({ planets: userPlanets, houses: userHouses, aspects: userAspects })}>
-                    Generate Legacy Short Overview
-                </button>
-                {sampleReading && (
-                    <div style={{ marginTop: '15px' }}>
-                        <h3 style={{color:'white'}}>Legacy Short Overview</h3>
-                        <p style={{color:'white'}}>{sampleReading}</p>
-                    </div>
-                )}
-            </div> */}
         </div>
     );
 };

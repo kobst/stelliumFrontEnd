@@ -12,6 +12,10 @@ const useStore = create(set => ({
     userId: '',
     setUserId: (response) => set({ userId: response }),
 
+    // Workflow ID for tracking creation workflows
+    workflowId: null,
+    setWorkflowId: (id) => set({ workflowId: id }),
+
     selectedUser: {},
     setSelectedUser: (response) => set({ selectedUser: response }),
 
@@ -123,7 +127,20 @@ const useStore = create(set => ({
                state.currentUserContext._id === state.activeUserContext._id;
     },
 
-    // Workflow state management for abbreviated analysis
+    // Workflow state management for new creation workflows
+    creationWorkflowState: {
+        workflowId: null,
+        status: null,
+        isCompleted: false,
+        userId: null,
+        progress: null,
+        completeData: null
+    },
+    setCreationWorkflowState: (updates) => set(state => ({
+        creationWorkflowState: { ...state.creationWorkflowState, ...updates }
+    })),
+
+    // Legacy workflow state management for abbreviated analysis
     workflowState: {
         isPaused: false,
         hasOverview: false,
