@@ -1332,3 +1332,90 @@ export const createGuestWithOverview = async (guestData) => {
   }
 };
 
+// Full Analysis API Functions - Stage 2 of the workflow system
+
+// Start full analysis for any subject type (user, celebrity, guest)
+export const startFullAnalysis = async (userId) => {
+  try {
+    console.log('Starting full analysis for userId:', userId);
+    const response = await fetch(`${SERVER_URL}/analysis/start-full`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify({ userId })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    console.log('Full analysis start response:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error starting full analysis:', error);
+    throw error;
+  }
+};
+
+// Check full analysis status with progress tracking
+export const checkFullAnalysisStatus = async (userId, workflowId = null) => {
+  try {
+    console.log('Checking full analysis status for userId:', userId, 'workflowId:', workflowId);
+    const requestBody = { userId };
+    if (workflowId) {
+      requestBody.workflowId = workflowId;
+    }
+
+    const response = await fetch(`${SERVER_URL}/analysis/full-status`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    console.log('Full analysis status response:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error checking full analysis status:', error);
+    throw error;
+  }
+};
+
+// Get complete workflow data after both stages are complete (new endpoint for new workflow system)
+export const getNewCompleteWorkflowData = async (userId, workflowId = null) => {
+  try {
+    console.log('Getting complete workflow data for userId:', userId, 'workflowId:', workflowId);
+    const requestBody = { userId };
+    if (workflowId) {
+      requestBody.workflowId = workflowId;
+    }
+
+    const response = await fetch(`${SERVER_URL}/analysis/complete-data`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    console.log('Complete workflow data response:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error getting complete workflow data:', error);
+    throw error;
+  }
+};
+

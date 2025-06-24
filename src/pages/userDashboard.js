@@ -15,6 +15,7 @@ import {
   resumeWorkflow
 } from '../Utilities/api';
 import useAsync from '../hooks/useAsync';
+import useSubjectCreation from '../hooks/useSubjectCreation';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
 import HoroscopeContainer from '../UI/prototype/HoroscopeContainer';
 import RelationshipsTab from '../UI/prototype/RelationshipsTab';
@@ -59,7 +60,19 @@ function UserDashboard() {
   const workflowState = useStore(state => state.workflowState);
   const setWorkflowState = useStore(state => state.setWorkflowState);
 
+  // New workflow system hook
+  const {
+    startFullAnalysisWorkflow,
+    startFullAnalysisPolling,
+    fullAnalysisLoading,
+    fullAnalysisProgress,
+    isFullAnalysisCompleted,
+    waitForFullAnalysisComplete,
+    resetFullAnalysisState
+  } = useSubjectCreation();
+
   const [isDataPopulated, setIsDataPopulated] = useState(false);
+  const [workflowStarted, setWorkflowStarted] = useState(false);
   const [basicAnalysis, setBasicAnalysis] = useState({
     overview: '',
     dominance: {
@@ -122,6 +135,9 @@ function UserDashboard() {
       console.log('Setting userId from URL parameter:', userId);
       setUserId(userId);
       
+      // Reset full analysis workflow state for new user
+      resetFullAnalysisState();
+      
       // Clear previous user's analysis data to prevent contamination
       console.log('Clearing previous user analysis data');
       setBasicAnalysis({
@@ -165,7 +181,7 @@ function UserDashboard() {
         startedFromSignup: false
       });
     }
-  }, [userId, storeUserId, setUserId, setWorkflowState]);
+  }, [userId, storeUserId, setUserId, setWorkflowState, resetFullAnalysisState]);
 
   useEffect(() => {
     if (userId) {
@@ -212,8 +228,10 @@ function UserDashboard() {
             modalities: interpretation.basicAnalysis.dominance?.modalities || { interpretation: '' },
             quadrants: interpretation.basicAnalysis.dominance?.quadrants || { interpretation: '' },
             patterns: {
-              ...interpretation.basicAnalysis.dominance?.patterns,
-              interpretation: interpretation.basicAnalysis.dominance?.patterns?.interpretation || ''
+              // Handle both 'pattern' (new backend) and 'patterns' (legacy) for backward compatibility
+              ...(interpretation.basicAnalysis.dominance?.pattern || interpretation.basicAnalysis.dominance?.patterns),
+              interpretation: (interpretation.basicAnalysis.dominance?.pattern?.interpretation || 
+                              interpretation.basicAnalysis.dominance?.patterns?.interpretation || '')
             }
           },
           planets: interpretation.basicAnalysis.planets || {}
@@ -244,8 +262,14 @@ function UserDashboard() {
         lastUpdated: vectorizationStatus?.lastUpdated || null
       }));
 
-      // Check actual workflow status from backend
-      await checkWorkflowStatus();
+      // Check actual workflow status from backend (legacy system)
+      // Skip for users created with new workflow system to avoid 400 errors
+      try {
+        await checkWorkflowStatus();
+      } catch (workflowError) {
+        console.log('Legacy workflow status check failed (expected for new workflow users):', workflowError.message);
+        // Don't throw - this is expected for new workflow system users
+      }
 
     } catch (error) {
       console.error(ERROR_API_CALL, error);
@@ -265,14 +289,79 @@ function UserDashboard() {
     }
   }
 
-  // Start workflow function
+  // Check if analysis is already complete/populated
+  const isAnalysisPopulated = () => {
+    const hasOverview = basicAnalysis.overview && basicAnalysis.overview.trim().length > 0;
+    const hasPlanets = basicAnalysis.planets && Object.keys(basicAnalysis.planets).length > 0;
+    const hasSubTopics = subTopicAnalysis && Object.keys(subTopicAnalysis).length > 0;
+    const isTopicAnalysisComplete = vectorizationStatus.topicAnalysis.isComplete;
+    
+    // Analysis is only complete if we have ALL major components: overview AND planets AND subtopics
+    return hasOverview && hasPlanets && hasSubTopics && isTopicAnalysisComplete;
+  };
+
+  // Check if we have partial analysis (overview only) - Stage 1 complete, Stage 2 needed
+  const hasPartialAnalysis = () => {
+    const hasOverview = basicAnalysis.overview && basicAnalysis.overview.trim().length > 0;
+    const hasPlanets = basicAnalysis.planets && Object.keys(basicAnalysis.planets).length > 0;
+    const hasSubTopics = subTopicAnalysis && Object.keys(subTopicAnalysis).length > 0;
+    
+    return hasOverview && !hasPlanets && !hasSubTopics;
+  };
+
+  // New full analysis workflow function
+  const handleStartFullAnalysis = async () => {
+    if (!userId) {
+      console.error('Cannot start full analysis: userId is missing');
+      return;
+    }
+    
+    console.log('Starting full analysis workflow with userId:', userId);
+    
+    try {
+      // Set workflow started flag to prevent button reappearing
+      setWorkflowStarted(true);
+      
+      // Start the full analysis workflow
+      const response = await startFullAnalysisWorkflow(userId);
+      console.log('Full analysis started:', response);
+      
+      // Start polling for progress updates without blocking
+      const pollInterval = startFullAnalysisPolling(
+        userId,
+        response.workflowId,
+        3000, // Poll every 3 seconds for faster updates
+        async (progressData) => {
+          console.log('Full analysis progress:', progressData);
+          
+          // Check if completed and refresh data
+          if (progressData.completed) {
+            console.log('Full analysis completed! Refreshing data...');
+            clearInterval(pollInterval);
+            setWorkflowStarted(false); // Reset workflow started flag
+            // Force refresh the analysis data
+            setTimeout(async () => {
+              await fetchAnalysisForUserAsync();
+            }, 1000); // Small delay to ensure backend is ready
+          }
+        }
+      );
+      
+    } catch (error) {
+      console.error('Error in full analysis workflow:', error);
+      setWorkflowStarted(false); // Reset flag on error
+      // You could add error state handling here
+    }
+  };
+
+  // Legacy workflow functions (keeping for backward compatibility during transition)
   const handleStartWorkflow = async () => {
     if (!userId) {
       console.error('Cannot start workflow: userId is missing');
       return;
     }
     
-    console.log('Starting workflow with userId:', userId, 'type:', typeof userId);
+    console.log('Starting legacy workflow with userId:', userId, 'type:', typeof userId);
     
     try {
       const response = await startWorkflow(userId);
@@ -285,14 +374,14 @@ function UserDashboard() {
     }
   };
 
-  // Resume workflow function for paused analyses
+  // Legacy resume workflow function
   const handleResumeWorkflow = async () => {
     if (!userId) {
       console.error('Cannot resume workflow: userId is missing');
       return;
     }
     
-    console.log('🔄 Resuming workflow with userId:', userId);
+    console.log('🔄 Resuming legacy workflow with userId:', userId);
     
     try {
       const response = await resumeWorkflow(userId);
@@ -300,11 +389,9 @@ function UserDashboard() {
       
       if (response.success) {
         console.log('✅ Workflow resumed successfully, starting polling');
-        // Update workflow state to no longer be paused
         setWorkflowState({
           isPaused: false
         });
-        // Start polling to track progress
         startPolling();
       } else {
         console.log('❌ Resume response success was false:', response.success);
@@ -745,27 +832,20 @@ function UserDashboard() {
     label: 'Overview',
     content: (
       <section className="overview-section">
-        {/* Show workflow overview if available, otherwise show basic analysis overview */}
-        {workflowState.hasOverview && workflowState.overviewContent ? (
-          <div>
-            <p>{workflowState.overviewContent}</p>
-            {workflowState.isPaused && (
-              <div style={{ 
-                marginTop: '20px', 
-                padding: '15px', 
-                backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                border: '1px solid rgba(139, 92, 246, 0.3)',
-                borderRadius: '8px'
-              }}>
-                <p style={{ margin: '0', fontSize: '14px', color: '#a78bfa' }}>
-                  ✨ This is your personalized overview! To unlock detailed planetary interpretations, 
-                  life area insights, and personalized chat, complete your full analysis below.
-                </p>
-              </div>
-            )}
+        <p>{basicAnalysis.overview}</p>
+        {hasPartialAnalysis() && (
+          <div style={{ 
+            marginTop: '20px', 
+            padding: '15px', 
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            borderRadius: '8px'
+          }}>
+            <p style={{ margin: '0', fontSize: '14px', color: '#a78bfa' }}>
+              ✨ This is your personalized overview! To unlock detailed planetary interpretations, 
+              life area insights, and personalized chat, complete your full analysis above.
+            </p>
           </div>
-        ) : (
-          <p>{basicAnalysis.overview}</p>
         )}
       </section>
     )
@@ -776,8 +856,8 @@ function UserDashboard() {
     label: 'Chart Patterns',
     content: (
       <section className="dominance-section">
-        {/* Show complete analysis prompt if paused and no dominance data */}
-        {workflowState.isPaused && !basicAnalysis.dominance?.elements?.interpretation ? (
+        {/* Show complete analysis prompt if we have partial analysis and no dominance data */}
+        {hasPartialAnalysis() ? (
           <div style={{ 
             textAlign: 'center', 
             padding: '40px 20px',
@@ -791,9 +871,10 @@ function UserDashboard() {
               approach to life, and core patterns of behavior.
             </p>
             <button
-              onClick={handleResumeWorkflow}
+              onClick={handleStartFullAnalysis}
+              disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
               style={{
-                backgroundColor: '#8b5cf6',
+                backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 padding: '12px 24px',
@@ -803,7 +884,9 @@ function UserDashboard() {
                 fontSize: '16px'
               }}
             >
-              Complete Analysis to Unlock
+              {fullAnalysisLoading ? 'Starting Analysis...' : 
+               (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
+               'Complete Full Analysis to Unlock'}
             </button>
           </div>
         ) : (
@@ -851,8 +934,8 @@ function UserDashboard() {
     label: 'Planets',
     content: (
       <section className="planets-section">
-        {/* Show complete analysis prompt if paused and no planetary data */}
-        {workflowState.isPaused && (!basicAnalysis.planets || Object.keys(basicAnalysis.planets).length === 0) ? (
+        {/* Show complete analysis prompt if we have partial analysis and no planetary data */}
+        {hasPartialAnalysis() ? (
           <div style={{ 
             textAlign: 'center', 
             padding: '40px 20px',
@@ -866,9 +949,10 @@ function UserDashboard() {
               aspects of your personality, relationships, career, and life path.
             </p>
             <button
-              onClick={handleResumeWorkflow}
+              onClick={handleStartFullAnalysis}
+              disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
               style={{
-                backgroundColor: '#8b5cf6',
+                backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 padding: '12px 24px',
@@ -878,7 +962,9 @@ function UserDashboard() {
                 fontSize: '16px'
               }}
             >
-              Complete Analysis to Unlock
+              {fullAnalysisLoading ? 'Starting Analysis...' : 
+               (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
+               'Complete Full Analysis to Unlock'}
             </button>
           </div>
         ) : (
@@ -898,14 +984,14 @@ function UserDashboard() {
     )
   });
 
-  // Add 360 Analysis tab - show complete analysis prompt if paused and no subtopic data
+  // Add 360 Analysis tab - show complete analysis prompt if partial analysis and no subtopic data
   if (analysis360Tabs.length > 0) {
     analysisTabs.push({
       id: '360analysis',
       label: '360 Analysis',
       content: <TabMenu tabs={analysis360Tabs} />
     });
-  } else if (workflowState.isPaused) {
+  } else if (hasPartialAnalysis()) {
     analysisTabs.push({
       id: '360analysis',
       label: '360 Analysis',
@@ -925,9 +1011,10 @@ function UserDashboard() {
               with 24 specific subtopics.
             </p>
             <button
-              onClick={handleResumeWorkflow}
+              onClick={handleStartFullAnalysis}
+              disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
               style={{
-                backgroundColor: '#8b5cf6',
+                backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 padding: '12px 24px',
@@ -937,7 +1024,9 @@ function UserDashboard() {
                 fontSize: '16px'
               }}
             >
-              Complete Analysis to Unlock
+              {fullAnalysisLoading ? 'Starting Analysis...' : 
+               (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
+               'Complete Full Analysis to Unlock'}
             </button>
           </div>
         </section>
@@ -1064,142 +1153,95 @@ function UserDashboard() {
 
       {/* {renderDebugInfo()} */}
 
-      {/* Workflow Control Section */}
+      {/* New Full Analysis Workflow Section */}
       <div className="workflow-section">
-        {/* Show start/resume/retry button for not_started, incomplete, completed_with_failures, or paused_after_overview */}
-        {(workflowStatus?.workflowStatus?.status === 'not_started' || 
-          workflowStatus?.workflowStatus?.status === 'incomplete' || 
-          workflowStatus?.workflowStatus?.status === 'completed_with_failures' ||
-          workflowStatus?.workflowStatus?.status === 'paused_after_overview') && (
-          <div>
+        <h3 style={{ color: 'white', marginBottom: '15px' }}>🚀 New Analysis System (Recommended)</h3>
+        {!isAnalysisPopulated() && (
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
             <button
-              onClick={workflowStatus?.workflowStatus?.status === 'paused_after_overview' ? handleResumeWorkflow : handleStartWorkflow}
-              disabled={isWorkflowRunning || fetchLoading || !userId}
+              onClick={handleStartFullAnalysis}
+              disabled={fullAnalysisLoading || !userId || workflowStarted || (fullAnalysisProgress && !isFullAnalysisCompleted)}
               className="workflow-button primary"
+              style={{
+                backgroundColor: (fullAnalysisLoading || workflowStarted || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
+                padding: '12px 24px',
+                fontSize: '16px',
+                fontWeight: 'bold'
+              }}
             >
-              {workflowStatus?.workflowStatus?.status === 'not_started' && 'Start Analysis'}
-              {workflowStatus?.workflowStatus?.status === 'incomplete' && 'Resume Analysis'}
-              {workflowStatus?.workflowStatus?.status === 'completed_with_failures' && 'Retry Failed Tasks'}
-              {workflowStatus?.workflowStatus?.status === 'paused_after_overview' && 'Complete Full Analysis'}
+              {fullAnalysisLoading || workflowStarted ? 'Starting Analysis...' : 
+               (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
+               'Start Complete Analysis'}
             </button>
-            <button
-              onClick={checkWorkflowStatus}
-              disabled={fetchLoading || !userId}
-              className="workflow-button"
-              style={{ marginLeft: '10px', backgroundColor: '#6c757d' }}
-            >
-              Check Status
-            </button>
+          
+            {fullAnalysisProgress && !isFullAnalysisCompleted && (
+              <div style={{ color: 'white', fontSize: '14px' }}>
+                {fullAnalysisProgress.percentage}% Complete 
+                ({fullAnalysisProgress.completedTasks}/{fullAnalysisProgress.totalTasks} tasks)
+                {fullAnalysisProgress.currentPhase && ` - ${fullAnalysisProgress.currentPhase}`}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Show progress for running state */}
-        {workflowStatus?.workflowStatus?.status === 'running' && (
-          <div className="workflow-progress">
+        {/* Show message when analysis is already complete */}
+        {isAnalysisPopulated() && !fullAnalysisProgress && (
+          <div style={{ 
+            padding: '15px', 
+            backgroundColor: 'rgba(34, 197, 94, 0.1)', 
+            border: '1px solid rgba(34, 197, 94, 0.3)', 
+            borderRadius: '6px',
+            marginBottom: '20px'
+          }}>
+            <p style={{ color: '#22c55e', margin: '0', fontWeight: 'bold' }}>
+              ✅ Analysis Complete! Your birth chart analysis is ready to explore below.
+            </p>
+          </div>
+        )}
+
+        {/* Full Analysis Progress Bar */}
+        {fullAnalysisProgress && !isFullAnalysisCompleted && (
+          <div className="workflow-progress" style={{ marginBottom: '20px' }}>
             <div className="progress-header">
-              <h3>Generating Your Birth Chart Analysis</h3>
-              <p>{getCurrentStepDescription()}</p>
+              <h4 style={{ color: 'white', margin: '0 0 10px 0' }}>
+                Generating Complete Birth Chart Analysis
+              </h4>
+              <p style={{ color: '#a78bfa', margin: '0 0 10px 0' }}>
+                Phase: {fullAnalysisProgress.currentPhase || 'Processing'} 
+                ({fullAnalysisProgress.completedTasks}/{fullAnalysisProgress.totalTasks} tasks)
+              </p>
             </div>
             <div className="progress-bar">
               <div 
                 className="progress-fill" 
-                style={{ width: `${workflowStatus?.workflowStatus?.progress?.percentage || 0}%` }}
+                style={{ 
+                  width: `${fullAnalysisProgress.percentage || 0}%`,
+                  backgroundColor: '#8b5cf6'
+                }}
               ></div>
             </div>
-            <div className="progress-percentage">
-              {workflowStatus?.workflowStatus?.progress?.percentage || 0}% Complete
+            <div className="progress-percentage" style={{ color: 'white' }}>
+              {fullAnalysisProgress.percentage || 0}% Complete
             </div>
-            {workflowStatus?.workflowStatus?.progress?.processAllContent && (
-              <div className="workflow-steps">
-                <div className={`workflow-step ${workflowStatus.workflowStatus.progress.processAllContent.status}`}>
-                  <span className="step-name">
-                    Processing All Content
-                  </span>
-                  <span className="step-status">
-                    {workflowStatus.workflowStatus.progress.processAllContent.status === 'completed' && '✅'}
-                    {workflowStatus.workflowStatus.progress.processAllContent.status === 'running' && '🔄'}
-                    {workflowStatus.workflowStatus.progress.processAllContent.status === 'pending' && '⏳'}
-                    {workflowStatus.workflowStatus.progress.processAllContent.status === 'error' && '❌'}
-                  </span>
-                  {workflowStatus.workflowStatus.progress.processAllContent.total > 0 && 
-                   workflowStatus.workflowStatus.progress.processAllContent.status === 'running' && (
-                    <span className="step-progress">
-                      ({workflowStatus.workflowStatus.progress.processAllContent.completed}/
-                       {workflowStatus.workflowStatus.progress.processAllContent.total})
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-            {isPolling && !connectionError && <div className="polling-indicator">Checking status...</div>}
-            {connectionError && (
-              <div className="connection-error">
-                <span>⚠️ Connection lost (Attempt {retryCount}/10)</span>
-                <button 
-                  onClick={checkWorkflowStatus}
-                  className="workflow-button retry"
-                  style={{ marginLeft: '10px', padding: '6px 12px', fontSize: '12px' }}
-                >
-                  Retry Now
-                </button>
-              </div>
-            )}
           </div>
         )}
 
-        {/* Show temporary completion banner when analysis just finished */}
-        {showCompletionBanner && (
-          <div className="workflow-complete" style={{ 
-            position: 'relative',
-            animation: 'fadeIn 0.5s ease-in-out'
+        {isFullAnalysisCompleted && (
+          <div style={{ 
+            padding: '15px', 
+            backgroundColor: 'rgba(34, 197, 94, 0.1)', 
+            border: '1px solid rgba(34, 197, 94, 0.3)', 
+            borderRadius: '6px',
+            marginBottom: '20px'
           }}>
-            <h3>✅ Analysis Complete!</h3>
-            <p>Your birth chart analysis has been generated and is ready to explore.</p>
-            <small style={{ color: '#666', fontStyle: 'italic' }}>This message will disappear in a few seconds...</small>
-          </div>
-        )}
-
-        {/* Show error message for unknown state */}
-        {workflowStatus?.workflowStatus?.status === 'unknown' && (
-          <div className="workflow-error">
-            <h3>❌ Unexpected Error</h3>
-            <p>An unexpected error occurred while processing your birth chart analysis.</p>
-            <p>Please contact support if this issue persists.</p>
-            <button onClick={handleStartWorkflow} className="workflow-button retry">
-              Retry Analysis
-            </button>
-          </div>
-        )}
-
-        {/* Show incomplete tasks for incomplete or completed_with_failures states */}
-        {(workflowStatus?.workflowStatus?.status === 'incomplete' || 
-          workflowStatus?.workflowStatus?.status === 'completed_with_failures') && 
-          workflowStatus?.workflowBreakdown && (
-          <div className="incomplete-tasks">
-            <h4>Tasks Requiring Attention:</h4>
-            {workflowStatus.workflowBreakdown.needsGeneration.length > 0 && (
-              <div>
-                <h5>Needs Generation:</h5>
-                <ul>
-                  {workflowStatus.workflowBreakdown.needsGeneration.map((task, index) => (
-                    <li key={`gen-${index}`}>{task}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {workflowStatus.workflowBreakdown.needsVectorization.length > 0 && (
-              <div>
-                <h5>Needs Vectorization:</h5>
-                <ul>
-                  {workflowStatus.workflowBreakdown.needsVectorization.map((task, index) => (
-                    <li key={`vec-${index}`}>{task}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <p style={{ color: '#22c55e', margin: '0', fontWeight: 'bold' }}>
+              ✅ Complete analysis finished! Your full birth chart analysis is now available.
+            </p>
           </div>
         )}
       </div>
+
+    
 
       <TabMenu tabs={mainTabs} />
     </div>

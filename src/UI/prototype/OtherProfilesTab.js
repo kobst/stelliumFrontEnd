@@ -32,9 +32,9 @@ function OtherProfilesTab() {
   }, [ownerId, refreshKey]); // refreshKey will trigger reload when new profile is added
 
   const handleViewProfile = (profile) => {
-    // Switch to profile context and navigate to guest dashboard
+    // Switch to profile context and navigate to user dashboard
     switchUserContext(profile);
-    navigate('/guestDashboard');
+    navigate(`/userDashboard/${profile._id}`);
   };
 
   const handleProfileAdded = () => {

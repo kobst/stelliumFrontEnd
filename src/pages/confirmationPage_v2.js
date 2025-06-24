@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../Utilities/store';
 import useSubjectCreation from '../hooks/useSubjectCreation';
@@ -30,48 +30,8 @@ const ConfirmationV2 = () => {
     const [overviewContent, setOverviewContent] = useState(null);
     const [birthChartData, setBirthChartData] = useState(null);
 
-    // Start user creation when component mounts
-    useEffect(() => {
-        if (userData && !creationStarted.current && !workflowId) {
-            console.log('Starting user creation with data:', userData);
-            creationStarted.current = true;
-            createUser(userData);
-        }
-    }, [userData, createUser, workflowId]);
-
-    // Start polling when we get a workflow ID
-    useEffect(() => {
-        if (workflowId && !isCompleted) {
-            console.log('Starting to poll workflow status for:', workflowId);
-            const interval = setInterval(async () => {
-                try {
-                    const statusResponse = await checkStatus(workflowId);
-                    console.log('Polling status:', statusResponse);
-                    
-                    if (statusResponse.completed) {
-                        console.log('Workflow completed!');
-                        clearInterval(interval);
-                    }
-                } catch (error) {
-                    console.error('Polling error:', error);
-                }
-            }, 3000);
-
-            return () => clearInterval(interval);
-        }
-    }, [workflowId, isCompleted, checkStatus]);
-
-    // Handle workflow completion
-    useEffect(() => {
-        if (isCompleted && status?.userId && !birthChartData) {
-            console.log('Workflow completed, fetching complete data...');
-            handleWorkflowCompletion();
-        }
-    }, [isCompleted, status?.userId, birthChartData]);
-
-    // Polling is handled by useSubjectCreation hook
-
-    const handleWorkflowCompletion = async () => {
+    // Handle workflow completion - defined early to avoid hoisting issues
+    const handleWorkflowCompletion = useCallback(async () => {
         if (!status?.userId || !workflowId) return;
 
         try {
@@ -112,7 +72,101 @@ const ConfirmationV2 = () => {
         } catch (error) {
             console.error('Error fetching complete data:', error);
         }
-    };
+    }, [status?.userId, workflowId, getCompleteData, setUserId, setUserPlanets, setUserHouses, setUserAspects, setSelectedUser]);
+
+    // Start user creation when component mounts
+    useEffect(() => {
+        if (userData && !creationStarted.current && !workflowId) {
+            console.log('Starting user creation with data:', userData);
+            creationStarted.current = true;
+            createUser(userData);
+        }
+    }, [userData, createUser, workflowId]);
+
+    // Start polling when we get a workflow ID
+    useEffect(() => {
+        if (workflowId && !isCompleted) {
+            console.log('Starting to poll workflow status for:', workflowId);
+            let consecutiveErrors = 0;
+            let total404s = 0;
+            const maxConsecutive404s = 5; // Increased for user creation
+            const maxTotal404s = 8; // Stop after many 404s regardless
+            const maxConsecutiveOtherErrors = 3;
+            
+            const interval = setInterval(async () => {
+                try {
+                    const statusResponse = await checkStatus(workflowId);
+                    console.log('Polling status:', statusResponse);
+                    consecutiveErrors = 0; // Reset error count on success
+                    
+                    if (statusResponse.completed) {
+                        console.log('Workflow completed!');
+                        clearInterval(interval);
+                    }
+                } catch (error) {
+                    console.error('Polling error:', error);
+                    consecutiveErrors++;
+                    
+                    if (error.message?.includes('404')) {
+                        total404s++;
+                        console.log(`404 error ${consecutiveErrors} consecutive, ${total404s} total`);
+                        
+                        // Only stop on 404s if we've had many consecutive OR many total 404s
+                        // AND we have some indication the workflow might be done
+                        const shouldStopOn404 = (
+                            (consecutiveErrors >= maxConsecutive404s || total404s >= maxTotal404s) &&
+                            (status?.userId || overviewContent || birthChartData)
+                        );
+                        
+                        if (shouldStopOn404) {
+                            console.log('Multiple 404s detected with existing data - assuming workflow completed');
+                            clearInterval(interval);
+                            
+                            // Try to get complete data if we have a userId
+                            if (status?.userId) {
+                                console.log('Attempting to get complete data after multiple 404s...');
+                                handleWorkflowCompletion();
+                            }
+                        } else if (total404s >= maxTotal404s) {
+                            console.log('Too many 404s without completion indicators - stopping polling');
+                            clearInterval(interval);
+                        }
+                    } else {
+                        // For non-404 errors, stop polling after max consecutive errors
+                        if (consecutiveErrors >= maxConsecutiveOtherErrors) {
+                            console.log('Max consecutive non-404 errors reached, stopping polling');
+                            clearInterval(interval);
+                        }
+                    }
+                }
+            }, 3000);
+
+            // Timeout after 5 minutes
+            const timeout = setTimeout(() => {
+                console.log('Polling timeout reached, stopping polling');
+                clearInterval(interval);
+                
+                // Try to get complete data on timeout if we have userId
+                if (status?.userId) {
+                    console.log('Attempting to get complete data after timeout...');
+                    handleWorkflowCompletion();
+                }
+            }, 300000);
+
+            return () => {
+                clearInterval(interval);
+                clearTimeout(timeout);
+            };
+        }
+    }, [workflowId, isCompleted, checkStatus, status?.userId, handleWorkflowCompletion, overviewContent, birthChartData]);
+
+    // Handle workflow completion
+    useEffect(() => {
+        if (isCompleted && status?.userId && !birthChartData) {
+            console.log('Workflow completed, fetching complete data...');
+            handleWorkflowCompletion();
+        }
+    }, [isCompleted, status?.userId, birthChartData]);
 
     // Cleanup is handled by useSubjectCreation hook
 

@@ -37,9 +37,9 @@ function GuestSubjectsTable({ onGuestSelect, selectedForRelationship, showViewOp
   };
 
   const handleViewGuestDashboard = (guest) => {
-    // Switch to guest context and navigate to guest dashboard
+    // Switch to guest context and navigate to user dashboard
     switchUserContext(guest);
-    navigate('/guestDashboard');
+    navigate(`/userDashboard/${guest._id}`);
   };
 
   return (

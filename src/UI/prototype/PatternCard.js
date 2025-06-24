@@ -176,6 +176,24 @@ const PatternCard = memo(({ title, data, type }) => {
       return null;
     }
 
+    // Handle new backend format with descriptions array
+    if (data.patterns.descriptions && Array.isArray(data.patterns.descriptions)) {
+      console.log('Using new descriptions format:', data.patterns.descriptions);
+      return (
+        <div className="patterns-content">
+          <div className="pattern-section">
+            <h5>Chart Patterns</h5>
+            <ul>
+              {data.patterns.descriptions.map((pattern, index) => (
+                <li key={index}>{pattern}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    // Legacy format support
     const patternTypes = {
       'Stelliums': data.patterns.stelliums,
       'T-Squares': data.patterns.tSquares,
@@ -183,7 +201,7 @@ const PatternCard = memo(({ title, data, type }) => {
       'Grand Crosses': data.patterns.grandCrosses
     };
 
-    console.log('Pattern types:', patternTypes);
+    console.log('Pattern types (legacy format):', patternTypes);
 
     return (
       <div className="patterns-content">
