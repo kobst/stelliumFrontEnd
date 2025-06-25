@@ -8,7 +8,7 @@ const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 
 const AddCelebrityForm = ({ onCelebrityAdded }) => {
     const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
-    const { createCelebrity, loading, error, workflowId, isCompleted, status, checkStatus } = useSubjectCreation();
+    const { createCelebrity, loading, error } = useSubjectCreation();
 
     // Load Google Places API script
     useEffect(() => {
@@ -23,61 +23,6 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
             setIsGoogleLoaded(true);
         }
     }, []);
-
-    // Start polling when we get a workflow ID
-    useEffect(() => {
-        if (workflowId && !isCompleted) {
-            console.log('Starting to poll celebrity workflow status for:', workflowId);
-            const interval = setInterval(async () => {
-                try {
-                    const statusResponse = await checkStatus(workflowId);
-                    console.log('Celebrity polling status:', statusResponse);
-                    
-                    // Check if completed based on either completed flag or status + completedAt
-                    const isCompleted = statusResponse.completed || 
-                                       (statusResponse.completedAt && statusResponse.status?.includes('_created_with_overview'));
-                    
-                    if (isCompleted) {
-                        console.log('Celebrity workflow completed!');
-                        clearInterval(interval);
-                    }
-                } catch (error) {
-                    console.error('Celebrity polling error:', error);
-                    
-                    // Stop polling on 404 errors (workflow no longer exists)
-                    if (error.message?.includes('404')) {
-                        console.log('Stopping celebrity polling - workflow no longer trackable (404)');
-                        clearInterval(interval);
-                        
-                        // If we got a 404 and have a workflowId, assume the workflow completed
-                        // (backend removes completed workflows)
-                        if (workflowId) {
-                            setSuccessMessage(`Celebrity has been added successfully!`);
-                            setWorkflowStatus('completed');
-                            
-                            // Clear form
-                            setFirstName('');
-                            setLastName('');
-                            setDate('');
-                            setTime('');
-                            setLat('');
-                            setLon('');
-                            setPlaceOfBirth('');
-                            setGender('');
-                            setUnknownTime(false);
-                            
-                            // Notify parent component if callback provided
-                            if (onCelebrityAdded) {
-                                onCelebrityAdded();
-                            }
-                        }
-                    }
-                }
-            }, 3000);
-
-            return () => clearInterval(interval);
-        }
-    }, [workflowId, isCompleted, checkStatus]);
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -103,29 +48,6 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
       return errors;
     };
 
-    // Handle workflow completion
-    useEffect(() => {
-      if (isCompleted && workflowId) {
-        setSuccessMessage(`${firstName} ${lastName} has been added successfully!`);
-        setWorkflowStatus('completed');
-        
-        // Clear form
-        setFirstName('');
-        setLastName('');
-        setDate('');
-        setTime('');
-        setLat('');
-        setLon('');
-        setPlaceOfBirth('');
-        setGender('');
-        setUnknownTime(false);
-
-        // Notify parent component if callback provided
-        if (onCelebrityAdded) {
-          onCelebrityAdded();
-        }
-      }
-    }, [isCompleted, workflowId, firstName, lastName, onCelebrityAdded]);
 
     const handleSubmit = async (event) => {
       event.preventDefault();
@@ -147,7 +69,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
         const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
         const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
 
-        // Prepare data for new API
+        // Prepare data for direct API
         const celebrityData = {
           firstName,
           lastName,
@@ -160,9 +82,30 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
           gender
         };
 
-        console.log('Creating celebrity with new API:', celebrityData);
-        await createCelebrity(celebrityData);
-        setWorkflowStatus('started');
+        console.log('Creating celebrity with direct API:', celebrityData);
+        const result = await createCelebrity(celebrityData);
+        
+        if (result.success) {
+          // Show success message
+          setSuccessMessage(`${firstName} ${lastName} has been added successfully!`);
+          setWorkflowStatus('completed');
+          
+          // Clear form
+          setFirstName('');
+          setLastName('');
+          setDate('');
+          setTime('');
+          setLat('');
+          setLon('');
+          setPlaceOfBirth('');
+          setGender('');
+          setUnknownTime(false);
+          
+          // Notify parent component to refresh celebrity table
+          if (onCelebrityAdded) {
+            onCelebrityAdded();
+          }
+        }
         
       } catch (error) {
         console.error('Error creating celebrity:', error);
@@ -377,8 +320,8 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
           </div>
         </form>
         
-        {/* Workflow Status Display */}
-        {workflowStatus === 'started' && !isCompleted && (
+        {/* Loading Status Display */}
+        {loading && (
           <div style={{ 
             backgroundColor: 'rgba(255, 255, 255, 0.1)', 
             padding: '15px', 
@@ -387,27 +330,6 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
             textAlign: 'center'
           }}>
             <p style={{ color: 'white', margin: '0' }}>Creating celebrity profile and generating overview...</p>
-            {status?.progress && (
-              <div style={{ marginTop: '10px' }}>
-                <p style={{ color: '#a78bfa', fontSize: '14px', margin: '5px 0' }}>
-                  Progress: {status.progress.completedTasks} of {status.progress.totalTasks} tasks
-                </p>
-                <div style={{ 
-                  width: '100%', 
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                  borderRadius: '4px',
-                  height: '6px'
-                }}>
-                  <div style={{ 
-                    width: `${status.progress.percentage || 0}%`, 
-                    backgroundColor: '#8b5cf6',
-                    height: '100%',
-                    borderRadius: '4px',
-                    transition: 'width 0.3s ease'
-                  }} />
-                </div>
-              </div>
-            )}
           </div>
         )}
         

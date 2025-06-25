@@ -1155,9 +1155,9 @@ function UserDashboard() {
 
       {/* New Full Analysis Workflow Section */}
       <div className="workflow-section">
-        <h3 style={{ color: 'white', marginBottom: '15px' }}>🚀 New Analysis System (Recommended)</h3>
+        <h3>🚀 New Analysis System (Recommended)</h3>
         {!isAnalysisPopulated() && (
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ marginBottom: '20px' }}>
             <button
               onClick={handleStartFullAnalysis}
               disabled={fullAnalysisLoading || !userId || workflowStarted || (fullAnalysisProgress && !isFullAnalysisCompleted)}
@@ -1175,9 +1175,8 @@ function UserDashboard() {
             </button>
           
             {fullAnalysisProgress && !isFullAnalysisCompleted && (
-              <div style={{ color: 'white', fontSize: '14px' }}>
+              <div style={{ color: '#666', fontSize: '14px', marginTop: '10px' }}>
                 {fullAnalysisProgress.percentage}% Complete 
-                ({fullAnalysisProgress.completedTasks}/{fullAnalysisProgress.totalTasks} tasks)
                 {fullAnalysisProgress.currentPhase && ` - ${fullAnalysisProgress.currentPhase}`}
               </div>
             )}
@@ -1203,10 +1202,10 @@ function UserDashboard() {
         {fullAnalysisProgress && !isFullAnalysisCompleted && (
           <div className="workflow-progress" style={{ marginBottom: '20px' }}>
             <div className="progress-header">
-              <h4 style={{ color: 'white', margin: '0 0 10px 0' }}>
+              <h4>
                 Generating Complete Birth Chart Analysis
               </h4>
-              <p style={{ color: '#a78bfa', margin: '0 0 10px 0' }}>
+              <p>
                 Phase: {fullAnalysisProgress.currentPhase || 'Processing'} 
                 ({fullAnalysisProgress.completedTasks}/{fullAnalysisProgress.totalTasks} tasks)
               </p>
@@ -1220,7 +1219,7 @@ function UserDashboard() {
                 }}
               ></div>
             </div>
-            <div className="progress-percentage" style={{ color: 'white' }}>
+            <div className="progress-percentage">
               {fullAnalysisProgress.percentage || 0}% Complete
             </div>
           </div>

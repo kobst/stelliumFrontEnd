@@ -27,7 +27,7 @@ const useSubjectCreation = () => {
   const [fullAnalysisStatus, setFullAnalysisStatus] = useState(null);
   const [fullAnalysisProgress, setFullAnalysisProgress] = useState(null);
 
-  // Create user with overview
+  // Create user with direct API - gets immediate response with birth chart + overview
   const createUser = useCallback(async (userData) => {
     setLoading(true);
     setError(null);
@@ -40,8 +40,28 @@ const useSubjectCreation = () => {
       const response = await createUserWithOverview(userData);
       
       if (response.success) {
-        setWorkflowId(response.workflowId);
-        setStatus(response);
+        // Set the response data directly - no workflow polling needed
+        setStatus({
+          ...response,
+          completed: true,
+          userId: response.userId
+        });
+        
+        // Set complete data with birth chart and overview
+        setCompleteData({
+          subject: {
+            ...response.user,
+            birthChart: response.birthChart
+          },
+          analysis: {
+            interpretation: {
+              basicAnalysis: {
+                overview: response.overview
+              }
+            }
+          }
+        });
+        
         return response;
       } else {
         throw new Error(response.error || 'Failed to create user');
@@ -54,7 +74,7 @@ const useSubjectCreation = () => {
     }
   }, []);
 
-  // Create celebrity with overview
+  // Create celebrity with direct API - gets immediate response with birth chart + overview
   const createCelebrity = useCallback(async (celebrityData) => {
     setLoading(true);
     setError(null);
@@ -67,8 +87,28 @@ const useSubjectCreation = () => {
       const response = await createCelebrityWithOverview(celebrityData);
       
       if (response.success) {
-        setWorkflowId(response.workflowId);
-        setStatus(response);
+        // Set the response data directly - no workflow polling needed
+        setStatus({
+          ...response,
+          completed: true,
+          userId: response.userId
+        });
+        
+        // Set complete data with birth chart and overview
+        setCompleteData({
+          subject: {
+            ...response.celeb,
+            birthChart: response.birthChart
+          },
+          analysis: {
+            interpretation: {
+              basicAnalysis: {
+                overview: response.overview
+              }
+            }
+          }
+        });
+        
         return response;
       } else {
         throw new Error(response.error || 'Failed to create celebrity');
@@ -81,7 +121,7 @@ const useSubjectCreation = () => {
     }
   }, []);
 
-  // Create guest with overview
+  // Create guest with direct API - gets immediate response with birth chart + overview
   const createGuest = useCallback(async (guestData, ownerUserId) => {
     setLoading(true);
     setError(null);
@@ -95,8 +135,28 @@ const useSubjectCreation = () => {
       const response = await createGuestWithOverview(dataWithOwner);
       
       if (response.success) {
-        setWorkflowId(response.workflowId);
-        setStatus(response);
+        // Set the response data directly - no workflow polling needed
+        setStatus({
+          ...response,
+          completed: true,
+          userId: response.userId
+        });
+        
+        // Set complete data with birth chart and overview
+        setCompleteData({
+          subject: {
+            ...response.guestSubject,
+            birthChart: response.birthChart
+          },
+          analysis: {
+            interpretation: {
+              basicAnalysis: {
+                overview: response.overview
+              }
+            }
+          }
+        });
+        
         return response;
       } else {
         throw new Error(response.error || 'Failed to create guest subject');

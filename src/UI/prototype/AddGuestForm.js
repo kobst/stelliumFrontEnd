@@ -10,7 +10,7 @@ const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY;
 const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const userId = useStore(state => state.userId);
-  const { createGuest, loading, error, workflowId, isCompleted, status, checkStatus } = useSubjectCreation();
+  const { createGuest, loading, error } = useSubjectCreation();
 
   // Load Google Places API script
   useEffect(() => {
@@ -25,61 +25,6 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
       setIsGoogleLoaded(true);
     }
   }, []);
-
-  // Start polling when we get a workflow ID
-  useEffect(() => {
-    if (workflowId && !isCompleted) {
-      console.log('Starting to poll guest workflow status for:', workflowId);
-      const interval = setInterval(async () => {
-        try {
-          const statusResponse = await checkStatus(workflowId);
-          console.log('Guest polling status:', statusResponse);
-          
-          // Check if completed based on either completed flag or status + completedAt
-          const isCompleted = statusResponse.completed || 
-                             (statusResponse.completedAt && statusResponse.status?.includes('_created_with_overview'));
-          
-          if (isCompleted) {
-            console.log('Guest workflow completed!');
-            clearInterval(interval);
-          }
-        } catch (error) {
-          console.error('Guest polling error:', error);
-          
-          // Stop polling on 404 errors (workflow no longer exists)
-          if (error.message?.includes('404')) {
-            console.log('Stopping guest polling - workflow no longer trackable (404)');
-            clearInterval(interval);
-            
-            // If we got a 404 and have a workflowId, assume the workflow completed
-            // (backend removes completed workflows)
-            if (workflowId) {
-              setSubmitMessage('Profile added successfully!');
-              setWorkflowStatus('completed');
-              
-              // Clear form
-              setFirstName('');
-              setLastName('');
-              setDate('');
-              setTime('');
-              setLat('');
-              setLon('');
-              setPlaceOfBirth('');
-              setGender('');
-              setUnknownTime(false);
-              
-              // Notify parent component if callback provided
-              if (onGuestAdded) {
-                onGuestAdded();
-              }
-            }
-          }
-        }
-      }, 3000);
-
-      return () => clearInterval(interval);
-    }
-  }, [workflowId, isCompleted, checkStatus]);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -105,36 +50,6 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
     return errors;
   };
 
-  // Handle workflow completion
-  useEffect(() => {
-    if (isCompleted && workflowId) {
-      setSubmitMessage('Profile added successfully!');
-      setWorkflowStatus('completed');
-      
-      // Clear form
-      setFirstName('');
-      setLastName('');
-      setDate('');
-      setTime('');
-      setLat('');
-      setLon('');
-      setPlaceOfBirth('');
-      setGender('');
-      setUnknownTime(false);
-      setFormErrors({});
-
-      // Notify parent to refresh the table
-      if (onGuestAdded) {
-        onGuestAdded();
-      }
-
-      // Clear message after 3 seconds
-      setTimeout(() => {
-        setSubmitMessage('');
-        setWorkflowStatus(null);
-      }, 3000);
-    }
-  }, [isCompleted, workflowId, onGuestAdded]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -156,7 +71,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
       const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
       const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
 
-      // Prepare data for new API
+      // Prepare data for direct API
       const guestData = {
         firstName,
         lastName,
@@ -169,9 +84,37 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
         gender
       };
 
-      console.log('Creating guest with new API:', guestData);
-      await createGuest(guestData, userId);
-      setWorkflowStatus('started');
+      console.log('Creating guest with direct API:', guestData);
+      const result = await createGuest(guestData, userId);
+      
+      if (result.success) {
+        // Show success message
+        setSubmitMessage('Profile added successfully!');
+        setWorkflowStatus('completed');
+        
+        // Clear form
+        setFirstName('');
+        setLastName('');
+        setDate('');
+        setTime('');
+        setLat('');
+        setLon('');
+        setPlaceOfBirth('');
+        setGender('');
+        setUnknownTime(false);
+        setFormErrors({});
+        
+        // Notify parent component to refresh guest table
+        if (onGuestAdded) {
+          onGuestAdded();
+        }
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setSubmitMessage('');
+          setWorkflowStatus(null);
+        }, 3000);
+      }
       
     } catch (error) {
       console.error('Error creating guest:', error);
@@ -387,8 +330,8 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
         </div>
       </form>
       
-      {/* Workflow Status Display */}
-      {workflowStatus === 'started' && !isCompleted && (
+      {/* Loading Status Display */}
+      {loading && (
         <div style={{ 
           backgroundColor: 'rgba(255, 255, 255, 0.1)', 
           padding: '15px', 
@@ -397,27 +340,6 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
           textAlign: 'center'
         }}>
           <p style={{ color: 'white', margin: '0' }}>Creating guest profile and generating overview...</p>
-          {status?.progress && (
-            <div style={{ marginTop: '10px' }}>
-              <p style={{ color: '#a78bfa', fontSize: '14px', margin: '5px 0' }}>
-                Progress: {status.progress.completedTasks} of {status.progress.totalTasks} tasks
-              </p>
-              <div style={{ 
-                width: '100%', 
-                backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                borderRadius: '4px',
-                height: '6px'
-              }}>
-                <div style={{ 
-                  width: `${status.progress.percentage || 0}%`, 
-                  backgroundColor: '#8b5cf6',
-                  height: '100%',
-                  borderRadius: '4px',
-                  transition: 'width 0.3s ease'
-                }} />
-              </div>
-            </div>
-          )}
         </div>
       )}
       

@@ -28,23 +28,27 @@ export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
 }
 
 
-// New unified creation API - creates user and starts overview generation automatically
-export const createUserWithOverview = async (userData) => {
+// Direct user creation API - creates user with immediate overview
+export const createUser = async (userData) => {
   try {
-    console.log('Creating user with overview:', userData);
-    const response = await fetch(`${SERVER_URL}/user/create-with-overview`, {
+    console.log('Creating user:', userData);
+    const endpoint = userData.time === 'unknown' ? '/createUserUnknownTime' : '/createUser';
+    const requestData = { ...userData };
+    
+    // Remove time field for unknown time endpoint
+    if (userData.time === 'unknown') {
+      delete requestData.time;
+    }
+    
+    const response = await fetch(`${SERVER_URL}${endpoint}`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
       },
-      body: JSON.stringify(userData)
+      body: JSON.stringify(requestData)
     });
 
     if (!response.ok) {
-      // If 404, the new endpoint doesn't exist yet
-      if (response.status === 404) {
-        throw new Error('New API endpoint not available yet. Please check backend deployment.');
-      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -1234,16 +1238,27 @@ export const fetchCelebrities = async () => {
   }
 };
 
-// New unified celebrity creation API - creates celebrity and starts overview generation automatically
-export const createCelebrityWithOverview = async (celebrityData) => {
+// Direct celebrity creation API - creates celebrity with immediate overview
+export const createCelebrity = async (celebrityData) => {
   try {
-    console.log('Creating celebrity with overview:', celebrityData);
-    const response = await fetch(`${SERVER_URL}/celebrity/create-with-overview`, {
+    console.log('Creating celebrity:', celebrityData);
+    const endpoint = celebrityData.time === 'unknown' ? '/createCelebUnknownTime' : '/createCeleb';
+    const requestData = { ...celebrityData };
+    
+    // Remove time field for unknown time endpoint
+    if (celebrityData.time === 'unknown') {
+      delete requestData.time;
+    }
+    
+    // Remove email field for celebrities (not required)
+    delete requestData.email;
+    
+    const response = await fetch(`${SERVER_URL}${endpoint}`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
       },
-      body: JSON.stringify(celebrityData)
+      body: JSON.stringify(requestData)
     });
 
     if (!response.ok) {
@@ -1251,7 +1266,7 @@ export const createCelebrityWithOverview = async (celebrityData) => {
     }
 
     const responseData = await response.json();
-    console.log('Celebrity creation with overview response:', responseData);
+    console.log('Celebrity creation response:', responseData);
     return responseData;
   } catch (error) {
     console.error(ERROR_API_CALL, error);
@@ -1307,16 +1322,32 @@ export const getUserCompositeCharts = async (ownerUserId) => {
 
 // Guest Subject API Functions
 
-// New unified guest creation API - creates guest subject and starts overview generation automatically
-export const createGuestWithOverview = async (guestData) => {
+// Direct guest creation API - creates guest subject with immediate overview
+export const createGuestSubject = async (guestData) => {
   try {
-    console.log('Creating guest with overview:', guestData);
-    const response = await fetch(`${SERVER_URL}/guest/create-with-overview`, {
+    console.log('Creating guest subject:', guestData);
+    const endpoint = guestData.time === 'unknown' ? '/createGuestSubjectUnknownTime' : '/createGuestSubject';
+    const requestData = { ...guestData };
+    
+    // Remove time field for unknown time endpoint
+    if (guestData.time === 'unknown') {
+      delete requestData.time;
+    }
+    
+    // Remove email field for guest subjects (not required)
+    delete requestData.email;
+    
+    // Ensure ownerUserId is present (required for guest subjects)
+    if (!requestData.ownerUserId) {
+      throw new Error('ownerUserId is required for guest subjects');
+    }
+    
+    const response = await fetch(`${SERVER_URL}${endpoint}`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
       },
-      body: JSON.stringify(guestData)
+      body: JSON.stringify(requestData)
     });
 
     if (!response.ok) {
@@ -1324,13 +1355,18 @@ export const createGuestWithOverview = async (guestData) => {
     }
 
     const responseData = await response.json();
-    console.log('Guest creation with overview response:', responseData);
+    console.log('Guest subject creation response:', responseData);
     return responseData;
   } catch (error) {
     console.error(ERROR_API_CALL, error);
     throw error;
   }
 };
+
+// Backward compatibility exports
+export const createUserWithOverview = createUser;
+export const createCelebrityWithOverview = createCelebrity;
+export const createGuestWithOverview = createGuestSubject;
 
 // Full Analysis API Functions - Stage 2 of the workflow system
 
