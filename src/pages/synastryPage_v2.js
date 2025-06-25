@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import UsersTable from '../UI/prototype/UsersTable';
-import { createCompositeChartProfile, postCreateRelationshipProfile } from '../Utilities/api';
+import { createCompositeChartProfile, postCreateRelationshipProfile, createRelationshipDirect } from '../Utilities/api';
 
 function SynastryPage() {
   const [userA, setUserA] = useState(null);

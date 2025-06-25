@@ -5,7 +5,7 @@ import GuestSubjectsTable from './GuestSubjectsTable';
 import ExistingRelationshipsTable from './ExistingRelationshipsTable';
 import TabMenu from '../shared/TabMenu';
 import useStore from '../../Utilities/store';
-import { postCreateRelationshipProfile, getUserCompositeCharts } from '../../Utilities/api';
+import { createRelationshipDirect, getUserCompositeCharts } from '../../Utilities/api';
 
 function RelationshipsTab() {
   const navigate = useNavigate();
@@ -56,42 +56,35 @@ function RelationshipsTab() {
     setRelationshipMessage('Creating relationship and generating compatibility scores...');
 
     try {
-      // Use dashboard owner's ID for relationship creation
-      const ownerUserId = currentUserContext?._id || userId;
-      const result = await postCreateRelationshipProfile(dashboardOwner, selectedForRelationship, ownerUserId);
+      // Get user IDs for direct API
+      const userIdA = dashboardOwner._id || dashboardOwner.id;
+      const userIdB = selectedForRelationship._id || selectedForRelationship.id;
       
-      console.log('🎉 Relationship created successfully:', result);
+      console.log('Creating relationship with direct API:', { userIdA, userIdB });
+      const result = await createRelationshipDirect(userIdA, userIdB);
       
-      // Check if we got a composite chart directly
-      if (result.compositeChart) {
-        console.log('📊 Got composite chart directly from creation response');
-        setCompositeChart(result.compositeChart);
-        navigate('/compositeDashboard?preview=true');
+      console.log('🎉 Relationship created successfully with direct API:', result);
+      
+      if (result.success) {
+        // Show success message
+        const partnerName = `${selectedForRelationship.firstName} ${selectedForRelationship.lastName}`;
+        setRelationshipMessage(`✨ Relationship with ${partnerName} created successfully!`);
+        
+        // Clear selection and refresh table
+        setSelectedForRelationship(null);
+        setIsCreatingRelationship(false);
+        setRefreshKey(prev => prev + 1);
+        
+        // Clear success message after 5 seconds
+        setTimeout(() => {
+          setRelationshipMessage('');
+        }, 5000);
       } else {
-        // If no composite chart in response, fetch the user's relationships to get the latest one
-        console.log('📊 No composite chart in response, fetching user relationships...');
-        setRelationshipMessage('Relationship created! Fetching composite chart data...');
-        
-        const relationships = await getUserCompositeCharts(ownerUserId);
-        console.log('📊 Fetched relationships:', relationships);
-        
-        if (relationships && relationships.length > 0) {
-          // Get the most recently created relationship (should be the one we just created)
-          const latestRelationship = relationships.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
-          console.log('📊 Using latest relationship:', latestRelationship);
-          
-          setCompositeChart(latestRelationship);
-          navigate('/compositeDashboard?preview=true');
-        } else {
-          setRelationshipMessage('Relationship created but unable to fetch composite chart. Please refresh and try again.');
-          setSelectedForRelationship(null);
-          setRefreshKey(prev => prev + 1);
-          setIsCreatingRelationship(false);
-        }
+        throw new Error(result.error || 'Failed to create relationship');
       }
     } catch (error) {
       console.error('Error creating relationship:', error);
-      setRelationshipMessage('Error creating relationship. Please try again.');
+      setRelationshipMessage(error.message || 'Error creating relationship. Please try again.');
       setIsCreatingRelationship(false);
     }
     // Note: Don't set isCreatingRelationship(false) here when navigating successfully, 
@@ -125,6 +118,29 @@ function RelationshipsTab() {
 
   return (
     <div className="relationships-tab">
+      {/* Success/Error Message - Always visible */}
+      {relationshipMessage && !selectedForRelationship && (
+        <div style={{ 
+          padding: '15px', 
+          backgroundColor: relationshipMessage.includes('Error') ? '#f8d7da' : '#d4edda', 
+          color: relationshipMessage.includes('Error') ? '#721c24' : '#155724',
+          marginBottom: '20px', 
+          borderRadius: '8px',
+          border: `1px solid ${relationshipMessage.includes('Error') ? '#f5c6cb' : '#c3e6cb'}`,
+          textAlign: 'center'
+        }}>
+          <p style={{ margin: 0, fontWeight: 'bold' }}>
+            {relationshipMessage}
+          </p>
+          {relationshipMessage.includes('successfully') && (
+            <p style={{ margin: '10px 0 0 0', fontSize: '14px' }}>
+              View your new relationship in the "Existing Relationships" tab below.
+            </p>
+          )}
+        </div>
+      )}
+      
+      {/* Selection Box - Only visible when someone is selected */}
       {selectedForRelationship && (
         <div style={{ 
           padding: '20px', 

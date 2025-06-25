@@ -11,7 +11,8 @@ import {
   fetchUserChatRelationshipAnalysis,
   startRelationshipWorkflow,
   getRelationshipWorkflowStatus,
-  resumeRelationshipWorkflow
+  resumeRelationshipWorkflow,
+  startFullRelationshipAnalysis
 } from '../Utilities/api';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Reuse the same component
 import TabMenu from '../UI/shared/TabMenu';
@@ -66,6 +67,21 @@ function CompositeDashboard_v4({}) {
             if (!compositeChart || !compositeChart._id) {
                 console.log("No composite chart available yet for initialization");
                 return;
+            }
+
+            // Check if we have immediate data from direct API response
+            if (compositeChart.scores) {
+                console.log("Found immediate scores from direct API:", compositeChart.scores);
+                setRelationshipScores(compositeChart.scores);
+                
+                // Store in workflow state for consistency
+                setRelationshipWorkflowState({
+                    hasScores: true,
+                    scores: compositeChart.scores,
+                    scoreAnalysis: compositeChart.scoreAnalysis || {},
+                    startedFromCreation: true,
+                    isPaused: false
+                });
             }
 
             if (compositeChart.userA_id && compositeChart.userB_id) {
@@ -280,10 +296,10 @@ function CompositeDashboard_v4({}) {
     }
   };
 
-  // Start workflow function (full analysis)
+  // Start workflow function (full analysis) - Enhanced for Stage 2
   const handleStartWorkflow = async () => {
-    if (!userA?._id || !userB?._id || !compositeChart?._id) {
-      console.error('Missing required data to start workflow');
+    if (!compositeChart?._id) {
+      console.error('Missing composite chart ID to start full analysis workflow');
       return;
     }
 
@@ -299,23 +315,19 @@ function CompositeDashboard_v4({}) {
         setPollInterval(null);
       }
       
-      console.log('Starting workflow with:', {
-        userA: userA._id,
-        userB: userB._id,
-        compositeChart: compositeChart._id
-      });
+      console.log('Starting full relationship analysis workflow for composite:', compositeChart._id);
       
-      // Start the workflow (full analysis, immediate=true)
-      const startResponse = await startRelationshipWorkflow(userA._id, userB._id, compositeChart._id, true);
-      console.log('Start workflow response:', startResponse);
+      // Use the new enhanced API for starting full analysis from existing relationship
+      const startResponse = await startFullRelationshipAnalysis(compositeChart._id);
+      console.log('Start full analysis response:', startResponse);
       
       if (startResponse.success) {
         // Start polling immediately after successful start
-        console.log('Workflow started successfully, beginning polling');
+        console.log('Full analysis workflow started successfully, beginning polling');
         startPolling();
       }
     } catch (error) {
-      console.error('Error starting workflow:', error);
+      console.error('Error starting full analysis workflow:', error);
       // Reset state on error
       setWorkflowStatus(null);
       setIsPolling(false);
@@ -1067,8 +1079,11 @@ function CompositeDashboard_v4({}) {
               </div>
             )}
 
-            {/* Preview Mode - Paused After Scores State */}
-            {relationshipWorkflowState.isPaused && relationshipWorkflowState.hasScores && (
+            {/* Scores Available - Start Full Analysis State */}
+            {(relationshipScores || (relationshipWorkflowState.isPaused && relationshipWorkflowState.hasScores)) && 
+             !detailedRelationshipAnalysis && 
+             !workflowComplete && 
+             !isWorkflowRunning && (
               <div style={{ 
                 backgroundColor: 'rgba(139, 92, 246, 0.1)', 
                 padding: '20px', 
@@ -1088,7 +1103,7 @@ function CompositeDashboard_v4({}) {
                 </p>
                 <div style={{ marginTop: '15px', padding: '10px 0', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <button
-                    onClick={handleResumeWorkflow}
+                    onClick={handleStartWorkflow}
                     style={{
                       backgroundColor: '#8b5cf6',
                       color: 'white',
@@ -1101,7 +1116,7 @@ function CompositeDashboard_v4({}) {
                       marginRight: '10px'
                     }}
                   >
-                    Complete Full Analysis
+                    {relationshipWorkflowState.isPaused ? 'Complete Full Analysis' : 'Start Full Analysis'}
                   </button>
                   <p style={{ color: '#a78bfa', fontSize: '14px', margin: '10px 0 0 0' }}>
                     Unlock detailed category analyses, personalized insights, and AI chat about your relationship.

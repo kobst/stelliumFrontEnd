@@ -153,16 +153,15 @@ export const handleUserInput = async (userId, query) => {
 }
 
 
-export const postCreateRelationshipProfile = async (userA, userB) => {
-  console.log("userA")
-  console.log(userA)
-  console.log("userB")
-  console.log(userB)
+// Direct relationship creation API - creates relationship with immediate compatibility scores
+export const createRelationshipDirect = async (userIdA, userIdB) => {
   try {
-    const response = await fetch(`${SERVER_URL}/createRelationship`, {
+    console.log('Creating relationship with direct API:', { userIdA, userIdB });
+    
+    const response = await fetch(`${SERVER_URL}/createRelationshipDirect`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({userA, userB})
+      body: JSON.stringify({ userIdA, userIdB })
     });
 
     if (!response.ok) {
@@ -170,7 +169,31 @@ export const postCreateRelationshipProfile = async (userA, userB) => {
     }
 
     const responseData = await response.json();
+    console.log('Direct relationship creation response:', responseData);
     return responseData;
+  } catch (error) {
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      console.error('Network/CORS error - likely the new API endpoint is not deployed yet');
+      throw new Error('Cannot connect to new API endpoint. The backend may not be updated with the new endpoints yet.');
+    }
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+};
+
+// Legacy relationship creation (kept for backward compatibility)
+export const postCreateRelationshipProfile = async (userA, userB, ownerUserId = null) => {
+  console.log("userA")
+  console.log(userA)
+  console.log("userB")
+  console.log(userB)
+  
+  // Use direct API with user IDs
+  const userIdA = userA._id || userA.id;
+  const userIdB = userB._id || userB.id;
+  
+  try {
+    return await createRelationshipDirect(userIdA, userIdB);
   } catch (error) {
     console.error(ERROR_API_CALL, error);
     throw error;
@@ -1071,6 +1094,58 @@ export const resumeRelationshipWorkflow = async (compositeChartId) => {
     return responseData;
   } catch (error) {
     console.error('Error resuming relationship workflow:', error);
+    throw error;
+  }
+};
+
+// Enhanced relationship workflow functions for the new two-stage system
+
+// Start full relationship analysis from existing relationship (Stage 2)
+export const startFullRelationshipAnalysis = async (compositeChartId) => {
+  console.log("🚀 Starting full relationship analysis for:", compositeChartId);
+  try {
+    const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ compositeChartId, immediate: true })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Start full relationship analysis error:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("📊 FULL RELATIONSHIP ANALYSIS STARTED:", JSON.stringify(responseData, null, 2));
+    return responseData;
+  } catch (error) {
+    console.error('Error starting full relationship analysis:', error);
+    throw error;
+  }
+};
+
+// Auto-create relationship and start full analysis in one call
+export const createRelationshipWithFullAnalysis = async (userIdA, userIdB) => {
+  console.log("🔥 Creating relationship with full analysis:", { userIdA, userIdB });
+  try {
+    const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ userIdA, userIdB, immediate: true })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Create relationship with full analysis error:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("📊 RELATIONSHIP WITH FULL ANALYSIS STARTED:", JSON.stringify(responseData, null, 2));
+    return responseData;
+  } catch (error) {
+    console.error('Error creating relationship with full analysis:', error);
     throw error;
   }
 };
