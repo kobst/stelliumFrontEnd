@@ -41,21 +41,6 @@
   border-radius: 5px;
 }
 
-.score-breakdown {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.score-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 5px 10px;
-  background: #fafafa;
-  border-radius: 3px;
-  font-size: 0.9rem;
-}
-
 .score-value {
   color: #2196F3;
 }
@@ -68,10 +53,10 @@
   border: 1px solid #d0e3ff;
 }
 
-.flag-analysis strong {
-  display: block;
-  margin-bottom: 8px;
+.flag-analysis h4 {
+  margin: 0 0 8px 0;
   color: #1976D2;
+  font-size: 1rem;
 }
 
 .flag-analysis p {
@@ -96,16 +81,16 @@
   border: 1px solid #ffd0d0;
 }
 
-.green-flags strong, .red-flags strong {
-  display: block;
-  margin-bottom: 8px;
+.green-flags h4, .red-flags h4 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
 }
 
-.green-flags strong {
+.green-flags h4 {
   color: #2E7D32;
 }
 
-.red-flags strong {
+.red-flags h4 {
   color: #C62828;
 }
 
@@ -127,17 +112,13 @@
   margin-bottom: 0;
 }
 
-.green-flags li div, .red-flags li div {
-  margin-bottom: 4px;
-  font-size: 0.9rem;
-}
-
-.green-flags li div:last-child, .red-flags li div:last-child {
-  margin-bottom: 0;
-}
-
-.green-flags li strong, .red-flags li strong {
-  display: inline;
+.green-flags li p, .red-flags li p {
   margin: 0;
-  color: inherit;
+  line-height: 1.4;
+}
+
+.no-flags {
+  color: #6c757d;
+  font-style: italic;
+  margin: 0;
 }

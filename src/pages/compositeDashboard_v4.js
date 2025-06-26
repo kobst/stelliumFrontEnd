@@ -940,9 +940,17 @@ function CompositeDashboard_v4({}) {
       categories: Object.keys(availableScores).reduce((acc, categoryKey) => {
         const analysis = availableScoreAnalysis[categoryKey];
         if (analysis) {
-          acc[categoryKey] = {
-            scoreAnalysis: analysis
-          };
+          // Check if this is the new structure (has analysis and scoredItems)
+          if (analysis.analysis && analysis.scoredItems) {
+            acc[categoryKey] = {
+              scoreAnalysis: analysis // Pass the entire analysis object
+            };
+          } else {
+            // Legacy structure (has scoreAnalysis, greenFlags, redFlags)
+            acc[categoryKey] = {
+              scoreAnalysis: analysis
+            };
+          }
         }
         return acc;
       }, {})
