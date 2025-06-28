@@ -55,6 +55,7 @@ function CompositeDashboard_v4({}) {
     const [pollInterval, setPollInterval] = useState(null);
     const [connectionError, setConnectionError] = useState(false);
     const [retryCount, setRetryCount] = useState(0);
+    const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
     
     // Add chat-related state
     const [chatMessages, setChatMessages] = useState([]);
@@ -304,6 +305,9 @@ function CompositeDashboard_v4({}) {
     }
 
     try {
+      // Set starting state immediately
+      setIsStartingAnalysis(true);
+      
       // Reset all workflow state
       console.log('Resetting workflow state');
       setWorkflowStatus(null);
@@ -325,12 +329,16 @@ function CompositeDashboard_v4({}) {
         // Start polling immediately after successful start
         console.log('Full analysis workflow started successfully, beginning polling');
         startPolling();
+      } else {
+        // Reset starting state if failed
+        setIsStartingAnalysis(false);
       }
     } catch (error) {
       console.error('Error starting full analysis workflow:', error);
       // Reset state on error
       setWorkflowStatus(null);
       setIsPolling(false);
+      setIsStartingAnalysis(false);
       if (pollInterval) {
         clearInterval(pollInterval);
         setPollInterval(null);
@@ -451,7 +459,7 @@ function CompositeDashboard_v4({}) {
         // If workflow is still running, resume polling
         if (response.workflowStatus?.status === 'running' && !isPolling) {
           console.log('Workflow is running, resuming polling');
-          handleStartWorkflow();
+          startPolling();
         }
       }
     } catch (error) {
@@ -539,6 +547,8 @@ function CompositeDashboard_v4({}) {
     if (isPolling) return; // Don't start if already polling
     
     setIsPolling(true);
+    // Don't clear isStartingAnalysis here - let it be cleared when we get the first status
+    
     const interval = setInterval(async () => {
       try {
         const response = await getRelationshipWorkflowStatus(compositeChart._id);
@@ -546,6 +556,7 @@ function CompositeDashboard_v4({}) {
         
         if (response.success) {
           setWorkflowStatus(response);
+          setIsStartingAnalysis(false); // Clear starting state once we have a workflow status
           
           // Update analysis data if available
           if (response.analysisData) {
@@ -577,6 +588,7 @@ function CompositeDashboard_v4({}) {
       } catch (error) {
         console.error('Error in polling interval:', error);
         setIsPolling(false);
+        setIsStartingAnalysis(false); // Clear on error too
         clearInterval(interval);
         setPollInterval(null);
       }
@@ -1087,11 +1099,53 @@ function CompositeDashboard_v4({}) {
               </div>
             )}
 
+            {/* Starting Analysis State - Show this when isStartingAnalysis is true */}
+            {isStartingAnalysis && (
+              <div style={{ 
+                backgroundColor: 'rgba(139, 92, 246, 0.1)', 
+                padding: '20px', 
+                borderRadius: '8px', 
+                margin: '20px 0',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                textAlign: 'center'
+              }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#a78bfa',
+                  fontSize: '18px',
+                  fontWeight: 'bold'
+                }}>
+                  <div style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    border: '3px solid rgba(167, 139, 250, 0.3)',
+                    borderTop: '3px solid #a78bfa',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    marginRight: '12px'
+                  }} />
+                  Starting your relationship analysis...
+                  <style>{`
+                    @keyframes spin {
+                      0% { transform: rotate(0deg); }
+                      100% { transform: rotate(360deg); }
+                    }
+                  `}</style>
+                </div>
+                <p style={{ color: 'white', margin: '15px 0 0 0', fontSize: '14px' }}>
+                  Please wait while we initialize your comprehensive compatibility analysis.
+                </p>
+              </div>
+            )}
+
             {/* Scores Available - Start Full Analysis State */}
             {(relationshipScores || (relationshipWorkflowState.isPaused && relationshipWorkflowState.hasScores)) && 
              !detailedRelationshipAnalysis && 
              !workflowComplete && 
-             !isWorkflowRunning && (
+             !isWorkflowRunning && 
+             !isStartingAnalysis && (
               <div style={{ 
                 backgroundColor: 'rgba(139, 92, 246, 0.1)', 
                 padding: '20px', 
@@ -1182,7 +1236,10 @@ function CompositeDashboard_v4({}) {
                     ></div>
                   </div>
                   <div className="progress-percentage">
-                    {workflowStatus?.workflowStatus?.progress?.percentage || 0}% Complete
+                    {workflowStatus?.workflowStatus?.progress?.percentage === 100 
+                      ? 'Finalizing your relationship analysis...' 
+                      : `${workflowStatus?.workflowStatus?.progress?.percentage || 0}% Complete`
+                    }
                   </div>
                   {workflowStatus?.workflowBreakdown && (
                     <div className="workflow-steps">
