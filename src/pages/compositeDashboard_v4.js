@@ -760,15 +760,16 @@ function CompositeDashboard_v4({}) {
   useEffect(() => {
     console.log("Checking chat history load conditions:", {
         relationshipAnalysis: vectorizationStatus.relationshipAnalysis,
+        workflowComplete: workflowComplete,
         userA: userA?._id,
         compositeChart: compositeChart?._id
     });
     
-    if (vectorizationStatus.relationshipAnalysis && userA?._id && compositeChart?._id) {
+    if ((vectorizationStatus.relationshipAnalysis || workflowComplete) && userA?._id && compositeChart?._id) {
         console.log("Loading chat history...");
         loadRelationshipChatHistory();
     }
-  }, [vectorizationStatus.relationshipAnalysis, userA?._id, compositeChart?._id, loadRelationshipChatHistory]);
+  }, [vectorizationStatus.relationshipAnalysis, workflowComplete, userA?._id, compositeChart?._id, loadRelationshipChatHistory]);
 
   // Handle sending new chat messages
   const handleSendMessage = async () => {
@@ -987,7 +988,7 @@ function CompositeDashboard_v4({}) {
     });
   }
 
-  if (vectorizationStatus.relationshipAnalysis && userA && userB && compositeChart) {
+  if ((vectorizationStatus.relationshipAnalysis || workflowComplete) && userA && userB && compositeChart) {
     mainTabs.push({
       id: 'chat',
       label: 'Chat',
