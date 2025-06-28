@@ -4,7 +4,7 @@ import './UsersTable.css';
 import { getUserSubjects } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
 
-function GuestSubjectsTable({ onGuestSelect, selectedForRelationship, showViewOption = false }) {
+function GuestSubjectsTable({ onGuestSelect, selectedForRelationship, showViewOption = false, genderFilter = 'all' }) {
   const [guestSubjects, setGuestSubjects] = useState([]);
   const currentUserContext = useStore(state => state.currentUserContext);
   const activeUserContext = useStore(state => state.activeUserContext);
@@ -42,6 +42,12 @@ function GuestSubjectsTable({ onGuestSelect, selectedForRelationship, showViewOp
     navigate(`/userDashboard/${guest._id}`);
   };
 
+  // Filter guest subjects based on gender
+  const filteredGuestSubjects = guestSubjects.filter(guest => {
+    if (genderFilter === 'all') return true;
+    return guest.gender === genderFilter;
+  });
+
   return (
     <div className="user-table-container">
       <h2 style={{ color: 'grey' }}>Your Added People</h2>
@@ -57,7 +63,7 @@ function GuestSubjectsTable({ onGuestSelect, selectedForRelationship, showViewOp
             </tr>
           </thead>
           <tbody>
-            {guestSubjects.map((guest) => (
+            {filteredGuestSubjects.map((guest) => (
               <tr
                 key={guest._id}
                 onClick={onGuestSelect ? () => handleGuestSelect(guest) : undefined}

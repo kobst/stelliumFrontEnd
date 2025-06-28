@@ -18,6 +18,7 @@ function RelationshipsTab() {
   const [isCreatingRelationship, setIsCreatingRelationship] = useState(false);
   const [relationshipMessage, setRelationshipMessage] = useState('');
   const [refreshKey, setRefreshKey] = useState(0); // Force refresh of relationships table
+  const [genderFilter, setGenderFilter] = useState('all'); // Gender filter state
 
   // Use currentUserContext (dashboard owner) for relationship creation
   const dashboardOwner = currentUserContext || userData || selectedUser;
@@ -97,9 +98,57 @@ function RelationshipsTab() {
       label: 'Potential Partners',
       content: (
         <div>
-          <CelebritiesTable onCelebritySelect={handleCelebritySelect} selectedForRelationship={selectedForRelationship} />
+          {/* Gender Filter */}
+          <div style={{ 
+            marginBottom: '20px', 
+            padding: '15px', 
+            backgroundColor: '#f8f9fa', 
+            borderRadius: '8px', 
+            border: '1px solid #dee2e6',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
+          }}>
+            <label style={{ 
+              color: '#495057', 
+              fontWeight: 'bold',
+              fontSize: '14px'
+            }}>
+              Filter by Gender:
+            </label>
+            <select
+              value={genderFilter}
+              onChange={(e) => setGenderFilter(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '4px',
+                border: '1px solid #ced4da',
+                backgroundColor: 'white',
+                color: '#495057',
+                fontSize: '14px',
+                cursor: 'pointer',
+                minWidth: '120px'
+              }}
+            >
+              <option value="all">All</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="nonbinary">Non-binary</option>
+            </select>
+          </div>
+          
+          <CelebritiesTable 
+            onCelebritySelect={handleCelebritySelect} 
+            selectedForRelationship={selectedForRelationship} 
+            genderFilter={genderFilter}
+          />
           <div style={{ marginTop: '20px' }}>
-            <GuestSubjectsTable onGuestSelect={handleGuestSelect} selectedForRelationship={selectedForRelationship} showViewOption={false} />
+            <GuestSubjectsTable 
+              onGuestSelect={handleGuestSelect} 
+              selectedForRelationship={selectedForRelationship} 
+              showViewOption={false} 
+              genderFilter={genderFilter}
+            />
           </div>
           <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #dee2e6' }}>
             <p style={{ margin: '0', color: '#6c757d', fontStyle: 'italic' }}>

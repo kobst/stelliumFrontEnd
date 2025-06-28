@@ -4,7 +4,7 @@ import './UsersTable.css';
 import { fetchCelebrities } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
 
-function CelebritiesTable({ onCelebritySelect, selectedForRelationship }) {
+function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFilter = 'all' }) {
   const [celebrities, setCelebrities] = useState([]);
   const navigate = useNavigate();
 
@@ -29,6 +29,12 @@ function CelebritiesTable({ onCelebritySelect, selectedForRelationship }) {
     }
   };
 
+  // Filter celebrities based on gender
+  const filteredCelebrities = celebrities.filter(celebrity => {
+    if (genderFilter === 'all') return true;
+    return celebrity.gender === genderFilter;
+  });
+
   return (
     <div className="user-table-container">
       <h2 style={{ color: 'grey' }}>Celebrity Charts</h2>
@@ -43,7 +49,7 @@ function CelebritiesTable({ onCelebritySelect, selectedForRelationship }) {
             </tr>
           </thead>
           <tbody>
-            {celebrities.map((celebrity) => (
+            {filteredCelebrities.map((celebrity) => (
               <tr
                 key={celebrity._id}
                 onClick={() => handleCelebritySelect(celebrity)}
