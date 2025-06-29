@@ -8,6 +8,7 @@ import SynastryPage_v2 from './pages/synastryPage_v2';
 import CompositeDashboard_v4 from './pages/compositeDashboard_v4';
 import ConfirmationV2 from './pages/confirmationPage_v2';
 import PasswordProtection from './pages/passwordProtection';
+import PricingTable from './pages/plans';
 import NavBar from './UI/shared/NavBar';
 import './App.css';
 
@@ -25,6 +26,7 @@ function App() {
             <Route path="/synastry" element={<SynastryPage_v2 />} />
             <Route path="/compositeDashboard" element={<CompositeDashboard_v4 />} />
             <Route path="/signUpConfirmation" element={<ConfirmationV2 />} />
+            <Route path="/pricingTable" element={<PricingTable />} />
           </Routes>
         </PasswordProtection>
 
