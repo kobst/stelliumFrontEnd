@@ -25,6 +25,7 @@ Create a `.env` file with:
 REACT_APP_SERVER_URL=<backend API URL>
 REACT_APP_GOOGLE_API_KEY=<Google Maps API key>
 REACT_APP_PASSWORD=<optional development password>
+REACT_APP_ADMIN_PASSWORD=<optional admin password>
 ```
 
 ## Architecture Overview
@@ -56,7 +57,9 @@ REACT_APP_PASSWORD=<optional development password>
 
 **Authentication:**
 - Simple password protection (`passwordProtection.js`) wraps all routes
+- Admin page uses separate authentication (`adminPasswordProtection.js`)
 - Development mode uses `REACT_APP_PASSWORD` environment variable
+- Admin access uses `REACT_APP_ADMIN_PASSWORD` environment variable
 - Session-based authentication with `sessionStorage`
 
 **API Integration:**

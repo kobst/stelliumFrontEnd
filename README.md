@@ -29,6 +29,7 @@ npm install
 REACT_APP_SERVER_URL=<URL of your backend>
 REACT_APP_GOOGLE_API_KEY=<Google Maps API key>
 REACT_APP_PASSWORD=<optional password>
+REACT_APP_ADMIN_PASSWORD=<optional admin password>
 ```
 
 3. Start the development server:
