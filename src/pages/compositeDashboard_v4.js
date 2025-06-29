@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import useStore from '../Utilities/store';
 import SynastryBirthChartComparison_v2 from '../UI/birthChart/tables/SynastryBirthChartComparison_v2'
-import RelationshipScores from '../UI/prototype/RelationshipScores';
+import RelationshipScoresBarChart from '../UI/prototype/RelationshipScoresBarChart';
 import { RelationshipCategoriesEnum, orderedCategoryKeys } from '../Utilities/constants';
 import {
   fetchUser,
@@ -30,6 +30,9 @@ function CompositeDashboard_v4({}) {
     const [userBVectorizationStatus, setUserBVectorizationStatus] = useState(false);
     const [scoreDebugInfo, setScoreDebugInfo] = useState(null);
     const [detailedRelationshipAnalysis, setDetailedRelationshipAnalysis] = useState(null);
+    
+    // Add state for holistic overview
+    const [holisticOverview, setHolisticOverview] = useState(null);
     
     // Preview mode state
     const relationshipWorkflowState = useStore(state => state.relationshipWorkflowState);
@@ -126,6 +129,12 @@ function CompositeDashboard_v4({}) {
                         userAName: fetchedData.debug?.inputSummary?.userAName || userA?.firstName,
                         userBName: fetchedData.debug?.inputSummary?.userBName || userB?.firstName
                     });
+                }
+
+                // Handle holistic overview
+                if (fetchedData?.holisticOverview) {
+                    console.log("Holistic overview available: ", fetchedData.holisticOverview);
+                    setHolisticOverview(fetchedData.holisticOverview);
                 }
 
                 // Handle vectorization status from the backend
@@ -241,6 +250,12 @@ function CompositeDashboard_v4({}) {
         userAName: userA?.firstName,
         userBName: userB?.firstName
       });
+    }
+
+    // Handle holistic overview from workflow response
+    if (analysisData.holisticOverview) {
+      console.log("Holistic overview from workflow:", analysisData.holisticOverview);
+      setHolisticOverview(analysisData.holisticOverview);
     }
 
     // Handle vectorization status from workflow response
@@ -854,38 +869,85 @@ function CompositeDashboard_v4({}) {
         id: cat,
         label: RelationshipCategoriesEnum[cat]?.label || cat.replace(/_/g, ' '),
         content: (
-          <div style={{ marginBottom: '10px' }}>
+          <div style={{ padding: '20px' }}>
             {value.panels?.synastry && (
-              <div style={{ marginBottom: '15px' }}>
-                <strong>Synastry Analysis:</strong>
-                <p style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', margin: '5px 0 0 0' }}>
+              <div style={{ 
+                backgroundColor: 'rgba(59, 130, 246, 0.1)', 
+                padding: '20px', 
+                borderRadius: '8px',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                marginBottom: '20px'
+              }}>
+                <h3 style={{ color: '#3b82f6', margin: '0 0 15px 0' }}>🔗 Synastry Analysis</h3>
+                <p style={{ 
+                  color: 'white', 
+                  lineHeight: '1.6', 
+                  margin: '0',
+                  fontSize: '16px',
+                  whiteSpace: 'pre-wrap'
+                }}>
                   {value.panels.synastry}
                 </p>
               </div>
             )}
 
             {value.panels?.composite && (
-              <div style={{ marginBottom: '15px' }}>
-                <strong>Composite Analysis:</strong>
-                <p style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', margin: '5px 0 0 0' }}>
+              <div style={{ 
+                backgroundColor: 'rgba(168, 85, 247, 0.1)', 
+                padding: '20px', 
+                borderRadius: '8px',
+                border: '1px solid rgba(168, 85, 247, 0.3)',
+                marginBottom: '20px'
+              }}>
+                <h3 style={{ color: '#a855f7', margin: '0 0 15px 0' }}>🌟 Composite Analysis</h3>
+                <p style={{ 
+                  color: 'white', 
+                  lineHeight: '1.6', 
+                  margin: '0',
+                  fontSize: '16px',
+                  whiteSpace: 'pre-wrap'
+                }}>
                   {value.panels.composite}
                 </p>
               </div>
             )}
 
             {value.panels?.fullAnalysis && (
-              <div style={{ marginBottom: '15px' }}>
-                <strong>Detailed Analysis:</strong>
-                <p style={{ whiteSpace: 'pre-wrap', margin: '5px 0 0 0', lineHeight: '1.6' }}>
+              <div style={{ 
+                backgroundColor: 'rgba(139, 92, 246, 0.1)', 
+                padding: '20px', 
+                borderRadius: '8px',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                marginBottom: '20px'
+              }}>
+                <h3 style={{ color: '#a78bfa', margin: '0 0 15px 0' }}>💫 Detailed Analysis</h3>
+                <p style={{ 
+                  color: 'white', 
+                  lineHeight: '1.6', 
+                  margin: '0',
+                  fontSize: '16px',
+                  whiteSpace: 'pre-wrap'
+                }}>
                   {value.panels.fullAnalysis}
                 </p>
               </div>
             )}
 
             {value.relevantPosition && (
-              <div style={{ marginTop: '15px' }}>
-                <strong>Relevant Astrological Positions:</strong>
-                <p style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', margin: '5px 0 0 0' }}>
+              <div style={{ 
+                backgroundColor: 'rgba(245, 158, 11, 0.1)', 
+                padding: '20px', 
+                borderRadius: '8px',
+                border: '1px solid rgba(245, 158, 11, 0.3)'
+              }}>
+                <h3 style={{ color: '#f59e0b', margin: '0 0 15px 0' }}>⭐ Relevant Astrological Positions</h3>
+                <p style={{ 
+                  color: 'white', 
+                  lineHeight: '1.6', 
+                  margin: '0',
+                  fontSize: '16px',
+                  whiteSpace: 'pre-wrap'
+                }}>
                   {value.relevantPosition}
                 </p>
               </div>
@@ -972,7 +1034,7 @@ function CompositeDashboard_v4({}) {
     mainTabs.push({
       id: 'scores',
       label: 'Scores',
-      content: <RelationshipScores scores={availableScores} scoreDebugInfo={formattedScoreDebugInfo} />
+      content: <RelationshipScoresBarChart scores={availableScores} scoreDebugInfo={formattedScoreDebugInfo} />
     });
   } else {
     console.log('❌ No scores available, Scores tab not added');
@@ -985,6 +1047,83 @@ function CompositeDashboard_v4({}) {
       id: 'analysis',
       label: 'Analysis',
       content: <TabMenu tabs={analysisTabs} />
+    });
+  }
+
+  // Add holistic overview tab if available
+  if (holisticOverview?.overview) {
+    mainTabs.push({
+      id: 'overview',
+      label: 'Holistic Overview',
+      content: (
+        <div style={{ padding: '20px' }}>
+          <div style={{ 
+            backgroundColor: 'rgba(139, 92, 246, 0.1)', 
+            padding: '20px', 
+            borderRadius: '8px',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            marginBottom: '20px'
+          }}>
+            <h2 style={{ color: '#a78bfa', margin: '0 0 15px 0' }}>💫 Relationship Overview</h2>
+            <p style={{ 
+              color: 'white', 
+              lineHeight: '1.6', 
+              margin: '0',
+              fontSize: '16px',
+              whiteSpace: 'pre-wrap'
+            }}>
+              {holisticOverview.overview}
+            </p>
+          </div>
+          
+          {holisticOverview.topStrengths && holisticOverview.topStrengths.length > 0 && (
+            <div style={{ 
+              backgroundColor: 'rgba(34, 197, 94, 0.1)', 
+              padding: '20px', 
+              borderRadius: '8px',
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ color: '#22c55e', margin: '0 0 15px 0' }}>✨ Top Strengths</h3>
+              <ul style={{ 
+                color: 'white', 
+                lineHeight: '1.6', 
+                margin: '0',
+                paddingLeft: '20px'
+              }}>
+                {holisticOverview.topStrengths.map((item, index) => (
+                  <li key={index} style={{ marginBottom: '8px' }}>
+                    <strong>{item.name}</strong> - {item.description}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {holisticOverview.keyChallenges && holisticOverview.keyChallenges.length > 0 && (
+            <div style={{ 
+              backgroundColor: 'rgba(239, 68, 68, 0.1)', 
+              padding: '20px', 
+              borderRadius: '8px',
+              border: '1px solid rgba(239, 68, 68, 0.3)'
+            }}>
+              <h3 style={{ color: '#ef4444', margin: '0 0 15px 0' }}>⚠️ Key Challenges</h3>
+              <ul style={{ 
+                color: 'white', 
+                lineHeight: '1.6', 
+                margin: '0',
+                paddingLeft: '20px'
+              }}>
+                {holisticOverview.keyChallenges.map((item, index) => (
+                  <li key={index} style={{ marginBottom: '8px' }}>
+                    <strong>{item.name}</strong> - {item.description}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )
     });
   }
 
@@ -1036,6 +1175,45 @@ function CompositeDashboard_v4({}) {
             }}
           >
             Complete Analysis to Unlock Chat
+          </button>
+        </div>
+      )
+    });
+  }
+
+  // Add holistic overview placeholder when paused but no overview available
+  if (relationshipWorkflowState.isPaused && !holisticOverview?.overview) {
+    mainTabs.push({
+      id: 'overview',
+      label: 'Holistic Overview',
+      content: (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '40px 20px',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '8px',
+          border: '1px solid rgba(255, 255, 255, 0.1)'
+        }}>
+          <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>💫 Holistic Relationship Overview</h3>
+          <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+            Get a comprehensive overview of your relationship dynamics, including your top strengths, 
+            key challenges, and a synthesized analysis of your compatibility. 
+            Available after your complete analysis is ready.
+          </p>
+          <button
+            onClick={handleResumeWorkflow}
+            style={{
+              backgroundColor: '#8b5cf6',
+              color: 'white',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '16px'
+            }}
+          >
+            Complete Analysis to Unlock Overview
           </button>
         </div>
       )

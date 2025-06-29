@@ -153,15 +153,25 @@ export const handleUserInput = async (userId, query) => {
 }
 
 
-// Direct relationship creation API - creates relationship with immediate compatibility scores
-export const createRelationshipDirect = async (userIdA, userIdB) => {
+// Experimental enhanced relationship creation API - creates relationship with scores, scoreAnalysis, and holisticOverview
+export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = null) => {
   try {
-    console.log('Creating relationship with direct API:', { userIdA, userIdB });
+    console.log('Creating relationship with experimental enhanced API:', { userIdA, userIdB, ownerUserId });
     
-    const response = await fetch(`${SERVER_URL}/createRelationshipDirect`, {
+    const requestBody = { 
+      userIdA, 
+      userIdB 
+    };
+    
+    // Add ownerUserId if provided
+    if (ownerUserId) {
+      requestBody.ownerUserId = ownerUserId;
+    }
+    
+    const response = await fetch(`${SERVER_URL}/experimental/relationship-analysis-enhanced`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({ userIdA, userIdB })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
@@ -169,12 +179,12 @@ export const createRelationshipDirect = async (userIdA, userIdB) => {
     }
 
     const responseData = await response.json();
-    console.log('Direct relationship creation response:', responseData);
+    console.log('Enhanced relationship creation response:', responseData);
     return responseData;
   } catch (error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      console.error('Network/CORS error - likely the new API endpoint is not deployed yet');
-      throw new Error('Cannot connect to new API endpoint. The backend may not be updated with the new endpoints yet.');
+      console.error('Network/CORS error - likely the experimental endpoint is not deployed yet');
+      throw new Error('Cannot connect to experimental endpoint. The backend may not be updated with the new endpoints yet.');
     }
     console.error(ERROR_API_CALL, error);
     throw error;
@@ -187,13 +197,15 @@ export const postCreateRelationshipProfile = async (userA, userB, ownerUserId = 
   console.log(userA)
   console.log("userB")
   console.log(userB)
+  console.log("ownerUserId")
+  console.log(ownerUserId)
   
   // Use direct API with user IDs
   const userIdA = userA._id || userA.id;
   const userIdB = userB._id || userB.id;
   
   try {
-    return await createRelationshipDirect(userIdA, userIdB);
+    return await createRelationshipDirect(userIdA, userIdB, ownerUserId);
   } catch (error) {
     console.error(ERROR_API_CALL, error);
     throw error;
