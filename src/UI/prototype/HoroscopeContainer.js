@@ -1,15 +1,17 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { generateWeeklyHoroscope, generateMonthlyHoroscope, generateCustomHoroscope } from '../../Utilities/api';
+import { generateWeeklyHoroscope, generateMonthlyHoroscope, generateCustomHoroscope, generateDailyHoroscope } from '../../Utilities/api';
 import './HoroscopeContainer.css';
 
 const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null, userId }) => {
-  const [activeTab, setActiveTab] = useState('thisWeek');
+  const [activeTab, setActiveTab] = useState('today');
   const [showTransits, setShowTransits] = useState(true);
   const [selectedTransits, setSelectedTransits] = useState(new Set());
   const [customHoroscope, setCustomHoroscope] = useState(null);
   const [generatingCustom, setGeneratingCustom] = useState(false);
   const [customHoroscopeError, setCustomHoroscopeError] = useState(null);
   const [horoscopeCache, setHoroscopeCache] = useState({
+    today: null,
+    tomorrow: null,
     thisWeek: null,
     nextWeek: null,
     thisMonth: null,
@@ -92,12 +94,50 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     return { start: startOfNextMonth, end: endOfNextMonth };
   };
 
+  // Helper function to get today's date range
+  const getTodayRange = () => {
+    const now = new Date();
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(now);
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    return { start: startOfDay, end: endOfDay };
+  };
+
+  // Helper function to get tomorrow's date range
+  const getTomorrowRange = () => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    
+    const startOfTomorrow = new Date(tomorrow);
+    startOfTomorrow.setHours(0, 0, 0, 0);
+    
+    const endOfTomorrow = new Date(tomorrow);
+    endOfTomorrow.setHours(23, 59, 59, 999);
+    
+    return { start: startOfTomorrow, end: endOfTomorrow };
+  };
+
   // Helper function to get horoscope for a specific period
   const getHoroscopeForPeriod = async (userId, startDate, type) => {
     try {
-      const response = type === 'weekly'
-        ? await generateWeeklyHoroscope(userId, startDate)
-        : await generateMonthlyHoroscope(userId, startDate);
+      let response;
+      switch (type) {
+        case 'daily':
+          response = await generateDailyHoroscope(userId, startDate);
+          break;
+        case 'weekly':
+          response = await generateWeeklyHoroscope(userId, startDate);
+          break;
+        case 'monthly':
+          response = await generateMonthlyHoroscope(userId, startDate);
+          break;
+        default:
+          throw new Error(`Unknown horoscope type: ${type}`);
+      }
 
       if (!response.success) {
         throw new Error('Failed to fetch horoscope');
@@ -123,6 +163,12 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
 
     let dateRange;
     switch (activeTab) {
+      case 'today':
+        dateRange = getTodayRange();
+        break;
+      case 'tomorrow':
+        dateRange = getTomorrowRange();
+        break;
       case 'thisWeek':
         dateRange = getCurrentWeekRange();
         break;
@@ -243,6 +289,8 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       
       try {
         // Get start dates for all periods
+        const todayStart = getTodayRange().start;
+        const tomorrowStart = getTomorrowRange().start;
         const thisWeekStart = getCurrentWeekRange().start;
         const nextWeekStart = getNextWeekRange().start;
         const thisMonthStart = getCurrentMonthRange().start;
@@ -250,11 +298,15 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
 
         // Fetch all horoscopes in parallel
         const [
+          todayHoroscope,
+          tomorrowHoroscope,
           thisWeekHoroscope,
           nextWeekHoroscope,
           thisMonthHoroscope,
           nextMonthHoroscope
         ] = await Promise.all([
+          getHoroscopeForPeriod(userId, todayStart.toISOString().split('T')[0], 'daily'),
+          getHoroscopeForPeriod(userId, tomorrowStart.toISOString().split('T')[0], 'daily'),
           getHoroscopeForPeriod(userId, thisWeekStart, 'weekly'),
           getHoroscopeForPeriod(userId, nextWeekStart, 'weekly'),
           getHoroscopeForPeriod(userId, thisMonthStart, 'monthly'),
@@ -263,6 +315,8 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
 
         // Update cache with all horoscopes
         setHoroscopeCache({
+          today: todayHoroscope,
+          tomorrow: tomorrowHoroscope,
           thisWeek: thisWeekHoroscope,
           nextWeek: nextWeekHoroscope,
           thisMonth: thisMonthHoroscope,
@@ -358,6 +412,18 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       {/* Tab Navigation */}
       <div className="tab-navigation">
         <button 
+          className={`tab-button ${activeTab === 'today' ? 'active' : ''}`}
+          onClick={() => setActiveTab('today')}
+        >
+          Today
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'tomorrow' ? 'active' : ''}`}
+          onClick={() => setActiveTab('tomorrow')}
+        >
+          Tomorrow
+        </button>
+        <button 
           className={`tab-button ${activeTab === 'thisWeek' ? 'active' : ''}`}
           onClick={() => setActiveTab('thisWeek')}
         >
@@ -387,12 +453,31 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       <div className="horoscope-content">
         {horoscopeCache[activeTab] && (
           <div className="horoscope-text">
-            <h3>Your {activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope</h3>
-            <p>{horoscopeCache[activeTab].interpretation || 'No horoscope content available.'}</p>
+            <h3>Your {activeTab === 'today' || activeTab === 'tomorrow' ? 'Daily' : activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope</h3>
+            <p>{horoscopeCache[activeTab].text || horoscopeCache[activeTab].interpretation || 'No horoscope content available.'}</p>
             <p className="horoscope-date-range">
               {formatDateRange(horoscopeCache[activeTab].startDate, horoscopeCache[activeTab].endDate)}
             </p>
-            {horoscopeCache[activeTab].analysis?.keyThemes && (
+            
+            {/* Daily horoscope key transits */}
+            {(activeTab === 'today' || activeTab === 'tomorrow') && horoscopeCache[activeTab].keyTransits && horoscopeCache[activeTab].keyTransits.length > 0 && (
+              <div className="key-transits">
+                <h4>Key Planetary Influences</h4>
+                <ul>
+                  {horoscopeCache[activeTab].keyTransits.map((transit, index) => (
+                    <li key={index} className="transit-item">
+                      <strong>{transit.transitingPlanet}</strong> {transit.aspect} {transit.targetPlanet}
+                      <span className="transit-date">
+                        (exact: {new Date(transit.exactDate).toLocaleDateString()})
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {/* Weekly/Monthly horoscope key themes */}
+            {!(activeTab === 'today' || activeTab === 'tomorrow') && horoscopeCache[activeTab].analysis?.keyThemes && (
               <div className="key-themes">
                 <h4>Key Themes</h4>
                 <ul>

@@ -1208,6 +1208,28 @@ export const generateMonthlyHoroscope = async (userId, startDate) => {
   }
 };
 
+export const generateDailyHoroscope = async (userId, startDate) => {
+  console.log("Generating daily horoscope for userId:", userId, "startDate:", startDate);
+  try {
+    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/daily`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify({ startDate })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const responseData = await response.json();
+    console.log("Daily horoscope generated:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error generating daily horoscope:', error);
+    throw error;
+  }
+};
+
 export const getHoroscopeHistory = async (userId, type = null, limit = 10) => {
   console.log("Getting horoscope history for userId:", userId, "type:", type, "limit:", limit);
   try {
