@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
 import SignUpPage from './pages/signUpPage';
 import AdminPage from './pages/adminPage';
 import UserDashboard from './pages/userDashboard';
@@ -28,7 +29,8 @@ function App() {
             <PasswordProtection>
               <NavBar />
               <Routes>
-                <Route path="/" element={<SignUpPage />} />
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/signUp" element={<SignUpPage />} />
                 <Route path="/userDashboard/:userId" element={<UserDashboard />} />
                 <Route path="/guestDashboard" element={<GuestDashboard />} />
                 <Route path="/synastry" element={<SynastryPage_v2 />} />
