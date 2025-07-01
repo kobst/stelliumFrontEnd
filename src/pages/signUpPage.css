@@ -1,0 +1,122 @@
+.signup-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: transparent;
+}
+
+.signup-container {
+  max-width: 600px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 40px;
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.signup-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-top: 20px;
+}
+
+.signup-logo {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+.signup-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #a78bfa;
+  margin-bottom: 15px;
+  font-family: "Montserrat", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+}
+
+.signup-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
+  font-weight: 400;
+}
+
+.signup-form-container {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 15px;
+  padding: 30px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .signup-container {
+    margin: 10px;
+    padding: 30px 20px;
+  }
+  
+  .signup-title {
+    font-size: 2rem;
+  }
+  
+  .signup-subtitle {
+    font-size: 1rem;
+  }
+  
+  .back-button {
+    top: 15px;
+    left: 15px;
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-container {
+    padding: 25px 15px;
+  }
+  
+  .signup-title {
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+  }
+  
+  .signup-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .signup-form-container {
+    padding: 20px;
+  }
+}

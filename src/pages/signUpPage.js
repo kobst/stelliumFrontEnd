@@ -1,28 +1,38 @@
 import React from 'react';
-
-import lightLogo from '../assets/Light logo.png'
-
-import whiteLine from '../assets/whiteline.png'
+import { useNavigate } from 'react-router-dom';
+import lightLogo from '../assets/Light logo.png';
 import UserSignUpForm from '../UI/landingPage/UserSignUpForm';
+import './signUpPage.css';
 
-const SignUpPage = () => {     
+const SignUpPage = () => {
+    const navigate = useNavigate();
+
+    const handleBackToHome = () => {
+        navigate('/');
+    };
+
     return (
-        <div className="container">
+        <div className="signup-page">
+            <div className="signup-container">
+                {/* Back button */}
+                <button className="back-button" onClick={handleBackToHome}>
+                    ← Back to Home
+                </button>
 
-            {/* Main Text */}
-            <img className="lightlogo" src={lightLogo} alt="Stellium logo" />
-            <div className="maintxt mont-font">
-                <h1 className="logotxt">STELLIUM</h1>
-                <h3 className="logosubtxt">your personal AI-powered astrologer</h3>
-                <h2 className="soon">coming soon</h2>
-            </div>
-            <img src={whiteLine} alt="" />
-            <div>
-                <h2>Cast your Chart, Get Your Free Horoscope</h2>
-                <p>Enter your birth information and let Stellium translate the tapestry of the Cosmos into a personalized guide to your life's destiny</p>
-            </div>
+                {/* Header */}
+                <div className="signup-header">
+                    <img className="signup-logo" src={lightLogo} alt="Stellium logo" />
+                    <h1 className="signup-title">Create Your Birth Chart</h1>
+                    <p className="signup-subtitle">
+                        Enter your birth information to unlock your personalized astrological insights
+                    </p>
+                </div>
 
-            <UserSignUpForm />
+                {/* Sign up form */}
+                <div className="signup-form-container">
+                    <UserSignUpForm />
+                </div>
+            </div>
         </div>
     );
 }

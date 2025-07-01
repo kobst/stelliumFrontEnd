@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import SignUpPage from './pages/signUpPage';
+import CelebsPage from './pages/CelebsPage';
 import AdminPage from './pages/adminPage';
 import UserDashboard from './pages/userDashboard';
 import GuestDashboard from './UI/prototype/GuestDashboard';
@@ -31,6 +32,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/signUp" element={<SignUpPage />} />
+                <Route path="/celebs" element={<CelebsPage />} />
                 <Route path="/userDashboard/:userId" element={<UserDashboard />} />
                 <Route path="/guestDashboard" element={<GuestDashboard />} />
                 <Route path="/synastry" element={<SynastryPage_v2 />} />

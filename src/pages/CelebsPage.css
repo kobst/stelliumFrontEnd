@@ -1,0 +1,238 @@
+.celebs-page {
+  min-height: 100vh;
+  padding: 20px;
+  background: transparent;
+}
+
+.celebs-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.celebs-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-top: 60px;
+}
+
+.celebs-logo {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+.celebs-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #a78bfa;
+  margin-bottom: 15px;
+  font-family: "Montserrat", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+}
+
+.celebs-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+  font-weight: 400;
+}
+
+.filter-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 8px;
+  border-radius: 30px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.filter-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.filter-btn:hover {
+  color: white;
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #b750f3, #d138d4);
+  color: white;
+  box-shadow: 0 4px 15px rgba(183, 80, 243, 0.4);
+}
+
+.celebs-table-container {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 15px;
+  padding: 30px;
+  backdrop-filter: blur(10px);
+}
+
+/* Override the table styles to match our theme */
+.celebs-table-container .user-table-container h2 {
+  color: #a78bfa !important;
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.celebs-table-container .user-table {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.celebs-table-container .user-table th {
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa !important;
+  padding: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+}
+
+.celebs-table-container .user-table tr:hover {
+  background-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+.celebs-table-container .user-table tr.selected-row {
+  background-color: rgba(139, 92, 246, 0.3) !important;
+}
+
+.celebs-table-container .user-table tr.selected-row:hover {
+  background-color: rgba(139, 92, 246, 0.4) !important;
+}
+
+.celebs-table-container .user-table td {
+  padding: 15px;
+  color: white;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.celebs-table-container .user-table-scroll {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar */
+.celebs-table-container .user-table-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.celebs-table-container .user-table-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.celebs-table-container .user-table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.5);
+  border-radius: 4px;
+}
+
+.celebs-table-container .user-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.7);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .celebs-container {
+    padding: 0 10px;
+  }
+  
+  .celebs-title {
+    font-size: 2rem;
+  }
+  
+  .celebs-subtitle {
+    font-size: 1rem;
+  }
+  
+  .back-button {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  .celebs-table-container {
+    padding: 20px 15px;
+  }
+  
+  .filter-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .celebs-header {
+    padding-top: 50px;
+  }
+  
+  .celebs-title {
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+  }
+  
+  .celebs-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .celebs-table-container {
+    padding: 15px 10px;
+  }
+  
+  .celebs-table-container .user-table th,
+  .celebs-table-container .user-table td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}

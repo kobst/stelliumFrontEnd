@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
 import lightLogo from '../assets/Light logo.png';
 import whiteLine from '../assets/whiteline.png';
@@ -8,6 +9,7 @@ import PricingSection from '../UI/landingPage/PricingSection';
 import DemoSection from '../UI/landingPage/DemoSection';
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   const [horoscopeFlipped, setHoroscopeFlipped] = useState(false);
   const [currentReply, setCurrentReply] = useState(0);
   const [email, setEmail] = useState('');
@@ -38,11 +40,11 @@ const LandingPage = () => {
   }, []);
 
   const handleDiscoverMe = () => {
-    console.log('Navigate to /signup');
+    navigate('/signUp');
   };
 
   const handleCelebMatch = () => {
-    console.log('Navigate to /celebs/{slug}');
+    navigate('/celebs');
   };
 
   const handleEmailSubmit = (e) => {
