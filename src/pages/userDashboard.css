@@ -331,7 +331,8 @@ button {
 .planet-distribution {
   margin: 15px 0;
   padding: 15px;
-  background: #f8f9fa;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
   border-radius: 6px;
   display: flex;
   flex-direction: column;
@@ -343,15 +344,15 @@ button {
   align-items: flex-start;
   gap: 15px;
   padding: 8px;
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .category-name {
   min-width: 100px;
   font-weight: 600;
-  color: #444;
+  color: #93c5fd;
   font-size: 0.9em;
   padding-top: 4px;
 }
@@ -364,18 +365,20 @@ button {
 }
 
 .planet-tag {
-  background: #e9ecef;
-  color: #495057;
+  background: rgba(147, 197, 253, 0.2);
+  color: #ddd6fe;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.85em;
   font-weight: 500;
+  border: 1px solid rgba(147, 197, 253, 0.3);
 }
 
 /* Patterns Styles */
 .patterns-content {
   padding: 15px;
-  background: #f8f9fa;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
   border-radius: 6px;
   margin-bottom: 20px;
 }
@@ -389,7 +392,7 @@ button {
 }
 
 .pattern-section h5 {
-  color: #444;
+  color: #93c5fd;
   font-size: 1em;
   margin: 0 0 10px 0;
   font-weight: 600;
@@ -401,10 +404,11 @@ button {
 }
 
 .pattern-section li {
-  color: #666;
+  color: white;
   margin-bottom: 8px;
   line-height: 1.4;
   font-size: 0.95em;
+  opacity: 0.9;
 }
 
 .pattern-section li:last-child {
@@ -431,50 +435,60 @@ button {
 .planet-grid {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 0;
   padding: 20px;
-  max-width: 800px;
+  max-width: 100%;
   margin: 0 auto;
+  background: transparent;
 }
 
-.planet-card {
-  background: white;
-  border-radius: 8px;
+.planets-section {
+  background: transparent;
+  padding: 0;
+}
+
+/* Analysis Section Styling */
+.overview-section {
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.planet-card h4 {
-  margin: 0 0 10px 0;
-  color: #333;
-  font-size: 1.1em;
-  font-weight: 600;
-}
-
-.planet-card .planet-positions {
-  margin-bottom: 15px;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 6px;
-}
-
-.planet-card .planet-positions p {
+.overview-section > p {
+  background: rgba(139, 92, 246, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: white;
+  line-height: 1.6;
+  font-size: 16px;
   margin: 0;
-  color: #495057;
-  font-size: 0.9em;
-  line-height: 1.4;
   white-space: pre-wrap;
 }
 
-.planet-card .interpretation {
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+/* 360 Analysis Subtopic Styling */
+.subtopics {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
 }
 
-.planet-card .interpretation p {
+.subtopic {
+  background: rgba(168, 85, 247, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.subtopic h4 {
+  color: #a855f7;
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+}
+
+.subtopic p {
+  color: white;
+  line-height: 1.6;
   margin: 0;
-  color: #666;
-  line-height: 1.5;
-  font-size: 0.95em;
+  font-size: 16px;
+  white-space: pre-wrap;
 }

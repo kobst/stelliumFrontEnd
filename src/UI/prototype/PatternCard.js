@@ -79,7 +79,8 @@ const PatternCard = memo(({ title, data, type }) => {
         position: 'bottom',
         labels: {
           boxWidth: 12,
-          padding: 15
+          padding: 15,
+          color: 'white'
         }
       },
       tooltip: {
@@ -98,14 +99,14 @@ const PatternCard = memo(({ title, data, type }) => {
 
     if (type === 'quadrants') {
       return (
-        <div className="chart-container">
+        <div style={{ height: '200px', marginBottom: '20px' }}>
           <Bar data={chartData} options={chartOptions} />
         </div>
       );
     }
 
     return (
-      <div className="chart-container">
+      <div style={{ height: '200px', marginBottom: '20px' }}>
         <Pie data={chartData} options={chartOptions} />
       </div>
     );
@@ -222,27 +223,59 @@ const PatternCard = memo(({ title, data, type }) => {
   };
 
   return (
-    <div className="pattern-card">
-      <h4>{title}</h4>
+    <div style={{ 
+      backgroundColor: 'rgba(139, 92, 246, 0.1)', 
+      padding: '20px', 
+      borderRadius: '8px',
+      border: '1px solid rgba(139, 92, 246, 0.3)',
+      marginBottom: '20px'
+    }}>
+      <h3 style={{ 
+        color: '#a78bfa', 
+        margin: '0 0 20px 0',
+        fontSize: '1.3rem'
+      }}>
+        {type === 'elements' ? '🔥💨🌍💧 ' : ''}
+        {type === 'modalities' ? '♈♉♊ ' : ''}
+        {type === 'quadrants' ? '🧭 ' : ''}
+        {type === 'patterns' ? '✨ ' : ''}
+        {title}
+      </h3>
       {type === 'patterns' ? (
         <>
           {renderPatterns()}
           {data.interpretation && (
-            <div className="interpretation">
-              <p>{data.interpretation}</p>
-            </div>
+            <p style={{ 
+              color: 'white', 
+              lineHeight: '1.6', 
+              margin: '20px 0 0 0',
+              fontSize: '16px',
+              whiteSpace: 'pre-wrap',
+              paddingTop: '20px',
+              borderTop: '1px solid rgba(139, 92, 246, 0.2)'
+            }}>
+              {data.interpretation}
+            </p>
           )}
         </>
       ) : (
         <>
-          <div className="card-content">
+          <div style={{ marginBottom: '20px' }}>
             {renderChart()}
             {renderPlanetDistribution()}
           </div>
           {data.interpretation && (
-            <div className="interpretation">
-              <p>{data.interpretation}</p>
-            </div>
+            <p style={{ 
+              color: 'white', 
+              lineHeight: '1.6', 
+              margin: '0',
+              fontSize: '16px',
+              whiteSpace: 'pre-wrap',
+              paddingTop: '20px',
+              borderTop: '1px solid rgba(139, 92, 246, 0.2)'
+            }}>
+              {data.interpretation}
+            </p>
           )}
         </>
       )}
