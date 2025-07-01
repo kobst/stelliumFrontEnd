@@ -5,6 +5,7 @@ import whiteLine from '../assets/whiteline.png';
 import FeaturesSection from '../UI/landingPage/FeatureCards';
 import SocialProof from '../UI/landingPage/SocialProof';
 import PricingSection from '../UI/landingPage/PricingSection';
+import DemoSection from '../UI/landingPage/DemoSection';
 
 const LandingPage = () => {
   const [horoscopeFlipped, setHoroscopeFlipped] = useState(false);
@@ -77,46 +78,7 @@ const LandingPage = () => {
       </section>
 
       {/* Instant Demo Row */}
-      <section className="demo-section">
-        <div className="demo-container">
-          <div className="demo-item">
-            <h3>Ask Anything About Your Chart</h3>
-            <div className="chat-demo">
-              <div className="chat-bubble user">
-                What does my Venus placement say about love?
-              </div>
-              <div className="chat-bubble ai typing">
-                <span className="typing-text">{aiReplies[currentReply]}</span>
-                <span className="typing-indicator">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="demo-item">
-            <h3>Your Daily Cosmic Guidance</h3>
-            <div className={`horoscope-card ${horoscopeFlipped ? 'flipped' : ''}`}>
-              <div className="card-face card-front">
-                <div className="card-header">Today's Energy</div>
-                <div className="card-content">
-                  <div className="transit-info">☽ Moon in Pisces</div>
-                  <p>Intuition runs high today. Trust your gut feelings in creative projects.</p>
-                </div>
-              </div>
-              <div className="card-face card-back">
-                <div className="card-header">Tomorrow's Focus</div>
-                <div className="card-content">
-                  <div className="transit-info">☿ Mercury trine Mars</div>
-                  <p>Perfect for important conversations. Your words carry extra power.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <DemoSection />
 
       {/* Feature Grid */}
       <section className="features-section">
