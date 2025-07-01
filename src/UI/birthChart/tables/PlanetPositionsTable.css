@@ -6,6 +6,7 @@
   font-size: 0.8em;
   border: 1px solid #ddd;
   padding: 10px;
+  font-family: Arial, "Helvetica Neue", Helvetica, "DejaVu Sans", sans-serif;
 }
 
 .planet-positions-table td {

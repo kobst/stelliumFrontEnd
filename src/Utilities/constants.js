@@ -24,7 +24,9 @@ export const planetIcons = [
   '/assets/planets/Saturn.svg',
   '/assets/planets/Uranus.svg',
   '/assets/planets/Neptune.svg',
-  '/assets/planets/Pluto.svg'
+  '/assets/planets/Pluto.svg',
+  '/assets/planets/Ascendent.svg', // Note: file has typo but keeping as is
+  '/assets/planets/Ascendant.svg', // Adding both spellings for compatibility
 ];
 
 export const relevantPromptAspects = {

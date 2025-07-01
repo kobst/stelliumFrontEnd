@@ -122,6 +122,7 @@ function UserDashboard() {
   const [transitError, setTransitError] = useState(null);
   const [showCompletionBanner, setShowCompletionBanner] = useState(false);
   const [previousWorkflowStatus, setPreviousWorkflowStatus] = useState(null);
+  const [hasCheckedAnalysis, setHasCheckedAnalysis] = useState(false);
 
   const {
     execute: fetchAnalysisForUserAsync,
@@ -134,6 +135,9 @@ function UserDashboard() {
     if (userId && userId !== storeUserId) {
       console.log('Setting userId from URL parameter:', userId);
       setUserId(userId);
+      
+      // Reset analysis check flag for new user
+      setHasCheckedAnalysis(false);
       
       // Reset full analysis workflow state for new user
       resetFullAnalysisState();
@@ -211,6 +215,7 @@ function UserDashboard() {
     try {
       const response = await fetchAnalysis(userId);
       console.log("Analysis response:", response);
+      setHasCheckedAnalysis(true);
       
       const { birthChartAnalysisId, interpretation, vectorizationStatus } = response;
 
@@ -263,16 +268,21 @@ function UserDashboard() {
       }));
 
       // Check actual workflow status from backend (legacy system)
-      // Skip for users created with new workflow system to avoid 400 errors
-      try {
+      // Skip if we already have complete analysis (indicates new workflow user)
+      const hasCompleteAnalysis = interpretation?.basicAnalysis && 
+                                   interpretation?.SubtopicAnalysis && 
+                                   vectorizationStatus?.topicAnalysis?.isComplete;
+      
+      if (!hasCompleteAnalysis) {
+        // Only check legacy workflow if analysis is not complete
         await checkWorkflowStatus();
-      } catch (workflowError) {
-        console.log('Legacy workflow status check failed (expected for new workflow users):', workflowError.message);
-        // Don't throw - this is expected for new workflow system users
+      } else {
+        console.log('Complete analysis detected - skipping legacy workflow check');
       }
 
     } catch (error) {
       console.error(ERROR_API_CALL, error);
+      setHasCheckedAnalysis(true);
       // Reset to defaults on error
       setBasicAnalysis({
         overview: '',
@@ -409,6 +419,14 @@ function UserDashboard() {
       const response = await getWorkflowStatus(userId);
       console.log('Workflow status response:', response);
       
+      // Handle new workflow users gracefully
+      if (response.isNewWorkflowUser) {
+        console.log('User created with new workflow system - legacy workflow not applicable');
+        setWorkflowStatus(null);
+        stopPolling();
+        return;
+      }
+      
       if (response.success) {
         // Set the entire response as the workflow status
         setWorkflowStatus(response);
@@ -467,6 +485,13 @@ function UserDashboard() {
     try {
       const response = await getWorkflowStatus(userId);
       console.log('Polling workflow status:', response);
+      
+      // Handle new workflow users gracefully
+      if (response.isNewWorkflowUser) {
+        console.log('User created with new workflow system - stopping legacy polling');
+        stopPolling();
+        return;
+      }
       
       if (response.success) {
         // Set the entire response as the workflow status
@@ -587,12 +612,7 @@ function UserDashboard() {
     }
   };
 
-  // Check for existing workflow on component mount
-  useEffect(() => {
-    if (userId) {
-      checkWorkflowStatus();
-    }
-  }, [userId]);
+  // Note: We check workflow status in fetchAnalysisForUser, so no need for a separate useEffect
 
   // Show temporary completion banner when analysis just completed
   useEffect(() => {
@@ -1153,92 +1173,95 @@ function UserDashboard() {
 
       {/* {renderDebugInfo()} */}
 
-      {/* New Full Analysis Workflow Section */}
-      <div className="workflow-section">
-        <h3>🚀 New Analysis System (Recommended)</h3>
-        {!isAnalysisPopulated() && (
-          <div style={{ marginBottom: '20px' }}>
-            <button
-              onClick={handleStartFullAnalysis}
-              disabled={fullAnalysisLoading || !userId || workflowStarted || (fullAnalysisProgress && !isFullAnalysisCompleted)}
-              className="workflow-button primary"
-              style={{
-                backgroundColor: (fullAnalysisLoading || workflowStarted || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
-                padding: '12px 24px',
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}
-            >
-              {fullAnalysisLoading || workflowStarted ? 'Starting Analysis...' : 
-               (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
-               'Start Complete Analysis'}
-            </button>
-          
-            {fullAnalysisProgress && !isFullAnalysisCompleted && (
-              <div style={{ color: '#666', fontSize: '14px', marginTop: '10px' }}>
-                {fullAnalysisProgress.percentage}% Complete 
-                {fullAnalysisProgress.currentPhase && ` - ${fullAnalysisProgress.currentPhase}`}
+      {/* New Full Analysis Workflow Section - Only show when needed */}
+      {(!isAnalysisPopulated() || fullAnalysisProgress || isFullAnalysisCompleted) && (
+        <div className="workflow-section">
+          <h3>🚀 New Analysis System (Recommended)</h3>
+          {!isAnalysisPopulated() && (
+            <div style={{ marginBottom: '20px' }}>
+              <button
+                onClick={handleStartFullAnalysis}
+                disabled={fullAnalysisLoading || !userId || workflowStarted || (fullAnalysisProgress && !isFullAnalysisCompleted)}
+                className="workflow-button primary"
+                style={{
+                  backgroundColor: (fullAnalysisLoading || workflowStarted || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
+                  padding: '12px 24px',
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }}
+              >
+                {fullAnalysisLoading || workflowStarted ? 'Starting Analysis...' : 
+                 (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
+                 'Start Complete Analysis'}
+              </button>
+            
+              {fullAnalysisProgress && !isFullAnalysisCompleted && (
+                <div style={{ color: '#666', fontSize: '14px', marginTop: '10px' }}>
+                  {fullAnalysisProgress.percentage}% Complete 
+                  {fullAnalysisProgress.currentPhase && ` - ${fullAnalysisProgress.currentPhase}`}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Full Analysis Progress Bar */}
+          {fullAnalysisProgress && !isFullAnalysisCompleted && (
+            <div className="workflow-progress" style={{ marginBottom: '20px' }}>
+              <div className="progress-header">
+                <h4>
+                  Generating Complete Birth Chart Analysis
+                </h4>
+                <p>
+                  Phase: {fullAnalysisProgress.currentPhase || 'Processing'} 
+                  ({fullAnalysisProgress.completedTasks}/{fullAnalysisProgress.totalTasks} tasks)
+                </p>
               </div>
-            )}
-          </div>
-        )}
+              <div className="progress-bar">
+                <div 
+                  className="progress-fill" 
+                  style={{ 
+                    width: `${fullAnalysisProgress.percentage || 0}%`,
+                    backgroundColor: '#8b5cf6'
+                  }}
+                ></div>
+              </div>
+              <div className="progress-percentage">
+                {fullAnalysisProgress.percentage || 0}% Complete
+              </div>
+            </div>
+          )}
 
-        {/* Show message when analysis is already complete */}
-        {isAnalysisPopulated() && !fullAnalysisProgress && (
-          <div style={{ 
-            padding: '15px', 
-            backgroundColor: 'rgba(34, 197, 94, 0.1)', 
-            border: '1px solid rgba(34, 197, 94, 0.3)', 
-            borderRadius: '6px',
-            marginBottom: '20px'
-          }}>
-            <p style={{ color: '#22c55e', margin: '0', fontWeight: 'bold' }}>
-              ✅ Analysis Complete! Your birth chart analysis is ready to explore below.
-            </p>
-          </div>
-        )}
-
-        {/* Full Analysis Progress Bar */}
-        {fullAnalysisProgress && !isFullAnalysisCompleted && (
-          <div className="workflow-progress" style={{ marginBottom: '20px' }}>
-            <div className="progress-header">
-              <h4>
-                Generating Complete Birth Chart Analysis
-              </h4>
-              <p>
-                Phase: {fullAnalysisProgress.currentPhase || 'Processing'} 
-                ({fullAnalysisProgress.completedTasks}/{fullAnalysisProgress.totalTasks} tasks)
+          {isFullAnalysisCompleted && (
+            <div style={{ 
+              padding: '15px', 
+              backgroundColor: 'rgba(34, 197, 94, 0.1)', 
+              border: '1px solid rgba(34, 197, 94, 0.3)', 
+              borderRadius: '6px',
+              marginBottom: '20px'
+            }}>
+              <p style={{ color: '#22c55e', margin: '0', fontWeight: 'bold' }}>
+                ✅ Complete analysis finished! Your full birth chart analysis is now available.
               </p>
             </div>
-            <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ 
-                  width: `${fullAnalysisProgress.percentage || 0}%`,
-                  backgroundColor: '#8b5cf6'
-                }}
-              ></div>
-            </div>
-            <div className="progress-percentage">
-              {fullAnalysisProgress.percentage || 0}% Complete
-            </div>
-          </div>
-        )}
+          )}
+        </div>
+      )}
 
-        {isFullAnalysisCompleted && (
-          <div style={{ 
-            padding: '15px', 
-            backgroundColor: 'rgba(34, 197, 94, 0.1)', 
-            border: '1px solid rgba(34, 197, 94, 0.3)', 
-            borderRadius: '6px',
-            marginBottom: '20px'
-          }}>
-            <p style={{ color: '#22c55e', margin: '0', fontWeight: 'bold' }}>
-              ✅ Complete analysis finished! Your full birth chart analysis is now available.
-            </p>
-          </div>
-        )}
-      </div>
+      {/* Show subtle message when analysis is already complete */}
+      {isAnalysisPopulated() && !fullAnalysisProgress && !isFullAnalysisCompleted && (
+        <div style={{ 
+          padding: '8px 12px', 
+          backgroundColor: 'rgba(34, 197, 94, 0.08)', 
+          border: '1px solid rgba(34, 197, 94, 0.2)', 
+          borderRadius: '4px',
+          marginBottom: '16px',
+          display: 'inline-block'
+        }}>
+          <p style={{ color: '#22c55e', margin: '0', fontSize: '14px' }}>
+            ✅ Analysis complete
+          </p>
+        </div>
+      )}
 
     
 

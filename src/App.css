@@ -213,25 +213,28 @@ form {
   display: flex;
   justify-content: space-evenly; /* Evenly distribute the space among tabs */
   /* background-color: #f1f1f1; Background color for the tab menu */
-  border-bottom: 1px solid #ccc; /* Border to separate tabs from content */
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3); /* Purple border to match theme */
 }
 
 .tab-menu button {
   padding: 10px 20px;
   border: none;
-  background-color: inherit; /* Inherits from tab-menu */
+  background-color: transparent; /* Transparent background */
+  color: rgba(255, 255, 255, 0.7); /* Light color for inactive tabs */
   cursor: pointer;
   outline: none; /* Removes the default focus outline */
+  transition: all 0.3s ease; /* Smooth transition */
 }
 
 .tab-menu button:hover {
-  background-color: #e0e0e0; /* Hover effect */
+  background-color: rgba(139, 92, 246, 0.2); /* Purple hover effect */
+  color: white; /* Ensure text stays visible on hover */
 }
 
 .tab-menu button.active {
   /* background-color: #ddd; Active tab color */
-  background-color: #0d1691;
-
+  background-color: #8b5cf6; /* Purple to match theme */
+  color: white; /* Ensure text is white on active tab */
   font-weight: bold; /* Optional: Makes active tab text bold */
 }
 
@@ -271,23 +274,26 @@ form {
   justify-content: space-around;
   background-color: transparent;
   /* background-color: #f1f1f1; */
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3); /* Purple border to match theme */
 }
 
 .tab-menu button, .planet-menu button {
   padding: 10px;
   border: none;
-  background-color: inherit;
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.7); /* Light color for inactive tabs */
   cursor: pointer;
+  transition: all 0.3s ease; /* Smooth transition */
 }
 
 .tab-button.active, .planet-button.active {
-  background-color: #0d1691;
+  background-color: #8b5cf6; /* Purple to match theme */
+  color: white; /* Ensure text is white on active tab */
   font-weight: bold;
 }
 
 .button-white-text {
-  color: rgb(151, 138, 138); /* Sets the font color to white */
+  color: rgba(255, 255, 255, 0.85); /* Sets the font color to white with good opacity */
 }
 
 .tab-content {

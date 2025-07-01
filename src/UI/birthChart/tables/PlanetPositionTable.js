@@ -1,15 +1,44 @@
 import React from 'react';
 import './PlanetPositionsTable.css';
-import { zodiacIcons, planetIcons } from '../../../Utilities/constants';
 
 const PlanetPositionsTable = ({ planetsArray }) => {
 
   const excludedPlanets = ["South Node", "Part of Fortune"];
-  // Function to get the correct image path for planets and signs
-  const getImagePath = (type, name) => {
-    const formattedName = name.toLowerCase();
-    const icons = type === 'planet' ? planetIcons : zodiacIcons;
-    return icons.find(path => path.toLowerCase().includes(formattedName)) || '';
+  
+  // Unicode symbols for planets
+  const planetSymbols = {
+    'Sun': '☉',
+    'Moon': '☽',
+    'Mercury': '☿',
+    'Venus': '♀',
+    'Mars': '♂',
+    'Jupiter': '♃',
+    'Saturn': '♄',
+    'Uranus': '♅',
+    'Neptune': '♆',
+    'Pluto': '♇',
+    'Ascendant': 'AC',
+    'Midheaven': 'MC',
+    'Chiron': '⚷',
+    'Node': '☊',
+    'North Node': '☊',
+    'South Node': '☋'
+  };
+  
+  // Unicode symbols for zodiac signs
+  const zodiacSymbols = {
+    'Aries': '♈',
+    'Taurus': '♉',
+    'Gemini': '♊',
+    'Cancer': '♋',
+    'Leo': '♌',
+    'Virgo': '♍',
+    'Libra': '♎',
+    'Scorpio': '♏',
+    'Sagittarius': '♐',
+    'Capricorn': '♑',
+    'Aquarius': '♒',
+    'Pisces': '♓'
   };
 
   return (
@@ -20,20 +49,21 @@ const PlanetPositionsTable = ({ planetsArray }) => {
             .map((planet, index) => (
               <tr key={index}>
                 <td>
-                  <img 
-                    src={getImagePath('planet', planet.name)} 
-                    alt={planet.name} 
-                    className="symbol-img"
-                  />
+                  <span 
+                    style={{ 
+                      fontSize: (planet.name === 'Ascendant' || planet.name === 'Midheaven') ? '14px' : '20px',
+                      fontWeight: (planet.name === 'Ascendant' || planet.name === 'Midheaven') ? 'normal' : 'bold'
+                    }}
+                  >
+                    {planetSymbols[planet.name] || (planet.name ? planet.name.substring(0, 2) : '??')}
+                  </span>
                 </td>
                 <td>{planet.name}</td>
                 <td>{planet.norm_degree.toFixed(2)}°</td>
                 <td>
-                  <img 
-                    src={getImagePath('sign', planet.sign)} 
-                    alt={planet.sign} 
-                    className="symbol-img"
-                  />
+                  <span style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                    {zodiacSymbols[planet.sign] || (planet.sign ? planet.sign.substring(0, 2) : '??')}
+                  </span>
                 </td>
                 <td>{planet.sign}</td>
                 <td>{planet.is_retro == "true" ? "Retro" : ""}</td>

@@ -966,6 +966,12 @@ export const getWorkflowStatus = async (userId) => {
       body: JSON.stringify({ workflowId: userId })
     });
     
+    // Handle 400 errors specifically - these are expected for new workflow users
+    if (response.status === 400) {
+      console.log('Legacy workflow status not found (expected for new workflow users)');
+      return { success: false, isNewWorkflowUser: true };
+    }
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

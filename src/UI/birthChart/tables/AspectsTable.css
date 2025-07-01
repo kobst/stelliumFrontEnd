@@ -3,6 +3,7 @@
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.8em;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
 .aspects-table td {
@@ -26,4 +27,5 @@
 .aspect-symbol {
   font-size: 1.2em;
   font-weight: bold;
+  font-family: Arial, "DejaVu Sans", "Symbola", sans-serif;
 }

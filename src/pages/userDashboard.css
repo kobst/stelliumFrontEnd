@@ -79,19 +79,19 @@ button {
 .workflow-section {
     margin: 20px 0;
     padding: 20px;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(139, 92, 246, 0.2);
     border-radius: 8px;
-    background-color: #f9f9f9;
+    background-color: transparent;
     text-align: center; /* Center the content */
 }
 
 .workflow-section h3 {
-    color: #333 !important; /* Force dark color for visibility */
+    color: #a78bfa !important; /* Purple color to match theme */
     margin-bottom: 15px;
 }
 
 .workflow-section p {
-    color: #666 !important; /* Force dark color for visibility */
+    color: rgba(255, 255, 255, 0.7) !important; /* Light color for dark theme */
 }
 
 .workflow-button {

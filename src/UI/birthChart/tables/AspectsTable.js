@@ -1,37 +1,44 @@
 import React from 'react';
 import './AspectsTable.css';
-import { planetIcons } from '../../../Utilities/constants';
 
 const AspectsTable = ({ aspectsArray }) => {
-  // Function to get the correct image path for planets
-  const getPlanetImagePath = (planetName) => {
-    if (typeof planetName !== 'string' || !planetName) {
-      console.warn(`Invalid planet name: ${planetName}`);
-      return '';
-    }
 
-    const formattedName = planetName.toLowerCase();
-    return planetIcons.find(path => 
-      typeof path === 'string' && path.toLowerCase().includes(formattedName)
-    ) || '';
-  };
-
-  // Function to get the aspect symbol
-  const getAspectSymbol = (aspectType) => {
+  // Function to get the aspect name
+  const getAspectName = (aspectType) => {
     if (typeof aspectType !== 'string' || !aspectType) {
       console.warn(`Invalid aspect type: ${aspectType}`);
-      return '?';
+      return 'Unknown';
     }
 
     switch (aspectType.toLowerCase()) {
-      case 'conjunction': return '☌';
-      case 'opposition': return '☍';
-      case 'trine': return '△';
-      case 'square': return '□';
-      case 'sextile': return '⚹';
-      case 'quincunx': return '⚻';
-      default: return '?';
+      case 'conjunction': return 'Conjunction';
+      case 'opposition': return 'Opposition';
+      case 'trine': return 'Trine';
+      case 'square': return 'Square';
+      case 'sextile': return 'Sextile';
+      case 'quincunx': return 'Quincunx';
+      default: return aspectType; // Return the original if not recognized
     }
+  };
+  
+  // Unicode symbols for planets as fallback
+  const planetSymbols = {
+    'Sun': '☉',
+    'Moon': '☽',
+    'Mercury': '☿',
+    'Venus': '♀',
+    'Mars': '♂',
+    'Jupiter': '♃',
+    'Saturn': '♄',
+    'Uranus': '♅',
+    'Neptune': '♆',
+    'Pluto': '♇',
+    'Ascendant': 'AC',
+    'Midheaven': 'MC',
+    'Chiron': '⚷',
+    'Node': '☊',
+    'North Node': '☊',
+    'South Node': '☋'
   };
 
   return (
@@ -40,20 +47,28 @@ const AspectsTable = ({ aspectsArray }) => {
         {aspectsArray.map((aspect, index) => (
           <tr key={index}>
             <td>
-              <img 
-                src={getPlanetImagePath(aspect.transitingPlanet)} 
-                alt={aspect.transitingPlanet} 
-                className="symbol-img"
-              />
+              <span 
+                style={{ 
+                  fontSize: (aspect.aspectedPlanet === 'Ascendant' || aspect.aspectedPlanet === 'Midheaven') ? '14px' : '20px',
+                  fontWeight: (aspect.aspectedPlanet === 'Ascendant' || aspect.aspectedPlanet === 'Midheaven') ? 'normal' : 'bold'
+                }}
+              >
+                {planetSymbols[aspect.aspectedPlanet] || (aspect.aspectedPlanet ? aspect.aspectedPlanet.substring(0, 2) : '??')}
+              </span>
             </td>
-            <td>{aspect.transitingPlanet}</td>
-            <td className="aspect-symbol">{getAspectSymbol(aspect.aspectType)}</td>
+            <td>{aspect.aspectedPlanet}</td>
+            <td className="aspect-name">
+              {getAspectName(aspect.aspectType)}
+            </td>
             <td>
-              <img 
-                src={getPlanetImagePath(aspect.aspectingPlanet)} 
-                alt={aspect.aspectingPlanet} 
-                className="symbol-img"
-              />
+              <span 
+                style={{ 
+                  fontSize: (aspect.aspectingPlanet === 'Ascendant' || aspect.aspectingPlanet === 'Midheaven') ? '14px' : '20px',
+                  fontWeight: (aspect.aspectingPlanet === 'Ascendant' || aspect.aspectingPlanet === 'Midheaven') ? 'normal' : 'bold'
+                }}
+              >
+                {planetSymbols[aspect.aspectingPlanet] || (aspect.aspectingPlanet ? aspect.aspectingPlanet.substring(0, 2) : '??')}
+              </span>
             </td>
             <td>{aspect.aspectingPlanet}</td>
             <td>{aspect.orb.toFixed(2)}°</td>

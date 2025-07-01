@@ -80,7 +80,7 @@ const LandingPage = () => {
       </section>
 
       {/* Instant Demo Row */}
-      <DemoSection />
+      {/* <DemoSection /> */}
 
       {/* Feature Grid */}
       <section className="features-section">
