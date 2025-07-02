@@ -349,11 +349,23 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Special layout for planetary dominance */
+[data-pattern-type="planetary"] .distribution-item {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  margin-bottom: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
 .category-name {
   min-width: 100px;
-  font-weight: 600;
-  color: #93c5fd;
-  font-size: 0.9em;
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 0.95em;
   padding-top: 4px;
 }
 
@@ -372,6 +384,14 @@ button {
   font-size: 0.85em;
   font-weight: 500;
   border: 1px solid rgba(147, 197, 253, 0.3);
+}
+
+.percentage-display {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9em;
+  min-width: 50px;
+  text-align: right;
 }
 
 /* Patterns Styles */

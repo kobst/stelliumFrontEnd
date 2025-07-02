@@ -38,6 +38,9 @@ const useStore = create(set => ({
   userPatterns: {},
   setUserPatterns: (response) => set({ userPatterns: response }),
 
+  userPlanetaryDominance: {},
+  setUserPlanetaryDominance: (response) => set({ userPlanetaryDominance: response }),
+
   userAspects: [],
   setUserAspects: (response) => set({ userAspects: response }),
 
@@ -96,7 +99,8 @@ const useStore = create(set => ({
             userElements: newUser.birthChart?.elements || {},
             userModalities: newUser.birthChart?.modalities || {},
             userQuadrants: newUser.birthChart?.quadrants || {},
-            userPatterns: newUser.birthChart?.patterns || {}
+            userPatterns: newUser.birthChart?.patterns || {},
+            userPlanetaryDominance: newUser.birthChart?.planetaryDominance || {}
         };
     }),
 
@@ -116,7 +120,8 @@ const useStore = create(set => ({
             userElements: owner.birthChart?.elements || {},
             userModalities: owner.birthChart?.modalities || {},
             userQuadrants: owner.birthChart?.quadrants || {},
-            userPatterns: owner.birthChart?.patterns || {}
+            userPatterns: owner.birthChart?.patterns || {},
+            userPlanetaryDominance: owner.birthChart?.planetaryDominance || {}
         };
     }),
 

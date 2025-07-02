@@ -18,6 +18,7 @@ function AdminPage() {
   const setUserModalities = useStore(state => state.setUserModalities);
   const setUserQuadrants = useStore(state => state.setUserQuadrants);
   const setUserPatterns = useStore(state => state.setUserPatterns);
+  const setUserPlanetaryDominance = useStore(state => state.setUserPlanetaryDominance);
 
   const navigate = useNavigate();
 
@@ -31,6 +32,7 @@ function AdminPage() {
     setUserModalities(user.birthChart.modalities);
     setUserQuadrants(user.birthChart.quadrants);
     setUserPatterns(user.birthChart.patterns);
+    setUserPlanetaryDominance(user.birthChart.planetaryDominance);
 
     navigate(`/userDashboard/${user._id}`);
   };
@@ -45,6 +47,7 @@ function AdminPage() {
     setUserModalities(celebrity.birthChart.modalities);
     setUserQuadrants(celebrity.birthChart.quadrants);
     setUserPatterns(celebrity.birthChart.patterns);
+    setUserPlanetaryDominance(celebrity.birthChart.planetaryDominance);
 
     navigate(`/userDashboard/${celebrity._id}`);
   };

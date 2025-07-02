@@ -66,6 +66,30 @@ const PatternCard = memo(({ title, data, type }) => {
             borderWidth: 1
           }]
         };
+      case 'planetary':
+        return {
+          labels: data.planets.map(p => p.name),
+          datasets: [{
+            label: 'Planetary Dominance',
+            data: data.planets.map(p => p.percentage),
+            backgroundColor: [
+              '#FFD700', // Sun - Gold
+              '#C0C0C0', // Moon - Silver
+              '#FF4500', // Mars - Red
+              '#32CD32', // Mercury - Green
+              '#FF69B4', // Venus - Pink
+              '#4169E1', // Jupiter - Royal Blue
+              '#8B4513', // Saturn - Saddle Brown
+              '#00FFFF', // Uranus - Cyan
+              '#4B0082', // Neptune - Indigo
+              '#800080', // Pluto - Purple
+              '#FF6347', // Ascendant - Tomato
+              '#20B2AA', // Midheaven - Light Sea Green
+              '#9ACD32'  // Node - Yellow Green
+            ],
+            borderWidth: 1
+          }]
+        };
       default:
         return null;
     }
@@ -80,7 +104,10 @@ const PatternCard = memo(({ title, data, type }) => {
         labels: {
           boxWidth: 12,
           padding: 15,
-          color: 'white'
+          color: 'white',
+          font: {
+            weight: 'bold'
+          }
         }
       },
       tooltip: {
@@ -90,13 +117,33 @@ const PatternCard = memo(({ title, data, type }) => {
           }
         }
       }
-    }
+    },
+    scales: type === 'quadrants' ? {
+      x: {
+        ticks: {
+          color: 'white',
+          font: {
+            weight: 'bold',
+            size: 12
+          }
+        }
+      },
+      y: {
+        ticks: {
+          color: 'white',
+          font: {
+            weight: 'bold'
+          }
+        }
+      }
+    } : {}
   };
 
   const renderChart = () => {
     const chartData = getChartData();
     if (!chartData) return null;
 
+    // Only render chart for quadrants, not for planetary dominance
     if (type === 'quadrants') {
       return (
         <div style={{ height: '200px', marginBottom: '20px' }}>
@@ -104,12 +151,18 @@ const PatternCard = memo(({ title, data, type }) => {
         </div>
       );
     }
+    
+    // For other types (elements, modalities), render pie chart
+    if (type === 'elements' || type === 'modalities') {
+      return (
+        <div style={{ height: '200px', marginBottom: '20px' }}>
+          <Pie data={chartData} options={chartOptions} />
+        </div>
+      );
+    }
 
-    return (
-      <div style={{ height: '200px', marginBottom: '20px' }}>
-        <Pie data={chartData} options={chartOptions} />
-      </div>
-    );
+    // For planetary dominance, don't render a chart here
+    return null;
   };
 
   const renderPlanetDistribution = () => {
@@ -163,6 +216,60 @@ const PatternCard = memo(({ title, data, type }) => {
                 </div>
               </div>
             ))}
+          </div>
+        );
+      case 'planetary':
+        // Find the maximum percentage to scale all bars relative to it
+        const maxPercentage = Math.max(...data.planets.map(p => p.percentage));
+        
+        return (
+          <div className="planet-distribution">
+            {data.planets.map((planet, index) => {
+              // Calculate the relative width based on the max percentage
+              const relativeWidth = (planet.percentage / maxPercentage) * 100;
+              
+              return (
+                <div key={planet.name} className="distribution-item" style={{ 
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '8px',
+                  padding: '12px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  borderRadius: '6px'
+                }}>
+                  <span className="category-name" style={{
+                    fontWeight: 'bold',
+                    color: '#ffffff',
+                    fontSize: '0.95em',
+                    minWidth: '120px'
+                  }}>{planet.name}</span>
+                  <div style={{
+                    flex: 1,
+                    margin: '0 15px',
+                    background: 'rgba(139, 92, 246, 0.3)',
+                    borderRadius: '4px',
+                    height: '20px',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{
+                      width: `${relativeWidth}%`,
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)',
+                      borderRadius: '4px',
+                      transition: 'width 0.3s ease'
+                    }} />
+                  </div>
+                  <span className="percentage-display" style={{
+                    fontWeight: 'bold',
+                    color: '#ffffff',
+                    fontSize: '0.9em',
+                    minWidth: '45px',
+                    textAlign: 'right'
+                  }}>{planet.percentage}%</span>
+                </div>
+              );
+            })}
           </div>
         );
       default:
@@ -223,13 +330,15 @@ const PatternCard = memo(({ title, data, type }) => {
   };
 
   return (
-    <div style={{ 
-      backgroundColor: 'rgba(139, 92, 246, 0.1)', 
-      padding: '20px', 
-      borderRadius: '8px',
-      border: '1px solid rgba(139, 92, 246, 0.3)',
-      marginBottom: '20px'
-    }}>
+    <div 
+      data-pattern-type={type}
+      style={{ 
+        backgroundColor: 'rgba(139, 92, 246, 0.1)', 
+        padding: '20px', 
+        borderRadius: '8px',
+        border: '1px solid rgba(139, 92, 246, 0.3)',
+        marginBottom: '20px'
+      }}>
       <h3 style={{ 
         color: '#a78bfa', 
         margin: '0 0 20px 0',
@@ -239,6 +348,7 @@ const PatternCard = memo(({ title, data, type }) => {
         {type === 'modalities' ? '♈♉♊ ' : ''}
         {type === 'quadrants' ? '🧭 ' : ''}
         {type === 'patterns' ? '✨ ' : ''}
+        {type === 'planetary' ? '🪐 ' : ''}
         {title}
       </h3>
       {type === 'patterns' ? (

@@ -57,6 +57,7 @@ function UserDashboard() {
   const userModalities = useStore(state => state.userModalities);
   const userQuadrants = useStore(state => state.userQuadrants);
   const userPatterns = useStore(state => state.userPatterns);
+  const userPlanetaryDominance = useStore(state => state.userPlanetaryDominance);
   const workflowState = useStore(state => state.workflowState);
   const setWorkflowState = useStore(state => state.setWorkflowState);
 
@@ -79,7 +80,8 @@ function UserDashboard() {
       elements: { interpretation: '' },
       modalities: { interpretation: '' },
       quadrants: { interpretation: '' },
-      patterns: { interpretation: '' }
+      patterns: { interpretation: '' },
+      planetary: { interpretation: '' }
     },
     planets: {}
   });
@@ -150,7 +152,8 @@ function UserDashboard() {
           elements: { interpretation: '' },
           modalities: { interpretation: '' },
           quadrants: { interpretation: '' },
-          patterns: { interpretation: '' }
+          patterns: { interpretation: '' },
+          planetary: { interpretation: '' }
         },
         planets: {}
       });
@@ -237,7 +240,8 @@ function UserDashboard() {
               ...(interpretation.basicAnalysis.dominance?.pattern || interpretation.basicAnalysis.dominance?.patterns),
               interpretation: (interpretation.basicAnalysis.dominance?.pattern?.interpretation || 
                               interpretation.basicAnalysis.dominance?.patterns?.interpretation || '')
-            }
+            },
+            planetary: interpretation.basicAnalysis.dominance?.planetary || { interpretation: '' }
           },
           planets: interpretation.basicAnalysis.planets || {}
         });
@@ -290,7 +294,8 @@ function UserDashboard() {
           elements: { interpretation: '', description: [] },
           modalities: { interpretation: '', description: [] },
           quadrants: { interpretation: '', description: [] },
-          patterns: { interpretation: '', description: [] }
+          patterns: { interpretation: '', description: [] },
+          planetary: { interpretation: '', description: [] }
         },
         planets: {}
       });
@@ -942,6 +947,14 @@ function UserDashboard() {
                 interpretation: basicAnalysis.dominance?.patterns?.interpretation
               }}
               type="patterns"
+            />
+            <PatternCard
+              title="Planetary Dominance"
+              data={{
+                ...userPlanetaryDominance,
+                interpretation: basicAnalysis.dominance?.planetary?.interpretation
+              }}
+              type="planetary"
             />
           </div>
         )}
