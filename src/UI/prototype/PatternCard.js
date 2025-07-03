@@ -28,8 +28,12 @@ const PatternCard = memo(({ title, data, type }) => {
   }, [title, type, data]);
 
   const getChartData = () => {
+    // Add null checks to prevent crashes
+    if (!data) return null;
+
     switch (type) {
       case 'elements':
+        if (!data.elements || !Array.isArray(data.elements)) return null;
         return {
           labels: data.elements.map(e => e.name),
           datasets: [{
@@ -44,6 +48,7 @@ const PatternCard = memo(({ title, data, type }) => {
           }]
         };
       case 'modalities':
+        if (!data.modalities || !Array.isArray(data.modalities)) return null;
         return {
           labels: data.modalities.map(m => m.name),
           datasets: [{
@@ -57,6 +62,7 @@ const PatternCard = memo(({ title, data, type }) => {
           }]
         };
       case 'quadrants':
+        if (!data.quadrants || !Array.isArray(data.quadrants)) return null;
         return {
           labels: data.quadrants.map(q => q.name),
           datasets: [{
@@ -67,6 +73,7 @@ const PatternCard = memo(({ title, data, type }) => {
           }]
         };
       case 'planetary':
+        if (!data.planets || !Array.isArray(data.planets)) return null;
         return {
           labels: data.planets.map(p => p.name),
           datasets: [{
@@ -166,15 +173,19 @@ const PatternCard = memo(({ title, data, type }) => {
   };
 
   const renderPlanetDistribution = () => {
+    // Add null checks to prevent crashes
+    if (!data) return null;
+
     switch (type) {
       case 'elements':
+        if (!data.elements || !Array.isArray(data.elements)) return null;
         return (
           <div className="planet-distribution">
             {data.elements.map((element, index) => (
               <div key={element.name} className="distribution-item">
                 <span className="category-name">{element.name}</span>
                 <div className="planet-list">
-                  {element.planets.map(planet => (
+                  {(element.planets || []).map(planet => (
                     <span key={planet} className="planet-tag">
                       {planet}
                     </span>
@@ -185,13 +196,14 @@ const PatternCard = memo(({ title, data, type }) => {
           </div>
         );
       case 'modalities':
+        if (!data.modalities || !Array.isArray(data.modalities)) return null;
         return (
           <div className="planet-distribution">
             {data.modalities.map((modality, index) => (
               <div key={modality.name} className="distribution-item">
                 <span className="category-name">{modality.name}</span>
                 <div className="planet-list">
-                  {modality.planets.map(planet => (
+                  {(modality.planets || []).map(planet => (
                     <span key={planet} className="planet-tag">
                       {planet}
                     </span>
@@ -202,13 +214,14 @@ const PatternCard = memo(({ title, data, type }) => {
           </div>
         );
       case 'quadrants':
+        if (!data.quadrants || !Array.isArray(data.quadrants)) return null;
         return (
           <div className="planet-distribution">
             {data.quadrants.map((quadrant, index) => (
               <div key={quadrant.name} className="distribution-item">
                 <span className="category-name">{quadrant.name}</span>
                 <div className="planet-list">
-                  {quadrant.planets.map(planet => (
+                  {(quadrant.planets || []).map(planet => (
                     <span key={planet} className="planet-tag">
                       {planet}
                     </span>
@@ -219,14 +232,16 @@ const PatternCard = memo(({ title, data, type }) => {
           </div>
         );
       case 'planetary':
+        if (!data.planets || !Array.isArray(data.planets) || data.planets.length === 0) return null;
+        
         // Find the maximum percentage to scale all bars relative to it
-        const maxPercentage = Math.max(...data.planets.map(p => p.percentage));
+        const maxPercentage = Math.max(...data.planets.map(p => p.percentage || 0));
         
         return (
           <div className="planet-distribution">
             {data.planets.map((planet, index) => {
               // Calculate the relative width based on the max percentage
-              const relativeWidth = (planet.percentage / maxPercentage) * 100;
+              const relativeWidth = maxPercentage > 0 ? (planet.percentage / maxPercentage) * 100 : 0;
               
               return (
                 <div key={planet.name} className="distribution-item" style={{ 
@@ -242,7 +257,7 @@ const PatternCard = memo(({ title, data, type }) => {
                     color: '#ffffff',
                     fontSize: '0.95em',
                     minWidth: '120px'
-                  }}>{planet.name}</span>
+                  }}>{planet.name || 'Unknown'}</span>
                   <div style={{
                     flex: 1,
                     margin: '0 15px',
@@ -266,7 +281,7 @@ const PatternCard = memo(({ title, data, type }) => {
                     fontSize: '0.9em',
                     minWidth: '45px',
                     textAlign: 'right'
-                  }}>{planet.percentage}%</span>
+                  }}>{planet.percentage || 0}%</span>
                 </div>
               );
             })}
