@@ -1,0 +1,317 @@
+/* Astrology Visualization Components Styles */
+
+/* Chart Shape Wheel */
+.chart-shape-wheel {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 8px;
+}
+
+.chart-shape-wheel svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.chart-shape-description {
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9em;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Pattern Wheel */
+.pattern-wheel {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 8px;
+}
+
+.pattern-wheel svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.pattern-wheel .aspect-lines {
+  opacity: 0.8;
+}
+
+.pattern-wheel .planets {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Stellium Bars */
+.stellium-bars-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 8px;
+}
+
+.stellium-bar {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 12px 15px;
+  transition: background-color 0.2s ease;
+}
+
+.stellium-bar:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.stellium-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sign-label {
+  font-weight: 700;
+  color: #a78bfa;
+  font-size: 1.1em;
+}
+
+.planet-count {
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.stellium-planets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stellium-planet-tag {
+  background: rgba(139, 92, 246, 0.3);
+  color: #ddd6fe;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 500;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  transition: all 0.2s ease;
+}
+
+.stellium-planet-tag:hover {
+  background: rgba(139, 92, 246, 0.5);
+  transform: translateY(-1px);
+}
+
+.no-stelliums {
+  text-align: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .chart-shape-wheel,
+  .pattern-wheel,
+  .stellium-bars-container {
+    margin: 15px 0;
+    padding: 12px;
+  }
+  
+  .stellium-bar {
+    padding: 10px 12px;
+  }
+  
+  .stellium-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .sign-label {
+    font-size: 1em;
+  }
+  
+  .planet-count {
+    font-size: 0.8em;
+  }
+  
+  .stellium-planet-tag {
+    font-size: 0.8em;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-shape-wheel svg,
+  .pattern-wheel svg {
+    max-width: 180px;
+    height: auto;
+  }
+  
+  .stellium-planets {
+    gap: 4px;
+  }
+  
+  .stellium-planet-tag {
+    font-size: 0.75em;
+    padding: 2px 6px;
+  }
+}
+
+/* Dark Mode Enhancements */
+@media (prefers-color-scheme: dark) {
+  .chart-shape-wheel,
+  .pattern-wheel,
+  .stellium-bars-container {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.4);
+  }
+  
+  .stellium-bar {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .stellium-bar:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+  
+  .stellium-planet-tag {
+    background: rgba(139, 92, 246, 0.4);
+    border-color: rgba(139, 92, 246, 0.5);
+  }
+  
+  .stellium-planet-tag:hover {
+    background: rgba(139, 92, 246, 0.6);
+  }
+}
+
+/* Simplified Pattern Wheel */
+.simplified-pattern-wheel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+}
+
+.simplified-pattern-wheel canvas {
+  transition: transform 0.2s ease;
+}
+
+.simplified-pattern-wheel:hover canvas {
+  transform: scale(1.05);
+}
+
+/* Pattern Section Styling */
+.patterns-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pattern-section {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pattern-section h5 {
+  color: #a78bfa;
+  font-size: 1.1em;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pattern-section ul {
+  margin: 15px 0 0 0;
+  padding-left: 20px;
+  list-style-type: none;
+}
+
+.pattern-section li {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 10px;
+  line-height: 1.5;
+  font-size: 0.95em;
+  position: relative;
+  padding-left: 20px;
+}
+
+.pattern-section li:before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: #a78bfa;
+  font-weight: bold;
+}
+
+.no-patterns {
+  text-align: center;
+  padding: 30px;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+/* High DPI Display Support */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .chart-shape-wheel svg,
+  .pattern-wheel svg {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Animation for visual feedback */
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+.pattern-wheel .aspect-lines line {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.pattern-wheel .aspect-lines line:nth-child(2n) {
+  animation-delay: 0.5s;
+}
+
+.pattern-wheel .aspect-lines line:nth-child(3n) {
+  animation-delay: 1s;
+}
+
+/* Focus and accessibility */
+.stellium-planet-tag:focus,
+.stellium-bar:focus {
+  outline: 2px solid #a78bfa;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .chart-shape-wheel,
+  .pattern-wheel,
+  .stellium-bars-container {
+    background: white !important;
+    border: 1px solid #333 !important;
+    color: #000 !important;
+  }
+  
+  .stellium-planet-tag {
+    background: #f0f0f0 !important;
+    color: #333 !important;
+    border: 1px solid #666 !important;
+  }
+}

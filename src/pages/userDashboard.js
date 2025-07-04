@@ -61,6 +61,16 @@ function UserDashboard() {
   const workflowState = useStore(state => state.workflowState);
   const setWorkflowState = useStore(state => state.setWorkflowState);
 
+  // Store setter functions for clearing data when switching users
+  const setUserPlanets = useStore(state => state.setUserPlanets);
+  const setUserHouses = useStore(state => state.setUserHouses);
+  const setUserAspects = useStore(state => state.setUserAspects);
+  const setUserElements = useStore(state => state.setUserElements);
+  const setUserModalities = useStore(state => state.setUserModalities);
+  const setUserQuadrants = useStore(state => state.setUserQuadrants);
+  const setUserPatterns = useStore(state => state.setUserPatterns);
+  const setUserPlanetaryDominance = useStore(state => state.setUserPlanetaryDominance);
+
   // New workflow system hook
   const {
     startFullAnalysisWorkflow,
@@ -179,6 +189,17 @@ function UserDashboard() {
         workflowStatus: null,
         lastUpdated: null
       });
+
+      // Clear store state to prevent data from previous user persisting
+      console.log('Clearing store state for new user');
+      setUserPlanets([]);
+      setUserHouses([]);
+      setUserAspects([]);
+      setUserElements({});
+      setUserModalities({});
+      setUserQuadrants({});
+      setUserPatterns({});
+      setUserPlanetaryDominance({});
       
       // Also clear workflow state from store
       setWorkflowState({

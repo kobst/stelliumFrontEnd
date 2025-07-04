@@ -10,6 +10,23 @@ import {
   BarElement,
   Title
 } from 'chart.js';
+import SimplifiedPatternWheel from '../astrology/SimplifiedPatternWheel';
+import { 
+  extractPlanetsFromPattern, 
+  generateTSquareLines, 
+  generateYodLines, 
+  generateGrandTrineLines,
+  calculateStelliumSpan,
+  calculateStelliumSpanFromPlanets,
+  generateTSquareLinesFromStructured,
+  generateYodLinesFromStructured,
+  generateGrandTrineLinesFromStructured,
+  generateGrandCrossLinesFromStructured,
+  generateKiteLinesFromStructured,
+  generateMysticRectangleLinesFromStructured
+} from '../../utils/patternHelpers';
+import useStore from '../../Utilities/store';
+import '../astrology/astrology.css';
 
 // Register ChartJS components
 ChartJS.register(
@@ -22,10 +39,12 @@ ChartJS.register(
   Title
 );
 
-const PatternCard = memo(({ title, data, type }) => {
+const PatternCard = ({ title, data, type }) => {
+  const userPlanets = useStore(state => state.userPlanets);
+  
   useEffect(() => {
-    console.log('PatternCard mounted/updated:', { title, type, data });
-  }, [title, type, data]);
+    // Component will re-render when any of these dependencies change
+  }, [title, type, data, userPlanets]);
 
   const getChartData = () => {
     // Add null checks to prevent crashes
@@ -293,21 +312,26 @@ const PatternCard = memo(({ title, data, type }) => {
   };
 
   const renderPatterns = () => {
-    console.log('renderPatterns data:', data);
     if (!data.patterns) {
-      console.log('No patterns data found');
       return null;
     }
 
-    // Handle new backend format with descriptions array
-    if (data.patterns.descriptions && Array.isArray(data.patterns.descriptions)) {
-      console.log('Using new descriptions format:', data.patterns.descriptions);
+    // Handle the nested structure: data.patterns.patterns
+    const patternsData = data.patterns.patterns || data.patterns;
+
+    // Handle new JSON format - array of pattern objects
+    if (Array.isArray(patternsData)) {
+      return renderNewFormatPatterns(patternsData);
+    }
+
+    // Handle legacy backend format with descriptions array
+    if (patternsData.descriptions && Array.isArray(patternsData.descriptions)) {
       return (
         <div className="patterns-content">
           <div className="pattern-section">
             <h5>Chart Patterns</h5>
             <ul>
-              {data.patterns.descriptions.map((pattern, index) => (
+              {patternsData.descriptions.map((pattern, index) => (
                 <li key={index}>{pattern}</li>
               ))}
             </ul>
@@ -316,30 +340,450 @@ const PatternCard = memo(({ title, data, type }) => {
       );
     }
 
-    // Legacy format support
-    const patternTypes = {
-      'Stelliums': data.patterns.stelliums,
-      'T-Squares': data.patterns.tSquares,
-      'Grand Trines': data.patterns.grandTrines,
-      'Grand Crosses': data.patterns.grandCrosses
-    };
+    // Handle old text-based format
+    return renderLegacyFormatPatterns(patternsData);
+  };
 
-    console.log('Pattern types (legacy format):', patternTypes);
+  const renderNewFormatPatterns = (patterns) => {
+    // Collect all patterns from the new JSON structure
+    const allPatterns = [];
+
+    patterns.forEach((pattern, index) => {
+      switch (pattern.type) {
+        case 'chart_shape':
+          if (userPlanets && userPlanets.length > 0) {
+            allPatterns.push({
+              key: `chartShape-${pattern.id || index}`,
+              type: 'chartShape',
+              label: 'Chart Shape',
+              description: pattern.description,
+              component: (
+                <SimplifiedPatternWheel
+                  planets={userPlanets}
+                  pattern="chartShape"
+                  patternData={{
+                    label: 'Chart Shape'
+                  }}
+                  size={140}
+                />
+              )
+            });
+          }
+          break;
+
+        case 'stellium':
+          // Extract planets from the structured data
+          const stelliumPlanets = pattern.vertex?.planets || [];
+          const stelliumPlanetsForViz = stelliumPlanets.map(p => ({
+            name: p.name,
+            degree: p.degree,
+            full_degree: p.degree
+          }));
+          
+          if (stelliumPlanetsForViz.length > 0) {
+            const stelliumSpan = calculateStelliumSpanFromPlanets(stelliumPlanetsForViz);
+            allPatterns.push({
+              key: `stellium-${pattern.id || index}`,
+              type: 'stellium',
+              label: `Stellium`,
+              description: pattern.description,
+              component: (
+                <SimplifiedPatternWheel
+                  planets={stelliumPlanetsForViz}
+                  pattern="stellium"
+                  patternData={{
+                    startDeg: stelliumSpan?.startDeg,
+                    endDeg: stelliumSpan?.endDeg,
+                    label: 'Stellium'
+                  }}
+                  size={140}
+                />
+              )
+            });
+          }
+          break;
+
+        case 't_square':
+          // Extract planets from opposition vertices and apex
+          const tSquarePlanets = [
+            ...(pattern.opposition?.vertex1?.planets || []),
+            ...(pattern.opposition?.vertex2?.planets || []),
+            ...(pattern.apex?.planets || [])
+          ].map(p => ({
+            name: p.name,
+            degree: p.degree,
+            full_degree: p.degree
+          }));
+
+          if (tSquarePlanets.length >= 3) {
+            const lines = generateTSquareLinesFromStructured(pattern);
+            allPatterns.push({
+              key: `tSquare-${pattern.id || index}`,
+              type: 'tSquare',
+              label: 'T-Square',
+              description: pattern.description,
+              component: (
+                <SimplifiedPatternWheel
+                  planets={tSquarePlanets}
+                  pattern="tSquare"
+                  patternData={{
+                    lines,
+                    label: 'T-Square'
+                  }}
+                  size={140}
+                />
+              )
+            });
+          }
+          break;
+
+        case 'yod':
+          // Extract planets from yod structure
+          const yodPlanets = [
+            ...(pattern.base?.vertex1?.planets || []),
+            ...(pattern.base?.vertex2?.planets || []),
+            ...(pattern.apex?.planets || [])
+          ].map(p => ({
+            name: p.name,
+            degree: p.degree,
+            full_degree: p.degree
+          }));
+
+          if (yodPlanets.length >= 3) {
+            const lines = generateYodLinesFromStructured(pattern);
+            allPatterns.push({
+              key: `yod-${pattern.id || index}`,
+              type: 'yod',
+              label: 'Yod',
+              description: pattern.description,
+              component: (
+                <SimplifiedPatternWheel
+                  planets={yodPlanets}
+                  pattern="yod"
+                  patternData={{
+                    lines,
+                    label: 'Yod'
+                  }}
+                  size={140}
+                />
+              )
+            });
+          }
+          break;
+
+        case 'grand_trine':
+          // Extract planets from grand trine vertices
+          const grandTrinePlanets = (pattern.vertices || []).flatMap(vertex => 
+            vertex.planets || []
+          ).map(p => ({
+            name: p.name,
+            degree: p.degree,
+            full_degree: p.degree
+          }));
+
+          if (grandTrinePlanets.length >= 3) {
+            const lines = generateGrandTrineLinesFromStructured(pattern);
+            allPatterns.push({
+              key: `grandTrine-${pattern.id || index}`,
+              type: 'grandTrine',
+              label: 'Grand Trine',
+              description: pattern.description,
+              component: (
+                <SimplifiedPatternWheel
+                  planets={grandTrinePlanets}
+                  pattern="grandTrine"
+                  patternData={{
+                    lines,
+                    label: 'Grand Trine'
+                  }}
+                  size={140}
+                />
+              )
+            });
+          }
+          break;
+
+        case 'grand_cross':
+          // Extract planets from grand cross vertices
+          const grandCrossPlanets = (pattern.vertices || []).flatMap(vertex => 
+            vertex.planets || []
+          ).map(p => ({
+            name: p.name,
+            degree: p.degree,
+            full_degree: p.degree
+          }));
+
+          if (grandCrossPlanets.length >= 4) {
+            const lines = generateGrandCrossLinesFromStructured(pattern);
+            allPatterns.push({
+              key: `grandCross-${pattern.id || index}`,
+              type: 'grandCross',
+              label: 'Grand Cross',
+              description: pattern.description,
+              component: (
+                <SimplifiedPatternWheel
+                  planets={grandCrossPlanets}
+                  pattern="grandCross"
+                  patternData={{
+                    lines,
+                    label: 'Grand Cross'
+                  }}
+                  size={140}
+                />
+              )
+            });
+          }
+          break;
+
+        case 'kite':
+          // Extract planets from kite pattern (grand trine + apex)
+          const kitePlanets = [
+            ...(pattern.grandTrine?.vertices || []).flatMap(vertex => vertex.planets || []),
+            ...(pattern.apex?.planets || [])
+          ].map(p => ({
+            name: p.name,
+            degree: p.degree,
+            full_degree: p.degree
+          }));
+
+          if (kitePlanets.length >= 4) {
+            const lines = generateKiteLinesFromStructured(pattern);
+            allPatterns.push({
+              key: `kite-${pattern.id || index}`,
+              type: 'kite',
+              label: 'Kite',
+              description: pattern.description,
+              component: (
+                <SimplifiedPatternWheel
+                  planets={kitePlanets}
+                  pattern="kite"
+                  patternData={{
+                    lines,
+                    label: 'Kite'
+                  }}
+                  size={140}
+                />
+              )
+            });
+          }
+          break;
+
+        case 'mystic_rectangle':
+          // Extract planets from mystic rectangle vertices
+          const mysticRectanglePlanets = (pattern.vertices || []).flatMap(vertex => 
+            vertex.planets || []
+          ).map(p => ({
+            name: p.name,
+            degree: p.degree,
+            full_degree: p.degree
+          }));
+
+          if (mysticRectanglePlanets.length >= 4) {
+            const lines = generateMysticRectangleLinesFromStructured(pattern);
+            allPatterns.push({
+              key: `mysticRectangle-${pattern.id || index}`,
+              type: 'mysticRectangle',
+              label: 'Mystic Rectangle',
+              description: pattern.description,
+              component: (
+                <SimplifiedPatternWheel
+                  planets={mysticRectanglePlanets}
+                  pattern="mysticRectangle"
+                  patternData={{
+                    lines,
+                    label: 'Mystic Rectangle'
+                  }}
+                  size={140}
+                />
+              )
+            });
+          }
+          break;
+
+        default:
+          // Handle any other pattern types with fallback
+          console.log(`Unknown pattern type: ${pattern.type}`);
+          break;
+      }
+    });
+
+    return renderPatternGrid(allPatterns);
+  };
+
+  const renderLegacyFormatPatterns = (patternsData) => {
+    // Collect all patterns into a single array for unified grid display (legacy format)
+    const allPatterns = [];
+
+    // Chart Shape
+    if (patternsData.chartShape && userPlanets && userPlanets.length > 0) {
+      allPatterns.push({
+        key: 'chartShape',
+        type: 'chartShape',
+        label: 'Chart Shape',
+        description: patternsData.chartShape,
+        component: (
+          <SimplifiedPatternWheel
+            planets={userPlanets}
+            pattern="chartShape"
+            patternData={{
+              label: 'Chart Shape'
+            }}
+            size={140}
+          />
+        )
+      });
+    }
+
+    // Stelliums
+    const stelliumsData = patternsData.stelliums || [];
+    stelliumsData.forEach((stellium, index) => {
+      const planets = extractPlanetsFromPattern(stellium, userPlanets);
+      const stelliumSpan = calculateStelliumSpan(stellium, userPlanets);
+      allPatterns.push({
+        key: `stellium-${index}`,
+        type: 'stellium',
+        label: `Stellium ${index + 1}`,
+        description: stellium,
+        component: (
+          <SimplifiedPatternWheel
+            planets={planets}
+            pattern="stellium"
+            patternData={{
+              startDeg: stelliumSpan?.startDeg,
+              endDeg: stelliumSpan?.endDeg,
+              label: `Stellium ${index + 1}`
+            }}
+            size={140}
+          />
+        )
+      });
+    });
+
+    // T-Squares
+    const tSquares = patternsData.tSquares || [];
+    tSquares.forEach((tSquare, index) => {
+      const planets = extractPlanetsFromPattern(tSquare, userPlanets);
+      const lines = generateTSquareLines(tSquare);
+      allPatterns.push({
+        key: `tSquare-${index}`,
+        type: 'tSquare',
+        label: `T-Square ${index + 1}`,
+        description: tSquare,
+        component: (
+          <SimplifiedPatternWheel
+            planets={planets}
+            pattern="tSquare"
+            patternData={{
+              lines,
+              label: `T-Square ${index + 1}`
+            }}
+            size={140}
+          />
+        )
+      });
+    });
+
+    // Yods
+    const yods = patternsData.yods || [];
+    yods.forEach((yod, index) => {
+      const planets = extractPlanetsFromPattern(yod, userPlanets);
+      const lines = generateYodLines(yod);
+      allPatterns.push({
+        key: `yod-${index}`,
+        type: 'yod',
+        label: `Yod ${index + 1}`,
+        description: yod,
+        component: (
+          <SimplifiedPatternWheel
+            planets={planets}
+            pattern="yod"
+            patternData={{
+              lines,
+              label: `Yod ${index + 1}`
+            }}
+            size={140}
+          />
+        )
+      });
+    });
+
+    // Grand Trines
+    const grandTrines = patternsData.grandTrines || [];
+    grandTrines.forEach((grandTrine, index) => {
+      const planets = extractPlanetsFromPattern(grandTrine, userPlanets);
+      const lines = generateGrandTrineLines(grandTrine);
+      allPatterns.push({
+        key: `grandTrine-${index}`,
+        type: 'grandTrine',
+        label: `Grand Trine ${index + 1}`,
+        description: grandTrine,
+        component: (
+          <SimplifiedPatternWheel
+            planets={planets}
+            pattern="grandTrine"
+            patternData={{
+              lines,
+              label: `Grand Trine ${index + 1}`
+            }}
+            size={140}
+          />
+        )
+      });
+    });
+
+    return renderPatternGrid(allPatterns);
+  };
+
+  const renderPatternGrid = (allPatterns) => {
+    // Show message if no patterns found
+    if (allPatterns.length === 0) {
+      return (
+        <div className="patterns-content">
+          <div className="no-patterns">
+            <p>No significant patterns detected in this chart.</p>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="patterns-content">
-        {Object.entries(patternTypes).map(([type, patterns]) => (
-          patterns && patterns.length > 0 && (
-            <div key={type} className="pattern-section">
-              <h5>{type}</h5>
-              <ul>
-                {patterns.map((pattern, index) => (
-                  <li key={index}>{pattern}</li>
-                ))}
-              </ul>
+        {/* Grid layout - 3 patterns per row */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+          gap: '20px',
+          justifyItems: 'center'
+        }}>
+          {allPatterns.map((pattern) => (
+            <div key={pattern.key} style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              maxWidth: '200px'
+            }}>
+              <h6 style={{
+                margin: '0 0 10px 0',
+                fontSize: '0.9em',
+                fontWeight: 'bold',
+                color: '#a78bfa'
+              }}>
+                {pattern.label}
+              </h6>
+              {pattern.component}
+              <p style={{ 
+                fontSize: '0.8em', 
+                color: 'rgba(255, 255, 255, 0.7)', 
+                margin: '10px 0 0 0',
+                lineHeight: '1.3',
+                maxWidth: '180px'
+              }}>
+                {pattern.description}
+              </p>
             </div>
-          )
-        ))}
+          ))}
+        </div>
       </div>
     );
   };
@@ -406,6 +850,6 @@ const PatternCard = memo(({ title, data, type }) => {
       )}
     </div>
   );
-});
+};
 
 export default PatternCard; 
