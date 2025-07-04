@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import useStore from '../Utilities/store';
 import SynastryBirthChartComparison_v2 from '../UI/birthChart/tables/SynastryBirthChartComparison_v2'
-import RelationshipScoresBarChart from '../UI/prototype/RelationshipScoresBarChart';
+import RelationshipScoresRadarChart from '../UI/prototype/RelationshipScoresRadarChart';
 import { RelationshipCategoriesEnum, orderedCategoryKeys } from '../Utilities/constants';
 import {
   fetchUser,
@@ -1034,7 +1034,7 @@ function CompositeDashboard_v4({}) {
     mainTabs.push({
       id: 'scores',
       label: 'Scores',
-      content: <RelationshipScoresBarChart scores={availableScores} scoreDebugInfo={formattedScoreDebugInfo} />
+      content: <RelationshipScoresRadarChart scores={availableScores} scoreDebugInfo={formattedScoreDebugInfo} holisticOverview={holisticOverview} />
     });
   } else {
     console.log('❌ No scores available, Scores tab not added');
@@ -1050,82 +1050,7 @@ function CompositeDashboard_v4({}) {
     });
   }
 
-  // Add holistic overview tab if available
-  if (holisticOverview?.overview) {
-    mainTabs.push({
-      id: 'overview',
-      label: 'Holistic Overview',
-      content: (
-        <div style={{ padding: '20px' }}>
-          <div style={{ 
-            backgroundColor: 'rgba(139, 92, 246, 0.1)', 
-            padding: '20px', 
-            borderRadius: '8px',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
-            marginBottom: '20px'
-          }}>
-            <h2 style={{ color: '#a78bfa', margin: '0 0 15px 0' }}>💫 Relationship Overview</h2>
-            <p style={{ 
-              color: 'white', 
-              lineHeight: '1.6', 
-              margin: '0',
-              fontSize: '16px',
-              whiteSpace: 'pre-wrap'
-            }}>
-              {holisticOverview.overview}
-            </p>
-          </div>
-          
-          {holisticOverview.topStrengths && holisticOverview.topStrengths.length > 0 && (
-            <div style={{ 
-              backgroundColor: 'rgba(34, 197, 94, 0.1)', 
-              padding: '20px', 
-              borderRadius: '8px',
-              border: '1px solid rgba(34, 197, 94, 0.3)',
-              marginBottom: '20px'
-            }}>
-              <h3 style={{ color: '#22c55e', margin: '0 0 15px 0' }}>✨ Top Strengths</h3>
-              <ul style={{ 
-                color: 'white', 
-                lineHeight: '1.6', 
-                margin: '0',
-                paddingLeft: '20px'
-              }}>
-                {holisticOverview.topStrengths.map((item, index) => (
-                  <li key={index} style={{ marginBottom: '8px' }}>
-                    <strong>{item.name}</strong> - {item.description}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          
-          {holisticOverview.keyChallenges && holisticOverview.keyChallenges.length > 0 && (
-            <div style={{ 
-              backgroundColor: 'rgba(239, 68, 68, 0.1)', 
-              padding: '20px', 
-              borderRadius: '8px',
-              border: '1px solid rgba(239, 68, 68, 0.3)'
-            }}>
-              <h3 style={{ color: '#ef4444', margin: '0 0 15px 0' }}>⚠️ Key Challenges</h3>
-              <ul style={{ 
-                color: 'white', 
-                lineHeight: '1.6', 
-                margin: '0',
-                paddingLeft: '20px'
-              }}>
-                {holisticOverview.keyChallenges.map((item, index) => (
-                  <li key={index} style={{ marginBottom: '8px' }}>
-                    <strong>{item.name}</strong> - {item.description}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )
-    });
-  }
+  // Holistic overview is now integrated into the radar chart component
 
   if ((vectorizationStatus.relationshipAnalysis || workflowComplete) && userA && userB && compositeChart) {
     mainTabs.push({
@@ -1181,44 +1106,7 @@ function CompositeDashboard_v4({}) {
     });
   }
 
-  // Add holistic overview placeholder when paused but no overview available
-  if (relationshipWorkflowState.isPaused && !holisticOverview?.overview) {
-    mainTabs.push({
-      id: 'overview',
-      label: 'Holistic Overview',
-      content: (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '40px 20px',
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '8px',
-          border: '1px solid rgba(255, 255, 255, 0.1)'
-        }}>
-          <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>💫 Holistic Relationship Overview</h3>
-          <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
-            Get a comprehensive overview of your relationship dynamics, including your top strengths, 
-            key challenges, and a synthesized analysis of your compatibility. 
-            Available after your complete analysis is ready.
-          </p>
-          <button
-            onClick={handleResumeWorkflow}
-            style={{
-              backgroundColor: '#8b5cf6',
-              color: 'white',
-              border: 'none',
-              padding: '12px 24px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '16px'
-            }}
-          >
-            Complete Analysis to Unlock Overview
-          </button>
-        </div>
-      )
-    });
-  }
+  // Holistic overview placeholder is no longer needed - integrated into radar chart
 
   return (
     <div>

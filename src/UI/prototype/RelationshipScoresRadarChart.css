@@ -1,0 +1,254 @@
+.relationship-scores-radar-chart {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.relationship-scores-radar-chart h2 {
+  text-align: center;
+  margin: 0 0 30px 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+/* Radar Chart Container */
+.radar-chart-container {
+  height: 500px;
+  margin-bottom: 30px;
+  position: relative;
+  background: linear-gradient(180deg, #4c1d95 0%, #1e1b4b 100%);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Chart canvas drop shadow effect */
+.radar-chart-container canvas {
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Holistic Overview Section */
+.holistic-overview-section {
+  background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 100%);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.holistic-overview-content h3 {
+  color: #c4b5fd;
+  margin: 0 0 15px 0;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.overview-text {
+  color: white;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  white-space: pre-wrap;
+  text-align: center;
+}
+
+.strengths-section,
+.challenges-section {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.strengths-section {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.challenges-section {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.strengths-section h4 {
+  color: #22c55e;
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+}
+
+.challenges-section h4 {
+  color: #ef4444;
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+}
+
+.strengths-list,
+.challenges-list {
+  color: white;
+  line-height: 1.6;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.strengths-list li,
+.challenges-list li {
+  margin-bottom: 8px;
+}
+
+/* Analysis Display */
+.analysis-display {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  animation: analysisSlideIn 0.3s ease;
+}
+
+@keyframes analysisSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.analysis-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.analysis-score {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.analysis-score .score-value {
+  color: #8b5cf6;
+  font-size: 1.2rem;
+  margin-left: 8px;
+}
+
+.analysis-content {
+  margin-bottom: 20px;
+}
+
+.analysis-section {
+  margin-bottom: 20px;
+}
+
+.analysis-section h4 {
+  margin: 0 0 12px 0;
+  color: #8b5cf6;
+  font-size: 1.1rem;
+}
+
+.analysis-section p {
+  margin: 0;
+  line-height: 1.6;
+  color: #444;
+  white-space: pre-wrap;
+}
+
+.no-analysis {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.close-analysis {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.close-analysis:hover {
+  background: #5a6268;
+}
+
+/* Instructions */
+.chart-instructions {
+  text-align: center;
+  margin-top: 20px;
+  padding: 15px;
+  background: #f0f7ff;
+  border-radius: 8px;
+  border: 1px solid #d0e3ff;
+}
+
+.chart-instructions p {
+  margin: 0;
+  color: #1976D2;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .relationship-scores-radar-chart {
+    padding: 15px;
+    margin: 0 10px;
+  }
+  
+  .radar-chart-container {
+    height: 400px;
+    padding: 20px;
+  }
+  
+  .holistic-overview-section {
+    padding: 20px;
+  }
+  
+  .overview-text {
+    font-size: 14px;
+  }
+  
+  .analysis-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .analysis-header h3 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .radar-chart-container {
+    height: 350px;
+    padding: 15px;
+  }
+  
+  .holistic-overview-section {
+    padding: 15px;
+  }
+  
+  .strengths-section,
+  .challenges-section {
+    padding: 12px;
+  }
+}
