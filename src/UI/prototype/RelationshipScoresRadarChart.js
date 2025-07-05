@@ -23,83 +23,61 @@ ChartJS.register(
   RadarController
 );
 
-const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview, profileAnalysis }) => {
+const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview, profileAnalysis, clusterAnalysis }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
-  const scoreCategories = {
-    OVERALL_ATTRACTION_CHEMISTRY: "Overall Attraction & Chemistry",
-    EMOTIONAL_SECURITY_CONNECTION: "Emotional Security & Connection", 
-    SEX_AND_INTIMACY: "Sex & Intimacy",
-    COMMUNICATION_AND_MENTAL_CONNECTION: "Communication & Mental Connection",
-    COMMITMENT_LONG_TERM_POTENTIAL: "Commitment & Long-term Potential",
-    KARMIC_LESSONS_GROWTH: "Karmic Lessons & Growth",
-    PRACTICAL_GROWTH_SHARED_GOALS: "Practical Growth & Shared Goals"
+  // Cluster categories - using profileAnalysis.profileResult.clusterScores
+  const clusterCategories = {
+    Heart: "Heart",
+    Body: "Body", 
+    Mind: "Mind",
+    Life: "Life",
+    Soul: "Soul"
   };
 
-  // Category icons for visual clarity
-  const categoryIcons = {
-    OVERALL_ATTRACTION_CHEMISTRY: "💫",
-    EMOTIONAL_SECURITY_CONNECTION: "💗",
-    SEX_AND_INTIMACY: "🔥",
-    COMMUNICATION_AND_MENTAL_CONNECTION: "🧠",
-    COMMITMENT_LONG_TERM_POTENTIAL: "💎",
-    KARMIC_LESSONS_GROWTH: "🌙",
-    PRACTICAL_GROWTH_SHARED_GOALS: "🌱"
+  // Cluster icons for visual clarity
+  const clusterIcons = {
+    Heart: "💗",
+    Body: "🔥",
+    Mind: "🧠",
+    Life: "💎",
+    Soul: "🌙"
   };
 
-  // Helper function to get score analysis for a category (reused from original component)
-  const getCategoryAnalysis = (categoryKey) => {
-    if (scoreDebugInfo?.categories?.[categoryKey]?.scoreAnalysis) {
-      const analysis = scoreDebugInfo.categories[categoryKey].scoreAnalysis;
-      
-      // New structure: has analysis (and scoredItems, but we only display analysis)
-      if (analysis.analysis) {
-        return {
-          type: 'new',
-          analysis: analysis.analysis,
-          scoredItems: analysis.scoredItems
-        };
-      }
-      
-      // Legacy structure: has scoreAnalysis, greenFlags, redFlags
-      if (analysis.scoreAnalysis) {
-        return {
-          type: 'legacy',
-          scoreAnalysis: analysis.scoreAnalysis,
-          greenFlags: analysis.greenFlags,
-          redFlags: analysis.redFlags
-        };
-      }
+  // Helper function to get cluster analysis
+  const getClusterAnalysis = (clusterKey) => {
+    // Get analysis from clusterAnalysis prop (fetched separately)
+    const clusterData = clusterAnalysis?.[clusterKey];
+    
+    if (clusterData) {
+      return {
+        type: 'cluster',
+        analysis: clusterData.analysis,
+        scoredItems: clusterData.scoredItems || []
+      };
     }
     
     return null;
   };
 
-  // Prepare data for radar chart - ordered to put Overall Attraction at 12 o'clock
-  const orderedCategories = [
-    'OVERALL_ATTRACTION_CHEMISTRY',
-    'EMOTIONAL_SECURITY_CONNECTION',
-    'SEX_AND_INTIMACY', 
-    'COMMUNICATION_AND_MENTAL_CONNECTION',
-    'COMMITMENT_LONG_TERM_POTENTIAL',
-    'KARMIC_LESSONS_GROWTH',
-    'PRACTICAL_GROWTH_SHARED_GOALS'
-  ];
-
-  // Create gradient effect based on scores
-  const dataPoints = orderedCategories.map(key => Math.round(scores[key]?.overall || 0));
+  // Prepare data for radar chart - use cluster scores from profileAnalysis
+  const orderedClusters = ['Heart', 'Body', 'Mind', 'Life', 'Soul'];
+  
+  // Get cluster scores from profileAnalysis, fallback to 0 if not available
+  const clusterScores = profileAnalysis?.profileResult?.clusterScores || {};
+  const dataPoints = orderedClusters.map(cluster => clusterScores[cluster] || 0);
   
   const chartData = {
-    labels: orderedCategories.map(key => `${categoryIcons[key]} ${scoreCategories[key]}`),
+    labels: orderedClusters.map(cluster => `${clusterIcons[cluster]} ${clusterCategories[cluster]}`),
     datasets: [
       {
-        label: 'Compatibility Score',
+        label: 'Cluster Score',
         data: dataPoints,
         backgroundColor: 'rgba(139, 92, 246, 0.15)',
         borderColor: 'rgba(139, 92, 246, 0.9)',
-        pointBackgroundColor: orderedCategories.map(key => {
-          const score = scores[key]?.overall || 0;
+        pointBackgroundColor: orderedClusters.map(cluster => {
+          const score = clusterScores[cluster] || 0;
           const opacity = 0.5 + (score / 100) * 0.5; // Scale opacity from 0.5 to 1.0
           return `rgba(139, 92, 246, ${opacity})`;
         }),
@@ -158,16 +136,16 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
         pointLabels: {
           color: function(context) {
             const index = context.index;
-            const categoryKey = orderedCategories[index];
-            if (hoveredCategory === categoryKey || selectedCategory === categoryKey) {
+            const clusterKey = orderedClusters[index];
+            if (hoveredCategory === clusterKey || selectedCategory === clusterKey) {
               return 'rgba(255, 255, 255, 1)';
             }
             return 'rgba(255, 255, 255, 0.85)';
           },
           font: function(context) {
             const index = context.index;
-            const categoryKey = orderedCategories[index];
-            if (hoveredCategory === categoryKey || selectedCategory === categoryKey) {
+            const clusterKey = orderedClusters[index];
+            if (hoveredCategory === clusterKey || selectedCategory === clusterKey) {
               return {
                 size: 14,
                 weight: 'bold'
@@ -233,8 +211,8 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
       // Check if clicking on a point
       if (elements.length > 0) {
         const elementIndex = elements[0].index;
-        const categoryKey = orderedCategories[elementIndex];
-        setSelectedCategory(selectedCategory === categoryKey ? null : categoryKey);
+        const clusterKey = orderedClusters[elementIndex];
+        setSelectedCategory(selectedCategory === clusterKey ? null : clusterKey);
         return;
       }
       
@@ -244,7 +222,7 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
       const scale = chart.scales.r;
       
       // Check each label position
-      orderedCategories.forEach((categoryKey, index) => {
+      orderedClusters.forEach((clusterKey, index) => {
         const pointPosition = scale.getPointPosition(index, scale.max + scale.options.pointLabels.padding);
         const labelX = pointPosition.x;
         const labelY = pointPosition.y;
@@ -257,7 +235,7 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
         
         // If click is within ~40 pixels of label position
         if (distance < 40) {
-          setSelectedCategory(selectedCategory === categoryKey ? null : categoryKey);
+          setSelectedCategory(selectedCategory === clusterKey ? null : clusterKey);
         }
       });
     },
@@ -268,7 +246,7 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
       // Check if hovering over a point
       if (elements.length > 0) {
         const elementIndex = elements[0].index;
-        hovered = orderedCategories[elementIndex];
+        hovered = orderedClusters[elementIndex];
         cursorStyle = 'pointer';
       } else {
         // Check if hovering over a label
@@ -276,7 +254,7 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
         const scale = chart.scales.r;
         
         // Check each label position
-        orderedCategories.forEach((categoryKey, index) => {
+        orderedClusters.forEach((clusterKey, index) => {
           const pointPosition = scale.getPointPosition(index, scale.max + scale.options.pointLabels.padding);
           const labelX = pointPosition.x;
           const labelY = pointPosition.y;
@@ -289,7 +267,7 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
           
           // If hover is within ~40 pixels of label position
           if (distance < 40) {
-            hovered = categoryKey;
+            hovered = clusterKey;
             cursorStyle = 'pointer';
           }
         });
@@ -328,38 +306,56 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
       {selectedCategory && (
         <div className="analysis-display">
           <div className="analysis-header">
-            <h3>{scoreCategories[selectedCategory]}</h3>
+            <h3>{clusterIcons[selectedCategory]} {clusterCategories[selectedCategory]}</h3>
             <div className="analysis-score">
-              Score: <span className="score-value">{Math.round(scores[selectedCategory]?.overall)}%</span>
+              Score: <span className="score-value">{clusterScores[selectedCategory] || 0}%</span>
             </div>
           </div>
           
           {(() => {
-            const categoryAnalysis = getCategoryAnalysis(selectedCategory);
+            const clusterAnalysis = getClusterAnalysis(selectedCategory);
             
-            if (!categoryAnalysis) {
+            if (!clusterAnalysis) {
               return (
                 <div className="no-analysis">
-                  <p>No detailed analysis available for this category.</p>
+                  <p>No detailed analysis available for this cluster.</p>
                 </div>
               );
             }
 
             return (
               <div className="analysis-content">
-                {/* New structure: Analysis */}
-                {categoryAnalysis.type === 'new' && (
+                {/* Cluster Analysis */}
+                {clusterAnalysis.analysis && (
                   <div className="analysis-section">
                     <h4>Analysis</h4>
-                    <p>{categoryAnalysis.analysis}</p>
+                    <p>{clusterAnalysis.analysis}</p>
                   </div>
                 )}
 
-                {/* Legacy structure: Score Analysis */}
-                {categoryAnalysis.type === 'legacy' && categoryAnalysis.scoreAnalysis && (
+                {/* Show some scored items if available */}
+                {clusterAnalysis.scoredItems && clusterAnalysis.scoredItems.length > 0 && (
                   <div className="analysis-section">
-                    <h4>Score Analysis</h4>
-                    <p>{categoryAnalysis.scoreAnalysis}</p>
+                    <h4>Key Factors ({clusterAnalysis.scoredItems.length} items)</h4>
+                    <div className="scored-items">
+                      {clusterAnalysis.scoredItems.slice(0, 5).map((item, index) => (
+                        <div key={index} className="scored-item">
+                          <span 
+                            className="item-score"
+                            style={{
+                              backgroundColor: item.score > 0 ? '#d4edda' : item.score < 0 ? '#f8d7da' : '#f8f9fa',
+                              color: item.score > 0 ? '#155724' : item.score < 0 ? '#721c24' : '#495057'
+                            }}
+                          >
+                            {item.score > 0 ? '+' : ''}{item.score}
+                          </span>
+                          <span className="item-description">{item.description}</span>
+                        </div>
+                      ))}
+                      {clusterAnalysis.scoredItems.length > 5 && (
+                        <p className="more-items">...and {clusterAnalysis.scoredItems.length - 5} more factors</p>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

@@ -207,6 +207,50 @@
   white-space: pre-wrap;
 }
 
+/* Scored Items Display */
+.scored-items {
+  margin-top: 12px;
+}
+
+.scored-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.scored-item:last-child {
+  border-bottom: none;
+}
+
+.item-score {
+  background: #f8f9fa;
+  color: #495057;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* We'll handle positive/negative styling in JS since CSS :has-text doesn't exist */
+
+.item-description {
+  flex: 1;
+  font-size: 0.9rem;
+  color: #495057;
+  line-height: 1.4;
+}
+
+.more-items {
+  margin-top: 8px;
+  font-style: italic;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
 .no-analysis {
   text-align: center;
   padding: 20px;

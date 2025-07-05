@@ -1570,3 +1570,71 @@ export const getNewCompleteWorkflowData = async (userId, workflowId = null) => {
   }
 };
 
+// Delete API Functions
+
+// Delete subject (user, celebrity, or guest)
+export const deleteSubject = async (subjectId, ownerUserId = null) => {
+  try {
+    console.log('Deleting subject:', subjectId, 'ownerUserId:', ownerUserId);
+    
+    const requestOptions = {
+      method: 'DELETE',
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      }
+    };
+
+    // Add body only if ownerUserId is provided (for guest subjects)
+    if (ownerUserId) {
+      requestOptions.body = JSON.stringify({ ownerUserId });
+    }
+
+    const response = await fetch(`${SERVER_URL}/subjects/${subjectId}`, requestOptions);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to delete subject');
+    }
+
+    const responseData = await response.json();
+    console.log('Subject deletion response:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error deleting subject:', error);
+    throw error;
+  }
+};
+
+// Delete relationship (composite chart)
+export const deleteRelationship = async (compositeChartId, ownerUserId = null) => {
+  try {
+    console.log('Deleting relationship:', compositeChartId, 'ownerUserId:', ownerUserId);
+    
+    const requestOptions = {
+      method: 'DELETE',
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      }
+    };
+
+    // Add body only if ownerUserId is provided (optional ownership check)
+    if (ownerUserId) {
+      requestOptions.body = JSON.stringify({ ownerUserId });
+    }
+
+    const response = await fetch(`${SERVER_URL}/relationships/${compositeChartId}`, requestOptions);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to delete relationship');
+    }
+
+    const responseData = await response.json();
+    console.log('Relationship deletion response:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error deleting relationship:', error);
+    throw error;
+  }
+};
+

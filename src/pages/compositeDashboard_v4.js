@@ -37,6 +37,9 @@ function CompositeDashboard_v4({}) {
     // Add state for profile analysis
     const [profileAnalysis, setProfileAnalysis] = useState(null);
     
+    // Add state for cluster analysis
+    const [clusterAnalysis, setClusterAnalysis] = useState(null);
+    
     // Preview mode state
     const relationshipWorkflowState = useStore(state => state.relationshipWorkflowState);
     const setRelationshipWorkflowState = useStore(state => state.setRelationshipWorkflowState);
@@ -144,6 +147,12 @@ function CompositeDashboard_v4({}) {
                 if (fetchedData?.profileAnalysis) {
                     console.log("Profile analysis available: ", fetchedData.profileAnalysis);
                     setProfileAnalysis(fetchedData.profileAnalysis);
+                }
+
+                // Handle cluster analysis
+                if (fetchedData?.clusterAnalysis) {
+                    console.log("Cluster analysis available: ", fetchedData.clusterAnalysis);
+                    setClusterAnalysis(fetchedData.clusterAnalysis);
                 }
 
                 // Handle vectorization status from the backend
@@ -271,6 +280,12 @@ function CompositeDashboard_v4({}) {
     if (analysisData.profileAnalysis) {
       console.log("Profile analysis from workflow:", analysisData.profileAnalysis);
       setProfileAnalysis(analysisData.profileAnalysis);
+    }
+
+    // Handle cluster analysis from workflow response
+    if (analysisData.clusterAnalysis) {
+      console.log("Cluster analysis from workflow:", analysisData.clusterAnalysis);
+      setClusterAnalysis(analysisData.clusterAnalysis);
     }
 
     // Handle vectorization status from workflow response
@@ -1049,7 +1064,7 @@ function CompositeDashboard_v4({}) {
     mainTabs.push({
       id: 'scores',
       label: 'Scores',
-      content: <RelationshipScoresRadarChart scores={availableScores} scoreDebugInfo={formattedScoreDebugInfo} holisticOverview={holisticOverview} profileAnalysis={profileAnalysis} />
+      content: <RelationshipScoresRadarChart scores={availableScores} scoreDebugInfo={formattedScoreDebugInfo} holisticOverview={holisticOverview} profileAnalysis={profileAnalysis} clusterAnalysis={clusterAnalysis} />
     });
   } else {
     console.log('❌ No scores available, Scores tab not added');
