@@ -2,6 +2,7 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
+  color: white;
 }
 
 .house-column {
@@ -9,7 +10,7 @@
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.8em;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 5px;
 }
 

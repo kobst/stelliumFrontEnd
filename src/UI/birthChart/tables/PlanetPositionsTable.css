@@ -4,9 +4,10 @@
   border-spacing: 0; /* Remove default spacing */
   margin: 0 auto;
   font-size: 0.8em;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 10px;
   font-family: Arial, "Helvetica Neue", Helvetica, "DejaVu Sans", sans-serif;
+  color: white;
 }
 
 .planet-positions-table td {

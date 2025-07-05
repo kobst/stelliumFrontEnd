@@ -332,8 +332,8 @@ form {
 body {
   /* background: url("/public/NebulaeBG.png") no-repeat center center fixed; */
   background: url("/public/newNebulae2.png") no-repeat center center fixed;
-  background-color: rgb(28, 104, 140);
-  background-blend-mode: screen; 
+  background-color: rgb(25, 30, 65);
+  background-blend-mode: multiply; 
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
