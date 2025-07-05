@@ -23,7 +23,7 @@ ChartJS.register(
   RadarController
 );
 
-const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview }) => {
+const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview, profileAnalysis }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
@@ -303,6 +303,21 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
   return (
     <div className="relationship-scores-radar-chart">
       <h2>Relationship Compatibility Scores</h2>
+      
+      {/* Profile Analysis Banner */}
+      {profileAnalysis?.profileResult && (
+        <div className="profile-analysis-banner">
+          <div className="profile-tier">
+            <span className="profile-label">Tier:</span>
+            <span className="profile-value">{profileAnalysis.profileResult.tier}</span>
+          </div>
+          <div className="profile-divider">|</div>
+          <div className="profile-type">
+            <span className="profile-label">Profile:</span>
+            <span className="profile-value">{profileAnalysis.profileResult.profile}</span>
+          </div>
+        </div>
+      )}
       
       {/* Radar Chart Container */}
       <div className="radar-chart-container">
