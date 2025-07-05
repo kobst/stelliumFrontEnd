@@ -153,10 +153,10 @@ export const handleUserInput = async (userId, query) => {
 }
 
 
-// Experimental enhanced relationship creation API - creates relationship with scores, scoreAnalysis, and holisticOverview
-export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = null) => {
+// Enhanced relationship creation API - creates relationship with scores, scoreAnalysis, and holisticOverview
+export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = null, celebRelationship = false) => {
   try {
-    console.log('Creating relationship with experimental enhanced API:', { userIdA, userIdB, ownerUserId });
+    console.log('Creating relationship with enhanced API:', { userIdA, userIdB, ownerUserId, celebRelationship });
     
     const requestBody = { 
       userIdA, 
@@ -168,14 +168,42 @@ export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = n
       requestBody.ownerUserId = ownerUserId;
     }
     
-    const response = await fetch(`${SERVER_URL}/experimental/relationship-analysis-enhanced`, {
-      method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify(requestBody)
-    });
+    // Add celebRelationship flag if true
+    if (celebRelationship) {
+      requestBody.celebRelationship = true;
+    }
+    
+    // Try new endpoint first, fallback to old if 404
+    let response;
+    try {
+      response = await fetch(`${SERVER_URL}/enhanced-relationship-analysis`, {
+        method: HTTP_POST,
+        headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+        body: JSON.stringify(requestBody)
+      });
+    } catch (error) {
+      console.warn('New endpoint failed, trying fallback:', error);
+      // Fallback to old endpoint if new one fails
+      response = await fetch(`${SERVER_URL}/experimental/relationship-analysis-enhanced`, {
+        method: HTTP_POST,
+        headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+        body: JSON.stringify(requestBody)
+      });
+    }
+
+    // If we get 404 from new endpoint, try old endpoint
+    if (!response.ok && response.status === 404) {
+      console.warn('New endpoint returned 404, trying fallback endpoint...');
+      response = await fetch(`${SERVER_URL}/experimental/relationship-analysis-enhanced`, {
+        method: HTTP_POST,
+        headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+        body: JSON.stringify(requestBody)
+      });
+    }
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error || `HTTP error! status: ${response.status}`);
     }
 
     const responseData = await response.json();
@@ -183,8 +211,8 @@ export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = n
     return responseData;
   } catch (error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      console.error('Network/CORS error - likely the experimental endpoint is not deployed yet');
-      throw new Error('Cannot connect to experimental endpoint. The backend may not be updated with the new endpoints yet.');
+      console.error('Network/CORS error - likely the enhanced endpoint is not deployed yet');
+      throw new Error('Cannot connect to enhanced endpoint. The backend may not be updated with the new endpoints yet.');
     }
     console.error(ERROR_API_CALL, error);
     throw error;
@@ -1349,6 +1377,36 @@ export const fetchCelebrities = async () => {
     return data;
   } catch (error) {
     console.error('Error fetching celebrities:', error);
+    throw error;
+  }
+};
+
+// Fetch celebrity relationships using the new dedicated endpoint
+export const getCelebrityRelationships = async (limit = 50) => {
+  try {
+    console.log('Fetching celebrity relationships with limit:', limit);
+    const response = await fetch(`${SERVER_URL}/getCelebrityRelationships`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify({ limit })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Celebrity relationships response:', data);
+    
+    if (data.success) {
+      return data.relationships;
+    } else {
+      throw new Error(data.error || 'Failed to fetch celebrity relationships');
+    }
+  } catch (error) {
+    console.error('Error fetching celebrity relationships:', error);
     throw error;
   }
 };

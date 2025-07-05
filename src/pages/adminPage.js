@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import UsersTable from '../UI/prototype/UsersTable';
 import CelebritiesTable from '../UI/prototype/CelebritiesTable';
 import AddCelebrityForm from '../UI/admin/AddCelebrityForm';
+import CelebrityRelationshipsTab from '../UI/admin/CelebrityRelationshipsTab';
 import useStore from '../Utilities/store';
 
 function AdminPage() {
@@ -66,6 +67,7 @@ function AdminPage() {
       <UsersTable onUserSelect={handleUserSelect} />
       <CelebritiesTable onCelebritySelect={handleCelebritySelect} key={refreshCelebrities} />
       <AddCelebrityForm onCelebrityAdded={handleCelebrityAdded} />
+      <CelebrityRelationshipsTab />
     </div>
   );
 }
