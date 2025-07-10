@@ -16,6 +16,7 @@ import {
 } from '../Utilities/api';
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Reuse the same component
 import TabMenu from '../UI/shared/TabMenu';
+import TensionFlowAnalysis from '../UI/prototype/TensionFlowAnalysis';
 import './compositeDashboard_v4.css';
 
 
@@ -39,6 +40,9 @@ function CompositeDashboard_v4({}) {
     
     // Add state for cluster analysis
     const [clusterAnalysis, setClusterAnalysis] = useState(null);
+    
+    // Add state for tension flow analysis
+    const [tensionFlowAnalysis, setTensionFlowAnalysis] = useState(null);
     
     // Preview mode state
     const relationshipWorkflowState = useStore(state => state.relationshipWorkflowState);
@@ -153,6 +157,12 @@ function CompositeDashboard_v4({}) {
                 if (fetchedData?.clusterAnalysis) {
                     console.log("Cluster analysis available: ", fetchedData.clusterAnalysis);
                     setClusterAnalysis(fetchedData.clusterAnalysis);
+                }
+
+                // Handle tension flow analysis
+                if (fetchedData?.tensionFlowAnalysis) {
+                    console.log("Tension flow analysis available: ", fetchedData.tensionFlowAnalysis);
+                    setTensionFlowAnalysis(fetchedData.tensionFlowAnalysis);
                 }
 
                 // Handle vectorization status from the backend
@@ -286,6 +296,12 @@ function CompositeDashboard_v4({}) {
     if (analysisData.clusterAnalysis) {
       console.log("Cluster analysis from workflow:", analysisData.clusterAnalysis);
       setClusterAnalysis(analysisData.clusterAnalysis);
+    }
+
+    // Handle tension flow analysis from workflow response
+    if (analysisData.tensionFlowAnalysis) {
+      console.log("Tension flow analysis from workflow:", analysisData.tensionFlowAnalysis);
+      setTensionFlowAnalysis(analysisData.tensionFlowAnalysis);
     }
 
     // Handle vectorization status from workflow response
@@ -1030,6 +1046,7 @@ function CompositeDashboard_v4({}) {
 
   console.log('🔍 Building main tabs - relationshipScores:', relationshipScores);
   console.log('🔍 relationshipWorkflowState:', relationshipWorkflowState);
+  console.log('🔍 tensionFlowAnalysis:', tensionFlowAnalysis);
 
   // Check for scores in either relationshipScores state or workflow state
   const availableScores = relationshipScores || relationshipWorkflowState.scores;
@@ -1064,7 +1081,7 @@ function CompositeDashboard_v4({}) {
     mainTabs.push({
       id: 'scores',
       label: 'Scores',
-      content: <RelationshipScoresRadarChart scores={availableScores} scoreDebugInfo={formattedScoreDebugInfo} holisticOverview={holisticOverview} profileAnalysis={profileAnalysis} clusterAnalysis={clusterAnalysis} />
+      content: <RelationshipScoresRadarChart scores={availableScores} scoreDebugInfo={formattedScoreDebugInfo} holisticOverview={holisticOverview} profileAnalysis={profileAnalysis} clusterAnalysis={clusterAnalysis} tensionFlowAnalysis={tensionFlowAnalysis} />
     });
   } else {
     console.log('❌ No scores available, Scores tab not added');
@@ -1077,6 +1094,15 @@ function CompositeDashboard_v4({}) {
       id: 'analysis',
       label: 'Analysis',
       content: <TabMenu tabs={analysisTabs} />
+    });
+  }
+
+  // Add tension flow analysis tab if available
+  if (tensionFlowAnalysis) {
+    mainTabs.push({
+      id: 'tension-flow',
+      label: 'Tension Flow',
+      content: <TensionFlowAnalysis tensionFlowAnalysis={tensionFlowAnalysis} />
     });
   }
 

@@ -10,6 +10,7 @@ import {
   RadarController
 } from 'chart.js';
 import { Radar } from 'react-chartjs-2';
+import TensionFlowAnalysis from './TensionFlowAnalysis';
 import './RelationshipScoresRadarChart.css';
 
 // Register Chart.js components
@@ -23,7 +24,7 @@ ChartJS.register(
   RadarController
 );
 
-const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview, profileAnalysis, clusterAnalysis }) => {
+const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview, profileAnalysis, clusterAnalysis, tensionFlowAnalysis }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
 
@@ -405,6 +406,11 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
             </div>
           )}
         </div>
+      )}
+
+      {/* Tension Flow Analysis */}
+      {tensionFlowAnalysis && (
+        <TensionFlowAnalysis tensionFlowAnalysis={tensionFlowAnalysis} />
       )}
 
       {/* Instructions */}

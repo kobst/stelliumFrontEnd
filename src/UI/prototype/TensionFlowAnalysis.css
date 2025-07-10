@@ -1,0 +1,362 @@
+.tension-flow-analysis {
+  padding: 20px;
+  color: white;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin: 20px 0;
+  backdrop-filter: blur(10px);
+}
+
+.tension-flow-title {
+  text-align: center;
+  color: #ffffff;
+  margin: 0 0 25px 0;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.tension-flow-placeholder {
+  text-align: center;
+  padding: 40px;
+  color: #9ca3af;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Quadrant Profile Section */
+.quadrant-profile {
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid;
+  margin-bottom: 25px;
+  backdrop-filter: blur(10px);
+}
+
+.quadrant-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.quadrant-icon {
+  font-size: 32px;
+  margin-right: 15px;
+}
+
+.quadrant-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.quadrant-description {
+  margin: 15px 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.quadrant-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.metric-label {
+  font-size: 14px;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.metric-value {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.metric-value.support {
+  color: #10b981;
+}
+
+.metric-value.challenge {
+  color: #ef4444;
+}
+
+.metric-value.ratio {
+  color: #a78bfa;
+}
+
+.quadrant-recommendations {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.quadrant-recommendations h5 {
+  color: #fbbf24;
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.quadrant-recommendations ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.quadrant-recommendations li {
+  margin: 8px 0;
+  color: #ffffff;
+  line-height: 1.5;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Network Overview */
+.network-overview {
+  margin: 25px 0;
+}
+
+.network-overview h4 {
+  color: #ffffff;
+  margin: 0 0 15px 0;
+  font-size: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.network-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+}
+
+.stat-card {
+  text-align: center;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-card.support {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.stat-card.challenge {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #a78bfa;
+  margin-bottom: 5px;
+}
+
+.stat-card.support .stat-number {
+  color: #10b981;
+}
+
+.stat-card.challenge .stat-number {
+  color: #ef4444;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Keystone Aspects */
+.keystone-aspects {
+  margin: 25px 0;
+}
+
+.keystone-aspects h4 {
+  color: #ffffff;
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.keystone-description {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-style: italic;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.keystone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.keystone-aspect {
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.keystone-aspect:hover {
+  background: rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px);
+}
+
+.keystone-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.keystone-rank {
+  background: #a78bfa;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.keystone-type {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-transform: capitalize;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.keystone-edge {
+  font-size: 18px;
+}
+
+.keystone-details {
+  margin-top: 10px;
+}
+
+.keystone-details .keystone-description {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.keystone-metrics {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.keystone-metric {
+  color: #ffffff;
+  font-size: 12px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.keystone-metric strong {
+  color: #ffffff;
+}
+
+/* Balance Visualization */
+.balance-visualization {
+  margin: 25px 0;
+}
+
+.balance-visualization h4 {
+  color: #ffffff;
+  margin: 0 0 15px 0;
+  font-size: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.balance-bar {
+  display: flex;
+  height: 40px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.balance-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.balance-segment.support {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.balance-segment.challenge {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.balance-segment.neutral {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+
+.balance-label {
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tension-flow-analysis {
+    padding: 15px;
+  }
+  
+  .quadrant-metrics {
+    grid-template-columns: 1fr;
+  }
+  
+  .network-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .keystone-metrics {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .balance-label {
+    font-size: 10px;
+  }
+}
