@@ -1,14 +1,14 @@
 .input-dark-placeholder::placeholder {
-    color: #5116b5; 
+    color: #c4b5fd; 
     opacity: 1; /* Firefox */
   }
   
   .input-dark-placeholder:-ms-input-placeholder {
-    color: #5116b5; /* Internet Explorer 10-11 */
+    color: #c4b5fd; /* Internet Explorer 10-11 */
   }
   
   .input-dark-placeholder::-ms-input-placeholder {
-    color: #5116b5; /* Microsoft Edge */
+    color: #c4b5fd; /* Microsoft Edge */
   }
   
 .gender-options {

@@ -24,6 +24,7 @@ import TabMenu from '../UI/shared/TabMenu';
 import './userDashboard.css';
 import PatternCard from '../UI/prototype/PatternCard';
 import PlanetCard from '../UI/prototype/PlanetCard';
+import TopicTensionFlowAnalysis from '../UI/prototype/TopicTensionFlowAnalysis';
 
 // Order in which planetary interpretations should appear
 const PLANET_ORDER = [
@@ -858,6 +859,12 @@ function UserDashboard() {
         label: topicData.label,
         content: (
           <div className="subtopics">
+            {/* Topic Tension Flow Analysis */}
+            <TopicTensionFlowAnalysis 
+              topicData={topicData}
+              topicTitle={topicData.label}
+            />
+            
             {Object.entries(topicData.subtopics).map(([subtopicKey, content]) => (
               <div key={subtopicKey} className="subtopic">
                 <h4>{BroadTopicsEnum[topicKey].subtopics[subtopicKey].replace(/_/g, ' ')}</h4>
