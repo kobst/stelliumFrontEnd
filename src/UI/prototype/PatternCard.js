@@ -362,7 +362,9 @@ const PatternCard = ({ title, data, type }) => {
                   planets={userPlanets}
                   pattern="chartShape"
                   patternData={{
-                    label: 'Chart Shape'
+                    label: 'Chart Shape',
+                    patternType: pattern.name?.toLowerCase(), // Pass the pattern name (e.g., "bucket")
+                    description: pattern.description // Pass the description for better detection
                   }}
                   size={140}
                 />
@@ -616,6 +618,16 @@ const PatternCard = ({ title, data, type }) => {
 
     // Chart Shape
     if (patternsData.chartShape && userPlanets && userPlanets.length > 0) {
+      // Try to extract pattern type from description if available
+      let patternType = null;
+      if (typeof patternsData.chartShape === 'string') {
+        const description = patternsData.chartShape.toLowerCase();
+        if (description.includes('bucket')) patternType = 'bucket';
+        else if (description.includes('seesaw')) patternType = 'seesaw';
+        else if (description.includes('splay')) patternType = 'splay';
+        else if (description.includes('splash')) patternType = 'splash';
+      }
+      
       allPatterns.push({
         key: 'chartShape',
         type: 'chartShape',
@@ -626,7 +638,8 @@ const PatternCard = ({ title, data, type }) => {
             planets={userPlanets}
             pattern="chartShape"
             patternData={{
-              label: 'Chart Shape'
+              label: 'Chart Shape',
+              patternType // Pass the detected pattern type
             }}
             size={140}
           />
