@@ -112,7 +112,7 @@ const UserSignUpForm = () => {
     };    
     
     const inputStyle = {
-      color: '#5116b5',
+      color: '#ffffff',
       width: '140px',
       marginRight: '10px',
       backgroundColor: 'transparent',
@@ -194,10 +194,10 @@ const UserSignUpForm = () => {
                     }}
                     style={{
                         ...inputStyle,
-                        width: '290px',
-                        backgroundColor: 'white'
+                        width: '290px'
                     }}
                     placeholder="City, Country"
+                    className="input-dark-placeholder"
                 />
             ) : (
                 <input
@@ -222,6 +222,7 @@ const UserSignUpForm = () => {
               value={date} 
               onChange={e => setDate(e.target.value)} 
               style={inputStyle}
+              className="input-dark-placeholder"
             />
           </div>
 
@@ -241,13 +242,14 @@ const UserSignUpForm = () => {
                 ...inputStyle,
                 width: '120px',
                 backgroundColor: 'transparent',
-                color: '#5116b5',
+                color: '#ffffff',
                 border: '1px solid white',
                 padding: '5px',
                 borderRadius: '3px',
                 cursor: 'pointer',
                 marginRight: '8px'
               }}
+              className="input-dark-placeholder"
             >
               <option value="known">Known Time</option>
               <option value="unknown">Unknown</option>
@@ -263,6 +265,7 @@ const UserSignUpForm = () => {
                   ...inputStyle,
                   margin: 0
                 }}
+                className="input-dark-placeholder"
               />
             )}
           </div>
@@ -276,12 +279,13 @@ const UserSignUpForm = () => {
                 ...inputStyle,
                 width: '140px',
                 backgroundColor: 'transparent',
-                color: '#5116b5',
+                color: '#ffffff',
                 border: '1px solid white',
                 padding: '5px',
                 borderRadius: '3px',
                 cursor: 'pointer'
               }}
+              className="input-dark-placeholder"
             >
               <option value="">Select...</option>
               <option value="male">Male</option>

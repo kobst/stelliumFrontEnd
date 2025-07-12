@@ -1,4 +1,20 @@
-.input-dark-placeholder::placeholder {
+.input-dark-placeholder {
+    color: #ffffff !important; /* Input text color */
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  }
+  
+  .input-dark-placeholder:focus {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    outline: none !important;
+    border-color: rgba(255, 255, 255, 0.8) !important;
+  }
+  
+  .input-dark-placeholder:hover {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  .input-dark-placeholder::placeholder {
     color: #c4b5fd; 
     opacity: 1; /* Firefox */
   }
