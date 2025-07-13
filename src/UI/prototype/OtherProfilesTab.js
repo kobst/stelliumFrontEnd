@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './UsersTable.css';
-import { getUserSubjects, deleteSubject } from '../../Utilities/api';
+import { getUserSubjects, getUserSubjectsPaginated, deleteSubject } from '../../Utilities/api';
 import useStore from '../../Utilities/store';
+import { usePaginatedData } from '../../hooks/usePaginatedData';
 import AddGuestForm from './AddGuestForm';
 
-function OtherProfilesTab() {
+function OtherProfilesTab({ usePagination = false }) {
   const [profiles, setProfiles] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [deletingProfile, setDeletingProfile] = useState(null);
@@ -17,9 +18,21 @@ function OtherProfilesTab() {
   // Use currentUserContext (dashboard owner) for fetching profiles
   const ownerId = currentUserContext?._id || userId;
 
+  // Create a wrapper function for the paginated API
+  const fetchUserSubjectsWrapper = useMemo(() => {
+    return (options) => getUserSubjectsPaginated(ownerId, options);
+  }, [ownerId]);
+
+  // Use the paginated data hook when pagination is enabled
+  const paginatedData = usePaginatedData(
+    fetchUserSubjectsWrapper,
+    { page: 1, limit: 20, sortBy: 'name', sortOrder: 'asc' }
+  );
+
+  // Legacy data loading for backward compatibility
   useEffect(() => {
-    async function loadProfiles() {
-      if (ownerId) {   
+    if (!usePagination && ownerId) {
+      async function loadProfiles() {
         try {
           const fetchedProfiles = await getUserSubjects(ownerId);
           setProfiles(fetchedProfiles);
@@ -27,10 +40,16 @@ function OtherProfilesTab() {
           console.error('Error fetching profiles:', error);
         }
       }
+      loadProfiles();
     }
+  }, [ownerId, refreshKey, usePagination]); // refreshKey will trigger reload when new profile is added
 
-    loadProfiles();
-  }, [ownerId, refreshKey]); // refreshKey will trigger reload when new profile is added
+  // Refresh paginated data when refreshKey changes (new profile added)
+  useEffect(() => {
+    if (usePagination && refreshKey > 0) {
+      paginatedData.refresh();
+    }
+  }, [refreshKey, usePagination, paginatedData]);
 
   const handleViewProfile = (profile) => {
     // Switch to profile context and navigate to user dashboard
@@ -60,10 +79,15 @@ function OtherProfilesTab() {
     try {
       const result = await deleteSubject(profile._id, ownerId);
       
-      // Remove deleted profile from local state
-      setProfiles(prevProfiles => 
-        prevProfiles.filter(p => p._id !== profile._id)
-      );
+      if (usePagination) {
+        // Refresh paginated data
+        paginatedData.refresh();
+      } else {
+        // Remove deleted profile from local state
+        setProfiles(prevProfiles => 
+          prevProfiles.filter(p => p._id !== profile._id)
+        );
+      }
 
       // Show success message
       const deletedCount = result.deletionResults;
@@ -95,10 +119,56 @@ function OtherProfilesTab() {
     }
   };
 
+  // Get the data source based on pagination mode
+  const dataSource = usePagination ? paginatedData.data : profiles;
+
   return (
     <div className="other-profiles-tab">
       <div className="user-table-container">
         <h2 style={{ color: 'grey' }}>Other Profiles</h2>
+        
+        {/* Search and pagination controls - only show when usePagination is true */}
+        {usePagination && (
+          <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              placeholder="Search profiles..."
+              value={paginatedData.search.searchTerm}
+              onChange={(e) => paginatedData.search.updateSearchTerm(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                minWidth: '200px'
+              }}
+            />
+            
+            <select
+              value={paginatedData.pagination.itemsPerPage}
+              onChange={(e) => paginatedData.pagination.changeItemsPerPage(Number(e.target.value))}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #ccc',
+                borderRadius: '4px'
+              }}
+            >
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+              <option value={50}>50 per page</option>
+              <option value={100}>100 per page</option>
+            </select>
+
+            {paginatedData.loading && <span style={{ color: 'orange' }}>Loading...</span>}
+          </div>
+        )}
+
+        {/* Error message */}
+        {usePagination && paginatedData.error && (
+          <div style={{ color: 'red', marginBottom: '10px' }}>
+            Error: {paginatedData.error}
+          </div>
+        )}
+
         <div className="user-table-scroll">
           <table className="user-table">
             <thead>
@@ -111,14 +181,14 @@ function OtherProfilesTab() {
               </tr>
             </thead>
             <tbody>
-              {profiles.length === 0 ? (
+              {dataSource.length === 0 ? (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
-                    No other profiles added yet. Add a profile below to get started.
+                  <td colSpan="5" style={{ textAlign: 'center', color: '#666', fontStyle: 'italic', padding: '20px' }}>
+                    {usePagination && paginatedData.loading ? 'Loading...' : 'No other profiles added yet. Add a profile below to get started.'}
                   </td>
                 </tr>
               ) : (
-                profiles.map((profile) => (
+                dataSource.map((profile) => (
                   <tr key={profile._id}>
                     <td>{profile.firstName}</td>
                     <td>{profile.lastName}</td>
@@ -164,6 +234,59 @@ function OtherProfilesTab() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination controls - only show when usePagination is true */}
+        {usePagination && (
+          <div style={{ 
+            marginTop: '20px', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '10px'
+          }}>
+            <div style={{ color: 'grey', fontSize: '14px' }}>
+              Showing {dataSource.length} of {paginatedData.pagination.totalItems} profiles
+              {paginatedData.search.debouncedSearchTerm && (
+                <span> (filtered by "{paginatedData.search.debouncedSearchTerm}")</span>
+              )}
+            </div>
+            
+            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+              <button
+                onClick={paginatedData.pagination.goToPrev}
+                disabled={!paginatedData.pagination.hasPrev || paginatedData.loading}
+                style={{
+                  padding: '6px 12px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  backgroundColor: paginatedData.pagination.hasPrev ? '#f8f9fa' : '#e9ecef',
+                  cursor: paginatedData.pagination.hasPrev ? 'pointer' : 'not-allowed'
+                }}
+              >
+                Previous
+              </button>
+              
+              <span style={{ margin: '0 10px', color: 'grey' }}>
+                Page {paginatedData.pagination.currentPage} of {paginatedData.pagination.totalPages}
+              </span>
+              
+              <button
+                onClick={paginatedData.pagination.goToNext}
+                disabled={!paginatedData.pagination.hasNext || paginatedData.loading}
+                style={{
+                  padding: '6px 12px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  backgroundColor: paginatedData.pagination.hasNext ? '#f8f9fa' : '#e9ecef',
+                  cursor: paginatedData.pagination.hasNext ? 'pointer' : 'not-allowed'
+                }}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add Profile Form */}

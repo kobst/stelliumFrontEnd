@@ -104,6 +104,55 @@ export const fetchUsers = async () => {
   }
 };
 
+// Enhanced users API with pagination and search
+export const fetchUsersPaginated = async (options = {}) => {
+  try {
+    const {
+      usePagination = true,
+      page = 1,
+      limit = 20,
+      search,
+      sortBy = 'name',
+      sortOrder = 'asc'
+    } = options;
+
+    const requestBody = {
+      usePagination,
+      page,
+      limit,
+      sortBy,
+      sortOrder
+    };
+
+    if (search) {
+      requestBody.search = search;
+    }
+
+    const response = await fetch(`${SERVER_URL}/getUsers`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to fetch users');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error fetching users with pagination:', error);
+    throw error;
+  }
+};
+
 
 export const fetchComposites = async () => {
   try {
@@ -1381,6 +1430,55 @@ export const fetchCelebrities = async () => {
   }
 };
 
+// Enhanced celebrity API with pagination and search
+export const fetchCelebritiesPaginated = async (options = {}) => {
+  try {
+    const {
+      usePagination = true,
+      page = 1,
+      limit = 20,
+      search,
+      sortBy = 'name',
+      sortOrder = 'asc'
+    } = options;
+
+    const requestBody = {
+      usePagination,
+      page,
+      limit,
+      sortBy,
+      sortOrder
+    };
+
+    if (search) {
+      requestBody.search = search;
+    }
+
+    const response = await fetch(`${SERVER_URL}/getCelebs`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to fetch celebrities');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error fetching celebrities with pagination:', error);
+    throw error;
+  }
+};
+
 // Fetch celebrity relationships using the new dedicated endpoint
 export const getCelebrityRelationships = async (limit = 50) => {
   try {
@@ -1467,6 +1565,56 @@ export const getUserSubjects = async (ownerUserId) => {
     return responseData;
   } catch (error) {
     console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+};
+
+// Enhanced user subjects API with pagination and search
+export const getUserSubjectsPaginated = async (ownerUserId, options = {}) => {
+  try {
+    const {
+      usePagination = true,
+      page = 1,
+      limit = 20,
+      search,
+      sortBy = 'name',
+      sortOrder = 'asc'
+    } = options;
+
+    const requestBody = {
+      ownerUserId,
+      usePagination,
+      page,
+      limit,
+      sortBy,
+      sortOrder
+    };
+
+    if (search) {
+      requestBody.search = search;
+    }
+
+    const response = await fetch(`${SERVER_URL}/getUserSubjects`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to fetch user subjects');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error fetching user subjects with pagination:', error);
     throw error;
   }
 };

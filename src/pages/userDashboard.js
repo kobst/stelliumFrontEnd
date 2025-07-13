@@ -1234,7 +1234,7 @@ function UserDashboard() {
       mainTabs.push({
         id: 'otherProfiles',
         label: 'Other Profiles',
-        content: <OtherProfilesTab />
+        content: <OtherProfilesTab usePagination={true} />
       });
     } else {
       // Show unlock message for relationships

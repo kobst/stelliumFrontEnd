@@ -98,6 +98,7 @@ function CelebrityRelationshipsTab() {
             genderFilterB={genderFilterB}
             setGenderFilterA={setGenderFilterA}
             setGenderFilterB={setGenderFilterB}
+            usePagination={true}
           />
         </div>
       )

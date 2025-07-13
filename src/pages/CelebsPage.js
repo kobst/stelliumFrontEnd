@@ -66,6 +66,7 @@ const CelebsPage = () => {
                     <CelebritiesTable 
                         onCelebritySelect={handleCelebritySelect}
                         genderFilter={genderFilter}
+                        usePagination={true}
                     />
                 </div>
             </div>

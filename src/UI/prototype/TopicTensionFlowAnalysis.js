@@ -156,44 +156,42 @@ const TopicTensionFlowAnalysis = ({ topicData, topicTitle }) => {
   const tensionLevel = getTensionLevel(challengeDensity);
   const balanceDesc = getBalanceDescription(polarityRatio);
 
-  // Format aspect codes for display
-  const formatAspectCode = (code) => {
-    // Extract planet names and aspect type from codes like 'A-SasTa09EaSqUrsAq06'
-    const match = code.match(/A-(\w{3})(\w{2})(\d{2})(\w{2})(\w{2})(\w{3})(\w{2})(\d{2})/);
-    if (match) {
-      const [, planet1, sign1, house1, orb, aspect, planet2, sign2, house2] = match;
-      
-      const planetNames = {
-        'Sus': 'Sun', 'Mos': 'Moon', 'Mes': 'Mercury', 'Ves': 'Venus', 'Mas': 'Mars',
-        'Jus': 'Jupiter', 'Sas': 'Saturn', 'Urs': 'Uranus', 'Nes': 'Neptune', 'Pls': 'Pluto'
-      };
-      
-      const aspectNames = {
-        'Co': 'conjunction', 'Op': 'opposition', 'Tr': 'trine', 'Sq': 'square', 
-        'Sx': 'sextile', 'Qu': 'quincunx'
-      };
-      
-      const p1 = planetNames[planet1] || planet1;
-      const p2 = planetNames[planet2] || planet2;
-      const aspectName = aspectNames[aspect] || aspect;
-      
-      return `${p1} ${aspectName} ${p2}`;
-    }
-    return code;
+  // Unicode symbols for planets
+  const planetSymbols = {
+    'Sun': '☉',
+    'Moon': '☽',
+    'Mercury': '☿',
+    'Venus': '♀',
+    'Mars': '♂',
+    'Jupiter': '♃',
+    'Saturn': '♄',
+    'Uranus': '♅',
+    'Neptune': '♆',
+    'Pluto': '♇',
+    'Ascendant': 'AC',
+    'Midheaven': 'MC',
+    'Chiron': '⚷',
+    'Node': '☊',
+    'North Node': '☊',
+    'South Node': '☋'
   };
 
-  const getAspectInsight = (aspectType, score) => {
-    const isSupport = score > 0;
-    const insights = {
-      'Sq': isSupport ? 'creates dynamic tension that builds inner strength' : 'brings intense friction requiring conscious integration',
-      'Co': isSupport ? 'creates powerful unified energy' : 'can create overwhelming intensity',
-      'Op': isSupport ? 'offers balancing awareness and perspective' : 'creates internal polarization requiring integration',
-      'Tr': isSupport ? 'flows effortlessly with natural harmony' : 'may create complacency without growth',
-      'Sx': isSupport ? 'brings easy opportunities for growth' : 'offers gentle challenges for development',
-      'Qu': isSupport ? 'creates unique creative solutions' : 'brings subtle but persistent adjustment needs'
-    };
-    
-    return insights[aspectType] || (isSupport ? 'supports your growth in this area' : 'challenges you to grow in this area');
+  // Function to get the aspect name
+  const getAspectName = (aspectType) => {
+    if (typeof aspectType !== 'string' || !aspectType) {
+      console.warn(`Invalid aspect type: ${aspectType}`);
+      return 'Unknown';
+    }
+
+    switch (aspectType.toLowerCase()) {
+      case 'conjunction': return 'Conjunction';
+      case 'opposition': return 'Opposition';
+      case 'trine': return 'Trine';
+      case 'square': return 'Square';
+      case 'sextile': return 'Sextile';
+      case 'quincunx': return 'Quincunx';
+      default: return aspectType; // Return the original if not recognized
+    }
   };
 
   return (
@@ -311,28 +309,43 @@ const TopicTensionFlowAnalysis = ({ topicData, topicTitle }) => {
       {keystoneAspects && keystoneAspects.length > 0 && (
         <div className="topic-keystone-aspects">
           <h5>🔑 Key Planetary Influences</h5>
-          <div className="keystone-compact-list">
-            {keystoneAspects.slice(0, 3).map((aspect, index) => (
-              <div key={index} className="keystone-compact-item">
-                <div className="keystone-compact-header">
-                  <span className={`keystone-compact-icon ${aspect.score > 0 ? 'support' : 'challenge'}`}>
-                    {aspect.score > 0 ? '💚' : '🔥'}
-                  </span>
-                  <span className="keystone-compact-title">
-                    {formatAspectCode(aspect.code)}
-                  </span>
-                </div>
-                <div className="keystone-compact-insight">
-                  This {getAspectInsight(aspect.aspectType, aspect.score)}.
-                </div>
-                {showTechnicalDetails && (
-                  <div className="keystone-compact-tech">
-                    <span>Score: {aspect.score}</span> | <span>Type: {aspect.aspectType}</span>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <table className="aspects-table">
+            <tbody>
+              {keystoneAspects.slice(0, 3).map((aspect, index) => (
+                <tr key={index}>
+                  <td>
+                    <span 
+                      style={{ 
+                        fontSize: (aspect.planet1 === 'Ascendant' || aspect.planet1 === 'Midheaven') ? '14px' : '20px',
+                        fontWeight: (aspect.planet1 === 'Ascendant' || aspect.planet1 === 'Midheaven') ? 'normal' : 'bold'
+                      }}
+                    >
+                      {planetSymbols[aspect.planet1] || (aspect.planet1 ? aspect.planet1.substring(0, 2) : '??')}
+                    </span>
+                  </td>
+                  <td>{aspect.planet1}</td>
+                  <td className="aspect-name">
+                    <span className={`keystone-indicator ${aspect.score > 0 ? 'support' : 'challenge'}`}>
+                      {aspect.score > 0 ? '💚' : '🔥'}
+                    </span>
+                    {getAspectName(aspect.aspectType)}
+                  </td>
+                  <td>
+                    <span 
+                      style={{ 
+                        fontSize: (aspect.planet2 === 'Ascendant' || aspect.planet2 === 'Midheaven') ? '14px' : '20px',
+                        fontWeight: (aspect.planet2 === 'Ascendant' || aspect.planet2 === 'Midheaven') ? 'normal' : 'bold'
+                      }}
+                    >
+                      {planetSymbols[aspect.planet2] || (aspect.planet2 ? aspect.planet2.substring(0, 2) : '??')}
+                    </span>
+                  </td>
+                  <td>{aspect.planet2}</td>
+                  <td>{aspect.orb.toFixed(2)}°</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 

@@ -141,6 +141,7 @@ function RelationshipsTab() {
             onCelebritySelect={handleCelebritySelect} 
             selectedForRelationship={selectedForRelationship} 
             genderFilter={genderFilter}
+            usePagination={true}
           />
           <div style={{ marginTop: '20px' }}>
             <GuestSubjectsTable 
@@ -148,6 +149,7 @@ function RelationshipsTab() {
               selectedForRelationship={selectedForRelationship} 
               showViewOption={false} 
               genderFilter={genderFilter}
+              usePagination={true}
             />
           </div>
           <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #dee2e6' }}>

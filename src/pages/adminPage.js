@@ -64,8 +64,8 @@ function AdminPage() {
         <h1 className="logotxt">ADMIN - USER MANAGEMENT</h1>
       </div>
   
-      <UsersTable onUserSelect={handleUserSelect} />
-      <CelebritiesTable onCelebritySelect={handleCelebritySelect} key={refreshCelebrities} />
+      <UsersTable onUserSelect={handleUserSelect} usePagination={true} />
+      <CelebritiesTable onCelebritySelect={handleCelebritySelect} key={refreshCelebrities} usePagination={true} />
       <AddCelebrityForm onCelebrityAdded={handleCelebrityAdded} />
       <CelebrityRelationshipsTab />
     </div>
