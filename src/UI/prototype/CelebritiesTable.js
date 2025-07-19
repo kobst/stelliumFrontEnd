@@ -14,7 +14,7 @@ function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFi
   // Use the paginated data hook when pagination is enabled
   const paginatedData = usePaginatedData(
     fetchCelebritiesWrapper,
-    { page: 1, limit: 20, sortBy: 'name', sortOrder: 'asc' }
+    { page: 1, limit: 50, sortBy: 'name', sortOrder: 'asc' }
   );
 
   // Legacy data loading for backward compatibility
@@ -109,6 +109,7 @@ function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFi
             <option value={20}>20 per page</option>
             <option value={50}>50 per page</option>
             <option value={100}>100 per page</option>
+            <option value={200}>200 per page</option>
           </select>
 
           {paginatedData.loading && <span style={{ color: 'orange' }}>Loading...</span>}

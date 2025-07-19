@@ -58,7 +58,7 @@ function PrototypePage() {
         <h1 className="logotxt">STELLIUM USERS</h1>
       </div>
   
-      <UsersTable onUserSelect={handleUserSelect} />
+      <UsersTable onUserSelect={handleUserSelect} usePagination={true} />
       <CompositesTable onCompositeChartSelect={handleCompositeChartSelect} />
     </div>
   );
