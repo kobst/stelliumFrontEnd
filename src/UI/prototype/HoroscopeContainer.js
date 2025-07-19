@@ -20,6 +20,30 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
   const [horoscopeLoading, setHoroscopeLoading] = useState(false);
   const [horoscopeError, setHoroscopeError] = useState(null);
   const [loadedTabs, setLoadedTabs] = useState(new Set());
+  const [tabLoadingStates, setTabLoadingStates] = useState({
+    today: false,
+    tomorrow: false,
+    thisWeek: false,
+    nextWeek: false,
+    thisMonth: false,
+    nextMonth: false
+  });
+  const [tabErrors, setTabErrors] = useState({
+    today: null,
+    tomorrow: null,
+    thisWeek: null,
+    nextWeek: null,
+    thisMonth: null,
+    nextMonth: null
+  });
+  const [retryAttempts, setRetryAttempts] = useState({
+    today: 0,
+    tomorrow: 0,
+    thisWeek: 0,
+    nextWeek: 0,
+    thisMonth: 0,
+    nextMonth: 0
+  });
 
   // Helper function to format dates for display
   const formatDate = (dateString) => {
@@ -123,13 +147,18 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
   };
 
   // Helper function to add timeout to promises
-  const withTimeout = (promise, timeoutMs = 30000) => {
+  const withTimeout = (promise, timeoutMs = 15000) => {
     return Promise.race([
       promise,
       new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
       )
     ]);
+  };
+
+  // Helper function to calculate retry delay with exponential backoff
+  const getRetryDelay = (attemptNumber) => {
+    return Math.min(1000 * Math.pow(3, attemptNumber), 10000); // 1s, 3s, 9s, max 10s
   };
 
   // Helper function to get horoscope for a specific period
@@ -291,12 +320,16 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
   };
 
   // Fetch horoscope for a specific tab with retry capability
-  const fetchHoroscopeForTab = async (tab, isRetry = false) => {
+  const fetchHoroscopeForTab = async (tab, isRetry = false, attemptNumber = 0) => {
     if (!userId || (!isRetry && loadedTabs.has(tab) && horoscopeCache[tab])) return;
     
+    // Set individual tab loading state
+    setTabLoadingStates(prev => ({ ...prev, [tab]: true }));
     setHoroscopeLoading(true);
+    
     if (isRetry) {
       setHoroscopeError(null);
+      setTabErrors(prev => ({ ...prev, [tab]: null }));
     }
     
     try {
@@ -338,26 +371,94 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       }));
       
       setLoadedTabs(prev => new Set([...prev, tab]));
+      setRetryAttempts(prev => ({ ...prev, [tab]: 0 })); // Reset retry count on success
       if (isRetry) {
         setHoroscopeError(null);
       }
     } catch (error) {
       console.error(`Error fetching ${tab} horoscope:`, error);
-      setHoroscopeError(`Failed to load ${tab} horoscope: ${error.message}`);
-      setLoadedTabs(prev => new Set([...prev, tab])); // Mark as loaded even if failed
+      
+      const currentAttempts = retryAttempts[tab] || attemptNumber;
+      const maxRetries = 3;
+      
+      if (currentAttempts < maxRetries) {
+        // Retry with exponential backoff
+        const delay = getRetryDelay(currentAttempts);
+        console.log(`Retrying ${tab} horoscope in ${delay}ms (attempt ${currentAttempts + 1}/${maxRetries})`);
+        
+        setRetryAttempts(prev => ({ ...prev, [tab]: currentAttempts + 1 }));
+        
+        setTimeout(() => {
+          fetchHoroscopeForTab(tab, true, currentAttempts + 1);
+        }, delay);
+      } else {
+        // Max retries reached, set error state
+        setTabErrors(prev => ({ ...prev, [tab]: `Failed to load ${tab} horoscope: ${error.message}` }));
+        setHoroscopeError(`Failed to load ${tab} horoscope: ${error.message}`);
+        setLoadedTabs(prev => new Set([...prev, tab])); // Mark as loaded even if failed
+      }
     } finally {
+      setTabLoadingStates(prev => ({ ...prev, [tab]: false }));
       setHoroscopeLoading(false);
     }
   };
 
   // Retry function for failed horoscopes
-  const retryHoroscope = () => {
-    fetchHoroscopeForTab(activeTab, true);
+  const retryHoroscope = (tab = activeTab) => {
+    setRetryAttempts(prev => ({ ...prev, [tab]: 0 })); // Reset retry count
+    fetchHoroscopeForTab(tab, true);
+  };
+
+  // Helper function to get tab CSS classes based on state
+  const getTabClassName = (tab) => {
+    let className = `tab-button ${activeTab === tab ? 'active' : ''}`;
+    
+    if (tabLoadingStates[tab]) {
+      className += ' loading';
+    } else if (tabErrors[tab]) {
+      className += ' error';
+    } else if (horoscopeCache[tab]) {
+      className += ' loaded';
+    }
+    
+    return className;
+  };
+
+  // Background preloading with priority order
+  const startBackgroundPreloading = async () => {
+    const priorityOrder = ['today', 'tomorrow', 'thisWeek', 'nextWeek', 'thisMonth', 'nextMonth'];
+    const currentIndex = priorityOrder.indexOf(activeTab);
+    
+    // Create a reordered list starting with current tab
+    const orderedTabs = [
+      ...priorityOrder.slice(currentIndex),
+      ...priorityOrder.slice(0, currentIndex)
+    ];
+    
+    for (let i = 1; i < orderedTabs.length; i++) { // Skip index 0 (current tab)
+      const tab = orderedTabs[i];
+      
+      // Only preload if not already loaded or loading
+      if (!loadedTabs.has(tab) && !horoscopeCache[tab] && !tabLoadingStates[tab]) {
+        // Add delay between requests to avoid overwhelming the server
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Check if we should still preload (user might have navigated away)
+        if (userId) {
+          fetchHoroscopeForTab(tab);
+        }
+      }
+    }
   };
 
   // Load horoscope when active tab changes
   useEffect(() => {
-    fetchHoroscopeForTab(activeTab);
+    if (userId) {
+      fetchHoroscopeForTab(activeTab).then(() => {
+        // Start background preloading after current tab loads successfully
+        startBackgroundPreloading();
+      });
+    }
   }, [activeTab, userId]); // fetchHoroscopeForTab is defined in this component, not an external dependency
 
   // Add new function to handle transit selection
@@ -416,7 +517,7 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     }
   };
 
-  if (loading || horoscopeLoading) {
+  if (loading) {
     return (
       <div className="horoscope-container">
         <div className="loading-message">Loading horoscope data...</div>
@@ -441,40 +542,40 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       {/* Tab Navigation */}
       <div className="tab-navigation">
         <button 
-          className={`tab-button ${activeTab === 'today' ? 'active' : ''}`}
+          className={getTabClassName('today')}
           onClick={() => setActiveTab('today')}
         >
-          Today
+          Today {tabLoadingStates.today && '⏳'} {tabErrors.today && '❌'} {horoscopeCache.today && '✓'}
         </button>
         <button 
-          className={`tab-button ${activeTab === 'tomorrow' ? 'active' : ''}`}
+          className={getTabClassName('tomorrow')}
           onClick={() => setActiveTab('tomorrow')}
         >
-          Tomorrow
+          Tomorrow {tabLoadingStates.tomorrow && '⏳'} {tabErrors.tomorrow && '❌'} {horoscopeCache.tomorrow && '✓'}
         </button>
         <button 
-          className={`tab-button ${activeTab === 'thisWeek' ? 'active' : ''}`}
+          className={getTabClassName('thisWeek')}
           onClick={() => setActiveTab('thisWeek')}
         >
-          This Week
+          This Week {tabLoadingStates.thisWeek && '⏳'} {tabErrors.thisWeek && '❌'} {horoscopeCache.thisWeek && '✓'}
         </button>
         <button 
-          className={`tab-button ${activeTab === 'nextWeek' ? 'active' : ''}`}
+          className={getTabClassName('nextWeek')}
           onClick={() => setActiveTab('nextWeek')}
         >
-          Next Week
+          Next Week {tabLoadingStates.nextWeek && '⏳'} {tabErrors.nextWeek && '❌'} {horoscopeCache.nextWeek && '✓'}
         </button>
         <button 
-          className={`tab-button ${activeTab === 'thisMonth' ? 'active' : ''}`}
+          className={getTabClassName('thisMonth')}
           onClick={() => setActiveTab('thisMonth')}
         >
-          This Month
+          This Month {tabLoadingStates.thisMonth && '⏳'} {tabErrors.thisMonth && '❌'} {horoscopeCache.thisMonth && '✓'}
         </button>
         <button 
-          className={`tab-button ${activeTab === 'nextMonth' ? 'active' : ''}`}
+          className={getTabClassName('nextMonth')}
           onClick={() => setActiveTab('nextMonth')}
         >
-          Next Month
+          Next Month {tabLoadingStates.nextMonth && '⏳'} {tabErrors.nextMonth && '❌'} {horoscopeCache.nextMonth && '✓'}
         </button>
       </div>
 
@@ -487,7 +588,27 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
 
       {/* Horoscope Content */}
       <div className="horoscope-content">
-        {horoscopeCache[activeTab] ? (
+        {tabLoadingStates[activeTab] && !horoscopeCache[activeTab] ? (
+          <div className="horoscope-loading">
+            <h3>Loading {activeTab === 'today' || activeTab === 'tomorrow' ? 'Daily' : activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope...</h3>
+            <div className="loading-spinner">⏳</div>
+            {retryAttempts[activeTab] > 0 && (
+              <p className="retry-info">Retry attempt {retryAttempts[activeTab]}/3...</p>
+            )}
+          </div>
+        ) : tabErrors[activeTab] ? (
+          <div className="horoscope-error">
+            <h3>Failed to Load Horoscope</h3>
+            <p>{tabErrors[activeTab]}</p>
+            <button 
+              className="retry-button"
+              onClick={() => retryHoroscope(activeTab)}
+              disabled={tabLoadingStates[activeTab]}
+            >
+              {tabLoadingStates[activeTab] ? 'Retrying...' : 'Try Again'}
+            </button>
+          </div>
+        ) : horoscopeCache[activeTab] ? (
           <div className="horoscope-text">
             <h3>Your {activeTab === 'today' || activeTab === 'tomorrow' ? 'Daily' : activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope</h3>
             <p>{horoscopeCache[activeTab].text || horoscopeCache[activeTab].interpretation || 'No horoscope content available.'}</p>
@@ -528,16 +649,15 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
             )}
           </div>
         ) : (
-          <div className="horoscope-error">
-            <h3>Unable to Load {activeTab === 'today' || activeTab === 'tomorrow' ? 'Daily' : activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope</h3>
-            <p>We're experiencing issues loading this horoscope. Please try again.</p>
-            {horoscopeError && <p className="error-details">Error: {horoscopeError}</p>}
+          <div className="horoscope-placeholder">
+            <h3>{activeTab === 'today' || activeTab === 'tomorrow' ? 'Daily' : activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope</h3>
+            <p>Click to load your {activeTab} horoscope</p>
             <button 
-              className="retry-button" 
-              onClick={retryHoroscope} 
-              disabled={horoscopeLoading}
+              className="load-button" 
+              onClick={() => fetchHoroscopeForTab(activeTab)}
+              disabled={tabLoadingStates[activeTab]}
             >
-              {horoscopeLoading ? 'Loading...' : 'Retry'}
+              {tabLoadingStates[activeTab] ? 'Loading...' : 'Load Horoscope'}
             </button>
           </div>
         )}
