@@ -131,8 +131,8 @@ function CelebrityRelationshipsTable() {
                   onMouseEnter={(e) => e.target.parentElement.style.backgroundColor = 'rgba(128, 0, 128, 0.1)'}
                   onMouseLeave={(e) => e.target.parentElement.style.backgroundColor = 'transparent'}
                 >
-                  <td onClick={() => handleRelationshipSelect(relationship)}>{relationship.userA_name}</td>
-                  <td onClick={() => handleRelationshipSelect(relationship)}>{relationship.userB_name}</td>
+                  <td onClick={() => handleRelationshipSelect(relationship)}>{relationship.userA_firstName} {relationship.userA_lastName}</td>
+                  <td onClick={() => handleRelationshipSelect(relationship)}>{relationship.userB_firstName} {relationship.userB_lastName}</td>
                   <td onClick={() => handleRelationshipSelect(relationship)}>{new Date(relationship.userA_dateOfBirth).toLocaleDateString()}</td>
                   <td onClick={() => handleRelationshipSelect(relationship)}>{new Date(relationship.userB_dateOfBirth).toLocaleDateString()}</td>
                   <td onClick={() => handleRelationshipSelect(relationship)}>{new Date(relationship.createdAt).toLocaleDateString()}</td>

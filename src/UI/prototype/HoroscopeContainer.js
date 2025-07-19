@@ -19,6 +19,7 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
   });
   const [horoscopeLoading, setHoroscopeLoading] = useState(false);
   const [horoscopeError, setHoroscopeError] = useState(null);
+  const [loadedTabs, setLoadedTabs] = useState(new Set());
 
   // Helper function to format dates for display
   const formatDate = (dateString) => {
@@ -121,19 +122,29 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     return { start: startOfTomorrow, end: endOfTomorrow };
   };
 
+  // Helper function to add timeout to promises
+  const withTimeout = (promise, timeoutMs = 30000) => {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+      )
+    ]);
+  };
+
   // Helper function to get horoscope for a specific period
   const getHoroscopeForPeriod = async (userId, startDate, type) => {
     try {
       let response;
       switch (type) {
         case 'daily':
-          response = await generateDailyHoroscope(userId, startDate);
+          response = await withTimeout(generateDailyHoroscope(userId, startDate));
           break;
         case 'weekly':
-          response = await generateWeeklyHoroscope(userId, startDate);
+          response = await withTimeout(generateWeeklyHoroscope(userId, startDate));
           break;
         case 'monthly':
-          response = await generateMonthlyHoroscope(userId, startDate);
+          response = await withTimeout(generateMonthlyHoroscope(userId, startDate));
           break;
         default:
           throw new Error(`Unknown horoscope type: ${type}`);
@@ -279,59 +290,75 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     return description;
   };
 
-  // Fetch all horoscopes when component mounts
-  useEffect(() => {
-    const fetchAllHoroscopes = async () => {
-      if (!userId) return;
-      
-      setHoroscopeLoading(true);
+  // Fetch horoscope for a specific tab with retry capability
+  const fetchHoroscopeForTab = async (tab, isRetry = false) => {
+    if (!userId || (!isRetry && loadedTabs.has(tab) && horoscopeCache[tab])) return;
+    
+    setHoroscopeLoading(true);
+    if (isRetry) {
       setHoroscopeError(null);
+    }
+    
+    try {
+      let startDate;
+      let type;
       
-      try {
-        // Get start dates for all periods
-        const todayStart = getTodayRange().start;
-        const tomorrowStart = getTomorrowRange().start;
-        const thisWeekStart = getCurrentWeekRange().start;
-        const nextWeekStart = getNextWeekRange().start;
-        const thisMonthStart = getCurrentMonthRange().start;
-        const nextMonthStart = getNextMonthRange().start;
-
-        // Fetch all horoscopes in parallel
-        const [
-          todayHoroscope,
-          tomorrowHoroscope,
-          thisWeekHoroscope,
-          nextWeekHoroscope,
-          thisMonthHoroscope,
-          nextMonthHoroscope
-        ] = await Promise.all([
-          getHoroscopeForPeriod(userId, todayStart.toISOString().split('T')[0], 'daily'),
-          getHoroscopeForPeriod(userId, tomorrowStart.toISOString().split('T')[0], 'daily'),
-          getHoroscopeForPeriod(userId, thisWeekStart, 'weekly'),
-          getHoroscopeForPeriod(userId, nextWeekStart, 'weekly'),
-          getHoroscopeForPeriod(userId, thisMonthStart, 'monthly'),
-          getHoroscopeForPeriod(userId, nextMonthStart, 'monthly')
-        ]);
-
-        // Update cache with all horoscopes
-        setHoroscopeCache({
-          today: todayHoroscope,
-          tomorrow: tomorrowHoroscope,
-          thisWeek: thisWeekHoroscope,
-          nextWeek: nextWeekHoroscope,
-          thisMonth: thisMonthHoroscope,
-          nextMonth: nextMonthHoroscope
-        });
-      } catch (error) {
-        console.error('Error fetching horoscopes:', error);
-        setHoroscopeError(error.message);
-      } finally {
-        setHoroscopeLoading(false);
+      switch (tab) {
+        case 'today':
+          startDate = getTodayRange().start.toISOString().split('T')[0];
+          type = 'daily';
+          break;
+        case 'tomorrow':
+          startDate = getTomorrowRange().start.toISOString().split('T')[0];
+          type = 'daily';
+          break;
+        case 'thisWeek':
+          startDate = getCurrentWeekRange().start;
+          type = 'weekly';
+          break;
+        case 'nextWeek':
+          startDate = getNextWeekRange().start;
+          type = 'weekly';
+          break;
+        case 'thisMonth':
+          startDate = getCurrentMonthRange().start;
+          type = 'monthly';
+          break;
+        case 'nextMonth':
+          startDate = getNextMonthRange().start;
+          type = 'monthly';
+          break;
       }
-    };
+      
+      const horoscope = await getHoroscopeForPeriod(userId, startDate, type);
+      
+      setHoroscopeCache(prev => ({
+        ...prev,
+        [tab]: horoscope
+      }));
+      
+      setLoadedTabs(prev => new Set([...prev, tab]));
+      if (isRetry) {
+        setHoroscopeError(null);
+      }
+    } catch (error) {
+      console.error(`Error fetching ${tab} horoscope:`, error);
+      setHoroscopeError(`Failed to load ${tab} horoscope: ${error.message}`);
+      setLoadedTabs(prev => new Set([...prev, tab])); // Mark as loaded even if failed
+    } finally {
+      setHoroscopeLoading(false);
+    }
+  };
 
-    fetchAllHoroscopes();
-  }, [userId]);
+  // Retry function for failed horoscopes
+  const retryHoroscope = () => {
+    fetchHoroscopeForTab(activeTab, true);
+  };
+
+  // Load horoscope when active tab changes
+  useEffect(() => {
+    fetchHoroscopeForTab(activeTab);
+  }, [activeTab, userId]); // fetchHoroscopeForTab is defined in this component, not an external dependency
 
   // Add new function to handle transit selection
   const handleTransitSelection = (transitId) => {
@@ -397,7 +424,9 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     );
   }
 
-  if (error || horoscopeError) {
+  // Only show full error state if we have no data at all
+  const hasAnyData = Object.values(horoscopeCache).some(value => value !== null);
+  if ((error || horoscopeError) && !hasAnyData) {
     return (
       <div className="horoscope-container">
         <div className="error-message">Error loading data: {error || horoscopeError}</div>
@@ -449,9 +478,16 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
         </button>
       </div>
 
+      {/* Partial Error Indicator */}
+      {horoscopeError && hasAnyData && (
+        <div className="partial-error-notice">
+          <p>⚠️ Some horoscopes couldn't be loaded. Switch to other tabs to see available content.</p>
+        </div>
+      )}
+
       {/* Horoscope Content */}
       <div className="horoscope-content">
-        {horoscopeCache[activeTab] && (
+        {horoscopeCache[activeTab] ? (
           <div className="horoscope-text">
             <h3>Your {activeTab === 'today' || activeTab === 'tomorrow' ? 'Daily' : activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope</h3>
             <p>{horoscopeCache[activeTab].text || horoscopeCache[activeTab].interpretation || 'No horoscope content available.'}</p>
@@ -490,6 +526,19 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
                 </ul>
               </div>
             )}
+          </div>
+        ) : (
+          <div className="horoscope-error">
+            <h3>Unable to Load {activeTab === 'today' || activeTab === 'tomorrow' ? 'Daily' : activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope</h3>
+            <p>We're experiencing issues loading this horoscope. Please try again.</p>
+            {horoscopeError && <p className="error-details">Error: {horoscopeError}</p>}
+            <button 
+              className="retry-button" 
+              onClick={retryHoroscope} 
+              disabled={horoscopeLoading}
+            >
+              {horoscopeLoading ? 'Loading...' : 'Retry'}
+            </button>
           </div>
         )}
 
