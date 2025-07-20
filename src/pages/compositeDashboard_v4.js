@@ -132,10 +132,10 @@ function CompositeDashboard_v4({}) {
                 }
 
                 // Handle relationship analysis
-                if (fetchedData?.categoryAnalysis) {
-                    console.log("Detailed analysis available: ", fetchedData.categoryAnalysis);
+                if (fetchedData?.analysis) {
+                    console.log("Detailed analysis available: ", fetchedData.analysis);
                     setDetailedRelationshipAnalysis({
-                        analysis: fetchedData.categoryAnalysis,
+                        analysis: fetchedData.analysis,
                         userAName: fetchedData.debug?.inputSummary?.userAName || userA?.firstName,
                         userBName: fetchedData.debug?.inputSummary?.userBName || userB?.firstName
                     });
@@ -239,8 +239,8 @@ function CompositeDashboard_v4({}) {
                         relationshipAnalysis: fetchedData.isVectorized,
                         lastUpdated: new Date().toISOString()
                     }));
-                } else if (fetchedData?.categoryAnalysis) {
-                    // If we have category analysis but no vectorization status, assume it's vectorized
+                } else if (fetchedData?.analysis) {
+                    // If we have analysis but no vectorization status, assume it's vectorized
                     setVectorizationStatus(prev => ({
                         ...prev,
                         relationshipAnalysis: true,
@@ -272,9 +272,9 @@ function CompositeDashboard_v4({}) {
       setRelationshipScores(analysisData.scores);
     }
 
-    if (analysisData.categoryAnalysis) {
+    if (analysisData.analysis) {
       setDetailedRelationshipAnalysis({
-        analysis: analysisData.categoryAnalysis,
+        analysis: analysisData.analysis,
         userAName: userA?.firstName,
         userBName: userB?.firstName
       });
