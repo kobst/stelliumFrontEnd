@@ -1198,11 +1198,15 @@ export const resumeRelationshipWorkflow = async (compositeChartId) => {
 // Start full relationship analysis from existing relationship (Stage 2)
 export const startFullRelationshipAnalysis = async (compositeChartId) => {
   console.log("🚀 Starting full relationship analysis for:", compositeChartId);
+  console.log("🚀 compositeChartId type:", typeof compositeChartId);
+  console.log("🚀 compositeChartId value:", compositeChartId);
+  const requestBody = { compositeChartId, immediate: true };
+  console.log("🚀 Request body:", requestBody);
   try {
     const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({ compositeChartId, immediate: true })
+      body: JSON.stringify(requestBody)
     });
     
     if (!response.ok) {

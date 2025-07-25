@@ -1,7 +1,8 @@
 import React from 'react';
 import { RelationshipCategoriesEnum, orderedCategoryKeys } from '../../Utilities/constants';
+import ScoredItemsTable from './ScoredItemsTable';
 
-function RelationshipAnalysis({ analysis, userAName, userBName }) {
+function RelationshipAnalysis({ analysis, userAName, userBName, scoreAnalysis }) {
     if (!analysis || !analysis.analysis || Object.keys(analysis.analysis).length === 0) {
       return <p>No relationship analysis data available to display.</p>;
     }
@@ -51,13 +52,11 @@ function RelationshipAnalysis({ analysis, userAName, userBName }) {
                   </div>
                 )}
 
-                {categoryData.relevantPosition && (
-                  <div style={{ marginTop: '15px' }}>
-                    <strong style={{ color: '#555' }}>Relevant Astrological Positions:</strong>
-                    <p style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', margin: '5px 0 0 0' }}>
-                      {categoryData.relevantPosition}
-                    </p>
-                  </div>
+                {scoreAnalysis?.[categoryKey]?.scoredItems && (
+                  <ScoredItemsTable 
+                    scoredItems={scoreAnalysis[categoryKey].scoredItems} 
+                    categoryName={categoryLabel}
+                  />
                 )}
               </div>
             );

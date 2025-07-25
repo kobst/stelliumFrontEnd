@@ -17,6 +17,7 @@ import {
 import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Reuse the same component
 import TabMenu from '../UI/shared/TabMenu';
 import TensionFlowAnalysis from '../UI/prototype/TensionFlowAnalysis';
+import ScoredItemsTable from '../UI/prototype/ScoredItemsTable';
 import './compositeDashboard_v4.css';
 
 
@@ -381,6 +382,9 @@ function CompositeDashboard_v4({}) {
       }
       
       console.log('Starting full relationship analysis workflow for composite:', compositeChart._id);
+      console.log('compositeChart object:', compositeChart);
+      console.log('userA:', userA?._id);
+      console.log('userB:', userB?._id);
       
       // Use the new enhanced API for starting full analysis from existing relationship
       const startResponse = await startFullRelationshipAnalysis(compositeChart._id);
@@ -905,6 +909,10 @@ function CompositeDashboard_v4({}) {
     }
   };
 
+  // Check for scores in either relationshipScores state or workflow state  
+  const availableScores = relationshipScores || relationshipWorkflowState.scores;
+  const availableScoreAnalysis = relationshipWorkflowState.scoreAnalysis;
+
   const analysisTabs = [];
 
   if (detailedRelationshipAnalysis) {
@@ -979,23 +987,18 @@ function CompositeDashboard_v4({}) {
               </div>
             )}
 
-            {value.relevantPosition && (
+            {availableScoreAnalysis?.[cat]?.scoredItems && (
               <div style={{ 
                 backgroundColor: 'rgba(245, 158, 11, 0.1)', 
                 padding: '20px', 
                 borderRadius: '8px',
                 border: '1px solid rgba(245, 158, 11, 0.3)'
               }}>
-                <h3 style={{ color: '#f59e0b', margin: '0 0 15px 0' }}>⭐ Relevant Astrological Positions</h3>
-                <p style={{ 
-                  color: 'white', 
-                  lineHeight: '1.6', 
-                  margin: '0',
-                  fontSize: '16px',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {value.relevantPosition}
-                </p>
+                <h3 style={{ color: '#f59e0b', margin: '0 0 15px 0' }}>⭐ Astrological Factors</h3>
+                <ScoredItemsTable 
+                  scoredItems={availableScoreAnalysis[cat].scoredItems} 
+                  categoryName={RelationshipCategoriesEnum[cat]?.label || cat.replace(/_/g, ' ')}
+                />
               </div>
             )}
           </div>
@@ -1047,10 +1050,6 @@ function CompositeDashboard_v4({}) {
   console.log('🔍 Building main tabs - relationshipScores:', relationshipScores);
   console.log('🔍 relationshipWorkflowState:', relationshipWorkflowState);
   console.log('🔍 tensionFlowAnalysis:', tensionFlowAnalysis);
-
-  // Check for scores in either relationshipScores state or workflow state
-  const availableScores = relationshipScores || relationshipWorkflowState.scores;
-  const availableScoreAnalysis = relationshipWorkflowState.scoreAnalysis;
   
   if (availableScores) {
     console.log('✅ Adding Scores tab to mainTabs');
