@@ -865,7 +865,8 @@ function UserDashboard() {
               topicTitle={topicData.label}
             />
             
-            {Object.entries(topicData.subtopics).map(([subtopicKey, content]) => (
+            {/* Use editedSubtopics if available, otherwise fall back to subtopics */}
+            {Object.entries(topicData.editedSubtopics || topicData.subtopics).map(([subtopicKey, content]) => (
               <div key={subtopicKey} className="subtopic">
                 <h4>{BroadTopicsEnum[topicKey].subtopics[subtopicKey].replace(/_/g, ' ')}</h4>
                 <p>{content}</p>

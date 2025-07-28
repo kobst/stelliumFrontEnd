@@ -182,6 +182,33 @@
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
 }
 
+/* LLM Analysis Section */
+.topic-llm-analysis {
+  margin: 15px 0;
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.topic-llm-analysis h5 {
+  color: #a78bfa;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.llm-analysis-content {
+  color: #ffffff;
+  line-height: 1.6;
+  font-size: 14px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.llm-analysis-content p {
+  margin: 0;
+}
+
 /* Compact Metrics */
 .topic-metrics {
   display: flex;

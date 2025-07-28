@@ -262,6 +262,16 @@ const TopicTensionFlowAnalysis = ({ topicData, topicTitle }) => {
         <p>{description}</p>
       </div>
 
+      {/* LLM Analysis Section */}
+      {topicData.tensionFlow.llmAnalysis && (
+        <div className="topic-llm-analysis">
+          <h5>🤖 Personalized Insights</h5>
+          <div className="llm-analysis-content">
+            <p>{topicData.tensionFlow.llmAnalysis}</p>
+          </div>
+        </div>
+      )}
+
       {/* Compact Metrics */}
       <div className="topic-metrics">
         <div className="topic-metric-item">
