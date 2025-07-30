@@ -25,6 +25,7 @@ import './userDashboard.css';
 import PatternCard from '../UI/prototype/PatternCard';
 import PlanetCard from '../UI/prototype/PlanetCard';
 import TopicTensionFlowAnalysis from '../UI/prototype/TopicTensionFlowAnalysis';
+import AspectExplorer from '../UI/prototype/AspectExplorer';
 
 // Order in which planetary interpretations should appear
 const PLANET_ORDER = [
@@ -97,6 +98,7 @@ function UserDashboard() {
     planets: {}
   });
   const [subTopicAnalysis, setSubTopicAnalysis] = useState({});
+  const [customAnalyses, setCustomAnalyses] = useState([]);
   const [vectorizationStatus, setVectorizationStatus] = useState({
     overview: false,
     planets: {
@@ -168,6 +170,7 @@ function UserDashboard() {
         },
         planets: {}
       });
+      setCustomAnalyses([]);
       setSubTopicAnalysis({});
       setWorkflowStatus(null);
       setVectorizationStatus({
@@ -274,6 +277,12 @@ function UserDashboard() {
         setSubTopicAnalysis(interpretation.SubtopicAnalysis);
       }
 
+      // Set customAnalyses state if it exists
+      if (interpretation?.customAnalyses) {
+        console.log("Custom analyses found:", interpretation.customAnalyses);
+        setCustomAnalyses(interpretation.customAnalyses);
+      }
+
       // Set vectorization status with proper defaults
       setVectorizationStatus(prevStatus => ({
         overview: vectorizationStatus?.overview || false,
@@ -321,6 +330,7 @@ function UserDashboard() {
         },
         planets: {}
       });
+      setCustomAnalyses([]);
       setSubTopicAnalysis({});
       throw error;
     }
@@ -586,7 +596,8 @@ function UserDashboard() {
             ...patternData,
             descriptions: patternDescriptions,
             interpretation: patternData?.interpretation || ''
-          }
+          },
+          planetary: basicAnalysisData.dominance?.planetary || { interpretation: '' }
         },
         planets: basicAnalysisData.planets || {}
       });
@@ -605,6 +616,11 @@ function UserDashboard() {
         ...prev,
         ...analysisData.vectorizationStatus
       }));
+    }
+
+    // Handle customAnalyses updates
+    if (interpretation.customAnalyses) {
+      setCustomAnalyses(interpretation.customAnalyses);
     }
 
     // Set birthChartAnalysisId if available
@@ -1071,6 +1087,64 @@ function UserDashboard() {
               Unlock comprehensive insights into every area of your life - personality, relationships, 
               career, spirituality, communication, and more. Get detailed analysis across 6 major life themes 
               with 24 specific subtopics.
+            </p>
+            <button
+              onClick={handleStartFullAnalysis}
+              disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
+              style={{
+                backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '16px'
+              }}
+            >
+              {fullAnalysisLoading ? 'Starting Analysis...' : 
+               (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
+               'Complete Full Analysis to Unlock'}
+            </button>
+          </div>
+        </section>
+      )
+    });
+  }
+
+  // Add Aspect Explorer tab - only show when analysis is complete
+  if (isAnalysisPopulated() && userId && userPlanets && userAspects) {
+    analysisTabs.push({
+      id: 'aspectexplorer',
+      label: 'Aspect Explorer',
+      content: (
+        <AspectExplorer
+          userId={userId}
+          userPlanets={userPlanets}
+          userAspects={userAspects}
+          customAnalyses={customAnalyses}
+          onAnalysisGenerated={() => fetchAnalysisForUserAsync()}
+        />
+      )
+    });
+  } else if (hasPartialAnalysis()) {
+    analysisTabs.push({
+      id: 'aspectexplorer',
+      label: 'Aspect Explorer',
+      content: (
+        <section className="aspect-explorer-section">
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>🔍 Aspect Explorer</h3>
+            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+              Explore custom combinations of aspects and planetary positions from your birth chart. 
+              Select up to 4 elements to receive personalized psychological interpretations that reveal 
+              how these specific chart components work together.
             </p>
             <button
               onClick={handleStartFullAnalysis}

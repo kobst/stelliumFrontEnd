@@ -1412,6 +1412,29 @@ export const generateCustomHoroscope = async (userId, transitEvents) => {
   }
 };
 
+export const generateCustomBirthChartAnalysis = async (userId, selectedAspects) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/users/${userId}/birthchart/custom`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify({ selectedAspects })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error generating custom birth chart analysis:', error);
+    throw error;
+  }
+};
+
 // Celebrity API Functions
 
 export const fetchCelebrities = async () => {
