@@ -26,6 +26,7 @@ import PatternCard from '../UI/prototype/PatternCard';
 import PlanetCard from '../UI/prototype/PlanetCard';
 import TopicTensionFlowAnalysis from '../UI/prototype/TopicTensionFlowAnalysis';
 import AspectExplorer from '../UI/prototype/AspectExplorer';
+import EnhancedChatBirthChart from '../UI/prototype/EnhancedChatBirthChart';
 
 // Order in which planetary interpretations should appear
 const PLANET_ORDER = [
@@ -128,6 +129,7 @@ function UserDashboard() {
   const [retryCount, setRetryCount] = useState(0);
 
   const [chatMessages, setChatMessages] = useState([]);
+  const [enhancedChatMessages, setEnhancedChatMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [birthChartAnalysisId, setBirthChartAnalysisId] = useState(null);
@@ -1223,6 +1225,64 @@ function UserDashboard() {
               }}
             >
               Complete Analysis to Unlock Chat
+            </button>
+          </div>
+        </section>
+      )
+    });
+  }
+
+  // Add Enhanced Chat tab if analysis is complete
+  if (userId && userPlanets && userAspects && (
+    vectorizationStatus.topicAnalysis.isComplete || 
+    vectorizationStatus.workflowStatus?.isComplete
+  )) {
+    analysisTabs.push({
+      id: 'enhancedchat',
+      label: 'Enhanced Chat',
+      content: (
+        <EnhancedChatBirthChart
+          userId={userId}
+          userPlanets={userPlanets}
+          userAspects={userAspects}
+          chatMessages={enhancedChatMessages}
+          setChatMessages={setEnhancedChatMessages}
+        />
+      )
+    });
+  } else if (workflowState.isPaused) {
+    analysisTabs.push({
+      id: 'enhancedchat',
+      label: 'Enhanced Chat',
+      content: (
+        <section className="enhanced-chat-section">
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <h3 style={{ color: '#8b5cf6', marginBottom: '15px' }}>✨ Enhanced Chat</h3>
+            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+              Enhanced chat combines aspect selection with AI conversation. Select specific aspects 
+              or planetary positions, ask targeted questions, or use both together for the most 
+              personalized astrological insights.
+            </p>
+            <button
+              onClick={handleResumeWorkflow}
+              style={{
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '16px'
+              }}
+            >
+              Complete Analysis to Unlock Enhanced Chat
             </button>
           </div>
         </section>
