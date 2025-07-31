@@ -14,7 +14,7 @@ import {
   resumeRelationshipWorkflow,
   startFullRelationshipAnalysis
 } from '../Utilities/api';
-import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Reuse the same component
+// import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Removed - component no longer exists
 import TabMenu from '../UI/shared/TabMenu';
 import TensionFlowAnalysis from '../UI/prototype/TensionFlowAnalysis';
 import ScoredItemsTable from '../UI/prototype/ScoredItemsTable';
@@ -1112,15 +1112,17 @@ function CompositeDashboard_v4({}) {
       id: 'chat',
       label: 'Chat',
       content: (
-        <UserChatBirthChart
-          chatMessages={chatMessages}
-          currentMessage={currentMessage}
-          setCurrentMessage={setCurrentMessage}
-          isChatLoading={isChatLoading}
-          isChatHistoryLoading={isChatHistoryLoading}
-          handleSendMessage={handleSendMessage}
-          handleKeyPress={handleKeyPress}
-        />
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '40px 20px',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '8px',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          color: 'white'
+        }}>
+          <h3 style={{ color: '#8b5cf6', marginBottom: '15px' }}>💬 Relationship Chat</h3>
+          <p>Chat functionality for relationship analysis is temporarily unavailable.</p>
+        </div>
       )
     });
   } else if (relationshipWorkflowState.isPaused) {

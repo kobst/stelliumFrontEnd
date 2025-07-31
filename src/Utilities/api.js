@@ -834,42 +834,6 @@ export const fetchAnalysis = async (userId) => {
 // };
 
 
-export const chatForUserBirthChart = async (userId, birthChartAnalysisId, query) => {
-  console.log("userId: ", userId)
-  console.log("birthChartAnalysisId: ", birthChartAnalysisId)
-  console.log("query: ", query)
-  try {
-    const response = await fetch(`${SERVER_URL}/userChatBirthChartAnalysis`, {
-      method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({userId, birthChartAnalysisId, query})
-    });
-    const responseData = await response.json();
-    console.log("responseData: ", responseData)
-    return responseData;
-  } catch (error) {
-    console.error(ERROR_API_CALL, error);
-    throw error;
-  }
-}
-
-export const fetchUserChatBirthChartAnalysis = async (userId, birthChartAnalysisId) => {
-  console.log("userId: ", userId)
-  console.log("birthChartAnalysisId: ", birthChartAnalysisId)
-  try {
-    const response = await fetch(`${SERVER_URL}/fetchUserChatBirthChartAnalysis`, {
-      method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-      body: JSON.stringify({userId, birthChartAnalysisId})
-    });
-    const responseData = await response.json();
-    console.log("responseData: ", responseData)
-    return responseData;
-  } catch (error) {
-    console.error(ERROR_API_CALL, error);
-    throw error;
-  }
-}
 
 export const chatForUserRelationship = async (userId, compositeChartId, query) => {
   console.log("userId: ", userId)
@@ -1412,28 +1376,6 @@ export const generateCustomHoroscope = async (userId, transitEvents) => {
   }
 };
 
-export const generateCustomBirthChartAnalysis = async (userId, selectedAspects) => {
-  try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/birthchart/custom`, {
-      method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
-      body: JSON.stringify({ selectedAspects })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error generating custom birth chart analysis:', error);
-    throw error;
-  }
-};
 
 // Celebrity API Functions
 

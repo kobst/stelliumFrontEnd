@@ -7,8 +7,6 @@ import useStore from '../Utilities/store';
 import { BroadTopicsEnum, ERROR_API_CALL } from '../Utilities/constants';
 import {
   fetchAnalysis,
-  chatForUserBirthChart,
-  fetchUserChatBirthChartAnalysis,
   getTransitWindows,
   startWorkflow,
   getWorkflowStatus,
@@ -16,7 +14,6 @@ import {
 } from '../Utilities/api';
 import useAsync from '../hooks/useAsync';
 import useSubjectCreation from '../hooks/useSubjectCreation';
-import UserChatBirthChart from '../UI/prototype/UserChatBirthChart';
 import HoroscopeContainer from '../UI/prototype/HoroscopeContainer';
 import RelationshipsTab from '../UI/prototype/RelationshipsTab';
 import OtherProfilesTab from '../UI/prototype/OtherProfilesTab';
@@ -25,7 +22,6 @@ import './userDashboard.css';
 import PatternCard from '../UI/prototype/PatternCard';
 import PlanetCard from '../UI/prototype/PlanetCard';
 import TopicTensionFlowAnalysis from '../UI/prototype/TopicTensionFlowAnalysis';
-import AspectExplorer from '../UI/prototype/AspectExplorer';
 import EnhancedChatBirthChart from '../UI/prototype/EnhancedChatBirthChart';
 
 // Order in which planetary interpretations should appear
@@ -99,7 +95,6 @@ function UserDashboard() {
     planets: {}
   });
   const [subTopicAnalysis, setSubTopicAnalysis] = useState({});
-  const [customAnalyses, setCustomAnalyses] = useState([]);
   const [vectorizationStatus, setVectorizationStatus] = useState({
     overview: false,
     planets: {
@@ -128,12 +123,7 @@ function UserDashboard() {
   const [connectionError, setConnectionError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
-  const [chatMessages, setChatMessages] = useState([]);
   const [enhancedChatMessages, setEnhancedChatMessages] = useState([]);
-  const [currentMessage, setCurrentMessage] = useState('');
-  const [isChatLoading, setIsChatLoading] = useState(false);
-  const [birthChartAnalysisId, setBirthChartAnalysisId] = useState(null);
-  const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(false);
   const [transitWindows, setTransitWindows] = useState([]);
   const [transitLoading, setTransitLoading] = useState(false);
   const [transitError, setTransitError] = useState(null);
@@ -172,7 +162,6 @@ function UserDashboard() {
         },
         planets: {}
       });
-      setCustomAnalyses([]);
       setSubTopicAnalysis({});
       setWorkflowStatus(null);
       setVectorizationStatus({
@@ -247,11 +236,7 @@ function UserDashboard() {
       console.log("Analysis response:", response);
       setHasCheckedAnalysis(true);
       
-      const { birthChartAnalysisId, interpretation, vectorizationStatus } = response;
-
-      if (birthChartAnalysisId) {
-        setBirthChartAnalysisId(birthChartAnalysisId);
-      }
+      const { interpretation, vectorizationStatus } = response;
       
       // Set basicAnalysis state if it exists
       if (interpretation?.basicAnalysis) {
@@ -279,11 +264,6 @@ function UserDashboard() {
         setSubTopicAnalysis(interpretation.SubtopicAnalysis);
       }
 
-      // Set customAnalyses state if it exists
-      if (interpretation?.customAnalyses) {
-        console.log("Custom analyses found:", interpretation.customAnalyses);
-        setCustomAnalyses(interpretation.customAnalyses);
-      }
 
       // Set vectorization status with proper defaults
       setVectorizationStatus(prevStatus => ({
@@ -332,7 +312,6 @@ function UserDashboard() {
         },
         planets: {}
       });
-      setCustomAnalyses([]);
       setSubTopicAnalysis({});
       throw error;
     }
@@ -620,15 +599,7 @@ function UserDashboard() {
       }));
     }
 
-    // Handle customAnalyses updates
-    if (interpretation.customAnalyses) {
-      setCustomAnalyses(interpretation.customAnalyses);
-    }
 
-    // Set birthChartAnalysisId if available
-    if (analysisData.birthChartAnalysisId) {
-      setBirthChartAnalysisId(analysisData.birthChartAnalysisId);
-    }
   };
 
   // Start polling
@@ -755,80 +726,6 @@ function UserDashboard() {
     return 'Processing your birth chart analysis...';
   };
 
-  // Chat functions (simplified)
-  const loadChatHistory = useCallback(async () => {
-    if (!userId || !birthChartAnalysisId) return;
-    
-    setIsChatHistoryLoading(true);
-    try {
-      const response = await fetchUserChatBirthChartAnalysis(userId, birthChartAnalysisId);
-      if (response?.success && Array.isArray(response.chatHistory)) {
-        const transformedMessages = response.chatHistory.map((message, index) => ({
-          id: `history-${index}-${Date.now()}`,
-          type: message.role === 'user' ? 'user' : 'bot',
-          content: message.content,
-          timestamp: new Date(message.timestamp)
-        }));
-        setChatMessages(transformedMessages);
-      }
-    } catch (error) {
-      console.error('Error loading chat history:', error);
-    } finally {
-      setIsChatHistoryLoading(false);
-    }
-  }, [userId, birthChartAnalysisId]);
-
-  useEffect(() => {
-    if (vectorizationStatus.topicAnalysis.isComplete && userId && birthChartAnalysisId) {
-      loadChatHistory();
-    }
-  }, [vectorizationStatus.topicAnalysis.isComplete, userId, birthChartAnalysisId, loadChatHistory]);
-
-  const handleSendMessage = async () => {
-    if (!currentMessage.trim() || !userId) return;
-
-    const userMessage = currentMessage.trim();
-    setCurrentMessage('');
-    setIsChatLoading(true);
-
-    const newUserMessage = {
-      id: Date.now(),
-      type: 'user',
-      content: userMessage,
-      timestamp: new Date()
-    };
-
-    setChatMessages(prev => [...prev, newUserMessage]);
-
-    try {
-      const response = await chatForUserBirthChart(userId, birthChartAnalysisId, userMessage);
-      const botMessage = {
-        id: Date.now() + 1,
-        type: 'bot',
-        content: response.answer || 'No response received',
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, botMessage]);
-    } catch (error) {
-      console.error('Error sending chat message:', error);
-      const errorMessage = {
-        id: Date.now() + 1,
-        type: 'error',
-        content: `Error: ${error.message}`,
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsChatLoading(false);
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
 
   // Transit windows function (simplified)
   const fetchTransitWindows = async () => {
@@ -1114,66 +1011,10 @@ function UserDashboard() {
     });
   }
 
-  // Add Aspect Explorer tab - only show when analysis is complete
-  if (isAnalysisPopulated() && userId && userPlanets && userAspects) {
-    analysisTabs.push({
-      id: 'aspectexplorer',
-      label: 'Aspect Explorer',
-      content: (
-        <AspectExplorer
-          userId={userId}
-          userPlanets={userPlanets}
-          userAspects={userAspects}
-          customAnalyses={customAnalyses}
-          onAnalysisGenerated={() => fetchAnalysisForUserAsync()}
-        />
-      )
-    });
-  } else if (hasPartialAnalysis()) {
-    analysisTabs.push({
-      id: 'aspectexplorer',
-      label: 'Aspect Explorer',
-      content: (
-        <section className="aspect-explorer-section">
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px 20px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '8px',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
-            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>🔍 Aspect Explorer</h3>
-            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
-              Explore custom combinations of aspects and planetary positions from your birth chart. 
-              Select up to 4 elements to receive personalized psychological interpretations that reveal 
-              how these specific chart components work together.
-            </p>
-            <button
-              onClick={handleStartFullAnalysis}
-              disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
-              style={{
-                backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '16px'
-              }}
-            >
-              {fullAnalysisLoading ? 'Starting Analysis...' : 
-               (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
-               'Complete Full Analysis to Unlock'}
-            </button>
-          </div>
-        </section>
-      )
-    });
-  }
 
-  // Add Chat tab if vectorization is complete or show complete analysis prompt if paused
-  if (birthChartAnalysisId && userId && (
+
+  // Add Chat tab if analysis is complete
+  if (userId && userPlanets && userAspects && (
     vectorizationStatus.topicAnalysis.isComplete || 
     vectorizationStatus.workflowStatus?.isComplete
   )) {
@@ -1181,14 +1022,12 @@ function UserDashboard() {
       id: 'chat',
       label: 'Chat',
       content: (
-        <UserChatBirthChart
-          chatMessages={chatMessages}
-          currentMessage={currentMessage}
-          setCurrentMessage={setCurrentMessage}
-          isChatLoading={isChatLoading}
-          isChatHistoryLoading={isChatHistoryLoading}
-          handleSendMessage={handleSendMessage}
-          handleKeyPress={handleKeyPress}
+        <EnhancedChatBirthChart
+          userId={userId}
+          userPlanets={userPlanets}
+          userAspects={userAspects}
+          chatMessages={enhancedChatMessages}
+          setChatMessages={setEnhancedChatMessages}
         />
       )
     });
@@ -1205,11 +1044,10 @@ function UserDashboard() {
             borderRadius: '8px',
             border: '1px solid rgba(255, 255, 255, 0.1)'
           }}>
-            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>💬 Personalized AI Chat</h3>
+            <h3 style={{ color: '#8b5cf6', marginBottom: '15px' }}>💬 AI Chat</h3>
             <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
-              Chat with your personal AI astrologer about your birth chart! Ask questions about your 
-              personality, relationships, career path, or any aspect of your astrological profile. 
-              Available after your complete analysis is ready.
+              Chat with your personal AI astrologer! Select specific aspects or planetary positions, 
+              ask targeted questions, or use both together for the most personalized astrological insights.
             </p>
             <button
               onClick={handleResumeWorkflow}
@@ -1225,64 +1063,6 @@ function UserDashboard() {
               }}
             >
               Complete Analysis to Unlock Chat
-            </button>
-          </div>
-        </section>
-      )
-    });
-  }
-
-  // Add Enhanced Chat tab if analysis is complete
-  if (userId && userPlanets && userAspects && (
-    vectorizationStatus.topicAnalysis.isComplete || 
-    vectorizationStatus.workflowStatus?.isComplete
-  )) {
-    analysisTabs.push({
-      id: 'enhancedchat',
-      label: 'Enhanced Chat',
-      content: (
-        <EnhancedChatBirthChart
-          userId={userId}
-          userPlanets={userPlanets}
-          userAspects={userAspects}
-          chatMessages={enhancedChatMessages}
-          setChatMessages={setEnhancedChatMessages}
-        />
-      )
-    });
-  } else if (workflowState.isPaused) {
-    analysisTabs.push({
-      id: 'enhancedchat',
-      label: 'Enhanced Chat',
-      content: (
-        <section className="enhanced-chat-section">
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px 20px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '8px',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
-            <h3 style={{ color: '#8b5cf6', marginBottom: '15px' }}>✨ Enhanced Chat</h3>
-            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
-              Enhanced chat combines aspect selection with AI conversation. Select specific aspects 
-              or planetary positions, ask targeted questions, or use both together for the most 
-              personalized astrological insights.
-            </p>
-            <button
-              onClick={handleResumeWorkflow}
-              style={{
-                backgroundColor: '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '16px'
-              }}
-            >
-              Complete Analysis to Unlock Enhanced Chat
             </button>
           </div>
         </section>
