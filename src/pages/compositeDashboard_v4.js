@@ -7,14 +7,12 @@ import {
   fetchUser,
   fetchRelationshipAnalysis,
   fetchAnalysis,
-  chatForUserRelationship,
-  fetchUserChatRelationshipAnalysis,
   startRelationshipWorkflow,
   getRelationshipWorkflowStatus,
   resumeRelationshipWorkflow,
   startFullRelationshipAnalysis
 } from '../Utilities/api';
-// import UserChatBirthChart from '../UI/prototype/UserChatBirthChart'; // Removed - component no longer exists
+import RelationshipEnhancedChat from '../UI/prototype/RelationshipEnhancedChat';
 import TabMenu from '../UI/shared/TabMenu';
 import TensionFlowAnalysis from '../UI/prototype/TensionFlowAnalysis';
 import ScoredItemsTable from '../UI/prototype/ScoredItemsTable';
@@ -71,11 +69,14 @@ function CompositeDashboard_v4({}) {
     const [retryCount, setRetryCount] = useState(0);
     const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
     
-    // Add chat-related state
-    const [chatMessages, setChatMessages] = useState([]);
-    const [currentMessage, setCurrentMessage] = useState('');
-    const [isChatLoading, setIsChatLoading] = useState(false);
-    const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(false);
+    // Legacy chat-related state (keeping for potential future use)
+    // const [chatMessages, setChatMessages] = useState([]);
+    // const [currentMessage, setCurrentMessage] = useState('');
+    // const [isChatLoading, setIsChatLoading] = useState(false);
+    // const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(false);
+    
+    // Enhanced chat state
+    const [relationshipEnhancedChatMessages, setRelationshipEnhancedChatMessages] = useState([]);
 
     const initializeCompositeChartData = useCallback(async () => {
         try {
@@ -783,131 +784,7 @@ function CompositeDashboard_v4({}) {
     return userAVectorizationStatus && userBVectorizationStatus;
   };
   
-  // Function to load chat history for relationship
-  const loadRelationshipChatHistory = useCallback(async () => {
-    if (!userA?._id || !compositeChart?._id) {
-      return;
-    }
-
-    setIsChatHistoryLoading(true);
-    try {
-      const response = await fetchUserChatRelationshipAnalysis(userA._id, compositeChart._id);
-      console.log("Relationship chat history response:", response);
-      
-      // Transform the backend messages to match your frontend format
-      if (response && response.success && Array.isArray(response.chatHistory)) {
-        const transformedMessages = response.chatHistory.map((message, index) => ({
-          id: `history-${index}-${Date.now()}`,
-          type: message.role === 'user' ? 'user' : 'bot',
-          content: message.content,
-          timestamp: new Date(message.timestamp)
-        }));
-        
-        setChatMessages(transformedMessages);
-      } else {
-        console.log("No relationship chat history found or invalid response format");
-        setChatMessages([]);
-      }
-    } catch (error) {
-      console.error('Error loading relationship chat history:', error);
-      setChatMessages([{
-        id: `error-${Date.now()}`,
-        type: 'error',
-        content: 'Failed to load chat history',
-        timestamp: new Date()
-      }]);
-    } finally {
-      setIsChatHistoryLoading(false);
-    }
-  }, [userA?._id, compositeChart?._id]);
-
-  // Load chat history when vectorization is complete
-  useEffect(() => {
-    console.log("Checking chat history load conditions:", {
-        relationshipAnalysis: vectorizationStatus.relationshipAnalysis,
-        workflowComplete: workflowComplete,
-        userA: userA?._id,
-        compositeChart: compositeChart?._id
-    });
-    
-    if ((vectorizationStatus.relationshipAnalysis || workflowComplete) && userA?._id && compositeChart?._id) {
-        console.log("Loading chat history...");
-        loadRelationshipChatHistory();
-    }
-  }, [vectorizationStatus.relationshipAnalysis, workflowComplete, userA?._id, compositeChart?._id, loadRelationshipChatHistory]);
-
-  // Handle sending new chat messages
-  const handleSendMessage = async () => {
-    if (!currentMessage.trim() || !userA?._id || !compositeChart?._id) {
-      return;
-    }
-
-    const userMessage = currentMessage.trim();
-    setCurrentMessage('');
-    setIsChatLoading(true);
-
-    // Add user message to chat immediately
-    const newUserMessage = {
-      id: Date.now(),
-      type: 'user',
-      content: userMessage,
-      timestamp: new Date()
-    };
-
-    setChatMessages(prev => [...prev, newUserMessage]);
-
-    try {
-      const response = await chatForUserRelationship(userA._id, compositeChart._id, userMessage);
-      console.log('Relationship chat API response:', response);
-      
-      // Extract response content
-      let responseContent = 'No response received';
-      
-      if (typeof response === 'string') {
-        responseContent = response;
-      } else if (response && typeof response === 'object') {
-        responseContent = response.message || 
-                         response.response || 
-                         response.reply || 
-                         response.answer || 
-                         response.text || 
-                         response.content ||
-                         response.result ||
-                         JSON.stringify(response);
-      }
-
-      // Add API response to chat
-      const botMessage = {
-        id: Date.now() + 1,
-        type: 'bot',
-        content: responseContent,
-        timestamp: new Date()
-      };
-
-      setChatMessages(prev => [...prev, botMessage]);
-    } catch (error) {
-      console.error('Error sending relationship chat message:', error);
-      
-      // Add error message to chat
-      const errorMessage = {
-        id: Date.now() + 1,
-        type: 'error',
-        content: `Error: ${error.message}`,
-        timestamp: new Date()
-      };
-
-      setChatMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsChatLoading(false);
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
+  // Legacy chat functions removed - now using RelationshipEnhancedChat component
 
   // Check for scores in either relationshipScores state or workflow state  
   const availableScores = relationshipScores || relationshipWorkflowState.scores;
@@ -1112,17 +989,15 @@ function CompositeDashboard_v4({}) {
       id: 'chat',
       label: 'Chat',
       content: (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '40px 20px',
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '8px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          color: 'white'
-        }}>
-          <h3 style={{ color: '#8b5cf6', marginBottom: '15px' }}>💬 Relationship Chat</h3>
-          <p>Chat functionality for relationship analysis is temporarily unavailable.</p>
-        </div>
+        <RelationshipEnhancedChat
+          compositeChartId={compositeChart._id}
+          synastryAspects={synastryAspects}
+          compositeChart={compositeChart}
+          userAName={userA.firstName}
+          userBName={userB.firstName}
+          chatMessages={relationshipEnhancedChatMessages}
+          setChatMessages={setRelationshipEnhancedChatMessages}
+        />
       )
     });
   } else if (relationshipWorkflowState.isPaused) {

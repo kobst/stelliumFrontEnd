@@ -1860,3 +1860,51 @@ export const fetchEnhancedChatHistory = async (userId, limit = null) => {
   }
 };
 
+// Relationship Enhanced Chat API Functions
+export const enhancedChatForRelationship = async (compositeChartId, requestBody) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/relationships/${compositeChartId}/enhanced-chat`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(requestBody)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error with relationship enhanced chat:', error);
+    throw error;
+  }
+};
+
+export const fetchRelationshipEnhancedChatHistory = async (compositeChartId, limit = null) => {
+  try {
+    let url = `${SERVER_URL}/relationships/${compositeChartId}/chat-history`;
+    if (limit !== null) {
+      url += `?limit=${limit}`;
+    }
+    
+    const response = await fetch(url, {
+      method: 'GET'
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching relationship enhanced chat history:', error);
+    throw error;
+  }
+};
+
