@@ -43,6 +43,12 @@ function CompositeDashboard_v4({}) {
     // Add state for tension flow analysis
     const [tensionFlowAnalysis, setTensionFlowAnalysis] = useState(null);
     
+    // Add V2 state management
+    const [v2Analysis, setV2Analysis] = useState(null);
+    const [v2Metrics, setV2Metrics] = useState(null);
+    const [v2KeystoneAspects, setV2KeystoneAspects] = useState([]);
+    const [isV2Analysis, setIsV2Analysis] = useState(false);
+    
     // Preview mode state
     const relationshipWorkflowState = useStore(state => state.relationshipWorkflowState);
     const setRelationshipWorkflowState = useStore(state => state.setRelationshipWorkflowState);
@@ -165,6 +171,60 @@ function CompositeDashboard_v4({}) {
                 if (fetchedData?.tensionFlowAnalysis) {
                     console.log("Tension flow analysis available: ", fetchedData.tensionFlowAnalysis);
                     setTensionFlowAnalysis(fetchedData.tensionFlowAnalysis);
+                }
+
+                // Handle V2 Analysis data
+                if (fetchedData?.v2Analysis) {
+                    console.log("✅ V2 Analysis available: ", fetchedData.v2Analysis);
+                    console.log("🎯 V2 Clusters:", Object.keys(fetchedData.v2Analysis.clusters || {}));
+                    console.log("🏆 V2 Tier:", fetchedData.v2Analysis.tier);
+                    console.log("📊 V2 Profile:", fetchedData.v2Analysis.profile);
+                    setV2Analysis(fetchedData.v2Analysis);
+                    setIsV2Analysis(true);
+                    
+                    // Convert V2 cluster scores to legacy format for button logic
+                    if (fetchedData.v2Analysis.clusters) {
+                        const legacyScores = {};
+                        const legacyToV2Mapping = {
+                            'EMOTIONAL_SECURITY_CONNECTION': 'Harmony',
+                            'OVERALL_ATTRACTION_CHEMISTRY': 'Harmony', 
+                            'SEX_AND_INTIMACY': 'Passion',
+                            'COMMUNICATION_AND_MENTAL_CONNECTION': 'Connection',
+                            'KARMIC_LESSONS_GROWTH': 'Growth',
+                            'COMMITMENT_LONG_TERM_POTENTIAL': 'Stability',
+                            'PRACTICAL_GROWTH_SHARED_GOALS': 'Stability'
+                        };
+                        
+                        Object.entries(legacyToV2Mapping).forEach(([legacyCategory, v2Cluster]) => {
+                            if (fetchedData.v2Analysis.clusters[v2Cluster]) {
+                                legacyScores[legacyCategory] = fetchedData.v2Analysis.clusters[v2Cluster].score;
+                            }
+                        });
+                        
+                        console.log("🔄 Setting relationshipScores from V2 data:", legacyScores);
+                        setRelationshipScores(legacyScores);
+                    }
+                }
+
+                // Handle V2 Metrics
+                if (fetchedData?.v2Metrics) {
+                    console.log("V2 Metrics available: ", fetchedData.v2Metrics);
+                    setV2Metrics(fetchedData.v2Metrics);
+                }
+
+                // Handle V2 Keystone Aspects
+                if (fetchedData?.v2KeystoneAspects) {
+                    console.log("V2 Keystone Aspects available: ", fetchedData.v2KeystoneAspects);
+                    setV2KeystoneAspects(fetchedData.v2KeystoneAspects);
+                }
+
+                // Set V2 flag if we detected it
+                if (fetchedData?.isV2Analysis) {
+                    console.log("🚀 SETTING isV2Analysis to TRUE");
+                    setIsV2Analysis(true);
+                } else {
+                    console.log("❌ isV2Analysis flag NOT found in response");
+                    console.log("📊 Available keys:", Object.keys(fetchedData || {}));
                 }
 
                 // Handle vectorization status from the backend
@@ -306,6 +366,25 @@ function CompositeDashboard_v4({}) {
       setTensionFlowAnalysis(analysisData.tensionFlowAnalysis);
     }
 
+    // Handle V2 Analysis data from workflow
+    if (analysisData.v2Analysis) {
+      console.log("V2 Analysis from workflow:", analysisData.v2Analysis);
+      setV2Analysis(analysisData.v2Analysis);
+      setIsV2Analysis(true);
+    }
+
+    // Handle V2 Metrics from workflow
+    if (analysisData.v2Metrics) {
+      console.log("V2 Metrics from workflow:", analysisData.v2Metrics);
+      setV2Metrics(analysisData.v2Metrics);
+    }
+
+    // Handle V2 Keystone Aspects from workflow
+    if (analysisData.v2KeystoneAspects) {
+      console.log("V2 Keystone Aspects from workflow:", analysisData.v2KeystoneAspects);
+      setV2KeystoneAspects(analysisData.v2KeystoneAspects);
+    }
+
     // Handle vectorization status from workflow response
     if (analysisData.vectorizationStatus) {
       console.log("Vectorization status from workflow:", analysisData.vectorizationStatus);
@@ -362,6 +441,9 @@ function CompositeDashboard_v4({}) {
 
   // Start workflow function (full analysis) - Enhanced for Stage 2
   const handleStartWorkflow = async () => {
+    console.log("🚀🚀🚀 BUTTON CLICKED! Starting workflow...");
+    console.log("🔍 compositeChart._id:", compositeChart?._id);
+    
     if (!compositeChart?._id) {
       console.error('Missing composite chart ID to start full analysis workflow');
       return;
@@ -369,6 +451,7 @@ function CompositeDashboard_v4({}) {
 
     try {
       // Set starting state immediately
+      console.log("Setting isStartingAnalysis to true");
       setIsStartingAnalysis(true);
       
       // Reset all workflow state
@@ -875,6 +958,7 @@ function CompositeDashboard_v4({}) {
                 <ScoredItemsTable 
                   scoredItems={availableScoreAnalysis[cat].scoredItems} 
                   categoryName={RelationshipCategoriesEnum[cat]?.label || cat.replace(/_/g, ' ')}
+                  isV2={true}
                 />
               </div>
             )}
@@ -957,7 +1041,17 @@ function CompositeDashboard_v4({}) {
     mainTabs.push({
       id: 'scores',
       label: 'Scores',
-      content: <RelationshipScoresRadarChart scores={availableScores} scoreDebugInfo={formattedScoreDebugInfo} holisticOverview={holisticOverview} profileAnalysis={profileAnalysis} clusterAnalysis={clusterAnalysis} tensionFlowAnalysis={tensionFlowAnalysis} />
+      content: <RelationshipScoresRadarChart 
+        scores={availableScores} 
+        scoreDebugInfo={formattedScoreDebugInfo} 
+        holisticOverview={holisticOverview} 
+        profileAnalysis={profileAnalysis} 
+        clusterAnalysis={clusterAnalysis} 
+        tensionFlowAnalysis={tensionFlowAnalysis}
+        v2Analysis={v2Analysis}
+        v2Metrics={v2Metrics}
+        v2KeystoneAspects={v2KeystoneAspects}
+      />
     });
   } else {
     console.log('❌ No scores available, Scores tab not added');
@@ -973,14 +1067,7 @@ function CompositeDashboard_v4({}) {
     });
   }
 
-  // Add tension flow analysis tab if available
-  if (tensionFlowAnalysis) {
-    mainTabs.push({
-      id: 'tension-flow',
-      label: 'Tension Flow',
-      content: <TensionFlowAnalysis tensionFlowAnalysis={tensionFlowAnalysis} />
-    });
-  }
+  // V2 Analysis uses keystone aspects integrated into the scores tab
 
   // Holistic overview is now integrated into the radar chart component
 
@@ -1140,11 +1227,29 @@ function CompositeDashboard_v4({}) {
             )}
 
             {/* Scores Available - Start Full Analysis State */}
-            {(relationshipScores || (relationshipWorkflowState.isPaused && relationshipWorkflowState.hasScores)) && 
-             !detailedRelationshipAnalysis && 
-             !workflowComplete && 
-             !isWorkflowRunning && 
-             !isStartingAnalysis && (
+            {(() => {
+              const hasScores = relationshipScores || (relationshipWorkflowState.isPaused && relationshipWorkflowState.hasScores);
+              const noVectorization = !vectorizationStatus?.relationshipAnalysis;
+              const notComplete = !workflowComplete;
+              const notRunning = !isWorkflowRunning;
+              const notStarting = !isStartingAnalysis;
+              
+              console.log("🔍 Start Full Analysis Button Conditions:", {
+                hasScores,
+                noVectorization,
+                notComplete,
+                notRunning,
+                notStarting,
+                shouldShow: hasScores && noVectorization && notComplete && notRunning && notStarting,
+                relationshipScores: !!relationshipScores,
+                vectorizationStatus: vectorizationStatus,
+                workflowComplete,
+                isWorkflowRunning,
+                isStartingAnalysis
+              });
+              
+              return hasScores && noVectorization && notComplete && notRunning && notStarting;
+            })() && (
               <div style={{ 
                 backgroundColor: 'rgba(139, 92, 246, 0.1)', 
                 padding: '20px', 
@@ -1177,6 +1282,7 @@ function CompositeDashboard_v4({}) {
                       marginRight: '10px'
                     }}
                   >
+                    {console.log("🎯 RENDERING Start Full Analysis button in 'Scores Available' section")}
                     {relationshipWorkflowState.isPaused ? 'Complete Full Analysis' : 'Start Full Analysis'}
                   </button>
                   <p style={{ color: '#a78bfa', fontSize: '14px', margin: '10px 0 0 0' }}>

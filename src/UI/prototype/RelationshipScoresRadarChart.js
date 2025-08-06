@@ -24,33 +24,55 @@ ChartJS.register(
   RadarController
 );
 
-const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview, profileAnalysis, clusterAnalysis, tensionFlowAnalysis }) => {
+const RelationshipScoresRadarChart = ({ 
+  scores, 
+  scoreDebugInfo, 
+  holisticOverview, 
+  profileAnalysis, 
+  clusterAnalysis, 
+  tensionFlowAnalysis,
+  v2Analysis,
+  v2Metrics,
+  v2KeystoneAspects,
+  isV2Analysis 
+}) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
+  
 
-  // Cluster categories - using profileAnalysis.profileResult.clusterScores
+  // V2 Cluster categories (now the default)
   const clusterCategories = {
-    Heart: "Heart",
-    Body: "Body", 
-    Mind: "Mind",
-    Life: "Life",
-    Soul: "Soul"
+    Harmony: "Harmony",
+    Passion: "Passion", 
+    Connection: "Connection",
+    Growth: "Growth",
+    Stability: "Stability"
   };
 
-  // Cluster icons for visual clarity
+  // V2 Cluster icons (now the default)
   const clusterIcons = {
-    Heart: "💗",
-    Body: "🔥",
-    Mind: "🧠",
-    Life: "💎",
-    Soul: "🌙"
+    Harmony: "💕",
+    Passion: "🔥",
+    Connection: "🧠",
+    Growth: "🌱",
+    Stability: "💎"
   };
 
   // Helper function to get cluster analysis
   const getClusterAnalysis = (clusterKey) => {
-    // Get analysis from clusterAnalysis prop (fetched separately)
-    const clusterData = clusterAnalysis?.[clusterKey];
+    // Get from v2Analysis clusters
+    if (v2Analysis?.clusters?.[clusterKey]) {
+      const clusterData = v2Analysis.clusters[clusterKey];
+      return {
+        type: 'v2-cluster',
+        analysis: clusterData.analysis,
+        scoredItems: clusterData.scoredItems || [],
+        score: clusterData.score
+      };
+    }
     
+    // Fallback to clusterAnalysis prop
+    const clusterData = clusterAnalysis?.[clusterKey];
     if (clusterData) {
       return {
         type: 'cluster',
@@ -62,11 +84,35 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
     return null;
   };
 
-  // Prepare data for radar chart - use cluster scores from profileAnalysis
-  const orderedClusters = ['Heart', 'Body', 'Mind', 'Life', 'Soul'];
+  // V2 clusters are the default
+  const orderedClusters = ['Harmony', 'Passion', 'Connection', 'Growth', 'Stability'];
   
-  // Get cluster scores from profileAnalysis, fallback to 0 if not available
-  const clusterScores = profileAnalysis?.profileResult?.clusterScores || {};
+  // Get cluster scores - prefer V2, fallback to legacy mapping
+  let clusterScores = {};
+  if (v2Analysis?.clusters) {
+    // Use V2 cluster scores directly
+    clusterScores = Object.keys(v2Analysis.clusters).reduce((acc, key) => {
+      acc[key] = v2Analysis.clusters[key].score || 0;
+      return acc;
+    }, {});
+  } else if (scores) {
+    // Map legacy scores to V2 clusters if V2 data not available
+    const legacyToV2Mapping = {
+      'Harmony': ['EMOTIONAL_SECURITY_CONNECTION', 'OVERALL_ATTRACTION_CHEMISTRY'],
+      'Passion': ['SEX_AND_INTIMACY'],
+      'Connection': ['COMMUNICATION_AND_MENTAL_CONNECTION'],
+      'Growth': ['KARMIC_LESSONS_GROWTH'],
+      'Stability': ['COMMITMENT_LONG_TERM_POTENTIAL', 'PRACTICAL_GROWTH_SHARED_GOALS']
+    };
+    
+    Object.entries(legacyToV2Mapping).forEach(([v2Cluster, legacyCategories]) => {
+      const avgScore = legacyCategories.reduce((sum, category) => {
+        return sum + (scores[category] || 0);
+      }, 0) / legacyCategories.length;
+      clusterScores[v2Cluster] = Math.round(avgScore);
+    });
+  }
+  
   const dataPoints = orderedClusters.map(cluster => clusterScores[cluster] || 0);
   
   const chartData = {
@@ -283,20 +329,34 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
     <div className="relationship-scores-radar-chart">
       <h2>Relationship Compatibility Scores</h2>
       
-      {/* Profile Analysis Banner */}
-      {profileAnalysis?.profileResult && (
-        <div className="profile-analysis-banner">
-          <div className="profile-tier">
-            <span className="profile-label">Tier:</span>
-            <span className="profile-value">{profileAnalysis.profileResult.tier}</span>
-          </div>
-          <div className="profile-divider">|</div>
-          <div className="profile-type">
-            <span className="profile-label">Profile:</span>
-            <span className="profile-value">{profileAnalysis.profileResult.profile}</span>
-          </div>
+      {/* V2 Analysis Banner */}
+      <div className="v2-analysis-banner">
+        <div className="v2-badge">
+          <span className="version-badge">✨ Enhanced Analysis V2</span>
         </div>
-      )}
+        {v2Analysis?.tier && (
+          <div className="v2-tier">
+            <span className="tier-label">Tier:</span>
+            <span className="tier-value">{v2Analysis.tier}</span>
+          </div>
+        )}
+        {v2Analysis?.tier && v2Analysis?.profile && <div className="profile-divider">|</div>}
+        {v2Analysis?.profile && (
+          <div className="v2-profile">
+            <span className="profile-label">Profile:</span>
+            <span className="profile-value">{v2Analysis.profile}</span>
+          </div>
+        )}
+        {v2Analysis?.confidence && (
+          <>
+            <div className="profile-divider">|</div>
+            <div className="v2-confidence">
+              <span className="confidence-label">Confidence:</span>
+              <span className="confidence-value">{Math.round(v2Analysis.confidence * 100)}%</span>
+            </div>
+          </>
+        )}
+      </div>
       
       {/* Radar Chart Container */}
       <div className="radar-chart-container">
@@ -372,46 +432,61 @@ const RelationshipScoresRadarChart = ({ scores, scoreDebugInfo, holisticOverview
         </div>
       )}
 
-      {/* Holistic Overview - displayed beneath the radar chart and analysis */}
-      {holisticOverview?.overview && (
-        <div className="holistic-overview-section">
-          <div className="holistic-overview-content">
+      {/* V2 Overall Analysis */}
+      {v2Analysis?.initialOverview && (
+        <div className="v2-overview-section">
+          <div className="v2-overview-content">
             <h3>💫 Relationship Overview</h3>
-            <p className="overview-text">{holisticOverview.overview}</p>
+            <p className="overview-text">{v2Analysis.initialOverview}</p>
           </div>
-          
-          {holisticOverview.topStrengths && holisticOverview.topStrengths.length > 0 && (
-            <div className="strengths-section">
-              <h4>✨ Top Strengths</h4>
-              <ul className="strengths-list">
-                {holisticOverview.topStrengths.map((item, index) => (
-                  <li key={index}>
-                    <strong>{item.name}</strong> - {item.description}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          
-          {holisticOverview.keyChallenges && holisticOverview.keyChallenges.length > 0 && (
-            <div className="challenges-section">
-              <h4>⚠️ Key Challenges</h4>
-              <ul className="challenges-list">
-                {holisticOverview.keyChallenges.map((item, index) => (
-                  <li key={index}>
-                    <strong>{item.name}</strong> - {item.description}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       )}
 
-      {/* Tension Flow Analysis */}
-      {tensionFlowAnalysis && (
-        <TensionFlowAnalysis tensionFlowAnalysis={tensionFlowAnalysis} />
+      {/* V2 Keystone Aspects */}
+      {v2KeystoneAspects && v2KeystoneAspects.length > 0 && (
+        <div className="v2-keystone-aspects-section">
+          <h3>🌟 Keystone Aspects</h3>
+          <p className="keystone-description">
+            These are the most structurally important aspects in your relationship, based on overall centrality analysis.
+          </p>
+          <div className="keystone-aspects-list">
+            {v2KeystoneAspects.map((aspect, index) => (
+              <div key={index} className="keystone-aspect">
+                <div className="keystone-header">
+                  <div className="keystone-rank">#{index + 1}</div>
+                  <div className="keystone-title">{aspect.description}</div>
+                  <div className="keystone-centrality">
+                    Centrality: {aspect.centrality}/10
+                  </div>
+                </div>
+                <div className="keystone-details">
+                  <div className="keystone-score">
+                    Score: <span className={aspect.valence > 0 ? 'positive' : aspect.valence < 0 ? 'negative' : 'neutral'}>
+                      {aspect.score > 0 ? '+' : ''}{aspect.score}
+                    </span>
+                  </div>
+                  {aspect.aspect && aspect.orb && (
+                    <div className="keystone-orb">Orb: {aspect.orb}°</div>
+                  )}
+                  {aspect.spark && (
+                    <div className="keystone-spark">✨ Chemistry Factor</div>
+                  )}
+                </div>
+                <div className="keystone-clusters">
+                  <span className="primary-cluster">Primary: {aspect.primaryCluster}</span>
+                  {aspect.contributingClusters && aspect.contributingClusters.length > 1 && (
+                    <span className="contributing-clusters">
+                      Also affects: {aspect.contributingClusters.filter(c => c !== aspect.primaryCluster).join(', ')}
+                    </span>
+                  )}
+                </div>
+                <div className="keystone-reason">{aspect.reason}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
+
 
       {/* Instructions */}
       <div className="chart-instructions">

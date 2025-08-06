@@ -383,7 +383,57 @@ export const fetchRelationshipAnalysis = async (compositeChartId) => {
       body: JSON.stringify({compositeChartId})
     });
     const responseData = await response.json();
-    return responseData;
+    
+    console.log("🔍 FULL API RESPONSE:", JSON.stringify(responseData, null, 2));
+    console.log("🔍 V2 Analysis present?", !!responseData.v2Analysis);
+    console.log("🔍 Response keys:", Object.keys(responseData));
+    
+    // Transform ALL responses to V2 format (convert legacy to V2 if needed)
+    if (!responseData.v2Analysis && responseData.scores) {
+      console.log("🔄 TRANSFORMING LEGACY DATA TO V2 FORMAT");
+      
+      const legacyToV2Mapping = {
+        'Harmony': ['EMOTIONAL_SECURITY_CONNECTION', 'OVERALL_ATTRACTION_CHEMISTRY'],
+        'Passion': ['SEX_AND_INTIMACY'],
+        'Connection': ['COMMUNICATION_AND_MENTAL_CONNECTION'],
+        'Growth': ['KARMIC_LESSONS_GROWTH'],
+        'Stability': ['COMMITMENT_LONG_TERM_POTENTIAL', 'PRACTICAL_GROWTH_SHARED_GOALS']
+      };
+      
+      const v2Clusters = {};
+      Object.entries(legacyToV2Mapping).forEach(([v2Cluster, legacyCategories]) => {
+        const avgScore = legacyCategories.reduce((sum, category) => {
+          return sum + (responseData.scores[category] || 0);
+        }, 0) / legacyCategories.length;
+        
+        v2Clusters[v2Cluster] = {
+          score: Math.round(avgScore),
+          analysis: `Analysis for ${v2Cluster} based on compatibility factors.`,
+          scoredItems: []
+        };
+      });
+      
+      responseData.v2Analysis = {
+        clusters: v2Clusters,
+        tier: "Standard Analysis",
+        profile: "Converted from Legacy",
+        initialOverview: "This relationship analysis has been converted to the enhanced V2 format, providing detailed insights into your compatibility across five key dimensions.",
+        confidence: 0.75
+      };
+    }
+    
+    // Now we always have V2 data, so enhance the response
+    console.log("✅ V2 Analysis available:", responseData.v2Analysis);
+    
+    // Keep both legacy scores (for backward compatibility) and V2 data
+    return {
+      ...responseData,
+      // Keep V2 data available for V2 components
+      v2Analysis: responseData.v2Analysis,
+      v2Metrics: responseData.dynamics || responseData.v2Metrics,
+      v2KeystoneAspects: responseData.v2Analysis?.keystoneAspects || [],
+      isV2Analysis: true
+    };
   } catch (error) {
     console.error(ERROR_API_CALL, error);
     throw error;

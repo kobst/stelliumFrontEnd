@@ -14,7 +14,56 @@
   font-size: 1.5rem;
 }
 
-/* Profile Analysis Banner */
+/* V2 Analysis Banner */
+.v2-analysis-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 8px;
+  padding: 12px 20px;
+  margin: 0 0 25px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  gap: 20px;
+  position: relative;
+}
+
+.v2-badge .version-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.v2-tier,
+.v2-profile,
+.v2-confidence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tier-label,
+.confidence-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tier-value,
+.confidence-value {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Legacy Profile Analysis Banner */
 .profile-analysis-banner {
   display: flex;
   align-items: center;
@@ -375,4 +424,150 @@
   .challenges-section {
     padding: 12px;
   }
+}
+
+/* V2 Overview and Keystone Aspects */
+.v2-overview-section {
+  margin: 25px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 8px;
+  border-left: 4px solid #0ea5e9;
+}
+
+.v2-overview-content h3 {
+  color: #0c4a6e;
+  margin: 0 0 15px 0;
+}
+
+.v2-overview-content .overview-text {
+  color: #1e293b;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.v2-keystone-aspects-section {
+  margin: 25px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+  border-radius: 8px;
+  border-left: 4px solid #f59e0b;
+}
+
+.v2-keystone-aspects-section h3 {
+  color: #92400e;
+  margin: 0 0 10px 0;
+}
+
+.keystone-description {
+  color: #7c2d12;
+  font-size: 14px;
+  margin-bottom: 20px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.keystone-aspects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.keystone-aspect {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 3px solid #f59e0b;
+}
+
+.keystone-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.keystone-rank {
+  background: #f59e0b;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.keystone-title {
+  font-weight: bold;
+  color: #1f2937;
+  flex: 1;
+}
+
+.keystone-centrality {
+  font-size: 12px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.keystone-details {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.keystone-score .positive {
+  color: #059669;
+  font-weight: bold;
+}
+
+.keystone-score .negative {
+  color: #dc2626;
+  font-weight: bold;
+}
+
+.keystone-score .neutral {
+  color: #6b7280;
+  font-weight: bold;
+}
+
+.keystone-orb {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.keystone-spark {
+  font-size: 12px;
+  color: #f59e0b;
+  font-weight: bold;
+}
+
+.keystone-clusters {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.primary-cluster {
+  color: #047857;
+  font-weight: bold;
+}
+
+.contributing-clusters {
+  color: #4b5563;
+  margin-left: 10px;
+  font-weight: 500;
+}
+
+.keystone-reason {
+  font-size: 13px;
+  color: #374151;
+  font-style: italic;
+  font-weight: 500;
 }

@@ -102,3 +102,26 @@
   color: rgba(255, 255, 255, 0.95);
   margin-left: 10px;
 }
+
+/* V2 Styling */
+.valence-indicator {
+  text-align: center;
+  font-size: 14px;
+  width: 60px;
+}
+
+.v2-details {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.3;
+}
+
+.v2-details div {
+  margin-bottom: 2px;
+}
+
+.keystone-badge {
+  color: #f59e0b;
+  font-weight: bold;
+  font-size: 10px;
+}
