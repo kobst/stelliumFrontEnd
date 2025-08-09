@@ -108,10 +108,63 @@ const formatCompositeHousePlacement = (placement) => {
   };
 };
 
+// Filtering functions for consolidatedScoredItems
+const getSynastryAspects = (items) => {
+  return items.filter(item => item.source === 'synastry' && item.type === 'aspect');
+};
+
+const getSynastryPlacements = (items) => {
+  return items.filter(item => item.source === 'synastryHousePlacement' && item.type === 'housePlacement');
+};
+
+const getCompositeAspects = (items) => {
+  return items.filter(item => item.source === 'composite' && item.type === 'aspect');
+};
+
+const getCompositePlacements = (items) => {
+  return items.filter(item => item.source === 'compositeHousePlacement' && item.type === 'housePlacement');
+};
+
+// Helper functions for enhanced display
+const getSparkIcon = (sparkType) => {
+  switch (sparkType) {
+    case 'sexual': return '🔥';
+    case 'transformative': return '💫';
+    case 'intellectual': return '🧠';
+    case 'emotional': return '💝';
+    case 'power': return '⚡';
+    default: return '✨';
+  }
+};
+
+const getElementSpark = (element) => {
+  if (!element.categoryData) return null;
+  
+  const sparkData = element.categoryData.find(cd => cd.spark === true);
+  return sparkData ? {
+    hasSpark: true,
+    sparkType: sparkData.sparkType,
+    icon: getSparkIcon(sparkData.sparkType)
+  } : null;
+};
+
+const getElementCategories = (element) => {
+  if (!element.categoryData) return [];
+  return element.categoryData.map(cd => cd.category);
+};
+
+const getElementMaxScore = (element) => {
+  if (!element.categoryData) return null;
+  
+  const scores = element.categoryData.map(cd => cd.score);
+  return Math.max(...scores);
+};
+
 const RelationshipEnhancedChat = ({ 
   compositeChartId, 
   synastryAspects = [], 
   compositeChart = {},
+  consolidatedScoredItems = [], // NEW PROP
   userAName = 'Partner A',
   userBName = 'Partner B',
   chatMessages, 
@@ -211,8 +264,14 @@ const RelationshipEnhancedChat = ({
       requestBody.query = query.trim();
     }
     if (selectedElements.length > 0) {
-      requestBody.selectedAspects = selectedElements;
+      requestBody.selectedElements = selectedElements;
     }
+    
+    console.log('🚀 CHAT SUBMIT DEBUG:');
+    console.log('selectedElements.length:', selectedElements.length);
+    console.log('query.trim():', query.trim());
+    console.log('currentMode:', currentMode);
+    console.log('requestBody:', JSON.stringify(requestBody, null, 2));
 
     // Add user message to chat if there's a query
     if (query.trim()) {
@@ -267,57 +326,58 @@ const RelationshipEnhancedChat = ({
     }
   };
 
-  // Prepare relationship elements data
+  // Prepare relationship elements data - prioritize consolidatedScoredItems
+  console.log('🔍 CHAT: consolidatedScoredItems available:', consolidatedScoredItems.length);
   
-  const synastryAspectsData = synastryAspects.map(aspect => 
-    formatSynastryAspect(aspect, userAName, userBName)
-  );
+  const synastryAspectsData = consolidatedScoredItems.length > 0 
+    ? getSynastryAspects(consolidatedScoredItems)
+    : synastryAspects.map(aspect => formatSynastryAspect(aspect, userAName, userBName));
 
-  const compositeAspectsData = (compositeChart.aspects || compositeChart.compositeChart?.aspects || [])
-    .map(aspect => formatCompositeAspect(aspect));
+  const compositeAspectsData = consolidatedScoredItems.length > 0
+    ? getCompositeAspects(consolidatedScoredItems)
+    : (compositeChart.aspects || compositeChart.compositeChart?.aspects || [])
+        .map(aspect => formatCompositeAspect(aspect));
 
-  // Extract synastry house placements 
-  // Try different possible locations for the data
-  const synastryHousePlacementsRaw = compositeChart?.synastryHousePlacements || 
-                                     compositeChart?.housePlacements || 
-                                     compositeChart?.synastry?.housePlacements ||
-                                     [];
+  // Synastry House Placements - prioritize consolidatedScoredItems
+  let synastryHousePlacementsData;
   
-  // Check if it's an object with userA/userB properties
-  let synastryHousePlacementsArray = [];
-  
-  if (Array.isArray(synastryHousePlacementsRaw)) {
-    synastryHousePlacementsArray = synastryHousePlacementsRaw;
-  } else if (typeof synastryHousePlacementsRaw === 'object' && synastryHousePlacementsRaw !== null) {
-    // It's an object with AinB/BinA arrays
-    if (synastryHousePlacementsRaw.AinB && Array.isArray(synastryHousePlacementsRaw.AinB)) {
-      synastryHousePlacementsRaw.AinB.forEach(placement => {
-        synastryHousePlacementsArray.push({
-          ...placement,
-          direction: 'A->B'
+  if (consolidatedScoredItems.length > 0) {
+    synastryHousePlacementsData = getSynastryPlacements(consolidatedScoredItems);
+  } else {
+    // Fallback to existing logic
+    const synastryHousePlacementsRaw = compositeChart?.synastryHousePlacements || 
+                                       compositeChart?.housePlacements || 
+                                       compositeChart?.synastry?.housePlacements ||
+                                       [];
+    
+    let synastryHousePlacementsArray = [];
+    
+    if (Array.isArray(synastryHousePlacementsRaw)) {
+      synastryHousePlacementsArray = synastryHousePlacementsRaw;
+    } else if (typeof synastryHousePlacementsRaw === 'object' && synastryHousePlacementsRaw !== null) {
+      if (synastryHousePlacementsRaw.AinB && Array.isArray(synastryHousePlacementsRaw.AinB)) {
+        synastryHousePlacementsRaw.AinB.forEach(placement => {
+          synastryHousePlacementsArray.push({ ...placement, direction: 'A->B' });
         });
-      });
+      }
+      if (synastryHousePlacementsRaw.BinA && Array.isArray(synastryHousePlacementsRaw.BinA)) {
+        synastryHousePlacementsRaw.BinA.forEach(placement => {
+          synastryHousePlacementsArray.push({ ...placement, direction: 'B->A' });
+        });
+      }
     }
     
-    if (synastryHousePlacementsRaw.BinA && Array.isArray(synastryHousePlacementsRaw.BinA)) {
-      synastryHousePlacementsRaw.BinA.forEach(placement => {
-        synastryHousePlacementsArray.push({
-          ...placement,
-          direction: 'B->A'
-        });
-      });
-    }
+    synastryHousePlacementsData = synastryHousePlacementsArray.map(placement => 
+      formatSynastryHousePlacement(placement, userAName, userBName)
+    );
   }
-  
-  const synastryHousePlacementsData = synastryHousePlacementsArray.map(placement => 
-    formatSynastryHousePlacement(placement, userAName, userBName)
-  );
-  
 
-  // Extract composite house placements from planets
-  const compositeHousePlacementsData = (compositeChart.planets || compositeChart.compositeChart?.planets || [])
-    .filter(planet => !['South Node', 'Part of Fortune'].includes(planet.name))
-    .map(planet => formatCompositeHousePlacement(planet));
+  // Composite House Placements - prioritize consolidatedScoredItems
+  const compositeHousePlacementsData = consolidatedScoredItems.length > 0
+    ? getCompositePlacements(consolidatedScoredItems)
+    : (compositeChart.planets || compositeChart.compositeChart?.planets || [])
+        .filter(planet => !['South Node', 'Part of Fortune'].includes(planet.name))
+        .map(planet => formatCompositeHousePlacement(planet));
 
   // Check if element is selected
   const isSelected = (element) => selectedElements.includes(element);
@@ -365,31 +425,70 @@ const RelationshipEnhancedChat = ({
             <div className="elements-section">
               <h4>Synastry Aspects</h4>
               <div className="elements-list">
-                {synastryAspectsData.map((aspect, index) => (
-                  <div
-                    key={`synastry-aspect-${index}`}
-                    className={`element-card synastry-aspect-card ${isSelected(aspect) ? 'selected' : ''}`}
-                    onClick={() => handleSelectElement(aspect)}
-                  >
-                    <div className="element-header">
-                      <span className="element-type">Synastry</span>
-                      {isSelected(aspect) && <span className="selected-badge">✓</span>}
-                    </div>
-                    <div className="element-content">
-                      <div className="element-main">
-                        {aspect.planet1} {aspect.aspect} {aspect.planet2}
+                {synastryAspectsData.map((aspect, index) => {
+                  // Enhanced data for consolidatedScoredItems
+                  const spark = getElementSpark(aspect);
+                  const maxScore = getElementMaxScore(aspect);
+                  const starRating = aspect.maxStarRating || 0;
+                  const isKeystone = aspect.isOverallKeystone;
+                  
+                  return (
+                    <div
+                      key={aspect.id || `synastry-aspect-${index}`}
+                      className={`element-card synastry-aspect-card ${isSelected(aspect) ? 'selected' : ''}`}
+                      onClick={() => handleSelectElement(aspect)}
+                    >
+                      <div className="element-header">
+                        <span className="element-type">Synastry</span>
+                        <div className="element-badges">
+                          {spark && <span className="spark-badge">{spark.icon}</span>}
+                          {isKeystone && <span className="keystone-badge">KEY</span>}
+                          {starRating > 0 && <span className="star-rating">{'⭐'.repeat(Math.min(starRating, 5))}</span>}
+                          {isSelected(aspect) && <span className="selected-badge">✓</span>}
+                        </div>
                       </div>
-                      <div className="element-details">
-                        {userAName}: {aspect.planet1} in {aspect.planet1Sign}
-                        {aspect.planet1House && ` H${aspect.planet1House}`}
-                        <br />
-                        {userBName}: {aspect.planet2} in {aspect.planet2Sign}
-                        {aspect.planet2House && ` H${aspect.planet2House}`}
+                      <div className="element-content">
+                        <div className="element-main">
+                          {aspect.planet1 || aspect.description?.split(' ')[0]} {aspect.aspect} {aspect.planet2 || 'Unknown'}
+                          {maxScore !== null && (
+                            <span 
+                              className="score-badge"
+                              style={{ 
+                                backgroundColor: maxScore >= 0 ? '#10b98120' : '#ef444420',
+                                color: maxScore >= 0 ? '#10b981' : '#ef4444',
+                                marginLeft: '8px',
+                                fontSize: '11px',
+                                padding: '2px 6px',
+                                borderRadius: '4px'
+                              }}
+                            >
+                              {maxScore > 0 ? '+' : ''}{maxScore}
+                            </span>
+                          )}
+                        </div>
+                        <div className="element-details">
+                          {/* Show description if from consolidatedScoredItems, otherwise use formatted details */}
+                          {aspect.description ? (
+                            <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                              {aspect.description}
+                            </div>
+                          ) : (
+                            <>
+                              {userAName}: {aspect.planet1} in {aspect.planet1Sign}
+                              {aspect.planet1House && ` H${aspect.planet1House}`}
+                              <br />
+                              {userBName}: {aspect.planet2} in {aspect.planet2Sign}
+                              {aspect.planet2House && ` H${aspect.planet2House}`}
+                            </>
+                          )}
+                        </div>
+                        {aspect.orb && (
+                          <div className="element-orb">Orb: {aspect.orb.toFixed(2)}°</div>
+                        )}
                       </div>
-                      <div className="element-orb">Orb: {aspect.orb.toFixed(2)}°</div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
