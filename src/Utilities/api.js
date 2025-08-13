@@ -1937,6 +1937,7 @@ export const enhancedChatForRelationship = async (compositeChartId, requestBody)
 export const fetchRelationshipEnhancedChatHistory = async (compositeChartId, limit = null) => {
   try {
     let url = `${SERVER_URL}/relationships/${compositeChartId}/chat-history`;
+    console.log('Fetching relationship enhanced chat history for compositeChartId:', url);
     if (limit !== null) {
       url += `?limit=${limit}`;
     }
@@ -1951,6 +1952,7 @@ export const fetchRelationshipEnhancedChatHistory = async (compositeChartId, lim
     }
     
     const data = await response.json();
+    console.log('Relationship enhanced chat history response:', data);
     return data;
   } catch (error) {
     console.error('Error fetching relationship enhanced chat history:', error);

@@ -12,6 +12,8 @@ import ConfirmationV2 from './pages/confirmationPage_v2';
 import PasswordProtection from './pages/passwordProtection';
 import AdminPasswordProtection from './pages/adminPasswordProtection';
 import PricingTable from './pages/plans';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 import NavBar from './UI/shared/NavBar';
 import './App.css';
 
@@ -39,6 +41,8 @@ function App() {
                 <Route path="/compositeDashboard" element={<CompositeDashboard_v4 />} />
                 <Route path="/signUpConfirmation" element={<ConfirmationV2 />} />
                 <Route path="/pricingTable" element={<PricingTable />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
               </Routes>
             </PasswordProtection>
           } />

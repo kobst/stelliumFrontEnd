@@ -132,6 +132,13 @@ const LandingPage = () => {
                 <li><a href="#contact">Contact</a></li>
               </ul>
             </div>
+            <div className="link-column">
+              <h4>Legal</h4>
+              <ul>
+                <li><a href="/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/terms-of-service">Terms of Service</a></li>
+              </ul>
+            </div>
             {/* <div className="link-column">
               <h4>Resources</h4>
               <ul>
