@@ -13,9 +13,9 @@ import {
   startFullRelationshipAnalysis
 } from '../Utilities/api';
 import RelationshipEnhancedChat from '../UI/prototype/RelationshipEnhancedChat';
+import RelationshipAnalysis from '../UI/prototype/RelationshipAnalysis';
+import DetailedAnalysisPanels from '../UI/prototype/DetailedAnalysisPanels';
 import TabMenu from '../UI/shared/TabMenu';
-import TensionFlowAnalysis from '../UI/prototype/TensionFlowAnalysis';
-import ScoredItemsTable from '../UI/prototype/ScoredItemsTable';
 import './compositeDashboard_v4.css';
 
 
@@ -257,11 +257,36 @@ function CompositeDashboard_v4({}) {
     // Add state for profile analysis
     const [profileAnalysis, setProfileAnalysis] = useState(null);
     
-    // Add state for cluster analysis
-    const [clusterAnalysis, setClusterAnalysis] = useState(null);
+    // Add state for cluster scoring (numerical data)
+    const [clusterScoring, setClusterScoring] = useState(null);
+    
+    // Add state for complete analysis (LLM-generated text panels)
+    const [completeAnalysis, setCompleteAnalysis] = useState(null);
+    
+    // Extract scored items from cluster analysis
+    const extractScoredItemsFromClusters = useCallback((clusterData) => {
+        if (!clusterData?.clusters) return [];
+        
+        const allScoredItems = [];
+        Object.values(clusterData.clusters).forEach(cluster => {
+            if (cluster.keystoneAspects) {
+                cluster.keystoneAspects.forEach(keystoneAspect => {
+                    if (keystoneAspect.item) {
+                        allScoredItems.push(keystoneAspect.item);
+                    }
+                });
+            }
+        });
+        
+        console.log("🔍 Extracted scored items from clusters:", allScoredItems);
+        return allScoredItems;
+    }, []);
     
     // Add state for tension flow analysis
     const [tensionFlowAnalysis, setTensionFlowAnalysis] = useState(null);
+    
+    // Add state for initial overview
+    const [initialOverview, setInitialOverview] = useState(null);
     
     // Add V2 state management
     const [v2Analysis, setV2Analysis] = useState(null);
@@ -307,6 +332,27 @@ function CompositeDashboard_v4({}) {
     
     // Enhanced chat state
     const [relationshipEnhancedChatMessages, setRelationshipEnhancedChatMessages] = useState([]);
+
+    // Helper function to determine if full analysis is complete
+    const isFullAnalysisComplete = useCallback(() => {
+        // Check if we have completeAnalysis with LLM-generated panels (indicates full analysis workflow complete)
+        if (completeAnalysis) {
+            const hasDetailedPanels = Object.values(completeAnalysis).some(cluster => 
+                cluster.synastryPanel && 
+                cluster.compositePanel &&
+                cluster.partnersPerspectives
+            );
+            console.log("🔍 isFullAnalysisComplete check - UPDATED STRUCTURE:", {
+                hasCompleteAnalysis: !!completeAnalysis,
+                completeAnalysisKeys: completeAnalysis ? Object.keys(completeAnalysis) : 'none',
+                hasDetailedPanels,
+                firstCompleteAnalysisSample: completeAnalysis ? Object.values(completeAnalysis)[0] : 'none'
+            });
+            return hasDetailedPanels;
+        }
+        console.log("🔍 isFullAnalysisComplete: No completeAnalysis available - analysis not complete");
+        return false;
+    }, [completeAnalysis]);
 
     const initializeCompositeChartData = useCallback(async () => {
         try {
@@ -385,10 +431,32 @@ function CompositeDashboard_v4({}) {
                     setProfileAnalysis(fetchedData.profileAnalysis);
                 }
 
-                // Handle cluster analysis
-                if (fetchedData?.clusterAnalysis) {
-                    console.log("Cluster analysis available: ", fetchedData.clusterAnalysis);
-                    setClusterAnalysis(fetchedData.clusterAnalysis);
+                // Handle cluster scoring (numerical data)
+                if (fetchedData?.clusterScoring) {
+                    console.log("Cluster scoring available: ", fetchedData.clusterScoring);
+                    setClusterScoring(fetchedData.clusterScoring);
+                } else if (fetchedData?.clusterAnalysis) {
+                    // Fallback for old field name
+                    console.log("Cluster analysis (legacy field) available: ", fetchedData.clusterAnalysis);
+                    setClusterScoring(fetchedData.clusterAnalysis);
+                }
+                
+                // Handle complete analysis (LLM-generated text panels)
+                if (fetchedData?.completeAnalysis) {
+                    console.log("Complete analysis available: ", fetchedData.completeAnalysis);
+                    setCompleteAnalysis(fetchedData.completeAnalysis);
+                }
+                
+                // Handle initial overview
+                if (fetchedData?.initialOverview) {
+                    console.log("Initial overview available: ", fetchedData.initialOverview);
+                    setInitialOverview(fetchedData.initialOverview);
+                } else if (fetchedData?.clusterScoring?.initialOverview) {
+                    console.log("Initial overview from cluster scoring: ", fetchedData.clusterScoring.initialOverview);
+                    setInitialOverview(fetchedData.clusterScoring.initialOverview);
+                } else if (fetchedData?.clusterAnalysis?.initialOverview) {
+                    console.log("Initial overview from cluster analysis (legacy): ", fetchedData.clusterAnalysis.initialOverview);
+                    setInitialOverview(fetchedData.clusterAnalysis.initialOverview);
                 }
 
                 // Handle tension flow analysis
@@ -397,37 +465,11 @@ function CompositeDashboard_v4({}) {
                     setTensionFlowAnalysis(fetchedData.tensionFlowAnalysis);
                 }
 
-                // Handle V2 Analysis data
+                // Handle legacy V2 Analysis data (if present)
                 if (fetchedData?.v2Analysis) {
-                    console.log("✅ V2 Analysis available: ", fetchedData.v2Analysis);
-                    console.log("🎯 V2 Clusters:", Object.keys(fetchedData.v2Analysis.clusters || {}));
-                    console.log("🏆 V2 Tier:", fetchedData.v2Analysis.tier);
-                    console.log("📊 V2 Profile:", fetchedData.v2Analysis.profile);
+                    console.log("✅ Legacy V2 Analysis available: ", fetchedData.v2Analysis);
                     setV2Analysis(fetchedData.v2Analysis);
                     setIsV2Analysis(true);
-                    
-                    // Convert V2 cluster scores to legacy format for button logic
-                    if (fetchedData.v2Analysis.clusters) {
-                        const legacyScores = {};
-                        const legacyToV2Mapping = {
-                            'EMOTIONAL_SECURITY_CONNECTION': 'Harmony',
-                            'OVERALL_ATTRACTION_CHEMISTRY': 'Harmony', 
-                            'SEX_AND_INTIMACY': 'Passion',
-                            'COMMUNICATION_AND_MENTAL_CONNECTION': 'Connection',
-                            'KARMIC_LESSONS_GROWTH': 'Growth',
-                            'COMMITMENT_LONG_TERM_POTENTIAL': 'Stability',
-                            'PRACTICAL_GROWTH_SHARED_GOALS': 'Stability'
-                        };
-                        
-                        Object.entries(legacyToV2Mapping).forEach(([legacyCategory, v2Cluster]) => {
-                            if (fetchedData.v2Analysis.clusters[v2Cluster]) {
-                                legacyScores[legacyCategory] = fetchedData.v2Analysis.clusters[v2Cluster].score;
-                            }
-                        });
-                        
-                        console.log("🔄 Setting relationshipScores from V2 data:", legacyScores);
-                        setRelationshipScores(legacyScores);
-                    }
                 }
 
                 // Handle V2 Metrics
@@ -442,21 +484,15 @@ function CompositeDashboard_v4({}) {
                     setV2KeystoneAspects(fetchedData.v2KeystoneAspects);
                 }
 
-                // Handle Consolidated Scored Items
-                console.log("🔍 CHECKING FOR consolidatedScoredItems in fetchedData:");
-                console.log("🔑 Available keys in fetchedData:", Object.keys(fetchedData || {}));
-                console.log("🎯 fetchedData.consolidatedScoredItems:", fetchedData?.consolidatedScoredItems);
+                // Handle Scored Items (new structure - nested in clusterAnalysis)
+                console.log("🔍 CHECKING FOR scoredItems in clusterAnalysis:");
+                console.log("🎯 fetchedData.clusterAnalysis?.scoredItems:", fetchedData?.clusterAnalysis?.scoredItems);
                 
-                if (fetchedData?.consolidatedScoredItems) {
-                    console.log("✅ Consolidated Scored Items available: ", fetchedData.consolidatedScoredItems);
-                    setConsolidatedScoredItems(fetchedData.consolidatedScoredItems);
+                if (fetchedData?.clusterAnalysis?.scoredItems && Array.isArray(fetchedData.clusterAnalysis.scoredItems)) {
+                    console.log("✅ Scored Items found in clusterAnalysis (length: " + fetchedData.clusterAnalysis.scoredItems.length + ")");
+                    setConsolidatedScoredItems(fetchedData.clusterAnalysis.scoredItems);
                 } else {
-                    console.log("❌ consolidatedScoredItems NOT FOUND in fetchedData");
-                    // Check if it's nested somewhere else
-                    if (fetchedData?.v2Analysis?.consolidatedScoredItems) {
-                        console.log("✅ Found consolidatedScoredItems in v2Analysis: ", fetchedData.v2Analysis.consolidatedScoredItems);
-                        setConsolidatedScoredItems(fetchedData.v2Analysis.consolidatedScoredItems);
-                    }
+                    console.log("❌ scoredItems NOT FOUND in clusterAnalysis or not an array");
                 }
 
                 // Set V2 flag if we detected it
@@ -595,10 +631,32 @@ function CompositeDashboard_v4({}) {
       setProfileAnalysis(analysisData.profileAnalysis);
     }
 
-    // Handle cluster analysis from workflow response
-    if (analysisData.clusterAnalysis) {
-      console.log("Cluster analysis from workflow:", analysisData.clusterAnalysis);
-      setClusterAnalysis(analysisData.clusterAnalysis);
+    // Handle cluster scoring from workflow response
+    if (analysisData.clusterScoring) {
+      console.log("Cluster scoring from workflow:", analysisData.clusterScoring);
+      setClusterScoring(analysisData.clusterScoring);
+    } else if (analysisData.clusterAnalysis) {
+      // Fallback for legacy field name
+      console.log("Cluster analysis (legacy) from workflow:", analysisData.clusterAnalysis);
+      setClusterScoring(analysisData.clusterAnalysis);
+    }
+
+    // Handle complete analysis from workflow response
+    if (analysisData.completeAnalysis) {
+      console.log("Complete analysis from workflow:", analysisData.completeAnalysis);
+      setCompleteAnalysis(analysisData.completeAnalysis);
+    }
+
+    // Handle initial overview from workflow response
+    if (analysisData.initialOverview) {
+      console.log("Initial overview from workflow:", analysisData.initialOverview);
+      setInitialOverview(analysisData.initialOverview);
+    } else if (analysisData.clusterScoring?.initialOverview) {
+      console.log("Initial overview from workflow cluster scoring:", analysisData.clusterScoring.initialOverview);
+      setInitialOverview(analysisData.clusterScoring.initialOverview);
+    } else if (analysisData.clusterAnalysis?.initialOverview) {
+      console.log("Initial overview from workflow cluster analysis (legacy):", analysisData.clusterAnalysis.initialOverview);
+      setInitialOverview(analysisData.clusterAnalysis.initialOverview);
     }
 
     // Handle tension flow analysis from workflow response
@@ -626,20 +684,15 @@ function CompositeDashboard_v4({}) {
       setV2KeystoneAspects(analysisData.v2KeystoneAspects);
     }
 
-    // Handle Consolidated Scored Items from workflow
-    console.log("🔍 WORKFLOW: Checking for consolidatedScoredItems in analysisData:");
-    console.log("🔑 WORKFLOW: Available keys:", Object.keys(analysisData || {}));
+    // Handle Scored Items from workflow (new structure - nested in clusterScoring)
+    console.log("🔍 WORKFLOW: Checking for scoredItems in clusterScoring:");
+    console.log("🎯 WORKFLOW: analysisData.clusterScoring?.scoredItems:", analysisData?.clusterScoring?.scoredItems);
     
-    if (analysisData.consolidatedScoredItems) {
-      console.log("✅ WORKFLOW: Consolidated Scored Items from workflow:", analysisData.consolidatedScoredItems);
-      setConsolidatedScoredItems(analysisData.consolidatedScoredItems);
+    if (analysisData?.clusterScoring?.scoredItems && Array.isArray(analysisData.clusterScoring.scoredItems)) {
+      console.log("✅ WORKFLOW: Scored Items found in clusterScoring (length: " + analysisData.clusterScoring.scoredItems.length + ")");
+      setConsolidatedScoredItems(analysisData.clusterScoring.scoredItems);
     } else {
-      console.log("❌ WORKFLOW: consolidatedScoredItems NOT FOUND in analysisData");
-      // Check if it's nested somewhere else
-      if (analysisData?.v2Analysis?.consolidatedScoredItems) {
-        console.log("✅ WORKFLOW: Found consolidatedScoredItems in v2Analysis: ", analysisData.v2Analysis.consolidatedScoredItems);
-        setConsolidatedScoredItems(analysisData.v2Analysis.consolidatedScoredItems);
-      }
+      console.log("❌ WORKFLOW: scoredItems NOT FOUND in clusterScoring or not an array");
     }
 
     // Handle vectorization status from workflow response
@@ -1495,21 +1548,52 @@ function CompositeDashboard_v4({}) {
       id: 'scores',
       label: 'Scores',
       content: <RelationshipScoresRadarChart 
-        scores={availableScores} 
-        scoreDebugInfo={formattedScoreDebugInfo} 
-        holisticOverview={holisticOverview} 
-        profileAnalysis={profileAnalysis} 
-        clusterAnalysis={clusterAnalysis} 
+        clusterAnalysis={clusterScoring} 
         tensionFlowAnalysis={tensionFlowAnalysis}
-        v2Analysis={v2Analysis}
-        v2Metrics={v2Metrics}
-        v2KeystoneAspects={v2KeystoneAspects}
+        holisticOverview={holisticOverview}
+        initialOverview={initialOverview}
+        isFullAnalysisComplete={isFullAnalysisComplete()}
+        onStartFullAnalysis={handleStartWorkflow}
+        isStartingAnalysis={isStartingAnalysis}
       />
     });
   } else {
     console.log('❌ No scores available, Scores tab not added');
     console.log('❌ relationshipScores:', relationshipScores);
     console.log('❌ relationshipWorkflowState.scores:', relationshipWorkflowState.scores);
+  }
+
+  // Add Enhanced Relationship Analysis tab (shows cluster analysis and initial overview)
+  if (clusterScoring?.clusters || initialOverview || detailedRelationshipAnalysis) {
+    mainTabs.push({
+      id: 'overview',
+      label: 'Overview',
+      content: <RelationshipAnalysis 
+        analysis={detailedRelationshipAnalysis} 
+        userAName={userA?.firstName || 'User A'} 
+        userBName={userB?.firstName || 'User B'} 
+        scoreAnalysis={relationshipWorkflowState.scoreAnalysis}
+        clusterAnalysis={clusterScoring}
+        completeAnalysis={completeAnalysis}
+        initialOverview={initialOverview}
+        isFullAnalysisComplete={isFullAnalysisComplete()}
+        onStartFullAnalysis={handleStartWorkflow}
+        isStartingAnalysis={isStartingAnalysis}
+      />
+    });
+  }
+
+  // Add Detailed Analysis Panels tab (only when complete analysis is available)
+  if (isFullAnalysisComplete() && completeAnalysis) {
+    mainTabs.push({
+      id: 'detailed-analysis',
+      label: 'Detailed Analysis',
+      content: <DetailedAnalysisPanels 
+        completeAnalysis={completeAnalysis}
+        userAName={userA?.firstName || 'User A'} 
+        userBName={userB?.firstName || 'User B'} 
+      />
+    });
   }
 
   if (analysisTabs.length > 0) {
@@ -1524,7 +1608,17 @@ function CompositeDashboard_v4({}) {
 
   // Holistic overview is now integrated into the radar chart component
 
-  if ((vectorizationStatus.relationshipAnalysis || workflowComplete) && userA && userB && compositeChart) {
+  console.log("🔍 Chat Tab Conditions Check:", {
+    vectorizationStatus: vectorizationStatus?.relationshipAnalysis,
+    workflowComplete,
+    isFullAnalysisComplete: isFullAnalysisComplete(),
+    hasUserA: !!userA,
+    hasUserB: !!userB,
+    hasCompositeChart: !!compositeChart,
+    shouldShowChat: (vectorizationStatus.relationshipAnalysis || workflowComplete || isFullAnalysisComplete()) && userA && userB && compositeChart
+  });
+  
+  if ((vectorizationStatus.relationshipAnalysis || workflowComplete || isFullAnalysisComplete()) && userA && userB && compositeChart) {
     mainTabs.push({
       id: 'chat',
       label: 'Chat',
@@ -1919,6 +2013,93 @@ function CompositeDashboard_v4({}) {
             userAName={userA.firstName}
             userBName={userB.firstName}
           />
+        )}
+
+        {/* Start Full Analysis Button - positioned above tabs */}
+        {(() => {
+          const hasClusterData = clusterScoring?.clusters;
+          const hasScores = relationshipScores || relationshipWorkflowState.hasScores;
+          const hasInitialOverview = initialOverview;
+          const hasBasicData = hasClusterData || hasScores || hasInitialOverview;
+          const needsFullAnalysis = !isFullAnalysisComplete();
+          const notCurrentlyRunning = !isWorkflowRunning && !isStartingAnalysis;
+          
+          console.log("🔍 Button Display Logic - NEW STRUCTURE:", {
+            hasClusterData: !!hasClusterData,
+            hasScores,
+            hasInitialOverview: !!hasInitialOverview,
+            hasBasicData,
+            needsFullAnalysis,
+            notCurrentlyRunning,
+            hasCompleteAnalysis: !!completeAnalysis,
+            isFullAnalysisComplete: isFullAnalysisComplete(),
+            shouldShow: hasBasicData && needsFullAnalysis && notCurrentlyRunning
+          });
+          
+          return hasBasicData && needsFullAnalysis && notCurrentlyRunning;
+        })() && (
+          <div style={{ 
+            margin: '20px 0', 
+            padding: '20px', 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+            borderRadius: '12px', 
+            textAlign: 'center',
+            border: '2px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h3 style={{ color: 'white', marginBottom: '10px', fontSize: '18px' }}>🚀 Ready for Your Complete Analysis?</h3>
+            <p style={{ color: 'rgba(255, 255, 255, 0.9)', marginBottom: '15px', fontSize: '14px' }}>
+              Unlock detailed cluster insights, personalized compatibility analysis, and AI chat about your relationship.
+            </p>
+            <button
+              onClick={handleStartWorkflow}
+              disabled={isStartingAnalysis}
+              style={{
+                backgroundColor: isStartingAnalysis ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.9)',
+                color: isStartingAnalysis ? 'rgba(255, 255, 255, 0.7)' : '#1f2937',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: isStartingAnalysis ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              {isStartingAnalysis ? (
+                <>
+                  <span style={{ marginRight: '8px' }}>🔄</span>
+                  Starting Complete Analysis...
+                </>
+              ) : (
+                <>
+                  <span style={{ marginRight: '8px' }}>✨</span>
+                  Start Complete Analysis
+                </>
+              )}
+            </button>
+            
+            {/* Temporary debug refresh button */}
+            <button
+              onClick={async () => {
+                console.log('🔄 Manual refresh triggered');
+                await initializeCompositeChartData();
+              }}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                marginLeft: '10px',
+                cursor: 'pointer'
+              }}
+            >
+              🔄 Refresh Data
+            </button>
+          </div>
         )}
 
         <TabMenu tabs={mainTabs} />

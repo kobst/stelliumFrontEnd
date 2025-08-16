@@ -10,7 +10,6 @@ import {
   RadarController
 } from 'chart.js';
 import { Radar } from 'react-chartjs-2';
-import TensionFlowAnalysis from './TensionFlowAnalysis';
 import './RelationshipScoresRadarChart.css';
 
 // Register Chart.js components
@@ -25,93 +24,49 @@ ChartJS.register(
 );
 
 const RelationshipScoresRadarChart = ({ 
-  scores, 
-  scoreDebugInfo, 
-  holisticOverview, 
-  profileAnalysis, 
   clusterAnalysis, 
   tensionFlowAnalysis,
-  v2Analysis,
-  v2Metrics,
-  v2KeystoneAspects,
-  isV2Analysis 
+  holisticOverview,
+  initialOverview,
+  isFullAnalysisComplete = false,
+  onStartFullAnalysis = null,
+  isStartingAnalysis = false
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [selectedCluster, setSelectedCluster] = useState(null);
+  const [hoveredCluster, setHoveredCluster] = useState(null);
   
-
-  // V2 Cluster categories (now the default)
+  // 5-Cluster categories from new API
   const clusterCategories = {
     Harmony: "Harmony",
     Passion: "Passion", 
     Connection: "Connection",
-    Growth: "Growth",
-    Stability: "Stability"
+    Stability: "Stability",
+    Growth: "Growth"
   };
 
-  // V2 Cluster icons (now the default)
+  // Cluster icons
   const clusterIcons = {
     Harmony: "💕",
     Passion: "🔥",
     Connection: "🧠",
-    Growth: "🌱",
-    Stability: "💎"
+    Stability: "💎",
+    Growth: "🌱"
   };
 
-  // Helper function to get cluster analysis
-  const getClusterAnalysis = (clusterKey) => {
-    // Get from v2Analysis clusters
-    if (v2Analysis?.clusters?.[clusterKey]) {
-      const clusterData = v2Analysis.clusters[clusterKey];
-      return {
-        type: 'v2-cluster',
-        analysis: clusterData.analysis,
-        scoredItems: clusterData.scoredItems || [],
-        score: clusterData.score
-      };
-    }
-    
-    // Fallback to clusterAnalysis prop
-    const clusterData = clusterAnalysis?.[clusterKey];
-    if (clusterData) {
-      return {
-        type: 'cluster',
-        analysis: clusterData.analysis,
-        scoredItems: clusterData.scoredItems || []
-      };
-    }
-    
-    return null;
+  // Helper function to get cluster data
+  const getClusterData = (clusterKey) => {
+    return clusterAnalysis?.clusters?.[clusterKey] || null;
   };
 
-  // V2 clusters are the default
-  const orderedClusters = ['Harmony', 'Passion', 'Connection', 'Growth', 'Stability'];
+  // The ordered clusters (consistent with API)
+  const orderedClusters = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
   
-  // Get cluster scores - prefer V2, fallback to legacy mapping
-  let clusterScores = {};
-  if (v2Analysis?.clusters) {
-    // Use V2 cluster scores directly
-    clusterScores = Object.keys(v2Analysis.clusters).reduce((acc, key) => {
-      acc[key] = v2Analysis.clusters[key].score || 0;
-      return acc;
-    }, {});
-  } else if (scores) {
-    // Map legacy scores to V2 clusters if V2 data not available
-    const legacyToV2Mapping = {
-      'Harmony': ['EMOTIONAL_SECURITY_CONNECTION', 'OVERALL_ATTRACTION_CHEMISTRY'],
-      'Passion': ['SEX_AND_INTIMACY'],
-      'Connection': ['COMMUNICATION_AND_MENTAL_CONNECTION'],
-      'Growth': ['KARMIC_LESSONS_GROWTH'],
-      'Stability': ['COMMITMENT_LONG_TERM_POTENTIAL', 'PRACTICAL_GROWTH_SHARED_GOALS']
-    };
-    
-    Object.entries(legacyToV2Mapping).forEach(([v2Cluster, legacyCategories]) => {
-      const avgScore = legacyCategories.reduce((sum, category) => {
-        return sum + (scores[category] || 0);
-      }, 0) / legacyCategories.length;
-      clusterScores[v2Cluster] = Math.round(avgScore);
-    });
-  }
+  // Get cluster scores from new API structure
+  const clusterScores = {};
+  orderedClusters.forEach(cluster => {
+    const clusterData = getClusterData(cluster);
+    clusterScores[cluster] = clusterData?.score || 0;
+  });
   
   const dataPoints = orderedClusters.map(cluster => clusterScores[cluster] || 0);
   
@@ -184,7 +139,7 @@ const RelationshipScoresRadarChart = ({
           color: function(context) {
             const index = context.index;
             const clusterKey = orderedClusters[index];
-            if (hoveredCategory === clusterKey || selectedCategory === clusterKey) {
+            if (hoveredCluster === clusterKey || selectedCluster === clusterKey) {
               return 'rgba(255, 255, 255, 1)';
             }
             return 'rgba(255, 255, 255, 0.85)';
@@ -192,7 +147,7 @@ const RelationshipScoresRadarChart = ({
           font: function(context) {
             const index = context.index;
             const clusterKey = orderedClusters[index];
-            if (hoveredCategory === clusterKey || selectedCategory === clusterKey) {
+            if (hoveredCluster === clusterKey || selectedCluster === clusterKey) {
               return {
                 size: 14,
                 weight: 'bold'
@@ -259,7 +214,7 @@ const RelationshipScoresRadarChart = ({
       if (elements.length > 0) {
         const elementIndex = elements[0].index;
         const clusterKey = orderedClusters[elementIndex];
-        setSelectedCategory(selectedCategory === clusterKey ? null : clusterKey);
+        setSelectedCluster(selectedCluster === clusterKey ? null : clusterKey);
         return;
       }
       
@@ -282,7 +237,7 @@ const RelationshipScoresRadarChart = ({
         
         // If click is within ~40 pixels of label position
         if (distance < 40) {
-          setSelectedCategory(selectedCategory === clusterKey ? null : clusterKey);
+          setSelectedCluster(selectedCluster === clusterKey ? null : clusterKey);
         }
       });
     },
@@ -320,63 +275,128 @@ const RelationshipScoresRadarChart = ({
         });
       }
       
-      setHoveredCategory(hovered);
+      setHoveredCluster(hovered);
       event.native.target.style.cursor = cursorStyle;
     }
   };
 
   return (
     <div className="relationship-scores-radar-chart">
-      <h2>Relationship Compatibility Scores</h2>
+      <h2>Relationship Compatibility Analysis</h2>
       
-      {/* V2 Analysis Banner */}
-      <div className="v2-analysis-banner">
-        <div className="v2-badge">
-          <span className="version-badge">✨ Enhanced Analysis V2</span>
+      {/* Initial Overview Display (Phase 1) */}
+      {initialOverview && (
+        <div className="initial-overview-section" style={{ 
+          marginBottom: '25px', 
+          padding: '20px', 
+          backgroundColor: '#f8f9ff', 
+          borderRadius: '8px', 
+          border: '2px solid #e0e7ff' 
+        }}>
+          <div className="overview-content">
+            <h3 style={{ color: '#3730a3', marginBottom: '15px' }}>💫 Initial Overview</h3>
+            <p className="overview-text" style={{ 
+              lineHeight: '1.6', 
+              color: '#1f2937', 
+              margin: 0, 
+              fontSize: '16px' 
+            }}>{initialOverview}</p>
+          </div>
         </div>
-        {v2Analysis?.tier && (
-          <div className="v2-tier">
-            <span className="tier-label">Tier:</span>
-            <span className="tier-value">{v2Analysis.tier}</span>
+      )}
+      
+      {/* Overall Score Display (if available) */}
+      {clusterAnalysis?.overall && (
+        <div className="overall-analysis-banner">
+          <div className="overall-score">
+            <span className="score-label">Overall Compatibility:</span>
+            <span className="score-value">{clusterAnalysis.overall.score}%</span>
           </div>
-        )}
-        {v2Analysis?.tier && v2Analysis?.profile && <div className="profile-divider">|</div>}
-        {v2Analysis?.profile && (
-          <div className="v2-profile">
-            <span className="profile-label">Profile:</span>
-            <span className="profile-value">{v2Analysis.profile}</span>
-          </div>
-        )}
-        {v2Analysis?.confidence && (
-          <>
-            <div className="profile-divider">|</div>
-            <div className="v2-confidence">
-              <span className="confidence-label">Confidence:</span>
-              <span className="confidence-value">{Math.round(v2Analysis.confidence * 100)}%</span>
+          {clusterAnalysis.overall.dominantCluster && (
+            <div className="dominant-cluster">
+              <span className="dominant-label">Strongest Area:</span>
+              <span className="dominant-value">
+                {clusterIcons[clusterAnalysis.overall.dominantCluster]} {clusterAnalysis.overall.dominantCluster}
+              </span>
             </div>
-          </>
-        )}
-      </div>
+          )}
+          {clusterAnalysis.overall.challengeCluster && (
+            <div className="challenge-cluster">
+              <span className="challenge-label">Growth Area:</span>
+              <span className="challenge-value">
+                {clusterIcons[clusterAnalysis.overall.challengeCluster]} {clusterAnalysis.overall.challengeCluster}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
       
       {/* Radar Chart Container */}
       <div className="radar-chart-container">
         <Radar data={chartData} options={chartOptions} />
       </div>
 
-      {/* Analysis Display Area - shows immediately after radar chart */}
-      {selectedCategory && (
-        <div className="analysis-display">
+      {/* Basic Cluster Details (Phase 1 - just scores) */}
+      {!isFullAnalysisComplete && clusterAnalysis?.clusters && (
+        <div className="basic-cluster-display">
+          <h3>Compatibility Dimensions</h3>
+          <div className="cluster-grid">
+            {orderedClusters.map(cluster => {
+              const score = clusterScores[cluster] || 0;
+              const clusterData = getClusterData(cluster);
+              return (
+                <div key={cluster} className="cluster-card basic">
+                  <div className="cluster-icon">{clusterIcons[cluster]}</div>
+                  <div className="cluster-name">{clusterCategories[cluster]}</div>
+                  <div className="cluster-score">{score}%</div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="analysis-progress-note">
+            <p>🔄 Complete your full analysis to unlock detailed cluster insights and keystone aspects!</p>
+            {onStartFullAnalysis && (
+              <button
+                onClick={onStartFullAnalysis}
+                disabled={isStartingAnalysis}
+                style={{
+                  backgroundColor: isStartingAnalysis ? '#9ca3af' : '#8b5cf6',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: isStartingAnalysis ? 'not-allowed' : 'pointer',
+                  marginTop: '15px',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {isStartingAnalysis ? (
+                  <>🔄 Starting Analysis...</>
+                ) : (
+                  <>✨ Start Complete Analysis</>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Full Cluster Analysis (Phase 2 - after full analysis) */}
+      {isFullAnalysisComplete && selectedCluster && (
+        <div className="full-analysis-display">
           <div className="analysis-header">
-            <h3>{clusterIcons[selectedCategory]} {clusterCategories[selectedCategory]}</h3>
+            <h3>{clusterIcons[selectedCluster]} {clusterCategories[selectedCluster]}</h3>
             <div className="analysis-score">
-              Score: <span className="score-value">{clusterScores[selectedCategory] || 0}%</span>
+              Score: <span className="score-value">{clusterScores[selectedCluster] || 0}%</span>
             </div>
           </div>
           
           {(() => {
-            const clusterAnalysis = getClusterAnalysis(selectedCategory);
+            const clusterData = getClusterData(selectedCluster);
             
-            if (!clusterAnalysis) {
+            if (!clusterData) {
               return (
                 <div className="no-analysis">
                   <p>No detailed analysis available for this cluster.</p>
@@ -386,36 +406,58 @@ const RelationshipScoresRadarChart = ({
 
             return (
               <div className="analysis-content">
-                {/* Cluster Analysis */}
-                {clusterAnalysis.analysis && (
-                  <div className="analysis-section">
-                    <h4>Analysis</h4>
-                    <p>{clusterAnalysis.analysis}</p>
+                {/* Cluster Metrics (Progressive disclosure) */}
+                <div className="cluster-metrics">
+                  <div className="metric-row">
+                    <div className="metric">
+                      <span className="metric-label">Support:</span>
+                      <span className="metric-value">{clusterData.supportPct}%</span>
+                    </div>
+                    <div className="metric">
+                      <span className="metric-label">Challenge:</span>
+                      <span className="metric-value">{clusterData.challengePct}%</span>
+                    </div>
                   </div>
-                )}
+                  <div className="metric-row">
+                    <div className="metric">
+                      <span className="metric-label">Heat:</span>
+                      <span className="metric-value">{clusterData.heatPct}%</span>
+                    </div>
+                    <div className="metric">
+                      <span className="metric-label">Activity:</span>
+                      <span className="metric-value">{clusterData.activityPct}%</span>
+                    </div>
+                  </div>
+                  <div className="metric-row">
+                    <div className="metric">
+                      <span className="metric-label">Quadrant:</span>
+                      <span className="metric-value">{clusterData.quadrant}</span>
+                    </div>
+                    <div className="metric">
+                      <span className="metric-label">Spark Elements:</span>
+                      <span className="metric-value">{clusterData.sparkElements}</span>
+                    </div>
+                  </div>
+                </div>
 
-                {/* Show some scored items if available */}
-                {clusterAnalysis.scoredItems && clusterAnalysis.scoredItems.length > 0 && (
+                {/* Keystone Aspects for this cluster */}
+                {clusterData.keystoneAspects && clusterData.keystoneAspects.length > 0 && (
                   <div className="analysis-section">
-                    <h4>Key Factors ({clusterAnalysis.scoredItems.length} items)</h4>
-                    <div className="scored-items">
-                      {clusterAnalysis.scoredItems.slice(0, 5).map((item, index) => (
-                        <div key={index} className="scored-item">
-                          <span 
-                            className="item-score"
-                            style={{
-                              backgroundColor: item.score > 0 ? '#d4edda' : item.score < 0 ? '#f8d7da' : '#f8f9fa',
-                              color: item.score > 0 ? '#155724' : item.score < 0 ? '#721c24' : '#495057'
-                            }}
-                          >
-                            {item.score > 0 ? '+' : ''}{item.score}
-                          </span>
-                          <span className="item-description">{item.description}</span>
+                    <h4>🌟 Key Factors ({clusterData.keystoneAspects.length})</h4>
+                    <div className="keystone-aspects">
+                      {clusterData.keystoneAspects.map((aspect, index) => (
+                        <div key={index} className="keystone-aspect">
+                          <div className="aspect-description">{aspect.description}</div>
+                          <div className="aspect-details">
+                            <span className="aspect-score">
+                              Score: {aspect.score > 0 ? '+' : ''}{aspect.score}
+                            </span>
+                            {aspect.reason && (
+                              <span className="aspect-reason">{aspect.reason}</span>
+                            )}
+                          </div>
                         </div>
                       ))}
-                      {clusterAnalysis.scoredItems.length > 5 && (
-                        <p className="more-items">...and {clusterAnalysis.scoredItems.length - 5} more factors</p>
-                      )}
                     </div>
                   </div>
                 )}
@@ -425,72 +467,71 @@ const RelationshipScoresRadarChart = ({
           
           <button 
             className="close-analysis"
-            onClick={() => setSelectedCategory(null)}
+            onClick={() => setSelectedCluster(null)}
           >
             Close Analysis
           </button>
         </div>
       )}
 
-      {/* V2 Overall Analysis */}
-      {v2Analysis?.initialOverview && (
-        <div className="v2-overview-section">
-          <div className="v2-overview-content">
-            <h3>💫 Relationship Overview</h3>
-            <p className="overview-text">{v2Analysis.initialOverview}</p>
+      {/* Enhanced Cluster Grid (Phase 2 - full analysis complete) */}
+      {isFullAnalysisComplete && clusterAnalysis?.clusters && (
+        <div className="enhanced-cluster-display">
+          <h3>Detailed Compatibility Analysis</h3>
+          <div className="cluster-grid enhanced">
+            {orderedClusters.map(cluster => {
+              const score = clusterScores[cluster] || 0;
+              const clusterData = getClusterData(cluster);
+              const isSelected = selectedCluster === cluster;
+              
+              return (
+                <div 
+                  key={cluster} 
+                  className={`cluster-card enhanced ${isSelected ? 'selected' : ''}`}
+                  onClick={() => setSelectedCluster(isSelected ? null : cluster)}
+                >
+                  <div className="cluster-icon">{clusterIcons[cluster]}</div>
+                  <div className="cluster-name">{clusterCategories[cluster]}</div>
+                  <div className="cluster-score">{score}%</div>
+                  {clusterData && (
+                    <div className="cluster-quadrant">{clusterData.quadrant}</div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* V2 Keystone Aspects */}
-      {v2KeystoneAspects && v2KeystoneAspects.length > 0 && (
-        <div className="v2-keystone-aspects-section">
-          <h3>🌟 Keystone Aspects</h3>
-          <p className="keystone-description">
-            These are the most structurally important aspects in your relationship, based on overall centrality analysis.
-          </p>
-          <div className="keystone-aspects-list">
-            {v2KeystoneAspects.map((aspect, index) => (
-              <div key={index} className="keystone-aspect">
-                <div className="keystone-header">
-                  <div className="keystone-rank">#{index + 1}</div>
-                  <div className="keystone-title">{aspect.description}</div>
-                  <div className="keystone-centrality">
-                    Centrality: {aspect.centrality}/10
-                  </div>
-                </div>
-                <div className="keystone-details">
-                  <div className="keystone-score">
-                    Score: <span className={aspect.valence > 0 ? 'positive' : aspect.valence < 0 ? 'negative' : 'neutral'}>
-                      {aspect.score > 0 ? '+' : ''}{aspect.score}
-                    </span>
-                  </div>
-                  {aspect.aspect && aspect.orb && (
-                    <div className="keystone-orb">Orb: {aspect.orb}°</div>
-                  )}
-                  {aspect.spark && (
-                    <div className="keystone-spark">✨ Chemistry Factor</div>
-                  )}
-                </div>
-                <div className="keystone-clusters">
-                  <span className="primary-cluster">Primary: {aspect.primaryCluster}</span>
-                  {aspect.contributingClusters && aspect.contributingClusters.length > 1 && (
-                    <span className="contributing-clusters">
-                      Also affects: {aspect.contributingClusters.filter(c => c !== aspect.primaryCluster).join(', ')}
-                    </span>
-                  )}
-                </div>
-                <div className="keystone-reason">{aspect.reason}</div>
-              </div>
-            ))}
+      {/* Tension Flow Analysis (Phase 2) */}
+      {isFullAnalysisComplete && tensionFlowAnalysis && (
+        <div className="tension-flow-section">
+          <h3>Relationship Dynamics</h3>
+          <div className="tension-metrics">
+            <div className="metric">
+              <span className="metric-label">Support Density:</span>
+              <span className="metric-value">{tensionFlowAnalysis.supportDensity.toFixed(2)}</span>
+            </div>
+            <div className="metric">
+              <span className="metric-label">Challenge Density:</span>
+              <span className="metric-value">{tensionFlowAnalysis.challengeDensity.toFixed(2)}</span>
+            </div>
+            <div className="metric">
+              <span className="metric-label">Dynamic Type:</span>
+              <span className="metric-value">{tensionFlowAnalysis.quadrant}</span>
+            </div>
           </div>
+          {tensionFlowAnalysis.insight && (
+            <div className="tension-insight">
+              <p>{tensionFlowAnalysis.insight.description}</p>
+            </div>
+          )}
         </div>
       )}
-
 
       {/* Instructions */}
       <div className="chart-instructions">
-        <p>💡 <strong>Tip:</strong> Click on any point on the radar chart to see detailed analysis for that category.</p>
+        <p>💡 <strong>Tip:</strong> {isFullAnalysisComplete ? 'Click on any cluster card to see detailed metrics and key factors.' : 'Complete your full analysis to unlock detailed cluster insights!'}</p>
       </div>
     </div>
   );

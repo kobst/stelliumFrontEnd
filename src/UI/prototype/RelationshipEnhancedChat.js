@@ -286,7 +286,22 @@ const RelationshipEnhancedChat = ({
     }
 
     try {
-      const response = await enhancedChatForRelationship(compositeChartId, requestBody);
+      // Extract query and scoredItems from requestBody for new API format
+      const query = requestBody.query || '';
+      
+      // Only send selected elements to avoid "request entity too large" error
+      // If no elements are selected, send an empty array - let the backend handle the full analysis
+      const scoredItems = selectedElements.length > 0 ? selectedElements : [];
+      
+      console.log('🔍 CHAT API CALL - New format:', {
+        compositeChartId,
+        query,
+        scoredItemsCount: scoredItems.length,
+        selectedElementsCount: selectedElements.length,
+        strategy: selectedElements.length > 0 ? 'selected-elements' : 'no-elements-sent'
+      });
+      
+      const response = await enhancedChatForRelationship(compositeChartId, query, scoredItems);
       
       if (response.success) {
         const assistantMessage = {

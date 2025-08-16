@@ -1,4 +1,4 @@
-import { BroadTopicsEnum, HTTP_POST, CONTENT_TYPE_HEADER, APPLICATION_JSON, ERROR_API_CALL } from "./constants";
+import { HTTP_POST, CONTENT_TYPE_HEADER, APPLICATION_JSON, ERROR_API_CALL } from "./constants";
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 
@@ -222,33 +222,11 @@ export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = n
       requestBody.celebRelationship = true;
     }
     
-    // Try new endpoint first, fallback to old if 404
-    let response;
-    try {
-      response = await fetch(`${SERVER_URL}/enhanced-relationship-analysis`, {
-        method: HTTP_POST,
-        headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-        body: JSON.stringify(requestBody)
-      });
-    } catch (error) {
-      console.warn('New endpoint failed, trying fallback:', error);
-      // Fallback to old endpoint if new one fails
-      response = await fetch(`${SERVER_URL}/experimental/relationship-analysis-enhanced`, {
-        method: HTTP_POST,
-        headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-        body: JSON.stringify(requestBody)
-      });
-    }
-
-    // If we get 404 from new endpoint, try old endpoint
-    if (!response.ok && response.status === 404) {
-      console.warn('New endpoint returned 404, trying fallback endpoint...');
-      response = await fetch(`${SERVER_URL}/experimental/relationship-analysis-enhanced`, {
-        method: HTTP_POST,
-        headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
-        body: JSON.stringify(requestBody)
-      });
-    }
+    const response = await fetch(`${SERVER_URL}/enhanced-relationship-analysis`, {
+      method: HTTP_POST,
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      body: JSON.stringify(requestBody)
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
@@ -257,12 +235,14 @@ export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = n
 
     const responseData = await response.json();
     console.log('Enhanced relationship creation response:', responseData);
+    
+    // Log new cluster analysis structure if present
+    if (responseData.clusterAnalysis) {
+      console.log("✅ Cluster Analysis from creation:", responseData.clusterAnalysis);
+    }
+    
     return responseData;
   } catch (error) {
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      console.error('Network/CORS error - likely the enhanced endpoint is not deployed yet');
-      throw new Error('Cannot connect to enhanced endpoint. The backend may not be updated with the new endpoints yet.');
-    }
     console.error(ERROR_API_CALL, error);
     throw error;
   }
@@ -385,55 +365,26 @@ export const fetchRelationshipAnalysis = async (compositeChartId) => {
     const responseData = await response.json();
     
     console.log("🔍 FULL API RESPONSE:", JSON.stringify(responseData, null, 2));
-    console.log("🔍 V2 Analysis present?", !!responseData.v2Analysis);
+    console.log("🔍 Cluster Analysis present?", !!responseData.clusterAnalysis);
     console.log("🔍 Response keys:", Object.keys(responseData));
     
-    // Transform ALL responses to V2 format (convert legacy to V2 if needed)
-    if (!responseData.v2Analysis && responseData.scores) {
-      console.log("🔄 TRANSFORMING LEGACY DATA TO V2 FORMAT");
-      
-      const legacyToV2Mapping = {
-        'Harmony': ['EMOTIONAL_SECURITY_CONNECTION', 'OVERALL_ATTRACTION_CHEMISTRY'],
-        'Passion': ['SEX_AND_INTIMACY'],
-        'Connection': ['COMMUNICATION_AND_MENTAL_CONNECTION'],
-        'Growth': ['KARMIC_LESSONS_GROWTH'],
-        'Stability': ['COMMITMENT_LONG_TERM_POTENTIAL', 'PRACTICAL_GROWTH_SHARED_GOALS']
-      };
-      
-      const v2Clusters = {};
-      Object.entries(legacyToV2Mapping).forEach(([v2Cluster, legacyCategories]) => {
-        const avgScore = legacyCategories.reduce((sum, category) => {
-          return sum + (responseData.scores[category] || 0);
-        }, 0) / legacyCategories.length;
-        
-        v2Clusters[v2Cluster] = {
-          score: Math.round(avgScore),
-          analysis: `Analysis for ${v2Cluster} based on compatibility factors.`,
-          scoredItems: []
-        };
-      });
-      
-      responseData.v2Analysis = {
-        clusters: v2Clusters,
-        tier: "Standard Analysis",
-        profile: "Converted from Legacy",
-        initialOverview: "This relationship analysis has been converted to the enhanced V2 format, providing detailed insights into your compatibility across five key dimensions.",
-        confidence: 0.75
-      };
+    // Log the new cluster analysis structure if present
+    if (responseData.clusterAnalysis) {
+      console.log("✅ New Cluster Analysis available:", responseData.clusterAnalysis);
+      console.log("🎯 Clusters:", Object.keys(responseData.clusterAnalysis.clusters || {}));
+      console.log("📊 Overall Score:", responseData.clusterAnalysis.overall?.score);
+      console.log("🏆 Dominant Cluster:", responseData.clusterAnalysis.overall?.dominantCluster);
     }
     
-    // Now we always have V2 data, so enhance the response
-    console.log("✅ V2 Analysis available:", responseData.v2Analysis);
+    // Log tension flow analysis if present
+    if (responseData.tensionFlowAnalysis) {
+      console.log("✅ Tension Flow Analysis available:", responseData.tensionFlowAnalysis);
+      console.log("📈 Support Density:", responseData.tensionFlowAnalysis.supportDensity);
+      console.log("📉 Challenge Density:", responseData.tensionFlowAnalysis.challengeDensity);
+      console.log("🎯 Quadrant:", responseData.tensionFlowAnalysis.quadrant);
+    }
     
-    // Keep both legacy scores (for backward compatibility) and V2 data
-    return {
-      ...responseData,
-      // Keep V2 data available for V2 components
-      v2Analysis: responseData.v2Analysis,
-      v2Metrics: responseData.dynamics || responseData.v2Metrics,
-      v2KeystoneAspects: responseData.v2Analysis?.keystoneAspects || [],
-      isV2Analysis: true
-    };
+    return responseData;
   } catch (error) {
     console.error(ERROR_API_CALL, error);
     throw error;
@@ -1911,8 +1862,15 @@ export const fetchEnhancedChatHistory = async (userId, limit = null) => {
 };
 
 // Relationship Enhanced Chat API Functions
-export const enhancedChatForRelationship = async (compositeChartId, requestBody) => {
+export const enhancedChatForRelationship = async (compositeChartId, query, scoredItems = []) => {
   try {
+    const requestBody = {
+      query,
+      scoredItems
+    };
+    
+    console.log('🔍 Enhanced chat request:', { compositeChartId, requestBody });
+    
     const response = await fetch(`${SERVER_URL}/relationships/${compositeChartId}/enhanced-chat`, {
       method: HTTP_POST,
       headers: {
@@ -1922,12 +1880,30 @@ export const enhancedChatForRelationship = async (compositeChartId, requestBody)
     });
     
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      const responseText = await response.text();
+      console.error('❌ Enhanced chat API error response:', responseText);
+      console.error('❌ Response status:', response.status);
+      console.error('❌ Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      // Try to parse as JSON, fall back to text error
+      try {
+        const errorData = JSON.parse(responseText);
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      } catch (parseError) {
+        throw new Error(`HTTP error! status: ${response.status}, response: ${responseText.substring(0, 200)}...`);
+      }
     }
     
-    const data = await response.json();
-    return data;
+    const responseText = await response.text();
+    console.log('✅ Enhanced chat API response text:', responseText.substring(0, 200) + '...');
+    
+    try {
+      const data = JSON.parse(responseText);
+      return data;
+    } catch (parseError) {
+      console.error('❌ Failed to parse response as JSON:', responseText.substring(0, 200));
+      throw new Error('Invalid JSON response from server');
+    }
   } catch (error) {
     console.error('Error with relationship enhanced chat:', error);
     throw error;

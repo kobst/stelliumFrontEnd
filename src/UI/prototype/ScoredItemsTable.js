@@ -55,9 +55,7 @@ function ScoredItemsTable({ scoredItems, categoryName, isV2 = false }) {
                   {isV2 && (
                     <td className="v2-details">
                       {item.orb && <div>Orb: {item.orb.toFixed(1)}°</div>}
-                      {item.intensity && <div>Intensity: {item.intensity.toFixed(1)}</div>}
                       {item.weight && <div>Weight: {item.weight.toFixed(1)}</div>}
-                      {item.centrality && <div>Centrality: {item.centrality}/10</div>}
                       {item.isKeystoneAspect && <div className="keystone-badge">🌟 Keystone</div>}
                     </td>
                   )}
@@ -99,7 +97,6 @@ function ScoredItemsTable({ scoredItems, categoryName, isV2 = false }) {
                       {item.planetSign && <div>Sign: {item.planetSign}</div>}
                       {item.direction && <div>Direction: {item.direction}</div>}
                       {item.weight && <div>Weight: {item.weight.toFixed(1)}</div>}
-                      {item.intensity && <div>Intensity: {item.intensity.toFixed(1)}</div>}
                     </td>
                   )}
                   <td className="score">{item.score > 0 ? '+' : ''}{item.score}</td>
