@@ -260,7 +260,7 @@ function CompositeDashboard_v4({}) {
     // Add state for cluster scoring (numerical data)
     const [clusterScoring, setClusterScoring] = useState(null);
     
-    // Add state for complete analysis (LLM-generated text panels)
+    // Add state for complete analysis (LLM-generated text panels) - 6-panel format
     const [completeAnalysis, setCompleteAnalysis] = useState(null);
     
     // Extract scored items from cluster analysis
@@ -338,11 +338,12 @@ function CompositeDashboard_v4({}) {
         // Check if we have completeAnalysis with LLM-generated panels (indicates full analysis workflow complete)
         if (completeAnalysis) {
             const hasDetailedPanels = Object.values(completeAnalysis).some(cluster => 
-                cluster.synastryPanel && 
-                cluster.compositePanel &&
-                cluster.partnersPerspectives
+                cluster.synastry?.supportPanel && 
+                cluster.synastry?.challengePanel &&
+                cluster.composite?.supportPanel &&
+                cluster.composite?.synthesisPanel
             );
-            console.log("🔍 isFullAnalysisComplete check - UPDATED STRUCTURE:", {
+            console.log("🔍 isFullAnalysisComplete check - NEW 6-PANEL STRUCTURE:", {
                 hasCompleteAnalysis: !!completeAnalysis,
                 completeAnalysisKeys: completeAnalysis ? Object.keys(completeAnalysis) : 'none',
                 hasDetailedPanels,
@@ -441,7 +442,7 @@ function CompositeDashboard_v4({}) {
                     setClusterScoring(fetchedData.clusterAnalysis);
                 }
                 
-                // Handle complete analysis (LLM-generated text panels)
+                // Handle complete analysis (LLM-generated 6-panel text)
                 if (fetchedData?.completeAnalysis) {
                     console.log("Complete analysis available: ", fetchedData.completeAnalysis);
                     setCompleteAnalysis(fetchedData.completeAnalysis);
@@ -641,7 +642,7 @@ function CompositeDashboard_v4({}) {
       setClusterScoring(analysisData.clusterAnalysis);
     }
 
-    // Handle complete analysis from workflow response
+    // Handle complete analysis from workflow response (6-panel structure)
     if (analysisData.completeAnalysis) {
       console.log("Complete analysis from workflow:", analysisData.completeAnalysis);
       setCompleteAnalysis(analysisData.completeAnalysis);
