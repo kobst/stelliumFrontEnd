@@ -263,6 +263,9 @@ function CompositeDashboard_v4({}) {
     // Add state for complete analysis (LLM-generated text panels) - 6-panel format
     const [completeAnalysis, setCompleteAnalysis] = useState(null);
     
+    // Add state for overall compatibility data (new API structure)
+    const [overall, setOverall] = useState(null);
+    
     // Extract scored items from cluster analysis
     const extractScoredItemsFromClusters = useCallback((clusterData) => {
         if (!clusterData?.clusters) return [];
@@ -432,14 +435,16 @@ function CompositeDashboard_v4({}) {
                     setProfileAnalysis(fetchedData.profileAnalysis);
                 }
 
-                // Handle cluster scoring (numerical data)
-                if (fetchedData?.clusterScoring) {
-                    console.log("Cluster scoring available: ", fetchedData.clusterScoring);
-                    setClusterScoring(fetchedData.clusterScoring);
-                } else if (fetchedData?.clusterAnalysis) {
-                    // Fallback for old field name
-                    console.log("Cluster analysis (legacy field) available: ", fetchedData.clusterAnalysis);
+                // Handle cluster analysis (NEW API: clusterAnalysis contains cluster data)
+                if (fetchedData?.clusterAnalysis) {
+                    console.log("Cluster analysis available: ", fetchedData.clusterAnalysis);
                     setClusterScoring(fetchedData.clusterAnalysis);
+                }
+                
+                // Handle overall compatibility data (NEW API field)
+                if (fetchedData?.overall) {
+                    console.log("Overall compatibility data available: ", fetchedData.overall);
+                    setOverall(fetchedData.overall);
                 }
                 
                 // Handle complete analysis (LLM-generated 6-panel text)
@@ -452,11 +457,8 @@ function CompositeDashboard_v4({}) {
                 if (fetchedData?.initialOverview) {
                     console.log("Initial overview available: ", fetchedData.initialOverview);
                     setInitialOverview(fetchedData.initialOverview);
-                } else if (fetchedData?.clusterScoring?.initialOverview) {
-                    console.log("Initial overview from cluster scoring: ", fetchedData.clusterScoring.initialOverview);
-                    setInitialOverview(fetchedData.clusterScoring.initialOverview);
                 } else if (fetchedData?.clusterAnalysis?.initialOverview) {
-                    console.log("Initial overview from cluster analysis (legacy): ", fetchedData.clusterAnalysis.initialOverview);
+                    console.log("Initial overview from cluster analysis: ", fetchedData.clusterAnalysis.initialOverview);
                     setInitialOverview(fetchedData.clusterAnalysis.initialOverview);
                 }
 
@@ -485,15 +487,19 @@ function CompositeDashboard_v4({}) {
                     setV2KeystoneAspects(fetchedData.v2KeystoneAspects);
                 }
 
-                // Handle Scored Items (new structure - nested in clusterAnalysis)
-                console.log("🔍 CHECKING FOR scoredItems in clusterAnalysis:");
-                console.log("🎯 fetchedData.clusterAnalysis?.scoredItems:", fetchedData?.clusterAnalysis?.scoredItems);
+                // Handle Scored Items (NEW API: direct scoredItems field)
+                console.log("🔍 CHECKING FOR scoredItems in response:");
+                console.log("🎯 fetchedData.scoredItems:", fetchedData?.scoredItems);
                 
-                if (fetchedData?.clusterAnalysis?.scoredItems && Array.isArray(fetchedData.clusterAnalysis.scoredItems)) {
+                if (fetchedData?.scoredItems && Array.isArray(fetchedData.scoredItems)) {
+                    console.log("✅ Scored Items found in response (length: " + fetchedData.scoredItems.length + ")");
+                    setConsolidatedScoredItems(fetchedData.scoredItems);
+                } else if (fetchedData?.clusterAnalysis?.scoredItems && Array.isArray(fetchedData.clusterAnalysis.scoredItems)) {
+                    // Fallback for nested structure
                     console.log("✅ Scored Items found in clusterAnalysis (length: " + fetchedData.clusterAnalysis.scoredItems.length + ")");
                     setConsolidatedScoredItems(fetchedData.clusterAnalysis.scoredItems);
                 } else {
-                    console.log("❌ scoredItems NOT FOUND in clusterAnalysis or not an array");
+                    console.log("❌ scoredItems NOT FOUND in response or not an array");
                 }
 
                 // Set V2 flag if we detected it
@@ -632,14 +638,16 @@ function CompositeDashboard_v4({}) {
       setProfileAnalysis(analysisData.profileAnalysis);
     }
 
-    // Handle cluster scoring from workflow response
-    if (analysisData.clusterScoring) {
-      console.log("Cluster scoring from workflow:", analysisData.clusterScoring);
-      setClusterScoring(analysisData.clusterScoring);
-    } else if (analysisData.clusterAnalysis) {
-      // Fallback for legacy field name
-      console.log("Cluster analysis (legacy) from workflow:", analysisData.clusterAnalysis);
+    // Handle cluster analysis from workflow response (NEW API structure)
+    if (analysisData.clusterAnalysis) {
+      console.log("Cluster analysis from workflow:", analysisData.clusterAnalysis);
       setClusterScoring(analysisData.clusterAnalysis);
+    }
+    
+    // Handle overall compatibility data from workflow response
+    if (analysisData.overall) {
+      console.log("Overall compatibility from workflow:", analysisData.overall);
+      setOverall(analysisData.overall);
     }
 
     // Handle complete analysis from workflow response (6-panel structure)
@@ -652,11 +660,8 @@ function CompositeDashboard_v4({}) {
     if (analysisData.initialOverview) {
       console.log("Initial overview from workflow:", analysisData.initialOverview);
       setInitialOverview(analysisData.initialOverview);
-    } else if (analysisData.clusterScoring?.initialOverview) {
-      console.log("Initial overview from workflow cluster scoring:", analysisData.clusterScoring.initialOverview);
-      setInitialOverview(analysisData.clusterScoring.initialOverview);
     } else if (analysisData.clusterAnalysis?.initialOverview) {
-      console.log("Initial overview from workflow cluster analysis (legacy):", analysisData.clusterAnalysis.initialOverview);
+      console.log("Initial overview from workflow cluster analysis:", analysisData.clusterAnalysis.initialOverview);
       setInitialOverview(analysisData.clusterAnalysis.initialOverview);
     }
 
@@ -685,15 +690,19 @@ function CompositeDashboard_v4({}) {
       setV2KeystoneAspects(analysisData.v2KeystoneAspects);
     }
 
-    // Handle Scored Items from workflow (new structure - nested in clusterScoring)
-    console.log("🔍 WORKFLOW: Checking for scoredItems in clusterScoring:");
-    console.log("🎯 WORKFLOW: analysisData.clusterScoring?.scoredItems:", analysisData?.clusterScoring?.scoredItems);
+    // Handle Scored Items from workflow (NEW API: direct scoredItems field)
+    console.log("🔍 WORKFLOW: Checking for scoredItems in response:");
+    console.log("🎯 WORKFLOW: analysisData.scoredItems:", analysisData?.scoredItems);
     
-    if (analysisData?.clusterScoring?.scoredItems && Array.isArray(analysisData.clusterScoring.scoredItems)) {
-      console.log("✅ WORKFLOW: Scored Items found in clusterScoring (length: " + analysisData.clusterScoring.scoredItems.length + ")");
-      setConsolidatedScoredItems(analysisData.clusterScoring.scoredItems);
+    if (analysisData?.scoredItems && Array.isArray(analysisData.scoredItems)) {
+      console.log("✅ WORKFLOW: Scored Items found in response (length: " + analysisData.scoredItems.length + ")");
+      setConsolidatedScoredItems(analysisData.scoredItems);
+    } else if (analysisData?.clusterAnalysis?.scoredItems && Array.isArray(analysisData.clusterAnalysis.scoredItems)) {
+      // Fallback for nested structure
+      console.log("✅ WORKFLOW: Scored Items found in clusterAnalysis (length: " + analysisData.clusterAnalysis.scoredItems.length + ")");
+      setConsolidatedScoredItems(analysisData.clusterAnalysis.scoredItems);
     } else {
-      console.log("❌ WORKFLOW: scoredItems NOT FOUND in clusterScoring or not an array");
+      console.log("❌ WORKFLOW: scoredItems NOT FOUND in response or not an array");
     }
 
     // Handle vectorization status from workflow response
@@ -1575,6 +1584,7 @@ function CompositeDashboard_v4({}) {
         userBName={userB?.firstName || 'User B'} 
         scoreAnalysis={relationshipWorkflowState.scoreAnalysis}
         clusterAnalysis={clusterScoring}
+        overall={overall}
         completeAnalysis={completeAnalysis}
         initialOverview={initialOverview}
         isFullAnalysisComplete={isFullAnalysisComplete()}

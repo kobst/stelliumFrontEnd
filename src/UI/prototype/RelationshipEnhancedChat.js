@@ -160,6 +160,79 @@ const getElementMaxScore = (element) => {
   return Math.max(...scores);
 };
 
+// NEW: Helper functions for cluster contributions (NEW API structure)
+const getClusterContributions = (element) => {
+  return element.clusterContributions || [];
+};
+
+const getElementSparkFromContributions = (element) => {
+  const contributions = getClusterContributions(element);
+  const sparkContribution = contributions.find(c => c.spark === true);
+  
+  if (sparkContribution) {
+    return {
+      hasSpark: true,
+      sparkType: sparkContribution.sparkType || 'unknown',
+      icon: getSparkIcon(sparkContribution.sparkType || 'unknown')
+    };
+  }
+  
+  // Fallback to old structure for backwards compatibility
+  return getElementSpark(element);
+};
+
+const getElementMaxScoreFromContributions = (element) => {
+  const contributions = getClusterContributions(element);
+  
+  if (contributions.length > 0) {
+    const scores = contributions.map(c => c.score);
+    return Math.max(...scores);
+  }
+  
+  // Fallback to old structure for backwards compatibility
+  return getElementMaxScore(element);
+};
+
+const getElementStarRating = (element) => {
+  const contributions = getClusterContributions(element);
+  
+  if (contributions.length > 0) {
+    const starRatings = contributions.map(c => c.starRating || 0);
+    return Math.max(...starRatings);
+  }
+  
+  return element.maxStarRating || element.starRating || 0;
+};
+
+const isElementKeystone = (element) => {
+  const contributions = getClusterContributions(element);
+  
+  if (contributions.length > 0) {
+    return contributions.some(c => c.isKeystone === true);
+  }
+  
+  return element.isOverallKeystone || element.isKeystone || false;
+};
+
+const getClusterBadges = (element) => {
+  const contributions = getClusterContributions(element);
+  
+  if (contributions.length === 0) return [];
+  
+  return contributions
+    .filter(c => c.score > 0) // Only show positive contributions
+    .sort((a, b) => b.score - a.score) // Sort by score descending
+    .slice(0, 3) // Limit to top 3 clusters
+    .map(c => ({
+      cluster: c.cluster,
+      score: c.score,
+      isKeystone: c.isKeystone,
+      spark: c.spark,
+      sparkType: c.sparkType,
+      starRating: c.starRating || 0
+    }));
+};
+
 const RelationshipEnhancedChat = ({ 
   compositeChartId, 
   synastryAspects = [], 
@@ -441,11 +514,12 @@ const RelationshipEnhancedChat = ({
               <h4>Synastry Aspects</h4>
               <div className="elements-list">
                 {synastryAspectsData.map((aspect, index) => {
-                  // Enhanced data for consolidatedScoredItems
-                  const spark = getElementSpark(aspect);
-                  const maxScore = getElementMaxScore(aspect);
-                  const starRating = aspect.maxStarRating || 0;
-                  const isKeystone = aspect.isOverallKeystone;
+                  // Enhanced data using new cluster contributions structure
+                  const spark = getElementSparkFromContributions(aspect);
+                  const maxScore = getElementMaxScoreFromContributions(aspect);
+                  const starRating = getElementStarRating(aspect);
+                  const isKeystone = isElementKeystone(aspect);
+                  const clusterBadges = getClusterBadges(aspect);
                   
                   return (
                     <div
@@ -462,6 +536,31 @@ const RelationshipEnhancedChat = ({
                           {isSelected(aspect) && <span className="selected-badge">✓</span>}
                         </div>
                       </div>
+                      
+                      {/* Cluster contribution badges */}
+                      {clusterBadges.length > 0 && (
+                        <div style={{ 
+                          display: 'flex', 
+                          gap: '4px', 
+                          marginBottom: '8px', 
+                          flexWrap: 'wrap' 
+                        }}>
+                          {clusterBadges.map((badge, idx) => (
+                            <span key={idx} style={{
+                              backgroundColor: badge.isKeystone ? '#fef3c7' : '#f3f4f6',
+                              color: badge.isKeystone ? '#92400e' : '#374151',
+                              padding: '2px 6px',
+                              borderRadius: '10px',
+                              fontSize: '10px',
+                              fontWeight: '500',
+                              border: badge.spark ? '1px solid #f59e0b' : 'none'
+                            }}>
+                              {badge.cluster} {badge.score > 0 ? `+${badge.score.toFixed(1)}` : badge.score.toFixed(1)}
+                              {badge.spark && ` ${getSparkIcon(badge.sparkType)}`}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       <div className="element-content">
                         <div className="element-main">
                           {aspect.planet1 || aspect.description?.split(' ')[0]} {aspect.aspect} {aspect.planet2 || 'Unknown'}
@@ -543,24 +642,79 @@ const RelationshipEnhancedChat = ({
             <div className="elements-section">
               <h4>Composite Aspects</h4>
               <div className="elements-list">
-                {compositeAspectsData.map((aspect, index) => (
-                  <div
-                    key={`composite-aspect-${index}`}
-                    className={`element-card composite-aspect-card ${isSelected(aspect) ? 'selected' : ''}`}
-                    onClick={() => handleSelectElement(aspect)}
-                  >
-                    <div className="element-header">
-                      <span className="element-type">Composite</span>
-                      {isSelected(aspect) && <span className="selected-badge">✓</span>}
-                    </div>
-                    <div className="element-content">
-                      <div className="element-main">
-                        {aspect.planet1} {aspect.aspect} {aspect.planet2}
+                {compositeAspectsData.map((aspect, index) => {
+                  // Enhanced data using new cluster contributions structure
+                  const spark = getElementSparkFromContributions(aspect);
+                  const maxScore = getElementMaxScoreFromContributions(aspect);
+                  const starRating = getElementStarRating(aspect);
+                  const isKeystone = isElementKeystone(aspect);
+                  const clusterBadges = getClusterBadges(aspect);
+                  
+                  return (
+                    <div
+                      key={`composite-aspect-${index}`}
+                      className={`element-card composite-aspect-card ${isSelected(aspect) ? 'selected' : ''}`}
+                      onClick={() => handleSelectElement(aspect)}
+                    >
+                      <div className="element-header">
+                        <span className="element-type">Composite</span>
+                        <div className="element-badges">
+                          {spark && <span className="spark-badge">{spark.icon}</span>}
+                          {isKeystone && <span className="keystone-badge">KEY</span>}
+                          {starRating > 0 && <span className="star-rating">{'⭐'.repeat(Math.min(starRating, 5))}</span>}
+                          {isSelected(aspect) && <span className="selected-badge">✓</span>}
+                        </div>
                       </div>
-                      <div className="element-orb">Orb: {aspect.orb.toFixed(2)}°</div>
+                      
+                      {/* Cluster contribution badges */}
+                      {clusterBadges.length > 0 && (
+                        <div style={{ 
+                          display: 'flex', 
+                          gap: '4px', 
+                          marginBottom: '8px', 
+                          flexWrap: 'wrap' 
+                        }}>
+                          {clusterBadges.map((badge, idx) => (
+                            <span key={idx} style={{
+                              backgroundColor: badge.isKeystone ? '#fef3c7' : '#f3f4f6',
+                              color: badge.isKeystone ? '#92400e' : '#374151',
+                              padding: '2px 6px',
+                              borderRadius: '10px',
+                              fontSize: '10px',
+                              fontWeight: '500',
+                              border: badge.spark ? '1px solid #f59e0b' : 'none'
+                            }}>
+                              {badge.cluster} {badge.score > 0 ? `+${badge.score.toFixed(1)}` : badge.score.toFixed(1)}
+                              {badge.spark && ` ${getSparkIcon(badge.sparkType)}`}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <div className="element-content">
+                        <div className="element-main">
+                          {aspect.planet1} {aspect.aspect} {aspect.planet2}
+                          {maxScore !== null && (
+                            <span 
+                              className="score-badge"
+                              style={{ 
+                                backgroundColor: maxScore >= 0 ? '#10b98120' : '#ef444420',
+                                color: maxScore >= 0 ? '#10b981' : '#ef4444',
+                                marginLeft: '8px',
+                                fontSize: '11px',
+                                padding: '2px 6px',
+                                borderRadius: '4px'
+                              }}
+                            >
+                              {maxScore > 0 ? '+' : ''}{maxScore.toFixed(1)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="element-orb">Orb: {aspect.orb.toFixed(2)}°</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

@@ -8,6 +8,7 @@ function RelationshipAnalysis({
   userBName, 
   scoreAnalysis, 
   clusterAnalysis, 
+  overall,
   completeAnalysis,
   initialOverview,
   isFullAnalysisComplete = false,
@@ -32,27 +33,100 @@ function RelationshipAnalysis({
           )}
 
           {/* Overall Analysis Summary */}
-          {clusterAnalysis.overall && (
+          {overall && (
             <div style={{ marginBottom: '25px', padding: '20px', backgroundColor: '#f0f9ff', borderRadius: '8px', border: '2px solid #bae6fd' }}>
               <h4 style={{ color: '#0c4a6e', marginBottom: '15px' }}>📊 Overall Compatibility</h4>
-              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', color: '#1f2937' }}>
-                <div>
-                  <strong style={{ color: '#0c4a6e' }}>Overall Score:</strong> <span style={{ color: '#1f2937' }}>{clusterAnalysis.overall.score}%</span>
-                </div>
-                {clusterAnalysis.overall.dominantCluster && (
-                  <div>
-                    <strong style={{ color: '#16a34a' }}>Strongest Area:</strong> <span style={{ color: '#1f2937' }}>{clusterAnalysis.overall.dominantCluster}</span>
+              
+              {/* Tier and Profile */}
+              <div style={{ marginBottom: '15px' }}>
+                {overall.tier && (
+                  <div style={{ display: 'inline-block', marginRight: '15px' }}>
+                    <span style={{ 
+                      backgroundColor: '#0c4a6e', 
+                      color: 'white', 
+                      padding: '4px 12px', 
+                      borderRadius: '20px', 
+                      fontSize: '13px', 
+                      fontWeight: '600' 
+                    }}>
+                      {overall.tier}
+                    </span>
                   </div>
                 )}
-                {clusterAnalysis.overall.challengeCluster && (
-                  <div>
-                    <strong style={{ color: '#dc2626' }}>Growth Area:</strong> <span style={{ color: '#1f2937' }}>{clusterAnalysis.overall.challengeCluster}</span>
+                {overall.profile && (
+                  <div style={{ color: '#374151', fontSize: '16px', fontWeight: '500', marginTop: '8px' }}>
+                    {overall.profile}
                   </div>
                 )}
               </div>
-              {clusterAnalysis.overall.formula && (
+              
+              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', color: '#1f2937' }}>
+                <div>
+                  <strong style={{ color: '#0c4a6e' }}>Overall Score:</strong> <span style={{ color: '#1f2937' }}>{overall.score}%</span>
+                </div>
+                {overall.dominantCluster && (
+                  <div>
+                    <strong style={{ color: '#16a34a' }}>Strongest Area:</strong> <span style={{ color: '#1f2937' }}>{overall.dominantCluster}</span>
+                  </div>
+                )}
+                {overall.challengeCluster && (
+                  <div>
+                    <strong style={{ color: '#dc2626' }}>Growth Area:</strong> <span style={{ color: '#1f2937' }}>{overall.challengeCluster}</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Strength and Growth Clusters */}
+              {(overall.strengthClusters?.length > 0 || overall.growthClusters?.length > 0) && (
+                <div style={{ marginTop: '15px', display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                  {overall.strengthClusters?.length > 0 && (
+                    <div>
+                      <strong style={{ color: '#16a34a' }}>Strength Areas:</strong>
+                      <div style={{ marginTop: '5px' }}>
+                        {overall.strengthClusters.map((cluster, idx) => (
+                          <span key={idx} style={{ 
+                            backgroundColor: '#dcfce7', 
+                            color: '#166534', 
+                            padding: '2px 8px', 
+                            borderRadius: '12px', 
+                            fontSize: '12px', 
+                            marginRight: '6px',
+                            display: 'inline-block',
+                            marginBottom: '4px'
+                          }}>
+                            {cluster}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {overall.growthClusters?.length > 0 && (
+                    <div>
+                      <strong style={{ color: '#dc2626' }}>Growth Areas:</strong>
+                      <div style={{ marginTop: '5px' }}>
+                        {overall.growthClusters.map((cluster, idx) => (
+                          <span key={idx} style={{ 
+                            backgroundColor: '#fef2f2', 
+                            color: '#991b1b', 
+                            padding: '2px 8px', 
+                            borderRadius: '12px', 
+                            fontSize: '12px', 
+                            marginRight: '6px',
+                            display: 'inline-block',
+                            marginBottom: '4px'
+                          }}>
+                            {cluster}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {overall.formula && (
                 <div style={{ marginTop: '10px', fontSize: '14px', color: '#4b5563' }}>
-                  <strong style={{ color: '#1f2937' }}>Formula:</strong> <span style={{ color: '#6b7280' }}>{clusterAnalysis.overall.formula}</span>
+                  <strong style={{ color: '#1f2937' }}>Formula:</strong> <span style={{ color: '#6b7280' }}>{overall.formula}</span>
                 </div>
               )}
             </div>
