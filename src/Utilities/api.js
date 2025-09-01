@@ -29,6 +29,33 @@ export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
 
 
 // Direct user creation API - creates user with immediate overview
+// Debug subtopic astro data endpoint
+export const getSubtopicAstroData = async (userId) => {
+  try {
+    console.log('Getting subtopic astro data for userId:', userId);
+    const requestBody = { userId: userId };
+    
+    const response = await fetch(`${SERVER_URL}/debug/subtopic-astro-data`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    console.log('Subtopic astro data response:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error getting subtopic astro data:', error);
+    throw error;
+  }
+};
+
 export const createUser = async (userData) => {
   try {
     console.log('Creating user:', userData);

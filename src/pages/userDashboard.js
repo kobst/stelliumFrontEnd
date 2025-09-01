@@ -10,7 +10,8 @@ import {
   getTransitWindows,
   startWorkflow,
   getWorkflowStatus,
-  resumeWorkflow
+  resumeWorkflow,
+  getSubtopicAstroData
 } from '../Utilities/api';
 import useAsync from '../hooks/useAsync';
 import useSubjectCreation from '../hooks/useSubjectCreation';
@@ -83,6 +84,9 @@ function UserDashboard() {
 
   const [isDataPopulated, setIsDataPopulated] = useState(false);
   const [workflowStarted, setWorkflowStarted] = useState(false);
+  
+  // Debug subtopic astro data button state
+  const [isDebugLoading, setIsDebugLoading] = useState(false);
   const [basicAnalysis, setBasicAnalysis] = useState({
     overview: '',
     dominance: {
@@ -316,6 +320,27 @@ function UserDashboard() {
       throw error;
     }
   }
+
+  // Debug subtopic astro data handler
+  const handleDebugSubtopicAstroData = async () => {
+    if (!userId) {
+      console.error('Cannot get subtopic astro data: userId is missing');
+      return;
+    }
+
+    setIsDebugLoading(true);
+    try {
+      console.log('🔍 Getting subtopic astro data for userId:', userId);
+      const response = await getSubtopicAstroData(userId);
+      console.log('✅ Debug subtopic astro data response:', response);
+      alert('Debug data retrieved successfully! Check console for details.');
+    } catch (error) {
+      console.error('❌ Error getting subtopic astro data:', error);
+      alert(`Error getting debug data: ${error.message}`);
+    } finally {
+      setIsDebugLoading(false);
+    }
+  };
 
   // Check if analysis is already complete/populated
   const isAnalysisPopulated = () => {
@@ -776,7 +801,10 @@ function UserDashboard() {
           <div className="subtopics">
             {/* Topic Tension Flow Analysis */}
             <TopicTensionFlowAnalysis 
-              topicData={topicData}
+              topicData={{
+                ...topicData,
+                tensionFlow: topicData.tensionFlowAnalysis
+              }}
               topicTitle={topicData.label}
             />
             
@@ -1364,7 +1392,41 @@ function UserDashboard() {
         </div>
       )}
 
-    
+      {/* Debug Subtopic Astro Data Button */}
+      {userId && (
+        <div style={{ 
+          padding: '20px', 
+          marginBottom: '20px',
+          backgroundColor: '#1f2937', 
+          borderRadius: '8px',
+          border: '1px solid #374151'
+        }}>
+          <h3 style={{ color: '#fbbf24', marginBottom: '15px', fontSize: '16px' }}>🔬 Debug Tools</h3>
+          <p style={{ color: '#d1d5db', marginBottom: '15px', fontSize: '14px' }}>
+            Development tool to retrieve subtopic astro data for this user profile.
+          </p>
+          <button
+            onClick={handleDebugSubtopicAstroData}
+            disabled={isDebugLoading || !userId}
+            style={{
+              backgroundColor: isDebugLoading ? '#6b7280' : '#f59e0b',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: isDebugLoading ? 'not-allowed' : 'pointer',
+              opacity: isDebugLoading ? 0.6 : 1
+            }}
+          >
+            {isDebugLoading ? '🔄 Loading...' : '🔍 Get Subtopic Astro Data'}
+          </button>
+          <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px' }}>
+            User ID: {userId}
+          </div>
+        </div>
+      )}
 
       <TabMenu tabs={mainTabs} />
     </div>
