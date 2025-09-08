@@ -265,6 +265,18 @@ function UserDashboard() {
 
       // Set subTopicAnalysis state only if it exists
       if (interpretation?.SubtopicAnalysis) {
+        // Add a concise diagnostic of subtopic readiness per topic
+        try {
+          const subtopicSummary = Object.entries(interpretation.SubtopicAnalysis).map(([k, v]) => ({
+            topic: k,
+            hasEdited: v && typeof v.editedSubtopics === 'object' && v.editedSubtopics !== null,
+            hasSubtopics: v && typeof v.subtopics === 'object' && v.subtopics !== null,
+            keys: v ? Object.keys(v) : []
+          }));
+          console.log('Subtopic analysis summary:', subtopicSummary);
+        } catch (e) {
+          console.warn('Unable to summarize SubtopicAnalysis:', e?.message);
+        }
         setSubTopicAnalysis(interpretation.SubtopicAnalysis);
       }
 
@@ -794,6 +806,40 @@ function UserDashboard() {
   Object.keys(BroadTopicsEnum).forEach(topicKey => {
     if (subTopicAnalysis[topicKey]) {
       const topicData = subTopicAnalysis[topicKey];
+
+      // Choose the source for subtopics (prefer editedSubtopics)
+      const subtopicsSource = (topicData && (topicData.editedSubtopics ?? topicData.subtopics)) || null;
+
+      // Guard against null/undefined and add targeted diagnostics
+      let subtopicEntries = [];
+      if (subtopicsSource && typeof subtopicsSource === 'object') {
+        try {
+          subtopicEntries = Object.entries(subtopicsSource);
+        } catch (e) {
+          console.error('[UserDashboard] Failed to read subtopics entries', {
+            topicKey,
+            error: e?.message,
+            hasTopicData: Boolean(topicData),
+            topicDataKeys: topicData ? Object.keys(topicData) : [],
+            editedType: typeof topicData?.editedSubtopics,
+            subtopicsType: typeof topicData?.subtopics,
+            subtopicsSource
+          });
+          subtopicEntries = [];
+        }
+      } else {
+        // Log once per render for topics missing subtopics to help trace source data
+        console.warn('[UserDashboard] Missing or invalid subtopics for topic', {
+          topicKey,
+          hasTopicData: Boolean(topicData),
+          topicDataKeys: topicData ? Object.keys(topicData) : [],
+          editedType: typeof topicData?.editedSubtopics,
+          subtopicsType: typeof topicData?.subtopics,
+          editedSubtopics: topicData?.editedSubtopics ?? '(missing)',
+          subtopics: topicData?.subtopics ?? '(missing)'
+        });
+      }
+
       analysis360Tabs.push({
         id: topicKey,
         label: topicData.label,
@@ -808,10 +854,10 @@ function UserDashboard() {
               topicTitle={topicData.label}
             />
             
-            {/* Use editedSubtopics if available, otherwise fall back to subtopics */}
-            {Object.entries(topicData.editedSubtopics || topicData.subtopics).map(([subtopicKey, content]) => (
+            {/* Use entries if available; avoid crashing when none */}
+            {subtopicEntries.map(([subtopicKey, content]) => (
               <div key={subtopicKey} className="subtopic">
-                <h4>{BroadTopicsEnum[topicKey].subtopics[subtopicKey].replace(/_/g, ' ')}</h4>
+                <h4>{(BroadTopicsEnum[topicKey].subtopics[subtopicKey] || subtopicKey).replace(/_/g, ' ')}</h4>
                 <p>{content}</p>
               </div>
             ))}
