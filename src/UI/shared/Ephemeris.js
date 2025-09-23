@@ -1,34 +1,36 @@
 import React, { useRef, useEffect, useState, useCallback, memo, useMemo } from 'react';
 
 
-  
+const PUBLIC_BASE = process.env.PUBLIC_URL || '';
+
 const zodiacIcons = [
-    '/assets/signs/aries.svg',
-    '/assets/signs/taurus.svg',
-    '/assets/signs/gemini.svg',
-    '/assets/signs/cancer.svg',
-    '/assets/signs/leo.svg',
-    '/assets/signs/virgo.svg',
-    '/assets/signs/libra.svg',
-    '/assets/signs/scorpio.svg',
-    '/assets/signs/sagittarius.svg',
-    '/assets/signs/capricorn.svg',
-    '/assets/signs/aquarius.svg',
-    '/assets/signs/pisces.svg'
+    `${PUBLIC_BASE}/assets/signs/aries.svg`,
+    `${PUBLIC_BASE}/assets/signs/taurus.svg`,
+    `${PUBLIC_BASE}/assets/signs/gemini.svg`,
+    `${PUBLIC_BASE}/assets/signs/cancer.svg`,
+    `${PUBLIC_BASE}/assets/signs/leo.svg`,
+    `${PUBLIC_BASE}/assets/signs/virgo.svg`,
+    `${PUBLIC_BASE}/assets/signs/libra.svg`,
+    `${PUBLIC_BASE}/assets/signs/scorpio.svg`,
+    `${PUBLIC_BASE}/assets/signs/sagittarius.svg`,
+    `${PUBLIC_BASE}/assets/signs/capricorn.svg`,
+    `${PUBLIC_BASE}/assets/signs/aquarius.svg`,
+    `${PUBLIC_BASE}/assets/signs/pisces.svg`
 ];
 
 
 const planetIcons = [
-    '/assets/planets/Sun.svg',
-    '/assets/planets/Moon.svg',
-    '/assets/planets/Mercury.svg',
-    '/assets/planets/Venus.svg',
-    '/assets/planets/Mars.svg',
-    '/assets/planets/Jupiter.svg',
-    '/assets/planets/Saturn.svg',
-    '/assets/planets/Uranus.svg',
-    '/assets/planets/Neptune.svg',
-    '/assets/planets/Pluto.svg'
+    `${PUBLIC_BASE}/assets/planets/Sun.svg`,
+    `${PUBLIC_BASE}/assets/planets/Moon.svg`,
+    `${PUBLIC_BASE}/assets/planets/Mercury.svg`,
+    `${PUBLIC_BASE}/assets/planets/Venus.svg`,
+    `${PUBLIC_BASE}/assets/planets/Mars.svg`,
+    `${PUBLIC_BASE}/assets/planets/Jupiter.svg`,
+    `${PUBLIC_BASE}/assets/planets/Saturn.svg`,
+    `${PUBLIC_BASE}/assets/planets/Uranus.svg`,
+    `${PUBLIC_BASE}/assets/planets/Neptune.svg`,
+    `${PUBLIC_BASE}/assets/planets/Pluto.svg`,
+    `${PUBLIC_BASE}/assets/planets/Ascendent.svg`
 ]
 
 
@@ -43,6 +45,7 @@ const planetNameToIndex = {
     "Uranus": 7,
     "Neptune": 8,
     "Pluto": 9,
+    "Ascendant": 10,
 };
 
 const PLANET_COLORS = {
@@ -56,6 +59,7 @@ const PLANET_COLORS = {
     Uranus: '#40E0D0',   // turquoise
     Neptune: '#1E90FF',  // blue
     Pluto: '#8A2BE2',    // purple
+    Ascendant: '#FFFFFF', // white for ascendant
 };
 
 const hexToRgba = (hex, alpha = 1) => {
@@ -72,6 +76,41 @@ const hexToRgba = (hex, alpha = 1) => {
 
 // Cache for SVG URLs
 const svgCache = new Map();
+
+// Enhanced SVG loader that also recolors stroke attributes and single-quoted attributes,
+// while preserving fill='none'
+const loadAndModifySVGEnhanced = async (url, color, instanceId) => {
+    const cacheKey = `enh-${instanceId}-${url}-${color}`;
+
+    if (svgCache.has(cacheKey)) {
+        return svgCache.get(cacheKey);
+    }
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch SVG: ${response.status}`);
+        }
+        const text = await response.text();
+        const modifiedSVG = text
+            // stroke="..." and stroke='...'
+            .replace(/stroke=("|')[^"']*(\1)/g, `stroke='${color}'$2`)
+            // inline CSS stroke: ...;
+            .replace(/stroke:\s*[^;"']+;/g, `stroke: ${color};`)
+            // fill="..." and fill='...' but skip fill='none'
+            .replace(/fill=("|')(?!none\1)[^"']*(\1)/g, `fill='${color}'$2`)
+            // inline CSS fill: ...; but preserve fill:none
+            .replace(/fill:\s*(?!none)[^;"']+;/g, `fill: ${color};`);
+
+        const blob = new Blob([modifiedSVG], { type: 'image/svg+xml' });
+        const objectUrl = URL.createObjectURL(blob);
+        svgCache.set(cacheKey, objectUrl);
+        return objectUrl;
+    } catch (error) {
+        console.error(`Error loading SVG from ${url}:`, error);
+        return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="${color}"/></svg>`;
+    }
+};
 
 const loadAndModifySVG = async (url, color, instanceId) => {
     const cacheKey = `${instanceId}-${url}-${color}`;
@@ -226,7 +265,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
 
             // Load and draw the planet icon
             try {
-                const coloredIconUrl = await loadAndModifySVG(iconUrl, planetColor, instanceId);
+                const coloredIconUrl = await loadAndModifySVGEnhanced(iconUrl, planetColor, instanceId);
                 const planetImage = new Image();
                 planetImage.src = coloredIconUrl;
                 planetImage.onload = () => {
@@ -370,7 +409,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         }
 
         zodiacIcons.forEach(async (iconAddress, index) => {
-            const icon = await loadAndModifySVG(iconAddress, getColorForZodiac(index), instanceId);
+            const icon = await loadAndModifySVGEnhanced(iconAddress, getColorForZodiac(index), instanceId);
             const iconDegree = 15 + index * 30;
             const iconRadians = ((270 - iconDegree) % 360) * Math.PI / 180 + rotationRadians;
             const iconX = CANVAS_DIMENSIONS.centerX + (CANVAS_DIMENSIONS.innerRadius + 32) * Math.cos(iconRadians) - 25;

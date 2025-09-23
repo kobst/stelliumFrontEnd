@@ -1382,14 +1382,45 @@ export const deleteHoroscope = async (userId, horoscopeId) => {
   }
 };
 
-export const generateCustomHoroscope = async (userId, transitEvents) => {
+// Advanced Custom Horoscope API
+// Backward compatible: accepts an array of transit events OR an options object { query?, selectedTransits?, transitEvents?, period? }
+export const generateCustomHoroscope = async (userId, options) => {
   try {
+    let body = {};
+
+    // Backward compatibility: if an array is provided, treat as transitEvents only
+    if (Array.isArray(options)) {
+      body.transitEvents = options;
+    } else if (options && typeof options === 'object') {
+      const {
+        query,
+        selectedTransits,
+        transitEvents,
+        period
+      } = options;
+
+      if (typeof query === 'string' && query.trim().length > 0) {
+        body.query = query.trim();
+      }
+
+      // Prefer selectedTransits; keep transitEvents as backward-compatible alias
+      const events = Array.isArray(selectedTransits) ? selectedTransits : (Array.isArray(transitEvents) ? transitEvents : undefined);
+      if (events && events.length > 0) {
+        body.selectedTransits = events;
+        body.transitEvents = events; // alias for backward compatibility
+      }
+
+      if (period && ['daily', 'weekly', 'monthly'].includes(period)) {
+        body.period = period;
+      }
+    }
+
     const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/custom`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
       },
-      body: JSON.stringify({ transitEvents })
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
@@ -1962,4 +1993,3 @@ export const fetchRelationshipEnhancedChatHistory = async (compositeChartId, lim
     throw error;
   }
 };
-

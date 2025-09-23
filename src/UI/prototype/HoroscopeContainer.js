@@ -7,8 +7,10 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
   const [showTransits, setShowTransits] = useState(true);
   const [selectedTransits, setSelectedTransits] = useState(new Set());
   const [customHoroscope, setCustomHoroscope] = useState(null);
+  const [customCached, setCustomCached] = useState(null);
   const [generatingCustom, setGeneratingCustom] = useState(false);
   const [customHoroscopeError, setCustomHoroscopeError] = useState(null);
+  const [customQuery, setCustomQuery] = useState('');
   const [horoscopeCache, setHoroscopeCache] = useState({
     today: null,
     tomorrow: null,
@@ -474,10 +476,37 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     });
   };
 
-  // Add new function to generate custom horoscope
+  // Determine period from active tab
+  const getActivePeriod = () => {
+    if (activeTab === 'today' || activeTab === 'tomorrow') return 'daily';
+    if (activeTab === 'thisWeek' || activeTab === 'nextWeek') return 'weekly';
+    if (activeTab === 'thisMonth' || activeTab === 'nextMonth') return 'monthly';
+    return 'weekly';
+  };
+
+  // Add new function to generate custom/chat/hybrid horoscope
   const handleGenerateCustomHoroscope = async () => {
-    if (selectedTransits.size === 0) {
-      setCustomHoroscopeError('Please select at least one transit event');
+    const hasQuery = typeof customQuery === 'string' && customQuery.trim().length > 0;
+    const selectedTransitEvents = filteredTransits
+      .filter((_, index) => selectedTransits.has(index))
+      .map(transit => ({
+        type: transit.type,
+        transitingPlanet: transit.transitingPlanet,
+        exact: transit.exact,
+        targetPlanet: transit.targetPlanet,
+        aspect: transit.aspect,
+        start: transit.start,
+        end: transit.end,
+        description: transit.description,
+        transitingSign: transit.transitingSign,
+        targetSign: transit.targetSign,
+        transitingHouse: transit.transitingHouse,
+        targetHouse: transit.targetHouse,
+        moonPhaseData: transit.moonPhaseData
+      }));
+
+    if (!hasQuery && selectedTransitEvents.length === 0) {
+      setCustomHoroscopeError('Enter a question or select at least one transit.');
       return;
     }
 
@@ -485,29 +514,30 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     setCustomHoroscopeError(null);
 
     try {
-      const selectedTransitEvents = filteredTransits
-        .filter((_, index) => selectedTransits.has(index))
-        .map(transit => ({
-          type: transit.type,
-          transitingPlanet: transit.transitingPlanet,
-          exact: transit.exact,
-          targetPlanet: transit.targetPlanet,
-          aspect: transit.aspect,
-          start: transit.start,
-          end: transit.end,
-          description: transit.description,
-          transitingSign: transit.transitingSign,
-          targetSign: transit.targetSign,
-          transitingHouse: transit.transitingHouse,
-          targetHouse: transit.targetHouse,
-          moonPhaseData: transit.moonPhaseData
-        }));
+      const period = getActivePeriod();
+      // Cap selection to avoid overflow in hybrid mode
+      const MAX_EVENTS = 8;
+      const cappedEvents = selectedTransitEvents.slice(0, MAX_EVENTS);
 
-      const response = await generateCustomHoroscope(userId, selectedTransitEvents);
-      if (response.success) {
-        setCustomHoroscope(response.horoscope);
+      const requestBody = {
+        period,
+      };
+      if (hasQuery) requestBody.query = customQuery.trim();
+      if (cappedEvents.length > 0) requestBody.selectedTransits = cappedEvents;
+
+      const response = await generateCustomHoroscope(userId, requestBody);
+      // Be flexible with backend shape: allow either { success, horoscope } or direct horoscope response
+      const hasSuccess = response && typeof response.success === 'boolean';
+      const gotHoroscope = response?.horoscope || (!hasSuccess && response && (response.interpretation || response.text));
+
+      if ((hasSuccess && response.success) || gotHoroscope) {
+        const incoming = response?.horoscope || response;
+        setCustomHoroscope(incoming);
+        setCustomCached(!!(response && response.cached));
+        // Clear query only if it was used
+        if (hasQuery) setCustomQuery('');
       } else {
-        throw new Error('Failed to generate custom horoscope');
+        throw new Error(response?.error || 'Failed to generate custom horoscope');
       }
     } catch (error) {
       console.error('Error generating custom horoscope:', error);
@@ -666,12 +696,73 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
         {customHoroscope && (
           <div className="custom-horoscope-section">
             <h3>Custom Horoscope</h3>
-            <p>{customHoroscope.text}</p>
-            <p className="horoscope-date-range">
-              {formatDateRange(customHoroscope.startDate, customHoroscope.endDate)}
-            </p>
+            <p>{customHoroscope.text || customHoroscope.interpretation}</p>
+            {customHoroscope.startDate && customHoroscope.endDate && (
+              <p className="horoscope-date-range">
+                {formatDateRange(customHoroscope.startDate, customHoroscope.endDate)}
+              </p>
+            )}
+            <div style={{ marginTop: '8px', color: '#9ca3af' }}>
+              {customHoroscope?.metadata?.mode && (
+                <span>
+                  Mode: {customHoroscope.metadata.mode}
+                  {customHoroscope?.metadata?.transitEventCount != null ? ` • ${customHoroscope.metadata.transitEventCount} events` : ''}
+                </span>
+              )}
+              {customCached != null && (
+                <span style={{ marginLeft: 12 }}>
+                  {customCached ? 'Cached result' : 'Freshly generated'}
+                </span>
+              )}
+            </div>
           </div>
         )}
+
+        {/* Custom Request Panel (always visible) */}
+        <div className="custom-request-panel" style={{
+          margin: '16px 0',
+          padding: '16px',
+          background: 'rgba(139, 92, 246, 0.08)',
+          border: '1px solid rgba(139, 92, 246, 0.25)',
+          borderRadius: 8
+        }}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#a78bfa' }}>Custom Horoscope Request</h4>
+          <textarea
+            value={customQuery}
+            onChange={(e) => setCustomQuery(e.target.value)}
+            placeholder={
+              selectedTransits.size > 0
+                ? 'Optionally add a question to guide the reading (hybrid mode)'
+                : 'Ask a question about this period (chat mode)'
+            }
+            rows={3}
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid rgba(139, 92, 246, 0.3)',
+              background: 'rgba(139, 92, 246, 0.08)',
+              color: 'white',
+              outline: 'none'
+            }}
+          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
+            <div style={{ fontSize: 12, color: '#9ca3af' }}>
+              {selectedTransits.size > 0 ? `${selectedTransits.size} transit(s) selected` : 'No transits selected'}
+              {` • Period: ${getActivePeriod()}`}
+            </div>
+            <button 
+              className="generate-custom-button"
+              onClick={handleGenerateCustomHoroscope}
+              disabled={generatingCustom}
+            >
+              {generatingCustom ? 'Generating...' : 'Generate Custom Horoscope'}
+            </button>
+            {customHoroscopeError && (
+              <div className="error-message">{customHoroscopeError}</div>
+            )}
+          </div>
+        </div>
 
         {/* Collapsible Transit Section */}
         <div className="transit-section">
@@ -694,18 +785,6 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
                 </div>
               ) : (
                 <>
-                  <div className="transit-actions">
-                    <button 
-                      className="generate-custom-button"
-                      onClick={handleGenerateCustomHoroscope}
-                      disabled={selectedTransits.size === 0 || generatingCustom}
-                    >
-                      {generatingCustom ? 'Generating...' : 'Generate Custom Horoscope'}
-                    </button>
-                    {customHoroscopeError && (
-                      <div className="error-message">{customHoroscopeError}</div>
-                    )}
-                  </div>
                   <table className="transit-description-table">
                     <thead>
                       <tr>

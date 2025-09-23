@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import UserBirthChartContainer from './UserBirthChartContainer';
 import useStore from '../../Utilities/store';
-import { fetchAnalysis, startWorkflow, getWorkflowStatus } from '../../Utilities/api';
+import { fetchAnalysis } from '../../Utilities/api';
 import useAsync from '../../hooks/useAsync';
 import PatternCard from './PatternCard';
 import PlanetCard from './PlanetCard';
 import TabMenu from '../shared/TabMenu';
-import { BroadTopicsEnum } from '../../Utilities/constants';
+// BroadTopicsEnum not needed for new category-based rendering
 import '../../pages/userDashboard.css'; // Reuse existing dashboard styles
 
 // Order in which planetary interpretations should appear
@@ -49,10 +49,8 @@ function GuestDashboard() {
     },
     planets: {}
   });
-  const [subTopicAnalysis, setSubTopicAnalysis] = useState({});
-  const [workflowStatus, setWorkflowStatus] = useState(null);
-  const [showCompletionBanner, setShowCompletionBanner] = useState(false);
-  const [previousWorkflowStatus, setPreviousWorkflowStatus] = useState(null);
+  const [broadCategoryAnalyses, setBroadCategoryAnalyses] = useState({});
+  // Legacy workflow state removed
 
   const {
     execute: fetchAnalysisForUserAsync,
@@ -78,26 +76,7 @@ function GuestDashboard() {
     }
   }, [guestId]);
 
-  // Show temporary completion banner when analysis just completed
-  useEffect(() => {
-    const currentStatus = workflowStatus?.workflowStatus?.status;
-    const prevStatus = previousWorkflowStatus?.workflowStatus?.status;
-    
-    // If workflow just changed from 'running' to 'completed', show temporary banner
-    if (prevStatus === 'running' && currentStatus === 'completed') {
-      setShowCompletionBanner(true);
-      
-      // Hide banner after 5 seconds
-      const timer = setTimeout(() => {
-        setShowCompletionBanner(false);
-      }, 5000);
-      
-      return () => clearTimeout(timer);
-    }
-    
-    // Update previous status for next comparison
-    setPreviousWorkflowStatus(workflowStatus);
-  }, [workflowStatus, previousWorkflowStatus]);
+  // Legacy completion banner removed
 
   async function fetchAnalysisForUser() {
     try {
@@ -122,13 +101,14 @@ function GuestDashboard() {
         });
       }
 
-      // Set subTopicAnalysis state only if it exists  
-      if (interpretation?.SubtopicAnalysis) {
-        setSubTopicAnalysis(interpretation.SubtopicAnalysis);
+      // Set broad category analyses (new structure)
+      if (interpretation?.broadCategoryAnalyses) {
+        setBroadCategoryAnalyses(interpretation.broadCategoryAnalyses);
+      } else {
+        setBroadCategoryAnalyses({});
       }
 
-      // Check workflow status
-      await checkWorkflowStatus();
+      // Legacy workflow status check removed
 
     } catch (error) {
       console.error('Error fetching guest analysis:', error);
@@ -142,66 +122,80 @@ function GuestDashboard() {
         },
         planets: {}
       });
-      setSubTopicAnalysis({});
+      setBroadCategoryAnalyses({});
       throw error;
     }
   }
 
-  const checkWorkflowStatus = async () => {
-    if (!guestId) return;
-    
-    try {
-      const response = await getWorkflowStatus(guestId);
-      if (response.success) {
-        setWorkflowStatus(response);
-      }
-    } catch (error) {
-      console.error('Error checking workflow status:', error);
-      setWorkflowStatus(null);
-    }
-  };
-
-  const handleStartWorkflow = async () => {
-    if (!guestId) {
-      console.error('Cannot start workflow: guestId is missing');
-      return;
-    }
-    
-    try {
-      const response = await startWorkflow(guestId);
-      if (response.success) {
-        setWorkflowStatus(response.status);
-      }
-    } catch (error) {
-      console.error('Error starting workflow:', error);
-    }
-  };
+  // Legacy workflow actions removed
 
   const handleReturnToDashboard = () => {
     returnToOwnerContext();
   };
 
-  // Build 360 Analysis subtabs from BroadTopicsEnum keys in order
+  // Build 360 Analysis subtabs from broadCategoryAnalyses (new structure)
   const analysis360Tabs = [];
-  Object.keys(BroadTopicsEnum).forEach(topicKey => {
-    if (subTopicAnalysis[topicKey]) {
-      const topicData = subTopicAnalysis[topicKey];
+  const categoryEntries = Object.entries(broadCategoryAnalyses || {});
+  if (categoryEntries.length > 0) {
+    const CORE_ORDER = ['IDENTITY', 'EMOTIONAL_FOUNDATIONS', 'PARTNERSHIPS', 'CAREER'];
+    const orderIndex = (key, isCore) => isCore ? (CORE_ORDER.indexOf(key) >= 0 ? CORE_ORDER.indexOf(key) : 999) : 1000;
+    const sorted = categoryEntries.sort((a, b) => {
+      const [keyA, catA] = a; const [keyB, catB] = b;
+      const coreA = !!catA?.isCore; const coreB = !!catB?.isCore;
+      if (coreA !== coreB) return coreA ? -1 : 1;
+      const idxA = orderIndex(keyA, coreA); const idxB = orderIndex(keyB, coreB);
+      if (idxA !== idxB) return idxA - idxB;
+      const nameA = catA?.categoryName || keyA; const nameB = catB?.categoryName || keyB;
+      return nameA.localeCompare(nameB);
+    });
+
+    sorted.forEach(([catKey, cat]) => {
+      const label = cat?.categoryName || catKey;
+
+      let subtopicEntries = [];
+      if (cat?.editedSubtopics && typeof cat.editedSubtopics === 'object') {
+        try {
+          subtopicEntries = Object.entries(cat.editedSubtopics).map(([name, md]) => [name, md]);
+        } catch (e) {
+          subtopicEntries = [];
+        }
+      } else if (cat?.subtopics && typeof cat.subtopics === 'object') {
+        try {
+          subtopicEntries = Object.entries(cat.subtopics).map(([name, obj]) => [name, obj?.analysis || '']);
+        } catch (e) {
+          subtopicEntries = [];
+        }
+      }
+
       analysis360Tabs.push({
-        id: topicKey,
-        label: topicData.label,
+        id: catKey,
+        label,
         content: (
           <div className="subtopics">
-            {Object.entries(topicData.subtopics).map(([subtopicKey, content]) => (
-              <div key={subtopicKey} className="subtopic">
-                <h4>{BroadTopicsEnum[topicKey].subtopics[subtopicKey].replace(/_/g, ' ')}</h4>
+            {cat?.overview && (
+              <div className="category-overview" style={{ marginBottom: '12px' }}>
+                <p>{cat.overview}</p>
+              </div>
+            )}
+            {/* tension flow */}
+            {/* Reuse TopicTensionFlowAnalysis if needed in GuestDashboard later */}
+            {subtopicEntries.map(([subtopicName, content]) => (
+              <div key={subtopicName} className="subtopic">
+                <h4>{subtopicName}</h4>
                 <p>{content}</p>
               </div>
             ))}
+            {cat?.synthesis && (
+              <div className="category-synthesis" style={{ marginTop: '16px' }}>
+                <h4>Synthesis</h4>
+                <p>{cat.synthesis}</p>
+              </div>
+            )}
           </div>
         )
       });
-    }
-  });
+    });
+  }
 
   // Build analysis tabs
   const analysisTabs = [];
@@ -342,50 +336,7 @@ function GuestDashboard() {
         dailyTransits={[]}
       />
 
-      {/* Workflow Control Section */}
-      <div className="workflow-section">
-        {(!workflowStatus || workflowStatus?.workflowStatus?.status === 'not_started') && (
-          <div>
-            <h3>Birth Chart Analysis</h3>
-            <p>Generate a comprehensive analysis for {guestName}</p>
-            <button
-              onClick={handleStartWorkflow}
-              disabled={fetchLoading || !guestId}
-              className="workflow-button primary"
-            >
-              Start Analysis
-            </button>
-          </div>
-        )}
-
-        {workflowStatus?.workflowStatus?.status === 'running' && (
-          <div className="workflow-progress">
-            <h3>Generating Analysis for {guestName}</h3>
-            <p>Please wait while we process the birth chart...</p>
-            <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${workflowStatus?.workflowStatus?.progress?.percentage || 0}%` }}
-              ></div>
-            </div>
-            <div className="progress-percentage">
-              {workflowStatus?.workflowStatus?.progress?.percentage || 0}% Complete
-            </div>
-          </div>
-        )}
-
-        {/* Show temporary completion banner when analysis just finished */}
-        {showCompletionBanner && (
-          <div className="workflow-complete" style={{ 
-            position: 'relative',
-            animation: 'fadeIn 0.5s ease-in-out'
-          }}>
-            <h3>✅ Analysis Complete!</h3>
-            <p>{guestName}'s birth chart analysis is ready to explore.</p>
-            <small style={{ color: '#666', fontStyle: 'italic' }}>This message will disappear in a few seconds...</small>
-          </div>
-        )}
-      </div>
+      {/* Legacy workflow controls removed */}
 
       {/* Analysis Content */}
       {analysisTabs.length > 0 && (

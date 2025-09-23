@@ -428,10 +428,10 @@ const useSubjectCreation = () => {
     isCompleted: status?.completed || false,
     userId: status?.userId || null,
     progress: status?.progress || null,
-    isFullAnalysisCompleted: fullAnalysisStatus?.completed || 
-                          (fullAnalysisProgress?.percentage >= 100) ||
-                          (fullAnalysisProgress?.completedTasks >= fullAnalysisProgress?.totalTasks) ||
-                          (fullAnalysisProgress?.currentPhase === 'complete'),
+    // Only treat as complete when backend explicitly says so
+    isFullAnalysisCompleted: Boolean(fullAnalysisStatus?.completed) ||
+                             ['completed', 'full_analysis_completed'].includes(fullAnalysisStatus?.status) ||
+                             ['SUCCEEDED', 'SUCCEEDED_WITH_WARNINGS'].includes(fullAnalysisStatus?.stepFunctionStatus),
     fullAnalysisProgressPercentage: fullAnalysisProgress?.percentage || 0
   };
 };

@@ -306,10 +306,10 @@ const TopicTensionFlowAnalysis = ({ topicData, topicTitle }) => {
           <span className="aspect-label">Total Aspects</span>
         </div>
         <div className="aspect-bars">
-          <div className="aspect-bar support" style={{ width: `${(supportAspects / totalAspects) * 100}%` }}>
+          <div className="aspect-bar support" style={{ width: `${(totalAspects > 0 ? (supportAspects / totalAspects) * 100 : 0)}%` }}>
             <span className="aspect-bar-label">🌱 {supportAspects}</span>
           </div>
-          <div className="aspect-bar challenge" style={{ width: `${(challengeAspects / totalAspects) * 100}%` }}>
+          <div className="aspect-bar challenge" style={{ width: `${(totalAspects > 0 ? (challengeAspects / totalAspects) * 100 : 0)}%` }}>
             <span className="aspect-bar-label">🔥 {challengeAspects}</span>
           </div>
         </div>
@@ -351,7 +351,7 @@ const TopicTensionFlowAnalysis = ({ topicData, topicTitle }) => {
                     </span>
                   </td>
                   <td>{aspect.planet2}</td>
-                  <td>{aspect.orb.toFixed(2)}°</td>
+                  <td>{Number.isFinite(Number(aspect.orb)) ? `${Number(aspect.orb).toFixed(2)}°` : '—'}</td>
                 </tr>
               ))}
             </tbody>
