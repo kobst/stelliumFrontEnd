@@ -1,34 +1,32 @@
 
-const PUBLIC_BASE = process.env.PUBLIC_URL || '';
-
 export const zodiacIcons = [
-  `${PUBLIC_BASE}/assets/signs/aries.svg`,
-  `${PUBLIC_BASE}/assets/signs/taurus.svg`,
-  `${PUBLIC_BASE}/assets/signs/gemini.svg`,
-  `${PUBLIC_BASE}/assets/signs/cancer.svg`,
-  `${PUBLIC_BASE}/assets/signs/leo.svg`,
-  `${PUBLIC_BASE}/assets/signs/virgo.svg`,
-  `${PUBLIC_BASE}/assets/signs/libra.svg`,
-  `${PUBLIC_BASE}/assets/signs/scorpio.svg`,
-  `${PUBLIC_BASE}/assets/signs/sagittarius.svg`,
-  `${PUBLIC_BASE}/assets/signs/capricorn.svg`,
-  `${PUBLIC_BASE}/assets/signs/aquarius.svg`,
-  `${PUBLIC_BASE}/assets/signs/pisces.svg`
+  '/assets/signs/aries.svg',
+  '/assets/signs/taurus.svg',
+  '/assets/signs/gemini.svg',
+  '/assets/signs/cancer.svg',
+  '/assets/signs/leo.svg',
+  '/assets/signs/virgo.svg',
+  '/assets/signs/libra.svg',
+  '/assets/signs/scorpio.svg',
+  '/assets/signs/sagittarius.svg',
+  '/assets/signs/capricorn.svg',
+  '/assets/signs/aquarius.svg',
+  '/assets/signs/pisces.svg'
 ];
 
 export const planetIcons = [
-  `${PUBLIC_BASE}/assets/planets/Sun.svg`,
-  `${PUBLIC_BASE}/assets/planets/Moon.svg`,
-  `${PUBLIC_BASE}/assets/planets/Mercury.svg`,
-  `${PUBLIC_BASE}/assets/planets/Venus.svg`,
-  `${PUBLIC_BASE}/assets/planets/Mars.svg`,
-  `${PUBLIC_BASE}/assets/planets/Jupiter.svg`,
-  `${PUBLIC_BASE}/assets/planets/Saturn.svg`,
-  `${PUBLIC_BASE}/assets/planets/Uranus.svg`,
-  `${PUBLIC_BASE}/assets/planets/Neptune.svg`,
-  `${PUBLIC_BASE}/assets/planets/Pluto.svg`,
-  `${PUBLIC_BASE}/assets/planets/Ascendent.svg`, // Note: file has typo but keeping as is
-  `${PUBLIC_BASE}/assets/planets/Ascendant.svg`, // Adding both spellings for compatibility
+  '/assets/planets/Sun.svg',
+  '/assets/planets/Moon.svg',
+  '/assets/planets/Mercury.svg',
+  '/assets/planets/Venus.svg',
+  '/assets/planets/Mars.svg',
+  '/assets/planets/Jupiter.svg',
+  '/assets/planets/Saturn.svg',
+  '/assets/planets/Uranus.svg',
+  '/assets/planets/Neptune.svg',
+  '/assets/planets/Pluto.svg',
+  '/assets/planets/Ascendent.svg', // Note: file has typo but keeping as is
+  '/assets/planets/Ascendant.svg', // Adding both spellings for compatibility
 ];
 
 export const relevantPromptAspects = {
@@ -543,4 +541,5 @@ export const APPLICATION_JSON = "application/json";
 export const HTTP_POST = "POST";
 export const JSON_HEADERS = { [CONTENT_TYPE_HEADER]: APPLICATION_JSON };
 export const ERROR_API_CALL = "Error in API call:";
+
 
