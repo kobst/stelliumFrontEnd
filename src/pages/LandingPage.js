@@ -43,10 +43,6 @@ const LandingPage = () => {
     navigate('/signUp');
   };
 
-  const handleCelebMatch = () => {
-    navigate('/celebs');
-  };
-
   const handleEmailSubmit = (e) => {
     e.preventDefault();
     if (email) {
@@ -72,9 +68,6 @@ const LandingPage = () => {
             <button className="cta-button primary" onClick={handleDiscoverMe}>
               Discover Me
             </button>
-            <button className="cta-button secondary" onClick={handleCelebMatch}>
-              Celeb Match
-            </button>
           </div>
         </div>
       </section>
@@ -95,25 +88,6 @@ const LandingPage = () => {
       {/* SEO Footer with Email Capture */}
       <footer className="footer-section">
         <div className="footer-content">
-          <div className="footer-main">
-            <h3>Get Weekly Transit Tips</h3>
-            <p>Join thousands getting personalized astrological insights every week</p>
-            <form className="email-form" onSubmit={handleEmailSubmit}>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <button type="submit" className="email-submit-btn">
-                Subscribe
-              </button>
-            </form>
-            {showThankYou && (
-              <p className="thank-you-message">Thank you for subscribing!</p>
-            )}
-          </div>
 
           <div className="footer-links">
             <div className="link-column">

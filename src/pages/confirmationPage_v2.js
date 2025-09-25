@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useStore from '../Utilities/store';
 import useSubjectCreation from '../hooks/useSubjectCreation';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
+import Ephemeris from '../UI/shared/Ephemeris';
 
 const ConfirmationV2 = () => {
     const navigate = useNavigate();
@@ -163,7 +164,8 @@ const ConfirmationV2 = () => {
                 </div>
             )}
             
-            {/* Birth Chart Data */}
+
+            {/* Birth Chart Data (table) */}
             {hasBirthChartData && (
                 <div style={{ margin: '20px 0' }}>
                     <h3 style={{ color: 'white', marginBottom: '15px' }}>Your Birth Chart Data</h3>
@@ -175,7 +177,7 @@ const ConfirmationV2 = () => {
                 </div>
             )}
             
-            {/* Generated Overview Display */}
+            {/* Generated Overview Display (short overview only) */}
             {hasOverview && (
                 <div style={{ 
                     backgroundColor: 'rgba(139, 92, 246, 0.1)', 
@@ -195,12 +197,7 @@ const ConfirmationV2 = () => {
                     }}>
                         {overviewContent}
                     </p>
-                    <div style={{ marginTop: '15px', padding: '10px 0', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                        <p style={{ color: '#a78bfa', fontSize: '14px', margin: '0' }}>
-                            This is just the beginning! Visit your dashboard to unlock your complete analysis 
-                            including detailed planetary interpretations, life area insights, and personalized chat.
-                        </p>
-                    </div>
+                    {/* Dashboard access messaging removed for pure landing experience */}
                 </div>
             )}
             
@@ -209,26 +206,7 @@ const ConfirmationV2 = () => {
                 <button onClick={() => navigate('/')} style={{ marginRight: '10px' }}>
                     Go Back
                 </button>
-                {(userId || creationResult?.userId) && !loading && (
-                    <button 
-                        onClick={() => {
-                            const targetUserId = userId || creationResult?.userId;
-                            navigate(`/userDashboard/${targetUserId}`);
-                        }} 
-                        style={{
-                            marginLeft: '10px',
-                            backgroundColor: '#8b5cf6',
-                            color: 'white',
-                            border: 'none',
-                            padding: '12px 24px',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontWeight: 'bold'
-                        }}
-                    >
-                        {hasOverview ? 'Explore Your Complete Analysis' : 'Go to Dashboard'}
-                    </button>
-                )}
+                {/* Dashboard navigation removed to prevent access beyond overview */}
             </div>
         </div>
     );
