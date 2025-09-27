@@ -115,7 +115,32 @@ const ConfirmationV2 = () => {
             <p style={{ color: 'white' }}>
                 {isCreating ? 'Creating your profile...' : 'Your profile has been created successfully!'}
             </p>
-            
+
+            {/* Birth Date Display */}
+            {userData?.dateOfBirth && (
+                <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    margin: '20px 0',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    textAlign: 'center'
+                }}>
+                    <p style={{
+                        color: 'white',
+                        margin: '0',
+                        fontSize: '18px',
+                        fontWeight: '500'
+                    }}>
+                        Birth Date: {new Date(userData.dateOfBirth).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}
+                    </p>
+                </div>
+            )}
+
             {/* Creating User Status */}
             {isCreating && (
                 <div style={{ 
