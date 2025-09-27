@@ -4,7 +4,6 @@ import './LandingPage.css';
 import lightLogo from '../assets/Light logo.png';
 import whiteLine from '../assets/whiteline.png';
 import FeaturesSection from '../UI/landingPage/FeatureCards';
-import SocialProof from '../UI/landingPage/SocialProof';
 import PricingSection from '../UI/landingPage/PricingSection';
 import DemoSection from '../UI/landingPage/DemoSection';
 
@@ -81,7 +80,6 @@ const LandingPage = () => {
         <FeaturesSection />
       </section>
 
-      <SocialProof />
 
       <PricingSection />
 
