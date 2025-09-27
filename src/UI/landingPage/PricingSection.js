@@ -4,9 +4,9 @@ export default function PricingSection() {
   return (
     <section className="pricing-section">
       <div className="pricing-header">
-        <h2 className="section-title">Ready for clarity?</h2>
+        <h2 className="section-title">Ready for your first personalized reading?</h2>
         <p className="pricing-subtitle">
-          Get your first personalized reading in minutes.
+          Get a quick overview of your birth chart in minutes.
         </p>
       </div>
 

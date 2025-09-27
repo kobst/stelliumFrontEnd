@@ -37,9 +37,9 @@ const LandingPage = () => {
           <img className="hero-logo" src={lightLogo} alt="Stellium logo" />
           <div className="maintxt mont-font">
             <h1 className="logotxt">STELLIUM</h1>
-            <h3 className="logosubtxt">your personal AI astrologer</h3>
+            <h3 className="logosubtxt">Personalized Astrology, Powered by AI</h3>
           </div>
-          <p className="hero-subtitle">Instant birth-chart insights, relationship compatibility, and chat-based guidance.</p>
+          <p className="hero-subtitle">Birth chart insights, relationship reports, custom horoscopes...<br />and your own AI astrologer to answer your most personal questions</p>
           <div className="hero-buttons">
             <button className="cta-button primary" onClick={handleDiscoverMe}>
               Get My Short Personality Overview
