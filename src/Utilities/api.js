@@ -18,7 +18,6 @@ export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
 
     // Convert offsets to hours
     const totalOffsetHours = (data.rawOffset + data.dstOffset) / 3600;
-    console.log(`Total Offset in Hours: ${totalOffsetHours}`);
     
     return totalOffsetHours; // Return the total offset in hours
   } catch (error) {
@@ -58,7 +57,6 @@ export const getSubtopicAstroData = async (userId) => {
 
 export const createUser = async (userData) => {
   try {
-    console.log('Creating user:', userData);
     const endpoint = userData.time === 'unknown' ? '/createUserUnknownTime' : '/createUser';
     const requestData = { ...userData };
     
@@ -80,7 +78,6 @@ export const createUser = async (userData) => {
     }
 
     const responseData = await response.json();
-    console.log('User creation with overview response:', responseData);
     return responseData;
   } catch (error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {

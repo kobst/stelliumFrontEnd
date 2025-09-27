@@ -121,7 +121,6 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
 
     // Memoize the drawing functions
     const drawHouses = useCallback((ctx, houses, houseRotationRadians) => {
-        console.log("drawing houses")
         houses.forEach(house => {
             const houseDegree = house.degree;
             const houseRadians = ((270 - houseDegree) % 360) * Math.PI / 180 + houseRotationRadians;
@@ -263,7 +262,6 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
 
     const drawAspectLines = useCallback((ctx, aspects, innerRadius, rotationRadians) => {
   
-        console.log("Drawing aspects", aspects);
         aspects.forEach(aspect => {
             if (aspect.aspectedPlanet === "South Node"|| aspect.aspectingPlanet === "Chiron"
                 || aspect.aspectedPlanet === "Chiron"|| aspect.aspectingPlanet === "South Node"
@@ -303,7 +301,6 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
     }, []); // Empty dependency array since using constant CANVAS_DIMENSIONS
 
     const drawTransits = useCallback((ctx, transits, rotationRadians, houseRotationRadians) => {
-        console.log("Drawing transits", transits);
         transits.forEach(planet => {
             const planetIndex = planetNameToIndex[planet.name];
             if (planetIndex !== undefined) {
@@ -396,7 +393,6 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         }
 
         if (transits && transits.length !== 0) {
-            console.log("Calling drawTransits");
             drawTransits(ctx, transits, rotationRadians, houseRotationRadians);
         }
 
@@ -421,7 +417,6 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
     }, [planets, houses, aspects, transits, drawZodiacWheel]);
 
     useEffect(() => {
-        console.log('Props changed:', { planets, houses, aspects, transits });
     }, [planets, houses, aspects, transits]);
 
     

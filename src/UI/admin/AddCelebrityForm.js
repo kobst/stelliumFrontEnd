@@ -156,7 +156,6 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
             
             const lat = place.geometry.location.lat();
             const lon = place.geometry.location.lng();
-            console.log("Selected location:", { lat, lon, address: place.formatted_address });
             
             setLat(lat);
             setLon(lon);

@@ -131,7 +131,6 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
       
       const lat = place.geometry.location.lat();
       const lon = place.geometry.location.lng();
-      console.log("Selected location:", { lat, lon, address: place.formatted_address });
       
       setLat(lat);
       setLon(lon);

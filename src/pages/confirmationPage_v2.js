@@ -29,13 +29,11 @@ const ConfirmationV2 = () => {
     // Start user creation when component mounts
     useEffect(() => {
         if (userData && !creationStarted.current) {
-            console.log('Starting user creation with data:', userData);
             creationStarted.current = true;
             
             const performCreation = async () => {
                 try {
                     const result = await createUser(userData);
-                    console.log('User creation result:', result);
                     setCreationResult(result);
                     
                     // Store user data immediately (no polling needed)
