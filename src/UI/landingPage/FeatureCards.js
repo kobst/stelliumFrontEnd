@@ -1,75 +1,34 @@
 import React from 'react';
 
-export default function FeaturesSection() {
+export default function ThreePillarsSection() {
   return (
-    <section className="features-section py-16 px-4">
-      {/* Subtitle */}
-      <div className="text-center mb-12">
-        <h4 className="feature-subtitle">
-          A FULLY FEATURED ASTROLOGER FOR ALL YOUR NEEDS
-        </h4>
-      </div>
+    <section className="three-pillars-section">
+      <div className="pillars-container">
 
-      {/* Grid */}
-      <div className="features-grid">
-
-        {/* 1. Deep-Dive Natal Analysis */}
-        <div className="feature-card">
-          <div className="feature-icon">🧬</div>
-          <h3>Decode Your Cosmic DNA</h3>
-          <div className="value-hook">AI-powered birth-chart deep dive.</div>
-          <p>
-            Reveal hidden talents, blind spots, and life themes in a shareable report.
+        {/* Pillar 1: Know Yourself */}
+        <div className="pillar">
+          <h3>Know Yourself</h3>
+          <p className="pillar-subtitle">AI birth-chart deep dive.</p>
+          <p className="pillar-description">
+            Tap any planet, house, or aspect to get a clear, friendly explanation—even without an exact birth time.
           </p>
         </div>
 
-        {/* 2. Personalized Horoscopes */}
-        <div className="feature-card">
-          <div className="feature-icon">📅</div>
-          <h3>Guidance That Moves With You</h3>
-          <div className="value-hook">Chart-specific daily, weekly, and monthly forecasts.</div>
-          <p>
-            Wake up to personalized horoscopes delivered by push or email—no generic sun-sign fluff.
+        {/* Pillar 2: Know Your Relationships */}
+        <div className="pillar">
+          <h3>Know Your Relationships</h3>
+          <p className="pillar-subtitle">Compatibility, clarified.</p>
+          <p className="pillar-description">
+            0–100 chemistry scores plus story-driven synastry & composite insights for anyone you add.
           </p>
         </div>
 
-        {/* 3. Transit Explorer */}
-        <div className="feature-card">
-          <div className="feature-icon">🔍</div>
-          <h3>Zoom In on Any Transit</h3>
-          <div className="value-hook">Instant readings for any planetary aspect.</div>
-          <p>
-            Ask about today's Mars square or your upcoming Saturn return and get context-rich guidance.
-          </p>
-        </div>
-
-        {/* 4. Guest & Family Charts */}
-        <div className="feature-card">
-          <div className="feature-icon">👥</div>
-          <h3>Read Anyone — Instantly</h3>
-          <div className="value-hook">Quick overview or deep dive for friends and family.</div>
-          <p>
-            Add loved ones to your chart library, then switch between summaries, full reports, and chat insights.
-          </p>
-        </div>
-
-        {/* 5. Relationship Analysis */}
-        <div className="feature-card">
-          <div className="feature-icon">💕</div>
-          <h3>Chemistry, Clarified</h3>
-          <div className="value-hook">0–100 quick score to full synastry report.</div>
-          <p>
-            Compare two charts—see harmony/tension scores, then unlock story-driven analysis with chat.
-          </p>
-        </div>
-
-        {/* 6. AI Chat */}
-        <div className="feature-card">
-          <div className="feature-icon">💬</div>
-          <h3>Ask Anything, Anytime</h3>
-          <div className="value-hook">24/7 conversational astrology guidance.</div>
-          <p>
-            Inquire about love, career, or transits—get personalized, empathetic answers in seconds.
+        {/* Pillar 3: Know Your Moment */}
+        <div className="pillar">
+          <h3>Know Your Moment</h3>
+          <p className="pillar-subtitle">Smart horoscopes.</p>
+          <p className="pillar-description">
+            Daily/weekly/monthly transits mapped to your chart; ask the AI about any transit, anytime.
           </p>
         </div>
 

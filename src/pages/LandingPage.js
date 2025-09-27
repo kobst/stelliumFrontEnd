@@ -1,45 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
 import lightLogo from '../assets/Light logo.png';
 import whiteLine from '../assets/whiteline.png';
-import FeaturesSection from '../UI/landingPage/FeatureCards';
+import ThreePillarsSection from '../UI/landingPage/FeatureCards';
+import ObjectionBusterSection from '../UI/landingPage/ObjectionBusterSection';
+import HowItWorksSection from '../UI/landingPage/HowItWorksSection';
+import FeatureGridSection from '../UI/landingPage/FeatureGridSection';
 import PricingSection from '../UI/landingPage/PricingSection';
-import DemoSection from '../UI/landingPage/DemoSection';
+import CTABand from '../UI/landingPage/CTABand';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [horoscopeFlipped, setHoroscopeFlipped] = useState(false);
-  const [currentReply, setCurrentReply] = useState(0);
   const [email, setEmail] = useState('');
   const [showThankYou, setShowThankYou] = useState(false);
 
-  // AI chat animation replies
-  const aiReplies = [
-    "Your Mercury in Gemini suggests exceptional communication skills and a quick, versatile mind...",
-    "With Venus in your 7th house, relationships take center stage in your life journey...",
-    "Your rising sign in Leo gives you a natural charisma that draws others to you...",
-    "The current Jupiter transit through your career house signals major opportunities ahead..."
-  ];
-
-  // Rotate through AI replies
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentReply((prev) => (prev + 1) % aiReplies.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Flip horoscope card periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHoroscopeFlipped((prev) => !prev);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
   const handleDiscoverMe = () => {
-    navigate('/signUp');
+    navigate('/birthChartEntry');
   };
 
   const handleEmailSubmit = (e) => {
@@ -59,29 +36,38 @@ const LandingPage = () => {
         <div className="hero-content">
           <img className="hero-logo" src={lightLogo} alt="Stellium logo" />
           <div className="maintxt mont-font">
-                <h1 className="logotxt">STELLIUM</h1>
-                <h3 className="logosubtxt">your personal AI-powered astrologer</h3>
-                <h2 className="soon">coming soon</h2>
+            <h1 className="logotxt">STELLIUM</h1>
+            <h3 className="logosubtxt">your personal AI astrologer</h3>
           </div>
+          <p className="hero-subtitle">Instant birth-chart insights, relationship compatibility, and chat-based guidance.</p>
           <div className="hero-buttons">
             <button className="cta-button primary" onClick={handleDiscoverMe}>
-              Discover Me
+              Get My Short Personality Overview
             </button>
           </div>
         </div>
       </section>
 
-      {/* Instant Demo Row */}
-      {/* <DemoSection /> */}
+      {/* 3 Pillars */}
+      <ThreePillarsSection />
+
+      {/* CTA after pillars */}
+      <CTABand />
+
+      {/* Objection Buster */}
+      <ObjectionBusterSection />
+
+      {/* How it Works */}
+      <HowItWorksSection />
 
       {/* Feature Grid */}
-      <section className="features-section">
+      <FeatureGridSection />
 
-        <FeaturesSection />
-      </section>
-
-
+      {/* Pricing */}
       <PricingSection />
+
+      {/* CTA after pricing */}
+      <CTABand />
 
       {/* SEO Footer with Email Capture */}
       <footer className="footer-section">

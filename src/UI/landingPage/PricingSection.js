@@ -4,86 +4,77 @@ export default function PricingSection() {
   return (
     <section className="pricing-section">
       <div className="pricing-header">
-        <h2 className="section-title">Pick Your Cosmic Path</h2>
+        <h2 className="section-title">Ready for clarity?</h2>
         <p className="pricing-subtitle">
-          Unlock deeper self‑knowledge and relationship insight with the plan that
-          matches your journey.
+          Get your first personalized reading in minutes.
         </p>
       </div>
-      
+
+      {/* Main Plans */}
       <div className="pricing-grid">
         <div className="pricing-card free">
           <h3>Free</h3>
           <div className="price">$0</div>
-          <p className="description">Dip your toes in the stars — no credit card required.</p>
+          <p className="description">Dip your toes in the stars.</p>
           <ul className="features-list">
-            <li>✓ Browse celebrity charts</li>
-            <li>✓ Unlimited Quick Compatibility Scores</li>
+            <li>5 AI chat messages / month</li>
+            <li>Quick compatibility score (one saved match)</li>
+            <li>Save 1 personal chart</li>
           </ul>
           <button className="pricing-cta">Get Started</button>
         </div>
 
-        <div className="pricing-card base">
-          <div className="popular-badge">⭐ Most Popular</div>
-          <h3>Base Plan</h3>
+        <div className="pricing-card premium">
+          <div className="popular-badge">Most Popular</div>
+          <h3>Premium</h3>
           <div className="price">$20<span>/mo</span></div>
-          <p className="description">Daily guidance + deep insights into your own chart.</p>
+          <p className="description">Full access to personalized insights.</p>
           <ul className="features-list">
-            <li>✓ Daily / Weekly / Monthly Horoscopes</li>
-            <li>✓ Transit Vision Chat for *your* chart</li>
-            <li>✓ 1 Full Birth Chart Reading (or credit)</li>
-            <li>✓ 1 Celebrity Compatibility Analysis / mo</li>
+            <li>Unlimited AI chat</li>
+            <li>Personalized daily/weekly/monthly horoscopes</li>
+            <li>2 full reports / month (Birth Chart or Relationship)</li>
+            <li>Bank unused reports for 3 months</li>
+            <li>Save up to 10 charts</li>
           </ul>
-          <button className="pricing-cta primary">Start Free Month</button>
-        </div>
-
-        <div className="pricing-card chart">
-          <h3>Birth Chart Reading</h3>
-          <div className="price">$20<span>one‑time</span></div>
-          <p className="description">Detailed natal analysis + 1‑hr Insight Chat.</p>
-          <ul className="features-list">
-            <li>✓ Lifetime access to your reading</li>
-            <li>✓ 1‑hr Insight Chat Q&A</li>
-            <li>✓ Includes 1‑month Base Plan trial</li>
-          </ul>
-          <button className="pricing-cta">Purchase</button>
-        </div>
-
-        <div className="pricing-card relationship">
-          <h3>Relationship Analysis</h3>
-          <div className="price">$10<span>each</span></div>
-          <p className="description">Synastry + composite report between two charts.</p>
-          <ul className="features-list">
-            <li>✓ Full compatibility report</li>
-            <li>✓ 1‑hr Insight Chat Q&A</li>
-            <li>✓ Upgrade to Transit Vision for +$10/mo</li>
-          </ul>
-          <button className="pricing-cta">Purchase</button>
+          <button className="pricing-cta primary">Get My Reading</button>
         </div>
 
         <div className="pricing-card pro">
           <h3>Pro</h3>
-          <div className="price">$100<span>/mo</span></div>
-          <p className="description">For coaches & astro pros managing many clients.</p>
+          <div className="price">$49<span>/mo</span></div>
+          <p className="description">For coaches & power users.</p>
           <ul className="features-list">
-            <li>✓ Up to 10 charts / relationships</li>
-            <li>✓ Transit Vision Chat for each</li>
-            <li>✓ Priority support</li>
+            <li>Everything in Premium</li>
+            <li>10 full reports / month</li>
+            <li>Client folders & priority support</li>
           </ul>
           <button className="pricing-cta">Upgrade</button>
         </div>
+      </div>
 
-        <div className="pricing-card max">
-          <h3>Pro Max</h3>
-          <div className="price">$200<span>/mo</span></div>
-          <p className="description">For studios & power users — unlimited guidance.</p>
-          <ul className="features-list">
-            <li>✓ Up to 30 charts / relationships</li>
-            <li>✓ Transit Vision Chat for each</li>
-            <li>✓ White‑glove onboarding</li>
-          </ul>
-          <button className="pricing-cta">Upgrade</button>
+      {/* One-time Add-ons */}
+      <div className="addons-section">
+        <h3>One-time add-ons</h3>
+        <p className="addons-subtitle">Perfect if you're not ready to subscribe. You keep purchased reports forever.</p>
+
+        <div className="addons-grid">
+          <div className="addon-card">
+            <h4>Birth Chart Reading</h4>
+            <div className="addon-price">$20</div>
+            <p>Complete natal analysis with lifetime access</p>
+          </div>
+
+          <div className="addon-card">
+            <h4>Relationship Analysis</h4>
+            <div className="addon-price">$10</div>
+            <p>Synastry & composite insights for any relationship</p>
+          </div>
         </div>
+      </div>
+
+      {/* Microcopy */}
+      <div className="pricing-microcopy">
+        Cancel anytime • Keep purchased reports forever • Works without a birth time
       </div>
     </section>
   );

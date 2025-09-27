@@ -10,17 +10,16 @@ import ConfirmationV2 from './pages/confirmationPage_v2';
 import PricingTable from './pages/plans';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
-import NavBar from './UI/shared/NavBar';
 import './App.css';
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <NavBar />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/signUp" element={<SignUpPage />} />
+          <Route path="/birthChartEntry" element={<SignUpPage />} />
           <Route path="/celebs" element={<CelebsPage />} />
           <Route path="/guestDashboard" element={<GuestDashboard />} />
           <Route path="/synastry" element={<SynastryPage_v2 />} />

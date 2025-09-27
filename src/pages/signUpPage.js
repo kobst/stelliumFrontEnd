@@ -13,16 +13,16 @@ const SignUpPage = () => {
 
     return (
         <div className="signup-page">
-            <div className="signup-container">
-                {/* Back button */}
-                <button className="back-button" onClick={handleBackToHome}>
-                    ← Back to Home
-                </button>
+            {/* Back button */}
+            <button className="back-button" onClick={handleBackToHome}>
+                ← Back to Home
+            </button>
 
+            <div className="signup-container">
                 {/* Header */}
                 <div className="signup-header">
                     <img className="signup-logo" src={lightLogo} alt="Stellium logo" />
-                    <h1 className="signup-title">Create Your Birth Chart</h1>
+                    <h1 className="signup-title">Create Your Birth Chart and Get A Short Personality Overview</h1>
                     <p className="signup-subtitle">
                         Enter your birth information to unlock your personalized astrological insights
                     </p>
