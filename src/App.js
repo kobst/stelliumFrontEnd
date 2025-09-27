@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { EnvironmentProvider } from './contexts/EnvironmentContext';
 import LandingPage from './pages/LandingPage';
 import SignUpPage from './pages/signUpPage';
 import CelebsPage from './pages/CelebsPage';
@@ -19,36 +20,38 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/admin" element={
-            <AdminPasswordProtection>
-              <NavBar />
-              <AdminPage />
-            </AdminPasswordProtection>
-          } />
-          <Route path="*" element={
-            <PasswordProtection>
-              <NavBar />
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/signUp" element={<SignUpPage />} />
-                <Route path="/celebs" element={<CelebsPage />} />
-                <Route path="/userDashboard/:userId" element={<UserDashboard />} />
-                <Route path="/guestDashboard" element={<GuestDashboard />} />
-                <Route path="/synastry" element={<SynastryPage_v2 />} />
-                <Route path="/compositeDashboard" element={<CompositeDashboard_v4 />} />
-                <Route path="/signUpConfirmation" element={<ConfirmationV2 />} />
-                <Route path="/pricingTable" element={<PricingTable />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
-              </Routes>
-            </PasswordProtection>
-          } />
-        </Routes>
-      </div>
-    </Router>
+    <EnvironmentProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/admin" element={
+              <AdminPasswordProtection>
+                <NavBar />
+                <AdminPage />
+              </AdminPasswordProtection>
+            } />
+            <Route path="*" element={
+              <PasswordProtection>
+                <NavBar />
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/signUp" element={<SignUpPage />} />
+                  <Route path="/celebs" element={<CelebsPage />} />
+                  <Route path="/userDashboard/:userId" element={<UserDashboard />} />
+                  <Route path="/guestDashboard" element={<GuestDashboard />} />
+                  <Route path="/synastry" element={<SynastryPage_v2 />} />
+                  <Route path="/compositeDashboard" element={<CompositeDashboard_v4 />} />
+                  <Route path="/signUpConfirmation" element={<ConfirmationV2 />} />
+                  <Route path="/pricingTable" element={<PricingTable />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                </Routes>
+              </PasswordProtection>
+            } />
+          </Routes>
+        </div>
+      </Router>
+    </EnvironmentProvider>
   );
 }
 

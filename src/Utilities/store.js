@@ -168,6 +168,30 @@ const useStore = create(set => ({
         relationshipWorkflowState: { ...state.relationshipWorkflowState, ...updates }
     })),
 
+    // Environment management for admin functionality
+    currentEnvironment: () => {
+        return sessionStorage.getItem('stellium_environment') || 'dev';
+    },
+    environmentData: {
+        lastSwitched: null,
+        previousEnvironment: null
+    },
+    setEnvironmentData: (updates) => set(state => ({
+        environmentData: { ...state.environmentData, ...updates }
+    })),
+
+    // Helper to get current API URL
+    getCurrentApiUrl: () => {
+        const environment = sessionStorage.getItem('stellium_environment') || 'dev';
+        switch (environment) {
+            case 'prod':
+                return process.env.REACT_APP_SERVER_URL_PROD;
+            case 'dev':
+            default:
+                return process.env.REACT_APP_SERVER_URL;
+        }
+    },
+
 }));
 
 export default useStore;

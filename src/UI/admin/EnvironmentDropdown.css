@@ -1,0 +1,203 @@
+.environment-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.env-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  justify-content: space-between;
+}
+
+.env-dropdown-trigger:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.env-dropdown-trigger.dev {
+  border-color: #2196f3;
+  color: #1565c0;
+}
+
+.env-dropdown-trigger.prod {
+  border-color: #f44336;
+  color: #c62828;
+}
+
+.env-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.env-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 280px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.env-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: left;
+}
+
+.env-dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+.env-dropdown-item.active {
+  background: #e3f2fd;
+}
+
+.env-dropdown-item.dev:hover,
+.env-dropdown-item.dev.active {
+  background: #e3f2fd;
+}
+
+.env-dropdown-item.prod:hover,
+.env-dropdown-item.prod.active {
+  background: #ffebee;
+}
+
+.env-icon {
+  font-size: 14px;
+}
+
+.env-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.env-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.env-url {
+  font-size: 11px;
+  color: #666;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.active-indicator {
+  color: #4caf50;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.dropdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+}
+
+.confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
+.confirmation-dialog-compact {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.confirmation-dialog-compact h4 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.confirmation-dialog-compact p {
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+  color: #666;
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.confirm-btn-compact {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.confirm-btn-compact:hover {
+  background: #d32f2f;
+}
+
+.cancel-btn-compact {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.cancel-btn-compact:hover {
+  background: #5a6268;
+}

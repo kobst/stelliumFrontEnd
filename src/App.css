@@ -21,6 +21,21 @@
   overflow: hidden; /* Prevent content from spilling out */
 }
 
+/* Admin page layout styles */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 0 20px;
+}
+
+.admin-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .maintxt {
   color: white;
   text-transform: uppercase;

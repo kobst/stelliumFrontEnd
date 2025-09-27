@@ -1,6 +1,19 @@
 import { HTTP_POST, CONTENT_TYPE_HEADER, APPLICATION_JSON, ERROR_API_CALL } from "./constants";
 
-const SERVER_URL = process.env.REACT_APP_SERVER_URL;
+// Dynamic server URL based on current environment
+const getServerUrl = () => {
+  const environment = sessionStorage.getItem('stellium_environment') || 'dev';
+  switch (environment) {
+    case 'prod':
+      return process.env.REACT_APP_SERVER_URL_PROD;
+    case 'dev':
+    default:
+      return process.env.REACT_APP_SERVER_URL;
+  }
+};
+
+// For backward compatibility and debugging
+const SERVER_URL = getServerUrl();
 
 export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
   const apiKey = process.env.REACT_APP_GOOGLE_API_KEY; 
@@ -35,7 +48,7 @@ export const getSubtopicAstroData = async (userId) => {
     console.log('Getting subtopic astro data for userId:', userId);
     const requestBody = { userId: userId };
     
-    const response = await fetch(`${SERVER_URL}/debug/subtopic-astro-data`, {
+    const response = await fetch(`${getServerUrl()}/debug/subtopic-astro-data`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -67,7 +80,7 @@ export const createUser = async (userData) => {
       delete requestData.time;
     }
     
-    const response = await fetch(`${SERVER_URL}${endpoint}`, {
+    const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -97,7 +110,7 @@ export const fetchUser = async (userId) => {
   console.log("fetchUseruserId")
   console.log(userId)
   try {
-    const response = await fetch(`${SERVER_URL}/getUser`, {
+    const response = await fetch(`${getServerUrl()}/getUser`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ userId })
@@ -111,7 +124,7 @@ export const fetchUser = async (userId) => {
 
 export const fetchUsers = async () => {
   try {
-    const response = await fetch(`${SERVER_URL}/getUsers`, {
+    const response = await fetch(`${getServerUrl()}/getUsers`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -155,7 +168,7 @@ export const fetchUsersPaginated = async (options = {}) => {
       requestBody.search = search;
     }
 
-    const response = await fetch(`${SERVER_URL}/getUsers`, {
+    const response = await fetch(`${getServerUrl()}/getUsers`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -183,7 +196,7 @@ export const fetchUsersPaginated = async (options = {}) => {
 
 export const fetchComposites = async () => {
   try {
-    const response = await fetch(`${SERVER_URL}/getCompositeCharts`, {
+    const response = await fetch(`${getServerUrl()}/getCompositeCharts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -208,7 +221,7 @@ export const handleUserInput = async (userId, query) => {
   try {
     console.log("query:", query)
     console.log("userId:", userId)      
-    const response = await fetch(`${SERVER_URL}/handleUserQuery`, {
+    const response = await fetch(`${getServerUrl()}/handleUserQuery`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON,
@@ -249,7 +262,7 @@ export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = n
       requestBody.celebRelationship = true;
     }
     
-    const response = await fetch(`${SERVER_URL}/enhanced-relationship-analysis`, {
+    const response = await fetch(`${getServerUrl()}/enhanced-relationship-analysis`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
@@ -304,7 +317,7 @@ export const createCompositeChartProfile = async (userAId, userBId, userAName, u
   console.log("compositeBirthChart x:");
   console.log(compositeBirthChart);
   try {
-    const response = await fetch(`${SERVER_URL}/saveCompositeChartProfile`, {
+    const response = await fetch(`${getServerUrl()}/saveCompositeChartProfile`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -336,7 +349,7 @@ export const createCompositeChartProfile = async (userAId, userBId, userAName, u
 //     console.log("compositeChart: ", compositeChart)
 //     console.log("birthChart1: ", userA.birthChart)
 //     console.log("birthChart2: ", userB.birthChart)
-//     const response = await fetch(`${SERVER_URL}/getRelationshipScore`, {
+//     const response = await fetch(`${getServerUrl()}/getRelationshipScore`, {
 //       method: HTTP_POST,
 //       headers: {
 //         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -367,7 +380,7 @@ export const createCompositeChartProfile = async (userAId, userBId, userAName, u
 // export const generateRelationshipAnalysis = async (compositeChartId) => {
 //   console.log("compositeChartId: ", compositeChartId)
 //   try {
-//     const response = await fetch(`${SERVER_URL}/generateRelationshipAnalysis`, {
+//     const response = await fetch(`${getServerUrl()}/generateRelationshipAnalysis`, {
 //       method: HTTP_POST,
 //       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //       body: JSON.stringify({compositeChartId})
@@ -384,7 +397,7 @@ export const createCompositeChartProfile = async (userAId, userBId, userAName, u
 export const fetchRelationshipAnalysis = async (compositeChartId) => {
   console.log("compositeChartId: ", compositeChartId)
   try {
-    const response = await fetch(`${SERVER_URL}/fetchRelationshipAnalysis`, {
+    const response = await fetch(`${getServerUrl()}/fetchRelationshipAnalysis`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({compositeChartId})
@@ -422,7 +435,7 @@ export const getShortOverview = async (birthData) => {
 
   console.log("birthchart: ", birthData)
   try {
-    const response = await fetch(`${SERVER_URL}/getShortOverview`, {
+    const response = await fetch(`${getServerUrl()}/getShortOverview`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({birthData})
@@ -440,7 +453,7 @@ export const getShortOverview = async (birthData) => {
 export const getPlanetOverview = async (planetName, birthData) => {
   console.log("Sending request with:", { planetName, birthData });
   try {
-    const response = await fetch(`${SERVER_URL}/getShortOverviewPlanet`, {
+    const response = await fetch(`${getServerUrl()}/getShortOverviewPlanet`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({planetName, birthData})
@@ -480,7 +493,7 @@ export const getPlanetOverview = async (planetName, birthData) => {
 // export const getAllPlanetOverview = async (birthData) => {
 //   console.log("Sending request with:", { birthData });
 //   try {
-//     const response = await fetch(`${SERVER_URL}/getShortOverviewAllPlanets`, {
+//     const response = await fetch(`${getServerUrl()}/getShortOverviewAllPlanets`, {
 //       method: HTTP_POST,
 //       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //       body: JSON.stringify({birthData})
@@ -515,7 +528,7 @@ export const getPlanetOverview = async (planetName, birthData) => {
 
 //   console.log("user: ", user)
 //   try {
-//     const response = await fetch(`${SERVER_URL}/getBirthChartAnalysis`, {
+//     const response = await fetch(`${getServerUrl()}/getBirthChartAnalysis`, {
 //       method: HTTP_POST,
 //       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //       body: JSON.stringify({user})
@@ -532,7 +545,7 @@ export const getPlanetOverview = async (planetName, birthData) => {
 export const fetchAnalysis = async (userId) => {
   console.log("userId: ", userId)
   try {
-    const response = await fetch(`${SERVER_URL}/fetchAnalysis`, {
+    const response = await fetch(`${getServerUrl()}/fetchAnalysis`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({userId})
@@ -571,7 +584,7 @@ export const fetchAnalysis = async (userId) => {
 
 //         console.log(`Processing subtopic: ${subtopicKey}`);
 
-//         const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
+//         const response = await fetch(`${getServerUrl()}/getSubtopicAnalysis`, {
 //           method: HTTP_POST,
 //           headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //           body: JSON.stringify({
@@ -623,7 +636,7 @@ export const fetchAnalysis = async (userId) => {
 //   console.log(`Processing subtopic: ${subtopicLabel}`);
 //
 //   try {
-//     const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
+//     const response = await fetch(`${getServerUrl()}/getSubtopicAnalysis`, {
 //       method: HTTP_POST,
 //       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //       body: JSON.stringify({
@@ -668,7 +681,7 @@ export const fetchAnalysis = async (userId) => {
 //   while (!isComplete) {
 //     try {
 //       console.log(`Processing section: ${section}, index: ${index}`);
-//       const response = await fetch(`${SERVER_URL}/processBasicAnalysis`, {
+//       const response = await fetch(`${getServerUrl()}/processBasicAnalysis`, {
 //         method: HTTP_POST,
 //         headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //         body: JSON.stringify({ userId, section, index })
@@ -736,7 +749,7 @@ export const fetchAnalysis = async (userId) => {
 //     while (!isComplete) {
 //       console.log(`Processing topic: ${currentTopic}, subtopic: ${currentSubtopic}`);
       
-//       const response = await fetch(`${SERVER_URL}/processTopicAnalysis`, {
+//       const response = await fetch(`${getServerUrl()}/processTopicAnalysis`, {
 //         method: HTTP_POST,
 //         headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //         body: JSON.stringify({ 
@@ -818,7 +831,7 @@ export const fetchAnalysis = async (userId) => {
 //     while (!isComplete) {
 //       console.log(`Processing relationship category: ${currentCategory || 'initial'}`);
       
-//       const response = await fetch(`${SERVER_URL}/processRelationshipAnalysis`, {
+//       const response = await fetch(`${getServerUrl()}/processRelationshipAnalysis`, {
 //         method: HTTP_POST,
 //         headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //         body: JSON.stringify({ 
@@ -868,7 +881,7 @@ export const chatForUserRelationship = async (userId, compositeChartId, query) =
   console.log("compositeChartId: ", compositeChartId)
   console.log("query: ", query)
   try {
-    const response = await fetch(`${SERVER_URL}/userChatRelationshipAnalysis`, {
+    const response = await fetch(`${getServerUrl()}/userChatRelationshipAnalysis`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({userId, compositeChartId, query})
@@ -886,7 +899,7 @@ export const fetchUserChatRelationshipAnalysis = async (userId, compositeChartId
   console.log("userId: ", userId)
   console.log("compositeChartId: ", compositeChartId)
   try {
-    const response = await fetch(`${SERVER_URL}/fetchUserChatRelationshipAnalysis`, {
+    const response = await fetch(`${getServerUrl()}/fetchUserChatRelationshipAnalysis`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({userId, compositeChartId})
@@ -907,7 +920,7 @@ export const getTransitWindows = async (userId, from, to) => {
   console.log("from: ", from)
   console.log("to: ", to)
   try {
-    const response = await fetch(`${SERVER_URL}/getTransitWindows`, {
+    const response = await fetch(`${getServerUrl()}/getTransitWindows`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({userId, from, to})
@@ -927,7 +940,7 @@ export const getTransitWindows = async (userId, from, to) => {
 export const checkUserCreationStatus = async (workflowId) => {
   console.log('Checking user creation status for workflowId:', workflowId);
   try {
-    const response = await fetch(`${SERVER_URL}/user/creation-status`, {
+    const response = await fetch(`${getServerUrl()}/user/creation-status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ workflowId })
@@ -950,7 +963,7 @@ export const checkUserCreationStatus = async (workflowId) => {
 export const checkCelebrityCreationStatus = async (workflowId) => {
   console.log('Checking celebrity creation status for workflowId:', workflowId);
   try {
-    const response = await fetch(`${SERVER_URL}/celebrity/creation-status`, {
+    const response = await fetch(`${getServerUrl()}/celebrity/creation-status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ workflowId })
@@ -973,7 +986,7 @@ export const checkCelebrityCreationStatus = async (workflowId) => {
 export const checkGuestCreationStatus = async (workflowId) => {
   console.log('Checking guest creation status for workflowId:', workflowId);
   try {
-    const response = await fetch(`${SERVER_URL}/guest/creation-status`, {
+    const response = await fetch(`${getServerUrl()}/guest/creation-status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ workflowId })
@@ -1005,9 +1018,9 @@ export const startWorkflow = async (userId, immediate = true) => {
     }
     
     console.log("📤 REQUEST BODY:", JSON.stringify(requestBody));
-    console.log("📍 REQUEST URL:", `${SERVER_URL}/workflow/individual/start`);
+    console.log("📍 REQUEST URL:", `${getServerUrl()}/workflow/individual/start`);
     
-    const response = await fetch(`${SERVER_URL}/workflow/individual/start`, {
+    const response = await fetch(`${getServerUrl()}/workflow/individual/start`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
@@ -1029,7 +1042,7 @@ export const startWorkflow = async (userId, immediate = true) => {
 export const getWorkflowStatus = async (userId) => {
   console.log("Getting workflow status for userId:", userId);
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/individual/status`, {
+    const response = await fetch(`${getServerUrl()}/workflow/individual/status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ workflowId: userId })
@@ -1057,7 +1070,7 @@ export const getWorkflowStatus = async (userId) => {
 export const resumeWorkflow = async (userId) => {
   console.log("Resuming workflow for userId:", userId);
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/individual/resume`, {
+    const response = await fetch(`${getServerUrl()}/workflow/individual/resume`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ workflowId: userId })
@@ -1084,7 +1097,7 @@ export const getCompleteWorkflowData = async (userId, workflowId) => {
     if (userId) requestBody.userId = userId;
     if (workflowId) requestBody.workflowId = workflowId;
     
-    const response = await fetch(`${SERVER_URL}/workflow/get-complete-data`, {
+    const response = await fetch(`${getServerUrl()}/workflow/get-complete-data`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
@@ -1114,9 +1127,9 @@ export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChart
     }
     
     console.log("📤 RELATIONSHIP REQUEST BODY:", JSON.stringify(requestBody));
-    console.log("📍 RELATIONSHIP REQUEST URL:", `${SERVER_URL}/workflow/relationship/start`);
+    console.log("📍 RELATIONSHIP REQUEST URL:", `${getServerUrl()}/workflow/relationship/start`);
     
-    const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
+    const response = await fetch(`${getServerUrl()}/workflow/relationship/start`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
@@ -1140,7 +1153,7 @@ export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChart
 export const getRelationshipWorkflowStatus = async (compositeChartId) => {
   console.log("Getting relationship workflow status for:", compositeChartId);
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/relationship/status`, {
+    const response = await fetch(`${getServerUrl()}/workflow/relationship/status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ compositeChartId })
@@ -1164,7 +1177,7 @@ export const getRelationshipWorkflowStatus = async (compositeChartId) => {
 export const resumeRelationshipWorkflow = async (compositeChartId) => {
   console.log("🔄 Resuming relationship workflow for:", compositeChartId);
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/relationship/resume`, {
+    const response = await fetch(`${getServerUrl()}/workflow/relationship/resume`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ compositeChartId })
@@ -1195,7 +1208,7 @@ export const startFullRelationshipAnalysis = async (compositeChartId) => {
   const requestBody = { compositeChartId, immediate: true };
   console.log("🚀 Request body:", requestBody);
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
+    const response = await fetch(`${getServerUrl()}/workflow/relationship/start`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
@@ -1220,7 +1233,7 @@ export const startFullRelationshipAnalysis = async (compositeChartId) => {
 export const createRelationshipWithFullAnalysis = async (userIdA, userIdB) => {
   console.log("🔥 Creating relationship with full analysis:", { userIdA, userIdB });
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
+    const response = await fetch(`${getServerUrl()}/workflow/relationship/start`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ userIdA, userIdB, immediate: true })
@@ -1246,7 +1259,7 @@ export const createRelationshipWithFullAnalysis = async (userIdA, userIdB) => {
 export const generateWeeklyHoroscope = async (userId, startDate) => {
   console.log("Generating weekly horoscope for userId:", userId, "startDate:", startDate);
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/weekly`, {
+    const response = await fetch(`${getServerUrl()}/users/${userId}/horoscope/weekly`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ startDate })
@@ -1268,7 +1281,7 @@ export const generateWeeklyHoroscope = async (userId, startDate) => {
 export const generateMonthlyHoroscope = async (userId, startDate) => {
   console.log("Generating monthly horoscope for userId:", userId, "startDate:", startDate);
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/monthly`, {
+    const response = await fetch(`${getServerUrl()}/users/${userId}/horoscope/monthly`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ startDate })
@@ -1290,7 +1303,7 @@ export const generateMonthlyHoroscope = async (userId, startDate) => {
 export const generateDailyHoroscope = async (userId, startDate) => {
   console.log("Generating daily horoscope for userId:", userId, "startDate:", startDate);
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/daily`, {
+    const response = await fetch(`${getServerUrl()}/users/${userId}/horoscope/daily`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ startDate })
@@ -1312,7 +1325,7 @@ export const generateDailyHoroscope = async (userId, startDate) => {
 export const getHoroscopeHistory = async (userId, type = null, limit = 10) => {
   console.log("Getting horoscope history for userId:", userId, "type:", type, "limit:", limit);
   try {
-    let url = `${SERVER_URL}/users/${userId}/horoscopes?limit=${limit}`;
+    let url = `${getServerUrl()}/users/${userId}/horoscopes?limit=${limit}`;
     if (type) {
       url += `&type=${type}`;
     }
@@ -1338,7 +1351,7 @@ export const getHoroscopeHistory = async (userId, type = null, limit = 10) => {
 export const getLatestHoroscope = async (userId, type = null) => {
   console.log("Getting latest horoscope for userId:", userId, "type:", type);
   try {
-    let url = `${SERVER_URL}/users/${userId}/horoscope/latest`;
+    let url = `${getServerUrl()}/users/${userId}/horoscope/latest`;
     if (type) {
       url += `?type=${type}`;
     }
@@ -1364,7 +1377,7 @@ export const getLatestHoroscope = async (userId, type = null) => {
 export const deleteHoroscope = async (userId, horoscopeId) => {
   console.log("Deleting horoscope for userId:", userId, "horoscopeId:", horoscopeId);
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscopes/${horoscopeId}`, {
+    const response = await fetch(`${getServerUrl()}/users/${userId}/horoscopes/${horoscopeId}`, {
       method: 'DELETE',
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
     });
@@ -1415,7 +1428,7 @@ export const generateCustomHoroscope = async (userId, options) => {
       }
     }
 
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/custom`, {
+    const response = await fetch(`${getServerUrl()}/users/${userId}/horoscope/custom`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1440,7 +1453,7 @@ export const generateCustomHoroscope = async (userId, options) => {
 
 export const fetchCelebrities = async () => {
   try {
-    const response = await fetch(`${SERVER_URL}/getCelebs`, {
+    const response = await fetch(`${getServerUrl()}/getCelebs`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1482,7 +1495,7 @@ export const fetchCelebritiesPaginated = async (options = {}) => {
       requestBody.search = search;
     }
 
-    const response = await fetch(`${SERVER_URL}/getCelebs`, {
+    const response = await fetch(`${getServerUrl()}/getCelebs`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1511,7 +1524,7 @@ export const fetchCelebritiesPaginated = async (options = {}) => {
 export const getCelebrityRelationships = async (limit = 50) => {
   try {
     console.log('Fetching celebrity relationships with limit:', limit);
-    const response = await fetch(`${SERVER_URL}/getCelebrityRelationships`, {
+    const response = await fetch(`${getServerUrl()}/getCelebrityRelationships`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1552,7 +1565,7 @@ export const createCelebrity = async (celebrityData) => {
     // Remove email field for celebrities (not required)
     delete requestData.email;
     
-    const response = await fetch(`${SERVER_URL}${endpoint}`, {
+    const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1577,7 +1590,7 @@ export const createCelebrity = async (celebrityData) => {
 
 export const getUserSubjects = async (ownerUserId) => {
   try {
-    const response = await fetch(`${SERVER_URL}/getUserSubjects`, {
+    const response = await fetch(`${getServerUrl()}/getUserSubjects`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1622,7 +1635,7 @@ export const getUserSubjectsPaginated = async (ownerUserId, options = {}) => {
       requestBody.search = search;
     }
 
-    const response = await fetch(`${SERVER_URL}/getUserSubjects`, {
+    const response = await fetch(`${getServerUrl()}/getUserSubjects`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1649,7 +1662,7 @@ export const getUserSubjectsPaginated = async (ownerUserId, options = {}) => {
 
 export const getUserCompositeCharts = async (ownerUserId) => {
   try {
-    const response = await fetch(`${SERVER_URL}/getUserCompositeCharts`, {
+    const response = await fetch(`${getServerUrl()}/getUserCompositeCharts`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1691,7 +1704,7 @@ export const createGuestSubject = async (guestData) => {
       throw new Error('ownerUserId is required for guest subjects');
     }
     
-    const response = await fetch(`${SERVER_URL}${endpoint}`, {
+    const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1723,7 +1736,7 @@ export const createGuestWithOverview = createGuestSubject;
 export const startFullAnalysis = async (userId) => {
   try {
     console.log('Starting full analysis for userId:', userId);
-    const response = await fetch(`${SERVER_URL}/analysis/start-full`, {
+    const response = await fetch(`${getServerUrl()}/analysis/start-full`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1753,7 +1766,7 @@ export const checkFullAnalysisStatus = async (userId, workflowId = null) => {
       requestBody.workflowId = workflowId;
     }
 
-    const response = await fetch(`${SERVER_URL}/analysis/full-status`, {
+    const response = await fetch(`${getServerUrl()}/analysis/full-status`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1783,7 +1796,7 @@ export const getNewCompleteWorkflowData = async (userId, workflowId = null) => {
       requestBody.workflowId = workflowId;
     }
 
-    const response = await fetch(`${SERVER_URL}/analysis/complete-data`, {
+    const response = await fetch(`${getServerUrl()}/analysis/complete-data`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1823,7 +1836,7 @@ export const deleteSubject = async (subjectId, ownerUserId = null) => {
       requestOptions.body = JSON.stringify({ ownerUserId });
     }
 
-    const response = await fetch(`${SERVER_URL}/subjects/${subjectId}`, requestOptions);
+    const response = await fetch(`${getServerUrl()}/subjects/${subjectId}`, requestOptions);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -1856,7 +1869,7 @@ export const deleteRelationship = async (compositeChartId, ownerUserId = null) =
       requestOptions.body = JSON.stringify({ ownerUserId });
     }
 
-    const response = await fetch(`${SERVER_URL}/relationships/${compositeChartId}`, requestOptions);
+    const response = await fetch(`${getServerUrl()}/relationships/${compositeChartId}`, requestOptions);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -1874,7 +1887,7 @@ export const deleteRelationship = async (compositeChartId, ownerUserId = null) =
 
 export const enhancedChatForUserBirthChart = async (userId, requestBody) => {
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/birthchart/enhanced-chat`, {
+    const response = await fetch(`${getServerUrl()}/users/${userId}/birthchart/enhanced-chat`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1897,7 +1910,7 @@ export const enhancedChatForUserBirthChart = async (userId, requestBody) => {
 
 export const fetchEnhancedChatHistory = async (userId, limit = null) => {
   try {
-    let url = `${SERVER_URL}/users/${userId}/birthchart/chat-history`;
+    let url = `${getServerUrl()}/users/${userId}/birthchart/chat-history`;
     if (limit !== null) {
       url += `?limit=${limit}`;
     }
@@ -1929,7 +1942,7 @@ export const enhancedChatForRelationship = async (compositeChartId, query, score
     
     console.log('🔍 Enhanced chat request:', { compositeChartId, requestBody });
     
-    const response = await fetch(`${SERVER_URL}/relationships/${compositeChartId}/enhanced-chat`, {
+    const response = await fetch(`${getServerUrl()}/relationships/${compositeChartId}/enhanced-chat`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1970,7 +1983,7 @@ export const enhancedChatForRelationship = async (compositeChartId, query, score
 
 export const fetchRelationshipEnhancedChatHistory = async (compositeChartId, limit = null) => {
   try {
-    let url = `${SERVER_URL}/relationships/${compositeChartId}/chat-history`;
+    let url = `${getServerUrl()}/relationships/${compositeChartId}/chat-history`;
     console.log('Fetching relationship enhanced chat history for compositeChartId:', url);
     if (limit !== null) {
       url += `?limit=${limit}`;

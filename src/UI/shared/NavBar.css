@@ -1,6 +1,9 @@
 .navbar {
   background-color: #333;
   padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .navbar ul {
@@ -18,4 +21,31 @@
 
 .navbar a.active {
   font-weight: bold;
+}
+
+.environment-badge {
+  display: flex;
+  align-items: center;
+}
+
+.env-indicator {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.environment-badge.dev .env-indicator {
+  background: rgba(33, 150, 243, 0.2);
+  color: #2196f3;
+  border: 1px solid #2196f3;
+}
+
+.environment-badge.prod .env-indicator {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid #f44336;
 }
