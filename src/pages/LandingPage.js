@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
 import lightLogo from '../assets/Light logo.png';
 import whiteLine from '../assets/whiteline.png';
-import ThreePillarsSection from '../UI/landingPage/FeatureCards';
+import FourPillarsSection from '../UI/landingPage/FeatureCards';
 import ObjectionBusterSection from '../UI/landingPage/ObjectionBusterSection';
 import HowItWorksSection from '../UI/landingPage/HowItWorksSection';
 import FeatureGridSection from '../UI/landingPage/FeatureGridSection';
@@ -48,8 +48,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 3 Pillars */}
-      <ThreePillarsSection />
+      {/* 4 Pillars */}
+      <FourPillarsSection />
 
       {/* CTA after pillars */}
       <CTABand />
@@ -61,7 +61,7 @@ const LandingPage = () => {
       <HowItWorksSection />
 
       {/* Feature Grid */}
-      <FeatureGridSection />
+      {/* <FeatureGridSection /> */}
 
       {/* Pricing */}
       <PricingSection />

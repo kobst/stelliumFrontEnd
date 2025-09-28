@@ -221,18 +221,18 @@
   opacity: 0.85;
 }
 
-/* Three Pillars Section */
-.three-pillars-section {
+/* Four Pillars Section */
+.four-pillars-section {
   padding: 80px 20px;
   background: rgba(0, 0, 0, 0.2);
 }
 
 .pillars-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
 }
 
 .pillar {
@@ -266,6 +266,21 @@
   color: #D9DBE1;
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
+  margin-bottom: 15px;
+}
+
+.pillar-example {
+  font-size: 0.9rem;
+  font-style: italic;
+  opacity: 0.7;
+  color: #a78bfa;
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+}
+
+.pillar-subtitle.highlight-chat {
+  color: #a78bfa;
+  text-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
 }
 
 /* Objection Buster Section */
@@ -358,6 +373,36 @@
   opacity: 0.9;
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
+}
+
+.step-subtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #a78bfa !important;
+  margin-bottom: 10px !important;
+  opacity: 1 !important;
+}
+
+.step-description {
+  font-size: 0.95rem;
+  margin-bottom: 0 !important;
+}
+
+.value-ribbon {
+  text-align: center;
+  margin-top: 40px;
+  padding: 15px 30px;
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 25px;
+  font-size: 1rem;
+  color: #a78bfa;
+  font-weight: 500;
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Feature Grid Section */
@@ -852,14 +897,15 @@
     font-size: 2rem;
   }
 
-  /* Three Pillars Mobile */
+  /* Four Pillars Mobile */
   .pillars-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 30px;
   }
 
   .pillar h3 {
     white-space: normal; /* Allow wrapping on mobile if needed */
+    font-size: 1.4rem;
   }
 
   /* Objection Buster Mobile */
@@ -970,5 +1016,11 @@
     font-size: 5vw; /* Even larger on very small screens */
     letter-spacing: 1.5vw;
     white-space: normal; /* Allow wrapping on very small screens */
+  }
+
+  /* Four Pillars Small Mobile */
+  .pillars-container {
+    grid-template-columns: 1fr;
+    gap: 25px;
   }
 }
