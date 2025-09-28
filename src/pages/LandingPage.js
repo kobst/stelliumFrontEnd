@@ -55,7 +55,7 @@ const LandingPage = () => {
       <CTABand />
 
       {/* Objection Buster */}
-      <ObjectionBusterSection />
+      {/* <ObjectionBusterSection /> */}
 
       {/* How it Works */}
       <HowItWorksSection />
@@ -75,19 +75,9 @@ const LandingPage = () => {
 
           <div className="footer-links">
             <div className="link-column">
-              <h4>Product</h4>
+              <h4>Contact</h4>
               <ul>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#pricing">Pricing</a></li>
-                <li><a href="#how-it-works">How It Works</a></li>
-              </ul>
-            </div>
-            <div className="link-column">
-              <h4>Company</h4>
-              <ul>
-                <li><a href="#about">About</a></li>
-                <li><a href="#blog">Blog</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><a href="mailto:hello@stellium.ai">hello@stellium.ai</a></li>
               </ul>
             </div>
             <div className="link-column">

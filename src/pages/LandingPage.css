@@ -231,8 +231,8 @@
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 50px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
 }
 
 .pillar {
@@ -241,12 +241,13 @@
 }
 
 .pillar h3 {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   margin-bottom: 15px;
   color: #d138d4;
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .pillar-subtitle {
@@ -762,10 +763,14 @@
 
 .footer-links {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 40px;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
   margin-bottom: 60px;
   text-align: left;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: 0;
+  justify-items: start;
 }
 
 .link-column h4 {
@@ -821,6 +826,16 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .pillars-container {
+    gap: 30px;
+  }
+
+  .pillar {
+    padding: 30px 15px;
+  }
+}
+
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2.5rem;
@@ -841,6 +856,10 @@
   .pillars-container {
     grid-template-columns: 1fr;
     gap: 30px;
+  }
+
+  .pillar h3 {
+    white-space: normal; /* Allow wrapping on mobile if needed */
   }
 
   /* Objection Buster Mobile */
