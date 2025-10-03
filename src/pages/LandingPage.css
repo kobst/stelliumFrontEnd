@@ -533,7 +533,8 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
-  height: 500px;
+  min-height: 500px;
+  height: auto;
 }
 
 .pricing-card:hover {
@@ -601,18 +602,19 @@
   list-style: none;
   padding: 0;
   text-align: left;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  min-height: 200px;
 }
 
 .features-list li {
-  padding: 10px 0;
+  padding: 8px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 .features-list li:last-child {
@@ -713,6 +715,15 @@
   font-size: 0.9rem;
   opacity: 0.8;
   line-height: 1.4;
+  color: #D9DBE1;
+}
+
+/* Add-ons Chat Note */
+.addons-chat-note {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.95rem;
+  opacity: 0.8;
   color: #D9DBE1;
 }
 

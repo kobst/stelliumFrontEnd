@@ -17,11 +17,11 @@ export default function PricingSection() {
           <div className="price">$0</div>
           <p className="description">Dip your toes in the stars.</p>
           <ul className="features-list">
-            <li>5 AI chat messages / month</li>
-            <li>Quick compatibility score (one saved match)</li>
-            <li>Save 1 personal chart</li>
+            <li>Your Quick Chart (at signup)</li>
+            <li>Weekly horoscope (personalized)</li>
+            <li>Any mix of 5 Quick Charts (guests) or Quick Matches (relationships/celebs) per month</li>
+            <li>No chat. Upgrade for daily/monthly, Reports, and chat.</li>
           </ul>
-          <button className="pricing-cta">Get Started</button>
         </div>
 
         <div className="pricing-card premium">
@@ -30,13 +30,12 @@ export default function PricingSection() {
           <div className="price">$20<span>/mo</span></div>
           <p className="description">Full access to personalized insights.</p>
           <ul className="features-list">
-            <li>Unlimited AI chat</li>
-            <li>Personalized daily/weekly/monthly horoscopes</li>
-            <li>2 full reports / month (Birth Chart or Relationship)</li>
-            <li>Bank unused reports for 3 months</li>
-            <li>Save up to 10 charts</li>
+            <li>Your Natal Report included</li>
+            <li>Daily + Weekly + Monthly horoscopes</li>
+            <li>2 Reports/mo — Natal or Compatibility (roll for 3 months)</li>
+            <li>10 Quick Charts or Quick Matches per month</li>
+            <li>Unlimited AI chat (fair use): Transit Chat + Chart Chat (for anyone with a Natal Report) + Relationship Chat (for any pair with a Compatibility Report)</li>
           </ul>
-          <button className="pricing-cta primary">Get My Reading</button>
         </div>
 
         <div className="pricing-card pro">
@@ -45,31 +44,31 @@ export default function PricingSection() {
           <p className="description">For coaches & power users.</p>
           <ul className="features-list">
             <li>Everything in Premium</li>
-            <li>10 full reports / month</li>
-            <li>Client folders & priority support</li>
+            <li>10 Reports/mo (roll for 3 months)</li>
+            <li>Unlimited Quick actions (Quick Charts & Quick Matches)</li>
+            <li>Higher chat cap</li>
           </ul>
-          <button className="pricing-cta">Upgrade</button>
         </div>
       </div>
 
       {/* One-time Add-ons */}
       <div className="addons-section">
-        <h3>One-time add-ons</h3>
+        <h3>One-time add-ons (yours forever)</h3>
         <p className="addons-subtitle">Perfect if you're not ready to subscribe. You keep purchased reports forever.</p>
 
         <div className="addons-grid">
           <div className="addon-card">
-            <h4>Birth Chart Reading</h4>
+            <h4>Natal Report</h4>
             <div className="addon-price">$20</div>
-            <p>Complete natal analysis with lifetime access</p>
           </div>
 
           <div className="addon-card">
-            <h4>Relationship Analysis</h4>
+            <h4>Compatibility Report</h4>
             <div className="addon-price">$10</div>
-            <p>Synastry & composite insights for any relationship</p>
           </div>
         </div>
+
+        <p className="addons-chat-note">Includes 20 free chat questions without a Premium account.</p>
       </div>
 
       {/* Microcopy */}
