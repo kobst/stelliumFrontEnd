@@ -791,8 +791,8 @@ function UserDashboard() {
     content: <TabMenu tabs={analysisTabs} />
   });
 
-  // Add horoscope tab - only if full analysis is complete
-  if (isDataPopulated && isAnalysisPopulated()) {
+  // Add horoscope tab - available when data is populated
+  if (isDataPopulated) {
     mainTabs.push({
       id: 'horoscope',
       label: 'Horoscope',
@@ -805,149 +805,21 @@ function UserDashboard() {
         />
       )
     });
-  } else if (isDataPopulated && !isAnalysisPopulated()) {
-    // Show unlock message for horoscope if data is populated but analysis isn't complete
-    mainTabs.push({
-      id: 'horoscope',
-      label: 'Horoscope',
-      content: (
-        <section className="horoscope-section">
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px 20px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '8px',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
-            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>🌟 Personalized Horoscope</h3>
-            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
-              Unlock your personalized horoscope with detailed transit interpretations, timing guidance, 
-              and insights into upcoming planetary influences specific to your birth chart.
-            </p>
-            <button
-              onClick={handleStartFullAnalysis}
-              disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
-              style={{
-                backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '16px'
-              }}
-            >
-              {fullAnalysisLoading ? 'Starting Analysis...' : 
-               (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
-               hasPartialAnalysis() ? 'Complete Analysis to Unlock' :
-               'Complete Full Analysis to Unlock'}
-            </button>
-          </div>
-        </section>
-      )
-    });
   }
 
-  // Add relationships and other profiles tabs only for accountSelf users and if analysis is complete
+  // Add relationships and other profiles tabs only for accountSelf users
   if (selectedUser && selectedUser.kind === 'accountSelf') {
-    if (isAnalysisPopulated()) {
-      mainTabs.push({
-        id: 'relationships',
-        label: 'Relationships',
-        content: <RelationshipsTab />
-      });
+    mainTabs.push({
+      id: 'relationships',
+      label: 'Relationships',
+      content: <RelationshipsTab />
+    });
 
-      mainTabs.push({
-        id: 'otherProfiles',
-        label: 'Other Profiles',
-        content: <OtherProfilesTab usePagination={true} />
-      });
-    } else {
-      // Show unlock message for relationships
-      mainTabs.push({
-        id: 'relationships',
-        label: 'Relationships',
-        content: (
-          <section className="relationships-section">
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '40px 20px',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
-            }}>
-              <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>💕 Relationship Compatibility</h3>
-              <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
-                Discover relationship compatibility through synastry and composite chart analysis. 
-                Compare birth charts with partners, friends, and family to understand your connections and dynamics.
-              </p>
-            <button
-              onClick={handleStartFullAnalysis}
-                disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
-                style={{
-                  backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
-                  color: 'white',
-                  border: 'none',
-                  padding: '12px 24px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  fontSize: '16px'
-                }}
-              >
-                {fullAnalysisLoading ? 'Starting Analysis...' : 
-                 (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
-                 hasPartialAnalysis() ? 'Complete Analysis to Unlock' :
-                 'Complete Full Analysis to Unlock'}
-              </button>
-            </div>
-          </section>
-        )
-      });
-
-      // Show unlock message for other profiles
-      mainTabs.push({
-        id: 'otherProfiles',
-        label: 'Other Profiles',
-        content: (
-          <section className="other-profiles-section">
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '40px 20px',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
-            }}>
-              <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>👥 Other Profiles</h3>
-              <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
-                Create and manage additional birth chart profiles for family members, friends, or explore 
-                celebrity charts. Compare multiple profiles and build your astrological network.
-              </p>
-            <button
-              onClick={handleStartFullAnalysis}
-                disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
-                style={{
-                  backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
-                  color: 'white',
-                  border: 'none',
-                  padding: '12px 24px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  fontSize: '16px'
-                }}
-              >
-                {fullAnalysisLoading ? 'Starting Analysis...' : 
-                 (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
-                 hasPartialAnalysis() ? 'Complete Analysis to Unlock' :
-                 'Complete Full Analysis to Unlock'}
-              </button>
-            </div>
-          </section>
-        )
-      });
-    }
+    mainTabs.push({
+      id: 'otherProfiles',
+      label: 'Other Profiles',
+      content: <OtherProfilesTab usePagination={true} />
+    });
   }
 
   return (
