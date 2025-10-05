@@ -4,10 +4,7 @@ export default function PricingSection() {
   return (
     <section className="pricing-section">
       <div className="pricing-header">
-        <h2 className="section-title">Ready for your first personalized reading?</h2>
-        <p className="pricing-subtitle">
-          Get a quick overview of your birth chart in minutes.
-        </p>
+        <h2 className="section-title">Choose Your Plan</h2>
       </div>
 
       {/* Main Plans */}
@@ -17,9 +14,9 @@ export default function PricingSection() {
           <div className="price">$0</div>
           <p className="description">Dip your toes in the stars.</p>
           <ul className="features-list">
-            <li>Your Quick Chart (at signup)</li>
-            <li>Weekly horoscope (personalized)</li>
-            <li>Any mix of 5 Quick Charts (guests) or Quick Matches (relationships/celebs) per month</li>
+            <li>Your Quick Chart Overview when You Sign Up</li>
+            <li>Personalizd Weekly Horoscope </li>
+            <li>Any mix of 5 Quick Chart Overviews (For Guests) or Quick Compatibility Scores per month</li>
             <li>No chat. Upgrade for daily/monthly, Reports, and chat.</li>
           </ul>
         </div>
@@ -30,11 +27,11 @@ export default function PricingSection() {
           <div className="price">$20<span>/mo</span></div>
           <p className="description">Full access to personalized insights.</p>
           <ul className="features-list">
-            <li>Your Natal Report included</li>
+            <li>Your Full Natal Report</li>
             <li>Daily + Weekly + Monthly horoscopes</li>
-            <li>2 Reports/mo — Natal or Compatibility (roll for 3 months)</li>
-            <li>10 Quick Charts or Quick Matches per month</li>
-            <li>Unlimited AI chat (fair use): Transit Chat + Chart Chat (for anyone with a Natal Report) + Relationship Chat (for any pair with a Compatibility Report)</li>
+            <li>2 Full Natal or Compatibility Reports per month </li>
+            <li>10 Quick Chart Overviews or Quick Compatibility Scores per month</li>
+            <li>200 AI chat questions per month about your chart, your horoscopes or relationships</li>
           </ul>
         </div>
 
@@ -44,9 +41,9 @@ export default function PricingSection() {
           <p className="description">For coaches & power users.</p>
           <ul className="features-list">
             <li>Everything in Premium</li>
-            <li>10 Reports/mo (roll for 3 months)</li>
-            <li>Unlimited Quick actions (Quick Charts & Quick Matches)</li>
-            <li>Higher chat cap</li>
+            <li>10 Full Natal or Compatibility Reports/mo (roll for 3 months)</li>
+            <li>Unlimited Quick Chart Overviews or Compatibility Scores</li>
+            <li>Unlinited AI Chat</li>
           </ul>
         </div>
       </div>

@@ -478,8 +478,12 @@
 }
 
 .cta-content {
-  max-width: 400px;
+  max-width: 1200px;
   margin: 0 auto;
+}
+
+.cta-band .section-title {
+  margin-bottom: 30px;
 }
 
 .section-title {
@@ -490,6 +494,7 @@
   font-optical-sizing: auto;
   text-transform: uppercase;
   letter-spacing: 2px;
+  white-space: nowrap;
 }
 
 
@@ -723,8 +728,9 @@
   text-align: center;
   margin-top: 20px;
   font-size: 0.95rem;
-  opacity: 0.8;
+  opacity: 1;
   color: #D9DBE1;
+  font-weight: bold;
 }
 
 /* Pricing Microcopy */

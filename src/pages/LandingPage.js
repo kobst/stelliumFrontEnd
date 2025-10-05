@@ -39,11 +39,9 @@ const LandingPage = () => {
             <h1 className="logotxt">STELLIUM</h1>
             <h3 className="logosubtxt">Personalized Astrology, Powered by AI</h3>
           </div>
-          <p className="hero-subtitle">Birth chart insights, relationship reports, custom horoscopes...<br />and your own AI astrologer to answer your most personal questions</p>
+          <p className="hero-subtitle">Birth chart analysis, relationship reports, custom horoscopes...<br />and your own AI astrologer to answer your most personal questions</p>
           <div className="hero-buttons">
-            <button className="cta-button primary" onClick={handleDiscoverMe}>
-              Get My Short Personality Overview
-            </button>
+           <CTABand />
           </div>
         </div>
       </section>
@@ -67,7 +65,7 @@ const LandingPage = () => {
       <PricingSection />
 
       {/* CTA after pricing */}
-      <CTABand />
+      <CTABand showTitle={true} />
 
       {/* SEO Footer with Email Capture */}
       <footer className="footer-section">
