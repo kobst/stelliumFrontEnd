@@ -4,6 +4,7 @@ import './UsersTable.css';
 import { fetchUsers, fetchUsersPaginated, deleteSubject } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
 import { usePaginatedData } from '../../hooks/usePaginatedData';
+import ProfilePhoto from '../shared/ProfilePhoto';
 
 function UsersTable({ onUserSelect, usePagination = false }) {
   const [users, setUsers] = useState([]);
@@ -216,7 +217,10 @@ function UsersTable({ onUserSelect, usePagination = false }) {
         <table className="user-table">
           <thead>
             <tr>
-              <th 
+              <th style={{ color: 'orange', padding: '8px' }}>
+                Photo
+              </th>
+              <th
                 style={getSortableHeaderStyle('firstName')}
                 onClick={() => handleSort('firstName')}
                 title={usePagination ? 'Click to sort by first name' : ''}
@@ -250,7 +254,7 @@ function UsersTable({ onUserSelect, usePagination = false }) {
           <tbody>
             {filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'grey' }}>
+                <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'grey' }}>
                   {usePagination && paginatedData.loading ? 'Loading...' : 'No account owners found'}
                 </td>
               </tr>
@@ -259,12 +263,15 @@ function UsersTable({ onUserSelect, usePagination = false }) {
                 <tr
                   key={user._id}
                   className={selectedUser && selectedUser._id === user._id ? 'selected-row' : ''}
-                  style={{ 
+                  style={{
                     cursor: 'pointer',
                     backgroundColor: selectedUser && selectedUser._id === user._id ? 'rgba(128, 0, 128, 0.3)' : 'transparent',
                     transition: 'background-color 0.2s ease'
                   }}
                 >
+                  <td onClick={() => handleUserSelect(user)} style={{ padding: '8px' }}>
+                    <ProfilePhoto subject={user} size={40} />
+                  </td>
                   <td onClick={() => handleUserSelect(user)}>{user.firstName}</td>
                   <td onClick={() => handleUserSelect(user)}>{user.lastName}</td>
                   <td onClick={() => handleUserSelect(user)}>{user.email}</td>

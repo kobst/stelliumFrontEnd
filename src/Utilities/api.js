@@ -1932,6 +1932,133 @@ export const fetchEnhancedChatHistory = async (userId, limit = null) => {
   }
 };
 
+// Profile Photo API Functions
+
+// Get presigned URL for profile photo upload (recommended strategy)
+export const getProfilePhotoPresignedUrl = async (subjectId, contentType = 'image/jpeg') => {
+  try {
+    console.log('Getting presigned URL for subjectId:', subjectId, 'contentType:', contentType);
+    const response = await fetch(`${getServerUrl()}/subjects/${subjectId}/profile-photo/presigned-url`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify({ contentType })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to get upload URL');
+    }
+
+    const result = await response.json();
+    console.log('Presigned URL response:', result);
+    return result; // { success: true, uploadUrl, photoKey, expiresIn }
+  } catch (error) {
+    console.error('Error getting presigned upload URL:', error);
+    throw error;
+  }
+};
+
+// Upload file directly to S3 using presigned URL
+export const uploadProfilePhotoToS3 = async (presignedUrl, file) => {
+  try {
+    console.log('Uploading to S3, file size:', file.size, 'type:', file.type);
+    const response = await fetch(presignedUrl, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to upload to S3: ${response.status}`);
+    }
+
+    console.log('S3 upload successful');
+    return { success: true };
+  } catch (error) {
+    console.error('Error uploading to S3:', error);
+    throw error;
+  }
+};
+
+// Confirm profile photo upload with backend
+export const confirmProfilePhotoUpload = async (subjectId, photoKey) => {
+  try {
+    console.log('Confirming upload for subjectId:', subjectId, 'photoKey:', photoKey);
+    const response = await fetch(`${getServerUrl()}/subjects/${subjectId}/profile-photo/confirm`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify({ photoKey })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to confirm upload');
+    }
+
+    const result = await response.json();
+    console.log('Upload confirmed:', result);
+    return result; // { success: true, profilePhotoUrl, profilePhotoKey, updatedAt }
+  } catch (error) {
+    console.error('Error confirming upload:', error);
+    throw error;
+  }
+};
+
+// Direct profile photo upload (simpler alternative to presigned URL strategy)
+export const uploadProfilePhotoDirect = async (subjectId, file) => {
+  try {
+    console.log('Direct upload for subjectId:', subjectId, 'file:', file.name);
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    const response = await fetch(`${getServerUrl()}/subjects/${subjectId}/profile-photo`, {
+      method: HTTP_POST,
+      body: formData
+      // Note: Don't set Content-Type header - browser sets it automatically with boundary
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Upload failed');
+    }
+
+    const result = await response.json();
+    console.log('Direct upload result:', result);
+    return result; // { success: true, profilePhotoUrl, profilePhotoKey, updatedAt }
+  } catch (error) {
+    console.error('Error with direct upload:', error);
+    throw error;
+  }
+};
+
+// Delete profile photo
+export const deleteProfilePhoto = async (subjectId) => {
+  try {
+    console.log('Deleting profile photo for subjectId:', subjectId);
+    const response = await fetch(`${getServerUrl()}/subjects/${subjectId}/profile-photo`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Delete failed');
+    }
+
+    const result = await response.json();
+    console.log('Profile photo deleted:', result);
+    return result; // { success: true, message, deletedAt }
+  } catch (error) {
+    console.error('Error deleting profile photo:', error);
+    throw error;
+  }
+};
+
 // Relationship Enhanced Chat API Functions
 export const enhancedChatForRelationship = async (compositeChartId, query, scoredItems = []) => {
   try {

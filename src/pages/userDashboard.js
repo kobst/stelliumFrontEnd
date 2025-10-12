@@ -838,6 +838,11 @@ function UserDashboard() {
         userHouses={userHouses}
         userAspects={userAspects}
         dailyTransits={dailyTransits}
+        onUserUpdate={(updatedUser) => {
+          console.log('User updated with new photo:', updatedUser);
+          // Update store state with new user data
+          useStore.setState({ selectedUser: updatedUser });
+        }}
       />
 
       {/* {renderDebugInfo()} */}
