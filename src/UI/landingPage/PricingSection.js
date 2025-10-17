@@ -65,7 +65,7 @@ export default function PricingSection() {
           </div>
         </div>
 
-        <p className="addons-chat-note">Includes 20 free chat questions without a Premium account.</p>
+        <p className="addons-chat-note">Includes 10 free chat questions without a Premium account.</p>
       </div>
 
       {/* Microcopy */}
