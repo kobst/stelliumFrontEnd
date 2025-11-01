@@ -454,7 +454,6 @@ body {
 }
 
 .submit-btn:hover {
-  box-shadow: 0px 0px 25px #c768fd;
 }
 .submit-btn:active {
   box-shadow: 0px 0px 2px #c768fd;
@@ -550,4 +549,3 @@ input {
 .summary-item {
   margin-bottom: 8px;
 }
-

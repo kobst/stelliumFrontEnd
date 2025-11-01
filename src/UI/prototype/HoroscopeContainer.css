@@ -225,10 +225,9 @@
     box-shadow: 0 4px 15px rgba(183, 80, 243, 0.4);
   }
   
-  .generate-custom-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(183, 80, 243, 0.6);
-  }
+.generate-custom-button:hover {
+    
+}
   
   .generate-custom-button:disabled {
     background: #6c757d;

@@ -209,7 +209,6 @@
 
 .scroll-to-bottom:hover {
   background: linear-gradient(135deg, #a855f7, #c026d3);
-  transform: scale(1.1);
 }
 
 .chat-input-container {
@@ -275,7 +274,6 @@
 
 .send-button:hover:not(:disabled) {
   background: linear-gradient(135deg, #a855f7, #c026d3);
-  transform: scale(1.05);
 }
 
 .send-button:disabled {

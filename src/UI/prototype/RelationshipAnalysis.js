@@ -165,13 +165,11 @@ function RelationshipAnalysis({
                 onMouseOver={(e) => {
                   if (!isStartingAnalysis) {
                     e.target.style.backgroundColor = '#7c3aed';
-                    e.target.style.transform = 'translateY(-1px)';
                   }
                 }}
                 onMouseOut={(e) => {
                   if (!isStartingAnalysis) {
                     e.target.style.backgroundColor = '#8b5cf6';
-                    e.target.style.transform = 'translateY(0)';
                   }
                 }}
               >

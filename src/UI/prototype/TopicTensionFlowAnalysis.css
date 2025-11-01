@@ -141,8 +141,7 @@
 }
 
 .topic-marker:hover {
-  transform: translate(-50%, -50%) scale(1.3);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+  
 }
 
 .topic-marker-icon {
@@ -230,7 +229,6 @@
 
 .topic-metric-item:hover {
   background: rgba(0, 0, 0, 0.6);
-  transform: translateY(-1px);
 }
 
 .metric-icon {
@@ -338,7 +336,6 @@
 
 .keystone-compact-item:hover {
   background: rgba(0, 0, 0, 0.6);
-  transform: translateY(-1px);
 }
 
 .keystone-compact-header {
@@ -392,7 +389,6 @@
 .topic-technical-toggle:hover {
   background: rgba(167, 139, 250, 0.3);
   border-color: rgba(167, 139, 250, 0.7);
-  transform: translateY(-1px);
 }
 
 /* Responsive Design */

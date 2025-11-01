@@ -106,7 +106,6 @@
 }
 
 .bar-column.hovered {
-  transform: translateY(-2px);
 }
 
 .bar-column.selected {
@@ -132,7 +131,6 @@
 
 .bar-column:hover .score-bar {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transform: scaleX(1.05);
 }
 
 /* Score Tooltip */

@@ -310,7 +310,6 @@
 .element-card:hover {
   background-color: rgba(255, 255, 255, 0.08);
   border-color: rgba(236, 72, 153, 0.3);
-  transform: translateY(-1px);
 }
 
 .element-card.selected {
@@ -436,7 +435,6 @@
 
 .submit-button:hover:not(:disabled) {
   background-color: #db2777;
-  transform: translateY(-1px);
 }
 
 .submit-button:disabled {

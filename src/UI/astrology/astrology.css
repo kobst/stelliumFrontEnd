@@ -107,7 +107,6 @@
 
 .stellium-planet-tag:hover {
   background: rgba(139, 92, 246, 0.5);
-  transform: translateY(-1px);
 }
 
 .no-stelliums {
@@ -204,11 +203,11 @@
 }
 
 .simplified-pattern-wheel canvas {
-  transition: transform 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .simplified-pattern-wheel:hover canvas {
-  transform: scale(1.05);
+  opacity: 0.9;
 }
 
 /* Pattern Section Styling */
