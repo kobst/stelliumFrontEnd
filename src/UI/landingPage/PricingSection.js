@@ -22,8 +22,8 @@ export default function PricingSection() {
           <div className="credit-budget-section">
             <p className="budget-title">Your 10 credits can get you:</p>
             <ul className="budget-list">
-              <li><strong>2 Quick Charts</strong> (5 credits each) OR</li>
-              <li><strong>2 Relationship Scores</strong> (5 credits each) OR</li>
+              <li><strong>1 Quick Chart</strong> (10 credits) OR</li>
+              <li><strong>1 Relationship Score</strong> (10 credits) OR</li>
               <li><strong>10 Ask Stellium questions</strong> (requires Full Natal or Full Relationship Report)</li>
               <li className="budget-note">...or any combination of the above</li>
             </ul>
@@ -51,10 +51,10 @@ export default function PricingSection() {
           <div className="credit-budget-section">
             <p className="budget-title">Your 200 credits can get you:</p>
             <ul className="budget-list">
-              <li><strong>40 Quick Charts</strong> (5 credits each) OR</li>
-              <li><strong>40 Relationship Scores</strong> (5 credits each) OR</li>
-              <li><strong>13 Full Natal Reports</strong> (15 credits each) OR</li>
-              <li><strong>13 Full Relationship Reports</strong> (15 credits each) OR</li>
+              <li><strong>20 Quick Charts</strong> (10 credits each) OR</li>
+              <li><strong>20 Relationship Scores</strong> (10 credits each) OR</li>
+              <li><strong>2 Full Natal Reports</strong> (75 credits each) OR</li>
+              <li><strong>3 Full Relationship Reports</strong> (60 credits each) OR</li>
               <li><strong>200 Ask Stellium questions</strong></li>
               <li className="budget-note">...or any combination of the above</li>
             </ul>
@@ -82,10 +82,10 @@ export default function PricingSection() {
           <div className="credit-budget-section">
             <p className="budget-title">Your 1000 credits can get you:</p>
             <ul className="budget-list">
-              <li><strong>200 Quick Charts</strong> (5 credits each) OR</li>
-              <li><strong>200 Relationship Scores</strong> (5 credits each) OR</li>
-              <li><strong>66 Full Natal Reports</strong> (15 credits each) OR</li>
-              <li><strong>66 Full Relationship Reports</strong> (15 credits each) OR</li>
+              <li><strong>100 Quick Charts</strong> (10 credits each) OR</li>
+              <li><strong>100 Relationship Scores</strong> (10 credits each) OR</li>
+              <li><strong>13 Full Natal Reports</strong> (75 credits each) OR</li>
+              <li><strong>16 Full Relationship Reports</strong> (60 credits each) OR</li>
               <li><strong>1000 Ask Stellium questions</strong></li>
               <li className="budget-note">...or any combination of the above</li>
             </ul>
@@ -105,25 +105,25 @@ export default function PricingSection() {
 
         <div className="credit-reference-grid">
           <div className="credit-reference-item">
-            <div className="credit-cost">5 credits</div>
+            <div className="credit-cost">10 credits</div>
             <div className="credit-action">Quick Chart Overview</div>
             <div className="credit-description">Lightweight chart summary</div>
           </div>
 
           <div className="credit-reference-item">
-            <div className="credit-cost">15 credits</div>
+            <div className="credit-cost">75 credits</div>
             <div className="credit-action">Full Natal Report</div>
             <div className="credit-description">Complete birth chart analysis</div>
           </div>
 
           <div className="credit-reference-item">
-            <div className="credit-cost">5 credits</div>
+            <div className="credit-cost">10 credits</div>
             <div className="credit-action">Relationship Overview</div>
             <div className="credit-description">Compatibility score & summary</div>
           </div>
 
           <div className="credit-reference-item">
-            <div className="credit-cost">15 credits</div>
+            <div className="credit-cost">60 credits</div>
             <div className="credit-action">Full Relationship Report</div>
             <div className="credit-description">Detailed compatibility analysis</div>
           </div>
@@ -147,25 +147,25 @@ export default function PricingSection() {
 
         <div className="credit-packs-grid">
           <div className="credit-pack-card">
-            <div className="pack-name">Small Pack</div>
-            <div className="pack-credits">20 credits</div>
-            <div className="pack-price">$7.99</div>
-            <div className="pack-translation">~1 Full Report + extras</div>
+            <div className="pack-name">Starter</div>
+            <div className="pack-credits">75 credits</div>
+            <div className="pack-price">$9.99</div>
+            <div className="pack-translation">~1 Full Report</div>
           </div>
 
           <div className="credit-pack-card highlight">
             <div className="pack-badge">Best Value</div>
-            <div className="pack-name">Medium Pack</div>
-            <div className="pack-credits">100 credits</div>
+            <div className="pack-name">Standard</div>
+            <div className="pack-credits">200 credits</div>
             <div className="pack-price">$24.99</div>
-            <div className="pack-translation">~6 Full Reports</div>
+            <div className="pack-translation">~2-3 Full Reports</div>
           </div>
 
           <div className="credit-pack-card">
-            <div className="pack-name">Large Pack</div>
-            <div className="pack-credits">300 credits</div>
+            <div className="pack-name">Pro</div>
+            <div className="pack-credits">450 credits</div>
             <div className="pack-price">$49.99</div>
-            <div className="pack-translation">~20 Full Reports</div>
+            <div className="pack-translation">~6 Full Reports</div>
           </div>
         </div>
 
