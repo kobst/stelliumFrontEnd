@@ -35,12 +35,12 @@ const ConfirmationV2 = () => {
                 try {
                     const result = await createUser(userData);
                     setCreationResult(result);
-                    
+
                     // Store user data immediately (no polling needed)
                     if (result.success) {
                         setUserId(result.userId);
                         setLocalUserId(result.userId);
-                        
+
                         // Store birth chart data from direct response
                         if (result.birthChart) {
                             setBirthChartData(result.birthChart);
@@ -48,12 +48,12 @@ const ConfirmationV2 = () => {
                             setUserHouses(result.birthChart.houses || []);
                             setUserAspects(result.birthChart.aspects || []);
                         }
-                        
+
                         // Store overview content from direct response
                         if (result.overview) {
                             setOverviewContent(result.overview);
                         }
-                        
+
                         // Set selected user for dashboard compatibility
                         setSelectedUser({
                             _id: result.userId,
@@ -65,6 +65,7 @@ const ConfirmationV2 = () => {
                     }
                 } catch (error) {
                     console.error('Error creating user:', error);
+                    // Store error for display - no action needed, error state already set by hook
                 }
             };
             
@@ -175,15 +176,29 @@ const ConfirmationV2 = () => {
             
             {/* Error Display */}
             {error && (
-                <div style={{ 
-                    backgroundColor: 'rgba(255, 0, 0, 0.1)', 
-                    padding: '20px', 
-                    borderRadius: '8px', 
+                <div style={{
+                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                    padding: '20px',
+                    borderRadius: '8px',
                     margin: '20px 0',
                     border: '1px solid rgba(255, 0, 0, 0.3)'
                 }}>
-                    <h3 style={{ color: '#ff6b6b', margin: '0 0 10px 0' }}>Error</h3>
-                    <p style={{ color: 'white', margin: '0' }}>{error}</p>
+                    <h3 style={{ color: '#ff6b6b', margin: '0 0 10px 0' }}>
+                        {error.includes('Email already in use') ? '📧 Email Already Registered' : 'Error'}
+                    </h3>
+                    <p style={{ color: 'white', margin: '0 0 15px 0' }}>
+                        {error.includes('Email already in use')
+                            ? `An account with the email "${userData?.email}" already exists.`
+                            : error.includes('Invalid email format')
+                            ? 'Please enter a valid email address.'
+                            : error
+                        }
+                    </p>
+                    {error.includes('Email already in use') && (
+                        <p style={{ color: 'white', margin: '0', fontSize: '14px' }}>
+                            We'll keep you informed via email about updates. Download our app to access your account.
+                        </p>
+                    )}
                 </div>
             )}
             

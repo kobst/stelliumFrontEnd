@@ -57,14 +57,14 @@ export const getSubtopicAstroData = async (userId) => {
 
 export const createUser = async (userData) => {
   try {
-    const endpoint = userData.time === 'unknown' ? '/createUserUnknownTime' : '/createUser';
+    const endpoint = userData.time === 'unknown' ? '/createUserUnknownTimeEmailValidation' : '/createUserEmailValidation';
     const requestData = { ...userData };
-    
+
     // Remove time field for unknown time endpoint
     if (userData.time === 'unknown') {
       delete requestData.time;
     }
-    
+
     const response = await fetch(`${SERVER_URL}${endpoint}`, {
       method: HTTP_POST,
       headers: {
@@ -73,11 +73,29 @@ export const createUser = async (userData) => {
       body: JSON.stringify(requestData)
     });
 
+    const responseData = await response.json();
+
+    // Handle email validation errors with specific error codes
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Check for specific error codes
+      if (response.status === 409 && responseData.code === 'EMAIL_EXISTS') {
+        const error = new Error('Email already in use');
+        error.code = 'EMAIL_EXISTS';
+        error.statusCode = 409;
+        throw error;
+      }
+
+      if (response.status === 400 && responseData.code === 'INVALID_EMAIL_FORMAT') {
+        const error = new Error('Invalid email format');
+        error.code = 'INVALID_EMAIL_FORMAT';
+        error.statusCode = 400;
+        throw error;
+      }
+
+      // Generic error handling
+      throw new Error(responseData.error || `HTTP error! status: ${response.status}`);
     }
 
-    const responseData = await response.json();
     return responseData;
   } catch (error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {

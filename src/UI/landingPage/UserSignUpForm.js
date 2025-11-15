@@ -295,17 +295,32 @@ const UserSignUpForm = () => {
 
           <div style={formGroupStyle}>
             <label style={labelStyle}>My email is</label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              placeholder="Email Address" 
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Email Address"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              style={{ ...inputStyle, width: '290px' }}
+              style={{
+                ...inputStyle,
+                width: '290px',
+                borderColor: formErrors.email ? '#ff6b6b' : 'white'
+              }}
               className="input-dark-placeholder"
             />
           </div>
+          {formErrors.email && (
+            <div style={{
+              color: '#ff6b6b',
+              marginTop: '-10px',
+              marginBottom: '15px',
+              marginLeft: '150px',
+              fontSize: '14px'
+            }}>
+              {formErrors.email}
+            </div>
+          )}
 
           <div style={formGroupStyle}>
             <input 
