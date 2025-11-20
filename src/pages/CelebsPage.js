@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CelebritiesTable from '../UI/prototype/CelebritiesTable';
 import useStore from '../Utilities/store';
-import lightLogo from '../assets/Light logo.png';
+import stelliumIcon from '../assets/StelliumIcon.svg';
 import './CelebsPage.css';
 
 const CelebsPage = () => {
@@ -30,7 +30,7 @@ const CelebsPage = () => {
 
                 {/* Header */}
                 <div className="celebs-header">
-                    <img className="celebs-logo" src={lightLogo} alt="Stellium logo" />
+                    <img className="celebs-logo" src={stelliumIcon} alt="Stellium logo" />
                     <h1 className="celebs-title">Celebrity Birth Charts</h1>
                     <p className="celebs-subtitle">
                         Explore the astrological profiles of famous personalities and discover their cosmic blueprints

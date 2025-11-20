@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
-import lightLogo from '../assets/Light logo.png';
+import stelliumIcon from '../assets/StelliumIcon.svg';
 import whiteLine from '../assets/whiteline.png';
 import FourPillarsSection from '../UI/landingPage/FeatureCards';
 import ObjectionBusterSection from '../UI/landingPage/ObjectionBusterSection';
@@ -34,7 +34,7 @@ const LandingPage = () => {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-content">
-          <img className="hero-logo" src={lightLogo} alt="Stellium logo" />
+          <img className="hero-logo" src={stelliumIcon} alt="Stellium logo" />
           <div className="maintxt mont-font">
             <h1 className="logotxt">STELLIUM</h1>
             <h3 className="logosubtxt">Personalized Astrology, Powered by AI</h3>

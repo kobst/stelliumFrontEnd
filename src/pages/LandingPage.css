@@ -24,7 +24,7 @@
 }
 
 .hero-logo {
-  width: 200px;
+  width: 250px;
   height: auto;
   margin-bottom: 30px;
   mix-blend-mode: screen;
@@ -32,8 +32,8 @@
 }
 
 @keyframes glow {
-  from { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); }
-  to { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)); }
+  from { filter: drop-shadow(0 0 15px rgba(167, 139, 250, 0.6)); }
+  to { filter: drop-shadow(0 0 30px rgba(167, 139, 250, 0.9)); }
 }
 
 .hero-title {

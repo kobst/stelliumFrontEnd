@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import lightLogo from '../../assets/Light logo.png';
+import stelliumIcon from '../../assets/StelliumIcon.svg';
 import '../../pages/LandingPage.css';
 
 const aiReplies = [
