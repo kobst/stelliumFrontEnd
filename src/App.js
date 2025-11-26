@@ -10,6 +10,7 @@ import ConfirmationV2 from './pages/confirmationPage_v2';
 import PricingTable from './pages/plans';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import HelpCenter from './pages/HelpCenter';
 import './App.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/pricingTable" element={<PricingTable />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/help" element={<HelpCenter />} />
         </Routes>
       </div>
     </Router>

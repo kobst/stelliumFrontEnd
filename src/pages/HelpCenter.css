@@ -1,0 +1,201 @@
+.help-center-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  color: white;
+  padding: 60px 20px 40px;
+}
+
+.help-container {
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.help-center-page h1 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #d138d4;
+  text-shadow: 0 0 20px rgba(209, 56, 212, 0.3);
+}
+
+.welcome-text {
+  text-align: center;
+  opacity: 0.85;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.help-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.help-nav button {
+  background: rgba(209, 56, 212, 0.15);
+  border: 1px solid rgba(209, 56, 212, 0.3);
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.help-nav button:hover {
+  background: rgba(209, 56, 212, 0.3);
+  border-color: rgba(209, 56, 212, 0.5);
+}
+
+.help-nav button:active {
+  transform: scale(0.97);
+}
+
+.help-section {
+  margin-bottom: 40px;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  scroll-margin-top: 20px;
+}
+
+.help-section h2 {
+  color: #d138d4;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(209, 56, 212, 0.3);
+}
+
+.help-item {
+  margin-bottom: 30px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.help-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.help-item h3 {
+  color: #ffffff;
+  font-size: 1.15rem;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.help-item p {
+  margin-bottom: 12px;
+  opacity: 0.9;
+}
+
+.help-item ul {
+  margin: 12px 0;
+  padding-left: 25px;
+}
+
+.help-item li {
+  margin-bottom: 8px;
+  opacity: 0.85;
+}
+
+.help-item li::marker {
+  color: #d138d4;
+}
+
+.help-item strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.example-question {
+  font-style: italic;
+  padding: 10px 15px;
+  background: rgba(209, 56, 212, 0.1);
+  border-left: 3px solid #d138d4;
+  border-radius: 0 8px 8px 0;
+  margin: 10px 0;
+}
+
+.help-link {
+  color: #d138d4;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.help-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.help-footer {
+  text-align: center;
+  background: rgba(209, 56, 212, 0.1);
+  border: 1px solid rgba(209, 56, 212, 0.3);
+}
+
+.help-footer h2 {
+  border-bottom: none;
+  margin-bottom: 15px;
+}
+
+.help-footer p {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .help-center-page {
+    padding: 40px 15px 30px;
+  }
+
+  .help-center-page h1 {
+    font-size: 2rem;
+  }
+
+  .welcome-text {
+    font-size: 1rem;
+  }
+
+  .help-nav {
+    gap: 8px;
+    padding: 15px;
+  }
+
+  .help-nav button {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+
+  .help-section {
+    padding: 20px;
+  }
+
+  .help-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .help-item h3 {
+    font-size: 1.05rem;
+  }
+}
