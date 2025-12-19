@@ -1,16 +1,39 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchUser, getUserSubjects } from '../Utilities/api';
+import {
+  fetchUser,
+  getUserSubjects,
+  fetchAnalysis,
+  startFullAnalysis,
+  checkFullAnalysisStatus,
+  getNewCompleteWorkflowData
+} from '../Utilities/api';
 import TabMenu from '../UI/shared/TabMenu';
+import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
+import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
+import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
+import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
+import AskStelliumChartTab from '../UI/dashboard/chartTabs/AskStelliumChartTab';
 import './ChartDetailPage.css';
 
 function ChartDetailPage() {
   const { userId, chartId } = useParams();
   const navigate = useNavigate();
+
+  // Chart data state
   const [chart, setChart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Analysis data state
+  const [analysisData, setAnalysisData] = useState(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisStatus, setAnalysisStatus] = useState(null);
+
+  // Polling ref
+  const pollingIntervalRef = useRef(null);
+
+  // Load chart data
   useEffect(() => {
     const loadChart = async () => {
       try {
@@ -43,6 +66,99 @@ function ChartDetailPage() {
     }
   }, [userId, chartId]);
 
+  // Load existing analysis data
+  useEffect(() => {
+    const loadAnalysis = async () => {
+      if (!chartId) return;
+
+      try {
+        setAnalysisLoading(true);
+        const response = await fetchAnalysis(chartId);
+
+        if (response) {
+          setAnalysisData(response);
+        }
+      } catch (err) {
+        console.error('Error loading analysis:', err);
+        // Analysis not found is okay, user can start it
+      } finally {
+        setAnalysisLoading(false);
+      }
+    };
+
+    loadAnalysis();
+  }, [chartId]);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Poll for analysis status
+  const startStatusPolling = useCallback((wfId) => {
+    // Clear any existing polling
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+
+    const pollStatus = async () => {
+      try {
+        const status = await checkFullAnalysisStatus(chartId, wfId);
+        setAnalysisStatus(status);
+
+        if (status?.completed || status?.status === 'completed' || status?.status === 'completed_with_failures') {
+          // Analysis complete, fetch the data
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+
+          const completeData = await getNewCompleteWorkflowData(chartId, wfId);
+          if (completeData) {
+            setAnalysisData(completeData);
+          }
+          setAnalysisLoading(false);
+        } else if (status?.status === 'failed') {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+          setAnalysisLoading(false);
+        }
+      } catch (err) {
+        console.error('Error polling status:', err);
+      }
+    };
+
+    // Initial poll
+    pollStatus();
+
+    // Poll every 3 seconds
+    pollingIntervalRef.current = setInterval(pollStatus, 3000);
+  }, [chartId]);
+
+  // Start full analysis workflow
+  const handleStartAnalysis = useCallback(async () => {
+    if (!chartId) return;
+
+    try {
+      setAnalysisLoading(true);
+      const response = await startFullAnalysis(chartId);
+
+      if (response?.success && response?.workflowId) {
+        setAnalysisStatus(response);
+
+        // Start polling for status
+        startStatusPolling(response.workflowId);
+      } else {
+        throw new Error(response?.error || 'Failed to start analysis');
+      }
+    } catch (err) {
+      console.error('Error starting analysis:', err);
+      setAnalysisLoading(false);
+    }
+  }, [chartId, startStatusPolling]);
+
   const handleBackClick = () => {
     navigate(`/dashboard/${userId}`);
   };
@@ -57,6 +173,19 @@ function ChartDetailPage() {
     const sun = chart.birthChart.planets.find(p => p.name === 'Sun');
     return sun?.sign || null;
   };
+
+  // Extract analysis components
+  const birthChart = chart?.birthChart || {};
+  const basicAnalysis = analysisData?.interpretation?.basicAnalysis;
+  const broadCategoryAnalyses = analysisData?.interpretation?.broadCategoryAnalyses;
+  const elements = analysisData?.elements || birthChart.elements;
+  const modalities = analysisData?.modalities || birthChart.modalities;
+  const quadrants = analysisData?.quadrants || birthChart.quadrants;
+  const planetaryDominance = analysisData?.planetaryDominance || birthChart.planetaryDominance;
+  const vectorizationStatus = analysisData?.vectorizationStatus;
+
+  const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
+  const isVectorizationComplete = vectorizationStatus?.completed || vectorizationStatus?.status === 'completed';
 
   if (loading) {
     return (
@@ -89,65 +218,55 @@ function ChartDetailPage() {
       id: 'overview',
       label: 'Overview',
       content: (
-        <div className="chart-tab-content">
-          <div className="placeholder-content">
-            <h3>Overview</h3>
-            <p>Birth chart overview will be displayed here</p>
-            <div className="placeholder-icon">☉</div>
-          </div>
-        </div>
+        <OverviewTab
+          basicAnalysis={basicAnalysis}
+        />
+      )
+    },
+    {
+      id: 'dominance',
+      label: 'Dominance & Patterns',
+      content: (
+        <DominancePatternsTab
+          birthChart={birthChart}
+          basicAnalysis={basicAnalysis}
+          elements={elements}
+          modalities={modalities}
+          quadrants={quadrants}
+          planetaryDominance={planetaryDominance}
+        />
       )
     },
     {
       id: 'planets',
       label: 'Planets',
       content: (
-        <div className="chart-tab-content">
-          <div className="placeholder-content">
-            <h3>Planets</h3>
-            <p>Planetary positions and interpretations will be displayed here</p>
-            <div className="placeholder-icon">☿♀♂</div>
-          </div>
-        </div>
-      )
-    },
-    {
-      id: 'patterns',
-      label: 'Patterns',
-      content: (
-        <div className="chart-tab-content">
-          <div className="placeholder-content">
-            <h3>Patterns</h3>
-            <p>Chart patterns and aspects will be displayed here</p>
-            <div className="placeholder-icon">△</div>
-          </div>
-        </div>
+        <PlanetsTab
+          birthChart={birthChart}
+          basicAnalysis={basicAnalysis}
+        />
       )
     },
     {
       id: 'analysis',
       label: '360° Analysis',
       content: (
-        <div className="chart-tab-content">
-          <div className="placeholder-content">
-            <h3>360° Analysis</h3>
-            <p>Complete chart analysis will be displayed here</p>
-            <div className="placeholder-icon">◎</div>
-          </div>
-        </div>
+        <AnalysisTab
+          broadCategoryAnalyses={broadCategoryAnalyses}
+          analysisStatus={analysisStatus}
+          onStartAnalysis={handleStartAnalysis}
+        />
       )
     },
     {
       id: 'chat',
       label: 'Ask Stellium',
       content: (
-        <div className="chart-tab-content">
-          <div className="placeholder-content">
-            <h3>Ask Stellium</h3>
-            <p>AI chat about this chart will be available here</p>
-            <div className="placeholder-icon">✨</div>
-          </div>
-        </div>
+        <AskStelliumChartTab
+          chartId={chartId}
+          isAnalysisComplete={isAnalysisComplete}
+          vectorizationComplete={isVectorizationComplete}
+        />
       )
     }
   ];
@@ -167,6 +286,11 @@ function ChartDetailPage() {
       </div>
 
       <div className="chart-detail-content">
+        {analysisLoading && !analysisStatus && (
+          <div className="analysis-loading-banner">
+            Loading analysis data...
+          </div>
+        )}
         <TabMenu tabs={chartTabs} />
       </div>
     </div>

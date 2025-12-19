@@ -40,20 +40,6 @@ function AskStelliumTab({ userId, transitWindows = [] }) {
     return { start: startOfMonth, end: endOfMonth };
   };
 
-  // Get date range based on active period
-  const getDateRange = () => {
-    switch (activePeriod) {
-      case 'daily':
-        return getTodayRange();
-      case 'weekly':
-        return getCurrentWeekRange();
-      case 'monthly':
-        return getCurrentMonthRange();
-      default:
-        return getCurrentWeekRange();
-    }
-  };
-
   // Filter transits based on active period
   const filteredTransits = useMemo(() => {
     if (!transitWindows || transitWindows.length === 0) return [];
