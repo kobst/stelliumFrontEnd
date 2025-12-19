@@ -1,0 +1,206 @@
+.relationships-section {
+  padding: 20px;
+}
+
+.relationships-title {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px 0;
+}
+
+.relationships-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.relationship-card {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.relationship-card:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateX(4px);
+}
+
+.relationship-names {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.person-name {
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.relationship-connector {
+  color: #ec4899;
+  font-size: 1rem;
+}
+
+.relationship-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 16px;
+}
+
+.relationship-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: 8px;
+}
+
+.score-value {
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.score-label {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.relationship-tier {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.tier-thriving {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.tier-flourishing {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.tier-emerging {
+  background: rgba(168, 85, 247, 0.2);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.tier-building {
+  background: rgba(249, 115, 22, 0.2);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.tier-developing {
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.relationship-arrow {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.relationship-card:hover .relationship-arrow {
+  color: rgba(255, 255, 255, 0.7);
+  transform: translateX(4px);
+}
+
+.relationships-loading,
+.relationships-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.relationships-error {
+  color: #ef4444;
+}
+
+.relationships-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px dashed rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: rgba(236, 72, 153, 0.5);
+  margin-bottom: 16px;
+}
+
+.relationships-empty p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-hint {
+  font-size: 0.85rem;
+  margin-top: 8px !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.add-relationship-button {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 2px dashed rgba(236, 72, 153, 0.5);
+  border-radius: 12px;
+  color: #ec4899;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-relationship-button:hover {
+  background: rgba(236, 72, 153, 0.1);
+  border-color: #ec4899;
+}
+
+@media (max-width: 768px) {
+  .relationship-card {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .relationship-names {
+    width: 100%;
+  }
+
+  .relationship-meta {
+    margin-right: 0;
+  }
+
+  .relationship-arrow {
+    margin-left: auto;
+  }
+}

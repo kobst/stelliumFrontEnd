@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 
-function TabMenu({ tabs }) {
+function TabMenu({ tabs, onTabChange }) {
   const [activeTab, setActiveTab] = useState(tabs && tabs.length > 0 ? tabs[0].id : null);
 
   if (!tabs || tabs.length === 0) {
     return null;
   }
+
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+    if (onTabChange) {
+      onTabChange(tabId);
+    }
+  };
 
   const getButtonClass = (id) => `tab-button ${activeTab === id ? 'active' : ''} button-white-text`;
 
@@ -16,7 +23,7 @@ function TabMenu({ tabs }) {
           <button
             key={tab.id}
             className={getButtonClass(tab.id)}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabClick(tab.id)}
           >
             {tab.label}
           </button>

@@ -1,0 +1,164 @@
+.birth-charts-section {
+  padding: 20px;
+}
+
+.charts-group {
+  margin-bottom: 30px;
+}
+
+.charts-group-title {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+.chart-card {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.chart-card:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateX(4px);
+}
+
+.chart-card-primary {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(167, 139, 250, 0.15));
+  border-color: rgba(167, 139, 250, 0.5);
+}
+
+.chart-card-primary:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(167, 139, 250, 0.25));
+}
+
+.chart-card-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.chart-card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.chart-card-avatar span {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.chart-card-info {
+  flex: 1;
+  margin-left: 16px;
+}
+
+.chart-card-name {
+  margin: 0;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.chart-card-signs {
+  margin: 4px 0 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.chart-card-arrow {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.chart-card:hover .chart-card-arrow {
+  color: rgba(255, 255, 255, 0.7);
+  transform: translateX(4px);
+}
+
+.charts-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.charts-loading,
+.charts-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.charts-error {
+  color: #ef4444;
+}
+
+.charts-empty {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px dashed rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+}
+
+.charts-empty p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.charts-empty-hint {
+  font-size: 0.85rem;
+  margin-top: 8px !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.add-chart-button {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 2px dashed rgba(139, 92, 246, 0.5);
+  border-radius: 12px;
+  color: #8b5cf6;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-chart-button:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: #8b5cf6;
+}
+
+@media (max-width: 768px) {
+  .chart-card {
+    padding: 12px;
+  }
+
+  .chart-card-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .chart-card-name {
+    font-size: 1rem;
+  }
+}

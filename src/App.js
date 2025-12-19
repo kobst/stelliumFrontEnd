@@ -11,6 +11,10 @@ import PricingTable from './pages/plans';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import HelpCenter from './pages/HelpCenter';
+import UserSelectionPage from './pages/UserSelectionPage';
+import MainDashboard from './pages/MainDashboard';
+import ChartDetailPage from './pages/ChartDetailPage';
+import RelationshipAnalysisPage from './pages/RelationshipAnalysisPage';
 import './App.css';
 
 function App() {
@@ -30,6 +34,10 @@ function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/help" element={<HelpCenter />} />
+          <Route path="/users" element={<UserSelectionPage />} />
+          <Route path="/dashboard/:userId" element={<MainDashboard />} />
+          <Route path="/dashboard/:userId/chart/:chartId" element={<ChartDetailPage />} />
+          <Route path="/dashboard/:userId/relationship/:compositeId" element={<RelationshipAnalysisPage />} />
         </Routes>
       </div>
     </Router>
