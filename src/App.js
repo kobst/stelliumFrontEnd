@@ -15,6 +15,7 @@ import UserSelectionPage from './pages/UserSelectionPage';
 import MainDashboard from './pages/MainDashboard';
 import ChartDetailPage from './pages/ChartDetailPage';
 import RelationshipAnalysisPage from './pages/RelationshipAnalysisPage';
+import CreateRelationshipPage from './pages/CreateRelationshipPage';
 import './App.css';
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <Route path="/users" element={<UserSelectionPage />} />
           <Route path="/dashboard/:userId" element={<MainDashboard />} />
           <Route path="/dashboard/:userId/chart/:chartId" element={<ChartDetailPage />} />
+          <Route path="/dashboard/:userId/relationship/create" element={<CreateRelationshipPage />} />
           <Route path="/dashboard/:userId/relationship/:compositeId" element={<RelationshipAnalysisPage />} />
         </Routes>
       </div>

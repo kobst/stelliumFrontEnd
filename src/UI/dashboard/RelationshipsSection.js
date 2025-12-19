@@ -33,8 +33,7 @@ function RelationshipsSection({ userId }) {
   };
 
   const handleAddRelationship = () => {
-    // Placeholder for add relationship functionality
-    console.log('Add relationship clicked - to be implemented');
+    navigate(`/dashboard/${userId}/relationship/create`);
   };
 
   const getOverallScore = (relationship) => {

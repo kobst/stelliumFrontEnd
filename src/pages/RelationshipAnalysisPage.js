@@ -1,7 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getUserCompositeCharts } from '../Utilities/api';
+import { getUserCompositeCharts, fetchRelationshipAnalysis } from '../Utilities/api';
 import TabMenu from '../UI/shared/TabMenu';
+import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
+import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
+import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
+import AnalysisTab from '../UI/dashboard/relationshipTabs/AnalysisTab';
+import AskStelliumRelationshipTab from '../UI/dashboard/relationshipTabs/AskStelliumRelationshipTab';
 import './RelationshipAnalysisPage.css';
 
 function RelationshipAnalysisPage() {
@@ -11,29 +16,53 @@ function RelationshipAnalysisPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const loadRelationship = async () => {
-      try {
-        setLoading(true);
-        const composites = await getUserCompositeCharts(userId);
-        const found = composites?.find(c => c._id === compositeId);
-        if (found) {
+  const loadRelationship = useCallback(async () => {
+    try {
+      setLoading(true);
+      const composites = await getUserCompositeCharts(userId);
+      const found = composites?.find(c => c._id === compositeId);
+      if (found) {
+        // Try to fetch full analysis data
+        try {
+          const analysisData = await fetchRelationshipAnalysis(compositeId);
+          if (analysisData) {
+            // Merge analysis data with relationship
+            setRelationship({
+              ...found,
+              ...analysisData
+            });
+          } else {
+            setRelationship(found);
+          }
+        } catch (analysisErr) {
+          console.warn('Could not fetch analysis data:', analysisErr);
           setRelationship(found);
-        } else {
-          setError('Relationship not found');
         }
-      } catch (err) {
-        console.error('Error loading relationship:', err);
-        setError('Failed to load relationship data');
-      } finally {
-        setLoading(false);
+      } else {
+        setError('Relationship not found');
       }
-    };
+    } catch (err) {
+      console.error('Error loading relationship:', err);
+      setError('Failed to load relationship data');
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, compositeId]);
 
+  useEffect(() => {
     if (userId && compositeId) {
       loadRelationship();
     }
-  }, [userId, compositeId]);
+  }, [userId, compositeId, loadRelationship]);
+
+  // Callback for when analysis completes - reload the data
+  const handleAnalysisComplete = useCallback(() => {
+    loadRelationship();
+  }, [loadRelationship]);
+
+  // Check if full analysis is complete
+  const isAnalysisComplete = relationship?.completeAnalysis &&
+    Object.keys(relationship.completeAnalysis).length > 0;
 
   const handleBackClick = () => {
     navigate(`/dashboard/${userId}`);
@@ -86,66 +115,37 @@ function RelationshipAnalysisPage() {
     {
       id: 'scores',
       label: 'Scores',
-      content: (
-        <div className="relationship-tab-content">
-          <div className="placeholder-content">
-            <h3>Compatibility Scores</h3>
-            <p>Cluster scores and radar chart will be displayed here</p>
-            <div className="placeholder-icon">📊</div>
-          </div>
-        </div>
-      )
+      content: <ScoresTab relationship={relationship} />
     },
     {
       id: 'overview',
       label: 'Overview',
-      content: (
-        <div className="relationship-tab-content">
-          <div className="placeholder-content">
-            <h3>Relationship Overview</h3>
-            <p>Relationship summary and key insights will be displayed here</p>
-            <div className="placeholder-icon">♡</div>
-          </div>
-        </div>
-      )
+      content: <OverviewTab relationship={relationship} />
     },
     {
       id: 'charts',
       label: 'Charts',
-      content: (
-        <div className="relationship-tab-content">
-          <div className="placeholder-content">
-            <h3>Synastry & Composite Charts</h3>
-            <p>Chart visualizations will be displayed here</p>
-            <div className="placeholder-icon">◎</div>
-          </div>
-        </div>
-      )
+      content: <ChartsTab relationship={relationship} />
     },
     {
       id: 'analysis',
       label: '360° Analysis',
       content: (
-        <div className="relationship-tab-content">
-          <div className="placeholder-content">
-            <h3>360° Analysis</h3>
-            <p>Deep dive analysis of the relationship will be displayed here</p>
-            <div className="placeholder-icon">🔮</div>
-          </div>
-        </div>
+        <AnalysisTab
+          relationship={relationship}
+          compositeId={compositeId}
+          onAnalysisComplete={handleAnalysisComplete}
+        />
       )
     },
     {
       id: 'chat',
       label: 'Ask Stellium',
       content: (
-        <div className="relationship-tab-content">
-          <div className="placeholder-content">
-            <h3>Ask Stellium</h3>
-            <p>AI chat about this relationship will be available here</p>
-            <div className="placeholder-icon">✨</div>
-          </div>
-        </div>
+        <AskStelliumRelationshipTab
+          compositeId={compositeId}
+          isAnalysisComplete={isAnalysisComplete}
+        />
       )
     }
   ];
