@@ -12,7 +12,6 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -62,7 +61,7 @@ const LoginPage = () => {
 
     let result;
     if (isSignUp) {
-      result = await signUpWithEmail(email, password, displayName);
+      result = await signUpWithEmail(email, password);
     } else {
       result = await signInWithEmail(email, password);
     }
@@ -104,6 +103,17 @@ const LoginPage = () => {
           </p>
         </div>
 
+        {isSignUp && (
+          <div className="signup-benefits">
+            <p className="benefits-title">Start your free trial</p>
+            <ul className="benefits-list">
+              <li>Your personalized birth chart</li>
+              <li>Daily &amp; monthly horoscopes</li>
+              <li>7 days of expanded insights</li>
+            </ul>
+          </div>
+        )}
+
         <div className="login-form-container">
           {/* Google Sign In */}
           <button
@@ -138,20 +148,6 @@ const LoginPage = () => {
 
           {/* Email Form */}
           <form onSubmit={handleEmailSubmit} className="login-form">
-            {isSignUp && (
-              <div className="form-group">
-                <label htmlFor="displayName">Name</label>
-                <input
-                  type="text"
-                  id="displayName"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Your name"
-                  disabled={isSubmitting}
-                />
-              </div>
-            )}
-
             <div className="form-group">
               <label htmlFor="email">Email</label>
               <input

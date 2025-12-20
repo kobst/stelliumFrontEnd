@@ -316,23 +316,6 @@ const OnboardingForm = () => {
                     </select>
                 </div>
 
-                {/* Email is shown but not editable - from Firebase */}
-                <div style={formGroupStyle}>
-                    <label style={labelStyle}>My email is</label>
-                    <input
-                        type="email"
-                        value={firebaseUser?.email || ''}
-                        style={{
-                            ...inputStyle,
-                            width: '290px',
-                            opacity: 0.7,
-                            cursor: 'not-allowed'
-                        }}
-                        className="input-dark-placeholder"
-                        disabled
-                    />
-                </div>
-
                 <div style={formGroupStyle}>
                     <input
                         className="email-submit-btn"

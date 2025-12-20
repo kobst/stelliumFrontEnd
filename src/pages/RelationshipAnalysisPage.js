@@ -2,18 +2,21 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getUserCompositeCharts, fetchRelationshipAnalysis } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
+import { useEntitlements } from '../hooks/useEntitlements';
 import TabMenu from '../UI/shared/TabMenu';
 import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
 import AnalysisTab from '../UI/dashboard/relationshipTabs/AnalysisTab';
 import AskStelliumRelationshipTab from '../UI/dashboard/relationshipTabs/AskStelliumRelationshipTab';
+import LockedContent from '../UI/shared/LockedContent';
 import './RelationshipAnalysisPage.css';
 
 function RelationshipAnalysisPage() {
   const { userId, compositeId } = useParams();
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
+  const entitlements = useEntitlements(stelliumUser);
 
   const [relationship, setRelationship] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -66,6 +69,10 @@ function RelationshipAnalysisPage() {
   // Check if full analysis is complete
   const isAnalysisComplete = relationship?.completeAnalysis &&
     Object.keys(relationship.completeAnalysis).length > 0;
+
+  // Check if user can access premium tabs:
+  // Either the relationship has been analyzed (purchased) OR user has premium+ subscription
+  const canAccessPremiumTabs = isAnalysisComplete || entitlements.isPremiumOrHigher;
 
   const handleBackClick = () => {
     navigate(`/dashboard/${userId}`);
@@ -138,21 +145,45 @@ function RelationshipAnalysisPage() {
     {
       id: 'analysis',
       label: '360° Analysis',
-      content: (
+      content: canAccessPremiumTabs ? (
         <AnalysisTab
           relationship={relationship}
           compositeId={compositeId}
           onAnalysisComplete={handleAnalysisComplete}
+        />
+      ) : (
+        <LockedContent
+          title="360° Relationship Analysis"
+          description="Discover the deeper dynamics of your relationship with comprehensive astrological insights."
+          features={[
+            'Synastry aspect interpretations',
+            'Composite chart analysis',
+            'Relationship strengths & challenges',
+            'Growth opportunities as a couple'
+          ]}
+          ctaText="Unlock with Plus"
         />
       )
     },
     {
       id: 'chat',
       label: 'Ask Stellium',
-      content: (
+      content: canAccessPremiumTabs ? (
         <AskStelliumRelationshipTab
           compositeId={compositeId}
           isAnalysisComplete={isAnalysisComplete}
+        />
+      ) : (
+        <LockedContent
+          title="Ask About Your Relationship"
+          description="Get personalized AI insights about your relationship dynamics."
+          features={[
+            'Unlimited relationship questions',
+            'Compatibility deep dives',
+            'Guidance for challenges',
+            'Future outlook insights'
+          ]}
+          ctaText="Unlock with Plus"
         />
       )
     }

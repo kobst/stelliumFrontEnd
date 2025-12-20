@@ -3,7 +3,9 @@ import { useParams, Navigate } from 'react-router-dom';
 import { fetchUser } from '../Utilities/api';
 import useStore from '../Utilities/store';
 import { useAuth } from '../context/AuthContext';
+import { useEntitlements } from '../hooks/useEntitlements';
 import DashboardHeader from '../UI/dashboard/DashboardHeader';
+import WelcomeBanner from '../UI/dashboard/WelcomeBanner';
 import TabMenu from '../UI/shared/TabMenu';
 import HoroscopeSection from '../UI/dashboard/HoroscopeSection';
 import BirthChartsSection from '../UI/dashboard/BirthChartsSection';
@@ -14,6 +16,7 @@ function MainDashboard() {
   const { userId } = useParams();
   const { stelliumUser } = useAuth();
   const [user, setUser] = useState(null);
+  const entitlements = useEntitlements(user);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -94,7 +97,7 @@ function MainDashboard() {
     {
       id: 'horoscope',
       label: 'Horoscope',
-      content: <HoroscopeSection userId={userId} user={user} />
+      content: <HoroscopeSection userId={userId} user={user} entitlements={entitlements} />
     },
     {
       id: 'birthCharts',
@@ -111,6 +114,10 @@ function MainDashboard() {
   return (
     <div className="main-dashboard">
       <DashboardHeader user={user} />
+      <WelcomeBanner
+        isTrialActive={entitlements.isTrialActive}
+        trialDaysRemaining={entitlements.trialDaysRemaining}
+      />
       <div className="dashboard-content">
         <TabMenu tabs={mainTabs} />
       </div>

@@ -79,8 +79,9 @@ const OnboardingConfirmation = () => {
                             kind: result.user.kind || 'accountSelf'
                         });
 
-                        // Refresh the auth context with the new user data
-                        await refreshStelliumUser();
+                        // Note: Don't refresh auth context here - it will trigger OnboardingRoute
+                        // to redirect to dashboard before user sees confirmation page.
+                        // We'll refresh when user clicks "Go to Dashboard"
                     }
                 } catch (error) {
                     console.error('Error creating user:', error);
@@ -117,11 +118,19 @@ const OnboardingConfirmation = () => {
     const isCreating = loading;
     const hasOverview = overviewContent && overviewContent.trim().length > 0;
     const hasBirthChartData = birthChartData && Object.keys(birthChartData).length > 0;
+
+    // Derive userId from multiple sources
+    const effectiveUserId = userId ||
+        creationResult?.userId ||
+        creationResult?.user?._id ||
+        completeData?.subject?._id;
     const isComplete = creationResult?.success && !loading;
 
-    const handleGoToDashboard = () => {
-        if (userId) {
-            navigate(`/dashboard/${userId}`);
+    const handleGoToDashboard = async () => {
+        if (effectiveUserId) {
+            // Refresh auth context so ProtectedRoute knows user has a profile
+            await refreshStelliumUser();
+            navigate(`/dashboard/${effectiveUserId}`);
         }
     };
 
@@ -271,38 +280,26 @@ const OnboardingConfirmation = () => {
             )}
 
             {/* Navigation Buttons */}
-            <div style={{ marginTop: '30px', display: 'flex', gap: '10px' }}>
-                {isComplete && userId && (
+            <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                {(effectiveUserId || hasBirthChartData) && (
                     <button
                         onClick={handleGoToDashboard}
+                        disabled={!effectiveUserId}
                         style={{
                             padding: '15px 30px',
                             backgroundColor: '#8b5cf6',
                             color: 'white',
                             border: 'none',
                             borderRadius: '8px',
-                            cursor: 'pointer',
+                            cursor: effectiveUserId ? 'pointer' : 'not-allowed',
                             fontSize: '16px',
-                            fontWeight: 'bold'
+                            fontWeight: 'bold',
+                            opacity: effectiveUserId ? 1 : 0.7
                         }}
                     >
-                        Go to My Dashboard
+                        {effectiveUserId ? 'Go to My Dashboard' : 'Loading...'}
                     </button>
                 )}
-                <button
-                    onClick={() => navigate('/')}
-                    style={{
-                        padding: '15px 30px',
-                        backgroundColor: 'transparent',
-                        color: 'white',
-                        border: '1px solid white',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontSize: '16px'
-                    }}
-                >
-                    Go Home
-                </button>
             </div>
         </div>
     );

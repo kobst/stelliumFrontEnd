@@ -1,0 +1,130 @@
+.locked-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  background: rgba(139, 92, 246, 0.03);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 16px;
+  min-height: 300px;
+}
+
+.locked-content--compact {
+  padding: 40px 20px;
+  min-height: 200px;
+}
+
+.locked-content__icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 50%;
+  margin-bottom: 20px;
+  color: #a78bfa;
+}
+
+.locked-content--compact .locked-content__icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.locked-content--compact .locked-content__icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.locked-content__title {
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+.locked-content--compact .locked-content__title {
+  font-size: 1.2rem;
+}
+
+.locked-content__description {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 24px 0;
+  max-width: 400px;
+}
+
+.locked-content__features {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.locked-content__features-label {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.locked-content__features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.locked-content__feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  padding: 6px 0;
+}
+
+.locked-content__feature-check {
+  color: #a78bfa;
+  font-weight: 600;
+}
+
+.locked-content__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.locked-content__cta-button {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  border: none;
+  border-radius: 25px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.locked-content__cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+@media (max-width: 768px) {
+  .locked-content {
+    padding: 40px 16px;
+  }
+
+  .locked-content__title {
+    font-size: 1.2rem;
+  }
+
+  .locked-content__description {
+    font-size: 0.95rem;
+  }
+}

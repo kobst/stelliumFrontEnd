@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import TabMenu from '../shared/TabMenu';
 import HoroscopeTabContent from './HoroscopeTabContent';
 import AskStelliumTab from './AskStelliumTab';
+import LockedContent from '../shared/LockedContent';
+import TrialBadge from '../shared/TrialBadge';
 import {
   getTransitWindows,
   generateDailyHoroscope,
@@ -10,7 +12,7 @@ import {
 } from '../../Utilities/api';
 import './HoroscopeSection.css';
 
-function HoroscopeSection({ userId, user }) {
+function HoroscopeSection({ userId, user, entitlements }) {
   // Transit windows state
   const [transitWindows, setTransitWindows] = useState([]);
   const [transitLoading, setTransitLoading] = useState(true);
@@ -217,6 +219,80 @@ function HoroscopeSection({ userId, user }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
+  // Locked content for Weekly horoscope
+  const LockedWeeklyContent = () => (
+    <LockedContent
+      title="Weekly Horoscope"
+      description="Get deeper insights into your week ahead with comprehensive weekly readings."
+      features={[
+        'Day-by-day energy forecasts',
+        'Key dates and opportunities',
+        'Weekly planetary influences'
+      ]}
+      ctaText="Available with Plus"
+    />
+  );
+
+  // Locked content for Ask Stellium
+  const LockedAskStelliumContent = () => (
+    <LockedContent
+      title="Ask Stellium"
+      description="Get personalized answers about your transits and horoscope from our AI astrologer."
+      features={[
+        'Ask unlimited questions',
+        'Personalized transit insights',
+        'Custom horoscope readings'
+      ]}
+      ctaText="Available with Plus"
+    />
+  );
+
+  // Weekly tab content with trial badge or locked state
+  const WeeklyTabContent = () => {
+    if (!entitlements?.canAccessWeekly) {
+      return <LockedWeeklyContent />;
+    }
+
+    return (
+      <div className="horoscope-tab-wrapper">
+        {entitlements?.isTrialActive && (
+          <div className="trial-banner-inline">
+            <TrialBadge text="Unlocked for your first 7 days" />
+          </div>
+        )}
+        <HoroscopeTabContent
+          type="weekly"
+          horoscope={horoscopeCache.thisWeek}
+          loading={tabLoadingStates.thisWeek}
+          error={tabErrors.thisWeek}
+          onRetry={() => handleRetry('thisWeek')}
+          onLoad={() => handleLoad('thisWeek')}
+        />
+      </div>
+    );
+  };
+
+  // Ask Stellium content with trial message or locked state
+  const AskStelliumContent = () => {
+    if (!entitlements?.canAccessAskStelliumHoroscope) {
+      return <LockedAskStelliumContent />;
+    }
+
+    return (
+      <div className="ask-stellium-wrapper">
+        {entitlements?.isTrialActive && (
+          <div className="trial-message">
+            <TrialBadge text="Includes 5 free questions this week" />
+          </div>
+        )}
+        <AskStelliumTab
+          userId={userId}
+          transitWindows={transitWindows}
+        />
+      </div>
+    );
+  };
+
   // Tab content components
   const horoscopeTabs = [
     {
@@ -235,17 +311,13 @@ function HoroscopeSection({ userId, user }) {
     },
     {
       id: 'week',
-      label: 'This Week',
-      content: (
-        <HoroscopeTabContent
-          type="weekly"
-          horoscope={horoscopeCache.thisWeek}
-          loading={tabLoadingStates.thisWeek}
-          error={tabErrors.thisWeek}
-          onRetry={() => handleRetry('thisWeek')}
-          onLoad={() => handleLoad('thisWeek')}
-        />
-      )
+      label: entitlements?.isTrialActive && entitlements?.canAccessWeekly ? (
+        <span className="tab-label-with-badge">
+          This Week
+          <TrialBadge text="Trial" variant="small" />
+        </span>
+      ) : 'This Week',
+      content: <WeeklyTabContent />
     },
     {
       id: 'month',
@@ -264,12 +336,7 @@ function HoroscopeSection({ userId, user }) {
     {
       id: 'chat',
       label: 'Ask Stellium',
-      content: (
-        <AskStelliumTab
-          userId={userId}
-          transitWindows={transitWindows}
-        />
-      )
+      content: <AskStelliumContent />
     }
   ];
 

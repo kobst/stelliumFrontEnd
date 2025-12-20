@@ -9,18 +9,21 @@ import {
   getNewCompleteWorkflowData
 } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
+import { useEntitlements } from '../hooks/useEntitlements';
 import TabMenu from '../UI/shared/TabMenu';
 import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
 import AskStelliumChartTab from '../UI/dashboard/chartTabs/AskStelliumChartTab';
+import LockedContent from '../UI/shared/LockedContent';
 import './ChartDetailPage.css';
 
 function ChartDetailPage() {
   const { userId, chartId } = useParams();
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
+  const entitlements = useEntitlements(stelliumUser);
 
   // Chart data state
   const [chart, setChart] = useState(null);
@@ -189,6 +192,10 @@ function ChartDetailPage() {
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
   const isVectorizationComplete = vectorizationStatus?.completed || vectorizationStatus?.status === 'completed';
 
+  // Check if user can access premium tabs:
+  // Either the chart has been analyzed (purchased) OR user has premium+ subscription
+  const canAccessPremiumTabs = isAnalysisComplete || entitlements.isPremiumOrHigher;
+
   // Security check: Redirect if user tries to access a different user's data
   if (stelliumUser && userId !== stelliumUser._id) {
     return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
@@ -233,7 +240,7 @@ function ChartDetailPage() {
     {
       id: 'dominance',
       label: 'Dominance & Patterns',
-      content: (
+      content: canAccessPremiumTabs ? (
         <DominancePatternsTab
           birthChart={birthChart}
           basicAnalysis={basicAnalysis}
@@ -242,37 +249,85 @@ function ChartDetailPage() {
           quadrants={quadrants}
           planetaryDominance={planetaryDominance}
         />
+      ) : (
+        <LockedContent
+          title="Dominance & Patterns"
+          description="Discover the dominant elements, modalities, and patterns that shape your personality."
+          features={[
+            'Element and modality balance analysis',
+            'Planetary strength rankings',
+            'Chart pattern identification',
+            'Quadrant emphasis interpretation'
+          ]}
+          ctaText="Unlock with Plus"
+        />
       )
     },
     {
       id: 'planets',
       label: 'Planets',
-      content: (
+      content: canAccessPremiumTabs ? (
         <PlanetsTab
           birthChart={birthChart}
           basicAnalysis={basicAnalysis}
+        />
+      ) : (
+        <LockedContent
+          title="Planets Deep Dive"
+          description="Explore detailed interpretations of each planet in your chart."
+          features={[
+            'Individual planet meanings in signs',
+            'House placements explained',
+            'Planetary aspects breakdown',
+            'Retrograde planet insights'
+          ]}
+          ctaText="Unlock with Plus"
         />
       )
     },
     {
       id: 'analysis',
       label: '360° Analysis',
-      content: (
+      content: canAccessPremiumTabs ? (
         <AnalysisTab
           broadCategoryAnalyses={broadCategoryAnalyses}
           analysisStatus={analysisStatus}
           onStartAnalysis={handleStartAnalysis}
+        />
+      ) : (
+        <LockedContent
+          title="360° Analysis"
+          description="Get a comprehensive analysis covering every life area through your birth chart."
+          features={[
+            'Personality & identity analysis',
+            'Career & life purpose insights',
+            'Relationship patterns',
+            '12 life area deep dives'
+          ]}
+          ctaText="Unlock with Plus"
         />
       )
     },
     {
       id: 'chat',
       label: 'Ask Stellium',
-      content: (
+      content: canAccessPremiumTabs ? (
         <AskStelliumChartTab
           chartId={chartId}
           isAnalysisComplete={isAnalysisComplete}
           vectorizationComplete={isVectorizationComplete}
+        />
+      ) : (
+        <LockedContent
+          title="Ask Stellium"
+          description="Chat with AI about your birth chart and get personalized insights."
+          features={[
+            'Unlimited questions about your chart',
+            'Personalized interpretations',
+            'Aspect-by-aspect explanations',
+            'Life guidance based on your placements'
+          ]}
+          ctaText="Unlock with Plus"
         />
       )
     }
