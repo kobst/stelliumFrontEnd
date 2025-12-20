@@ -7,6 +7,30 @@ function DashboardHeader({ user }) {
   const navigate = useNavigate();
   const { signOut } = useAuth();
 
+  // Get user's subscription tier
+  const getUserPlan = () => {
+    // Subscription data is in user.subscription.tier
+    const plan = user?.subscription?.tier || 'free';
+    return plan.toLowerCase();
+  };
+
+  const getPlanDisplay = () => {
+    const plan = getUserPlan();
+    switch (plan) {
+      case 'premium':
+        return { label: 'Premium', className: 'plan-premium' };
+      case 'pro':
+        return { label: 'Pro', className: 'plan-pro' };
+      default:
+        return { label: 'Free', className: 'plan-free' };
+    }
+  };
+
+  const isPaidPlan = () => {
+    const plan = getUserPlan();
+    return plan === 'premium' || plan === 'pro';
+  };
+
   // Get user's initials for avatar placeholder
   const getInitials = () => {
     if (!user) return '?';
@@ -39,6 +63,17 @@ function DashboardHeader({ user }) {
     // Placeholder for settings modal
     console.log('Settings clicked - to be implemented');
   };
+
+  const handleUpgradeClick = () => {
+    navigate('/pricingTable');
+  };
+
+  const handleManageClick = () => {
+    // Placeholder for subscription management
+    console.log('Manage subscription clicked - to be implemented');
+  };
+
+  const planInfo = getPlanDisplay();
 
   const sunSign = getSunSign();
 
@@ -83,6 +118,20 @@ function DashboardHeader({ user }) {
       </div>
 
       <div className="dashboard-header-right">
+        <div className="plan-status">
+          <span className={`plan-pill ${planInfo.className}`}>
+            {planInfo.label}
+          </span>
+          {isPaidPlan() ? (
+            <button className="plan-action-button manage" onClick={handleManageClick}>
+              Manage
+            </button>
+          ) : (
+            <button className="plan-action-button upgrade" onClick={handleUpgradeClick}>
+              Upgrade
+            </button>
+          )}
+        </div>
         <button className="settings-button" onClick={handleSettingsClick}>
           <svg
             width="24"

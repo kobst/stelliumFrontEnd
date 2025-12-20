@@ -114,6 +114,73 @@
   border-color: rgba(139, 92, 246, 0.5);
 }
 
+/* Plan Status Indicator */
+.plan-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.plan-pill {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.plan-free {
+  background: rgba(156, 163, 175, 0.2);
+  color: #9ca3af;
+  border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+.plan-premium {
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+.plan-pro {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.plan-action-button {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.plan-action-button.upgrade {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  border: none;
+  color: white;
+}
+
+.plan-action-button.upgrade:hover {
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+  transform: translateY(-1px);
+}
+
+.plan-action-button.manage {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.plan-action-button.manage:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 12px 16px;
@@ -139,5 +206,20 @@
   .dashboard-header-left,
   .dashboard-header-right {
     min-width: auto;
+  }
+
+  .plan-status {
+    margin-right: 8px;
+    gap: 6px;
+  }
+
+  .plan-pill {
+    padding: 3px 8px;
+    font-size: 0.7rem;
+  }
+
+  .plan-action-button {
+    padding: 3px 8px;
+    font-size: 0.7rem;
   }
 }

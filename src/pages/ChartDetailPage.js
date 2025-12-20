@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import {
   fetchUser,
   getUserSubjects,
@@ -8,6 +8,7 @@ import {
   checkFullAnalysisStatus,
   getNewCompleteWorkflowData
 } from '../Utilities/api';
+import { useAuth } from '../context/AuthContext';
 import TabMenu from '../UI/shared/TabMenu';
 import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
@@ -19,6 +20,7 @@ import './ChartDetailPage.css';
 function ChartDetailPage() {
   const { userId, chartId } = useParams();
   const navigate = useNavigate();
+  const { stelliumUser } = useAuth();
 
   // Chart data state
   const [chart, setChart] = useState(null);
@@ -186,6 +188,11 @@ function ChartDetailPage() {
 
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
   const isVectorizationComplete = vectorizationStatus?.completed || vectorizationStatus?.status === 'completed';
+
+  // Security check: Redirect if user tries to access a different user's data
+  if (stelliumUser && userId !== stelliumUser._id) {
+    return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
+  }
 
   if (loading) {
     return (

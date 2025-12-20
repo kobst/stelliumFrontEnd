@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { fetchUser } from '../Utilities/api';
 import useStore from '../Utilities/store';
+import { useAuth } from '../context/AuthContext';
 import DashboardHeader from '../UI/dashboard/DashboardHeader';
 import TabMenu from '../UI/shared/TabMenu';
 import HoroscopeSection from '../UI/dashboard/HoroscopeSection';
@@ -11,6 +12,7 @@ import './MainDashboard.css';
 
 function MainDashboard() {
   const { userId } = useParams();
+  const { stelliumUser } = useAuth();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -61,6 +63,11 @@ function MainDashboard() {
       loadUser();
     }
   }, [userId, setSelectedUser, setUserId, setUserPlanets, setUserHouses, setUserAspects, setCurrentUserContext, setActiveUserContext]);
+
+  // Security check: Redirect if user tries to access a different user's dashboard
+  if (stelliumUser && userId !== stelliumUser._id) {
+    return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
+  }
 
   if (loading) {
     return (

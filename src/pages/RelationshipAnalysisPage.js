@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getUserCompositeCharts, fetchRelationshipAnalysis } from '../Utilities/api';
+import { useAuth } from '../context/AuthContext';
 import TabMenu from '../UI/shared/TabMenu';
 import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
@@ -12,6 +13,8 @@ import './RelationshipAnalysisPage.css';
 function RelationshipAnalysisPage() {
   const { userId, compositeId } = useParams();
   const navigate = useNavigate();
+  const { stelliumUser } = useAuth();
+
   const [relationship, setRelationship] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -84,6 +87,11 @@ function RelationshipAnalysisPage() {
            relationship?.clusterAnalysis?.overall?.tier ||
            null;
   };
+
+  // Security check: Redirect if user tries to access a different user's data
+  if (stelliumUser && userId !== stelliumUser._id) {
+    return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
+  }
 
   if (loading) {
     return (

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getUserSubjects, createRelationshipDirect } from '../Utilities/api';
+import { useAuth } from '../context/AuthContext';
 import './CreateRelationshipPage.css';
 
 function CreateRelationshipPage() {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const { stelliumUser } = useAuth();
 
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -102,6 +104,11 @@ function CreateRelationshipPage() {
     }
     return selectedPersonA?._id === person._id;
   };
+
+  // Security check: Redirect if user tries to access a different user's data
+  if (stelliumUser && userId !== stelliumUser._id) {
+    return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
+  }
 
   if (loading) {
     return (
