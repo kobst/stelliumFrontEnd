@@ -1,0 +1,300 @@
+/* Modal Backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* Modal Content */
+.modal-content {
+  background: linear-gradient(135deg, #1a1030 0%, #0f0a1e 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.modal-close-btn:hover:not(:disabled) {
+  color: white;
+}
+
+.modal-close-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal Form */
+.modal-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Form Row (for side-by-side fields) */
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+/* Form Group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Input Styles */
+.modal-form .form-group input,
+.modal-form .form-group select,
+.modal-form .form-group .location-input {
+  padding: 12px 14px;
+  background: rgba(30, 20, 50, 0.95) !important;
+  border: 1px solid rgba(139, 92, 246, 0.4) !important;
+  border-radius: 8px;
+  color: white !important;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-text-fill-color: white !important;
+}
+
+.modal-form .form-group input::placeholder,
+.modal-form .form-group .location-input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.modal-form .form-group input:focus,
+.modal-form .form-group select:focus,
+.modal-form .form-group .location-input:focus {
+  border-color: rgba(139, 92, 246, 0.8) !important;
+  background: rgba(40, 30, 70, 0.95) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.modal-form .form-group input:disabled,
+.modal-form .form-group select:disabled,
+.modal-form .form-group .location-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-form .form-group input.error,
+.modal-form .form-group select.error,
+.modal-form .form-group .location-input.error {
+  border-color: rgba(239, 68, 68, 0.6) !important;
+}
+
+/* Select Styling */
+.modal-form .form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-color: rgba(30, 20, 50, 0.95) !important;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.modal-form .form-group select option {
+  background: #1a1030 !important;
+  color: white !important;
+}
+
+/* Date and Time input specific fixes */
+.modal-form .form-group input[type="date"],
+.modal-form .form-group input[type="time"] {
+  background: rgba(30, 20, 50, 0.95) !important;
+  color-scheme: dark;
+}
+
+.modal-form .form-group input[type="date"]::-webkit-calendar-picker-indicator,
+.modal-form .form-group input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* Time Row */
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.time-select {
+  width: 140px !important;
+  flex-shrink: 0;
+}
+
+.time-input {
+  flex: 1;
+}
+
+/* Field Error */
+.field-error {
+  color: #f87171;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+/* Submit Error */
+.submit-error {
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Submit Button */
+.submit-btn {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Google Places Autocomplete Dropdown Styling */
+.pac-container {
+  background: #1a1030 !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  margin-top: 4px !important;
+}
+
+.pac-item {
+  padding: 10px 14px !important;
+  color: white !important;
+  border-top: 1px solid rgba(139, 92, 246, 0.1) !important;
+  cursor: pointer !important;
+}
+
+.pac-item:first-child {
+  border-top: none !important;
+}
+
+.pac-item:hover {
+  background: rgba(139, 92, 246, 0.2) !important;
+}
+
+.pac-item-query {
+  color: white !important;
+}
+
+.pac-matched {
+  color: #a78bfa !important;
+}
+
+.pac-icon {
+  display: none !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 520px) {
+  .modal-content {
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    padding: 16px 20px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .modal-form {
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .time-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .time-select {
+    width: 100% !important;
+  }
+}
