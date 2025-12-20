@@ -1,6 +1,75 @@
 import { HTTP_POST, CONTENT_TYPE_HEADER, APPLICATION_JSON, ERROR_API_CALL } from "./constants";
+import { getIdToken } from '../firebase/auth';
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
+
+/**
+ * Make an authenticated fetch request with Firebase ID token
+ * @param {string} url - The URL to fetch
+ * @param {object} options - Fetch options
+ * @param {string} token - Optional pre-fetched token
+ * @returns {Promise<Response>}
+ */
+export const authenticatedFetch = async (url, options = {}, token = null) => {
+  const authToken = token || await getIdToken();
+
+  const headers = {
+    [CONTENT_TYPE_HEADER]: APPLICATION_JSON,
+    ...options.headers,
+  };
+
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
+  return fetch(url, {
+    ...options,
+    headers,
+  });
+};
+
+/**
+ * Get user by Firebase UID
+ * @param {string} firebaseUid - The Firebase user ID
+ * @param {string} token - The Firebase ID token
+ * @returns {Promise<object>} User data or null
+ */
+export const getUserByFirebaseUid = async (firebaseUid, token) => {
+  try {
+    console.log('Calling getUserByFirebaseUid with:', { firebaseUid, url: `${SERVER_URL}/getUserByFirebaseUid` });
+
+    const response = await authenticatedFetch(
+      `${SERVER_URL}/getUserByFirebaseUid`,
+      {
+        method: HTTP_POST,
+        body: JSON.stringify({ firebaseUid }),
+      },
+      token
+    );
+
+    console.log('getUserByFirebaseUid response status:', response.status);
+
+    if (response.status === 404) {
+      // User not found - this is expected for new users
+      console.log('User not found (404)');
+      return null;
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('getUserByFirebaseUid error response:', errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('getUserByFirebaseUid success, data:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching user by Firebase UID:', error);
+    // Return null for network errors to allow onboarding flow
+    return null;
+  }
+};
 
 export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
   const apiKey = process.env.REACT_APP_GOOGLE_API_KEY; 

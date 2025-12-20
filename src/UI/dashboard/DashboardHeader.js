@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './DashboardHeader.css';
 
 function DashboardHeader({ user }) {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   // Get user's initials for avatar placeholder
   const getInitials = () => {
@@ -28,8 +30,9 @@ function DashboardHeader({ user }) {
     return sun?.sign || null;
   };
 
-  const handleBackClick = () => {
-    navigate('/users');
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
   };
 
   const handleSettingsClick = () => {
@@ -42,9 +45,22 @@ function DashboardHeader({ user }) {
   return (
     <header className="dashboard-header">
       <div className="dashboard-header-left">
-        <button className="back-button" onClick={handleBackClick}>
-          <span className="back-arrow">←</span>
-          <span className="back-text">Users</span>
+        <button className="logout-button" onClick={handleLogout}>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Log out</span>
         </button>
       </div>
 

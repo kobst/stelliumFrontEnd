@@ -1,13 +1,16 @@
 // store.js
 import create from 'zustand';
-import { HeadingEnum } from './constants';
 
 
 const useStore = create(set => ({
 
+    // Firebase user state (from auth context)
+    firebaseUser: null,
+    setFirebaseUser: (user) => set({ firebaseUser: user }),
+
+    // Stellium user data (from backend)
     userData: null,
     setUserData: (data) => set({ userData: data }),
-
 
     userId: '',
     setUserId: (response) => set({ userId: response }),
