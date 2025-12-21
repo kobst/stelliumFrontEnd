@@ -1,7 +1,7 @@
 import { HTTP_POST, CONTENT_TYPE_HEADER, APPLICATION_JSON, ERROR_API_CALL } from "./constants";
 import { getIdToken } from '../firebase/auth';
 
-const SERVER_URL = process.env.REACT_APP_SERVER_URL;
+const SERVER_URL = process.env.REACT_APP_SERVER_URL; // Build trigger
 
 /**
  * Make an authenticated fetch request with Firebase ID token
