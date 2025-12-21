@@ -7,7 +7,12 @@ import './signUpPage.css';
 
 const OnboardingPage = () => {
     const navigate = useNavigate();
-    const { firebaseUser, stelliumUser, loading } = useAuth();
+    const { firebaseUser, stelliumUser, loading, signOut } = useAuth();
+
+    const handleLogout = async () => {
+        await signOut();
+        navigate('/login', { replace: true });
+    };
 
     // Redirect if not authenticated or already has profile
     useEffect(() => {
@@ -47,10 +52,15 @@ const OnboardingPage = () => {
 
     return (
         <div className="signup-page">
-            {/* Back button */}
-            <button className="back-button" onClick={handleBackToHome}>
-                Back to Home
-            </button>
+            {/* Navigation buttons */}
+            <div className="onboarding-nav">
+                <button className="back-button" onClick={handleBackToHome}>
+                    Back to Home
+                </button>
+                <button className="logout-button" onClick={handleLogout}>
+                    Log Out
+                </button>
+            </div>
 
             <div className="signup-container">
                 {/* Header */}

@@ -19,10 +19,17 @@
   padding: 50px;
 }
 
-.back-button {
+.onboarding-nav {
   position: absolute;
   top: 30px;
   left: 30px;
+  right: 30px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 10;
+}
+
+.back-button {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
@@ -32,12 +39,28 @@
   font-size: 14px;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  z-index: 10;
 }
 
 .back-button:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.5);
+}
+
+.logout-button {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.logout-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.7);
 }
 
 .signup-header {
@@ -94,11 +117,16 @@
     font-size: 1rem;
   }
   
-  .back-button {
+  .onboarding-nav {
     top: 15px;
     left: 15px;
+    right: 15px;
+  }
+
+  .back-button,
+  .logout-button {
     font-size: 12px;
-    padding: 6px 12px;
+    padding: 8px 14px;
   }
 }
 
