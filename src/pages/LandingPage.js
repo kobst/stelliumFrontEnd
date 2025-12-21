@@ -7,7 +7,6 @@ import FourPillarsSection from '../UI/landingPage/FeatureCards';
 import ObjectionBusterSection from '../UI/landingPage/ObjectionBusterSection';
 import HowItWorksSection from '../UI/landingPage/HowItWorksSection';
 import FeatureGridSection from '../UI/landingPage/FeatureGridSection';
-import PricingSection from '../UI/landingPage/PricingSection';
 import CTABand from '../UI/landingPage/CTABand';
 
 const LandingPage = () => {
@@ -61,8 +60,7 @@ const LandingPage = () => {
       {/* Feature Grid */}
       {/* <FeatureGridSection /> */}
 
-      {/* Pricing */}
-      <PricingSection />
+      {/* Pricing - removed for now */}
 
       {/* CTA after pricing */}
       <CTABand showTitle={true} />
