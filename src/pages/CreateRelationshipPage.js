@@ -14,15 +14,18 @@ function CreateRelationshipPage() {
   const [error, setError] = useState(null);
   const [creating, setCreating] = useState(false);
 
-  const [selectedPersonA, setSelectedPersonA] = useState(null);
-  const [selectedPersonB, setSelectedPersonB] = useState(null);
+  // Person A is always the owner (stelliumUser)
+  // Person B is selected from guests
+  const [selectedPartner, setSelectedPartner] = useState(null);
 
   useEffect(() => {
     const fetchGuests = async () => {
       try {
         setLoading(true);
         const response = await getUserSubjects(userId);
-        setGuests(response || []);
+        // Filter out the owner's own chart - only show guest charts
+        const guestCharts = (response || []).filter(s => s.kind !== 'accountSelf');
+        setGuests(guestCharts);
       } catch (err) {
         console.error('Error fetching guests:', err);
         setError('Failed to load guest charts');
@@ -40,32 +43,21 @@ function CreateRelationshipPage() {
     navigate(`/dashboard/${userId}`);
   };
 
-  const handlePersonSelect = (person, slot) => {
-    if (slot === 'A') {
-      // If selecting the same person that's in B, clear B
-      if (selectedPersonB && selectedPersonB._id === person._id) {
-        setSelectedPersonB(null);
-      }
-      setSelectedPersonA(person);
-    } else {
-      // If selecting the same person that's in A, clear A
-      if (selectedPersonA && selectedPersonA._id === person._id) {
-        setSelectedPersonA(null);
-      }
-      setSelectedPersonB(person);
-    }
+  const handlePartnerSelect = (person) => {
+    setSelectedPartner(person);
   };
 
   const handleCreateRelationship = async () => {
-    if (!selectedPersonA || !selectedPersonB) return;
+    if (!stelliumUser || !selectedPartner) return;
 
     try {
       setCreating(true);
       setError(null);
 
+      // Person A = owner (stelliumUser), Person B = selected partner
       const response = await createRelationshipDirect(
-        selectedPersonA._id,
-        selectedPersonB._id,
+        stelliumUser._id,
+        selectedPartner._id,
         userId
       );
 
@@ -90,21 +82,6 @@ function CreateRelationshipPage() {
     return sun?.sign || null;
   };
 
-  const isPersonSelected = (person, slot) => {
-    if (slot === 'A') {
-      return selectedPersonA?._id === person._id;
-    }
-    return selectedPersonB?._id === person._id;
-  };
-
-  const isPersonDisabled = (person, slot) => {
-    // A person is disabled if they're already selected in the other slot
-    if (slot === 'A') {
-      return selectedPersonB?._id === person._id;
-    }
-    return selectedPersonA?._id === person._id;
-  };
-
   // Security check: Redirect if user tries to access a different user's data
   if (stelliumUser && userId !== stelliumUser._id) {
     return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
@@ -121,7 +98,7 @@ function CreateRelationshipPage() {
     );
   }
 
-  const hasEnoughGuests = guests.length >= 2;
+  const hasGuests = guests.length >= 1;
 
   return (
     <div className="create-relationship-page">
@@ -130,7 +107,7 @@ function CreateRelationshipPage() {
           ← Back to Dashboard
         </button>
         <h1>Create Relationship</h1>
-        <p className="header-subtitle">Select two people to analyze their compatibility</p>
+        <p className="header-subtitle">Analyze your compatibility with someone</p>
       </div>
 
       {error && (
@@ -139,42 +116,30 @@ function CreateRelationshipPage() {
         </div>
       )}
 
-      {!hasEnoughGuests ? (
+      {!hasGuests ? (
         <div className="not-enough-guests">
           <div className="not-enough-icon">♡</div>
-          <h3>Not Enough Charts</h3>
-          <p>You need at least 2 guest charts to create a relationship.</p>
-          <p className="not-enough-hint">Add more birth charts from the Birth Charts section.</p>
+          <h3>No Guest Charts</h3>
+          <p>You need at least 1 guest chart to create a relationship.</p>
+          <p className="not-enough-hint">Add a birth chart for someone from the Birth Charts section first.</p>
           <button className="back-to-dashboard-button" onClick={handleBackClick}>
             Back to Dashboard
           </button>
         </div>
       ) : (
         <div className="create-relationship-content">
-          {/* Person A Selection */}
+          {/* Your Chart (Person A - fixed) */}
           <div className="selection-section">
             <h2 className="selection-title">
-              <span className="selection-label">Person A</span>
-              {selectedPersonA && (
-                <span className="selected-name">{getPersonName(selectedPersonA)}</span>
-              )}
+              <span className="selection-label">You</span>
             </h2>
             <div className="person-grid">
-              {guests.map(guest => (
-                <div
-                  key={guest._id}
-                  className={`person-card ${isPersonSelected(guest, 'A') ? 'selected' : ''} ${isPersonDisabled(guest, 'A') ? 'disabled' : ''}`}
-                  onClick={() => !isPersonDisabled(guest, 'A') && handlePersonSelect(guest, 'A')}
-                >
-                  <div className="person-name">{getPersonName(guest)}</div>
-                  {getPersonSign(guest) && (
-                    <div className="person-sign">{getPersonSign(guest)} Sun</div>
-                  )}
-                  {isPersonSelected(guest, 'A') && (
-                    <div className="selected-badge">A</div>
-                  )}
-                </div>
-              ))}
+              <div className="person-card selected owner-card">
+                <div className="person-name">{getPersonName(stelliumUser)}</div>
+                {getPersonSign(stelliumUser) && (
+                  <div className="person-sign">{getPersonSign(stelliumUser)} Sun</div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -183,27 +148,24 @@ function CreateRelationshipPage() {
             <span className="connector-heart">♡</span>
           </div>
 
-          {/* Person B Selection */}
+          {/* Partner Selection (Person B) */}
           <div className="selection-section">
             <h2 className="selection-title">
-              <span className="selection-label">Person B</span>
-              {selectedPersonB && (
-                <span className="selected-name">{getPersonName(selectedPersonB)}</span>
+              <span className="selection-label">Select Partner</span>
+              {selectedPartner && (
+                <span className="selected-name">{getPersonName(selectedPartner)}</span>
               )}
             </h2>
             <div className="person-grid">
               {guests.map(guest => (
                 <div
                   key={guest._id}
-                  className={`person-card ${isPersonSelected(guest, 'B') ? 'selected' : ''} ${isPersonDisabled(guest, 'B') ? 'disabled' : ''}`}
-                  onClick={() => !isPersonDisabled(guest, 'B') && handlePersonSelect(guest, 'B')}
+                  className={`person-card ${selectedPartner?._id === guest._id ? 'selected' : ''}`}
+                  onClick={() => handlePartnerSelect(guest)}
                 >
                   <div className="person-name">{getPersonName(guest)}</div>
                   {getPersonSign(guest) && (
                     <div className="person-sign">{getPersonSign(guest)} Sun</div>
-                  )}
-                  {isPersonSelected(guest, 'B') && (
-                    <div className="selected-badge">B</div>
                   )}
                 </div>
               ))}
@@ -215,7 +177,7 @@ function CreateRelationshipPage() {
             <button
               className="create-relationship-button"
               onClick={handleCreateRelationship}
-              disabled={!selectedPersonA || !selectedPersonB || creating}
+              disabled={!selectedPartner || creating}
             >
               {creating ? (
                 <>
@@ -226,9 +188,9 @@ function CreateRelationshipPage() {
                 'Create Relationship'
               )}
             </button>
-            {selectedPersonA && selectedPersonB && (
+            {selectedPartner && (
               <p className="create-preview">
-                {getPersonName(selectedPersonA)} ♡ {getPersonName(selectedPersonB)}
+                {getPersonName(stelliumUser)} ♡ {getPersonName(selectedPartner)}
               </p>
             )}
           </div>
