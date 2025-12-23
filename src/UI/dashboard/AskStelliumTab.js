@@ -76,6 +76,29 @@ function AskStelliumTab({ userId, transitWindows = [] }) {
     });
   };
 
+  // Format transit date range with exact date
+  const formatTransitDateRange = (transit) => {
+    const start = formatDate(transit.start);
+    const end = formatDate(transit.end);
+    const exact = formatDate(transit.exact);
+
+    if (!start && !end) {
+      return exact || '';
+    }
+
+    // If start and end are the same day, just show that date
+    if (start === end) {
+      return start;
+    }
+
+    // Show range with exact date if available
+    if (exact && exact !== start && exact !== end) {
+      return `${start} - ${end} (exact: ${exact})`;
+    }
+
+    return `${start} - ${end}`;
+  };
+
   // Get transit description
   const getTransitDescription = (transit) => {
     if (transit.description) return transit.description;
@@ -233,7 +256,7 @@ function AskStelliumTab({ userId, transitWindows = [] }) {
                   {getTransitDescription(transit)}
                 </span>
                 <span className="transit-date">
-                  {formatDate(transit.exact || transit.start)}
+                  {formatTransitDateRange(transit)}
                 </span>
               </div>
             ))}
