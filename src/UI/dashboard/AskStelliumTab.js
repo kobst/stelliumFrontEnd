@@ -2,6 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { generateCustomHoroscope } from '../../Utilities/api';
 import './AskStelliumTab.css';
 
+// Planet order for sorting (inner to outer)
+const PLANET_ORDER = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+
 function AskStelliumTab({ userId, transitWindows = [] }) {
   const [query, setQuery] = useState('');
   const [selectedTransits, setSelectedTransits] = useState(new Set());
@@ -9,6 +12,7 @@ function AskStelliumTab({ userId, transitWindows = [] }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activePeriod, setActivePeriod] = useState('weekly');
+  const [transitTypeFilter, setTransitTypeFilter] = useState('all'); // 'all', 'transit-to-natal', 'transit-to-transit'
 
   // Date range helpers
   const getTodayRange = () => {
@@ -40,7 +44,7 @@ function AskStelliumTab({ userId, transitWindows = [] }) {
     return { start: startOfMonth, end: endOfMonth };
   };
 
-  // Filter transits based on active period
+  // Filter transits based on active period and type filter
   const filteredTransits = useMemo(() => {
     if (!transitWindows || transitWindows.length === 0) return [];
 
@@ -59,12 +63,35 @@ function AskStelliumTab({ userId, transitWindows = [] }) {
         dateRange = getCurrentWeekRange();
     }
 
-    return transitWindows.filter(transit => {
-      const transitStart = new Date(transit.start);
-      const transitEnd = new Date(transit.end);
-      return (transitStart <= dateRange.end && transitEnd >= dateRange.start);
-    }).sort((a, b) => new Date(a.start) - new Date(b.start));
-  }, [transitWindows, activePeriod]);
+    return transitWindows
+      .filter(transit => {
+        // Date range filter
+        const transitStart = new Date(transit.start);
+        const transitEnd = new Date(transit.end);
+        const inDateRange = (transitStart <= dateRange.end && transitEnd >= dateRange.start);
+
+        // Type filter
+        const matchesType = transitTypeFilter === 'all' || transit.type === transitTypeFilter;
+
+        return inDateRange && matchesType;
+      })
+      .sort((a, b) => {
+        // Sort by planet order (inner to outer)
+        const planetIndexA = PLANET_ORDER.indexOf(a.transitingPlanet);
+        const planetIndexB = PLANET_ORDER.indexOf(b.transitingPlanet);
+
+        // If same planet, sort by start date
+        if (planetIndexA === planetIndexB) {
+          return new Date(a.start) - new Date(b.start);
+        }
+
+        // Unknown planets go to the end
+        if (planetIndexA === -1) return 1;
+        if (planetIndexB === -1) return -1;
+
+        return planetIndexA - planetIndexB;
+      });
+  }, [transitWindows, activePeriod, transitTypeFilter]);
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -232,6 +259,43 @@ function AskStelliumTab({ userId, transitWindows = [] }) {
               {period.charAt(0).toUpperCase() + period.slice(1)}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Transit Type Filter */}
+      <div className="ask-stellium-type-filter">
+        <span className="period-label">Transit Type:</span>
+        <div className="period-buttons">
+          <button
+            className={`period-button ${transitTypeFilter === 'all' ? 'active' : ''}`}
+            onClick={() => {
+              setTransitTypeFilter('all');
+              setSelectedTransits(new Set());
+            }}
+            disabled={loading}
+          >
+            All
+          </button>
+          <button
+            className={`period-button ${transitTypeFilter === 'transit-to-natal' ? 'active' : ''}`}
+            onClick={() => {
+              setTransitTypeFilter('transit-to-natal');
+              setSelectedTransits(new Set());
+            }}
+            disabled={loading}
+          >
+            To Natal
+          </button>
+          <button
+            className={`period-button ${transitTypeFilter === 'transit-to-transit' ? 'active' : ''}`}
+            onClick={() => {
+              setTransitTypeFilter('transit-to-transit');
+              setSelectedTransits(new Set());
+            }}
+            disabled={loading}
+          >
+            In Sky
+          </button>
         </div>
       </div>
 
