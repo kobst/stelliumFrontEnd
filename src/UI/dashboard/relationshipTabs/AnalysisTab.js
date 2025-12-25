@@ -41,16 +41,22 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
 
     const poll = async () => {
       try {
-        const status = await getRelationshipWorkflowStatus(compositeId);
-        setAnalysisStatus(status);
+        const response = await getRelationshipWorkflowStatus(compositeId);
+        setAnalysisStatus(response);
 
-        if (status?.completed || status?.status === 'completed' || status?.status === 'completed_with_failures') {
+        // Check workflow status - API returns status at response.status and response.completed
+        const workflowStatus = response?.status;
+        const isComplete = response?.completed === true;
+
+        if (isComplete || workflowStatus === 'completed' || workflowStatus === 'completed_with_failures') {
+          console.log('Workflow completed, stopping polling and refreshing data');
           clearInterval(pollingRef.current);
           pollingRef.current = null;
           if (onAnalysisComplete) {
             onAnalysisComplete();
           }
-        } else if (status?.status === 'failed') {
+        } else if (workflowStatus === 'failed' || workflowStatus === 'error' || workflowStatus === 'unknown') {
+          console.log('Workflow failed/error, stopping polling');
           clearInterval(pollingRef.current);
           pollingRef.current = null;
         }

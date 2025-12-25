@@ -25,12 +25,18 @@ function RelationshipAnalysisPage() {
   const loadRelationship = useCallback(async () => {
     try {
       setLoading(true);
+      console.log('📥 Loading relationship data for compositeId:', compositeId);
       const composites = await getUserCompositeCharts(userId);
       const found = composites?.find(c => c._id === compositeId);
       if (found) {
         // Try to fetch full analysis data
         try {
           const analysisData = await fetchRelationshipAnalysis(compositeId);
+          console.log('📊 Fetched analysis data:', {
+            hasCompleteAnalysis: !!analysisData?.completeAnalysis,
+            completeAnalysisKeys: analysisData?.completeAnalysis ? Object.keys(analysisData.completeAnalysis) : [],
+            hasClusterScoring: !!analysisData?.clusterScoring
+          });
           if (analysisData) {
             // Merge analysis data with relationship
             setRelationship({
@@ -63,6 +69,7 @@ function RelationshipAnalysisPage() {
 
   // Callback for when analysis completes - reload the data
   const handleAnalysisComplete = useCallback(() => {
+    console.log('🎉 Analysis complete callback triggered - reloading relationship data');
     loadRelationship();
   }, [loadRelationship]);
 

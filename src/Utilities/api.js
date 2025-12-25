@@ -468,9 +468,8 @@ export const createCompositeChartProfile = async (userAId, userBId, userAName, u
 export const fetchRelationshipAnalysis = async (compositeChartId) => {
   console.log("compositeChartId: ", compositeChartId)
   try {
-    const response = await fetch(`${SERVER_URL}/fetchRelationshipAnalysis`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/fetchRelationshipAnalysis`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({compositeChartId})
     });
     const responseData = await response.json();
@@ -1198,19 +1197,18 @@ export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChart
     
     console.log("📤 RELATIONSHIP REQUEST BODY:", JSON.stringify(requestBody));
     console.log("📍 RELATIONSHIP REQUEST URL:", `${SERVER_URL}/workflow/relationship/start`);
-    
-    const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
+
+    const response = await authenticatedFetch(`${SERVER_URL}/workflow/relationship/start`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Start relationship workflow error response:", errorText);
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
-    
+
     const responseData = await response.json();
     console.log("Relationship workflow started:", responseData);
     return responseData;
@@ -1223,18 +1221,17 @@ export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChart
 export const getRelationshipWorkflowStatus = async (compositeChartId) => {
   console.log("Getting relationship workflow status for:", compositeChartId);
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/relationship/status`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/workflow/relationship/status`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ compositeChartId })
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Status check error response:", errorText);
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
-    
+
     const responseData = await response.json();
     console.log("📊 RELATIONSHIP WORKFLOW STATUS:", JSON.stringify(responseData, null, 2));
     return responseData;
@@ -1247,18 +1244,17 @@ export const getRelationshipWorkflowStatus = async (compositeChartId) => {
 export const resumeRelationshipWorkflow = async (compositeChartId) => {
   console.log("🔄 Resuming relationship workflow for:", compositeChartId);
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/relationship/resume`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/workflow/relationship/resume`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ compositeChartId })
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Resume relationship workflow error:", errorText);
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
-    
+
     const responseData = await response.json();
     console.log("📥 RELATIONSHIP WORKFLOW RESUMED:", JSON.stringify(responseData, null, 2));
     return responseData;
@@ -1278,18 +1274,17 @@ export const startFullRelationshipAnalysis = async (compositeChartId) => {
   const requestBody = { compositeChartId, immediate: true };
   console.log("🚀 Request body:", requestBody);
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/workflow/relationship/start`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Start full relationship analysis error:", errorText);
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
-    
+
     const responseData = await response.json();
     console.log("📊 FULL RELATIONSHIP ANALYSIS STARTED:", JSON.stringify(responseData, null, 2));
     return responseData;
@@ -1303,18 +1298,17 @@ export const startFullRelationshipAnalysis = async (compositeChartId) => {
 export const createRelationshipWithFullAnalysis = async (userIdA, userIdB) => {
   console.log("🔥 Creating relationship with full analysis:", { userIdA, userIdB });
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/relationship/start`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/workflow/relationship/start`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ userIdA, userIdB, immediate: true })
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Create relationship with full analysis error:", errorText);
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
-    
+
     const responseData = await response.json();
     console.log("📊 RELATIONSHIP WITH FULL ANALYSIS STARTED:", JSON.stringify(responseData, null, 2));
     return responseData;
@@ -1732,11 +1726,8 @@ export const getUserSubjectsPaginated = async (ownerUserId, options = {}) => {
 
 export const getUserCompositeCharts = async (ownerUserId) => {
   try {
-    const response = await fetch(`${SERVER_URL}/getUserCompositeCharts`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/getUserCompositeCharts`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify({ ownerUserId })
     });
 

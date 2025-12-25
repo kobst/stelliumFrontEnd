@@ -361,6 +361,179 @@
   margin-top: 12px !important;
 }
 
+/* Tab Description */
+.tab-description {
+  margin-bottom: 20px;
+}
+
+.tab-description h3 {
+  color: #ec4899;
+  font-size: 1.1rem;
+  margin: 0 0 8px 0;
+}
+
+.tab-description p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Synastry Tab Content */
+.synastry-tab-content,
+.composite-tab-content {
+  padding: 0;
+}
+
+.synastry-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Synastry Aspects Container */
+.synastry-aspects-container {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.synastry-header {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1fr 0.5fr;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(139, 92, 246, 0.1);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.synastry-person-label,
+.synastry-aspect-label,
+.synastry-orb-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.synastry-aspect-label {
+  text-align: center;
+}
+
+.synastry-orb-label {
+  text-align: right;
+}
+
+.synastry-aspects-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.synastry-aspect-row {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1fr 0.5fr;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
+}
+
+.synastry-aspect-row:hover {
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.synastry-aspect-row:last-child {
+  border-bottom: none;
+}
+
+/* Aspect color variants */
+.synastry-aspect-row.aspect-harmonious {
+  border-left: 3px solid #4ade80;
+}
+
+.synastry-aspect-row.aspect-challenging {
+  border-left: 3px solid #f87171;
+}
+
+.synastry-aspect-row.aspect-conjunction {
+  border-left: 3px solid #60a5fa;
+}
+
+.synastry-planet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.synastry-planet .planet-symbol {
+  font-size: 1.2rem;
+  min-width: 24px;
+  text-align: center;
+}
+
+.synastry-planet .planet-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+}
+
+.synastry-aspect-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.synastry-orb {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+}
+
+/* Composite Tab Content Override */
+.composite-tab-content .birth-chart {
+  background: transparent;
+}
+
+.composite-tab-content .birth-chart h3 {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+.composite-tab-content .table-container,
+.composite-tab-content .aspects-container,
+.composite-tab-content .house-position-container,
+.composite-tab-content .ephemeris-container {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+/* Responsive for Charts Tab */
+@media (max-width: 600px) {
+  .synastry-header,
+  .synastry-aspect-row {
+    grid-template-columns: 1fr 0.6fr 1fr 0.4fr;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .synastry-planet .planet-name {
+    font-size: 0.75rem;
+  }
+
+  .synastry-aspect-type {
+    font-size: 0.75rem;
+  }
+}
+
 /* ============================================
    ANALYSIS TAB
    ============================================ */
