@@ -616,9 +616,8 @@ export const getPlanetOverview = async (planetName, birthData) => {
 export const fetchAnalysis = async (userId) => {
   console.log("userId: ", userId)
   try {
-    const response = await fetch(`${SERVER_URL}/fetchAnalysis`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/fetchAnalysis`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({userId})
     });
     const responseData = await response.json();
@@ -1807,11 +1806,8 @@ export const createGuestWithOverview = createGuestSubject;
 export const startFullAnalysis = async (userId) => {
   try {
     console.log('Starting full analysis for userId:', userId);
-    const response = await fetch(`${SERVER_URL}/analysis/start-full`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/analysis/start-full`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify({ userId })
     });
 
@@ -1837,11 +1833,8 @@ export const checkFullAnalysisStatus = async (userId, workflowId = null) => {
       requestBody.workflowId = workflowId;
     }
 
-    const response = await fetch(`${SERVER_URL}/analysis/full-status`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/analysis/full-status`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify(requestBody)
     });
 
@@ -1867,11 +1860,8 @@ export const getNewCompleteWorkflowData = async (userId, workflowId = null) => {
       requestBody.workflowId = workflowId;
     }
 
-    const response = await fetch(`${SERVER_URL}/analysis/complete-data`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/analysis/complete-data`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify(requestBody)
     });
 

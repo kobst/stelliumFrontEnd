@@ -5,13 +5,13 @@ import {
   getUserSubjects,
   fetchAnalysis,
   startFullAnalysis,
-  checkFullAnalysisStatus,
-  getNewCompleteWorkflowData
+  checkFullAnalysisStatus
 } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import TabMenu from '../UI/shared/TabMenu';
 import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
+import ChartTab from '../UI/dashboard/chartTabs/ChartTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
@@ -120,7 +120,8 @@ function ChartDetailPage() {
           clearInterval(pollingIntervalRef.current);
           pollingIntervalRef.current = null;
 
-          const completeData = await getNewCompleteWorkflowData(chartId, wfId);
+          // Use fetchAnalysis to get the completed analysis data
+          const completeData = await fetchAnalysis(chartId);
           if (completeData) {
             setAnalysisData(completeData);
           }
@@ -238,8 +239,17 @@ function ChartDetailPage() {
       )
     },
     {
+      id: 'chart',
+      label: 'Chart',
+      content: (
+        <ChartTab
+          birthChart={birthChart}
+        />
+      )
+    },
+    {
       id: 'dominance',
-      label: 'Dominance & Patterns',
+      label: 'Patterns & Dominance',
       content: canAccessPremiumTabs ? (
         <DominancePatternsTab
           birthChart={birthChart}

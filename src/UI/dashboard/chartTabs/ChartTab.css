@@ -1,0 +1,50 @@
+.chart-tab {
+  padding: 20px;
+}
+
+.chart-tab-empty {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px dashed rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+}
+
+.chart-tab-empty p {
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+/* Override BirthChartSummaryTable styles for dark theme */
+.chart-tab .birth-chart {
+  background: transparent;
+}
+
+.chart-tab .birth-chart h3 {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+.chart-tab .table-container,
+.chart-tab .aspects-container,
+.chart-tab .house-position-container {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.chart-tab .ephemeris-container {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+@media (max-width: 768px) {
+  .chart-tab {
+    padding: 12px;
+  }
+}
