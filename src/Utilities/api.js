@@ -1757,6 +1757,34 @@ export const startFullAnalysis = async (userId) => {
   }
 };
 
+// Admin endpoint for starting full analysis for celebrities (no auth required)
+export const startFullAnalysisAdmin = async (userId) => {
+  try {
+    console.log('Starting admin full analysis for celebrity userId:', userId);
+    const response = await fetch(`${getServerUrl()}/admin/analysis/start-full`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify({ userId })
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      // Return the error response data for better error handling
+      console.error('Admin full analysis error:', responseData);
+      return responseData;
+    }
+
+    console.log('Admin full analysis start response:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error starting admin full analysis:', error);
+    throw error;
+  }
+};
+
 // Check full analysis status with progress tracking
 export const checkFullAnalysisStatus = async (userId, workflowId = null) => {
   try {
@@ -1783,6 +1811,38 @@ export const checkFullAnalysisStatus = async (userId, workflowId = null) => {
     return responseData;
   } catch (error) {
     console.error('Error checking full analysis status:', error);
+    throw error;
+  }
+};
+
+// Admin endpoint for checking full analysis status for celebrities (no auth required)
+export const checkFullAnalysisStatusAdmin = async (userId, workflowId = null) => {
+  try {
+    console.log('Checking admin full analysis status for celebrity userId:', userId, 'workflowId:', workflowId);
+    const requestBody = { userId };
+    if (workflowId) {
+      requestBody.workflowId = workflowId;
+    }
+
+    const response = await fetch(`${getServerUrl()}/admin/analysis/full-status`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      console.error('Admin full analysis status error:', responseData);
+      return responseData;
+    }
+
+    console.log('Admin full analysis status response:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error checking admin full analysis status:', error);
     throw error;
   }
 };

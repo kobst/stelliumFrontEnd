@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Autocomplete from 'react-google-autocomplete';
-import { fetchTimeZone } from '../../Utilities/api';
+import { fetchTimeZone, uploadProfilePhotoDirect } from '../../Utilities/api';
 import useSubjectCreation from '../../hooks/useSubjectCreation';
 import '../landingPage/UserSignUpForm.css';
 
@@ -37,6 +37,12 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
     const [successMessage, setSuccessMessage] = useState('');
     const [workflowStatus, setWorkflowStatus] = useState(null);
 
+    // Profile photo state
+    const [photoFile, setPhotoFile] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(null);
+    const [photoUploading, setPhotoUploading] = useState(false);
+    const [photoError, setPhotoError] = useState(null);
+
     const validateForm = () => {
       const errors = {};
       if (!firstName.trim()) errors.firstName = "First name is required";
@@ -46,6 +52,49 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
       if (!lat || !lon) errors.location = "Location is required";
       if (!gender) errors.gender = "Gender/Sex is required";
       return errors;
+    };
+
+    // Photo validation constants
+    const VALID_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const MAX_PHOTO_SIZE_MB = 5;
+    const MAX_PHOTO_SIZE_BYTES = MAX_PHOTO_SIZE_MB * 1024 * 1024;
+
+    const handlePhotoSelect = (e) => {
+      const selectedFile = e.target.files?.[0];
+      if (!selectedFile) return;
+
+      setPhotoError(null);
+
+      // Validate file type
+      if (!VALID_PHOTO_TYPES.includes(selectedFile.type)) {
+        setPhotoError('Please upload a JPEG, PNG, GIF, or WebP image');
+        setPhotoFile(null);
+        setPhotoPreview(null);
+        return;
+      }
+
+      // Validate file size
+      if (selectedFile.size > MAX_PHOTO_SIZE_BYTES) {
+        setPhotoError(`File size must be less than ${MAX_PHOTO_SIZE_MB}MB`);
+        setPhotoFile(null);
+        setPhotoPreview(null);
+        return;
+      }
+
+      setPhotoFile(selectedFile);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    };
+
+    const clearPhoto = () => {
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      setPhotoError(null);
     };
 
 
@@ -86,10 +135,27 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
         const result = await createCelebrity(celebrityData);
         
         if (result.success) {
+          const celebId = result.userId || result.celeb?._id;
+
+          // Upload photo if one was selected
+          if (photoFile && celebId) {
+            setPhotoUploading(true);
+            try {
+              console.log('Uploading profile photo for celebrity:', celebId);
+              await uploadProfilePhotoDirect(celebId, photoFile);
+              console.log('Profile photo uploaded successfully');
+            } catch (photoErr) {
+              console.error('Error uploading profile photo:', photoErr);
+              setPhotoError('Celebrity created but photo upload failed. You can add the photo later.');
+            } finally {
+              setPhotoUploading(false);
+            }
+          }
+
           // Show success message
           setSuccessMessage(`${firstName} ${lastName} has been added successfully!`);
           setWorkflowStatus('completed');
-          
+
           // Clear form
           setFirstName('');
           setLastName('');
@@ -100,7 +166,8 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
           setPlaceOfBirth('');
           setGender('');
           setUnknownTime(false);
-          
+          clearPhoto();
+
           // Notify parent component to refresh celebrity table
           if (onCelebrityAdded) {
             onCelebrityAdded();
@@ -301,35 +368,113 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
             </select>
           </div>
 
+          {/* Profile Photo Upload */}
+          <div style={{ ...formGroupStyle, alignItems: 'flex-start' }}>
+            <label style={labelStyle}>Profile Photo</label>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                {/* Photo Preview */}
+                {photoPreview && (
+                  <div style={{ position: 'relative' }}>
+                    <img
+                      src={photoPreview}
+                      alt="Preview"
+                      style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        border: '2px solid white'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={clearPhoto}
+                      disabled={loading || photoUploading}
+                      style={{
+                        position: 'absolute',
+                        top: '-5px',
+                        right: '-5px',
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        backgroundColor: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+                {/* File Input */}
+                <div>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    onChange={handlePhotoSelect}
+                    disabled={loading || photoUploading}
+                    style={{
+                      padding: '5px',
+                      border: '1px solid white',
+                      borderRadius: '3px',
+                      backgroundColor: 'transparent',
+                      color: 'white',
+                      fontSize: '12px',
+                      cursor: loading || photoUploading ? 'not-allowed' : 'pointer'
+                    }}
+                  />
+                  <p style={{ color: '#888', fontSize: '11px', marginTop: '5px', marginBottom: 0 }}>
+                    Optional. JPEG, PNG, GIF, WebP (max 5MB)
+                  </p>
+                </div>
+              </div>
+              {photoError && (
+                <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '5px', marginBottom: 0 }}>
+                  {photoError}
+                </p>
+              )}
+            </div>
+          </div>
+
           <div style={formGroupStyle}>
-            <input 
-              className="email-submit-btn" 
-              type="submit" 
-              value={loading ? "Adding..." : "Add Celebrity"}
-              style={{ 
-                ...inputStyle, 
-                width: 'auto', 
-                cursor: loading ? 'not-allowed' : 'pointer', 
-                backgroundColor: loading ? '#ccc' : 'white', 
-                color: 'black', 
+            <input
+              className="email-submit-btn"
+              type="submit"
+              value={loading ? "Adding..." : photoUploading ? "Uploading Photo..." : "Add Celebrity"}
+              style={{
+                ...inputStyle,
+                width: 'auto',
+                cursor: (loading || photoUploading) ? 'not-allowed' : 'pointer',
+                backgroundColor: (loading || photoUploading) ? '#ccc' : 'white',
+                color: 'black',
                 fontWeight: 'bold',
-                opacity: loading ? 0.6 : 1
+                opacity: (loading || photoUploading) ? 0.6 : 1
               }}
-              disabled={loading}
+              disabled={loading || photoUploading}
             />
           </div>
         </form>
         
         {/* Loading Status Display */}
-        {loading && (
-          <div style={{ 
-            backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-            padding: '15px', 
-            borderRadius: '6px', 
+        {(loading || photoUploading) && (
+          <div style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            padding: '15px',
+            borderRadius: '6px',
             margin: '15px 0',
             textAlign: 'center'
           }}>
-            <p style={{ color: 'white', margin: '0' }}>Creating celebrity profile and generating overview...</p>
+            <p style={{ color: 'white', margin: '0' }}>
+              {photoUploading
+                ? 'Uploading profile photo...'
+                : 'Creating celebrity profile and generating overview...'}
+            </p>
           </div>
         )}
         

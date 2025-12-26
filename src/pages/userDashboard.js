@@ -69,7 +69,9 @@ function UserDashboard() {
   // New workflow system hook
   const {
     startFullAnalysisWorkflow,
+    startFullAnalysisWorkflowAdmin,
     startFullAnalysisPolling,
+    startFullAnalysisPollingAdmin,
     fullAnalysisLoading,
     fullAnalysisProgress,
     isFullAnalysisCompleted,
@@ -77,9 +79,13 @@ function UserDashboard() {
     resetFullAnalysisState
   } = useSubjectCreation();
 
+  // Check if current subject is a celebrity
+  const isCelebrity = selectedUser?.kind === 'celebrity';
+
   const [isDataPopulated, setIsDataPopulated] = useState(false);
   const [workflowStarted, setWorkflowStarted] = useState(false);
-  
+  const [showRawData, setShowRawData] = useState(false);
+
   // Debug subtopic astro data button state
   const [isDebugLoading, setIsDebugLoading] = useState(false);
   const [basicAnalysis, setBasicAnalysis] = useState({
@@ -350,25 +356,30 @@ function UserDashboard() {
       console.error('Cannot start full analysis: userId is missing');
       return;
     }
-    
-    console.log('Starting full analysis workflow with userId:', userId);
-    
+
+    console.log('Starting full analysis workflow with userId:', userId, 'isCelebrity:', isCelebrity);
+
     try {
       // Set workflow started flag to prevent button reappearing
       setWorkflowStarted(true);
-      
-      // Start the full analysis workflow
-      const response = await startFullAnalysisWorkflow(userId);
+
+      // Use admin endpoint for celebrities (no auth required)
+      // Use regular endpoint for other subject types
+      const response = isCelebrity
+        ? await startFullAnalysisWorkflowAdmin(userId)
+        : await startFullAnalysisWorkflow(userId);
       console.log('Full analysis started:', response);
-      
+
       // Start polling for progress updates without blocking
-      const pollInterval = startFullAnalysisPolling(
+      // Use admin polling for celebrities (no auth required)
+      const pollingFn = isCelebrity ? startFullAnalysisPollingAdmin : startFullAnalysisPolling;
+      const pollInterval = pollingFn(
         userId,
         response.workflowId,
         3000, // Poll every 3 seconds for faster updates
         async (progressData) => {
           console.log('Full analysis progress:', progressData);
-          
+
           // Check if completed and refresh data
           if (progressData.completed) {
             console.log('Full analysis completed! Refreshing data...');
@@ -830,7 +841,133 @@ function UserDashboard() {
       {fetchError && (
         <div className="status-banner error">Error: {fetchError}</div>
       )}
-   
+
+      {/* Debug Raw Data View */}
+      <div style={{ margin: '10px 20px' }}>
+        <button
+          onClick={() => setShowRawData(!showRawData)}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: showRawData ? '#ef4444' : '#6b7280',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 'bold'
+          }}
+        >
+          {showRawData ? 'Hide Raw Data' : 'Show Raw Data (Debug)'}
+        </button>
+        {isCelebrity && (
+          <span style={{ marginLeft: '10px', color: '#a78bfa', fontSize: '12px' }}>
+            ⭐ Celebrity Profile
+          </span>
+        )}
+      </div>
+
+      {showRawData && (
+        <div style={{ margin: '10px 20px' }}>
+          <div style={{
+            background: '#1a1a2e',
+            border: '1px solid #374151',
+            borderRadius: '8px',
+            padding: '20px',
+            maxHeight: '70vh',
+            overflow: 'auto'
+          }}>
+            <h3 style={{ color: '#a78bfa', marginTop: 0, marginBottom: '15px' }}>
+              Raw Analysis Data
+            </h3>
+
+            {/* Summary Stats */}
+            <div style={{ marginBottom: '20px', padding: '10px', background: '#252540', borderRadius: '4px' }}>
+              <h4 style={{ color: '#60a5fa', margin: '0 0 10px 0' }}>Summary</h4>
+              <div style={{ color: '#d1d5db', fontSize: '13px' }}>
+                <div>• Overview: {basicAnalysis?.overview ? `${basicAnalysis.overview.length} chars` : 'Missing'}</div>
+                <div>• Planets interpreted: {basicAnalysis?.planets ? Object.keys(basicAnalysis.planets).length : 0}</div>
+                <div>• Dominance sections: {basicAnalysis?.dominance ? Object.keys(basicAnalysis.dominance).filter(k => basicAnalysis.dominance[k]?.interpretation).length : 0}/5</div>
+                <div>• Broad categories: {broadCategoryAnalyses ? Object.keys(broadCategoryAnalyses).length : 0}</div>
+                <div>• Birth chart planets: {selectedUser?.birthChart?.planets?.length || 0}</div>
+                <div>• Birth chart aspects: {selectedUser?.birthChart?.aspects?.length || 0}</div>
+              </div>
+            </div>
+
+            {/* Basic Analysis */}
+            <details style={{ marginBottom: '15px' }}>
+              <summary style={{ color: '#60a5fa', cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px' }}>
+                basicAnalysis
+              </summary>
+              <pre style={{
+                color: '#e5e7eb',
+                fontSize: '11px',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                margin: 0
+              }}>
+                {JSON.stringify(basicAnalysis, null, 2)}
+              </pre>
+            </details>
+
+            {/* Broad Category Analyses */}
+            <details style={{ marginBottom: '15px' }}>
+              <summary style={{ color: '#60a5fa', cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px' }}>
+                broadCategoryAnalyses ({broadCategoryAnalyses ? Object.keys(broadCategoryAnalyses).length : 0} categories)
+              </summary>
+              <pre style={{
+                color: '#e5e7eb',
+                fontSize: '11px',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                margin: 0
+              }}>
+                {JSON.stringify(broadCategoryAnalyses, null, 2)}
+              </pre>
+            </details>
+
+            {/* Selected User / Birth Chart */}
+            <details style={{ marginBottom: '15px' }}>
+              <summary style={{ color: '#60a5fa', cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px' }}>
+                selectedUser (birth chart data)
+              </summary>
+              <pre style={{
+                color: '#e5e7eb',
+                fontSize: '11px',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                margin: 0
+              }}>
+                {JSON.stringify(selectedUser, null, 2)}
+              </pre>
+            </details>
+
+            {/* Workflow Status */}
+            <details>
+              <summary style={{ color: '#60a5fa', cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px' }}>
+                Workflow State
+              </summary>
+              <pre style={{
+                color: '#e5e7eb',
+                fontSize: '11px',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                margin: 0
+              }}>
+                {JSON.stringify({
+                  userId,
+                  isCelebrity,
+                  workflowStarted,
+                  fullAnalysisLoading,
+                  fullAnalysisProgress,
+                  isFullAnalysisCompleted,
+                  isDataPopulated
+                }, null, 2)}
+              </pre>
+            </details>
+          </div>
+        </div>
+      )}
+
       <UserBirthChartContainer
         selectedUser={selectedUser}
         isDataPopulated={isDataPopulated}

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  createUserWithOverview, 
-  createCelebrityWithOverview, 
+import {
+  createUserWithOverview,
+  createCelebrityWithOverview,
   createGuestWithOverview,
   checkUserCreationStatus,
   checkCelebrityCreationStatus,
@@ -9,7 +9,9 @@ import {
   getCompleteWorkflowData,
   getNewCompleteWorkflowData,
   startFullAnalysis,
-  checkFullAnalysisStatus
+  startFullAnalysisAdmin,
+  checkFullAnalysisStatus,
+  checkFullAnalysisStatusAdmin
 } from '../Utilities/api';
 
 const useSubjectCreation = () => {
@@ -235,10 +237,10 @@ const useSubjectCreation = () => {
     setFullAnalysisWorkflowId(null);
     setFullAnalysisStatus(null);
     setFullAnalysisProgress(null);
-    
+
     try {
       const response = await startFullAnalysis(userId);
-      
+
       if (response.success) {
         setFullAnalysisWorkflowId(response.workflowId);
         setFullAnalysisStatus(response);
@@ -248,6 +250,33 @@ const useSubjectCreation = () => {
       }
     } catch (err) {
       setError(err.message || 'Failed to start full analysis');
+      throw err;
+    } finally {
+      setFullAnalysisLoading(false);
+    }
+  }, []);
+
+  // Start full analysis for celebrities via admin endpoint (no auth required)
+  const startFullAnalysisWorkflowAdmin = useCallback(async (userId) => {
+    setFullAnalysisLoading(true);
+    setError(null);
+    setFullAnalysisWorkflowId(null);
+    setFullAnalysisStatus(null);
+    setFullAnalysisProgress(null);
+
+    try {
+      const response = await startFullAnalysisAdmin(userId);
+
+      if (response.success) {
+        setFullAnalysisWorkflowId(response.workflowId);
+        setFullAnalysisStatus(response);
+        return response;
+      } else {
+        // Admin endpoint returns structured error responses
+        throw new Error(response.error || 'Failed to start celebrity analysis');
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to start celebrity analysis');
       throw err;
     } finally {
       setFullAnalysisLoading(false);
@@ -264,6 +293,20 @@ const useSubjectCreation = () => {
       return response;
     } catch (err) {
       console.error('Failed to check full analysis status:', err);
+      throw err;
+    }
+  }, []);
+
+  // Check full analysis status for celebrities via admin endpoint (no auth required)
+  const checkFullAnalysisWorkflowStatusAdmin = useCallback(async (userId, workflowId = null) => {
+    console.log(`🔍 Checking admin full analysis status - userId: ${userId}, workflowId: ${workflowId}`);
+    try {
+      const response = await checkFullAnalysisStatusAdmin(userId, workflowId);
+      setFullAnalysisStatus(response);
+      setFullAnalysisProgress(response.progress);
+      return response;
+    } catch (err) {
+      console.error('Failed to check admin full analysis status:', err);
       throw err;
     }
   }, []);
@@ -308,22 +351,22 @@ const useSubjectCreation = () => {
   // Start full analysis polling with progress updates
   const startFullAnalysisPolling = useCallback((userId, workflowId = null, intervalMs = 5000, onProgress = null) => {
     console.log('Starting full analysis polling for userId:', userId, 'workflowId:', workflowId);
-    
+
     const interval = setInterval(async () => {
       try {
         const statusResponse = await checkFullAnalysisWorkflowStatus(userId, workflowId);
-        
+
         // Call progress callback if provided
         if (onProgress) {
           onProgress(statusResponse);
         }
-        
+
         if (statusResponse.completed) {
           console.log('Full analysis workflow completed!');
           clearInterval(interval);
           return statusResponse;
         }
-        
+
         // Check for failure
         if (statusResponse.stepFunctionStatus === 'FAILED') {
           console.log('Full analysis workflow failed!');
@@ -339,6 +382,41 @@ const useSubjectCreation = () => {
 
     return interval;
   }, [checkFullAnalysisWorkflowStatus]);
+
+  // Start polling for celebrity full analysis status via admin endpoint (no auth required)
+  const startFullAnalysisPollingAdmin = useCallback((userId, workflowId = null, intervalMs = 5000, onProgress = null) => {
+    console.log('Starting admin full analysis polling for celebrity userId:', userId, 'workflowId:', workflowId);
+
+    const interval = setInterval(async () => {
+      try {
+        const statusResponse = await checkFullAnalysisWorkflowStatusAdmin(userId, workflowId);
+
+        // Call progress callback if provided
+        if (onProgress) {
+          onProgress(statusResponse);
+        }
+
+        if (statusResponse.completed) {
+          console.log('Celebrity full analysis workflow completed!');
+          clearInterval(interval);
+          return statusResponse;
+        }
+
+        // Check for failure
+        if (statusResponse.stepFunctionStatus === 'FAILED') {
+          console.log('Celebrity full analysis workflow failed!');
+          clearInterval(interval);
+          throw new Error(`Celebrity full analysis failed: ${statusResponse.message}`);
+        }
+      } catch (error) {
+        console.error('Admin full analysis polling error:', error);
+        clearInterval(interval);
+        throw error;
+      }
+    }, intervalMs);
+
+    return interval;
+  }, [checkFullAnalysisWorkflowStatusAdmin]);
 
   // Wait for full analysis completion with progress
   const waitForFullAnalysisComplete = useCallback(async (userId, workflowId = null, onProgress = null) => {
@@ -400,8 +478,11 @@ const useSubjectCreation = () => {
     
     // Full analysis functions (Stage 2)
     startFullAnalysisWorkflow,
+    startFullAnalysisWorkflowAdmin,  // Admin endpoint for celebrities (no auth)
     checkFullAnalysisWorkflowStatus,
+    checkFullAnalysisWorkflowStatusAdmin,  // Admin endpoint for celebrities (no auth)
     startFullAnalysisPolling,
+    startFullAnalysisPollingAdmin,  // Admin endpoint for celebrities (no auth)
     waitForFullAnalysisComplete,
     
     // Polling control
