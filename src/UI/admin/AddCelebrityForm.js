@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Autocomplete from 'react-google-autocomplete';
-import { fetchTimeZone, uploadProfilePhotoDirect } from '../../Utilities/api';
+import {
+  fetchTimeZone,
+  getProfilePhotoPresignedUrl,
+  uploadProfilePhotoToS3,
+  confirmProfilePhotoUpload
+} from '../../Utilities/api';
 import useSubjectCreation from '../../hooks/useSubjectCreation';
 import '../landingPage/UserSignUpForm.css';
 
@@ -137,12 +142,19 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
         if (result.success) {
           const celebId = result.userId || result.celeb?._id;
 
-          // Upload photo if one was selected
+          // Upload photo if one was selected (using presigned URL approach)
           if (photoFile && celebId) {
             setPhotoUploading(true);
             try {
-              console.log('Uploading profile photo for celebrity:', celebId);
-              await uploadProfilePhotoDirect(celebId, photoFile);
+              console.log('Step 1: Getting presigned URL for celebrity:', celebId);
+              const { uploadUrl, photoKey } = await getProfilePhotoPresignedUrl(celebId, photoFile.type);
+
+              console.log('Step 2: Uploading to S3');
+              await uploadProfilePhotoToS3(uploadUrl, photoFile);
+
+              console.log('Step 3: Confirming upload');
+              await confirmProfilePhotoUpload(celebId, photoKey);
+
               console.log('Profile photo uploaded successfully');
             } catch (photoErr) {
               console.error('Error uploading profile photo:', photoErr);
@@ -472,7 +484,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
           }}>
             <p style={{ color: 'white', margin: '0' }}>
               {photoUploading
-                ? 'Uploading profile photo...'
+                ? 'Uploading profile photo to S3...'
                 : 'Creating celebrity profile and generating overview...'}
             </p>
           </div>
