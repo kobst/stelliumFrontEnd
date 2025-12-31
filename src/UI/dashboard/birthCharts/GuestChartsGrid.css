@@ -1,0 +1,75 @@
+.guest-charts-grid {
+  flex: 1;
+}
+
+.guest-charts-grid__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.guest-charts-grid__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-text-secondary);
+  gap: var(--spacing-md);
+}
+
+.guest-charts-grid__spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: guest-grid-spin 1s linear infinite;
+}
+
+@keyframes guest-grid-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.guest-charts-grid__error {
+  padding: var(--spacing-2xl);
+  text-align: center;
+  color: var(--color-error);
+}
+
+.guest-charts-grid__empty {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--border-radius-md);
+}
+
+.guest-charts-grid__empty p {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.guest-charts-grid__empty-hint {
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-sm) !important;
+  color: var(--color-text-tertiary) !important;
+}
+
+/* Tablet */
+@media (max-width: 1199px) {
+  .guest-charts-grid__cards {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-md);
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .guest-charts-grid__cards {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+}

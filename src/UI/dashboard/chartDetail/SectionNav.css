@@ -1,0 +1,99 @@
+.section-nav {
+  position: sticky;
+  top: var(--spacing-xl);
+  height: fit-content;
+}
+
+.section-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.section-nav__btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-pill);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  width: 100%;
+}
+
+.section-nav__btn:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--color-primary);
+  color: var(--color-text-primary);
+}
+
+.section-nav__btn--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.section-nav__btn--active:hover {
+  background: var(--color-primary-dark);
+}
+
+.section-nav__btn--locked {
+  color: var(--color-text-tertiary);
+}
+
+.section-nav__btn--locked:hover {
+  color: var(--color-text-secondary);
+}
+
+.section-nav__label {
+  flex: 1;
+}
+
+.section-nav__lock {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+/* Tablet - horizontal scroll */
+@media (max-width: 1199px) {
+  .section-nav {
+    position: static;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .section-nav__list {
+    flex-direction: row;
+    gap: var(--spacing-sm);
+    overflow-x: auto;
+    padding-bottom: var(--spacing-sm);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .section-nav__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .section-nav__btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .section-nav__btn {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}

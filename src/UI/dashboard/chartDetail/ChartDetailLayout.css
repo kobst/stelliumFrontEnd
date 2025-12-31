@@ -1,0 +1,73 @@
+.chart-detail-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.chart-detail-layout__body {
+  flex: 1;
+  padding: var(--spacing-xl);
+}
+
+.chart-detail-layout__grid {
+  display: grid;
+  grid-template-columns: 160px 1fr 280px;
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+.chart-detail-layout__nav {
+  /* Sticky behavior handled by SectionNav component */
+}
+
+.chart-detail-layout__content {
+  min-width: 0; /* Prevent grid blowout */
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xl);
+}
+
+.chart-detail-layout__sidebar {
+  /* Sticky behavior handled by QuickFactsSidebar component */
+}
+
+.chart-detail-layout__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-lg);
+}
+
+/* Tablet - two columns, nav horizontal at top */
+@media (max-width: 1199px) {
+  .chart-detail-layout__grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .chart-detail-layout__nav {
+    order: 1;
+  }
+
+  .chart-detail-layout__content {
+    order: 2;
+  }
+
+  .chart-detail-layout__sidebar {
+    order: 3;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .chart-detail-layout__body {
+    padding: var(--spacing-lg);
+  }
+
+  .chart-detail-layout__content {
+    padding: var(--spacing-lg);
+  }
+}

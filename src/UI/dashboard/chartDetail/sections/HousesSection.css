@@ -1,0 +1,174 @@
+.houses-section {
+  /* Container styles handled by ChartDetailLayout */
+}
+
+.houses-section__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  margin-bottom: var(--spacing-sm);
+}
+
+.houses-section__description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+  margin-bottom: var(--spacing-xl);
+}
+
+.houses-section__empty {
+  font-size: var(--font-size-base);
+  color: var(--color-text-tertiary);
+  text-align: center;
+  padding: var(--spacing-2xl);
+}
+
+.houses-section__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.houses-section__card {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  transition: var(--transition-normal);
+}
+
+.houses-section__card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+.houses-section__card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: rgba(139, 92, 246, 0.1);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.houses-section__house-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+.houses-section__house-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.houses-section__house-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+.houses-section__house-area {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-light);
+}
+
+.houses-section__card-body {
+  padding: var(--spacing-lg);
+}
+
+.houses-section__sign {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.houses-section__sign-glyph {
+  font-size: var(--font-size-2xl);
+  color: var(--color-primary);
+}
+
+.houses-section__sign-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.houses-section__sign-degree {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  margin-left: auto;
+}
+
+.houses-section__ruler {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+.houses-section__ruler-label {
+  color: var(--color-text-tertiary);
+}
+
+.houses-section__ruler-value {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.houses-section__planets {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: var(--border-radius-sm);
+}
+
+.houses-section__planets-label {
+  color: var(--color-text-tertiary);
+}
+
+.houses-section__planets-value {
+  color: var(--color-primary-light);
+  font-weight: var(--font-weight-medium);
+}
+
+.houses-section__keywords {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .houses-section__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .houses-section__card-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .houses-section__card-body {
+    padding: var(--spacing-md);
+  }
+}

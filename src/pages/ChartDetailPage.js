@@ -10,11 +10,13 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import DashboardLayout from '../UI/layout/DashboardLayout';
-import TabMenu from '../UI/shared/TabMenu';
+import ChartDetailLayout from '../UI/dashboard/chartDetail/ChartDetailLayout';
 import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
 import ChartTab from '../UI/dashboard/chartTabs/ChartTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
+import HousesSection from '../UI/dashboard/chartDetail/sections/HousesSection';
+import AspectsSection from '../UI/dashboard/chartDetail/sections/AspectsSection';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
 import AskStelliumChartTab from '../UI/dashboard/chartTabs/AskStelliumChartTab';
 import LockedContent from '../UI/shared/LockedContent';
@@ -106,7 +108,6 @@ function ChartDetailPage() {
 
   // Poll for analysis status
   const startStatusPolling = useCallback((wfId) => {
-    // Clear any existing polling
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
     }
@@ -117,11 +118,9 @@ function ChartDetailPage() {
         setAnalysisStatus(status);
 
         if (status?.completed || status?.status === 'completed' || status?.status === 'completed_with_failures') {
-          // Analysis complete, fetch the data
           clearInterval(pollingIntervalRef.current);
           pollingIntervalRef.current = null;
 
-          // Use fetchAnalysis to get the completed analysis data
           const completeData = await fetchAnalysis(chartId);
           if (completeData) {
             setAnalysisData(completeData);
@@ -137,10 +136,7 @@ function ChartDetailPage() {
       }
     };
 
-    // Initial poll
     pollStatus();
-
-    // Poll every 3 seconds
     pollingIntervalRef.current = setInterval(pollStatus, 3000);
   }, [chartId]);
 
@@ -154,8 +150,6 @@ function ChartDetailPage() {
 
       if (response?.success && response?.workflowId) {
         setAnalysisStatus(response);
-
-        // Start polling for status
         startStatusPolling(response.workflowId);
       } else {
         throw new Error(response?.error || 'Failed to start analysis');
@@ -170,17 +164,6 @@ function ChartDetailPage() {
     navigate(`/dashboard/${userId}`);
   };
 
-  const getFullName = () => {
-    if (!chart) return '';
-    return `${chart.firstName || ''} ${chart.lastName || ''}`.trim();
-  };
-
-  const getSunSign = () => {
-    if (!chart?.birthChart?.planets) return null;
-    const sun = chart.birthChart.planets.find(p => p.name === 'Sun');
-    return sun?.sign || null;
-  };
-
   // Extract analysis components
   const birthChart = chart?.birthChart || {};
   const basicAnalysis = analysisData?.interpretation?.basicAnalysis;
@@ -191,9 +174,6 @@ function ChartDetailPage() {
   const planetaryDominance = analysisData?.planetaryDominance || birthChart.planetaryDominance;
 
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
-
-  // Check if user can access premium tabs:
-  // Either the chart has been analyzed (purchased) OR user has premium+ subscription
   const canAccessPremiumTabs = isAnalysisComplete || entitlements.isPremiumOrHigher;
 
   // Security check: Redirect if user tries to access a different user's data
@@ -227,28 +207,18 @@ function ChartDetailPage() {
     );
   }
 
-  const chartTabs = [
+  // Build sections array for ChartDetailLayout
+  const sections = [
     {
       id: 'overview',
-      label: 'Overview',
-      content: (
-        <OverviewTab
-          basicAnalysis={basicAnalysis}
-        />
-      )
+      content: <OverviewTab basicAnalysis={basicAnalysis} />
     },
     {
       id: 'chart',
-      label: 'Chart',
-      content: (
-        <ChartTab
-          birthChart={birthChart}
-        />
-      )
+      content: <ChartTab birthChart={birthChart} />
     },
     {
       id: 'dominance',
-      label: 'Patterns & Dominance',
       content: canAccessPremiumTabs ? (
         <DominancePatternsTab
           birthChart={birthChart}
@@ -274,12 +244,8 @@ function ChartDetailPage() {
     },
     {
       id: 'planets',
-      label: 'Planets',
       content: canAccessPremiumTabs ? (
-        <PlanetsTab
-          birthChart={birthChart}
-          basicAnalysis={basicAnalysis}
-        />
+        <PlanetsTab birthChart={birthChart} basicAnalysis={basicAnalysis} />
       ) : (
         <LockedContent
           title="Planets Deep Dive"
@@ -295,8 +261,43 @@ function ChartDetailPage() {
       )
     },
     {
+      id: 'houses',
+      content: canAccessPremiumTabs ? (
+        <HousesSection birthChart={birthChart} />
+      ) : (
+        <LockedContent
+          title="Houses Analysis"
+          description="Understand how the 12 houses influence different areas of your life."
+          features={[
+            'House cusp signs explained',
+            'Planetary rulers for each house',
+            'Life area interpretations',
+            'Planets in houses meaning'
+          ]}
+          ctaText="Unlock with Plus"
+        />
+      )
+    },
+    {
+      id: 'aspects',
+      content: canAccessPremiumTabs ? (
+        <AspectsSection birthChart={birthChart} />
+      ) : (
+        <LockedContent
+          title="Aspects Analysis"
+          description="Discover how your planets interact through aspects."
+          features={[
+            'Harmonious aspects (trines, sextiles)',
+            'Challenging aspects (squares, oppositions)',
+            'Conjunction interpretations',
+            'Aspect patterns identified'
+          ]}
+          ctaText="Unlock with Plus"
+        />
+      )
+    },
+    {
       id: 'analysis',
-      label: '360° Analysis',
       content: canAccessPremiumTabs ? (
         <AnalysisTab
           broadCategoryAnalyses={broadCategoryAnalyses}
@@ -319,12 +320,8 @@ function ChartDetailPage() {
     },
     {
       id: 'chat',
-      label: 'Ask Stellium',
       content: canAccessPremiumTabs ? (
-        <AskStelliumChartTab
-          chartId={chartId}
-          isAnalysisComplete={isAnalysisComplete}
-        />
+        <AskStelliumChartTab chartId={chartId} isAnalysisComplete={isAnalysisComplete} />
       ) : (
         <LockedContent
           title="Ask Stellium"
@@ -341,30 +338,27 @@ function ChartDetailPage() {
     }
   ];
 
+  // Determine which sections are locked
+  const lockedSections = canAccessPremiumTabs
+    ? []
+    : ['dominance', 'planets', 'houses', 'aspects', 'analysis', 'chat'];
+
   return (
     <DashboardLayout user={stelliumUser} defaultSection="birth-charts">
       {() => (
         <div className="chart-detail-page">
-          <div className="chart-detail-header">
-            <button className="back-button" onClick={handleBackClick}>
-              ← Back to Dashboard
-            </button>
-            <div className="chart-person-info">
-              <h1 className="chart-person-name">{getFullName()}</h1>
-              {getSunSign() && (
-                <span className="chart-person-sign">{getSunSign()} Sun</span>
-              )}
+          {analysisLoading && !analysisStatus && (
+            <div className="analysis-loading-banner">
+              Loading analysis data...
             </div>
-          </div>
-
-          <div className="chart-detail-content">
-            {analysisLoading && !analysisStatus && (
-              <div className="analysis-loading-banner">
-                Loading analysis data...
-              </div>
-            )}
-            <TabMenu tabs={chartTabs} />
-          </div>
+          )}
+          <ChartDetailLayout
+            chart={chart}
+            onBackClick={handleBackClick}
+            sections={sections}
+            lockedSections={lockedSections}
+            defaultSection="overview"
+          />
         </div>
       )}
     </DashboardLayout>

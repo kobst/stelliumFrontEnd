@@ -1,5 +1,5 @@
 .chart-tab {
-  padding: 20px;
+  padding: 0;
 }
 
 .chart-tab-empty {
@@ -15,9 +15,35 @@
   margin: 0;
 }
 
-/* Override BirthChartSummaryTable styles for dark theme */
+/* Override BirthChartSummaryTable styles for chart detail layout */
 .chart-tab .birth-chart {
   background: transparent;
+  height: auto;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.chart-tab .left-section,
+.chart-tab .right-section {
+  width: 100%;
+  height: auto;
+  padding: 0;
+}
+
+.chart-tab .left-section {
+  padding-right: 0;
+  margin-bottom: var(--spacing-xl, 24px);
+}
+
+.chart-tab .ephemeris-container {
+  flex-grow: 0;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.chart-tab .ephemeris-container canvas {
+  max-width: 100%;
+  height: auto !important;
 }
 
 .chart-tab .birth-chart h3 {
