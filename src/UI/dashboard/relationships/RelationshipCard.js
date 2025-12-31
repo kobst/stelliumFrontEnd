@@ -40,8 +40,9 @@ function RelationshipCard({ relationship, onClick }) {
   const userAName = relationship?.userA_name || 'Person A';
   const userBName = relationship?.userB_name || 'Person B';
 
-  // Get score and tier
-  const overall = relationship?.clusterScoring?.overall ||
+  // Get score and tier from relationshipAnalysisStatus (list view) or clusterScoring (detail view)
+  const overall = relationship?.relationshipAnalysisStatus?.overall ||
+                  relationship?.clusterScoring?.overall ||
                   relationship?.clusterAnalysis?.overall;
   const score = overall?.score;
   const tier = overall?.tier;
@@ -109,13 +110,13 @@ function RelationshipCard({ relationship, onClick }) {
       {score !== undefined && score !== null && (
         <div className="relationship-card__score">
           <span className="relationship-card__score-value">{Math.round(score)}</span>
-          <span className="relationship-card__score-percent">%</span>
+          <span className="relationship-card__score-label">Score</span>
         </div>
       )}
 
       {tier && (
         <div className={`relationship-card__tier ${getTierClass(tier)}`}>
-          {tier}
+          &#x2728; {tier}
         </div>
       )}
 

@@ -32,16 +32,6 @@ function RelationshipsList({
 
   return (
     <div className="relationships-list">
-      {/* Action Bar */}
-      <div className="relationships-list__actions">
-        <button
-          className="relationships-list__add-btn"
-          onClick={onAddRelationship}
-        >
-          + Add Relationship
-        </button>
-      </div>
-
       {/* Content */}
       {relationships.length === 0 ? (
         <div className="relationships-list__empty">
@@ -56,10 +46,18 @@ function RelationshipsList({
           </button>
         </div>
       ) : (
-        <RelationshipsGrid
-          relationships={relationships}
-          onRelationshipClick={onRelationshipClick}
-        />
+        <>
+          <RelationshipsGrid
+            relationships={relationships}
+            onRelationshipClick={onRelationshipClick}
+          />
+          <button className="relationships-list__add-btn" onClick={onAddRelationship}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Add Relationship
+          </button>
+        </>
       )}
     </div>
   );

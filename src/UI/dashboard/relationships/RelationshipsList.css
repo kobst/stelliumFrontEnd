@@ -2,30 +2,27 @@
   padding: 0;
 }
 
-/* Action Bar */
-.relationships-list__actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: var(--spacing-xl, 24px);
-}
-
 .relationships-list__add-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: var(--spacing-sm, 8px);
-  padding: var(--spacing-sm, 10px) var(--spacing-lg, 20px);
-  background: rgba(236, 72, 153, 0.1);
-  border: 1px solid rgba(236, 72, 153, 0.3);
-  border-radius: var(--border-radius-md, 8px);
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-2xl);
+  background: transparent;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--border-radius-md);
   color: #ec4899;
-  font-size: var(--font-size-sm, 0.875rem);
-  font-weight: var(--font-weight-medium, 500);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--transition-normal, all 0.2s ease);
+  transition: var(--transition-normal);
 }
 
 .relationships-list__add-btn:hover {
-  background: rgba(236, 72, 153, 0.2);
+  background: rgba(236, 72, 153, 0.1);
   border-color: #ec4899;
 }
 
@@ -33,6 +30,7 @@
   background: linear-gradient(135deg, #ec4899, #a855f7);
   border: none;
   color: white;
+  margin-top: 0;
 }
 
 .relationships-list__add-btn.primary:hover {
@@ -116,10 +114,6 @@
 
 /* Mobile */
 @media (max-width: 767px) {
-  .relationships-list__actions {
-    justify-content: center;
-  }
-
   .relationships-list__add-btn {
     width: 100%;
     justify-content: center;
