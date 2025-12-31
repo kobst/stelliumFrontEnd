@@ -16,7 +16,7 @@ const ZODIAC_GLYPHS = {
   'Pisces': '\u2653'
 };
 
-function GuestChartCard({ chart, onClick }) {
+function GuestChartCard({ chart, onClick, featured }) {
   const getInitials = () => {
     const firstName = chart?.firstName || '';
     const lastName = chart?.lastName || '';
@@ -40,7 +40,7 @@ function GuestChartCard({ chart, onClick }) {
   const moonSign = getMoonSign();
 
   return (
-    <div className="guest-chart-card" onClick={onClick}>
+    <div className={`guest-chart-card ${featured ? 'guest-chart-card--featured' : ''}`} onClick={onClick}>
       <div className="guest-chart-card__avatar">
         {chart?.profilePhotoUrl ? (
           <img src={chart.profilePhotoUrl} alt={fullName} />

@@ -1,0 +1,21 @@
+.relationships-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-lg, 20px);
+}
+
+/* Tablet */
+@media (max-width: 1023px) {
+  .relationships-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--spacing-md, 16px);
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .relationships-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md, 16px);
+  }
+}

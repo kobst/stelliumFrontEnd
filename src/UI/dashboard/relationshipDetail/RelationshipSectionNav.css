@@ -1,0 +1,99 @@
+.relationship-section-nav {
+  position: sticky;
+  top: var(--spacing-xl, 24px);
+}
+
+.relationship-section-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 4px);
+}
+
+.relationship-section-nav__btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 8px);
+  width: 100%;
+  padding: var(--spacing-sm, 10px) var(--spacing-md, 14px);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md, 8px);
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition-normal, all 0.2s ease);
+}
+
+.relationship-section-nav__btn:hover {
+  background: rgba(236, 72, 153, 0.1);
+  color: var(--color-text-primary, white);
+}
+
+.relationship-section-nav__btn--active {
+  background: #ec4899;
+  color: white;
+  border-color: #ec4899;
+}
+
+.relationship-section-nav__btn--active:hover {
+  background: #db2777;
+}
+
+.relationship-section-nav__btn--locked {
+  opacity: 0.6;
+}
+
+.relationship-section-nav__icon {
+  font-size: var(--font-size-base, 1rem);
+  width: 20px;
+  text-align: center;
+}
+
+.relationship-section-nav__label {
+  flex: 1;
+}
+
+.relationship-section-nav__lock {
+  opacity: 0.7;
+  margin-left: auto;
+}
+
+/* Tablet: Horizontal layout */
+@media (max-width: 1023px) {
+  .relationship-section-nav {
+    position: relative;
+    top: 0;
+    margin-bottom: var(--spacing-lg, 20px);
+  }
+
+  .relationship-section-nav__list {
+    flex-direction: row;
+    gap: var(--spacing-sm, 8px);
+    overflow-x: auto;
+    padding-bottom: var(--spacing-sm, 8px);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .relationship-section-nav__btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .relationship-section-nav__list {
+    gap: var(--spacing-xs, 4px);
+  }
+
+  .relationship-section-nav__btn {
+    padding: var(--spacing-xs, 8px) var(--spacing-sm, 12px);
+    font-size: var(--font-size-xs, 0.75rem);
+  }
+
+  .relationship-section-nav__icon {
+    font-size: var(--font-size-sm, 0.875rem);
+  }
+}

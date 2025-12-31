@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import TopHeader from './TopHeader';
 import Sidebar from './Sidebar';
@@ -12,16 +12,32 @@ function DashboardLayout({
   showSidebar = true
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { userId } = useParams();
   const { signOut } = useAuth();
 
   const [currentSection, setCurrentSection] = useState(defaultSection);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Update currentSection when defaultSection changes (e.g., when navigating from detail pages)
+  useEffect(() => {
+    setCurrentSection(defaultSection);
+  }, [defaultSection]);
+
   const handleNavClick = useCallback((sectionId) => {
+    // Check if we're on a detail page (chart detail or relationship detail)
+    const isOnDetailPage = location.pathname.includes('/chart/') ||
+                           location.pathname.includes('/relationship/');
+
+    if (isOnDetailPage && userId) {
+      // Navigate back to dashboard with the selected section
+      navigate(`/dashboard/${userId}`, { state: { section: sectionId } });
+    }
+
     setCurrentSection(sectionId);
     // Close mobile sidebar
     setSidebarOpen(false);
-  }, []);
+  }, [location.pathname, userId, navigate]);
 
   const handleMenuToggle = useCallback(() => {
     setSidebarOpen(prev => !prev);

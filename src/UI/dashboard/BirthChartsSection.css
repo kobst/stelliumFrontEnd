@@ -95,10 +95,7 @@
   transform: translateX(4px);
 }
 
-.charts-list {
-  display: flex;
-  flex-direction: column;
-}
+/* .charts-list styles moved to ChartsList.css */
 
 .charts-loading,
 .charts-error {

@@ -1,0 +1,175 @@
+.relationship-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg, 20px);
+  background: var(--color-bg-secondary, rgba(30, 32, 54, 0.8));
+  border: 1px solid var(--color-border, rgba(139, 92, 246, 0.2));
+  border-radius: var(--border-radius-md, 12px);
+  cursor: pointer;
+  transition: var(--transition-normal, all 0.2s ease);
+  min-height: 200px;
+  text-align: center;
+}
+
+.relationship-card:hover {
+  border-color: #ec4899;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(236, 72, 153, 0.15);
+}
+
+/* Names Section */
+.relationship-card__names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs, 4px);
+  margin-bottom: var(--spacing-md, 12px);
+}
+
+.relationship-card__name {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, white);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.relationship-card__connector {
+  font-size: var(--font-size-lg, 1.125rem);
+  color: #ec4899;
+  font-weight: var(--font-weight-bold, 700);
+}
+
+/* Signs Section */
+.relationship-card__signs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs, 4px);
+  margin-bottom: var(--spacing-md, 12px);
+}
+
+.relationship-card__signs-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.relationship-card__sign-pair {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs, 4px);
+}
+
+.relationship-card__sign {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.relationship-card__sign .sign-glyph {
+  font-size: var(--font-size-xl, 1.25rem);
+  color: #ec4899;
+}
+
+.relationship-card__sign.moon .sign-glyph {
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.sign-separator {
+  color: var(--color-text-tertiary, rgba(255, 255, 255, 0.4));
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.moon-row {
+  opacity: 0.7;
+}
+
+/* Score Section */
+.relationship-card__score {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-bottom: var(--spacing-sm, 8px);
+}
+
+.relationship-card__score-value {
+  font-size: var(--font-size-2xl, 1.75rem);
+  font-weight: var(--font-weight-bold, 700);
+  background: linear-gradient(135deg, #ec4899, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.relationship-card__score-percent {
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+  margin-left: 2px;
+}
+
+/* Tier Badge */
+.relationship-card__tier {
+  padding: var(--spacing-xs, 4px) var(--spacing-md, 12px);
+  border-radius: var(--border-radius-pill, 20px);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-md, 12px);
+}
+
+.relationship-card__tier.tier-thriving {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+.relationship-card__tier.tier-flourishing {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.relationship-card__tier.tier-emerging {
+  background: rgba(234, 179, 8, 0.15);
+  color: #facc15;
+}
+
+.relationship-card__tier.tier-building {
+  background: rgba(249, 115, 22, 0.15);
+  color: #fb923c;
+}
+
+.relationship-card__tier.tier-developing {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+/* Action Button */
+.relationship-card__action {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.6));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.relationship-card:hover .relationship-card__action {
+  opacity: 1;
+  color: #ec4899;
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .relationship-card {
+    min-height: 160px;
+    padding: var(--spacing-md, 16px);
+  }
+
+  .relationship-card__action {
+    opacity: 1;
+  }
+}

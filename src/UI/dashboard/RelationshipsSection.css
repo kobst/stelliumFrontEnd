@@ -1,7 +1,15 @@
 .relationships-section {
-  padding: 20px;
+  padding: 0;
 }
 
+.relationships-section__title {
+  font-size: var(--font-size-xl, 1.25rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-primary, white);
+  margin: 0 0 var(--spacing-xl, 24px) 0;
+}
+
+/* Legacy styles for backwards compatibility */
 .relationships-title {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;

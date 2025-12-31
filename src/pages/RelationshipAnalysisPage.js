@@ -4,7 +4,7 @@ import { getUserCompositeCharts, fetchRelationshipAnalysis } from '../Utilities/
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import DashboardLayout from '../UI/layout/DashboardLayout';
-import TabMenu from '../UI/shared/TabMenu';
+import RelationshipDetailLayout from '../UI/dashboard/relationshipDetail/RelationshipDetailLayout';
 import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
@@ -26,14 +26,14 @@ function RelationshipAnalysisPage() {
   const loadRelationship = useCallback(async () => {
     try {
       setLoading(true);
-      console.log('📥 Loading relationship data for compositeId:', compositeId);
+      console.log('Loading relationship data for compositeId:', compositeId);
       const composites = await getUserCompositeCharts(userId);
       const found = composites?.find(c => c._id === compositeId);
       if (found) {
         // Try to fetch full analysis data
         try {
           const analysisData = await fetchRelationshipAnalysis(compositeId);
-          console.log('📊 Fetched analysis data:', {
+          console.log('Fetched analysis data:', {
             hasCompleteAnalysis: !!analysisData?.completeAnalysis,
             completeAnalysisKeys: analysisData?.completeAnalysis ? Object.keys(analysisData.completeAnalysis) : [],
             hasClusterScoring: !!analysisData?.clusterScoring
@@ -70,7 +70,7 @@ function RelationshipAnalysisPage() {
 
   // Callback for when analysis completes - reload the data
   const handleAnalysisComplete = useCallback(() => {
-    console.log('🎉 Analysis complete callback triggered - reloading relationship data');
+    console.log('Analysis complete callback triggered - reloading relationship data');
     loadRelationship();
   }, [loadRelationship]);
 
@@ -84,23 +84,6 @@ function RelationshipAnalysisPage() {
 
   const handleBackClick = () => {
     navigate(`/dashboard/${userId}`);
-  };
-
-  const getRelationshipTitle = () => {
-    if (!relationship) return '';
-    return `${relationship.userA_name || 'Person A'} & ${relationship.userB_name || 'Person B'}`;
-  };
-
-  const getOverallScore = () => {
-    return relationship?.clusterScoring?.overall?.score ||
-           relationship?.clusterAnalysis?.overall?.score ||
-           null;
-  };
-
-  const getTier = () => {
-    return relationship?.clusterScoring?.overall?.tier ||
-           relationship?.clusterAnalysis?.overall?.tier ||
-           null;
   };
 
   // Security check: Redirect if user tries to access a different user's data
@@ -134,25 +117,22 @@ function RelationshipAnalysisPage() {
     );
   }
 
-  const relationshipTabs = [
+  // Build sections array for RelationshipDetailLayout
+  const sections = [
     {
       id: 'scores',
-      label: 'Scores',
       content: <ScoresTab relationship={relationship} />
     },
     {
       id: 'overview',
-      label: 'Overview',
       content: <OverviewTab relationship={relationship} />
     },
     {
       id: 'charts',
-      label: 'Charts',
       content: <ChartsTab relationship={relationship} />
     },
     {
       id: 'analysis',
-      label: '360° Analysis',
       content: canAccessPremiumTabs ? (
         <AnalysisTab
           relationship={relationship}
@@ -175,7 +155,6 @@ function RelationshipAnalysisPage() {
     },
     {
       id: 'chat',
-      label: 'Ask Stellium',
       content: canAccessPremiumTabs ? (
         <AskStelliumRelationshipTab
           compositeId={compositeId}
@@ -197,35 +176,20 @@ function RelationshipAnalysisPage() {
     }
   ];
 
+  // Determine which sections are locked
+  const lockedSections = canAccessPremiumTabs ? [] : ['analysis', 'chat'];
+
   return (
     <DashboardLayout user={stelliumUser} defaultSection="relationships">
       {() => (
         <div className="relationship-analysis-page">
-          <div className="relationship-analysis-header">
-            <button className="back-button" onClick={handleBackClick}>
-              ← Back to Dashboard
-            </button>
-            <div className="relationship-header-info">
-              <h1 className="relationship-title">{getRelationshipTitle()}</h1>
-              <div className="relationship-header-meta">
-                {getOverallScore() !== null && (
-                  <div className="header-score">
-                    <span className="header-score-value">{Math.round(getOverallScore())}</span>
-                    <span className="header-score-label">Score</span>
-                  </div>
-                )}
-                {getTier() && (
-                  <span className={`header-tier tier-${getTier().toLowerCase()}`}>
-                    {getTier()}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="relationship-analysis-content">
-            <TabMenu tabs={relationshipTabs} />
-          </div>
+          <RelationshipDetailLayout
+            relationship={relationship}
+            onBackClick={handleBackClick}
+            sections={sections}
+            lockedSections={lockedSections}
+            defaultSection="scores"
+          />
         </div>
       )}
     </DashboardLayout>

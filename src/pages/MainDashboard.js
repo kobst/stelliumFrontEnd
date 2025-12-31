@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, useLocation } from 'react-router-dom';
 import { fetchUser } from '../Utilities/api';
 import useStore from '../Utilities/store';
 import { useAuth } from '../context/AuthContext';
@@ -14,7 +14,11 @@ import './MainDashboard.css';
 
 function MainDashboard() {
   const { userId } = useParams();
+  const location = useLocation();
   const { stelliumUser } = useAuth();
+
+  // Get section from navigation state (when coming from detail pages)
+  const sectionFromState = location.state?.section;
   const [user, setUser] = useState(null);
   const entitlements = useEntitlements(user);
   const [loading, setLoading] = useState(true);
@@ -117,7 +121,7 @@ function MainDashboard() {
   };
 
   return (
-    <DashboardLayout user={user} defaultSection="horoscope">
+    <DashboardLayout user={user} defaultSection={sectionFromState || 'horoscope'}>
       {({ currentSection }) => (
         <div className="main-dashboard__content">
           <WelcomeBanner
