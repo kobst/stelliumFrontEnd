@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import TabMenu from '../shared/TabMenu';
-import HoroscopeTabContent from './HoroscopeTabContent';
-import AskStelliumTab from './AskStelliumTab';
+import HoroscopeContent from './horoscope/HoroscopeContent';
 import LockedContent from '../shared/LockedContent';
 import TrialBadge from '../shared/TrialBadge';
 import {
@@ -13,6 +11,9 @@ import {
 import './HoroscopeSection.css';
 
 function HoroscopeSection({ userId, user, entitlements }) {
+  // Current time period selection
+  const [timePeriod, setTimePeriod] = useState('today');
+
   // Transit windows state
   const [transitWindows, setTransitWindows] = useState([]);
   const [transitLoading, setTransitLoading] = useState(true);
@@ -21,29 +22,29 @@ function HoroscopeSection({ userId, user, entitlements }) {
   // Horoscope cache
   const [horoscopeCache, setHoroscopeCache] = useState({
     today: null,
-    thisWeek: null,
-    thisMonth: null
+    week: null,
+    month: null
   });
 
-  // Per-tab loading states
-  const [tabLoadingStates, setTabLoadingStates] = useState({
+  // Per-period loading states
+  const [loadingStates, setLoadingStates] = useState({
     today: false,
-    thisWeek: false,
-    thisMonth: false
+    week: false,
+    month: false
   });
 
-  // Per-tab error states
-  const [tabErrors, setTabErrors] = useState({
+  // Per-period error states
+  const [errors, setErrors] = useState({
     today: null,
-    thisWeek: null,
-    thisMonth: null
+    week: null,
+    month: null
   });
 
   // Retry attempts tracking
   const [retryAttempts, setRetryAttempts] = useState({
     today: 0,
-    thisWeek: 0,
-    thisMonth: 0
+    week: 0,
+    month: 0
   });
 
   // Date range helpers
@@ -88,7 +89,7 @@ function HoroscopeSection({ userId, user, entitlements }) {
 
   // Helper function for retry delay with exponential backoff
   const getRetryDelay = (attemptNumber) => {
-    return Math.min(1000 * Math.pow(3, attemptNumber), 10000); // 1s, 3s, 9s, max 10s
+    return Math.min(1000 * Math.pow(3, attemptNumber), 10000);
   };
 
   // Fetch transit windows on mount
@@ -130,37 +131,40 @@ function HoroscopeSection({ userId, user, entitlements }) {
     fetchTransits();
   }, [userId]);
 
-  // Fetch horoscope for a specific tab
-  const fetchHoroscope = useCallback(async (tab, isRetry = false, attemptNumber = 0) => {
+  // Fetch horoscope for a specific period
+  const fetchHoroscope = useCallback(async (period, isRetry = false, attemptNumber = 0) => {
     if (!userId) return;
 
     // Skip if already loaded and not a retry
-    if (!isRetry && horoscopeCache[tab]) return;
+    if (!isRetry && horoscopeCache[period]) return;
 
-    setTabLoadingStates(prev => ({ ...prev, [tab]: true }));
+    // Check weekly access
+    if (period === 'week' && !entitlements?.canAccessWeekly) return;
+
+    setLoadingStates(prev => ({ ...prev, [period]: true }));
     if (isRetry) {
-      setTabErrors(prev => ({ ...prev, [tab]: null }));
+      setErrors(prev => ({ ...prev, [period]: null }));
     }
 
     try {
       let startDate;
       let response;
 
-      switch (tab) {
+      switch (period) {
         case 'today':
           startDate = getTodayRange().start.toISOString().split('T')[0];
           response = await withTimeout(generateDailyHoroscope(userId, startDate));
           break;
-        case 'thisWeek':
+        case 'week':
           startDate = getCurrentWeekRange().start;
           response = await withTimeout(generateWeeklyHoroscope(userId, startDate));
           break;
-        case 'thisMonth':
+        case 'month':
           startDate = getCurrentMonthRange().start;
           response = await withTimeout(generateMonthlyHoroscope(userId, startDate));
           break;
         default:
-          throw new Error(`Unknown tab: ${tab}`);
+          throw new Error(`Unknown period: ${period}`);
       }
 
       if (!response.success) {
@@ -169,206 +173,118 @@ function HoroscopeSection({ userId, user, entitlements }) {
 
       setHoroscopeCache(prev => ({
         ...prev,
-        [tab]: response.horoscope
+        [period]: response.horoscope
       }));
-      setRetryAttempts(prev => ({ ...prev, [tab]: 0 }));
-      setTabErrors(prev => ({ ...prev, [tab]: null }));
+      setRetryAttempts(prev => ({ ...prev, [period]: 0 }));
+      setErrors(prev => ({ ...prev, [period]: null }));
     } catch (err) {
-      console.error(`Error fetching ${tab} horoscope:`, err);
+      console.error(`Error fetching ${period} horoscope:`, err);
 
-      const currentAttempts = retryAttempts[tab] || attemptNumber;
+      const currentAttempts = retryAttempts[period] || attemptNumber;
       const maxRetries = 3;
 
       if (currentAttempts < maxRetries) {
-        // Retry with exponential backoff
         const delay = getRetryDelay(currentAttempts);
-        console.log(`Retrying ${tab} horoscope in ${delay}ms (attempt ${currentAttempts + 1}/${maxRetries})`);
+        console.log(`Retrying ${period} horoscope in ${delay}ms (attempt ${currentAttempts + 1}/${maxRetries})`);
 
-        setRetryAttempts(prev => ({ ...prev, [tab]: currentAttempts + 1 }));
+        setRetryAttempts(prev => ({ ...prev, [period]: currentAttempts + 1 }));
 
         setTimeout(() => {
-          fetchHoroscope(tab, true, currentAttempts + 1);
+          fetchHoroscope(period, true, currentAttempts + 1);
         }, delay);
       } else {
-        setTabErrors(prev => ({
+        setErrors(prev => ({
           ...prev,
-          [tab]: `Failed to load horoscope: ${err.message}`
+          [period]: `Failed to load horoscope: ${err.message}`
         }));
       }
     } finally {
-      setTabLoadingStates(prev => ({ ...prev, [tab]: false }));
+      setLoadingStates(prev => ({ ...prev, [period]: false }));
     }
-  }, [userId, horoscopeCache, retryAttempts]);
+  }, [userId, horoscopeCache, retryAttempts, entitlements?.canAccessWeekly]);
+
+  // Handle time period change
+  const handleTimePeriodChange = useCallback((newPeriod) => {
+    setTimePeriod(newPeriod);
+
+    // Fetch horoscope if not already loaded
+    if (!horoscopeCache[newPeriod] && !loadingStates[newPeriod]) {
+      fetchHoroscope(newPeriod);
+    }
+  }, [horoscopeCache, loadingStates, fetchHoroscope]);
 
   // Retry handler
-  const handleRetry = (tab) => {
-    setRetryAttempts(prev => ({ ...prev, [tab]: 0 }));
-    fetchHoroscope(tab, true);
-  };
+  const handleRetry = useCallback(() => {
+    setRetryAttempts(prev => ({ ...prev, [timePeriod]: 0 }));
+    fetchHoroscope(timePeriod, true);
+  }, [timePeriod, fetchHoroscope]);
 
-  // Load handler (for initial load button click)
-  const handleLoad = (tab) => {
-    fetchHoroscope(tab);
-  };
+  // Load handler
+  const handleLoad = useCallback(() => {
+    fetchHoroscope(timePeriod);
+  }, [timePeriod, fetchHoroscope]);
+
+  // Refresh handler
+  const handleRefresh = useCallback(() => {
+    // Clear cache for current period and refetch
+    setHoroscopeCache(prev => ({ ...prev, [timePeriod]: null }));
+    setRetryAttempts(prev => ({ ...prev, [timePeriod]: 0 }));
+    fetchHoroscope(timePeriod, true);
+  }, [timePeriod, fetchHoroscope]);
 
   // Auto-load today's horoscope on mount
   useEffect(() => {
-    if (userId && !horoscopeCache.today && !tabLoadingStates.today) {
+    if (userId && !horoscopeCache.today && !loadingStates.today) {
       fetchHoroscope('today');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  // Locked content for Weekly horoscope
-  const LockedWeeklyContent = () => (
-    <LockedContent
-      title="Weekly Horoscope"
-      description="Get deeper insights into your week ahead with comprehensive weekly readings."
-      features={[
-        'Day-by-day energy forecasts',
-        'Key dates and opportunities',
-        'Weekly planetary influences'
-      ]}
-      ctaText="Available with Plus"
-    />
-  );
+  // Check if weekly is locked
+  const isWeeklyLocked = timePeriod === 'week' && !entitlements?.canAccessWeekly;
 
-  // Locked content for Ask Stellium
-  const LockedAskStelliumContent = () => (
-    <LockedContent
-      title="Ask Stellium"
-      description="Get personalized answers about your transits and horoscope from our AI astrologer."
-      features={[
-        'Ask unlimited questions',
-        'Personalized transit insights',
-        'Custom horoscope readings'
-      ]}
-      ctaText="Available with Plus"
-    />
-  );
-
-  // Weekly tab content with trial badge or locked state
-  const WeeklyTabContent = () => {
-    if (!entitlements?.canAccessWeekly) {
-      return <LockedWeeklyContent />;
-    }
-
+  // Show locked content for weekly if not entitled
+  if (isWeeklyLocked) {
     return (
-      <div className="horoscope-tab-wrapper">
-        {entitlements?.isTrialActive && (
-          <div className="trial-banner-inline">
-            <TrialBadge text="Unlocked for your first 7 days" />
-          </div>
-        )}
-        <HoroscopeTabContent
-          type="weekly"
-          horoscope={horoscopeCache.thisWeek}
-          loading={tabLoadingStates.thisWeek}
-          error={tabErrors.thisWeek}
-          onRetry={() => handleRetry('thisWeek')}
-          onLoad={() => handleLoad('thisWeek')}
-        />
+      <div className="horoscope-section">
+        <div className="horoscope-section__locked-wrapper">
+          <LockedContent
+            title="Weekly Horoscope"
+            description="Get deeper insights into your week ahead with comprehensive weekly readings."
+            features={[
+              'Day-by-day energy forecasts',
+              'Key dates and opportunities',
+              'Weekly planetary influences'
+            ]}
+            ctaText="Available with Plus"
+          />
+        </div>
       </div>
     );
-  };
+  }
 
-  // Ask Stellium content with trial message or locked state
-  const AskStelliumContent = () => {
-    if (!entitlements?.canAccessAskStelliumHoroscope) {
-      return <LockedAskStelliumContent />;
-    }
-
-    return (
-      <div className="ask-stellium-wrapper">
-        {entitlements?.isTrialActive && (
-          <div className="trial-message">
-            <TrialBadge text="Includes 5 free questions this week" />
-          </div>
-        )}
-        <AskStelliumTab
-          userId={userId}
-          transitWindows={transitWindows}
-        />
-      </div>
-    );
-  };
-
-  // Tab content components
-  const horoscopeTabs = [
-    {
-      id: 'today',
-      label: 'Today',
-      content: (
-        <HoroscopeTabContent
-          type="daily"
-          horoscope={horoscopeCache.today}
-          loading={tabLoadingStates.today}
-          error={tabErrors.today}
-          onRetry={() => handleRetry('today')}
-          onLoad={() => handleLoad('today')}
-        />
-      )
-    },
-    {
-      id: 'week',
-      label: entitlements?.isTrialActive && entitlements?.canAccessWeekly ? (
-        <span className="tab-label-with-badge">
-          This Week
-          <TrialBadge text="Trial" variant="small" />
-        </span>
-      ) : 'This Week',
-      content: <WeeklyTabContent />
-    },
-    {
-      id: 'month',
-      label: 'This Month',
-      content: (
-        <HoroscopeTabContent
-          type="monthly"
-          horoscope={horoscopeCache.thisMonth}
-          loading={tabLoadingStates.thisMonth}
-          error={tabErrors.thisMonth}
-          onRetry={() => handleRetry('thisMonth')}
-          onLoad={() => handleLoad('thisMonth')}
-        />
-      )
-    },
-    {
-      id: 'chat',
-      label: 'Ask Stellium',
-      content: <AskStelliumContent />
-    }
-  ];
-
-  // Handle tab change to trigger loading
-  const handleTabChange = (tabId) => {
-    const tabMapping = {
-      'today': 'today',
-      'week': 'thisWeek',
-      'month': 'thisMonth'
-    };
-
-    const cacheKey = tabMapping[tabId];
-    if (cacheKey && !horoscopeCache[cacheKey] && !tabLoadingStates[cacheKey]) {
-      fetchHoroscope(cacheKey);
-    }
-  };
+  // Get current horoscope data
+  const currentHoroscope = horoscopeCache[timePeriod];
+  const isLoading = loadingStates[timePeriod] || transitLoading;
+  const error = errors[timePeriod] || transitError;
 
   return (
     <div className="horoscope-section">
-      {transitLoading && (
-        <div className="horoscope-transit-loading">
-          Loading transit data...
+      {entitlements?.isTrialActive && timePeriod === 'week' && (
+        <div className="horoscope-section__trial-banner">
+          <TrialBadge text="Unlocked for your first 7 days" />
         </div>
       )}
-      {transitError && (
-        <div className="horoscope-transit-error">
-          {transitError}
-        </div>
-      )}
-      <TabMenu
-        tabs={horoscopeTabs}
-        onTabChange={handleTabChange}
+
+      <HoroscopeContent
+        timePeriod={timePeriod}
+        onTimePeriodChange={handleTimePeriodChange}
+        horoscope={currentHoroscope}
+        loading={isLoading}
+        error={error}
+        onRetry={handleRetry}
+        onLoad={handleLoad}
+        onRefresh={handleRefresh}
       />
     </div>
   );

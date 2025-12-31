@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { enhancedChatForUserBirthChart, fetchEnhancedChatHistory } from '../../../Utilities/api';
 import './ChartTabs.css';
 
-function AskStelliumChartTab({ chartId, isAnalysisComplete, vectorizationComplete }) {
+function AskStelliumChartTab({ chartId, isAnalysisComplete }) {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -10,8 +10,8 @@ function AskStelliumChartTab({ chartId, isAnalysisComplete, vectorizationComplet
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
 
-  // Check if chat is unlocked (requires 360° analysis to be complete)
-  const isUnlocked = isAnalysisComplete && vectorizationComplete !== false;
+  // Check if chat is unlocked (requires analysis data to exist)
+  const isUnlocked = isAnalysisComplete;
 
   // Fetch chat history on mount
   useEffect(() => {

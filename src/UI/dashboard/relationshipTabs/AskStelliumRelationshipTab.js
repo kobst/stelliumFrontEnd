@@ -10,7 +10,7 @@ function AskStelliumRelationshipTab({ compositeId, isAnalysisComplete }) {
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
 
-  // Check if chat is unlocked
+  // Check if chat is unlocked (requires analysis data to exist)
   const isUnlocked = isAnalysisComplete;
 
   // Fetch chat history on mount

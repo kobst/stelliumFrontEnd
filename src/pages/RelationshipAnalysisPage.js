@@ -3,6 +3,7 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getUserCompositeCharts, fetchRelationshipAnalysis } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
+import DashboardLayout from '../UI/layout/DashboardLayout';
 import TabMenu from '../UI/shared/TabMenu';
 import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
@@ -197,33 +198,37 @@ function RelationshipAnalysisPage() {
   ];
 
   return (
-    <div className="relationship-analysis-page">
-      <div className="relationship-analysis-header">
-        <button className="back-button" onClick={handleBackClick}>
-          ← Back to Dashboard
-        </button>
-        <div className="relationship-header-info">
-          <h1 className="relationship-title">{getRelationshipTitle()}</h1>
-          <div className="relationship-header-meta">
-            {getOverallScore() !== null && (
-              <div className="header-score">
-                <span className="header-score-value">{Math.round(getOverallScore())}</span>
-                <span className="header-score-label">Score</span>
+    <DashboardLayout user={stelliumUser} defaultSection="relationships">
+      {() => (
+        <div className="relationship-analysis-page">
+          <div className="relationship-analysis-header">
+            <button className="back-button" onClick={handleBackClick}>
+              ← Back to Dashboard
+            </button>
+            <div className="relationship-header-info">
+              <h1 className="relationship-title">{getRelationshipTitle()}</h1>
+              <div className="relationship-header-meta">
+                {getOverallScore() !== null && (
+                  <div className="header-score">
+                    <span className="header-score-value">{Math.round(getOverallScore())}</span>
+                    <span className="header-score-label">Score</span>
+                  </div>
+                )}
+                {getTier() && (
+                  <span className={`header-tier tier-${getTier().toLowerCase()}`}>
+                    {getTier()}
+                  </span>
+                )}
               </div>
-            )}
-            {getTier() && (
-              <span className={`header-tier tier-${getTier().toLowerCase()}`}>
-                {getTier()}
-              </span>
-            )}
+            </div>
+          </div>
+
+          <div className="relationship-analysis-content">
+            <TabMenu tabs={relationshipTabs} />
           </div>
         </div>
-      </div>
-
-      <div className="relationship-analysis-content">
-        <TabMenu tabs={relationshipTabs} />
-      </div>
-    </div>
+      )}
+    </DashboardLayout>
   );
 }
 

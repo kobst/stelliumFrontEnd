@@ -1,5 +1,14 @@
 .horoscope-section {
-  padding: 20px;
+  /* Uses new layout from HoroscopeContent component */
+}
+
+.horoscope-section__trial-banner {
+  margin-bottom: var(--spacing-xl, 24px);
+}
+
+.horoscope-section__locked-wrapper {
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .horoscope-transit-loading {
@@ -140,13 +149,7 @@
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
-/* Horoscope content */
-.horoscope-content {
-  background: rgba(139, 92, 246, 0.05);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  border-radius: 12px;
-  padding: 24px;
-}
+/* Horoscope content - REMOVED: now using HoroscopeContent.css grid layout */
 
 .horoscope-title {
   color: white;

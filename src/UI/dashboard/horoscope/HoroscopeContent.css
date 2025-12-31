@@ -1,0 +1,70 @@
+.horoscope-content {
+  display: grid;
+  grid-template-columns: 140px 1fr 280px;
+  gap: var(--horoscope-grid-gap);
+  align-items: start;
+}
+
+.horoscope-content__time-selector {
+  /* Left column */
+}
+
+.horoscope-content__main {
+  /* Center column - flexible */
+}
+
+.horoscope-content__sidebar {
+  /* Right column */
+}
+
+/* Tablet - 2 columns, time selector moves above */
+@media (max-width: 1199px) {
+  .horoscope-content {
+    grid-template-columns: 1fr 280px;
+    grid-template-rows: auto 1fr;
+  }
+
+  .horoscope-content__time-selector {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .horoscope-content__main {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .horoscope-content__sidebar {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+/* Smaller tablet - single column */
+@media (max-width: 900px) {
+  .horoscope-content {
+    grid-template-columns: 1fr;
+  }
+
+  .horoscope-content__time-selector {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .horoscope-content__main {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .horoscope-content__sidebar {
+    grid-column: 1;
+    grid-row: 3;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .horoscope-content {
+    gap: var(--spacing-lg);
+  }
+}

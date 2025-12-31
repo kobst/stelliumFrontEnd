@@ -4,12 +4,12 @@ import { fetchUser } from '../Utilities/api';
 import useStore from '../Utilities/store';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
-import DashboardHeader from '../UI/dashboard/DashboardHeader';
+import DashboardLayout from '../UI/layout/DashboardLayout';
 import WelcomeBanner from '../UI/dashboard/WelcomeBanner';
-import TabMenu from '../UI/shared/TabMenu';
 import HoroscopeSection from '../UI/dashboard/HoroscopeSection';
 import BirthChartsSection from '../UI/dashboard/BirthChartsSection';
 import RelationshipsSection from '../UI/dashboard/RelationshipsSection';
+import AskStelliumSection from '../UI/dashboard/AskStelliumSection';
 import './MainDashboard.css';
 
 function MainDashboard() {
@@ -93,35 +93,41 @@ function MainDashboard() {
     );
   }
 
-  const mainTabs = [
-    {
-      id: 'horoscope',
-      label: 'Horoscope',
-      content: <HoroscopeSection userId={userId} user={user} entitlements={entitlements} />
-    },
-    {
-      id: 'birthCharts',
-      label: 'Birth Charts',
-      content: <BirthChartsSection userId={userId} user={user} />
-    },
-    {
-      id: 'relationships',
-      label: 'Relationships',
-      content: <RelationshipsSection userId={userId} />
+  // Render section based on current navigation state
+  const renderSection = (currentSection) => {
+    switch (currentSection) {
+      case 'horoscope':
+        return <HoroscopeSection userId={userId} user={user} entitlements={entitlements} />;
+      case 'birth-charts':
+        return <BirthChartsSection userId={userId} user={user} />;
+      case 'relationships':
+        return <RelationshipsSection userId={userId} />;
+      case 'ask-stellium':
+        return <AskStelliumSection userId={userId} entitlements={entitlements} />;
+      case 'settings':
+        return (
+          <div className="settings-placeholder">
+            <h2>Settings</h2>
+            <p>Settings page coming soon...</p>
+          </div>
+        );
+      default:
+        return <HoroscopeSection userId={userId} user={user} entitlements={entitlements} />;
     }
-  ];
+  };
 
   return (
-    <div className="main-dashboard">
-      <DashboardHeader user={user} />
-      <WelcomeBanner
-        isTrialActive={entitlements.isTrialActive}
-        trialDaysRemaining={entitlements.trialDaysRemaining}
-      />
-      <div className="dashboard-content">
-        <TabMenu tabs={mainTabs} />
-      </div>
-    </div>
+    <DashboardLayout user={user} defaultSection="horoscope">
+      {({ currentSection }) => (
+        <div className="main-dashboard__content">
+          <WelcomeBanner
+            isTrialActive={entitlements.isTrialActive}
+            trialDaysRemaining={entitlements.trialDaysRemaining}
+          />
+          {renderSection(currentSection)}
+        </div>
+      )}
+    </DashboardLayout>
   );
 }
 

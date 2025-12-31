@@ -9,6 +9,7 @@ import {
 } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
+import DashboardLayout from '../UI/layout/DashboardLayout';
 import TabMenu from '../UI/shared/TabMenu';
 import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
 import ChartTab from '../UI/dashboard/chartTabs/ChartTab';
@@ -188,10 +189,8 @@ function ChartDetailPage() {
   const modalities = analysisData?.modalities || birthChart.modalities;
   const quadrants = analysisData?.quadrants || birthChart.quadrants;
   const planetaryDominance = analysisData?.planetaryDominance || birthChart.planetaryDominance;
-  const vectorizationStatus = analysisData?.vectorizationStatus;
 
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
-  const isVectorizationComplete = vectorizationStatus?.completed || vectorizationStatus?.status === 'completed';
 
   // Check if user can access premium tabs:
   // Either the chart has been analyzed (purchased) OR user has premium+ subscription
@@ -325,7 +324,6 @@ function ChartDetailPage() {
         <AskStelliumChartTab
           chartId={chartId}
           isAnalysisComplete={isAnalysisComplete}
-          vectorizationComplete={isVectorizationComplete}
         />
       ) : (
         <LockedContent
@@ -344,28 +342,32 @@ function ChartDetailPage() {
   ];
 
   return (
-    <div className="chart-detail-page">
-      <div className="chart-detail-header">
-        <button className="back-button" onClick={handleBackClick}>
-          ← Back to Dashboard
-        </button>
-        <div className="chart-person-info">
-          <h1 className="chart-person-name">{getFullName()}</h1>
-          {getSunSign() && (
-            <span className="chart-person-sign">{getSunSign()} Sun</span>
-          )}
-        </div>
-      </div>
-
-      <div className="chart-detail-content">
-        {analysisLoading && !analysisStatus && (
-          <div className="analysis-loading-banner">
-            Loading analysis data...
+    <DashboardLayout user={stelliumUser} defaultSection="birth-charts">
+      {() => (
+        <div className="chart-detail-page">
+          <div className="chart-detail-header">
+            <button className="back-button" onClick={handleBackClick}>
+              ← Back to Dashboard
+            </button>
+            <div className="chart-person-info">
+              <h1 className="chart-person-name">{getFullName()}</h1>
+              {getSunSign() && (
+                <span className="chart-person-sign">{getSunSign()} Sun</span>
+              )}
+            </div>
           </div>
-        )}
-        <TabMenu tabs={chartTabs} />
-      </div>
-    </div>
+
+          <div className="chart-detail-content">
+            {analysisLoading && !analysisStatus && (
+              <div className="analysis-loading-banner">
+                Loading analysis data...
+              </div>
+            )}
+            <TabMenu tabs={chartTabs} />
+          </div>
+        </div>
+      )}
+    </DashboardLayout>
   );
 }
 

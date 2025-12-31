@@ -156,8 +156,8 @@
   color: white;
 }
 
-/* Horoscope Card */
-.horoscope-card {
+/* Horoscope Card - scoped to landing page */
+.landing-page .horoscope-card {
   width: 100%;
   max-width: 400px;
   height: 250px;
@@ -192,11 +192,11 @@
   transform: rotateY(180deg);
 }
 
-.horoscope-card.flipped .card-front {
+.landing-page .horoscope-card.flipped .card-front {
   transform: rotateY(-180deg);
 }
 
-.horoscope-card.flipped .card-back {
+.landing-page .horoscope-card.flipped .card-back {
   transform: rotateY(0);
 }
 
@@ -1387,7 +1387,7 @@
     width: 100%;
   }
 
-  .horoscope-card {
+  .landing-page .horoscope-card {
     max-width: 100%;
   }
 

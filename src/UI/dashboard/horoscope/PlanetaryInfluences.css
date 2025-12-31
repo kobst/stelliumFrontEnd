@@ -1,0 +1,130 @@
+.planetary-influences {
+  position: sticky;
+  top: var(--spacing-2xl);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xl);
+}
+
+.planetary-influences__title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-text-primary);
+  margin: 0;
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+.planetary-influences__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.planetary-influences__item {
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  background: rgba(167, 139, 250, 0.05);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.planetary-influences__item:hover {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: var(--color-primary);
+}
+
+.planetary-influences__aspect {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.planetary-influences__planet {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+}
+
+.planetary-influences__aspect-type {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  text-transform: lowercase;
+}
+
+.planetary-influences__date {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-top: var(--spacing-xs);
+  text-align: center;
+}
+
+.planetary-influences__empty {
+  font-size: var(--font-size-md);
+  color: var(--color-text-tertiary);
+  margin: 0;
+  text-align: center;
+  padding: var(--spacing-xl) 0;
+}
+
+/* Loading skeleton */
+.planetary-influences__loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.planetary-influences__skeleton {
+  height: 60px;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-tertiary) 25%,
+    var(--color-border) 50%,
+    var(--color-bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--border-radius-sm);
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Tablet - move below content */
+@media (max-width: 1199px) {
+  .planetary-influences {
+    position: static;
+    margin-top: var(--spacing-xl);
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .planetary-influences {
+    padding: var(--spacing-lg);
+  }
+
+  .planetary-influences__list {
+    gap: var(--spacing-sm);
+  }
+
+  .planetary-influences__item {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
