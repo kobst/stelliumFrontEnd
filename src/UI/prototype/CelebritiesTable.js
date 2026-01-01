@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './UsersTable.css';
-import { fetchCelebrities, fetchCelebritiesPaginated } from '../../Utilities/api'
+import { fetchCelebrities, fetchCelebritiesPaginated, deleteSubject } from '../../Utilities/api'
 import { usePaginatedData } from '../../hooks/usePaginatedData';
 
 function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFilter = 'all', usePagination = false }) {
   const [celebrities, setCelebrities] = useState([]);
+  const [deletingCelebrity, setDeletingCelebrity] = useState(null);
 
   // Create a wrapper function for the paginated API
   const fetchCelebritiesWrapper = useMemo(() => {
@@ -66,6 +67,59 @@ function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFi
     padding: '8px',
     borderBottom: usePagination && paginatedData.sortBy === field ? '2px solid orange' : 'none'
   });
+
+  const handleDeleteCelebrity = async (celebrity) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ${celebrity.firstName} ${celebrity.lastName}?\n\n` +
+      `This will permanently remove:\n` +
+      `• The celebrity profile and all data\n` +
+      `• All associated analyses\n` +
+      `• Chat history\n\n` +
+      `This action cannot be undone.`
+    );
+
+    if (!confirmDelete) return;
+
+    setDeletingCelebrity(celebrity._id);
+    try {
+      const result = await deleteSubject(celebrity._id);
+
+      if (usePagination) {
+        // Refresh paginated data
+        paginatedData.refresh();
+      } else {
+        // Remove deleted celebrity from local state
+        setCelebrities(prevCelebrities =>
+          prevCelebrities.filter(c => c._id !== celebrity._id)
+        );
+      }
+
+      // Show success message
+      const deletedCount = result.deletionResults;
+      const details = [];
+      if (deletedCount.chatThreads > 0) details.push(`${deletedCount.chatThreads} conversations`);
+      if (deletedCount.analysis > 0) details.push('analysis data');
+
+      const message = details.length > 0
+        ? `Celebrity deleted successfully. Also removed: ${details.join(', ')}.`
+        : 'Celebrity deleted successfully.';
+
+      alert(message);
+    } catch (error) {
+      let errorMessage = 'Failed to delete celebrity.';
+
+      if (error.message.includes('relationship')) {
+        const relationshipCount = error.message.match(/\d+/)?.[0] || 'some';
+        errorMessage = `Cannot delete this celebrity because they're part of ${relationshipCount} relationship(s). Please delete those relationships first.`;
+      } else if (error.message.includes('not found')) {
+        errorMessage = 'This celebrity may have already been deleted.';
+      }
+
+      alert(errorMessage);
+    } finally {
+      setDeletingCelebrity(null);
+    }
+  };
 
   // Get the data source based on pagination mode
   const dataSource = usePagination ? paginatedData.data : celebrities;
@@ -148,19 +202,20 @@ function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFi
               >
                 Date of Birth{getSortIcon('dateOfBirth')}
               </th>
-              <th 
+              <th
                 style={getSortableHeaderStyle('placeOfBirth')}
                 onClick={() => handleSort('placeOfBirth')}
                 title={usePagination ? 'Click to sort by place of birth' : ''}
               >
                 Place of Birth{getSortIcon('placeOfBirth')}
               </th>
+              <th style={{ color: 'orange' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredCelebrities.length === 0 ? (
               <tr>
-                <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: 'grey' }}>
+                <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'grey' }}>
                   {usePagination && paginatedData.loading ? 'Loading...' : 'No celebrities found'}
                 </td>
               </tr>
@@ -168,18 +223,57 @@ function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFi
               filteredCelebrities.map((celebrity) => (
                 <tr
                   key={celebrity._id}
-                  onClick={() => handleCelebritySelect(celebrity)}
                   className={selectedForRelationship && selectedForRelationship._id === celebrity._id ? 'selected-row' : ''}
-                  style={{ 
+                  style={{
                     cursor: 'pointer',
                     backgroundColor: selectedForRelationship && selectedForRelationship._id === celebrity._id ? 'rgba(128, 0, 128, 0.3)' : 'transparent',
                     transition: 'background-color 0.2s ease'
                   }}
                 >
-                  <td>{celebrity.firstName}</td>
-                  <td>{celebrity.lastName}</td>
-                  <td>{celebrity.dateOfBirth}</td>
-                  <td>{celebrity.placeOfBirth}</td>
+                  <td onClick={() => handleCelebritySelect(celebrity)}>{celebrity.firstName}</td>
+                  <td onClick={() => handleCelebritySelect(celebrity)}>{celebrity.lastName}</td>
+                  <td onClick={() => handleCelebritySelect(celebrity)}>{celebrity.dateOfBirth}</td>
+                  <td onClick={() => handleCelebritySelect(celebrity)}>{celebrity.placeOfBirth}</td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCelebritySelect(celebrity);
+                        }}
+                        style={{
+                          padding: '4px 8px',
+                          backgroundColor: selectedForRelationship && selectedForRelationship._id === celebrity._id ? '#28a745' : '#007bff',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '12px'
+                        }}
+                      >
+                        {selectedForRelationship && selectedForRelationship._id === celebrity._id ? 'Selected' : 'Select'}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCelebrity(celebrity);
+                        }}
+                        disabled={deletingCelebrity === celebrity._id}
+                        style={{
+                          padding: '4px 8px',
+                          backgroundColor: deletingCelebrity === celebrity._id ? '#6c757d' : '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: deletingCelebrity === celebrity._id ? 'not-allowed' : 'pointer',
+                          fontSize: '12px',
+                          opacity: deletingCelebrity === celebrity._id ? 0.6 : 1
+                        }}
+                      >
+                        {deletingCelebrity === celebrity._id ? 'Deleting...' : 'Delete'}
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))
             )}
