@@ -1,0 +1,247 @@
+/* Public Celebrity Dashboard - Uses ChartDetailLayout structure */
+/* Note: Layout CSS files are imported via JavaScript */
+
+.public-celebrity-dashboard {
+  min-height: 100vh;
+  padding: 20px;
+  color: white;
+}
+
+/* Override back button text for public view */
+.public-celebrity-dashboard .chart-detail-header__back {
+  /* Keep default styles */
+}
+
+/* Section nav promo button */
+.section-nav__btn--promo {
+  background: linear-gradient(135deg, rgba(183, 80, 243, 0.2), rgba(209, 56, 212, 0.2)) !important;
+  border: 1px solid rgba(199, 125, 255, 0.4) !important;
+}
+
+.section-nav__btn--promo .section-nav__label {
+  color: #d138d4;
+}
+
+.section-nav__btn--promo.section-nav__btn--active {
+  background: linear-gradient(135deg, #b750f3, #d138d4) !important;
+}
+
+.section-nav__btn--promo.section-nav__btn--active .section-nav__label {
+  color: white;
+}
+
+.section-nav__star {
+  margin-left: 4px;
+  color: #ffd700;
+}
+
+/* Unlock Section */
+.unlock-section {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.unlock-header {
+  margin-bottom: 16px;
+}
+
+.unlock-icon {
+  display: block;
+  font-size: 40px;
+  color: #d138d4;
+  margin-bottom: 12px;
+}
+
+.unlock-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+}
+
+.unlock-description {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 32px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.unlock-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 600px;
+  margin: 0 auto 32px;
+  text-align: left;
+}
+
+.unlock-feature {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+}
+
+.unlock-feature-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.unlock-feature-content h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 4px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.unlock-feature-content p {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  line-height: 1.4;
+  font-family: "Montserrat", sans-serif;
+}
+
+.unlock-cta-btn {
+  background: linear-gradient(135deg, #b750f3, #d138d4);
+  color: white;
+  border: none;
+  padding: 16px 40px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Montserrat", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.unlock-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(183, 80, 243, 0.4);
+}
+
+.unlock-free-note {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 16px;
+  font-family: "Montserrat", sans-serif;
+}
+
+/* Sidebar CTA */
+.sidebar-cta {
+  margin-top: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(183, 80, 243, 0.15), rgba(209, 56, 212, 0.15));
+  border: 1px solid rgba(199, 125, 255, 0.3);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.sidebar-cta p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 12px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.sidebar-cta-btn {
+  background: linear-gradient(135deg, #b750f3, #d138d4);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Montserrat", sans-serif;
+  width: 100%;
+}
+
+.sidebar-cta-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(183, 80, 243, 0.4);
+}
+
+/* Loading/Error States */
+.dashboard-loading,
+.dashboard-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: "Montserrat", sans-serif;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(167, 139, 250, 0.2);
+  border-top-color: #a78bfa;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.dashboard-error p {
+  margin-bottom: 20px;
+  color: #ff6b6b;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-family: "Montserrat", sans-serif;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 1199px) {
+  .unlock-features {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .public-celebrity-dashboard {
+    padding: 10px;
+  }
+
+  .unlock-section {
+    padding: 24px 16px;
+  }
+
+  .unlock-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .unlock-feature {
+    padding: 12px;
+  }
+
+  .sidebar-cta {
+    display: none; /* Hide on mobile since we have unlock section */
+  }
+}

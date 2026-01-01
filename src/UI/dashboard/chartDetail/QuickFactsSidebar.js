@@ -116,7 +116,7 @@ function QuickFactsSidebar({ chart }) {
         <div className="quick-facts-sidebar__item">
           <span className="quick-facts-sidebar__label">Birth Time</span>
           <span className="quick-facts-sidebar__value">
-            {formatTime(chart?.timeOfBirth)}
+            {formatTime(chart?.timeOfBirth || chart?.time)}
           </span>
         </div>
 

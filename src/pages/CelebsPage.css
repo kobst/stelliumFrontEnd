@@ -64,6 +64,47 @@
   font-weight: 400;
 }
 
+/* Public CTA Banner */
+.public-cta-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: linear-gradient(135deg, rgba(183, 80, 243, 0.2), rgba(209, 56, 212, 0.2));
+  border: 1px solid rgba(199, 125, 255, 0.3);
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.public-cta-banner span {
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: "Montserrat", sans-serif;
+}
+
+.public-cta-btn {
+  background: linear-gradient(135deg, #b750f3, #d138d4);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Montserrat", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.public-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(183, 80, 243, 0.4);
+}
+
 .filter-section {
   display: flex;
   justify-content: center;

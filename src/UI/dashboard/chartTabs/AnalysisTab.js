@@ -219,19 +219,159 @@ const renderKeyElement = (decoded, idx) => {
   );
 };
 
-// Category display names and icons
-const categoryMeta = {
-  'PERSONALITY_IDENTITY': { name: 'Personality & Identity', icon: '👤' },
-  'EMOTIONAL_FOUNDATIONS_HOME': { name: 'Emotional Foundations & Home', icon: '🏠' },
-  'RELATIONSHIPS_SOCIAL': { name: 'Relationships & Social', icon: '💞' },
-  'CAREER_PURPOSE_PUBLIC_IMAGE': { name: 'Career, Purpose & Public Image', icon: '🎯' },
-  'UNCONSCIOUS_SPIRITUALITY': { name: 'Unconscious & Spirituality', icon: '🔮' },
-  'COMMUNICATION_BELIEFS': { name: 'Communication & Beliefs', icon: '💬' }
+// Format subtopic name from key
+const formatSubtopicName = (key) => {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\b\w/g, c => c.toUpperCase());
 };
 
+// ============ DOMAIN CONFIGURATION ============
+
+const LIFE_DOMAINS = [
+  { id: 'PERSONALITY_IDENTITY', label: 'Identity', icon: '🌟' },
+  { id: 'CAREER_PURPOSE_PUBLIC_IMAGE', label: 'Career', icon: '💼' },
+  { id: 'RELATIONSHIPS_SOCIAL', label: 'Partnerships', icon: '💕' },
+  { id: 'COMMUNICATION_BELIEFS', label: 'Communication', icon: '💬' },
+  { id: 'EMOTIONAL_FOUNDATIONS_HOME', label: 'Emotional', icon: '🏠' },
+  { id: 'UNCONSCIOUS_SPIRITUALITY', label: 'Spiritual', icon: '✨' },
+];
+
+// ============ INLINE COMPONENTS ============
+
+function DomainTabs({ domains, activeDomain, onDomainChange }) {
+  return (
+    <nav className="domain-tabs">
+      {domains.map(domain => (
+        <button
+          key={domain.id}
+          className={`domain-tab ${activeDomain === domain.id ? 'domain-tab--active' : ''}`}
+          onClick={() => onDomainChange(domain.id)}
+        >
+          <span className="domain-tab__icon">{domain.icon}</span>
+          <span className="domain-tab__label">{domain.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+function ThemeCard({ subtopicKey, subtopic, editedContent, isExpanded, onToggle }) {
+  // Get content: prefer edited text, fall back to original analysis
+  const analysis = typeof editedContent === 'string'
+    ? editedContent
+    : typeof subtopic === 'string'
+      ? subtopic
+      : subtopic?.analysis || subtopic?.text || '';
+
+  // Create summary from first 2-3 sentences
+  const sentences = analysis.split(/(?<=[.!?])\s+/);
+  const summary = sentences.slice(0, 2).join(' ');
+
+  // Get keyAspects from original subtopic
+  const keyAspects = extractKeyAspects(subtopic);
+  const decodedElements = keyAspects.map(code => decodeAstroCode(code));
+
+  return (
+    <div className={`theme-card ${isExpanded ? 'theme-card--expanded' : ''}`}>
+      <div className="theme-card__header" onClick={onToggle}>
+        <h4 className="theme-card__title">{formatSubtopicName(subtopicKey)}</h4>
+        <span className="theme-card__expand-icon">{isExpanded ? '−' : '+'}</span>
+      </div>
+
+      {!isExpanded ? (
+        <p className="theme-card__summary">{summary}</p>
+      ) : (
+        <div className="theme-card__content">
+          {analysis && analysis.split('\n').map((paragraph, idx) => (
+            paragraph.trim() && <p key={idx}>{paragraph}</p>
+          ))}
+
+          {decodedElements.length > 0 && (
+            <div className="key-elements-section">
+              <div className="key-elements-header">
+                <span className="key-elements-title">Key Elements</span>
+                <span className="key-elements-count">({decodedElements.length})</span>
+              </div>
+              <div className="key-elements-list">
+                {decodedElements.map((decoded, idx) => renderKeyElement(decoded, idx))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DomainContent({ domain, data, expandedCard, onCardToggle }) {
+  const editedSubtopics = data.editedSubtopics || {};
+  const originalSubtopics = data.subtopics || {};
+
+  // Get subtopic keys
+  const subtopicKeys = Object.keys(editedSubtopics).length > 0
+    ? Object.keys(editedSubtopics)
+    : Object.keys(originalSubtopics);
+
+  return (
+    <div className="domain-content">
+      {/* Domain Header */}
+      <div className="domain-header">
+        <div className="domain-header__text">
+          <h3 className="domain-header__title">
+            <span className="domain-header__icon">{domain.icon}</span>
+            {domain.label}
+          </h3>
+          {data.overview && (
+            <p className="domain-header__intro">{data.overview}</p>
+          )}
+        </div>
+
+        {/* Key Placement Pills */}
+        {data.tensionFlow?.keystoneAspects?.length > 0 && (
+          <div className="key-placement-pills">
+            {data.tensionFlow.keystoneAspects.slice(0, 4).map((code, idx) => {
+              const decoded = decodeAstroCode(code);
+              return (
+                <span key={idx} className="key-placement-pill" title={code}>
+                  {decoded.pretty}
+                </span>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Theme Cards Grid */}
+      <div className="theme-cards-grid">
+        {subtopicKeys.map((subtopicKey) => (
+          <ThemeCard
+            key={subtopicKey}
+            subtopicKey={subtopicKey}
+            subtopic={originalSubtopics[subtopicKey]}
+            editedContent={editedSubtopics[subtopicKey]}
+            isExpanded={expandedCard === subtopicKey}
+            onToggle={() => onCardToggle(subtopicKey)}
+          />
+        ))}
+      </div>
+
+      {/* Synthesis Block - Always Visible */}
+      {data.synthesis && (
+        <div className="synthesis-block">
+          <p>{data.synthesis}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============ MAIN COMPONENT ============
+
 function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis }) {
-  const [expandedCategory, setExpandedCategory] = useState(null);
-  const [expandedSubtopic, setExpandedSubtopic] = useState(null);
+  const [activeDomain, setActiveDomain] = useState(LIFE_DOMAINS[0].id);
+  const [expandedCard, setExpandedCard] = useState(null);
 
   const isAnalysisComplete = analysisStatus?.completed ||
     (broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
@@ -241,94 +381,15 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis })
   const totalTasks = analysisStatus?.failures?.totalTasks || 86;
   const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-  const toggleCategory = (categoryKey) => {
-    setExpandedCategory(expandedCategory === categoryKey ? null : categoryKey);
-    setExpandedSubtopic(null);
+  // Handle domain change - reset expanded card
+  const handleDomainChange = (domainId) => {
+    setActiveDomain(domainId);
+    setExpandedCard(null);
   };
 
-  const toggleSubtopic = (subtopicKey, e) => {
-    e.stopPropagation();
-    setExpandedSubtopic(expandedSubtopic === subtopicKey ? null : subtopicKey);
-  };
-
-  // Render subtopics for a category
-  const renderSubtopics = (category, categoryKey) => {
-    // Get subtopic keys from either editedSubtopics or subtopics
-    const editedSubtopics = category.editedSubtopics || {};
-    const originalSubtopics = category.subtopics || {};
-
-    // Use edited keys if available, otherwise original
-    const subtopicKeys = Object.keys(editedSubtopics).length > 0
-      ? Object.keys(editedSubtopics)
-      : Object.keys(originalSubtopics);
-
-    if (subtopicKeys.length === 0) return null;
-
-    return (
-      <div className="category-subtopics">
-        {subtopicKeys.map((subtopicKey) => {
-          // Get edited content (string) and original data (object with keyAspects)
-          const editedContent = editedSubtopics[subtopicKey];
-          const originalData = originalSubtopics[subtopicKey];
-
-          const fullKey = `${categoryKey}-${subtopicKey}`;
-          const isSubExpanded = expandedSubtopic === fullKey;
-
-          // Get content: prefer edited text, fall back to original analysis
-          const content = typeof editedContent === 'string'
-            ? editedContent
-            : typeof originalData === 'string'
-              ? originalData
-              : originalData?.analysis || originalData?.text || '';
-
-          // Get keyAspects from original subtopics (not edited)
-          const keyAspects = extractKeyAspects(originalData);
-          const decodedElements = keyAspects.map(code => decodeAstroCode(code));
-
-          return (
-            <div
-              key={subtopicKey}
-              className={`subtopic-item ${isSubExpanded ? 'expanded' : ''}`}
-              onClick={(e) => toggleSubtopic(fullKey, e)}
-            >
-              <div className="subtopic-header">
-                <span className="subtopic-name">{formatSubtopicName(subtopicKey)}</span>
-                <span className={`expand-icon ${isSubExpanded ? 'expanded' : ''}`}>▼</span>
-              </div>
-              {isSubExpanded && (
-                <div className="subtopic-content">
-                  {/* Analysis text first */}
-                  {content && content.split('\n').map((paragraph, idx) => (
-                    paragraph.trim() && <p key={idx}>{paragraph}</p>
-                  ))}
-
-                  {/* Key Elements section (after content, like mobile) */}
-                  {decodedElements.length > 0 && (
-                    <div className="key-elements-section">
-                      <div className="key-elements-header">
-                        <span className="key-elements-title">Key Elements</span>
-                        <span className="key-elements-count">({decodedElements.length})</span>
-                      </div>
-                      <div className="key-elements-list">
-                        {decodedElements.map((decoded, idx) => renderKeyElement(decoded, idx))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  // Format subtopic name from key
-  const formatSubtopicName = (key) => {
-    return key
-      .replace(/_/g, ' ')
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .replace(/\b\w/g, c => c.toUpperCase());
+  // Handle card toggle
+  const handleCardToggle = (cardKey) => {
+    setExpandedCard(expandedCard === cardKey ? null : cardKey);
   };
 
   // Render the start analysis prompt
@@ -365,7 +426,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis })
     );
   }
 
-  // Render categories
+  // Get available domains from the actual data keys
   const categories = broadCategoryAnalyses || {};
   const categoryKeys = Object.keys(categories);
 
@@ -378,71 +439,42 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis })
     );
   }
 
+  // Build available domains - use LIFE_DOMAINS metadata if available, otherwise create fallback
+  const availableDomains = categoryKeys.map(key => {
+    const domainMeta = LIFE_DOMAINS.find(d => d.id === key);
+    if (domainMeta) return domainMeta;
+    // Fallback for unknown keys
+    return {
+      id: key,
+      label: formatSubtopicName(key),
+      icon: '📊'
+    };
+  });
+
+  // Ensure active domain is valid
+  const validActiveDomain = availableDomains.find(d => d.id === activeDomain)
+    ? activeDomain
+    : availableDomains[0].id;
+
+  const activeDomainData = categories[validActiveDomain];
+  const activeDomainMeta = availableDomains.find(d => d.id === validActiveDomain);
+
   return (
-    <div className="chart-tab-content analysis-tab">
-      <div className="categories-list">
-        {categoryKeys.map((categoryKey) => {
-          const category = categories[categoryKey];
-          const meta = categoryMeta[categoryKey] || { name: formatSubtopicName(categoryKey), icon: '📊' };
-          const isExpanded = expandedCategory === categoryKey;
+    <div className="chart-tab-content analysis-tab analysis-tab--redesigned">
+      <DomainTabs
+        domains={availableDomains}
+        activeDomain={validActiveDomain}
+        onDomainChange={handleDomainChange}
+      />
 
-          return (
-            <div
-              key={categoryKey}
-              className={`category-card ${isExpanded ? 'expanded' : ''}`}
-            >
-              <div
-                className="category-header"
-                onClick={() => toggleCategory(categoryKey)}
-              >
-                <span className="category-icon">{meta.icon}</span>
-                <span className="category-name">{meta.name}</span>
-                <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>▼</span>
-              </div>
-
-              {isExpanded && (
-                <div className="category-content">
-                  {/* Keystone Aspects from tensionFlow */}
-                  {category.tensionFlow?.keystoneAspects?.length > 0 && (
-                    <div className="keystone-aspects">
-                      <span className="keystone-label">Key Placements:</span>
-                      <div className="keystone-tags">
-                        {category.tensionFlow.keystoneAspects.map((code, idx) => {
-                          const decoded = decodeAstroCode(code);
-                          return (
-                            <span key={idx} className="aspect-tag keystone" title={code}>
-                              {decoded.pretty}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {category.overview && (
-                    <div className="category-overview">
-                      {category.overview.split('\n').map((paragraph, idx) => (
-                        paragraph.trim() && <p key={idx}>{paragraph}</p>
-                      ))}
-                    </div>
-                  )}
-
-                  {renderSubtopics(category, categoryKey)}
-
-                  {category.synthesis && (
-                    <div className="category-synthesis">
-                      <h4>Synthesis</h4>
-                      {category.synthesis.split('\n').map((paragraph, idx) => (
-                        paragraph.trim() && <p key={idx}>{paragraph}</p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      {activeDomainData && activeDomainMeta && (
+        <DomainContent
+          domain={activeDomainMeta}
+          data={activeDomainData}
+          expandedCard={expandedCard}
+          onCardToggle={handleCardToggle}
+        />
+      )}
     </div>
   );
 }

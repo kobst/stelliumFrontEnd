@@ -10,6 +10,8 @@ import PricingTable from './pages/plans';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import HelpCenter from './pages/HelpCenter';
+import PublicCelebritiesPage from './pages/PublicCelebritiesPage';
+import PublicCelebrityDashboard from './pages/PublicCelebrityDashboard';
 
 // Onboarding pages (auth required, no profile required)
 import OnboardingPage from './pages/OnboardingPage';
@@ -41,6 +43,8 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/help" element={<HelpCenter />} />
+            <Route path="/celebrities" element={<PublicCelebritiesPage />} />
+            <Route path="/celebrities/:celebrityId" element={<PublicCelebrityDashboard />} />
 
             {/* Onboarding routes - auth required, no profile required */}
             <Route

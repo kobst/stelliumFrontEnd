@@ -8,6 +8,7 @@ import ObjectionBusterSection from '../UI/landingPage/ObjectionBusterSection';
 import HowItWorksSection from '../UI/landingPage/HowItWorksSection';
 import FeatureGridSection from '../UI/landingPage/FeatureGridSection';
 import CTABand from '../UI/landingPage/CTABand';
+import CelebrityChartsSection from '../UI/landingPage/CelebrityChartsSection';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -50,6 +51,9 @@ const LandingPage = () => {
 
       {/* CTA after pillars */}
       <CTABand />
+
+      {/* Celebrity Charts Section */}
+      <CelebrityChartsSection />
 
       {/* Objection Buster */}
       {/* <ObjectionBusterSection /> */}
