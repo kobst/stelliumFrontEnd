@@ -719,13 +719,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 6px;
   margin-bottom: 8px;
 }
 
 .aspect-description {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9) !important;
   font-size: 0.85rem;
   flex: 1;
 }
@@ -761,7 +762,8 @@
   margin-bottom: 16px;
   padding: 16px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(30, 20, 50, 0.6);
+  border: 1px solid rgba(139, 92, 246, 0.2);
 }
 
 .analysis-text-panel.support {
@@ -783,26 +785,26 @@
 }
 
 .analysis-text-panel h5 {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.9rem;
+  color: white !important;
+  font-size: 0.95rem;
   margin: 0 0 12px 0;
   font-weight: 600;
 }
 
 .analysis-text-panel.support h5 {
-  color: #4ade80;
+  color: #4ade80 !important;
 }
 
 .analysis-text-panel.challenge h5 {
-  color: #f87171;
+  color: #f87171 !important;
 }
 
 .analysis-text-panel.synthesis h5 {
-  color: #a78bfa;
+  color: #a78bfa !important;
 }
 
 .analysis-text-panel p {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9) !important;
   font-size: 0.9rem;
   line-height: 1.6;
   margin: 0 0 12px 0;
