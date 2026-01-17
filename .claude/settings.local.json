@@ -6,7 +6,8 @@
       "Bash(find:*)",
       "Bash(git checkout:*)",
       "Bash(grep:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(tree:*)"
     ],
     "deny": []
   }
