@@ -17,11 +17,10 @@ const HousePositionTable = ({ houseArray }) => {
   // Filter out "South Node" and "Part of Fortune"
   const filteredHouses = houseArray.filter(house => house.house !== "South Node" && house.house !== "Part of Fortune");
 
-  // Create an array of 3 columns, each containing 4 houses
+  // Create an array of 2 columns, each containing 6 houses
   const columns = [
-    filteredHouses.slice(0, 4),
-    filteredHouses.slice(4, 8),
-    filteredHouses.slice(8, 12)
+    filteredHouses.slice(0, 6),
+    filteredHouses.slice(6, 12)
   ];
 
   return (

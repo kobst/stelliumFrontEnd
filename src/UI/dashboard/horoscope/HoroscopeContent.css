@@ -1,70 +1,176 @@
-.horoscope-content {
-  display: grid;
-  grid-template-columns: 140px 1fr 280px;
-  gap: var(--horoscope-grid-gap);
-  align-items: start;
+/* Unified card layout - matches mock design */
+.horoscope-content--unified {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.horoscope-content__time-selector {
-  /* Left column */
+/* Main card container */
+.horoscope-content__card {
+  background: #2a2d45;
+  border-radius: 16px;
+  padding: 32px 40px 40px;
+  text-align: left;
 }
 
-.horoscope-content__main {
-  /* Center column - flexible */
+/* Card header with title and moon icon */
+.horoscope-content__card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-lg);
 }
 
-.horoscope-content__sidebar {
-  /* Right column */
+.horoscope-content__title-section {
+  text-align: left;
 }
 
-/* Tablet - 2 columns, time selector moves above */
-@media (max-width: 1199px) {
-  .horoscope-content {
-    grid-template-columns: 1fr 280px;
-    grid-template-rows: auto 1fr;
-  }
-
-  .horoscope-content__time-selector {
-    grid-column: 1 / -1;
-    grid-row: 1;
-  }
-
-  .horoscope-content__main {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .horoscope-content__sidebar {
-    grid-column: 2;
-    grid-row: 2;
-  }
+.horoscope-content__title {
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-medium);
+  color: #d4a574 !important;
+  margin: 0 0 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
 }
 
-/* Smaller tablet - single column */
-@media (max-width: 900px) {
-  .horoscope-content {
-    grid-template-columns: 1fr;
-  }
-
-  .horoscope-content__time-selector {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .horoscope-content__main {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .horoscope-content__sidebar {
-    grid-column: 1;
-    grid-row: 3;
-  }
+.horoscope-content__date {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
 }
 
-/* Mobile */
+/* Moon icon decoration */
+.horoscope-content__moon-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #718096 100%);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset -8px -4px 12px rgba(255, 150, 150, 0.3);
+}
+
+.horoscope-content__moon-icon::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #2a2d45;
+}
+
+/* Horoscope text content */
+.horoscope-content__text {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+  line-height: 1.7;
+  margin-top: var(--spacing-xl);
+  text-align: left;
+}
+
+.horoscope-content__text p {
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+.horoscope-content__text p:last-child {
+  margin-bottom: 0;
+}
+
+/* Divider before influences */
+.horoscope-content__divider {
+  width: 80px;
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--spacing-xl) auto;
+}
+
+/* Key Planetary Influences section */
+.horoscope-content__influences {
+  margin-top: var(--spacing-lg);
+  text-align: left;
+}
+
+.horoscope-content__influences-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: #d4a574 !important;
+  margin: 0 0 var(--spacing-md) 0;
+  text-align: left !important;
+}
+
+/* Influence pills */
+.horoscope-content__influence-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
+.influence-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(50, 45, 70, 0.6);
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+}
+
+.influence-pill__text {
+  color: var(--color-text-secondary);
+}
+
+.influence-pill__separator {
+  color: var(--color-text-tertiary);
+}
+
+.influence-pill__date {
+  color: #d4a574;
+  font-weight: var(--font-weight-medium);
+}
+
+/* HoroscopeCard inside unified card (for loading/error states) */
+.horoscope-content__card .horoscope-card {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-top: var(--spacing-lg);
+}
+
+/* Mobile adjustments */
 @media (max-width: 767px) {
-  .horoscope-content {
-    gap: var(--spacing-lg);
+  .horoscope-content__card {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .horoscope-content__title {
+    font-size: 1.4rem;
+  }
+
+  .horoscope-content__moon-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .horoscope-content__moon-icon::after {
+    width: 30px;
+    height: 30px;
+  }
+
+  .horoscope-content__text {
+    font-size: var(--font-size-sm);
+  }
+
+  .horoscope-content__influence-pills {
+    gap: 8px;
+  }
+
+  .influence-pill {
+    padding: 8px 12px;
+    font-size: var(--font-size-xs);
   }
 }

@@ -1,74 +1,132 @@
-.birth-chart {
-  display: flex;
+/* 2x2 Grid Layout */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 350px 350px;
+  gap: 16px;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  height: 100vh; /* Set a fixed height, adjust as needed */
 }
 
-.left-section,
-.right-section {
-  width: 50%;
+/* Chart Box - Dark boxed section styling */
+.chart-box {
+  background: rgba(45, 48, 65, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md, 8px);
+  padding: var(--spacing-lg, 16px);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  overflow: hidden;
+  min-height: 0;
 }
 
-.left-section {
-  padding-right: 20px;
-  justify-content: space-between; /* Distribute space between children */
-}
-
-.ephemeris-container {
-  flex-grow: 1; /* Allow this to grow */
-}
-
-.house-position-container {
-  margin-bottom: 0; /* Remove bottom margin */
-}
-
-.right-section {
-  justify-content: space-between; /* Distribute space between children */
-}
-
-.table-container {
-  margin-bottom: 10px;
-}
-
-.aspects-container {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  overflow: hidden; /* Hide overflow */
-}
-
-.planet-position-table,
-.aspects-table-wrapper {
-  max-height: 100%;
-  overflow-y: auto;
-  border: 2px solid white; /* Add a white border */
-  border-radius: 4px; /* Add border radius for rounded corners */
-  padding: 10px; /* Add some padding for spacing */
-}
-
-.aspects-table-wrapper {
-  max-height: 200px; /* Adjust the height as needed */
-}
-
-h3 {
+/* Chart Box Header */
+.chart-box__header {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-md, 12px);
+  padding-bottom: var(--spacing-sm, 8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.no-houses-message {
+.chart-box__title {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.chart-box__subtitle {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+/* Chart Box Content */
+.chart-box__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.chart-box__empty {
   padding: 1rem;
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.5);
   font-style: italic;
   text-align: center;
-  margin: 1rem 0;
 }
-  
-  /* Rest of the CSS remains the same */
+
+/* Ephemeris Box - Center and constrain the canvas */
+.chart-box--ephemeris {
+  max-height: 100%;
+}
+
+.chart-box--ephemeris .chart-box__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.chart-box--ephemeris canvas {
+  max-width: 280px;
+  max-height: 280px;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain;
+}
+
+/* Responsive: Stack on smaller screens */
+@media (max-width: 1024px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+  }
+
+  .chart-box {
+    height: auto;
+    min-height: 300px;
+  }
+
+  .chart-box--ephemeris {
+    min-height: 350px;
+  }
+
+  .chart-box--ephemeris canvas {
+    max-width: 350px;
+    max-height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-grid {
+    gap: 12px;
+  }
+
+  .chart-box {
+    padding: var(--spacing-md, 12px);
+    min-height: 250px;
+  }
+
+  .chart-box--ephemeris {
+    min-height: 300px;
+  }
+
+  .chart-box--ephemeris canvas {
+    max-width: 280px;
+    max-height: 280px;
+  }
+
+  .chart-box__title {
+    font-size: 0.8rem;
+  }
+}

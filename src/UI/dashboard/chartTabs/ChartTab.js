@@ -19,6 +19,10 @@ function ChartTab({ birthChart }) {
 
   return (
     <div className="chart-tab">
+      <div className="chart-section-header">
+        <h2 className="chart-section-title">Chart</h2>
+        <div className="chart-gradient-icon"></div>
+      </div>
       <BirthChartSummaryTable
         planets={planets}
         houses={houses}

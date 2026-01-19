@@ -230,27 +230,26 @@ const formatSubtopicName = (key) => {
 // ============ DOMAIN CONFIGURATION ============
 
 const LIFE_DOMAINS = [
-  { id: 'PERSONALITY_IDENTITY', label: 'Identity', icon: '🌟' },
-  { id: 'CAREER_PURPOSE_PUBLIC_IMAGE', label: 'Career', icon: '💼' },
-  { id: 'RELATIONSHIPS_SOCIAL', label: 'Partnerships', icon: '💕' },
-  { id: 'COMMUNICATION_BELIEFS', label: 'Communication', icon: '💬' },
-  { id: 'EMOTIONAL_FOUNDATIONS_HOME', label: 'Emotional', icon: '🏠' },
-  { id: 'UNCONSCIOUS_SPIRITUALITY', label: 'Spiritual', icon: '✨' },
+  { id: 'UNCONSCIOUS_SPIRITUALITY', label: 'Spiritual' },
+  { id: 'EMOTIONAL_FOUNDATIONS_HOME', label: 'Emotional Foundation' },
+  { id: 'COMMUNICATION_BELIEFS', label: 'Communication' },
+  { id: 'CAREER_PURPOSE_PUBLIC_IMAGE', label: 'Career & Ambition' },
+  { id: 'RELATIONSHIPS_SOCIAL', label: 'Partnerships' },
+  { id: 'PERSONALITY_IDENTITY', label: 'Identity' },
 ];
 
 // ============ INLINE COMPONENTS ============
 
 function DomainTabs({ domains, activeDomain, onDomainChange }) {
   return (
-    <nav className="domain-tabs">
+    <nav className="analysis-domain-tabs">
       {domains.map(domain => (
         <button
           key={domain.id}
-          className={`domain-tab ${activeDomain === domain.id ? 'domain-tab--active' : ''}`}
+          className={`analysis-domain-tab ${activeDomain === domain.id ? 'analysis-domain-tab--active' : ''}`}
           onClick={() => onDomainChange(domain.id)}
         >
-          <span className="domain-tab__icon">{domain.icon}</span>
-          <span className="domain-tab__label">{domain.label}</span>
+          {domain.label}
         </button>
       ))}
     </nav>
@@ -265,38 +264,42 @@ function ThemeCard({ subtopicKey, subtopic, editedContent, isExpanded, onToggle 
       ? subtopic
       : subtopic?.analysis || subtopic?.text || '';
 
-  // Create summary from first 2-3 sentences
+  // Create summary from first 2-3 sentences (truncated)
   const sentences = analysis.split(/(?<=[.!?])\s+/);
   const summary = sentences.slice(0, 2).join(' ');
 
-  // Get keyAspects from original subtopic
+  // Extract and decode key aspects
   const keyAspects = extractKeyAspects(subtopic);
-  const decodedElements = keyAspects.map(code => decodeAstroCode(code));
+  const decodedAspects = keyAspects.map(code => decodeAstroCode(code));
 
   return (
-    <div className={`theme-card ${isExpanded ? 'theme-card--expanded' : ''}`}>
-      <div className="theme-card__header" onClick={onToggle}>
-        <h4 className="theme-card__title">{formatSubtopicName(subtopicKey)}</h4>
-        <span className="theme-card__expand-icon">{isExpanded ? '−' : '+'}</span>
+    <div className={`analysis-theme-item ${isExpanded ? 'analysis-theme-item--expanded' : ''}`}>
+      <div className="analysis-theme-item__header" onClick={onToggle}>
+        <div className="analysis-theme-item__text">
+          <h4 className="analysis-theme-item__title">{formatSubtopicName(subtopicKey)}</h4>
+          {/* Only show summary when collapsed */}
+          {!isExpanded && (
+            <p className="analysis-theme-item__summary">{summary}</p>
+          )}
+        </div>
+        <span className="analysis-theme-item__icon">{isExpanded ? '−' : '+'}</span>
       </div>
 
-      {!isExpanded ? (
-        <p className="theme-card__summary">{summary}</p>
-      ) : (
-        <div className="theme-card__content">
+      {isExpanded && (
+        <div className="analysis-theme-item__content">
           {analysis && analysis.split('\n').map((paragraph, idx) => (
             paragraph.trim() && <p key={idx}>{paragraph}</p>
           ))}
 
-          {decodedElements.length > 0 && (
-            <div className="key-elements-section">
-              <div className="key-elements-header">
-                <span className="key-elements-title">Key Elements</span>
-                <span className="key-elements-count">({decodedElements.length})</span>
-              </div>
-              <div className="key-elements-list">
-                {decodedElements.map((decoded, idx) => renderKeyElement(decoded, idx))}
-              </div>
+          {/* Key Aspects List */}
+          {decodedAspects.length > 0 && (
+            <div className="analysis-theme-item__aspects">
+              <span className="analysis-theme-item__aspects-label">Related Aspects:</span>
+              <ul className="analysis-theme-item__aspects-list">
+                {decodedAspects.map((decoded, idx) => (
+                  <li key={idx}>{decoded.pretty}</li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
@@ -315,26 +318,18 @@ function DomainContent({ domain, data, expandedCard, onCardToggle }) {
     : Object.keys(originalSubtopics);
 
   return (
-    <div className="domain-content">
-      {/* Domain Header */}
-      <div className="domain-header">
-        <div className="domain-header__text">
-          <h3 className="domain-header__title">
-            <span className="domain-header__icon">{domain.icon}</span>
-            {domain.label}
-          </h3>
-          {data.overview && (
-            <p className="domain-header__intro">{data.overview}</p>
-          )}
-        </div>
+    <div className="analysis-domain-content">
+      {/* Domain Header Row */}
+      <div className="analysis-domain-header">
+        <h3 className="analysis-domain-title">{domain.label}</h3>
 
-        {/* Key Placement Pills */}
+        {/* Key Aspect Pills */}
         {data.tensionFlow?.keystoneAspects?.length > 0 && (
-          <div className="key-placement-pills">
-            {data.tensionFlow.keystoneAspects.slice(0, 4).map((code, idx) => {
+          <div className="analysis-aspect-pills">
+            {data.tensionFlow.keystoneAspects.slice(0, 3).map((code, idx) => {
               const decoded = decodeAstroCode(code);
               return (
-                <span key={idx} className="key-placement-pill" title={code}>
+                <span key={idx} className="analysis-aspect-pill" title={code}>
                   {decoded.pretty}
                 </span>
               );
@@ -343,8 +338,13 @@ function DomainContent({ domain, data, expandedCard, onCardToggle }) {
         )}
       </div>
 
-      {/* Theme Cards Grid */}
-      <div className="theme-cards-grid">
+      {/* Overview Text */}
+      {data.overview && (
+        <p className="analysis-domain-overview">{data.overview}</p>
+      )}
+
+      {/* Theme Items List (Vertical) */}
+      <div className="analysis-theme-list">
         {subtopicKeys.map((subtopicKey) => (
           <ThemeCard
             key={subtopicKey}
@@ -357,11 +357,12 @@ function DomainContent({ domain, data, expandedCard, onCardToggle }) {
         ))}
       </div>
 
-      {/* Synthesis Block - Always Visible */}
+      {/* Synthesis Block */}
       {data.synthesis && (
-        <div className="synthesis-block">
-          <p>{data.synthesis}</p>
-        </div>
+        <>
+          <div className="analysis-synthesis-separator"></div>
+          <p className="analysis-synthesis">{data.synthesis}</p>
+        </>
       )}
     </div>
   );
@@ -461,12 +462,20 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis })
 
   return (
     <div className="chart-tab-content analysis-tab analysis-tab--redesigned">
+      {/* Header Section */}
+      <div className="analysis-header">
+        <h3 className="analysis-header__title">360 Analysis</h3>
+        <div className="analysis-gradient-icon"></div>
+      </div>
+
+      {/* Domain Tabs */}
       <DomainTabs
         domains={availableDomains}
         activeDomain={validActiveDomain}
         onDomainChange={handleDomainChange}
       />
 
+      {/* Domain Content */}
       {activeDomainData && activeDomainMeta && (
         <DomainContent
           domain={activeDomainMeta}

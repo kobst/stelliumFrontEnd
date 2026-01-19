@@ -15,8 +15,6 @@ import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
 import ChartTab from '../UI/dashboard/chartTabs/ChartTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
-import HousesSection from '../UI/dashboard/chartDetail/sections/HousesSection';
-import AspectsSection from '../UI/dashboard/chartDetail/sections/AspectsSection';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
 import AskStelliumChartTab from '../UI/dashboard/chartTabs/AskStelliumChartTab';
 import LockedContent from '../UI/shared/LockedContent';
@@ -255,42 +253,6 @@ function ChartDetailPage() {
             'House placements explained',
             'Planetary aspects breakdown',
             'Retrograde planet insights'
-          ]}
-          ctaText="Unlock with Plus"
-        />
-      )
-    },
-    {
-      id: 'houses',
-      content: canAccessPremiumTabs ? (
-        <HousesSection birthChart={birthChart} />
-      ) : (
-        <LockedContent
-          title="Houses Analysis"
-          description="Understand how the 12 houses influence different areas of your life."
-          features={[
-            'House cusp signs explained',
-            'Planetary rulers for each house',
-            'Life area interpretations',
-            'Planets in houses meaning'
-          ]}
-          ctaText="Unlock with Plus"
-        />
-      )
-    },
-    {
-      id: 'aspects',
-      content: canAccessPremiumTabs ? (
-        <AspectsSection birthChart={birthChart} />
-      ) : (
-        <LockedContent
-          title="Aspects Analysis"
-          description="Discover how your planets interact through aspects."
-          features={[
-            'Harmonious aspects (trines, sextiles)',
-            'Challenging aspects (squares, oppositions)',
-            'Conjunction interpretations',
-            'Aspect patterns identified'
           ]}
           ctaText="Unlock with Plus"
         />

@@ -1,20 +1,24 @@
 .time-selector {
-  position: sticky;
-  top: var(--spacing-2xl);
+  margin-bottom: var(--spacing-lg);
 }
 
 .time-selector__buttons {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  flex-direction: row;
+  justify-content: center;
+  gap: 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .time-selector__button {
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-pill);
-  background: transparent;
-  color: var(--color-text-secondary);
+  padding: 12px 24px;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  margin-bottom: -1px;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--color-text-tertiary);
   font-family: var(--font-family-base);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
@@ -24,16 +28,10 @@
 }
 
 .time-selector__button:hover:not(:disabled) {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
+  color: var(--color-text-secondary);
 }
 
 .time-selector__button:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.time-selector__button:focus:not(:focus-visible) {
   outline: none;
 }
 
@@ -43,14 +41,11 @@
 }
 
 .time-selector__button--active {
-  background: var(--color-primary);
   color: var(--color-text-primary);
-  border-color: var(--color-primary);
+  border-bottom-color: var(--color-text-primary) !important;
 }
 
 .time-selector__button--active:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
   color: var(--color-text-primary);
 }
 
@@ -59,28 +54,10 @@
   cursor: not-allowed;
 }
 
-/* Tablet - move to horizontal above content */
-@media (max-width: 1199px) {
-  .time-selector {
-    position: static;
-    margin-bottom: var(--spacing-xl);
-  }
-
-  .time-selector__buttons {
-    flex-direction: row;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-}
-
-/* Mobile - full width horizontal */
+/* Mobile */
 @media (max-width: 767px) {
-  .time-selector__buttons {
-    justify-content: stretch;
-  }
-
   .time-selector__button {
-    flex: 1;
-    min-width: 100px;
+    padding: 10px 20px;
+    font-size: var(--font-size-sm);
   }
 }

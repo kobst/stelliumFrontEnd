@@ -23,7 +23,7 @@ function ChartsList({
 
   return (
     <div className="charts-list">
-      <h3 className="charts-list__title">Birth Charts</h3>
+      <h3 className="charts-list__title">My Birth Charts</h3>
 
       {loading ? (
         <div className="charts-list__status">Loading...</div>
@@ -31,23 +31,23 @@ function ChartsList({
         <div className="charts-list__status charts-list__status--error">{error}</div>
       ) : (
         <div className="charts-list__grid">
-          {allCharts.map(chart => (
+          {allCharts.map((chart, index) => (
             <GuestChartCard
               key={chart._id}
               chart={chart}
               onClick={() => onChartClick(chart._id)}
               featured={chart.isFeatured}
+              index={index + 1}
             />
           ))}
+          <button className="charts-list__add-card" onClick={onAddChart}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            <span>Add Birth Chart</span>
+          </button>
         </div>
       )}
-
-      <button className="charts-list__add-btn" onClick={onAddChart}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-        Add Birth Chart
-      </button>
     </div>
   );
 }

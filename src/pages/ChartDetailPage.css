@@ -1,6 +1,5 @@
 .chart-detail-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
 }
 
 .chart-detail-header {
@@ -158,9 +157,7 @@
 }
 
 .chart-detail-content .tab-content {
-  background: rgba(139, 92, 246, 0.05);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  border-radius: 16px;
+  /* No special styling needed */
 }
 
 .analysis-loading-banner {

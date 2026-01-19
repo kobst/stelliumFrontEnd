@@ -2,11 +2,37 @@
   padding: 0;
 }
 
+.relationships-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xl, 24px);
+}
+
 .relationships-section__title {
-  font-size: var(--font-size-xl, 1.25rem);
-  font-weight: var(--font-weight-bold, 700);
-  color: var(--color-text-primary, white);
-  margin: 0 0 var(--spacing-xl, 24px) 0;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2rem;
+  font-weight: 400;
+  font-style: italic;
+  color: #d4a574;
+  margin: 0;
+}
+
+.relationships-section__add-btn {
+  padding: 12px 24px;
+  background: #2dd4bf;
+  border: none;
+  border-radius: 24px;
+  color: #1a1a2e;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.relationships-section__add-btn:hover {
+  background: #5eead4;
+  transform: translateY(-1px);
 }
 
 /* Legacy styles for backwards compatibility */

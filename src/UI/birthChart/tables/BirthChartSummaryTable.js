@@ -17,41 +17,57 @@ const BirthChartSummaryTable = memo(({planets, houses, aspects, transits = []}) 
   }, [planets, houses, aspects, transits]);
 
   return (
-    <div className="birth-chart">
-      <div className="left-section">
-        <div className="ephemeris-container">
-          <h3>Ephemeris</h3>
-          <Ephemeris 
+    <div className="chart-grid">
+      {/* Top Left: Ephemeris */}
+      <div className="chart-box chart-box--ephemeris">
+        <div className="chart-box__header">
+          <h3 className="chart-box__title">EPHEMERIS</h3>
+        </div>
+        <div className="chart-box__content">
+          <Ephemeris
             key={ephemerisKey}
-            planets={planets} 
-            houses={houses} 
-            aspects={aspects} 
+            planets={planets}
+            houses={houses}
+            aspects={aspects}
             transits={transits}
-            instanceId="summary" // Add unique identifier
+            instanceId="summary"
           />
         </div>
       </div>
-      <div className="right-section">
-        <h3>Planetary Positions</h3>
-        <div className="house-position-container">
-          <h3>House Positions</h3>
+
+      {/* Top Right: House Positions */}
+      <div className="chart-box chart-box--houses">
+        <div className="chart-box__header">
+          <h3 className="chart-box__title">HOUSE POSITIONS</h3>
+        </div>
+        <div className="chart-box__content">
           {houses && houses.length > 0 ? (
             <HousePositionTable houseArray={houses} />
           ) : (
-            <div className="no-houses-message">
+            <div className="chart-box__empty">
               House data not available with unknown birth time
             </div>
           )}
         </div>
-        <h3>Planetary Positions</h3>
-        <div className="table-container">
+      </div>
+
+      {/* Bottom Left: Planetary Positions */}
+      <div className="chart-box chart-box--planets">
+        <div className="chart-box__header">
+          <h3 className="chart-box__title">PLANETARY POSITIONS</h3>
+        </div>
+        <div className="chart-box__content">
           <PlanetPositionTable planetsArray={planets} />
         </div>
-        <div className="aspects-container">
-          <h3>Aspects</h3>
-          <div className="aspects-table-wrapper">
-            <AspectsTable aspectsArray={aspects} />
-          </div>
+      </div>
+
+      {/* Bottom Right: Aspects */}
+      <div className="chart-box chart-box--aspects">
+        <div className="chart-box__header">
+          <h3 className="chart-box__title">ASPECTS</h3>
+        </div>
+        <div className="chart-box__content">
+          <AspectsTable aspectsArray={aspects} />
         </div>
       </div>
     </div>

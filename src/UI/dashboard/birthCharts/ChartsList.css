@@ -3,19 +3,17 @@
 }
 
 .charts-list__title {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-  color: var(--color-text-secondary);
-  margin: 0 0 var(--spacing-lg) 0;
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  color: #d4a574 !important;
+  margin: 0 0 var(--spacing-xl) 0;
+  text-align: left !important;
 }
 
 .charts-list__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
+  gap: var(--spacing-md);
 }
 
 .charts-list__status {
@@ -29,27 +27,32 @@
   color: var(--color-error);
 }
 
-.charts-list__add-btn {
+/* Add card - sits in grid */
+.charts-list__add-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
-  width: 100%;
-  padding: var(--spacing-lg);
+  aspect-ratio: 3 / 4;
   background: transparent;
-  border: 2px dashed var(--color-border);
+  border: 1px dashed var(--color-border);
   border-radius: var(--border-radius-md);
-  color: var(--color-primary);
+  color: var(--color-text-tertiary);
   font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
   cursor: pointer;
   transition: var(--transition-normal);
 }
 
-.charts-list__add-btn:hover {
-  background: rgba(139, 92, 246, 0.1);
-  border-color: var(--color-primary);
+.charts-list__add-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.charts-list__add-card span {
+  font-size: var(--font-size-xs);
 }
 
 /* Mobile */
@@ -58,7 +61,15 @@
     padding: var(--spacing-lg);
   }
 
+  .charts-list__title {
+    font-size: 1.25rem;
+  }
+
   .charts-list__grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .charts-list__add-card {
+    aspect-ratio: 3 / 4;
   }
 }

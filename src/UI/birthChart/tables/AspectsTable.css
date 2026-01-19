@@ -1,32 +1,94 @@
+/* Aspects List Layout */
+.aspects-list {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+
 .aspects-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.8em;
-  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 0.85rem;
   color: white;
 }
 
-.aspects-table td {
-  padding: 2px;
-  text-align: left;
-  border: none;
+.aspects-row {
+  transition: background-color 0.15s ease;
+}
+
+.aspects-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.aspects-cell {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   white-space: nowrap;
 }
 
-.aspects-table td:last-child {
+.aspects-row:last-child .aspects-cell {
+  border-bottom: none;
+}
+
+/* Planet cells */
+.aspects-cell--planet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aspects-symbol {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  min-width: 20px;
+  text-align: center;
+}
+
+.aspects-planet-name {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
+}
+
+/* Aspect type cell */
+.aspects-cell--aspect {
+  text-align: center;
+}
+
+.aspects-type-name {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+
+/* Orb cell */
+.aspects-cell--orb {
   text-align: right;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  padding-right: 12px;
 }
 
-.symbol-img {
-  width: 16px;
-  height: 16px;
-  vertical-align: middle;
-  margin-right: 2px;
+/* Empty state */
+.aspects-empty {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 20px;
+  font-style: italic;
 }
 
-.aspect-symbol {
-  font-size: 1.2em;
-  font-weight: bold;
-  font-family: Arial, "DejaVu Sans", "Symbola", sans-serif;
+/* Responsive */
+@media (max-width: 768px) {
+  .aspects-planet-name,
+  .aspects-type-name {
+    display: none;
+  }
+
+  .aspects-cell {
+    padding: 8px 4px;
+  }
+
+  .aspects-symbol {
+    font-size: 1.1rem;
+  }
 }

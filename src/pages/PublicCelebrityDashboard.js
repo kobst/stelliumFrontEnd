@@ -8,8 +8,6 @@ import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
-import HousesSection from '../UI/dashboard/chartDetail/sections/HousesSection';
-import AspectsSection from '../UI/dashboard/chartDetail/sections/AspectsSection';
 
 // Import layout CSS files
 import '../UI/dashboard/chartDetail/ChartDetailLayout.css';
@@ -26,8 +24,6 @@ const PUBLIC_SECTIONS = [
   { id: 'chart', label: 'Chart' },
   { id: 'dominance', label: 'Patterns' },
   { id: 'planets', label: 'Planets' },
-  { id: 'houses', label: 'Houses' },
-  { id: 'aspects', label: 'Aspects' },
   { id: 'analysis', label: '360°' },
   { id: 'unlock', label: 'Create Yours' }
 ];
@@ -216,10 +212,6 @@ function PublicCelebrityDashboard() {
         );
       case 'planets':
         return <PlanetsTab birthChart={birthChart} basicAnalysis={basicAnalysis} />;
-      case 'houses':
-        return <HousesSection birthChart={birthChart} basicAnalysis={basicAnalysis} />;
-      case 'aspects':
-        return <AspectsSection birthChart={birthChart} basicAnalysis={basicAnalysis} />;
       case 'analysis':
         if (!hasFullAnalysis) {
           return (

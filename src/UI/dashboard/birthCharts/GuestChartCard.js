@@ -1,22 +1,7 @@
 import React from 'react';
 import './GuestChartCard.css';
 
-const ZODIAC_GLYPHS = {
-  'Aries': '\u2648',
-  'Taurus': '\u2649',
-  'Gemini': '\u264A',
-  'Cancer': '\u264B',
-  'Leo': '\u264C',
-  'Virgo': '\u264D',
-  'Libra': '\u264E',
-  'Scorpio': '\u264F',
-  'Sagittarius': '\u2650',
-  'Capricorn': '\u2651',
-  'Aquarius': '\u2652',
-  'Pisces': '\u2653'
-};
-
-function GuestChartCard({ chart, onClick, featured }) {
+function GuestChartCard({ chart, onClick, featured, index }) {
   const getInitials = () => {
     const firstName = chart?.firstName || '';
     const lastName = chart?.lastName || '';
@@ -29,45 +14,35 @@ function GuestChartCard({ chart, onClick, featured }) {
     return sun?.sign || null;
   };
 
-  const getMoonSign = () => {
-    if (!chart?.birthChart?.planets) return null;
-    const moon = chart.birthChart.planets.find(p => p.name === 'Moon');
-    return moon?.sign || null;
+  const formatBirthDate = () => {
+    if (!chart?.birthDate) return '';
+    const date = new Date(chart.birthDate);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
   };
 
   const fullName = `${chart?.firstName || ''} ${chart?.lastName || ''}`.trim();
   const sunSign = getSunSign();
-  const moonSign = getMoonSign();
+  const birthDate = formatBirthDate();
 
   return (
     <div className={`guest-chart-card ${featured ? 'guest-chart-card--featured' : ''}`} onClick={onClick}>
-      <div className="guest-chart-card__avatar">
+      <div className="guest-chart-card__photo">
         {chart?.profilePhotoUrl ? (
           <img src={chart.profilePhotoUrl} alt={fullName} />
         ) : (
-          <span>{getInitials()}</span>
+          <div className="guest-chart-card__initials">{getInitials()}</div>
         )}
+        {index && <span className="guest-chart-card__badge">{index}</span>}
       </div>
 
-      <h4 className="guest-chart-card__name">{fullName}</h4>
-
-      <div className="guest-chart-card__signs">
-        {sunSign && (
-          <span className="guest-chart-card__glyph" title={`Sun in ${sunSign}`}>
-            {ZODIAC_GLYPHS[sunSign]}
-          </span>
-        )}
-        {sunSign && moonSign && (
-          <span className="guest-chart-card__separator">•</span>
-        )}
-        {moonSign && (
-          <span className="guest-chart-card__glyph" title={`Moon in ${moonSign}`}>
-            {ZODIAC_GLYPHS[moonSign]}
-          </span>
-        )}
+      <div className="guest-chart-card__info">
+        <h4 className="guest-chart-card__name">{fullName}</h4>
+        {sunSign && <span className="guest-chart-card__sign">{sunSign}</span>}
+        {birthDate && <span className="guest-chart-card__date">{birthDate}</span>}
       </div>
-
-      <span className="guest-chart-card__view">View</span>
     </div>
   );
 }

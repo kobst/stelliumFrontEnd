@@ -188,7 +188,7 @@ function RelationshipAnalysisPage() {
             onBackClick={handleBackClick}
             sections={sections}
             lockedSections={lockedSections}
-            defaultSection="scores"
+            defaultSection="overview"
           />
         </div>
       )}

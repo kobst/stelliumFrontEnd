@@ -1,27 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import './AspectsTable.css';
 
 const AspectsTable = ({ aspectsArray }) => {
-
-  // Function to get the aspect name
-  const getAspectName = (aspectType) => {
-    if (typeof aspectType !== 'string' || !aspectType) {
-      console.warn(`Invalid aspect type: ${aspectType}`);
-      return 'Unknown';
-    }
-
-    switch (aspectType.toLowerCase()) {
-      case 'conjunction': return 'Conjunction';
-      case 'opposition': return 'Opposition';
-      case 'trine': return 'Trine';
-      case 'square': return 'Square';
-      case 'sextile': return 'Sextile';
-      case 'quincunx': return 'Quincunx';
-      default: return aspectType; // Return the original if not recognized
-    }
-  };
-  
-  // Unicode symbols for planets as fallback
+  // Unicode symbols for planets
   const planetSymbols = {
     'Sun': '☉',
     'Moon': '☽',
@@ -41,41 +22,72 @@ const AspectsTable = ({ aspectsArray }) => {
     'South Node': '☋'
   };
 
+  // Unicode symbols for aspects
+  const aspectSymbols = {
+    'conjunction': '☌',
+    'opposition': '☍',
+    'trine': '△',
+    'square': '□',
+    'sextile': '⚹',
+    'quincunx': '⚻'
+  };
+
+  // Get display name for aspect type
+  const getAspectName = (aspectType) => {
+    if (!aspectType) return 'Unknown';
+    const type = aspectType.toLowerCase();
+    const names = {
+      'conjunction': 'Conjunction',
+      'opposition': 'Opposition',
+      'trine': 'Trine',
+      'square': 'Square',
+      'sextile': 'Sextile',
+      'quincunx': 'Quincunx'
+    };
+    return names[type] || aspectType;
+  };
+
+  // Get aspect symbol
+  const getAspectSymbol = (aspectType) => {
+    if (!aspectType) return '•';
+    return aspectSymbols[aspectType.toLowerCase()] || '•';
+  };
+
+  // Get planet symbol
+  const getPlanetSymbol = (planet) => {
+    return planetSymbols[planet] || (planet ? planet.substring(0, 2) : '??');
+  };
+
+  if (!aspectsArray || aspectsArray.length === 0) {
+    return <div className="aspects-empty">No aspects found</div>;
+  }
+
   return (
-    <table className="aspects-table">
-      <tbody>
-        {aspectsArray.map((aspect, index) => (
-          <tr key={index}>
-            <td>
-              <span 
-                style={{ 
-                  fontSize: (aspect.aspectedPlanet === 'Ascendant' || aspect.aspectedPlanet === 'Midheaven') ? '14px' : '20px',
-                  fontWeight: (aspect.aspectedPlanet === 'Ascendant' || aspect.aspectedPlanet === 'Midheaven') ? 'normal' : 'bold'
-                }}
-              >
-                {planetSymbols[aspect.aspectedPlanet] || (aspect.aspectedPlanet ? aspect.aspectedPlanet.substring(0, 2) : '??')}
-              </span>
-            </td>
-            <td>{aspect.aspectedPlanet}</td>
-            <td className="aspect-name">
-              {getAspectName(aspect.aspectType)}
-            </td>
-            <td>
-              <span 
-                style={{ 
-                  fontSize: (aspect.aspectingPlanet === 'Ascendant' || aspect.aspectingPlanet === 'Midheaven') ? '14px' : '20px',
-                  fontWeight: (aspect.aspectingPlanet === 'Ascendant' || aspect.aspectingPlanet === 'Midheaven') ? 'normal' : 'bold'
-                }}
-              >
-                {planetSymbols[aspect.aspectingPlanet] || (aspect.aspectingPlanet ? aspect.aspectingPlanet.substring(0, 2) : '??')}
-              </span>
-            </td>
-            <td>{aspect.aspectingPlanet}</td>
-            <td>{aspect.orb.toFixed(2)}°</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="aspects-list">
+      <table className="aspects-table">
+        <tbody>
+          {aspectsArray.map((aspect, index) => (
+            <tr key={index} className="aspects-row">
+              <td className="aspects-cell aspects-cell--planet">
+                <span className="aspects-symbol">{getPlanetSymbol(aspect.aspectedPlanet)}</span>
+                <span className="aspects-planet-name">{aspect.aspectedPlanet}</span>
+              </td>
+              <td className="aspects-cell aspects-cell--aspect">
+                <span className="aspects-symbol">{getAspectSymbol(aspect.aspectType)}</span>
+                <span className="aspects-type-name">{getAspectName(aspect.aspectType)}</span>
+              </td>
+              <td className="aspects-cell aspects-cell--planet">
+                <span className="aspects-symbol">{getPlanetSymbol(aspect.aspectingPlanet)}</span>
+                <span className="aspects-planet-name">{aspect.aspectingPlanet}</span>
+              </td>
+              <td className="aspects-cell aspects-cell--orb">
+                {aspect.orb?.toFixed(1)}°
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

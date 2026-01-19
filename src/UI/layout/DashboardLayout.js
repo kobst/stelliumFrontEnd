@@ -61,13 +61,17 @@ function DashboardLayout({
   };
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout dashboard-layout--no-sidebar">
       <TopHeader
         user={user}
         onMenuToggle={handleMenuToggle}
+        currentSection={currentSection}
+        onNavClick={handleNavClick}
+        onLogout={handleLogout}
       />
 
       <div className="dashboard-layout__body">
+        {/* Sidebar only for mobile drawer */}
         {showSidebar && (
           <Sidebar
             user={user}
@@ -79,7 +83,7 @@ function DashboardLayout({
           />
         )}
 
-        <main className={`dashboard-layout__content ${!showSidebar ? 'dashboard-layout__content--full' : ''}`}>
+        <main className="dashboard-layout__content dashboard-layout__content--full">
           {renderContent()}
         </main>
       </div>

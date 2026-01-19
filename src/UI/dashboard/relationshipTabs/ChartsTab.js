@@ -94,7 +94,7 @@ function SynastryAspectsTable({ aspects, userAName, userBName }) {
                 <span className="planet-name">{planetB}</span>
               </div>
               <div className="synastry-orb">
-                {typeof orb === 'number' ? orb.toFixed(2) : orb}°
+                {typeof orb === 'number' ? orb.toFixed(2) : orb} Deg
               </div>
             </div>
           );
@@ -115,30 +115,49 @@ function ChartsTab({ relationship }) {
   const hasCompositeData = compositeChart?.planets && compositeChart.planets.length > 0;
 
   return (
-    <div className="relationship-tab-content charts-tab">
-      {/* Sub-tabs */}
-      <div className="charts-sub-tabs">
-        <button
-          className={`sub-tab ${activeSubTab === 'synastry' ? 'active' : ''}`}
-          onClick={() => setActiveSubTab('synastry')}
-        >
-          Synastry ({synastryAspects.length})
-        </button>
-        <button
-          className={`sub-tab ${activeSubTab === 'composite' ? 'active' : ''}`}
-          onClick={() => setActiveSubTab('composite')}
-        >
-          Composite
-        </button>
+    <div className="charts-tab-redesign">
+      {/* Header */}
+      <div className="charts-header">
+        <h2 className="charts-header__title">Charts</h2>
+        <div className="charts-header__icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="20" stroke="url(#chartGradient)" strokeWidth="2" strokeDasharray="4 4" />
+            <circle cx="24" cy="24" r="12" stroke="url(#chartGradient)" strokeWidth="1.5" opacity="0.6" />
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="48" y2="48">
+                <stop stopColor="#60a5fa" />
+                <stop offset="1" stopColor="#a78bfa" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="charts-content">
+      {/* Card containing tabs + content */}
+      <div className="charts-card">
+        {/* Sub-tabs */}
+        <div className="charts-sub-tabs-redesign">
+          <button
+            className={`charts-sub-tab ${activeSubTab === 'synastry' ? 'active' : ''}`}
+            onClick={() => setActiveSubTab('synastry')}
+          >
+            Synastry - {synastryAspects.length}
+          </button>
+          <button
+            className={`charts-sub-tab ${activeSubTab === 'composite' ? 'active' : ''}`}
+            onClick={() => setActiveSubTab('composite')}
+          >
+            Composite
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="charts-content-redesign">
         {activeSubTab === 'synastry' ? (
           <div className="synastry-tab-content">
-            <div className="tab-description">
+            <div className="charts-section-header">
               <h3>Synastry Aspects</h3>
-              <p>The synastry chart shows how {userAName}'s planets interact with {userBName}'s planets through aspects.</p>
+              <p>The Synastry Chart Shows How {userAName}'s Planets Interact With {userBName}'s Planets Through Aspects.</p>
             </div>
             {synastryAspects.length > 0 ? (
               <SynastryAspectsTable
@@ -156,7 +175,7 @@ function ChartsTab({ relationship }) {
           </div>
         ) : (
           <div className="composite-tab-content">
-            <div className="tab-description">
+            <div className="charts-section-header">
               <h3>Composite Chart</h3>
               <p>The composite chart represents the relationship itself as a single entity, created from the midpoints of both charts.</p>
             </div>
@@ -175,6 +194,7 @@ function ChartsTab({ relationship }) {
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

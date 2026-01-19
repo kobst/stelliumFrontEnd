@@ -1,31 +1,13 @@
 .relationship-detail-layout {
-  padding: var(--spacing-xl, 24px);
+  padding: var(--spacing-lg, 20px);
 }
 
-.relationship-detail-layout__body {
-  margin-top: var(--spacing-lg, 20px);
-}
-
-/* Three-column grid */
+/* Two-column grid */
 .relationship-detail-layout__grid {
   display: grid;
-  grid-template-columns: 160px 1fr 280px;
+  grid-template-columns: 280px 1fr;
   gap: var(--spacing-xl, 24px);
   align-items: start;
-}
-
-/* Navigation column */
-.relationship-detail-layout__nav {
-  min-width: 0;
-}
-
-/* Content column */
-.relationship-detail-layout__content {
-  min-width: 0;
-  background: var(--color-bg-secondary, rgba(30, 32, 54, 0.5));
-  border: 1px solid var(--color-border, rgba(139, 92, 246, 0.2));
-  border-radius: var(--border-radius-md, 12px);
-  padding: var(--spacing-lg, 20px);
 }
 
 /* Sidebar column */
@@ -33,32 +15,36 @@
   min-width: 0;
 }
 
+/* Content column */
+.relationship-detail-layout__content {
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+}
+
 /* Empty state */
 .relationship-detail-layout__empty {
   text-align: center;
   padding: var(--spacing-3xl, 60px) var(--spacing-xl, 24px);
   color: var(--color-text-tertiary, rgba(255, 255, 255, 0.5));
+  background: var(--color-bg-secondary, rgba(30, 32, 54, 0.5));
+  border: 1px solid var(--color-border, rgba(139, 92, 246, 0.2));
+  border-radius: var(--border-radius-md, 12px);
 }
 
-/* Tablet: Two columns, nav horizontal */
+/* Tablet: Stack layout */
 @media (max-width: 1023px) {
   .relationship-detail-layout__grid {
     grid-template-columns: 1fr;
     gap: var(--spacing-lg, 20px);
-  }
-
-  .relationship-detail-layout__sidebar {
-    display: none;
   }
 }
 
 /* Mobile */
 @media (max-width: 767px) {
   .relationship-detail-layout {
-    padding: var(--spacing-md, 16px);
-  }
-
-  .relationship-detail-layout__content {
     padding: var(--spacing-md, 16px);
   }
 }

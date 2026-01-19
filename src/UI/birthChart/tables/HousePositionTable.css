@@ -1,38 +1,78 @@
 .house-position-table {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
   width: 100%;
   color: white;
+  height: 100%;
+  align-content: start;
 }
 
 .house-column {
-  width: 32%; /* Adjust as needed */
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.8em;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 5px;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.house-column tr {
+  transition: background-color 0.15s ease;
+}
+
+.house-column tr:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .house-column td {
-  padding: 2px;
+  padding: 8px 6px;
   text-align: left;
   border: none;
   white-space: nowrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.house-column tr:last-child td {
+  border-bottom: none;
+}
+
+/* House number column */
 .house-column td:first-child {
-  text-align: right;
-  padding-right: 5px;
+  text-align: center;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  width: 28px;
 }
 
+/* Sign symbol column */
+.house-column td:nth-child(2) {
+  text-align: center;
+  width: 24px;
+}
+
+/* Sign name column */
+.house-column td:nth-child(3) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Degree column */
 .house-column td:last-child {
   text-align: right;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .symbol-img {
   width: 16px;
   height: 16px;
   vertical-align: middle;
-  margin-right: 2px;
+}
+
+/* Responsive - stack to 1 column on small screens */
+@media (max-width: 768px) {
+  .house-position-table {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }

@@ -6,30 +6,26 @@
 
 .chart-detail-layout__body {
   flex: 1;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg) var(--spacing-xl);
 }
 
 .chart-detail-layout__grid {
   display: grid;
-  grid-template-columns: 160px 1fr 280px;
+  grid-template-columns: 220px 1fr;
   gap: var(--spacing-xl);
   align-items: start;
 }
 
 .chart-detail-layout__nav {
-  /* Sticky behavior handled by SectionNav component */
+  /* Sidebar column - no background */
+  margin: 0;
+  padding: 0;
 }
 
 .chart-detail-layout__content {
   min-width: 0; /* Prevent grid blowout */
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-xl);
-}
-
-.chart-detail-layout__sidebar {
-  /* Sticky behavior handled by QuickFactsSidebar component */
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .chart-detail-layout__empty {
@@ -41,7 +37,7 @@
   font-size: var(--font-size-lg);
 }
 
-/* Tablet - two columns, nav horizontal at top */
+/* Tablet - single column, nav horizontal at top */
 @media (max-width: 1199px) {
   .chart-detail-layout__grid {
     grid-template-columns: 1fr;
@@ -55,19 +51,11 @@
   .chart-detail-layout__content {
     order: 2;
   }
-
-  .chart-detail-layout__sidebar {
-    order: 3;
-  }
 }
 
 /* Mobile */
 @media (max-width: 767px) {
   .chart-detail-layout__body {
-    padding: var(--spacing-lg);
-  }
-
-  .chart-detail-layout__content {
     padding: var(--spacing-lg);
   }
 }

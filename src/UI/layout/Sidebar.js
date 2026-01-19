@@ -3,13 +3,12 @@ import NavItem from './NavItem';
 import './Sidebar.css';
 
 const PRIMARY_NAV_ITEMS = [
-  { id: 'horoscope', label: 'Horoscope' },
-  { id: 'birth-charts', label: 'Birth Charts' },
-  { id: 'relationships', label: 'Relationships' }
+  { id: 'horoscope', label: 'Home' },
+  { id: 'birth-charts', label: 'My Birth Chart' },
+  { id: 'relationships', label: 'My Relationships' }
 ];
 
 const SECONDARY_NAV_ITEMS = [
-  { id: 'ask-stellium', label: 'Ask Stellium' },
   { id: 'settings', label: 'Settings' }
 ];
 

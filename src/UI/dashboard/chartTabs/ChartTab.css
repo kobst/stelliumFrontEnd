@@ -2,6 +2,35 @@
   padding: 0;
 }
 
+/* Chart Section Header - matches Overview header styling */
+.chart-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg, 16px) var(--spacing-xl, 24px);
+  margin: 0 0 var(--spacing-lg, 16px) 0;
+  background: rgba(45, 48, 65, 0.9);
+  border-radius: var(--border-radius-md, 8px);
+}
+
+.chart-section-title {
+  color: #d4a574;
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-medium, 500);
+  margin: 0;
+  padding-bottom: var(--spacing-xs, 4px);
+  border-bottom: 2px solid #d4a574;
+}
+
+.chart-gradient-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: conic-gradient(from 180deg, #4a90a4, #2d5a6b, #1a3a45, #4a90a4);
+  box-shadow: 0 0 20px rgba(74, 144, 164, 0.4);
+  flex-shrink: 0;
+}
+
 .chart-tab-empty {
   text-align: center;
   padding: 40px 20px;
@@ -15,62 +44,21 @@
   margin: 0;
 }
 
-/* Override BirthChartSummaryTable styles for chart detail layout */
-.chart-tab .birth-chart {
-  background: transparent;
-  height: auto;
-  max-width: 100%;
-  flex-wrap: wrap;
-}
-
-.chart-tab .left-section,
-.chart-tab .right-section {
-  width: 100%;
-  height: auto;
-  padding: 0;
-}
-
-.chart-tab .left-section {
-  padding-right: 0;
-  margin-bottom: var(--spacing-xl, 24px);
-}
-
-.chart-tab .ephemeris-container {
-  flex-grow: 0;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.chart-tab .ephemeris-container canvas {
-  max-width: 100%;
-  height: auto !important;
-}
-
-.chart-tab .birth-chart h3 {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1rem;
-  margin-bottom: 12px;
-}
-
-.chart-tab .table-container,
-.chart-tab .aspects-container,
-.chart-tab .house-position-container {
-  background: rgba(139, 92, 246, 0.05);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-.chart-tab .ephemeris-container {
-  background: rgba(139, 92, 246, 0.05);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  border-radius: 10px;
-  padding: 16px;
-}
-
 @media (max-width: 768px) {
   .chart-tab {
     padding: 12px;
+  }
+
+  .chart-section-header {
+    padding: var(--spacing-md, 12px) var(--spacing-lg, 16px);
+  }
+
+  .chart-section-title {
+    font-size: 1.1rem;
+  }
+
+  .chart-gradient-icon {
+    width: 40px;
+    height: 40px;
   }
 }

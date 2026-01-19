@@ -15,7 +15,10 @@ function OverviewTab({ basicAnalysis }) {
   return (
     <div className="chart-tab-content overview-tab">
       <div className="overview-section">
-        <h3 className="overview-section-title">Overview</h3>
+        <div className="overview-section-header">
+          <h3 className="overview-section-title">Overview</h3>
+          <div className="overview-gradient-icon" />
+        </div>
         <div className="overview-text">
           {basicAnalysis.overview.split('\n').map((paragraph, index) => (
             paragraph.trim() && <p key={index}>{paragraph}</p>

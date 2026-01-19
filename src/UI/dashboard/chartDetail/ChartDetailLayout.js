@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import ChartDetailHeader from './ChartDetailHeader';
 import SectionNav from './SectionNav';
-import QuickFactsSidebar from './QuickFactsSidebar';
 import './ChartDetailLayout.css';
 
 function ChartDetailLayout({
@@ -29,13 +28,14 @@ function ChartDetailLayout({
           {/* Left: Section Navigation */}
           <div className="chart-detail-layout__nav">
             <SectionNav
+              chart={chart}
               activeSection={activeSection}
               onSectionChange={handleSectionChange}
               lockedSections={lockedSections}
             />
           </div>
 
-          {/* Center: Main Content */}
+          {/* Main Content */}
           <main className="chart-detail-layout__content">
             {currentSection?.content || (
               <div className="chart-detail-layout__empty">
@@ -43,11 +43,6 @@ function ChartDetailLayout({
               </div>
             )}
           </main>
-
-          {/* Right: Quick Facts Sidebar */}
-          <div className="chart-detail-layout__sidebar">
-            <QuickFactsSidebar chart={chart} />
-          </div>
         </div>
       </div>
     </div>

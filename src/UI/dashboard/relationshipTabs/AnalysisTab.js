@@ -2,8 +2,29 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { startRelationshipWorkflow, getRelationshipWorkflowStatus } from '../../../Utilities/api';
 import './RelationshipTabs.css';
 
+const CLUSTER_ICONS = {
+  Harmony: "💕",
+  Passion: "🔥",
+  Connection: "🧠",
+  Stability: "💎",
+  Growth: "🌱"
+};
+
+// Get quadrant label
+const getQuadrantLabel = (quadrant) => {
+  if (!quadrant) return 'N/A';
+  const q = quadrant.toLowerCase();
+  if (q.includes('easy') || q.includes('thriving')) return 'Easy-Going';
+  if (q.includes('dynamic') || q.includes('passion')) return 'Dynamic';
+  if (q.includes('growth') || q.includes('challenge')) return 'Growth Edge';
+  if (q.includes('stable') || q.includes('steady')) return 'Steady';
+  return quadrant;
+};
+
 function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
-  const [selectedCluster, setSelectedCluster] = useState(null);
+  const [selectedCluster, setSelectedCluster] = useState('Harmony');
+  const [selectedAnalysisType, setSelectedAnalysisType] = useState('synastry');
+  const [selectedPanel, setSelectedPanel] = useState('support');
   const [analysisStatus, setAnalysisStatus] = useState(null);
   const [isStarting, setIsStarting] = useState(false);
   const pollingRef = useRef(null);
@@ -13,14 +34,6 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
   const clusters = clusterAnalysis?.clusters;
 
   const orderedClusters = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
-
-  const clusterIcons = {
-    Harmony: "💕",
-    Passion: "🔥",
-    Connection: "🧠",
-    Stability: "💎",
-    Growth: "🌱"
-  };
 
   // Check if full analysis is complete
   const isAnalysisComplete = completeAnalysis && Object.keys(completeAnalysis).length > 0;
@@ -100,8 +113,23 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
   // If analysis is in progress
   if (analysisStatus && !analysisStatus.completed && analysisStatus.status !== 'failed') {
     return (
-      <div className="relationship-tab-content analysis-tab">
-        <div className="analysis-progress">
+      <div className="analysis-tab-redesign">
+        <div className="analysis-header">
+          <h2 className="analysis-header__title">360° Analysis</h2>
+          <div className="analysis-header__icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="20" stroke="url(#analysisGradient)" strokeWidth="2" strokeDasharray="4 4" />
+              <circle cx="24" cy="24" r="12" stroke="url(#analysisGradient)" strokeWidth="1.5" opacity="0.6" />
+              <defs>
+                <linearGradient id="analysisGradient" x1="0" y1="0" x2="48" y2="48">
+                  <stop stopColor="#60a5fa" />
+                  <stop offset="1" stopColor="#a78bfa" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <div className="analysis-progress-card">
           <div className="progress-spinner"></div>
           <h3>Analysis in Progress</h3>
           <p>We're analyzing your relationship in depth...</p>
@@ -114,8 +142,23 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
   // If no analysis yet
   if (!isAnalysisComplete) {
     return (
-      <div className="relationship-tab-content analysis-tab">
-        <div className="analysis-empty">
+      <div className="analysis-tab-redesign">
+        <div className="analysis-header">
+          <h2 className="analysis-header__title">360° Analysis</h2>
+          <div className="analysis-header__icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="20" stroke="url(#analysisGradient2)" strokeWidth="2" strokeDasharray="4 4" />
+              <circle cx="24" cy="24" r="12" stroke="url(#analysisGradient2)" strokeWidth="1.5" opacity="0.6" />
+              <defs>
+                <linearGradient id="analysisGradient2" x1="0" y1="0" x2="48" y2="48">
+                  <stop stopColor="#60a5fa" />
+                  <stop offset="1" stopColor="#a78bfa" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <div className="analysis-empty-card">
           <div className="empty-icon">🔮</div>
           <h3>360° Analysis</h3>
           <p>Get a deep dive into your relationship dynamics across all five clusters.</p>
@@ -142,140 +185,176 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
     );
   }
 
-  // Full analysis complete - show cluster panels
+  // Get current cluster data
+  const currentClusterData = clusters?.[selectedCluster];
+  const currentAnalysisData = getClusterAnalysisData(selectedCluster);
+  const currentScore = currentClusterData?.score || 0;
+
+  // Get the panel content based on selection
+  const getPanelContent = () => {
+    const analysisData = selectedAnalysisType === 'synastry'
+      ? currentAnalysisData?.synastry
+      : currentAnalysisData?.composite;
+
+    if (!analysisData) return null;
+
+    switch (selectedPanel) {
+      case 'support':
+        return analysisData.supportPanel;
+      case 'challenge':
+        return analysisData.challengePanel;
+      case 'synthesis':
+        return analysisData.synthesisPanel;
+      default:
+        return analysisData.supportPanel;
+    }
+  };
+
+  const panelContent = getPanelContent();
+  const panelTitle = selectedPanel === 'support' ? 'SUPPORT PATTERNS'
+    : selectedPanel === 'challenge' ? 'GROWTH CHALLENGES'
+    : 'SYNTHESIS';
+
+  // Full analysis complete - show redesigned layout
   return (
-    <div className="relationship-tab-content analysis-tab">
-      <h3 className="analysis-title">360° Analysis</h3>
-      <p className="analysis-subtitle">Tap a cluster to explore detailed insights</p>
+    <div className="analysis-tab-redesign">
+      {/* Header */}
+      <div className="analysis-header">
+        <h2 className="analysis-header__title">360° Analysis</h2>
+        <div className="analysis-header__icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="20" stroke="url(#analysisGradient3)" strokeWidth="2" strokeDasharray="4 4" />
+            <circle cx="24" cy="24" r="12" stroke="url(#analysisGradient3)" strokeWidth="1.5" opacity="0.6" />
+            <defs>
+              <linearGradient id="analysisGradient3" x1="0" y1="0" x2="48" y2="48">
+                <stop stopColor="#60a5fa" />
+                <stop offset="1" stopColor="#a78bfa" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
 
-      <div className="analysis-clusters-grid">
-        {orderedClusters.map(cluster => {
-          const score = clusters?.[cluster]?.score || 0;
-          const clusterData = clusters?.[cluster];
-          const analysisData = getClusterAnalysisData(cluster);
-          const isSelected = selectedCluster === cluster;
+      {/* Main Content Card */}
+      <div className="analysis-content-card">
+        {/* Cluster Tabs */}
+        <div className="analysis-cluster-tabs">
+          {orderedClusters.map(cluster => {
+            const score = clusters?.[cluster]?.score || 0;
+            const isActive = selectedCluster === cluster;
+            return (
+              <button
+                key={cluster}
+                className={`analysis-cluster-tab ${isActive ? 'active' : ''}`}
+                onClick={() => setSelectedCluster(cluster)}
+              >
+                <span className="tab-name">{cluster}</span>
+                <span className="tab-score">{Math.round(score)}%</span>
+              </button>
+            );
+          })}
+        </div>
 
-          return (
-            <div
-              key={cluster}
-              className={`analysis-cluster-card ${isSelected ? 'selected' : ''}`}
-              onClick={() => setSelectedCluster(isSelected ? null : cluster)}
-            >
-              <div className="cluster-header">
-                <span className="cluster-icon">{clusterIcons[cluster]}</span>
-                <span className="cluster-name">{cluster}</span>
-                <span className="cluster-score">{Math.round(score)}%</span>
+        {/* Selected Cluster Content */}
+        <div className="analysis-cluster-content">
+          {/* Cluster Header */}
+          <div className="cluster-content-header">
+            <div className="cluster-content-header__left">
+              <span className="cluster-content-icon">{CLUSTER_ICONS[selectedCluster]}</span>
+              <span className="cluster-content-name">{selectedCluster}</span>
+            </div>
+            <span className="cluster-content-score">{Math.round(currentScore)}%</span>
+          </div>
+
+          {/* Metrics Row */}
+          <div className="cluster-metrics-row">
+            <div className="cluster-metric-box">
+              <span className="metric-box-label">Support</span>
+              <span className="metric-box-value">{currentClusterData?.supportPct || 0}%</span>
+            </div>
+            <div className="cluster-metric-box">
+              <span className="metric-box-label">Challenge</span>
+              <span className="metric-box-value">{currentClusterData?.challengePct || 0}%</span>
+            </div>
+            <div className="cluster-metric-box">
+              <span className="metric-box-label">Heat</span>
+              <span className="metric-box-value">{currentClusterData?.heatPct || 0}%</span>
+            </div>
+            <div className="cluster-metric-box">
+              <span className="metric-box-label">Quadrant</span>
+              <span className="metric-box-value quadrant">{getQuadrantLabel(currentClusterData?.quadrant)}</span>
+            </div>
+          </div>
+
+          {/* Key Factors */}
+          {currentClusterData?.keystoneAspects && currentClusterData.keystoneAspects.length > 0 && (
+            <div className="key-factors-section">
+              <h4 className="key-factors-title">KEY FACTORS</h4>
+              <div className="key-factors-list">
+                {currentClusterData.keystoneAspects.slice(0, 3).map((aspect, index) => (
+                  <div key={index} className="key-factor-item">
+                    {aspect.description}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Analysis Section */}
+          {(currentAnalysisData?.synastry || currentAnalysisData?.composite) && (
+            <div className="analysis-panels-section">
+              {/* Analysis Type Dropdown */}
+              <div className="analysis-type-selector">
+                <select
+                  value={selectedAnalysisType}
+                  onChange={(e) => setSelectedAnalysisType(e.target.value)}
+                  className="analysis-type-dropdown"
+                >
+                  <option value="synastry">SYNASTRY ANALYSIS</option>
+                  <option value="composite">COMPOSITE ANALYSIS</option>
+                </select>
               </div>
 
-              {isSelected && (
-                <div className="cluster-analysis-content">
-                  {clusterData && (
-                    <div className="cluster-metrics-panel">
-                      <div className="metric-row">
-                        <span className="metric-label">Support:</span>
-                        <span className="metric-value positive">{clusterData.supportPct || 0}%</span>
-                      </div>
-                      <div className="metric-row">
-                        <span className="metric-label">Challenge:</span>
-                        <span className="metric-value negative">{clusterData.challengePct || 0}%</span>
-                      </div>
-                      <div className="metric-row">
-                        <span className="metric-label">Heat:</span>
-                        <span className="metric-value">{clusterData.heatPct || 0}%</span>
-                      </div>
-                      <div className="metric-row">
-                        <span className="metric-label">Quadrant:</span>
-                        <span className="metric-value">{clusterData.quadrant || 'N/A'}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {clusterData?.keystoneAspects && clusterData.keystoneAspects.length > 0 && (
-                    <div className="keystone-aspects-panel">
-                      <h4>Key Factors</h4>
-                      {clusterData.keystoneAspects.slice(0, 3).map((aspect, index) => (
-                        <div key={index} className="keystone-aspect">
-                          <span className="aspect-description">{aspect.description}</span>
-                          <span className={`aspect-score ${aspect.score > 0 ? 'positive' : 'negative'}`}>
-                            {aspect.score > 0 ? '+' : ''}{aspect.score}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Synastry Analysis Panels */}
-                  {analysisData?.synastry && (
-                    <div className="analysis-section">
-                      <h4 className="section-title">Synastry Analysis</h4>
-
-                      {analysisData.synastry.supportPanel && (
-                        <div className="analysis-text-panel support">
-                          <h5>Support Patterns</h5>
-                          {analysisData.synastry.supportPanel.split('\n').map((p, i) => (
-                            p.trim() && <p key={i}>{p}</p>
-                          ))}
-                        </div>
-                      )}
-
-                      {analysisData.synastry.challengePanel && (
-                        <div className="analysis-text-panel challenge">
-                          <h5>Growth Challenges</h5>
-                          {analysisData.synastry.challengePanel.split('\n').map((p, i) => (
-                            p.trim() && <p key={i}>{p}</p>
-                          ))}
-                        </div>
-                      )}
-
-                      {analysisData.synastry.synthesisPanel && (
-                        <div className="analysis-text-panel synthesis">
-                          <h5>Synthesis</h5>
-                          {analysisData.synastry.synthesisPanel.split('\n').map((p, i) => (
-                            p.trim() && <p key={i}>{p}</p>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Composite Analysis Panels */}
-                  {analysisData?.composite && (
-                    <div className="analysis-section">
-                      <h4 className="section-title">Composite Analysis</h4>
-
-                      {analysisData.composite.supportPanel && (
-                        <div className="analysis-text-panel support">
-                          <h5>Support Patterns</h5>
-                          {analysisData.composite.supportPanel.split('\n').map((p, i) => (
-                            p.trim() && <p key={i}>{p}</p>
-                          ))}
-                        </div>
-                      )}
-
-                      {analysisData.composite.challengePanel && (
-                        <div className="analysis-text-panel challenge">
-                          <h5>Growth Challenges</h5>
-                          {analysisData.composite.challengePanel.split('\n').map((p, i) => (
-                            p.trim() && <p key={i}>{p}</p>
-                          ))}
-                        </div>
-                      )}
-
-                      {analysisData.composite.synthesisPanel && (
-                        <div className="analysis-text-panel synthesis">
-                          <h5>Synthesis</h5>
-                          {analysisData.composite.synthesisPanel.split('\n').map((p, i) => (
-                            p.trim() && <p key={i}>{p}</p>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
+              {/* Two Column Layout: Navigation + Content */}
+              <div className="analysis-panels-layout">
+                {/* Left Navigation */}
+                <div className="analysis-panels-nav">
+                  <button
+                    className={`panel-nav-item ${selectedPanel === 'support' ? 'active' : ''}`}
+                    onClick={() => setSelectedPanel('support')}
+                  >
+                    Support Patterns
+                  </button>
+                  <button
+                    className={`panel-nav-item ${selectedPanel === 'challenge' ? 'active' : ''}`}
+                    onClick={() => setSelectedPanel('challenge')}
+                  >
+                    Growth Challenges
+                  </button>
+                  <button
+                    className={`panel-nav-item ${selectedPanel === 'synthesis' ? 'active' : ''}`}
+                    onClick={() => setSelectedPanel('synthesis')}
+                  >
+                    Synthesis
+                  </button>
                 </div>
-              )}
+
+                {/* Right Content */}
+                <div className="analysis-panel-content">
+                  <h4 className="panel-content-title">{panelTitle}</h4>
+                  <div className="panel-content-text">
+                    {panelContent && panelContent.split('\n').map((p, i) => (
+                      p.trim() && <p key={i}>{p}</p>
+                    ))}
+                    {!panelContent && (
+                      <p className="no-content">No analysis content available for this section.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-          );
-        })}
+          )}
+        </div>
       </div>
     </div>
   );

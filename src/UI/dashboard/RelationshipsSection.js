@@ -39,7 +39,12 @@ function RelationshipsSection({ userId }) {
 
   return (
     <div className="relationships-section">
-      <h3 className="relationships-section__title">Your Relationships</h3>
+      <div className="relationships-section__header">
+        <h3 className="relationships-section__title">My Relationships</h3>
+        <button className="relationships-section__add-btn" onClick={handleAddRelationship}>
+          Add New Relationship
+        </button>
+      </div>
       <RelationshipsList
         relationships={relationships}
         onRelationshipClick={handleRelationshipClick}

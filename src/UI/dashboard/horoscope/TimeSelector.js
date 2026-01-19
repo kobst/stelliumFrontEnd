@@ -2,9 +2,9 @@ import React from 'react';
 import './TimeSelector.css';
 
 const TIME_PERIODS = [
-  { id: 'today', label: 'Today' },
-  { id: 'week', label: 'This Week' },
-  { id: 'month', label: 'This Month' }
+  { id: 'today', label: 'Daily' },
+  { id: 'week', label: 'Weekly' },
+  { id: 'month', label: 'Monthly' }
 ];
 
 function TimeSelector({ currentPeriod, onSelect, disabled = false }) {

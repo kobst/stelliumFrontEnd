@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import RelationshipDetailHeader from './RelationshipDetailHeader';
-import RelationshipSectionNav from './RelationshipSectionNav';
-import RelationshipQuickFacts from './RelationshipQuickFacts';
+import RelationshipSidebar from './RelationshipSidebar';
 import './RelationshipDetailLayout.css';
 
 function RelationshipDetailLayout({
@@ -9,7 +7,7 @@ function RelationshipDetailLayout({
   onBackClick,
   sections,
   lockedSections = [],
-  defaultSection = 'scores'
+  defaultSection = 'overview'
 }) {
   const [activeSection, setActiveSection] = useState(defaultSection);
 
@@ -22,36 +20,25 @@ function RelationshipDetailLayout({
 
   return (
     <div className="relationship-detail-layout">
-      <RelationshipDetailHeader
-        relationship={relationship}
-        onBackClick={onBackClick}
-      />
-
-      <div className="relationship-detail-layout__body">
-        <div className="relationship-detail-layout__grid">
-          {/* Left: Section Navigation */}
-          <div className="relationship-detail-layout__nav">
-            <RelationshipSectionNav
-              activeSection={activeSection}
-              onSectionChange={handleSectionChange}
-              lockedSections={lockedSections}
-            />
-          </div>
-
-          {/* Center: Main Content */}
-          <main className="relationship-detail-layout__content">
-            {currentSection?.content || (
-              <div className="relationship-detail-layout__empty">
-                Select a section to view
-              </div>
-            )}
-          </main>
-
-          {/* Right: Quick Facts Sidebar */}
-          <div className="relationship-detail-layout__sidebar">
-            <RelationshipQuickFacts relationship={relationship} />
-          </div>
+      <div className="relationship-detail-layout__grid">
+        {/* Left: Combined Sidebar (Profile, Stats, Nav) */}
+        <div className="relationship-detail-layout__sidebar">
+          <RelationshipSidebar
+            relationship={relationship}
+            activeSection={activeSection}
+            onSectionChange={handleSectionChange}
+            lockedSections={lockedSections}
+          />
         </div>
+
+        {/* Right: Main Content */}
+        <main className="relationship-detail-layout__content">
+          {currentSection?.content || (
+            <div className="relationship-detail-layout__empty">
+              Select a section to view
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
