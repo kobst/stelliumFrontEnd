@@ -9,6 +9,8 @@ import {
   getAuthErrorMessage
 } from '../firebase/auth';
 import { getUserByFirebaseUid } from '../Utilities/api';
+import { initializeEntitlements } from '../Utilities/entitlementsApi';
+import useEntitlementsStore from '../Utilities/entitlementsStore';
 
 const AuthContext = createContext(null);
 
@@ -45,6 +47,14 @@ export const AuthProvider = ({ children }) => {
           if (userData && userData._id) {
             console.log('User found in backend:', userData._id);
             setStelliumUser(userData);
+
+            // Initialize and fetch entitlements
+            try {
+              await initializeEntitlements(userData._id);
+              await useEntitlementsStore.getState().fetchEntitlements(userData._id);
+            } catch (entErr) {
+              console.warn('Could not initialize entitlements:', entErr);
+            }
           } else {
             // User authenticated but not in backend (new user)
             console.log('User not found in backend, needs onboarding');
@@ -133,6 +143,8 @@ export const AuthProvider = ({ children }) => {
     try {
       await signOut();
       setStelliumUser(null);
+      // Reset entitlements store on logout
+      useEntitlementsStore.getState().reset();
       return { success: true };
     } catch (error) {
       return { success: false, error: getAuthErrorMessage(error) };

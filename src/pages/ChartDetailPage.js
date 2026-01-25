@@ -9,6 +9,7 @@ import {
 } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
+import { useCheckout } from '../hooks/useCheckout';
 import DashboardLayout from '../UI/layout/DashboardLayout';
 import ChartDetailLayout from '../UI/dashboard/chartDetail/ChartDetailLayout';
 import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
@@ -25,6 +26,12 @@ function ChartDetailPage() {
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
   const entitlements = useEntitlements(stelliumUser);
+
+  // Checkout hook for handling purchases
+  const checkout = useCheckout(stelliumUser, () => {
+    // Refresh entitlements after successful purchase
+    entitlements.refreshEntitlements();
+  });
 
   // Chart data state
   const [chart, setChart] = useState(null);
@@ -277,6 +284,23 @@ function ChartDetailPage() {
             '12 life area deep dives'
           ]}
           ctaText="Unlock with Plus"
+          showPurchaseOption={true}
+          analysisType="BIRTH_CHART"
+          analysisId={chartId}
+          purchasePrice={entitlements.birthChartPrice}
+          showUseQuotaOption={entitlements.isPlus}
+          quotaRemaining={entitlements.monthlyAnalysesRemaining}
+          isPlus={entitlements.isPlus}
+          isLoading={checkout.isLoading}
+          onUpgradeClick={checkout.startSubscription}
+          onPurchase={(type, id) => checkout.purchaseAnalysis(type, id)}
+          onUseQuota={async (type, id) => {
+            const result = await entitlements.checkAndUseAnalysis(type, id);
+            if (result.success) {
+              // Refresh the page to show unlocked content
+              window.location.reload();
+            }
+          }}
         />
       )
     },

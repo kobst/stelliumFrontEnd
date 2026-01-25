@@ -1,15 +1,42 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
+import useEntitlementsStore from '../Utilities/entitlementsStore';
 
 const TRIAL_DURATION_DAYS = 7;
 
+// Pricing constants
+const PRICING = {
+  BIRTH_CHART: {
+    free: 20,
+    plus: 12, // 40% discount
+  },
+  RELATIONSHIP: {
+    free: 10,
+    plus: 6, // 40% discount
+  },
+  SUBSCRIPTION: 20, // per month
+  QUESTION_PACK: 5, // TBD
+};
+
 /**
  * Central hook for calculating user entitlements based on subscription and trial status.
+ * Now integrates with the entitlements store for real-time quota tracking.
  *
  * @param {Object} user - The user object from the backend
  * @returns {Object} Entitlement flags and values
  */
 export function useEntitlements(user) {
-  return useMemo(() => {
+  // Get store state and actions
+  const store = useEntitlementsStore();
+
+  // Fetch entitlements when user changes
+  useEffect(() => {
+    if (user?._id && !store.lastFetched) {
+      store.fetchEntitlements(user._id);
+    }
+  }, [user?._id, store.lastFetched, store.fetchEntitlements]);
+
+  // Memoize legacy entitlements (backward compatibility)
+  const legacyEntitlements = useMemo(() => {
     // Default values for no user
     if (!user) {
       return {
@@ -23,9 +50,11 @@ export function useEntitlements(user) {
       };
     }
 
-    // Get subscription tier
-    const tier = user?.subscription?.tier?.toLowerCase() || 'free';
-    const isPremiumOrHigher = tier === 'premium' || tier === 'pro';
+    // Get subscription tier from user object (legacy)
+    let tier = user?.subscription?.tier?.toLowerCase() || 'free';
+    // Normalize 'premium' to 'plus' for consistency
+    if (tier === 'premium') tier = 'plus';
+    const isPremiumOrHigher = tier === 'plus' || tier === 'pro';
     const isProUser = tier === 'pro';
 
     // Calculate trial status (7 days from account creation)
@@ -61,6 +90,141 @@ export function useEntitlements(user) {
       isProUser,
     };
   }, [user]);
+
+  // Memoize new entitlements from store
+  const storeEntitlements = useMemo(() => {
+    // Treat both 'PLUS' and 'PREMIUM' as the paid tier
+    const isPaidTier = store.plan === 'PLUS' || store.plan === 'PREMIUM';
+    const isPlus = isPaidTier && store.isSubscriptionActive;
+
+    return {
+      // Plan info
+      plan: store.plan,
+      isPlus,
+      isFree: store.plan === 'FREE' || !store.plan,
+      planActiveUntil: store.planActiveUntil,
+      isSubscriptionActive: store.isSubscriptionActive,
+      hasEverSubscribed: store.hasEverSubscribed,
+
+      // Quotas
+      monthlyAnalysesRemaining: store.analyses.remaining,
+      bankedAnalyses: store.analyses.banked,
+      totalAnalysesAvailable: store.analyses.remaining + store.analyses.banked,
+      analysesResetDate: store.analyses.resetDate,
+
+      questionsRemaining: store.questions.total,
+      monthlyQuestions: store.questions.monthly,
+      purchasedQuestions: store.questions.purchased,
+      questionsResetDate: store.questions.resetDate,
+
+      // Horoscope access
+      canAccessDaily: store.horoscopeAccess.daily || isPlus,
+      canAccessWeeklyHoroscope: store.horoscopeAccess.weekly,
+      canAccessMonthlyHoroscope: store.horoscopeAccess.monthly,
+
+      // Unlocked items
+      unlockedBirthCharts: store.unlockedAnalyses.birthCharts,
+      unlockedRelationships: store.unlockedAnalyses.relationships,
+
+      // Loading state
+      isLoading: store.isLoading,
+      error: store.error,
+
+      // Pricing based on tier
+      birthChartPrice: isPlus ? PRICING.BIRTH_CHART.plus : PRICING.BIRTH_CHART.free,
+      relationshipPrice: isPlus ? PRICING.RELATIONSHIP.plus : PRICING.RELATIONSHIP.free,
+      subscriptionPrice: PRICING.SUBSCRIPTION,
+      questionPackPrice: PRICING.QUESTION_PACK,
+    };
+  }, [store]);
+
+  // Actions
+  const refreshEntitlements = useCallback(() => {
+    if (user?._id) {
+      return store.fetchEntitlements(user._id);
+    }
+  }, [user?._id, store.fetchEntitlements]);
+
+  const refreshAfterPurchase = useCallback(
+    (delayMs = 2000) => {
+      if (user?._id) {
+        return store.refreshAfterPurchase(user._id, delayMs);
+      }
+    },
+    [user?._id, store.refreshAfterPurchase]
+  );
+
+  const checkAndUseAnalysis = useCallback(
+    (entityType, entityId) => {
+      if (user?._id) {
+        return store.checkAndUseAnalysis(user._id, entityType, entityId);
+      }
+      return Promise.resolve({ success: false, error: 'No user' });
+    },
+    [user?._id, store.checkAndUseAnalysis]
+  );
+
+  const useQuestion = useCallback(() => {
+    if (user?._id) {
+      return store.useQuestion(user._id);
+    }
+    return Promise.resolve({ success: false, error: 'No user' });
+  }, [user?._id, store.useQuestion]);
+
+  const isAnalysisUnlocked = useCallback(
+    (entityType, entityId) => {
+      return store.isAnalysisUnlocked(entityType, entityId);
+    },
+    [store.isAnalysisUnlocked]
+  );
+
+  const canAccess360Analysis = useCallback(
+    (entityType, entityId) => {
+      // If already unlocked (purchased or used quota), allow access
+      if (store.isAnalysisUnlocked(entityType, entityId)) {
+        return true;
+      }
+      // Plus users with remaining quota can access
+      if (storeEntitlements.isPlus && store.analyses.remaining > 0) {
+        return true;
+      }
+      return false;
+    },
+    [store.isAnalysisUnlocked, storeEntitlements.isPlus, store.analyses.remaining]
+  );
+
+  // Combine legacy and new entitlements
+  return useMemo(
+    () => ({
+      // Legacy fields (backward compatibility)
+      ...legacyEntitlements,
+
+      // New store-based fields
+      ...storeEntitlements,
+
+      // Actions
+      refreshEntitlements,
+      refreshAfterPurchase,
+      checkAndUseAnalysis,
+      useQuestion,
+      isAnalysisUnlocked,
+      canAccess360Analysis,
+
+      // Reset (for logout)
+      reset: store.reset,
+    }),
+    [
+      legacyEntitlements,
+      storeEntitlements,
+      refreshEntitlements,
+      refreshAfterPurchase,
+      checkAndUseAnalysis,
+      useQuestion,
+      isAnalysisUnlocked,
+      canAccess360Analysis,
+      store.reset,
+    ]
+  );
 }
 
 export default useEntitlements;

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PlanBadge from '../entitlements/PlanBadge';
 import './TopHeader.css';
 
 const NAV_ITEMS = [
@@ -135,7 +136,7 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
         <div className="top-header__profile" onClick={toggleDropdown}>
           <div className="top-header__profile-info">
             <span className="top-header__username">{getFullName()}</span>
-            <span className="top-header__member-status">{getPlanDisplay()}</span>
+            <PlanBadge tier={getUserPlan()} compact />
           </div>
           <div className="top-header__avatar">
             {user?.profilePhotoUrl ? (

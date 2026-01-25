@@ -3,6 +3,7 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getUserCompositeCharts, fetchRelationshipAnalysis } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
+import { useCheckout } from '../hooks/useCheckout';
 import DashboardLayout from '../UI/layout/DashboardLayout';
 import RelationshipDetailLayout from '../UI/dashboard/relationshipDetail/RelationshipDetailLayout';
 import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
@@ -18,6 +19,12 @@ function RelationshipAnalysisPage() {
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
   const entitlements = useEntitlements(stelliumUser);
+
+  // Checkout hook for handling purchases
+  const checkout = useCheckout(stelliumUser, () => {
+    // Refresh entitlements after successful purchase
+    entitlements.refreshEntitlements();
+  });
 
   const [relationship, setRelationship] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -150,6 +157,23 @@ function RelationshipAnalysisPage() {
             'Growth opportunities as a couple'
           ]}
           ctaText="Unlock with Plus"
+          showPurchaseOption={true}
+          analysisType="RELATIONSHIP"
+          analysisId={compositeId}
+          purchasePrice={entitlements.relationshipPrice}
+          showUseQuotaOption={entitlements.isPlus}
+          quotaRemaining={entitlements.monthlyAnalysesRemaining}
+          isPlus={entitlements.isPlus}
+          isLoading={checkout.isLoading}
+          onUpgradeClick={checkout.startSubscription}
+          onPurchase={(type, id) => checkout.purchaseAnalysis(type, id)}
+          onUseQuota={async (type, id) => {
+            const result = await entitlements.checkAndUseAnalysis(type, id);
+            if (result.success) {
+              // Refresh the page to show unlocked content
+              window.location.reload();
+            }
+          }}
         />
       )
     },

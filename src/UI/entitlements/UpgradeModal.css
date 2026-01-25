@@ -1,0 +1,229 @@
+.upgrade-modal__backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.upgrade-modal {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: linear-gradient(145deg, #1e1e2e, #171725);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.upgrade-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.upgrade-modal__close:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.upgrade-modal__close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.upgrade-modal__header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.upgrade-modal__icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(167, 139, 250, 0.1));
+  border-radius: 50%;
+  color: #a78bfa;
+}
+
+.upgrade-modal__title {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.upgrade-modal__description {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.upgrade-modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.upgrade-modal__option {
+  padding: 20px;
+  border-radius: 12px;
+  position: relative;
+}
+
+.upgrade-modal__option--primary {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.upgrade-modal__option--secondary {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.upgrade-modal__option-badge {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: white;
+}
+
+.upgrade-modal__option-title {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.upgrade-modal__option-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.upgrade-modal__price-amount {
+  color: #a78bfa;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.upgrade-modal__price-period {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+.upgrade-modal__option-description {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.upgrade-modal__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.upgrade-modal__feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  padding: 6px 0;
+}
+
+.upgrade-modal__feature-check {
+  color: #a78bfa;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.upgrade-modal__button {
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upgrade-modal__button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.upgrade-modal__button--primary {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  color: white;
+}
+
+.upgrade-modal__button--primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.upgrade-modal__button--secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.upgrade-modal__button--secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.upgrade-modal__footer {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+  margin: 20px 0 0 0;
+}
+
+@media (max-width: 480px) {
+  .upgrade-modal {
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+
+  .upgrade-modal__title {
+    font-size: 1.3rem;
+  }
+
+  .upgrade-modal__price-amount {
+    font-size: 1.75rem;
+  }
+}
