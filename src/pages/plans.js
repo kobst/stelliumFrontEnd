@@ -1,4 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useCheckout } from '../hooks/useCheckout';
 
 /**
  * Simple helper for list bullets.
@@ -68,6 +71,32 @@ const plans = [
 ];
 
 export default function PricingTable() {
+  const navigate = useNavigate();
+  const { stelliumUser } = useAuth();
+  const checkout = useCheckout(stelliumUser, () => {
+    // Refresh after successful purchase
+    window.location.reload();
+  });
+
+  const handlePlanClick = (planId) => {
+    if (planId === 'free') {
+      navigate('/birthChartEntry');
+    } else if (planId === 'plus') {
+      if (stelliumUser) {
+        checkout.startSubscription();
+      } else {
+        navigate('/birthChartEntry?intent=plus');
+      }
+    } else if (planId === 'alaCarte') {
+      // Scroll to individual readings or navigate to dashboard
+      if (stelliumUser) {
+        navigate(`/dashboard/${stelliumUser._id}`);
+      } else {
+        navigate('/birthChartEntry');
+      }
+    }
+  };
+
   return (
     <div style={{
       maxWidth: '1200px',
@@ -96,6 +125,19 @@ export default function PricingTable() {
           Unlock deeper self‑knowledge and relationship insight with the plan that
           matches your journey.
         </p>
+        {checkout.error && (
+          <p style={{
+            marginTop: '16px',
+            padding: '12px 20px',
+            background: 'rgba(239, 68, 68, 0.2)',
+            border: '1px solid rgba(239, 68, 68, 0.5)',
+            borderRadius: '8px',
+            color: '#fca5a5',
+            fontSize: '14px'
+          }}>
+            {checkout.error}
+          </p>
+        )}
       </div>
 
       <div style={{
@@ -195,6 +237,8 @@ export default function PricingTable() {
               </ul>
 
               <button
+                onClick={() => handlePlanClick(plan.id)}
+                disabled={checkout.isLoading}
                 style={{
                   width: '100%',
                   padding: '12px 24px',
@@ -208,12 +252,13 @@ export default function PricingTable() {
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: 'bold',
-                  cursor: 'pointer',
+                  cursor: checkout.isLoading ? 'wait' : 'pointer',
                   transition: 'background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease',
-                  backdropFilter: 'blur(10px)'
+                  backdropFilter: 'blur(10px)',
+                  opacity: checkout.isLoading ? 0.7 : 1
                 }}
               >
-                {plan.cta}
+                {checkout.isLoading && plan.id === 'plus' ? 'Loading...' : plan.cta}
               </button>
             </div>
           </div>

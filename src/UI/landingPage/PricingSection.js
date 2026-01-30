@@ -1,6 +1,26 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function PricingSection() {
+export default function PricingSection({ onStartPlus, onGetStarted }) {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (onGetStarted) {
+      onGetStarted();
+    } else {
+      navigate('/birthChartEntry');
+    }
+  };
+
+  const handleStartPlus = () => {
+    if (onStartPlus) {
+      onStartPlus();
+    } else {
+      // Default: navigate to signup with upgrade intent
+      navigate('/birthChartEntry?intent=plus');
+    }
+  };
+
   return (
     <section className="pricing-section">
       <div className="pricing-header">
@@ -22,7 +42,7 @@ export default function PricingSection() {
             <li>No credit card required</li>
           </ul>
 
-          <button className="pricing-cta">Get Started Free</button>
+          <button className="pricing-cta" onClick={handleGetStarted}>Get Started Free</button>
         </div>
 
         <div className="pricing-card premium">
@@ -39,7 +59,7 @@ export default function PricingSection() {
             <li>40% off additional readings</li>
           </ul>
 
-          <button className="pricing-cta primary">Start Plus</button>
+          <button className="pricing-cta primary" onClick={handleStartPlus}>Start Plus</button>
           <p className="pricing-small-print">Cancel anytime. Keep everything you've generated.</p>
         </div>
       </div>
