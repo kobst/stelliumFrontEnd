@@ -5,7 +5,7 @@ export default function PricingSection() {
     <section className="pricing-section">
       <div className="pricing-header">
         <h2 className="section-title">Choose Your Plan</h2>
-        <p className="pricing-subtitle">Every insight powered by Stellium Credits</p>
+        <p className="pricing-subtitle">Unlock deeper self-knowledge with the plan that fits your journey.</p>
       </div>
 
       {/* Main Subscription Plans */}
@@ -13,128 +13,139 @@ export default function PricingSection() {
         <div className="pricing-card free">
           <h3>Free</h3>
           <div className="price">$0</div>
-          <p className="description">Dip your toes in the stars</p>
+          <p className="description">Dip your toes in the stars — no credit card required.</p>
 
-          <div className="credits-highlight">
-            <div className="credits-amount">10 credits/month</div>
-          </div>
+          <ul className="features-list">
+            <li>Weekly &amp; Monthly horoscopes</li>
+            <li>Unlimited birth chart creation &amp; overviews</li>
+            <li>Unlimited relationship creation &amp; scores</li>
+            <li>No credit card required</li>
+          </ul>
 
-          <div className="horoscope-access">
-            <strong>Horoscopes:</strong> Weekly only
-          </div>
+          <button className="pricing-cta">Get Started Free</button>
         </div>
 
         <div className="pricing-card premium">
           <div className="popular-badge">Most Popular</div>
-          <h3>Premium</h3>
-          <div className="price">$19.99<span>/mo</span></div>
-          <p className="description">Full access to personalized cosmic insights</p>
+          <h3>Plus</h3>
+          <div className="price">$20<span>/mo</span></div>
+          <p className="description">Everything in Free, plus:</p>
 
-          <div className="credits-highlight">
-            <div className="credits-amount">200 credits/month</div>
-          </div>
+          <ul className="features-list">
+            <li className="feature-highlight">Your complete Birth Chart 360° Analysis — generated on signup</li>
+            <li>Daily personalized horoscope</li>
+            <li>3 deep readings per month (birth chart or relationship)</li>
+            <li>50 Ask Stellium AI questions per month</li>
+            <li>40% off additional readings</li>
+          </ul>
 
-          <div className="horoscope-access">
-            <strong>Horoscopes:</strong> Daily + Weekly + Monthly
-            <div className="horoscope-detail">Custom horoscopes and transit interpretation with Ask Stellium</div>
-          </div>
-        </div>
-
-        <div className="pricing-card pro">
-          <h3>Pro</h3>
-          <div className="price">$49.99<span>/mo</span></div>
-          <p className="description">For coaches, astrologers & power users</p>
-
-          <div className="credits-highlight">
-            <div className="credits-amount">1000 credits/month</div>
-          </div>
-
-          <div className="horoscope-access">
-            <strong>Horoscopes:</strong> Daily + Weekly + Monthly
-            <div className="horoscope-detail">Custom horoscopes and transit interpretation with Ask Stellium</div>
-          </div>
+          <button className="pricing-cta primary">Start Plus</button>
+          <p className="pricing-small-print">Cancel anytime. Keep everything you've generated.</p>
         </div>
       </div>
 
-      {/* Credit Cost Reference Table */}
-      <div className="credit-reference-section">
-        <h3 className="credit-reference-title">How Stellium Credits Work</h3>
-        <p className="credit-reference-subtitle">Use credits for any reports or insights you want to generate</p>
-
-        <div className="credit-reference-grid">
-          <div className="credit-reference-item">
-            <div className="credit-cost">10 credits</div>
-            <div className="credit-action">Quick Chart Overview</div>
-            <div className="credit-description">Lightweight chart summary</div>
-          </div>
-
-          <div className="credit-reference-item">
-            <div className="credit-cost">75 credits</div>
-            <div className="credit-action">Full Natal Report</div>
-            <div className="credit-description">Complete birth chart analysis</div>
-          </div>
-
-          <div className="credit-reference-item">
-            <div className="credit-cost">10 credits</div>
-            <div className="credit-action">Relationship Overview</div>
-            <div className="credit-description">Compatibility score & summary</div>
-          </div>
-
-          <div className="credit-reference-item">
-            <div className="credit-cost">60 credits</div>
-            <div className="credit-action">Full Relationship Report</div>
-            <div className="credit-description">Detailed compatibility analysis</div>
-          </div>
-
-          <div className="credit-reference-item">
-            <div className="credit-cost">1 credit</div>
-            <div className="credit-action">Ask Stellium Q&A</div>
-            <div className="credit-description">Per question (Premium/Pro only)</div>
-          </div>
-        </div>
-
-        <div className="credit-note">
-          Note: Horoscopes are not credit-based and are included automatically with your plan tier
-        </div>
-      </div>
-
-      {/* A-la-carte Credit Packs */}
+      {/* A La Carte Section */}
       <div className="credit-packs-section">
-        <h3>Need More Credits?</h3>
-        <p className="credit-packs-subtitle">Top-up anytime with one-time credit packs</p>
+        <h3>Individual Readings</h3>
+        <p className="credit-packs-subtitle">Available to all users. Plus members save 40%.</p>
 
         <div className="credit-packs-grid">
           <div className="credit-pack-card">
-            <div className="pack-name">Starter</div>
-            <div className="pack-credits">75 credits</div>
-            <div className="pack-price">$9.99</div>
-            <div className="pack-translation">~1 Full Report</div>
+            <div className="pack-name">Birth Chart 360°</div>
+            <div className="pack-pricing-row">
+              <span className="pack-tier">Free: <strong>$20</strong></span>
+              <span className="pack-divider">•</span>
+              <span className="pack-tier">Plus: <strong className="plus-price">$12</strong></span>
+            </div>
+            <div className="pack-description">Complete natal analysis</div>
+            <ul className="pack-details">
+              <li>Includes 5 AI questions</li>
+              <li>Yours forever</li>
+            </ul>
           </div>
 
           <div className="credit-pack-card">
-            <div className="pack-name">Standard</div>
-            <div className="pack-credits">200 credits</div>
-            <div className="pack-price">$24.99</div>
-            <div className="pack-translation">~2-3 Full Reports</div>
+            <div className="pack-name">Relationship 360°</div>
+            <div className="pack-pricing-row">
+              <span className="pack-tier">Free: <strong>$10</strong></span>
+              <span className="pack-divider">•</span>
+              <span className="pack-tier">Plus: <strong className="plus-price">$6</strong></span>
+            </div>
+            <div className="pack-description">Synastry &amp; composite insights</div>
+            <ul className="pack-details">
+              <li>Includes 5 AI questions</li>
+              <li>Yours forever</li>
+            </ul>
           </div>
 
           <div className="credit-pack-card">
-            <div className="pack-name">Value</div>
-            <div className="pack-credits">500 credits</div>
-            <div className="pack-price">$49.99</div>
-            <div className="pack-translation">~6 Full Reports</div>
+            <div className="pack-name">Question Pack</div>
+            <div className="pack-pricing-row">
+              <span className="pack-tier"><strong>$10</strong> for 10</span>
+            </div>
+            <div className="pack-description">Ask Stellium questions</div>
+            <ul className="pack-details">
+              <li>Use on any unlocked content</li>
+              <li>Never expires</li>
+            </ul>
           </div>
-        </div>
-
-        <div className="credit-packs-benefits">
-          Credits never expire • Stack with your plan • No subscription required
         </div>
       </div>
 
       {/* Microcopy */}
       <div className="pricing-microcopy">
-        Cancel anytime • Credits never expire • Works without a birth time
+        All unlocked analyses are yours forever — even if you cancel.
+      </div>
+
+      {/* Comparison Table */}
+      <div className="comparison-table-section">
+        <table className="comparison-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Free</th>
+              <th className="highlight-col">Plus</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Horoscopes</td>
+              <td>Weekly &amp; Monthly</td>
+              <td>Daily, Weekly &amp; Monthly</td>
+            </tr>
+            <tr>
+              <td>Birth chart creation &amp; overviews</td>
+              <td>Unlimited</td>
+              <td>Unlimited</td>
+            </tr>
+            <tr>
+              <td>Relationship creation &amp; scores</td>
+              <td>Unlimited</td>
+              <td>Unlimited</td>
+            </tr>
+            <tr>
+              <td>Welcome Birth Chart 360° Analysis</td>
+              <td>—</td>
+              <td>Included</td>
+            </tr>
+            <tr>
+              <td>Deep readings per month</td>
+              <td>—</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>Ask Stellium AI questions</td>
+              <td>—</td>
+              <td>50 / month</td>
+            </tr>
+            <tr>
+              <td>A la carte discount</td>
+              <td>—</td>
+              <td>40% off</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
   );
-} 
+}
