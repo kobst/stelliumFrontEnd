@@ -179,7 +179,7 @@ function ChartDetailPage() {
   const planetaryDominance = analysisData?.planetaryDominance || birthChart.planetaryDominance;
 
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
-  const canAccessPremiumTabs = isAnalysisComplete || entitlements.isPremiumOrHigher;
+  const canAccessPremiumTabs = isAnalysisComplete || entitlements.isPlus;
 
   // Security check: Redirect if user tries to access a different user's data
   if (stelliumUser && userId !== stelliumUser._id) {
@@ -313,7 +313,7 @@ function ChartDetailPage() {
           title="Ask Stellium"
           description="Chat with AI about your birth chart and get personalized insights."
           features={[
-            'Unlimited questions about your chart',
+            'Ask up to 50 questions per month',
             'Personalized interpretations',
             'Aspect-by-aspect explanations',
             'Life guidance based on your placements'

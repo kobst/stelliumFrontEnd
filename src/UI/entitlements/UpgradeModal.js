@@ -15,10 +15,11 @@ function UpgradeModal({
   purchaseOption = null, // { label, price, description }
   subscriptionPrice = 20,
   features = [
-    'Daily horoscope access',
-    '2 analyses per month (rollover allowed)',
-    '10 questions per month',
-    '40% off all purchases',
+    'Daily horoscopes (unlimited)',
+    'Your full 360° birth chart analysis (generated instantly)',
+    '3 analyses per month',
+    '50 "Ask Stellium" questions per month',
+    'Discounted à la carte prices',
   ],
 }) {
   // Handle escape key

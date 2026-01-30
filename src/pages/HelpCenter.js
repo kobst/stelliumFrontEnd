@@ -13,14 +13,14 @@ const HelpCenter = () => {
     <div className="help-center-page">
       <div className="help-container">
         <h1>Stellium Help Center</h1>
-        <p className="welcome-text">Welcome to the Stellium Help Center. Below you'll find answers to the most common questions about charts, relationships, credits, chat, subscriptions, and your account.</p>
+        <p className="welcome-text">Welcome to the Stellium Help Center. Below you'll find answers to the most common questions about charts, relationships, chat, subscriptions, and your account.</p>
 
         {/* Navigation Menu */}
         <nav className="help-nav">
           <button onClick={() => scrollToSection('birth-charts')}>Birth Charts</button>
           <button onClick={() => scrollToSection('relationships')}>Relationships</button>
           <button onClick={() => scrollToSection('chat')}>Chat</button>
-          <button onClick={() => scrollToSection('credits')}>Credits & Usage</button>
+          {/* Legacy credits removed */}
           <button onClick={() => scrollToSection('subscriptions')}>Subscriptions</button>
           <button onClick={() => scrollToSection('privacy')}>Privacy</button>
           <button onClick={() => scrollToSection('support')}>Support</button>
@@ -211,59 +211,7 @@ const HelpCenter = () => {
           </div>
         </section>
 
-        {/* Credits & Usage Section */}
-        <section id="credits" className="help-section">
-          <h2>Credits & Usage</h2>
-
-          <div className="help-item">
-            <h3>What are credits?</h3>
-            <p>Credits are used for premium features, including:</p>
-            <ul>
-              <li>Full Birth Chart Analysis</li>
-              <li>Full Relationship Analysis</li>
-              <li>Ask Stellium (some queries)</li>
-              <li>Horoscope deep dives</li>
-              <li>Creating additional guest charts (in some subscription tiers)</li>
-            </ul>
-          </div>
-
-          <div className="help-item">
-            <h3>How do credits work?</h3>
-            <p>Credits are used for premium features such as:</p>
-            <ul>
-              <li>Full natal report</li>
-              <li>Full relationship report</li>
-              <li>Relationship creation</li>
-              <li>Asking Stellium AI personalized questions</li>
-              <li>Horoscope questions</li>
-              <li>Additional chart analyses</li>
-            </ul>
-            <p>Your credit balance appears:</p>
-            <ul>
-              <li>In the top-right corner of most screens</li>
-              <li>Inside your Profile → Subscription & Purchases</li>
-              <li>On the Buy Credits page</li>
-            </ul>
-          </div>
-
-          <div className="help-item">
-            <h3>Do credits expire?</h3>
-            <ul>
-              <li>Monthly credits auto-renew each subscription cycle and do not carry over</li>
-              <li>Purchased credit packs never expire</li>
-            </ul>
-          </div>
-
-          <div className="help-item">
-            <h3>How do I get more credits?</h3>
-            <p>You can:</p>
-            <ul>
-              <li>Buy a credit pack</li>
-              <li>Upgrade to a subscription plan</li>
-              <li>Use remaining monthly credits (Premium or Pro only)</li>
-            </ul>
-          </div>
-        </section>
+        {/* Credits section removed: legacy model no longer applies */}
 
         {/* Subscriptions Section */}
         <section id="subscriptions" className="help-section">
@@ -271,18 +219,13 @@ const HelpCenter = () => {
 
           <div className="help-item">
             <h3>What subscription plans are available?</h3>
-            <p>Stellium offers:</p>
+            <p>Stellium offers a <strong>Plus Plan</strong> ($20/month) that includes:</p>
             <ul>
-              <li><strong>Premium Plan</strong> — 200 monthly credits</li>
-              <li><strong>Pro Plan</strong> — 1000 monthly credits</li>
-            </ul>
-          </div>
-
-          <div className="help-item">
-            <h3>What's the difference between credits and subscriptions?</h3>
-            <ul>
-              <li>Subscriptions give you monthly credits automatically</li>
-              <li>Credit packs are one-time purchases that never expire</li>
+              <li>Everything in Free</li>
+              <li>3 birth chart/relationship analyses per month</li>
+              <li>50 "Ask Stellium" questions per month</li>
+              <li>Discounted à la carte prices</li>
+              <li>Welcome gift: free analysis of your own birth chart on first subscription</li>
             </ul>
           </div>
 
@@ -303,7 +246,7 @@ const HelpCenter = () => {
           <div className="help-item">
             <h3>What happens if I cancel?</h3>
             <p>You keep access until the current billing period ends.</p>
-            <p>All purchased credit packs remain yours forever.</p>
+            <p>All unlocked analyses are permanent — they persist even if you cancel Plus.</p>
           </div>
 
           <div className="help-item">

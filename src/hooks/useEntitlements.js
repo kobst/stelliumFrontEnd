@@ -14,7 +14,7 @@ const PRICING = {
     plus: 6, // 40% discount
   },
   SUBSCRIPTION: 20, // per month
-  QUESTION_PACK: 5, // TBD
+  QUESTION_PACK: 10,
 };
 
 /**
@@ -74,10 +74,10 @@ export function useEntitlements(user) {
     }
 
     // Calculate access permissions
-    // Weekly horoscope: Premium+ OR active trial
+    // Weekly horoscope: Plus+ OR active trial
     const canAccessWeekly = isPremiumOrHigher || isTrialActive;
 
-    // Ask Stellium (horoscope): Premium+ OR active trial
+    // Ask Stellium (horoscope): Plus+ OR active trial
     const canAccessAskStelliumHoroscope = isPremiumOrHigher || isTrialActive;
 
     return {
@@ -108,8 +108,6 @@ export function useEntitlements(user) {
 
       // Quotas
       monthlyAnalysesRemaining: store.analyses.remaining,
-      bankedAnalyses: store.analyses.banked,
-      totalAnalysesAvailable: store.analyses.remaining + store.analyses.banked,
       analysesResetDate: store.analyses.resetDate,
 
       questionsRemaining: store.questions.total,

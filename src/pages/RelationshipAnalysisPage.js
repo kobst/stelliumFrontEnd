@@ -86,8 +86,8 @@ function RelationshipAnalysisPage() {
     Object.keys(relationship.completeAnalysis).length > 0;
 
   // Check if user can access premium tabs:
-  // Either the relationship has been analyzed (purchased) OR user has premium+ subscription
-  const canAccessPremiumTabs = isAnalysisComplete || entitlements.isPremiumOrHigher;
+  // Either the relationship has been analyzed (purchased) OR user has Plus subscription
+  const canAccessPremiumTabs = isAnalysisComplete || entitlements.isPlus;
 
   const handleBackClick = () => {
     navigate(`/dashboard/${userId}`);
@@ -189,7 +189,7 @@ function RelationshipAnalysisPage() {
           title="Ask About Your Relationship"
           description="Get personalized AI insights about your relationship dynamics."
           features={[
-            'Unlimited relationship questions',
+            'Ask up to 50 questions per month',
             'Compatibility deep dives',
             'Guidance for challenges',
             'Future outlook insights'

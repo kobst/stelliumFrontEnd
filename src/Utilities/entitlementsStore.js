@@ -17,8 +17,6 @@ const initialState = {
   // Analyses quota
   analyses: {
     remaining: 0,
-    banked: 0,
-    total: 0,
     resetDate: null,
   },
 
@@ -87,8 +85,6 @@ const useEntitlementsStore = create((set, get) => ({
 
         analyses: {
           remaining: entitlementsData?.analyses?.remaining || 0,
-          banked: entitlementsData?.analyses?.banked || 0,
-          total: entitlementsData?.analyses?.total || 0,
           resetDate: entitlementsData?.analyses?.resetDate
             ? new Date(entitlementsData.analyses.resetDate)
             : null,
@@ -285,11 +281,11 @@ const useEntitlementsStore = create((set, get) => ({
   },
 
   /**
-   * Get total analyses available (remaining + banked)
+   * Get analyses available this month (no rollover)
    */
   getAnalysesAvailable: () => {
     const state = get();
-    return state.analyses.remaining + state.analyses.banked;
+    return state.analyses.remaining;
   },
 }));
 

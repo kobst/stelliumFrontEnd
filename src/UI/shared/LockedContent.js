@@ -128,7 +128,7 @@ function LockedContent({
               onClick={handleUseQuota}
               disabled={loading}
             >
-              {loading ? 'Unlocking...' : `Use Monthly Quota (${quotaRemaining} left)`}
+              {loading ? 'Unlocking...' : `Use 1 of your ${quotaRemaining} monthly analyses`}
             </button>
           )}
 

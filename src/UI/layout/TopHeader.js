@@ -24,7 +24,8 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
     const plan = getUserPlan();
     switch (plan) {
       case 'premium':
-        return 'Premium Member';
+      case 'plus':
+        return 'Plus Member';
       case 'pro':
         return 'Pro Member';
       default:

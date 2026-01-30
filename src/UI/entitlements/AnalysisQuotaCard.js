@@ -6,13 +6,11 @@ import './AnalysisQuotaCard.css';
  */
 function AnalysisQuotaCard({
   remaining = 0,
-  banked = 0,
   resetDate = null,
   isPlus = false,
   compact = false,
   onUpgradeClick,
 }) {
-  const total = remaining + banked;
   const formatResetDate = (date) => {
     if (!date) return '';
     const d = new Date(date);
@@ -38,7 +36,7 @@ function AnalysisQuotaCard({
           <span className="analysis-quota-card__title">Monthly Analyses</span>
         </div>
         <p className="analysis-quota-card__upgrade-text">
-          Upgrade to Plus to get 2 analyses per month
+          Upgrade to Plus to get 3 analyses per month
         </p>
         {onUpgradeClick && (
           <button className="analysis-quota-card__upgrade-btn" onClick={onUpgradeClick}>
@@ -49,8 +47,8 @@ function AnalysisQuotaCard({
     );
   }
 
-  const isEmpty = total === 0;
-  const isLow = total === 1;
+  const isEmpty = remaining === 0;
+  const isLow = remaining === 1;
 
   return (
     <div className={`analysis-quota-card ${compact ? 'analysis-quota-card--compact' : ''}`}>
@@ -71,7 +69,7 @@ function AnalysisQuotaCard({
       </div>
 
       <div className={`analysis-quota-card__count ${isLow ? 'analysis-quota-card__count--low' : ''} ${isEmpty ? 'analysis-quota-card__count--empty' : ''}`}>
-        <span className="analysis-quota-card__number">{total}</span>
+        <span className="analysis-quota-card__number">{remaining}</span>
         <span className="analysis-quota-card__available">available</span>
       </div>
 
@@ -81,12 +79,6 @@ function AnalysisQuotaCard({
             <span className="analysis-quota-card__breakdown-label">This month:</span>
             <span className="analysis-quota-card__breakdown-value">{remaining}</span>
           </div>
-          {banked > 0 && (
-            <div className="analysis-quota-card__breakdown-item">
-              <span className="analysis-quota-card__breakdown-label">Banked:</span>
-              <span className="analysis-quota-card__breakdown-value">{banked}</span>
-            </div>
-          )}
         </div>
       )}
 
@@ -98,7 +90,7 @@ function AnalysisQuotaCard({
 
       {!compact && (
         <p className="analysis-quota-card__note">
-          Use on birth charts or relationships. Unused analyses roll over!
+          Use on birth charts or relationships.
         </p>
       )}
     </div>

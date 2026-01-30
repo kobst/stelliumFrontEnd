@@ -9,6 +9,7 @@ import HowItWorksSection from '../UI/landingPage/HowItWorksSection';
 import FeatureGridSection from '../UI/landingPage/FeatureGridSection';
 import CTABand from '../UI/landingPage/CTABand';
 import CelebrityChartsSection from '../UI/landingPage/CelebrityChartsSection';
+import PricingSection from '../UI/landingPage/PricingSection';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -64,7 +65,8 @@ const LandingPage = () => {
       {/* Feature Grid */}
       {/* <FeatureGridSection /> */}
 
-      {/* Pricing - removed for now */}
+      {/* Pricing */}
+      <PricingSection />
 
       {/* CTA after pricing */}
       <CTABand showTitle={true} />

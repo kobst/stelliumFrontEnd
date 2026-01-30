@@ -18,7 +18,8 @@ function DashboardHeader({ user }) {
     const plan = getUserPlan();
     switch (plan) {
       case 'premium':
-        return { label: 'Premium', className: 'plan-premium' };
+      case 'plus':
+        return { label: 'Plus', className: 'plan-premium' };
       case 'pro':
         return { label: 'Pro', className: 'plan-pro' };
       default:
@@ -28,7 +29,7 @@ function DashboardHeader({ user }) {
 
   const isPaidPlan = () => {
     const plan = getUserPlan();
-    return plan === 'premium' || plan === 'pro';
+    return plan === 'plus' || plan === 'premium' || plan === 'pro';
   };
 
   // Get user's initials for avatar placeholder
