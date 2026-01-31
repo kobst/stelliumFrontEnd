@@ -216,7 +216,7 @@ function ChartDetailPage() {
   const sections = [
     {
       id: 'overview',
-      content: <OverviewTab basicAnalysis={basicAnalysis} />
+      content: <OverviewTab basicAnalysis={basicAnalysis} chartId={chartId} />
     },
     {
       id: 'chart',
@@ -272,6 +272,7 @@ function ChartDetailPage() {
           broadCategoryAnalyses={broadCategoryAnalyses}
           analysisStatus={analysisStatus}
           onStartAnalysis={handleStartAnalysis}
+          chartId={chartId}
         />
       ) : (
         <LockedContent

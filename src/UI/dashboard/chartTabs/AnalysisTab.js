@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './ChartTabs.css';
 
 // ============ MAPPING TABLES ============
@@ -370,9 +371,10 @@ function DomainContent({ domain, data, expandedCard, onCardToggle }) {
 
 // ============ MAIN COMPONENT ============
 
-function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis }) {
+function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, chartId }) {
   const [activeDomain, setActiveDomain] = useState(LIFE_DOMAINS[0].id);
   const [expandedCard, setExpandedCard] = useState(null);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const isAnalysisComplete = analysisStatus?.completed ||
     (broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
@@ -465,7 +467,11 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis })
       {/* Header Section */}
       <div className="analysis-header">
         <h3 className="analysis-header__title">360 Analysis</h3>
-        <div className="analysis-gradient-icon"></div>
+        <div
+          className="analysis-gradient-icon analysis-gradient-icon--clickable"
+          onClick={() => setChatOpen(true)}
+          title="Ask Stellium"
+        ></div>
       </div>
 
       {/* Domain Tabs */}
@@ -484,6 +490,20 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis })
           onCardToggle={handleCardToggle}
         />
       )}
+
+      <AskStelliumPanel
+        isOpen={chatOpen}
+        onClose={() => setChatOpen(false)}
+        contentType="analysis"
+        contentId={chartId}
+        contextLabel="About your 360 analysis"
+        placeholderText="Ask about your analysis..."
+        suggestedQuestions={[
+          "What does my career analysis reveal?",
+          "How do my emotional patterns show up?",
+          "What are my relationship tendencies?"
+        ]}
+      />
     </div>
   );
 }

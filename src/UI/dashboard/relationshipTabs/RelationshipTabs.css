@@ -678,6 +678,16 @@
   opacity: 0.8;
 }
 
+.overview-header__icon--clickable {
+  cursor: pointer;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+
+.overview-header__icon--clickable:hover {
+  transform: scale(1.12);
+  opacity: 1;
+}
+
 .overview-header__icon svg {
   display: block;
 }

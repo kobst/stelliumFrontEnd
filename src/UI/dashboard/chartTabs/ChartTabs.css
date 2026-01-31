@@ -81,6 +81,16 @@
   flex-shrink: 0;
 }
 
+.overview-gradient-icon--clickable {
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.overview-gradient-icon--clickable:hover {
+  transform: scale(1.12);
+  box-shadow: 0 0 24px rgba(74, 144, 164, 0.6);
+}
+
 .key-placements-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -1150,6 +1160,16 @@
   background: conic-gradient(from 180deg, #c084fc, #ec4899, #f59e0b, #10b981, #3b82f6, #c084fc);
   box-shadow: 0 0 15px rgba(192, 132, 252, 0.4);
   flex-shrink: 0;
+}
+
+.analysis-gradient-icon--clickable {
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.analysis-gradient-icon--clickable:hover {
+  transform: scale(1.12);
+  box-shadow: 0 0 24px rgba(192, 132, 252, 0.6);
 }
 
 /* Domain Tabs - Dark bar with simple text tabs */

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './ChartTabs.css';
 
-function OverviewTab({ basicAnalysis }) {
+function OverviewTab({ basicAnalysis, chartId }) {
+  const [chatOpen, setChatOpen] = useState(false);
   // If no overview data
   if (!basicAnalysis?.overview) {
     return (
@@ -17,7 +19,11 @@ function OverviewTab({ basicAnalysis }) {
       <div className="overview-section">
         <div className="overview-section-header">
           <h3 className="overview-section-title">Overview</h3>
-          <div className="overview-gradient-icon" />
+          <div
+            className="overview-gradient-icon overview-gradient-icon--clickable"
+            onClick={() => setChatOpen(true)}
+            title="Ask Stellium"
+          />
         </div>
         <div className="overview-text">
           {basicAnalysis.overview.split('\n').map((paragraph, index) => (
@@ -25,6 +31,20 @@ function OverviewTab({ basicAnalysis }) {
           ))}
         </div>
       </div>
+
+      <AskStelliumPanel
+        isOpen={chatOpen}
+        onClose={() => setChatOpen(false)}
+        contentType="birthchart"
+        contentId={chartId}
+        contextLabel="About your birth chart"
+        placeholderText="Ask about your birth chart..."
+        suggestedQuestions={[
+          "What are my greatest strengths?",
+          "How does my Moon sign affect my emotions?",
+          "What should I focus on for personal growth?"
+        ]}
+      />
     </div>
   );
 }

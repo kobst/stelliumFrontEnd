@@ -62,6 +62,17 @@
   background: #2a2d45;
 }
 
+/* Moon icon clickable state */
+.horoscope-content__moon-icon--clickable {
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.horoscope-content__moon-icon--clickable:hover {
+  transform: scale(1.12);
+  box-shadow: 0 0 16px rgba(255, 150, 150, 0.4), inset -8px -4px 12px rgba(255, 150, 150, 0.4);
+}
+
 /* Horoscope text content */
 .horoscope-content__text {
   color: var(--color-text-secondary);

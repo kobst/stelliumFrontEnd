@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import TimeSelector from './TimeSelector';
 import HoroscopeCard from './HoroscopeCard';
+import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './HoroscopeContent.css';
 
 function HoroscopeContent({
@@ -11,8 +12,10 @@ function HoroscopeContent({
   error,
   onRetry,
   onLoad,
-  onRefresh
+  onRefresh,
+  userId
 }) {
+  const [chatOpen, setChatOpen] = useState(false);
   // Extract key transits from horoscope data
   const getKeyInfluences = () => {
     if (!horoscope) return [];
@@ -70,7 +73,11 @@ function HoroscopeContent({
               <h1 className="horoscope-content__title">How my Day? Stellium</h1>
               <span className="horoscope-content__date">{formatDate()}</span>
             </div>
-            <div className="horoscope-content__moon-icon" />
+            <div
+              className="horoscope-content__moon-icon horoscope-content__moon-icon--clickable"
+              onClick={() => setChatOpen(true)}
+              title="Ask Stellium"
+            />
           </div>
 
           <TimeSelector
@@ -88,6 +95,20 @@ function HoroscopeContent({
             onLoad={onLoad}
           />
         </div>
+
+        <AskStelliumPanel
+          isOpen={chatOpen}
+          onClose={() => setChatOpen(false)}
+          contentType="horoscope"
+          contentId={userId}
+          contextLabel="About your horoscope"
+          placeholderText="Ask about your horoscope..."
+          suggestedQuestions={[
+            "What should I focus on today?",
+            "How will this transit affect me?",
+            "What energy should I watch for this week?"
+          ]}
+        />
       </div>
     );
   }
@@ -101,7 +122,11 @@ function HoroscopeContent({
             <h1 className="horoscope-content__title">How my Day? Stellium</h1>
             <span className="horoscope-content__date">{formatDate()}</span>
           </div>
-          <div className="horoscope-content__moon-icon" />
+          <div
+            className="horoscope-content__moon-icon horoscope-content__moon-icon--clickable"
+            onClick={() => setChatOpen(true)}
+            title="Ask Stellium"
+          />
         </div>
 
         <TimeSelector
@@ -143,6 +168,20 @@ function HoroscopeContent({
           </>
         )}
       </div>
+
+      <AskStelliumPanel
+        isOpen={chatOpen}
+        onClose={() => setChatOpen(false)}
+        contentType="horoscope"
+        contentId={userId}
+        contextLabel="About your horoscope"
+        placeholderText="Ask about your horoscope..."
+        suggestedQuestions={[
+          "What should I focus on today?",
+          "How will this transit affect me?",
+          "What energy should I watch for this week?"
+        ]}
+      />
     </div>
   );
 }

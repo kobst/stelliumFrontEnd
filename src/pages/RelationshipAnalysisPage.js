@@ -132,7 +132,7 @@ function RelationshipAnalysisPage() {
     },
     {
       id: 'overview',
-      content: <OverviewTab relationship={relationship} />
+      content: <OverviewTab relationship={relationship} compositeId={compositeId} />
     },
     {
       id: 'charts',

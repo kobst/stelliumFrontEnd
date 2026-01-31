@@ -285,6 +285,7 @@ function HoroscopeSection({ userId, user, entitlements }) {
         onRetry={handleRetry}
         onLoad={handleLoad}
         onRefresh={handleRefresh}
+        userId={userId}
       />
     </div>
   );

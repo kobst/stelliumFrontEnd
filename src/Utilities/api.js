@@ -2058,3 +2058,50 @@ export const fetchRelationshipEnhancedChatHistory = async (compositeChartId, lim
     throw error;
   }
 };
+
+// Horoscope Chat API Functions (placeholder — pending backend implementation)
+
+export const fetchHoroscopeChatHistory = async (userId, limit = null) => {
+  try {
+    let url = `${SERVER_URL}/users/${userId}/horoscope/chat-history`;
+    if (limit !== null) {
+      url += `?limit=${limit}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching horoscope chat history:', error);
+    throw error;
+  }
+};
+
+export const enhancedChatForHoroscope = async (userId, requestBody) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/enhanced-chat`, {
+      method: HTTP_POST,
+      headers: {
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON,
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error in horoscope enhanced chat:', error);
+    throw error;
+  }
+};
