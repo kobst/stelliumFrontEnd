@@ -10,11 +10,16 @@ import FeatureGridSection from '../UI/landingPage/FeatureGridSection';
 import CTABand from '../UI/landingPage/CTABand';
 import CelebrityChartsSection from '../UI/landingPage/CelebrityChartsSection';
 import PricingSection from '../UI/landingPage/PricingSection';
+import { useAuth } from '../context/AuthContext';
+import { useCheckout } from '../hooks/useCheckout';
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [showThankYou, setShowThankYou] = useState(false);
+  
+  const { stelliumUser } = useAuth();
+  const checkout = useCheckout(stelliumUser);
 
   const handleDiscoverMe = () => {
     navigate('/birthChartEntry');
@@ -27,6 +32,24 @@ const LandingPage = () => {
       setShowThankYou(true);
       setTimeout(() => setShowThankYou(false), 3000);
       setEmail('');
+    }
+  };
+
+  const handleStartPlus = () => {
+    if (stelliumUser) {
+      // Logged in - go directly to Stripe checkout
+      checkout.startSubscription();
+    } else {
+      // Not logged in - go to signup with upgrade intent
+      navigate('/birthChartEntry?intent=plus');
+    }
+  };
+
+  const handleGetStarted = () => {
+    if (stelliumUser) {
+      navigate(`/dashboard/${stelliumUser._id}`);
+    } else {
+      navigate('/birthChartEntry');
     }
   };
 
@@ -66,7 +89,7 @@ const LandingPage = () => {
       {/* <FeatureGridSection /> */}
 
       {/* Pricing */}
-      <PricingSection />
+      <PricingSection onStartPlus={handleStartPlus} onGetStarted={handleGetStarted} />
 
       {/* CTA after pricing */}
       <CTABand showTitle={true} />

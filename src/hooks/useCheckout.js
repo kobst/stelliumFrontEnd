@@ -112,9 +112,9 @@ export function useCheckout(user, onSuccess) {
       const { successUrl, cancelUrl } = buildCheckoutUrls();
       const result = await createSubscriptionCheckout(user._id, successUrl, cancelUrl);
 
-      if (result?.url) {
+      if (result?.checkoutUrl) {
         // Redirect to Stripe checkout
-        window.location.href = result.url;
+        window.location.href = result.checkoutUrl;
         return { success: true };
       } else {
         throw new Error('No checkout URL received');
@@ -157,9 +157,9 @@ export function useCheckout(user, onSuccess) {
           cancelUrl
         );
 
-        if (result?.url) {
+        if (result?.checkoutUrl) {
           // Redirect to Stripe checkout
-          window.location.href = result.url;
+          window.location.href = result.checkoutUrl;
           return { success: true };
         } else {
           throw new Error('No checkout URL received');
@@ -196,9 +196,9 @@ export function useCheckout(user, onSuccess) {
         cancelUrl
       );
 
-      if (result?.url) {
+      if (result?.checkoutUrl) {
         // Redirect to Stripe checkout
-        window.location.href = result.url;
+        window.location.href = result.checkoutUrl;
         return { success: true };
       } else {
         throw new Error('No checkout URL received');
@@ -227,9 +227,9 @@ export function useCheckout(user, onSuccess) {
       const returnUrl = `${window.location.origin}${location.pathname}`;
       const result = await apiOpenCustomerPortal(user._id, returnUrl);
 
-      if (result?.url) {
+      if (result?.portalUrl) {
         // Redirect to Stripe portal
-        window.location.href = result.url;
+        window.location.href = result.portalUrl;
         return { success: true };
       } else {
         throw new Error('No portal URL received');
