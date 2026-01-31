@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   enhancedChatForUserBirthChart,
   fetchEnhancedChatHistory,
@@ -53,6 +54,7 @@ function AskStelliumPanel({
   const textareaRef = useRef(null);
   const hasLoadedRef = useRef(null);
 
+  const navigate = useNavigate();
   const hasQuestionsRemaining = useEntitlementsStore(state => state.hasQuestionsRemaining);
 
   const config = API_CONFIG[contentType];
@@ -284,7 +286,9 @@ function AskStelliumPanel({
         {showPaywall && (
           <div className="ask-panel__paywall">
             <p>You've used all your questions for this month.</p>
-            <p className="ask-panel__paywall-cta">Upgrade to Plus for more questions.</p>
+            <button className="ask-panel__paywall-cta" onClick={() => navigate('/pricingTable')}>
+              Upgrade to Plus for more questions
+            </button>
           </div>
         )}
 

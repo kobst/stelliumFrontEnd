@@ -283,8 +283,20 @@
 }
 
 .ask-panel__paywall-cta {
-  color: #d4a574 !important;
+  color: #d4a574;
   font-weight: 500;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ask-panel__paywall-cta:hover {
+  color: #e2b98a;
 }
 
 /* Input area */
