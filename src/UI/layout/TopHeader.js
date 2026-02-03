@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import PlanBadge from '../entitlements/PlanBadge';
 import './TopHeader.css';
 
@@ -10,7 +9,6 @@ const NAV_ITEMS = [
 ];
 
 function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout }) {
-  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -69,11 +67,6 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
 
   const toggleDropdown = () => {
     setDropdownOpen(prev => !prev);
-  };
-
-  const handlePurchasesClick = () => {
-    setDropdownOpen(false);
-    navigate('/pricingTable');
   };
 
   const handleSettingsClick = () => {
@@ -150,9 +143,6 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
 
         {dropdownOpen && (
           <div className="top-header__dropdown">
-            <button className="top-header__dropdown-item" onClick={handlePurchasesClick}>
-              Purchases
-            </button>
             <button className="top-header__dropdown-item" onClick={handleSettingsClick}>
               Settings
             </button>
