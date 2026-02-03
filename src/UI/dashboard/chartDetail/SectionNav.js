@@ -21,7 +21,8 @@ const SECTIONS = [
   { id: 'chart', label: 'Chart' },
   { id: 'dominance', label: 'Patterns' },
   { id: 'planets', label: 'Planets' },
-  { id: 'analysis', label: '360 Analysis' }
+  { id: 'analysis', label: '360 Analysis' },
+  { id: 'chat', label: 'Ask Stellium' }
 ];
 
 function SectionNav({ chart, activeSection, onSectionChange, lockedSections = [] }) {

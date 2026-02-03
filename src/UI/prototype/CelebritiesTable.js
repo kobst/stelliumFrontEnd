@@ -3,6 +3,17 @@ import './UsersTable.css';
 import { fetchCelebrities, fetchCelebritiesPaginated } from '../../Utilities/api'
 import { usePaginatedData } from '../../hooks/usePaginatedData';
 
+const formatDateOfBirth = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString;
+  return date.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+};
+
 function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFilter = 'all', usePagination = false }) {
   const [celebrities, setCelebrities] = useState([]);
 
@@ -178,7 +189,7 @@ function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFi
                 >
                   <td>{celebrity.firstName}</td>
                   <td>{celebrity.lastName}</td>
-                  <td>{celebrity.dateOfBirth}</td>
+                  <td>{formatDateOfBirth(celebrity.dateOfBirth)}</td>
                   <td>{celebrity.placeOfBirth}</td>
                 </tr>
               ))

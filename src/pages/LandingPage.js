@@ -110,6 +110,7 @@ const LandingPage = () => {
               <ul>
                 <li><a href="/privacy-policy">Privacy Policy</a></li>
                 <li><a href="/terms-of-service">Terms of Service</a></li>
+                <li><a href="/help">Help Center</a></li>
               </ul>
             </div>
             {/* <div className="link-column">
@@ -124,7 +125,7 @@ const LandingPage = () => {
 
           <div className="footer-bottom">
             <img src={whiteLine} alt="" className="footer-line" />
-            <p className="copyright">© 2024 Stellium. All rights reserved.</p>
+            <p className="copyright">© 2026 Stellium. All rights reserved.</p>
           </div>
         </div>
       </footer>

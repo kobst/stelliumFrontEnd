@@ -13,7 +13,8 @@ function HoroscopeContent({
   onRetry,
   onLoad,
   onRefresh,
-  userId
+  userId,
+  lockedContent
 }) {
   const [chatOpen, setChatOpen] = useState(false);
   // Extract key transits from horoscope data
@@ -62,6 +63,30 @@ function HoroscopeContent({
 
   const influences = getKeyInfluences();
   const horoscopeText = horoscope?.text || horoscope?.interpretation || '';
+
+  // Show locked content inline (keeps tabs visible)
+  if (lockedContent) {
+    return (
+      <div className="horoscope-content horoscope-content--unified">
+        <div className="horoscope-content__card">
+          <div className="horoscope-content__card-header">
+            <div className="horoscope-content__title-section">
+              <h1 className="horoscope-content__title">How my Day? Stellium</h1>
+              <span className="horoscope-content__date">{formatDate()}</span>
+            </div>
+          </div>
+
+          <TimeSelector
+            currentPeriod={timePeriod}
+            onSelect={onTimePeriodChange}
+            disabled={false}
+          />
+
+          {lockedContent}
+        </div>
+      </div>
+    );
+  }
 
   // Show HoroscopeCard for loading/error/empty states
   if (loading || error || !horoscope) {

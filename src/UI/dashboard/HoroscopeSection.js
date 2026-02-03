@@ -138,8 +138,8 @@ function HoroscopeSection({ userId, user, entitlements }) {
     // Skip if already loaded and not a retry
     if (!isRetry && horoscopeCache[period]) return;
 
-    // Check weekly access
-    if (period === 'week' && !entitlements?.canAccessWeekly) return;
+    // Check access for locked periods
+    if (period === 'today' && !entitlements?.canAccessDaily) return;
 
     setLoadingStates(prev => ({ ...prev, [period]: true }));
     if (isRetry) {
@@ -201,7 +201,7 @@ function HoroscopeSection({ userId, user, entitlements }) {
     } finally {
       setLoadingStates(prev => ({ ...prev, [period]: false }));
     }
-  }, [userId, horoscopeCache, retryAttempts, entitlements?.canAccessWeekly]);
+  }, [userId, horoscopeCache, retryAttempts, entitlements?.canAccessDaily]);
 
   // Handle time period change
   const handleTimePeriodChange = useCallback((newPeriod) => {
@@ -240,28 +240,8 @@ function HoroscopeSection({ userId, user, entitlements }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  // Check if weekly is locked
-  const isWeeklyLocked = timePeriod === 'week' && !entitlements?.canAccessWeekly;
-
-  // Show locked content for weekly if not entitled
-  if (isWeeklyLocked) {
-    return (
-      <div className="horoscope-section">
-        <div className="horoscope-section__locked-wrapper">
-          <LockedContent
-            title="Weekly Horoscope"
-            description="Get deeper insights into your week ahead with comprehensive weekly readings."
-            features={[
-              'Day-by-day energy forecasts',
-              'Key dates and opportunities',
-              'Weekly planetary influences'
-            ]}
-            ctaText="Available with Plus"
-          />
-        </div>
-      </div>
-    );
-  }
+  // Check if current period is locked
+  const isDailyLocked = timePeriod === 'today' && !entitlements?.canAccessDaily;
 
   // Get current horoscope data
   const currentHoroscope = horoscopeCache[timePeriod];
@@ -270,23 +250,49 @@ function HoroscopeSection({ userId, user, entitlements }) {
 
   return (
     <div className="horoscope-section">
-      {entitlements?.isTrialActive && timePeriod === 'week' && (
+      {entitlements?.isTrialActive && timePeriod === 'today' && (
         <div className="horoscope-section__trial-banner">
           <TrialBadge text="Unlocked for your first 7 days" />
         </div>
       )}
 
-      <HoroscopeContent
-        timePeriod={timePeriod}
-        onTimePeriodChange={handleTimePeriodChange}
-        horoscope={currentHoroscope}
-        loading={isLoading}
-        error={error}
-        onRetry={handleRetry}
-        onLoad={handleLoad}
-        onRefresh={handleRefresh}
-        userId={userId}
-      />
+      {isDailyLocked ? (
+        <HoroscopeContent
+          timePeriod={timePeriod}
+          onTimePeriodChange={handleTimePeriodChange}
+          horoscope={null}
+          loading={false}
+          error={null}
+          onRetry={handleRetry}
+          onLoad={handleLoad}
+          onRefresh={handleRefresh}
+          userId={userId}
+          lockedContent={
+            <LockedContent
+              title="Daily Horoscope"
+              description="Get personalized daily insights based on your exact birth chart."
+              features={[
+                'Daily planetary influence readings',
+                'Personalized energy forecasts',
+                'Key themes for your day'
+              ]}
+              ctaText="Available with Plus"
+            />
+          }
+        />
+      ) : (
+        <HoroscopeContent
+          timePeriod={timePeriod}
+          onTimePeriodChange={handleTimePeriodChange}
+          horoscope={currentHoroscope}
+          loading={isLoading}
+          error={error}
+          onRetry={handleRetry}
+          onLoad={handleLoad}
+          onRefresh={handleRefresh}
+          userId={userId}
+        />
+      )}
     </div>
   );
 }
