@@ -60,8 +60,8 @@
   margin-left: auto;
 }
 
-/* Tablet: Horizontal layout */
-@media (max-width: 1023px) {
+/* Mobile: Horizontal layout */
+@media (max-width: 767px) {
   .relationship-section-nav {
     position: relative;
     top: 0;
@@ -70,7 +70,7 @@
 
   .relationship-section-nav__list {
     flex-direction: row;
-    gap: var(--spacing-sm, 8px);
+    gap: var(--spacing-xs, 4px);
     overflow-x: auto;
     padding-bottom: var(--spacing-sm, 8px);
     -webkit-overflow-scrolling: touch;
@@ -79,16 +79,6 @@
   .relationship-section-nav__btn {
     white-space: nowrap;
     flex-shrink: 0;
-  }
-}
-
-/* Mobile */
-@media (max-width: 767px) {
-  .relationship-section-nav__list {
-    gap: var(--spacing-xs, 4px);
-  }
-
-  .relationship-section-nav__btn {
     padding: var(--spacing-xs, 8px) var(--spacing-sm, 12px);
     font-size: var(--font-size-xs, 0.75rem);
   }

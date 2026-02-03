@@ -250,8 +250,8 @@
   opacity: 0.6;
 }
 
-/* Tablet/Mobile */
-@media (max-width: 1023px) {
+/* Mobile */
+@media (max-width: 767px) {
   .relationship-sidebar {
     position: relative;
     top: 0;

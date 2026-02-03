@@ -34,17 +34,22 @@
   border-radius: var(--border-radius-md, 12px);
 }
 
-/* Tablet: Stack layout */
+/* Tablet: Narrower sidebar, keep two-column */
 @media (max-width: 1023px) {
   .relationship-detail-layout__grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 220px 1fr;
     gap: var(--spacing-lg, 20px);
   }
 }
 
-/* Mobile */
+/* Mobile: Stack layout */
 @media (max-width: 767px) {
   .relationship-detail-layout {
     padding: var(--spacing-md, 16px);
+  }
+
+  .relationship-detail-layout__grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg, 20px);
   }
 }

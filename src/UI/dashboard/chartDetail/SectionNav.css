@@ -161,8 +161,15 @@
   opacity: 0.6;
 }
 
-/* Tablet - horizontal scroll */
+/* Tablet - keep vertical sidebar, just hide person card */
 @media (max-width: 1199px) {
+  .section-nav__person {
+    display: none;
+  }
+}
+
+/* Mobile - horizontal scroll */
+@media (max-width: 767px) {
   .section-nav {
     position: static;
     margin-bottom: var(--spacing-lg);
@@ -178,6 +185,8 @@
     overflow-x: auto;
     padding-left: 0;
     padding-bottom: var(--spacing-sm);
+    border-left: none;
+    margin-left: 0;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
@@ -189,13 +198,6 @@
   .section-nav__btn {
     white-space: nowrap;
     flex-shrink: 0;
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-}
-
-/* Mobile */
-@media (max-width: 767px) {
-  .section-nav__btn {
     font-size: var(--font-size-xs);
     padding: var(--spacing-sm) var(--spacing-md);
   }
