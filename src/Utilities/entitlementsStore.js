@@ -28,6 +28,12 @@ const initialState = {
     resetDate: null,
   },
 
+  // Relationships quota
+  relationships: {
+    remaining: 0,
+    resetDate: null,
+  },
+
   // Unlocked analyses
   unlockedAnalyses: {
     birthCharts: [],
@@ -96,6 +102,13 @@ const useEntitlementsStore = create((set, get) => ({
           total: entitlementsData?.questions?.total || 0,
           resetDate: entitlementsData?.questions?.resetDate
             ? new Date(entitlementsData.questions.resetDate)
+            : null,
+        },
+
+        relationships: {
+          remaining: entitlementsData?.relationshipsRemaining || 0,
+          resetDate: entitlementsData?.relationshipsResetDate
+            ? new Date(entitlementsData.relationshipsResetDate)
             : null,
         },
 
@@ -286,6 +299,39 @@ const useEntitlementsStore = create((set, get) => ({
   getAnalysesAvailable: () => {
     const state = get();
     return state.analyses.remaining;
+  },
+
+  /**
+   * Check if user can create a relationship
+   * Plus users: always yes (unlimited)
+   * Free users: check remaining quota
+   */
+  canCreateRelationship: () => {
+    const state = get();
+    
+    // Plus users can always create
+    if (state.isPlusUser()) {
+      return true;
+    }
+    
+    // Free users: check remaining
+    return state.relationships.remaining > 0;
+  },
+
+  /**
+   * Get relationships remaining this month
+   */
+  getRelationshipsRemaining: () => {
+    const state = get();
+    return state.relationships.remaining;
+  },
+
+  /**
+   * Get relationships reset date
+   */
+  getRelationshipsResetDate: () => {
+    const state = get();
+    return state.relationships.resetDate;
   },
 }));
 

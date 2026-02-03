@@ -33,7 +33,7 @@ const plans = [
     features: [
       "Weekly & Monthly horoscopes",
       "Unlimited birth chart creation & overviews",
-      "Unlimited relationship creation & scores",
+      "1 relationship creation & score per month",
       "No credit card required",
     ],
     cta: "Get Started Free",
