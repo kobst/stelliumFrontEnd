@@ -13,7 +13,7 @@ export default function CTABand({ showTitle = false }) {
       <div className="cta-content">
         {showTitle && <h2 className="section-title">Ready for your first personalized reading?</h2>}
         <button className="cta-button primary" onClick={handleGetReading}>
-        Get My Quick Chart Overview
+        Get Started Free
         </button>
       </div>
     </section>
