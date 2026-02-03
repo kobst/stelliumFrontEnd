@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getUserSubjects, createRelationshipDirect } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
+import useEntitlementsStore from '../Utilities/entitlementsStore';
 import './CreateRelationshipPage.css';
 
 function CreateRelationshipPage() {
@@ -9,10 +10,17 @@ function CreateRelationshipPage() {
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
 
+  // Entitlements store
+  const canCreateRelationship = useEntitlementsStore((state) => state.canCreateRelationship);
+  const relationshipsRemaining = useEntitlementsStore((state) => state.relationships.remaining);
+  const relationshipsResetDate = useEntitlementsStore((state) => state.relationships.resetDate);
+  const isPlusUser = useEntitlementsStore((state) => state.isPlusUser);
+
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [creating, setCreating] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   // Person A is always the owner (stelliumUser)
   // Person B is selected from guests
@@ -50,6 +58,12 @@ function CreateRelationshipPage() {
   const handleCreateRelationship = async () => {
     if (!stelliumUser || !selectedPartner) return;
 
+    // Proactive quota check
+    if (!canCreateRelationship()) {
+      setShowLimitModal(true);
+      return;
+    }
+
     try {
       setCreating(true);
       setError(null);
@@ -68,7 +82,14 @@ function CreateRelationshipPage() {
       }
     } catch (err) {
       console.error('Error creating relationship:', err);
-      setError(err.message || 'Failed to create relationship');
+      
+      // Handle quota limit error specifically
+      if (err.statusCode === 402 && err.code === 'RELATIONSHIP_LIMIT_REACHED') {
+        setShowLimitModal(true);
+      } else {
+        setError(err.message || 'Failed to create relationship');
+      }
+      
       setCreating(false);
     }
   };
@@ -172,12 +193,39 @@ function CreateRelationshipPage() {
             </div>
           </div>
 
+          {/* Quota Indicator */}
+          {!isPlusUser() && (
+            <div className="quota-indicator">
+              <p style={{ fontSize: '14px', color: relationshipsRemaining > 0 ? '#666' : '#d32f2f' }}>
+                {relationshipsRemaining > 0 ? (
+                  <>
+                    ✓ {relationshipsRemaining} relationship{relationshipsRemaining !== 1 ? 's' : ''} remaining this month
+                    {relationshipsResetDate && (
+                      <span style={{ marginLeft: '8px', color: '#999' }}>
+                        (resets {new Date(relationshipsResetDate).toLocaleDateString()})
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    ⚠ Monthly limit reached
+                    {relationshipsResetDate && (
+                      <span style={{ marginLeft: '8px' }}>
+                        (resets {new Date(relationshipsResetDate).toLocaleDateString()})
+                      </span>
+                    )}
+                  </>
+                )}
+              </p>
+            </div>
+          )}
+
           {/* Create Button */}
           <div className="create-button-container">
             <button
               className="create-relationship-button"
               onClick={handleCreateRelationship}
-              disabled={!selectedPartner || creating}
+              disabled={!selectedPartner || creating || !canCreateRelationship()}
             >
               {creating ? (
                 <>
@@ -193,6 +241,36 @@ function CreateRelationshipPage() {
                 {getPersonName(stelliumUser)} ♡ {getPersonName(selectedPartner)}
               </p>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Limit Reached Modal */}
+      {showLimitModal && (
+        <div className="modal-overlay" onClick={() => setShowLimitModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Monthly Relationship Limit Reached</h2>
+            <p>
+              Free users can create 1 relationship per month.
+              {relationshipsResetDate && (
+                <> Your quota resets on <strong>{new Date(relationshipsResetDate).toLocaleDateString()}</strong>.</>
+              )}
+            </p>
+            <p>Upgrade to <strong>Plus</strong> for unlimited relationship creation!</p>
+            <div className="modal-buttons">
+              <button 
+                className="modal-button-primary"
+                onClick={() => navigate('/plans')}
+              >
+                View Plans
+              </button>
+              <button 
+                className="modal-button-secondary"
+                onClick={() => setShowLimitModal(false)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
