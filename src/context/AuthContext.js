@@ -6,7 +6,8 @@ import {
   signUpWithEmail,
   signOut,
   getIdToken,
-  getAuthErrorMessage
+  getAuthErrorMessage,
+  sendPasswordReset
 } from '../firebase/auth';
 import { getUserByFirebaseUid } from '../Utilities/api';
 import { initializeEntitlements } from '../Utilities/entitlementsApi';
@@ -151,6 +152,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Handle password reset
+  const handlePasswordReset = async (email) => {
+    try {
+      await sendPasswordReset(email);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: getAuthErrorMessage(error) };
+    }
+  };
+
   const value = {
     // State
     firebaseUser,
@@ -164,6 +175,7 @@ export const AuthProvider = ({ children }) => {
     signInWithEmail: handleEmailSignIn,
     signUpWithEmail: handleEmailSignUp,
     signOut: handleSignOut,
+    sendPasswordReset: handlePasswordReset,
     getToken,
     refreshStelliumUser,
     setStelliumUser

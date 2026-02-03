@@ -2105,3 +2105,26 @@ export const enhancedChatForHoroscope = async (userId, requestBody) => {
     throw error;
   }
 };
+
+// Update user profile (firstName, lastName)
+export const updateUserProfile = async (userId, updates) => {
+  try {
+    console.log('Updating user profile for userId:', userId, 'updates:', updates);
+    const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/profile`, {
+      method: 'PUT',
+      body: JSON.stringify(updates)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+    console.log('User profile update response:', responseData);
+    return responseData;
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    throw error;
+  }
+};

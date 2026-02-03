@@ -1,0 +1,131 @@
+.subscription-settings {
+  /* No max-width - full width content */
+}
+
+.subscription-settings__description {
+  margin: 0 0 24px 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.subscription-settings__plan {
+  padding: 16px;
+  background: rgba(30, 30, 45, 0.6);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.subscription-settings__plan-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.subscription-settings__plan-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.subscription-settings__plan-until {
+  margin: 8px 0 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
+.subscription-settings__quotas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.subscription-settings__error {
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.subscription-settings__actions {
+  margin-bottom: 24px;
+}
+
+.subscription-settings__upgrade-btn {
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.subscription-settings__upgrade-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.subscription-settings__upgrade-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.subscription-settings__manage-btn {
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 8px;
+  color: #a78bfa;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.subscription-settings__manage-btn:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: #8b5cf6;
+}
+
+.subscription-settings__manage-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.subscription-settings__benefits {
+  padding: 20px;
+  background: rgba(30, 30, 45, 0.6);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+}
+
+.subscription-settings__benefits-title {
+  margin: 0 0 12px 0;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.subscription-settings__benefits-list {
+  margin: 0;
+  padding-left: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.subscription-settings__benefits-list li {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 768px) {
+  .subscription-settings__quotas {
+    grid-template-columns: 1fr;
+  }
+}

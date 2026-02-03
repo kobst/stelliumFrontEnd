@@ -5,7 +5,8 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged as firebaseOnAuthStateChanged,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { auth } from './config';
 
@@ -143,5 +144,19 @@ export const getAuthErrorMessage = (error) => {
       return 'Sign-in popup was blocked. Please allow popups and try again.';
     default:
       return error.message || 'An error occurred. Please try again.';
+  }
+};
+
+/**
+ * Send password reset email
+ * @param {string} email - The email address to send reset link to
+ * @returns {Promise<void>}
+ */
+export const sendPasswordReset = async (email) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+  } catch (error) {
+    console.error('Password reset error:', error);
+    throw error;
   }
 };

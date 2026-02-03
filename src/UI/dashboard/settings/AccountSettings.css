@@ -1,0 +1,119 @@
+.account-settings {
+  /* No max-width - full width content */
+}
+
+.account-settings__description {
+  margin: 0 0 24px 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.account-settings__section {
+  padding: 20px;
+  background: rgba(30, 30, 45, 0.6);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.account-settings__section--signout {
+  margin-bottom: 0;
+}
+
+.account-settings__section-title {
+  margin: 0 0 8px 0;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.account-settings__section-description {
+  margin: 0 0 16px 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.account-settings__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.account-settings__label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.account-settings__email {
+  padding: 12px 16px;
+  background: rgba(30, 30, 45, 0.8);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+}
+
+.account-settings__error {
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.account-settings__success {
+  padding: 12px 16px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 8px;
+  color: #34d399;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.account-settings__reset-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 8px;
+  color: #a78bfa;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.account-settings__reset-btn:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: #8b5cf6;
+}
+
+.account-settings__reset-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.account-settings__signout-btn {
+  padding: 10px 20px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.account-settings__signout-btn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+}
+
+.account-settings__signout-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
