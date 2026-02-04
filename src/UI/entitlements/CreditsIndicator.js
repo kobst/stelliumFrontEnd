@@ -44,24 +44,29 @@ function CreditsIndicator({
         <span className="credits-indicator__remaining">remaining</span>
       </div>
 
-      {!compact && (
+      {!compact && total > 0 && (
         <div className="credits-indicator__breakdown">
-          {monthly > 0 && (
-            <span className="credits-indicator__breakdown-item">
-              {monthly} monthly
-            </span>
-          )}
-          {pack > 0 && (
-            <span className="credits-indicator__breakdown-item">
-              {pack} purchased
-            </span>
-          )}
+          <span className="credits-indicator__breakdown-item">
+            {monthly} monthly
+          </span>
+          <span className="credits-indicator__breakdown-item">
+            {pack} purchased
+          </span>
         </div>
       )}
 
-      {!compact && resetDate && monthly > 0 && (
-        <div className="credits-indicator__reset">
-          Resets {formatResetDate(resetDate)}
+      {!compact && (
+        <div className="credits-indicator__info">
+          {resetDate && monthly > 0 && (
+            <div className="credits-indicator__reset">
+              Monthly credits reset {formatResetDate(resetDate)}
+            </div>
+          )}
+          {pack > 0 && (
+            <div className="credits-indicator__pack-info">
+              Purchased credits never expire
+            </div>
+          )}
         </div>
       )}
 
