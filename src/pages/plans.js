@@ -31,9 +31,10 @@ const plans = [
     suffix: "",
     description: "Dip your toes in the stars — no credit card required.",
     features: [
+      "10 credits per month",
       "Weekly & Monthly horoscopes",
       "Unlimited birth chart creation & overviews",
-      "1 relationship creation & score per month",
+      "Unlimited relationship creation & scores",
       "No credit card required",
     ],
     cta: "Get Started Free",
@@ -46,27 +47,31 @@ const plans = [
     badge: "Most Popular",
     description: "Everything in Free, plus:",
     features: [
-      "Your complete Birth Chart 360° Analysis — generated on signup",
-      "Daily personalized horoscope",
-      "3 deep readings per month (birth chart or relationship)",
-      "50 Ask Stellium AI questions per month",
-      "40% off additional readings",
+      "200 flexible credits per month",
+      "~2 full birth chart analyses (75 credits each)",
+      "~3 relationship analyses (60 credits each)",
+      "~200 Ask Stellium questions (1 credit each)",
+      "Daily personalized horoscope (free for Plus)",
+      "Mix and match credits as you like",
     ],
     cta: "Start Plus",
     highlight: true,
   },
   {
-    id: "alaCarte",
-    name: "Individual Readings",
-    price: "",
+    id: "creditPack",
+    name: "Credit Pack",
+    price: "10",
     suffix: "",
-    description: "Available to all users. Plus members save 40%.",
+    description: "One-time purchase. Credits never expire.",
     features: [
-      "Birth Chart 360° — Free: $20 • Plus: $12",
-      "Relationship 360° — Free: $10 • Plus: $6",
-      "Question Pack (10) — $10 for 10",
+      "100 credits (never expire)",
+      "~1 birth chart analysis (75 credits)",
+      "~1 relationship analysis (60 credits)",
+      "~100 Ask Stellium questions (1 credit each)",
+      "Use credits for whatever you need",
+      "No subscription required",
     ],
-    cta: "See Options",
+    cta: "Buy Credit Pack",
   },
 ];
 
@@ -87,12 +92,11 @@ export default function PricingTable() {
       } else {
         navigate('/birthChartEntry?intent=plus');
       }
-    } else if (planId === 'alaCarte') {
-      // Scroll to individual readings or navigate to dashboard
+    } else if (planId === 'creditPack') {
       if (stelliumUser) {
-        navigate(`/dashboard/${stelliumUser._id}`);
+        checkout.purchaseCreditPack();
       } else {
-        navigate('/birthChartEntry');
+        navigate('/birthChartEntry?intent=creditPack');
       }
     }
   };
@@ -258,7 +262,7 @@ export default function PricingTable() {
                   opacity: checkout.isLoading ? 0.7 : 1
                 }}
               >
-                {checkout.isLoading && plan.id === 'plus' ? 'Loading...' : plan.cta}
+                {checkout.isLoading && (plan.id === 'plus' || plan.id === 'creditPack') ? 'Loading...' : plan.cta}
               </button>
             </div>
           </div>
