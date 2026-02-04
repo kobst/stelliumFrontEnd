@@ -79,8 +79,11 @@ function LockedContent({
 
   const loading = isLoading || actionLoading;
 
-  // Determine which buttons to show
-  const canUseQuota = showUseQuotaOption && isPlus && quotaRemaining > 0;
+  // Determine credit cost for this analysis type
+  const creditCost = (analysisType === 'RELATIONSHIP') ? 60 : 75;
+
+  // Determine which buttons to show (credits-based)
+  const canUseCredits = showUseQuotaOption && quotaRemaining >= creditCost;
   const canPurchase = showPurchaseOption && onPurchase;
 
   return (
@@ -122,13 +125,13 @@ function LockedContent({
 
         <div className="locked-content__actions">
           {/* Option 1: Use monthly quota (Plus users with available quota) */}
-          {canUseQuota && (
+          {canUseCredits && (
             <button
               className="locked-content__quota-button"
               onClick={handleUseQuota}
               disabled={loading}
             >
-              {loading ? 'Unlocking...' : `Use 1 of your ${quotaRemaining} monthly analyses`}
+              {loading ? 'Unlocking...' : `Use ${creditCost} credits (You have ${quotaRemaining})`}
             </button>
           )}
 
@@ -155,10 +158,10 @@ function LockedContent({
           )}
 
           {/* Plus user with no quota - show purchase only */}
-          {isPlus && !canUseQuota && !canPurchase && (
+          {isPlus && !canUseCredits && !canPurchase && (
             <p className="locked-content__no-quota">
-              You've used all your monthly analyses.
-              {purchasePrice && ` Purchase this analysis for $${purchasePrice}.`}
+              Not enough credits to unlock.
+              {purchasePrice && ` You can purchase this analysis for $${purchasePrice}.`}
             </p>
           )}
         </div>

@@ -161,8 +161,8 @@ function RelationshipAnalysisPage() {
           analysisType="RELATIONSHIP"
           analysisId={compositeId}
           purchasePrice={entitlements.relationshipPrice}
-          showUseQuotaOption={entitlements.isPlus}
-          quotaRemaining={entitlements.monthlyAnalysesRemaining}
+          showUseQuotaOption={true}
+          quotaRemaining={entitlements.credits?.total || 0}
           isPlus={entitlements.isPlus}
           isLoading={checkout.isLoading}
           onUpgradeClick={checkout.startSubscription}

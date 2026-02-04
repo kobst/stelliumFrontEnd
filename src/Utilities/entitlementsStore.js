@@ -144,9 +144,13 @@ const useEntitlementsStore = create((set, get) => ({
       return { success: true, alreadyUnlocked: true };
     }
 
-    // Check if has remaining quota
-    if (state.analyses.remaining <= 0) {
-      return { success: false, error: 'No analyses remaining' };
+    // Check if has enough credits for this analysis
+    const costBirthChart = 75;
+    const costRelationship = 60;
+    const normalizedType = (entityType || '').toUpperCase();
+    const cost = normalizedType === 'BIRTH_CHART' ? costBirthChart : costRelationship;
+    if (state.credits.total < cost) {
+      return { success: false, error: 'Not enough credits' };
     }
 
     // Use quota via API
@@ -154,7 +158,7 @@ const useEntitlementsStore = create((set, get) => ({
       set({ isLoading: true });
       const result = await apiUseAnalysis(userId, entityType, entityId);
 
-      // Refresh entitlements to get updated counts
+      // Refresh entitlements to get updated credits and unlocks
       await get().fetchEntitlements(userId);
 
       return { success: true, result };
@@ -170,31 +174,13 @@ const useEntitlementsStore = create((set, get) => ({
   useQuestion: async (userId) => {
     if (!userId) return { success: false, error: 'No user ID' };
 
-    const state = get();
-
-    // Check if has remaining questions
-    if (state.questions.total <= 0) {
-      return { success: false, error: 'No questions remaining' };
-    }
-
     try {
       set({ isLoading: true });
       const result = await apiUseQuestion(userId);
 
-      // Update local state optimistically
-      set((state) => ({
-        questions: {
-          ...state.questions,
-          total: Math.max(0, state.questions.total - 1),
-          monthly: state.questions.monthly > 0
-            ? state.questions.monthly - 1
-            : state.questions.monthly,
-          purchased: state.questions.monthly <= 0 && state.questions.purchased > 0
-            ? state.questions.purchased - 1
-            : state.questions.purchased,
-        },
-        isLoading: false,
-      }));
+      // Refresh entitlements to update credits after question usage
+      await get().fetchEntitlements(userId);
+      set({ isLoading: false });
 
       return { success: true, result };
     } catch (error) {

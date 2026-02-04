@@ -106,14 +106,14 @@ export function useEntitlements(user) {
       isSubscriptionActive: store.isSubscriptionActive,
       hasEverSubscribed: store.hasEverSubscribed,
 
-      // Quotas
-      monthlyAnalysesRemaining: store.analyses.remaining,
-      analysesResetDate: store.analyses.resetDate,
-
-      questionsRemaining: store.questions.total,
-      monthlyQuestions: store.questions.monthly,
-      purchasedQuestions: store.questions.purchased,
-      questionsResetDate: store.questions.resetDate,
+      // Credits (unified)
+      credits: {
+        total: store.credits.total,
+        monthly: store.credits.monthly,
+        pack: store.credits.pack,
+        monthlyLimit: store.credits.monthlyLimit,
+        resetDate: store.credits.resetDate,
+      },
 
       // Horoscope access
       canAccessDaily: store.horoscopeAccess.daily || isPlus,
@@ -182,13 +182,12 @@ export function useEntitlements(user) {
       if (store.isAnalysisUnlocked(entityType, entityId)) {
         return true;
       }
-      // Plus users with remaining quota can access
-      if (storeEntitlements.isPlus && store.analyses.remaining > 0) {
-        return true;
-      }
-      return false;
+      // Credits-based access check
+      const type = (entityType || '').toUpperCase();
+      const cost = type === 'RELATIONSHIP' ? 60 : 75; // default birth chart 75
+      return store.hasEnoughCredits(cost);
     },
-    [store.isAnalysisUnlocked, storeEntitlements.isPlus, store.analyses.remaining]
+    [store.isAnalysisUnlocked, store.hasEnoughCredits]
   );
 
   // Combine legacy and new entitlements
