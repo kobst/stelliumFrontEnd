@@ -518,7 +518,12 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 30px;
-  align-items: start;
+  align-items: stretch;
+}
+
+.pricing-grid.three-col {
+  max-width: 1000px;
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .pricing-card {
@@ -552,6 +557,11 @@
 .pricing-card.pro {
   border-color: rgba(245, 158, 11, 0.3);
   background: rgba(245, 158, 11, 0.05);
+}
+
+.pricing-card.credit-pack {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .popular-badge {
@@ -643,6 +653,91 @@
 }
 
 .pricing-cta.primary:hover {
+}
+
+/* Horoscope Comparison */
+.horoscope-comparison {
+  max-width: 500px;
+  margin: 40px auto 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.horoscope-comparison h4 {
+  text-align: center;
+  color: white;
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.comparison-table.compact {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.comparison-table.compact th,
+.comparison-table.compact td {
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.comparison-table.compact th:first-child,
+.comparison-table.compact td:first-child {
+  text-align: left;
+}
+
+.comparison-table.compact thead th {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.comparison-table.compact .highlight-col {
+  color: #a78bfa;
+}
+
+.comparison-table.compact .check {
+  color: #22c55e;
+}
+
+/* Credits Card */
+.credits-card {
+  max-width: 400px;
+  margin: 40px auto 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.credits-card h4 {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.credits-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.credits-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+}
+
+.credits-row .credit-amount {
+  color: #a78bfa;
+  font-weight: 600;
 }
 
 /* Add-ons Section */
@@ -1311,6 +1406,17 @@
   .pillar {
     padding: 30px 15px;
   }
+
+  .pricing-grid.three-col {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 700px;
+  }
+
+  .pricing-grid.three-col .pricing-card.credit-pack {
+    grid-column: span 2;
+    max-width: 350px;
+    margin: 0 auto;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1377,10 +1483,12 @@
   }
 
   /* Pricing Mobile */
-  .pricing-grid {
+  .pricing-grid,
+  .pricing-grid.three-col {
     grid-template-columns: 1fr;
     gap: 30px;
     row-gap: 40px;
+    max-width: 400px;
   }
 
   .pricing-card {
@@ -1389,6 +1497,16 @@
 
   .features-list {
     min-height: auto;
+  }
+
+  .horoscope-comparison {
+    max-width: 100%;
+    margin: 30px 20px 0;
+  }
+
+  .credits-card {
+    max-width: 100%;
+    margin: 30px 20px 0;
   }
 
   /* Add-ons Mobile */

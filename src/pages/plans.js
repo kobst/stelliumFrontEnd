@@ -29,12 +29,12 @@ const plans = [
     name: "Free",
     price: "0",
     suffix: "",
-    description: "Dip your toes in the stars — no credit card required.",
+    description: "Explore your chart and sample features.",
     features: [
-      "10 credits per month",
       "Weekly & Monthly horoscopes",
-      "Unlimited birth chart creation & overviews",
-      "Unlimited relationship creation & scores",
+      "Unlimited chart & relationship creation",
+      "10 credits per month",
+      "Buy credits anytime",
       "No credit card required",
     ],
     cta: "Get Started Free",
@@ -45,14 +45,12 @@ const plans = [
     price: "20",
     suffix: "/mo",
     badge: "Most Popular",
-    description: "Everything in Free, plus:",
+    description: "Daily guidance + monthly credits.",
     features: [
-      "200 flexible credits per month",
-      "~2 full birth chart analyses (75 credits each)",
-      "~3 relationship analyses (60 credits each)",
-      "~200 Ask Stellium questions (1 credit each)",
-      "Daily personalized horoscope (free for Plus)",
-      "Mix and match credits as you like",
+      "Daily, Weekly & Monthly horoscopes",
+      "Everything in Free",
+      "200 credits per month",
+      "Best value for ongoing insight",
     ],
     cta: "Start Plus",
     highlight: true,
@@ -62,16 +60,13 @@ const plans = [
     name: "Credit Pack",
     price: "10",
     suffix: "",
-    description: "One-time purchase. Credits never expire.",
+    description: "One-time credits. No subscription.",
     features: [
-      "100 credits (never expire)",
-      "~1 birth chart analysis (75 credits)",
-      "~1 relationship analysis (60 credits)",
-      "~100 Ask Stellium questions (1 credit each)",
-      "Use credits for whatever you need",
-      "No subscription required",
+      "100 credits",
+      "Never expire",
+      "Use for any analysis or question",
     ],
-    cta: "Buy Credit Pack",
+    cta: "Buy Credits",
   },
 ];
 
@@ -107,7 +102,7 @@ export default function PricingTable() {
       margin: '0 auto',
       padding: '40px 20px',
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      background: '#1a1b2e'
     }}>
       <div style={{ textAlign: 'center', marginBottom: '60px' }}>
         <h1 style={{
@@ -120,14 +115,14 @@ export default function PricingTable() {
           Pick Your Cosmic Path
         </h1>
         <p style={{
-          fontSize: '18px',
-          color: 'rgba(255,255,255,0.9)',
+          fontSize: '16px',
+          color: 'rgba(255,255,255,0.85)',
           maxWidth: '600px',
-          margin: '0 auto',
+          margin: '0 auto 16px',
           lineHeight: '1.6'
         }}>
-          Unlock deeper self‑knowledge and relationship insight with the plan that
-          matches your journey.
+          All users use credits for in-depth analyses.<br />
+          Free and Plus determine how much guidance you get by default — and how many credits you receive each month.
         </p>
         {checkout.error && (
           <p style={{
@@ -146,39 +141,39 @@ export default function PricingTable() {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
         gap: '24px',
-        alignItems: 'start'
+        alignItems: 'stretch'
       }}>
         {plans.map((plan) => (
           <div
             key={plan.id}
             style={{
               background: plan.highlight
-                ? 'linear-gradient(145deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05))'
-                : 'rgba(255, 255, 255, 0.1)',
+                ? 'linear-gradient(145deg, rgba(167, 139, 250, 0.15), rgba(167, 139, 250, 0.05))'
+                : '#2a2d4a',
               borderRadius: '16px',
               padding: '24px',
               border: plan.highlight
-                ? '2px solid rgba(139, 92, 246, 0.5)'
-                : '1px solid rgba(255, 255, 255, 0.2)',
-              backdropFilter: 'blur(10px)',
+                ? '2px solid rgba(167, 139, 250, 0.5)'
+                : '1px solid #3d3f5f',
               boxShadow: plan.highlight
-                ? '0 8px 32px rgba(139, 92, 246, 0.3)'
-                : '0 4px 16px rgba(0, 0, 0, 0.1)',
+                ? '0 8px 32px rgba(167, 139, 250, 0.2)'
+                : '0 4px 16px rgba(0, 0, 0, 0.2)',
               display: 'flex',
               flexDirection: 'column',
-              height: '100%',
               transition: 'background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease',
               cursor: 'pointer'
             }}
           >
-            {plan.badge && (
-              <div style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                marginBottom: '16px'
-              }}>
+            {/* Badge area - fixed height for alignment */}
+            <div style={{
+              height: '32px',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              marginBottom: '8px'
+            }}>
+              {plan.badge && (
                 <span style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -189,12 +184,13 @@ export default function PricingTable() {
                   borderRadius: '20px',
                   fontSize: '12px',
                   fontWeight: 'bold',
-                  border: '1px solid rgba(139, 92, 246, 0.3)'
+                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                  height: 'fit-content'
                 }}>
-                  ⭐ {plan.badge}
+                  {plan.badge}
                 </span>
-              </div>
-            )}
+              )}
+            </div>
 
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <h2 style={{
@@ -229,11 +225,12 @@ export default function PricingTable() {
               </p>
             </div>
 
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
               <ul style={{
                 marginBottom: '24px',
                 padding: 0,
-                listStyle: 'none'
+                listStyle: 'none',
+                flex: 1
               }}>
                 {plan.features.map((feature, idx) => (
                   <Feature key={idx}>{feature}</Feature>
@@ -247,19 +244,20 @@ export default function PricingTable() {
                   width: '100%',
                   padding: '12px 24px',
                   background: plan.highlight
-                    ? 'linear-gradient(135deg, #8b5cf6, #a78bfa)'
-                    : 'rgba(255, 255, 255, 0.1)',
-                  color: 'white',
+                    ? '#a78bfa'
+                    : '#353852',
+                  color: plan.highlight ? '#1a1b2e' : 'white',
                   border: plan.highlight
                     ? 'none'
-                    : '1px solid rgba(255, 255, 255, 0.3)',
+                    : '1px solid #3d3f5f',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: 'bold',
                   cursor: checkout.isLoading ? 'wait' : 'pointer',
                   transition: 'background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease',
                   backdropFilter: 'blur(10px)',
-                  opacity: checkout.isLoading ? 0.7 : 1
+                  opacity: checkout.isLoading ? 0.7 : 1,
+                  marginTop: 'auto'
                 }}
               >
                 {checkout.isLoading && (plan.id === 'plus' || plan.id === 'creditPack') ? 'Loading...' : plan.cta}
@@ -267,6 +265,92 @@ export default function PricingTable() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Horoscope Access Comparison */}
+      <div style={{
+        marginTop: '48px',
+        background: '#2a2d4a',
+        borderRadius: '12px',
+        padding: '24px',
+        maxWidth: '500px',
+        margin: '48px auto 0',
+        border: '1px solid #3d3f5f'
+      }}>
+        <h3 style={{
+          color: 'white',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          marginBottom: '16px',
+          textAlign: 'center'
+        }}>
+          Horoscope Access
+        </h3>
+        <table style={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          color: 'white'
+        }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: '8px 12px', borderBottom: '1px solid #3d3f5f' }}></th>
+              <th style={{ textAlign: 'center', padding: '8px 12px', borderBottom: '1px solid #3d3f5f', fontSize: '14px' }}>Free</th>
+              <th style={{ textAlign: 'center', padding: '8px 12px', borderBottom: '1px solid #3d3f5f', fontSize: '14px', color: '#a78bfa' }}>Plus</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ padding: '8px 12px', fontSize: '14px' }}>Daily Horoscope</td>
+              <td style={{ textAlign: 'center', padding: '8px 12px', color: 'rgba(255,255,255,0.4)' }}>—</td>
+              <td style={{ textAlign: 'center', padding: '8px 12px', color: '#22c55e' }}>✓</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '8px 12px', fontSize: '14px' }}>Weekly Horoscope</td>
+              <td style={{ textAlign: 'center', padding: '8px 12px', color: '#22c55e' }}>✓</td>
+              <td style={{ textAlign: 'center', padding: '8px 12px', color: '#22c55e' }}>✓</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '8px 12px', fontSize: '14px' }}>Monthly Horoscope</td>
+              <td style={{ textAlign: 'center', padding: '8px 12px', color: '#22c55e' }}>✓</td>
+              <td style={{ textAlign: 'center', padding: '8px 12px', color: '#22c55e' }}>✓</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* How Credits Work */}
+      <div style={{
+        marginTop: '48px',
+        background: '#2a2d4a',
+        borderRadius: '12px',
+        padding: '24px',
+        maxWidth: '400px',
+        margin: '48px auto 0',
+        border: '1px solid #3d3f5f'
+      }}>
+        <h3 style={{
+          color: 'white',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          marginBottom: '20px',
+          textAlign: 'center'
+        }}>
+          How Credits Work
+        </h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: 'white', fontSize: '14px' }}>Full Birth Chart Analysis</span>
+            <span style={{ color: '#a78bfa', fontSize: '14px', fontWeight: '600' }}>75 credits</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: 'white', fontSize: '14px' }}>Relationship Analysis</span>
+            <span style={{ color: '#a78bfa', fontSize: '14px', fontWeight: '600' }}>60 credits</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: 'white', fontSize: '14px' }}>Ask Stellium (1 question)</span>
+            <span style={{ color: '#a78bfa', fontSize: '14px', fontWeight: '600' }}>1 credit</span>
+          </div>
+        </div>
       </div>
     </div>
   );
