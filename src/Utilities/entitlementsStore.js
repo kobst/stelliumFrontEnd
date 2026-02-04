@@ -14,23 +14,12 @@ const initialState = {
   isSubscriptionActive: false,
   hasEverSubscribed: false,
 
-  // Analyses quota
-  analyses: {
-    remaining: 0,
-    resetDate: null,
-  },
-
-  // Questions quota
-  questions: {
-    monthly: 0,
-    purchased: 0,
-    total: 0,
-    resetDate: null,
-  },
-
-  // Relationships quota
-  relationships: {
-    remaining: 0,
+  // Credits (unified system)
+  credits: {
+    total: 0,        // monthly + pack
+    monthly: 0,      // from monthly allotment
+    pack: 0,         // purchased credits (never expire)
+    monthlyLimit: 0, // tier's monthly allotment
     resetDate: null,
   },
 
@@ -78,37 +67,25 @@ const useEntitlementsStore = create((set, get) => ({
 
       // Parse entitlements response
       const plan = entitlementsData?.plan || 'FREE';
-      // Treat 'PREMIUM' as equivalent to 'PLUS' for access checks
-      const isPlus = plan === 'PLUS' || plan === 'PREMIUM';
+      // Map 'premium' to 'plus' for legacy support
+      const normalizedPlan = plan.toUpperCase() === 'PREMIUM' ? 'PLUS' : plan.toUpperCase();
+      const isPlus = normalizedPlan === 'PLUS';
 
       set({
-        plan,
+        plan: normalizedPlan,
         planActiveUntil: entitlementsData?.planActiveUntil
           ? new Date(entitlementsData.planActiveUntil)
           : null,
         isSubscriptionActive: entitlementsData?.isSubscriptionActive || false,
         hasEverSubscribed: entitlementsData?.hasEverSubscribed || false,
 
-        analyses: {
-          remaining: entitlementsData?.analyses?.remaining || 0,
-          resetDate: entitlementsData?.analyses?.resetDate
-            ? new Date(entitlementsData.analyses.resetDate)
-            : null,
-        },
-
-        questions: {
-          monthly: entitlementsData?.questions?.monthly || 0,
-          purchased: entitlementsData?.questions?.purchased || 0,
-          total: entitlementsData?.questions?.total || 0,
-          resetDate: entitlementsData?.questions?.resetDate
-            ? new Date(entitlementsData.questions.resetDate)
-            : null,
-        },
-
-        relationships: {
-          remaining: entitlementsData?.relationshipsRemaining || 0,
-          resetDate: entitlementsData?.relationshipsResetDate
-            ? new Date(entitlementsData.relationshipsResetDate)
+        credits: {
+          total: entitlementsData?.credits?.total || 0,
+          monthly: entitlementsData?.credits?.monthly || 0,
+          pack: entitlementsData?.credits?.pack || 0,
+          monthlyLimit: entitlementsData?.credits?.monthlyLimit || 0,
+          resetDate: entitlementsData?.credits?.resetDate
+            ? new Date(entitlementsData.credits.resetDate)
             : null,
         },
 
@@ -277,61 +254,58 @@ const useEntitlementsStore = create((set, get) => ({
       return true;
     }
 
-    // Plus users with remaining quota can access
-    if (state.isPlusUser() && state.analyses.remaining > 0) {
-      return true;
-    }
-
-    return false;
+    // Check if user has enough credits to unlock
+    const costBirthChart = 75;
+    const costRelationship = 60;
+    const cost = entityType === 'birthChart' ? costBirthChart : costRelationship;
+    
+    return state.credits.total >= cost;
   },
 
   /**
-   * Check if user has questions remaining
+   * Check if user has enough credits
    */
-  hasQuestionsRemaining: () => {
+  hasEnoughCredits: (cost) => {
     const state = get();
-    return state.questions.total > 0;
+    return state.credits.total >= cost;
   },
 
   /**
-   * Get analyses available this month (no rollover)
+   * Get current credit balance
    */
-  getAnalysesAvailable: () => {
+  getCredits: () => {
     const state = get();
-    return state.analyses.remaining;
+    return state.credits;
   },
 
   /**
-   * Check if user can create a relationship
-   * Plus users: always yes (unlimited)
-   * Free users: check remaining quota
+   * Get credits breakdown for display
+   */
+  getCreditsBreakdown: () => {
+    const state = get();
+    return {
+      total: state.credits.total,
+      monthly: state.credits.monthly,
+      pack: state.credits.pack,
+      monthlyLimit: state.credits.monthlyLimit,
+      resetDate: state.credits.resetDate,
+    };
+  },
+
+  /**
+   * Check if user can create a relationship (deprecated - no longer gated by quota)
+   * In credit system, creating relationships is free (just chart generation)
    */
   canCreateRelationship: () => {
-    const state = get();
-    
-    // Plus users can always create
-    if (state.isPlusUser()) {
-      return true;
-    }
-    
-    // Free users: check remaining
-    return state.relationships.remaining > 0;
+    return true; // Relationships are always allowed, analyses cost credits
   },
 
   /**
-   * Get relationships remaining this month
+   * Get credits reset date
    */
-  getRelationshipsRemaining: () => {
+  getCreditsResetDate: () => {
     const state = get();
-    return state.relationships.remaining;
-  },
-
-  /**
-   * Get relationships reset date
-   */
-  getRelationshipsResetDate: () => {
-    const state = get();
-    return state.relationships.resetDate;
+    return state.credits.resetDate;
   },
 }));
 

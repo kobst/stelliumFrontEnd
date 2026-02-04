@@ -38,7 +38,8 @@ export function useCheckout(user, onSuccess) {
         const typeMessages = {
           BIRTH_CHART: 'Birth chart analysis unlocked!',
           RELATIONSHIP: 'Relationship analysis unlocked!',
-          QUESTION_PACK: 'Question pack added to your account!',
+          QUESTION_PACK: 'Question pack added to your account!', // Legacy
+          CREDIT_PACK: '100 credits added to your account!',
         };
         setSuccessMessage(typeMessages[purchaseType] || 'Purchase successful!');
       }
@@ -175,9 +176,9 @@ export function useCheckout(user, onSuccess) {
   );
 
   /**
-   * Purchase question pack
+   * Purchase credit pack (100 credits for $10)
    */
-  const purchaseQuestionPack = useCallback(async () => {
+  const purchaseCreditPack = useCallback(async () => {
     if (!user?._id) {
       setError('Please sign in to purchase');
       return { success: false, error: 'Not signed in' };
@@ -187,10 +188,10 @@ export function useCheckout(user, onSuccess) {
     setError(null);
 
     try {
-      const { successUrl, cancelUrl } = buildCheckoutUrls('QUESTION_PACK');
+      const { successUrl, cancelUrl } = buildCheckoutUrls('CREDIT_PACK');
       const result = await createPurchaseCheckout(
         user._id,
-        'QUESTION_PACK',
+        'CREDIT_PACK',
         null,
         successUrl,
         cancelUrl
@@ -204,7 +205,7 @@ export function useCheckout(user, onSuccess) {
         throw new Error('No checkout URL received');
       }
     } catch (err) {
-      console.error('Error starting question pack checkout:', err);
+      console.error('Error starting credit pack checkout:', err);
       setError(err.message || 'Failed to start checkout');
       setIsLoading(false);
       return { success: false, error: err.message };
@@ -266,7 +267,7 @@ export function useCheckout(user, onSuccess) {
     // Actions
     startSubscription,
     purchaseAnalysis,
-    purchaseQuestionPack,
+    purchaseCreditPack,
     openCustomerPortal,
     clearError,
     dismissSuccessToast,

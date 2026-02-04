@@ -55,7 +55,8 @@ function AskStelliumPanel({
   const hasLoadedRef = useRef(null);
 
   const navigate = useNavigate();
-  const hasQuestionsRemaining = useEntitlementsStore(state => state.hasQuestionsRemaining);
+  const hasEnoughCredits = useEntitlementsStore(state => state.hasEnoughCredits);
+  const credits = useEntitlementsStore(state => state.credits);
 
   const config = API_CONFIG[contentType];
 
@@ -135,8 +136,8 @@ function AskStelliumPanel({
   const handleSendMessage = useCallback(async () => {
     if (!inputMessage.trim() || loading || !config) return;
 
-    // Check entitlements
-    if (!hasQuestionsRemaining()) {
+    // Check credits (1 credit per question)
+    if (!hasEnoughCredits(1)) {
       setShowPaywall(true);
       return;
     }
@@ -184,7 +185,7 @@ function AskStelliumPanel({
     } finally {
       setLoading(false);
     }
-  }, [inputMessage, loading, config, contentId, hasQuestionsRemaining]);
+  }, [inputMessage, loading, config, contentId, hasEnoughCredits]);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -285,10 +286,15 @@ function AskStelliumPanel({
         {/* Paywall CTA */}
         {showPaywall && (
           <div className="ask-panel__paywall">
-            <p>You've used all your questions for this month.</p>
-            <button className="ask-panel__paywall-cta" onClick={() => navigate('/pricingTable')}>
-              Upgrade to Plus for more questions
-            </button>
+            <p>You need 1 credit to ask a question. You have {credits.total} credits remaining.</p>
+            <div className="ask-panel__paywall-actions">
+              <button className="ask-panel__paywall-cta" onClick={() => navigate('/pricingTable')}>
+                Upgrade to Plus (200 credits/mo)
+              </button>
+              <button className="ask-panel__paywall-cta ask-panel__paywall-cta--secondary" onClick={() => navigate('/pricingTable')}>
+                Buy Credit Pack (100 for $10)
+              </button>
+            </div>
           </div>
         )}
 
