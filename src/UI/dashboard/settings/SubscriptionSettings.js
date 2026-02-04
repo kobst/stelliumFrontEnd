@@ -1,10 +1,10 @@
 import React from 'react';
-import { PlanBadge, AnalysisQuotaCard, QuestionsIndicator } from '../../entitlements';
+import { PlanBadge, CreditsIndicator } from '../../entitlements';
 import { useCheckout } from '../../../hooks/useCheckout';
 import './SubscriptionSettings.css';
 
 function SubscriptionSettings({ userId, user, entitlements }) {
-  const { startSubscription, openCustomerPortal, isLoading, error } = useCheckout(user);
+  const { startSubscription, purchaseCreditPack, openCustomerPortal, isLoading, error } = useCheckout(user);
 
   const isPlus = entitlements?.isPlus;
   const isFree = !isPlus;
@@ -45,18 +45,14 @@ function SubscriptionSettings({ userId, user, entitlements }) {
         )}
       </div>
 
-      <div className="subscription-settings__quotas">
-        <AnalysisQuotaCard
-          remaining={entitlements?.monthlyAnalysesRemaining || 0}
-          resetDate={entitlements?.analysesResetDate}
-          isPlus={isPlus}
-        />
-
-        <QuestionsIndicator
-          questionsRemaining={entitlements?.questionsRemaining || 0}
-          monthlyQuestions={entitlements?.monthlyQuestions || 0}
-          purchasedQuestions={entitlements?.purchasedQuestions || 0}
-          resetDate={entitlements?.questionsResetDate}
+      <div className="subscription-settings__credits">
+        <CreditsIndicator
+          total={entitlements?.credits?.total || 0}
+          monthly={entitlements?.credits?.monthly || 0}
+          pack={entitlements?.credits?.pack || 0}
+          monthlyLimit={entitlements?.credits?.monthlyLimit || 0}
+          resetDate={entitlements?.credits?.resetDate}
+          onBuyMore={purchaseCreditPack}
         />
       </div>
 
@@ -90,11 +86,15 @@ function SubscriptionSettings({ userId, user, entitlements }) {
         <div className="subscription-settings__benefits">
           <h4 className="subscription-settings__benefits-title">Plus includes:</h4>
           <ul className="subscription-settings__benefits-list">
-            <li>3 monthly birth chart or relationship analyses</li>
+            <li>200 credits per month</li>
+            <li>~2 full birth chart analyses (75 credits each)</li>
+            <li>~3 relationship analyses (60 credits each)</li>
             <li>Daily horoscope access</li>
-            <li>10 monthly questions to ask Stellium</li>
-            <li>40% discount on additional purchases</li>
+            <li>Mix and match credits as you like</li>
           </ul>
+          <div className="subscription-settings__credit-pack-promo">
+            <p>Need fewer credits? <button onClick={purchaseCreditPack} className="subscription-settings__link-button">Buy 100 credits for $10</button></p>
+          </div>
         </div>
       )}
     </div>

@@ -391,3 +391,19 @@
     padding: 12px 20px 16px;
   }
 }
+
+.ask-panel__paywall-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ask-panel__paywall-cta--secondary {
+  color: rgba(212, 165, 116, 0.7);
+  font-size: 0.75rem;
+}
+
+.ask-panel__paywall-cta--secondary:hover {
+  color: #d4a574;
+}

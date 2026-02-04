@@ -1,0 +1,94 @@
+import React from 'react';
+import './CreditsIndicator.css';
+
+/**
+ * Indicator showing remaining credits count
+ */
+function CreditsIndicator({
+  total = 0,
+  monthly = 0,
+  pack = 0,
+  monthlyLimit = 0,
+  resetDate = null,
+  compact = false,
+  onBuyMore,
+}) {
+  const formatResetDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const isLow = total > 0 && total <= 20;
+  const isEmpty = total === 0;
+
+  return (
+    <div className={`credits-indicator ${compact ? 'credits-indicator--compact' : ''}`}>
+      <div className="credits-indicator__header">
+        <svg
+          className="credits-indicator__icon"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+        </svg>
+        <span className="credits-indicator__label">Credits</span>
+      </div>
+
+      <div className={`credits-indicator__count ${isLow ? 'credits-indicator__count--low' : ''} ${isEmpty ? 'credits-indicator__count--empty' : ''}`}>
+        <span className="credits-indicator__number">{total}</span>
+        <span className="credits-indicator__remaining">remaining</span>
+      </div>
+
+      {!compact && (
+        <div className="credits-indicator__breakdown">
+          {monthly > 0 && (
+            <span className="credits-indicator__breakdown-item">
+              {monthly} monthly
+            </span>
+          )}
+          {pack > 0 && (
+            <span className="credits-indicator__breakdown-item">
+              {pack} purchased
+            </span>
+          )}
+        </div>
+      )}
+
+      {!compact && resetDate && monthly > 0 && (
+        <div className="credits-indicator__reset">
+          Resets {formatResetDate(resetDate)}
+        </div>
+      )}
+
+      {!compact && (
+        <div className="credits-indicator__usage-hints">
+          <div className="credits-indicator__hint">
+            <span className="credits-indicator__hint-label">Birth Chart:</span>
+            <span className="credits-indicator__hint-value">75 credits</span>
+          </div>
+          <div className="credits-indicator__hint">
+            <span className="credits-indicator__hint-label">Relationship:</span>
+            <span className="credits-indicator__hint-value">60 credits</span>
+          </div>
+          <div className="credits-indicator__hint">
+            <span className="credits-indicator__hint-label">Ask Question:</span>
+            <span className="credits-indicator__hint-value">1 credit</span>
+          </div>
+        </div>
+      )}
+
+      {(isLow || isEmpty) && onBuyMore && (
+        <button className="credits-indicator__buy-btn" onClick={onBuyMore}>
+          {isEmpty ? 'Buy Credits' : 'Get More'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default CreditsIndicator;

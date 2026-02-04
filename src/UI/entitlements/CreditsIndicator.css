@@ -1,0 +1,128 @@
+.credits-indicator {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.credits-indicator--compact {
+  padding: 12px 16px;
+}
+
+.credits-indicator__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.credits-indicator__icon {
+  opacity: 0.9;
+}
+
+.credits-indicator__label {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.credits-indicator__count {
+  margin-bottom: 12px;
+}
+
+.credits-indicator__number {
+  font-size: 36px;
+  font-weight: 700;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.credits-indicator__remaining {
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+.credits-indicator__count--low .credits-indicator__number {
+  color: #fbbf24;
+}
+
+.credits-indicator__count--empty .credits-indicator__number {
+  color: #f87171;
+}
+
+.credits-indicator__breakdown {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.credits-indicator__breakdown-item {
+  font-size: 13px;
+  opacity: 0.85;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.credits-indicator__reset {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.credits-indicator__usage-hints {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.credits-indicator__hint {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.credits-indicator__hint-label {
+  opacity: 0.8;
+}
+
+.credits-indicator__hint-value {
+  font-weight: 600;
+}
+
+.credits-indicator__buy-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px;
+  background: white;
+  color: #667eea;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.credits-indicator__buy-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.credits-indicator__buy-btn:active {
+  transform: translateY(0);
+}
+
+.credits-indicator--compact .credits-indicator__usage-hints,
+.credits-indicator--compact .credits-indicator__breakdown,
+.credits-indicator--compact .credits-indicator__reset {
+  display: none;
+}
