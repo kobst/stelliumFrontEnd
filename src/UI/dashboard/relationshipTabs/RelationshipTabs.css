@@ -1246,23 +1246,35 @@
 /* Cluster Tabs */
 .analysis-cluster-tabs {
   display: flex;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  justify-content: flex-start;
+  align-items: center;
+  background: rgba(15, 17, 25, 0.8);
+  border-radius: 6px;
+  padding: 4px;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 16px;
+  position: relative;
 }
 
 .analysis-cluster-tab {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 12px;
+  padding: 10px 20px;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-radius: 4px;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  outline: none;
+  box-shadow: none;
+  position: relative;
 }
 
 .analysis-cluster-tab:hover {
@@ -1271,7 +1283,42 @@
 
 .analysis-cluster-tab.active {
   color: #2dd4bf;
-  border-bottom-color: #2dd4bf;
+}
+
+.analysis-cluster-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 18px;
+  right: 18px;
+  height: 2px;
+  background: #2dd4bf;
+  border-radius: 1px;
+}
+
+.analysis-cluster-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.analysis-cluster-tabs::before,
+.analysis-cluster-tabs::after {
+  content: '';
+  position: sticky;
+  top: 0;
+  width: 20px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.analysis-cluster-tabs::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(15, 17, 25, 0.9), rgba(15, 17, 25, 0));
+}
+
+.analysis-cluster-tabs::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(15, 17, 25, 0.9), rgba(15, 17, 25, 0));
 }
 
 .analysis-cluster-tab .tab-name {

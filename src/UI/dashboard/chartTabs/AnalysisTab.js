@@ -26,6 +26,15 @@ const orbTierMap = {
   Ga: 'wide'     // 3-8°
 };
 
+const aspectGlossary = {
+  conjunction: 'Conjunction: planets aligned, energies merge and intensify.',
+  opposition: 'Opposition: polarizing tension that seeks balance and awareness.',
+  trine: 'Trine: supportive flow, natural ease and harmony.',
+  square: 'Square: friction that pushes growth and action.',
+  sextile: 'Sextile: cooperative opportunity that needs initiative.',
+  quincunx: 'Quincunx: awkward mismatch requiring adjustment and integration.'
+};
+
 // ============ REGEX PATTERNS ============
 
 // Placement: Pp-<Planet>s<Sign><House>
@@ -52,6 +61,28 @@ const compositeAspectRe = /^CompA-([A-Za-z]{2})(\d{2})(Ea|Ca|Ga)(Co|Sq|Tr|Se|Op|
 
 const houseLabel = (h) => {
   return h === 1 ? '1st' : h === 2 ? '2nd' : h === 3 ? '3rd' : `${h}th`;
+};
+
+const formatAspectDetail = (decoded) => {
+  if (!decoded?.p1 || !decoded?.p2 || !decoded?.aspect) return decoded?.pretty || '';
+  const p1 = `${decoded.p1.planet} in ${decoded.p1.sign} (${houseLabel(decoded.p1.house)})`;
+  const p2 = `${decoded.p2.planet} in ${decoded.p2.sign} (${houseLabel(decoded.p2.house)})`;
+  return `${p1} ${decoded.aspect} ${p2}`;
+};
+
+const renderAspectPhrase = (decoded) => {
+  if (!decoded?.p1 || !decoded?.p2 || !decoded?.aspect) {
+    return decoded?.pretty || '';
+  }
+  const aspect = decoded.aspect;
+  const tooltip = aspectGlossary[aspect] || '';
+  return (
+    <>
+      {decoded.p1.planet}{' '}
+      <span title={tooltip}>{aspect}</span>{' '}
+      {decoded.p2.planet}
+    </>
+  );
 };
 
 // ============ MAIN DECODER FUNCTION ============
@@ -200,7 +231,7 @@ const renderKeyElement = (decoded, idx) => {
   if (decoded.type === 'aspect') {
     return (
       <div key={idx} className="key-element-card aspect-card">
-        <div className="element-title">{decoded.p1.planet} {decoded.aspect} {decoded.p2.planet}</div>
+        <div className="element-title">{renderAspectPhrase(decoded)}</div>
         <div className="element-detail">
           {decoded.p1.planet} in {decoded.p1.sign} ({houseLabel(decoded.p1.house)})
         </div>
@@ -283,7 +314,9 @@ function ThemeCard({ subtopicKey, subtopic, editedContent, isExpanded, onToggle 
             <p className="analysis-theme-item__summary">{summary}</p>
           )}
         </div>
-        <span className="analysis-theme-item__icon">{isExpanded ? '−' : '+'}</span>
+        <span className="analysis-theme-item__icon" aria-hidden="true">
+          {isExpanded ? '▾' : '▸'}
+        </span>
       </div>
 
       {isExpanded && (
@@ -293,16 +326,20 @@ function ThemeCard({ subtopicKey, subtopic, editedContent, isExpanded, onToggle 
           ))}
 
           {/* Key Aspects List */}
-          {decodedAspects.length > 0 && (
-            <div className="analysis-theme-item__aspects">
-              <span className="analysis-theme-item__aspects-label">Related Aspects:</span>
+          <div className="analysis-theme-item__aspects">
+            <span className="analysis-theme-item__aspects-label">Related Aspects:</span>
+            {decodedAspects.length > 0 ? (
               <ul className="analysis-theme-item__aspects-list">
                 {decodedAspects.map((decoded, idx) => (
-                  <li key={idx}>{decoded.pretty}</li>
+                  <li key={idx} title={formatAspectDetail(decoded)}>
+                    {renderAspectPhrase(decoded)}
+                  </li>
                 ))}
               </ul>
-            </div>
-          )}
+            ) : (
+              <div className="analysis-theme-item__aspects-empty">No related aspects available for this section yet.</div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -330,8 +367,12 @@ function DomainContent({ domain, data, expandedCard, onCardToggle }) {
             {data.tensionFlow.keystoneAspects.slice(0, 3).map((code, idx) => {
               const decoded = decodeAstroCode(code);
               return (
-                <span key={idx} className="analysis-aspect-pill" title={code}>
-                  {decoded.pretty}
+                <span
+                  key={idx}
+                  className="analysis-aspect-pill"
+                  title={formatAspectDetail(decoded)}
+                >
+                  {renderAspectPhrase(decoded)}
                 </span>
               );
             })}

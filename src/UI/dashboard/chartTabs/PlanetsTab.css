@@ -50,10 +50,32 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   margin-bottom: 24px;
+  position: relative;
 }
 
 .planets-tabs::-webkit-scrollbar {
   display: none;
+}
+
+.planets-tabs::before,
+.planets-tabs::after {
+  content: '';
+  position: sticky;
+  top: 0;
+  width: 20px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.planets-tabs::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(15, 17, 25, 0.9), rgba(15, 17, 25, 0));
+}
+
+.planets-tabs::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(15, 17, 25, 0.9), rgba(15, 17, 25, 0));
 }
 
 .planets-tab-btn {
@@ -69,6 +91,7 @@
   white-space: nowrap;
   outline: none;
   box-shadow: none;
+  position: relative;
 }
 
 .planets-tab-btn:hover {
@@ -82,9 +105,20 @@
 
 .planets-tab-btn--active {
   color: #d4a574;
-  background: rgba(45, 48, 65, 0.9);
+  background: transparent;
   outline: none;
   box-shadow: none;
+}
+
+.planets-tab-btn--active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: #d4a574;
+  border-radius: 1px;
 }
 
 /* Planet Content Area */
