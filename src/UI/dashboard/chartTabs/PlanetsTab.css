@@ -168,6 +168,158 @@
   text-align: center;
 }
 
+/* Structured Position + Aspects Card */
+.planet-details-card {
+  background: rgba(24, 26, 38, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 18px 0 26px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.planet-details-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 12px;
+}
+
+.planet-details-title {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.planet-details-subtitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.planet-details-section {
+  margin-top: 14px;
+}
+
+.planet-details-section-title {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.planet-details-empty {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  padding: 6px 0 2px;
+}
+
+/* Aspects table layout (synastry-style) */
+.planet-aspects-table {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.planet-aspects-header {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1fr 0.6fr;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(139, 92, 246, 0.1);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.planet-aspects-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.planet-aspects-label--center {
+  text-align: center;
+}
+
+.planet-aspects-label--right {
+  text-align: right;
+}
+
+.planet-aspects-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.planet-aspect-row {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1fr 0.6fr;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
+}
+
+.planet-aspect-row:hover {
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.planet-aspect-row:last-child {
+  border-bottom: none;
+}
+
+.planet-aspect-row.planet-aspect-harmonious {
+  border-left: 3px solid #4ade80;
+}
+
+.planet-aspect-row.planet-aspect-challenging {
+  border-left: 3px solid #f87171;
+}
+
+.planet-aspect-row.planet-aspect-conjunction {
+  border-left: 3px solid #60a5fa;
+}
+
+.planet-aspect-planet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.planet-aspect-planet .planet-symbol {
+  font-size: 1.15rem;
+  min-width: 22px;
+  text-align: center;
+}
+
+.planet-aspect-planet .planet-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+}
+
+.planet-aspect-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.planet-aspect-orb {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+}
+
 /* Separator line */
 .planet-separator {
   width: 60px;
@@ -256,6 +408,29 @@
     font-size: 0.8rem;
     text-align: left;
     padding: 0;
+  }
+
+  .planet-details-card {
+    padding: 14px;
+  }
+
+  .planet-details-title {
+    font-size: 0.95rem;
+  }
+
+  .planet-details-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .planet-details-list li {
+    font-size: 0.82rem;
+  }
+
+  .planet-aspects-header,
+  .planet-aspect-row {
+    grid-template-columns: 1fr 0.7fr 1fr 0.5fr;
+    gap: 8px;
+    padding: 10px 12px;
   }
 
   .planets-content {

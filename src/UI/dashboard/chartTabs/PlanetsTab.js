@@ -60,9 +60,58 @@ function PlanetsTab({ birthChart, basicAnalysis }) {
     return basicAnalysis.planets[planetName];
   };
 
+  const getPlanetByName = (planetName) => {
+    return planets.find(p => p.name === planetName);
+  };
+
+  const formatAspectName = (aspectType) => {
+    if (!aspectType) return 'Aspect';
+    const normalized = aspectType.toLowerCase();
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  };
+
+  const getAspectColorClass = (aspectType) => {
+    if (!aspectType) return '';
+    switch (aspectType.toLowerCase()) {
+      case 'conjunction': return 'planet-aspect-conjunction';
+      case 'trine':
+      case 'sextile': return 'planet-aspect-harmonious';
+      case 'opposition':
+      case 'square': return 'planet-aspect-challenging';
+      default: return '';
+    }
+  };
+
+  const getOrbLabel = (orb) => {
+    if (orb === null || orb === undefined || Number.isNaN(orb)) return null;
+    if (orb <= 0.5) return 'exact';
+    if (orb <= 2) return 'close';
+    return null;
+  };
+
   // Get the selected planet data
   const currentPlanet = planets.find(p => p.name === selectedPlanet);
   const interpretation = currentPlanet ? getPlanetInterpretation(currentPlanet.name) : null;
+  const currentPlanetAspects = useMemo(() => {
+    if (!currentPlanet) return [];
+    const allAspects = birthChart?.aspects || [];
+    return allAspects
+      .filter(aspect => (
+        aspect.aspectedPlanet === currentPlanet.name ||
+        aspect.aspectingPlanet === currentPlanet.name
+      ))
+      .map(aspect => {
+        const otherPlanet = aspect.aspectedPlanet === currentPlanet.name
+          ? aspect.aspectingPlanet
+          : aspect.aspectedPlanet;
+        return {
+          ...aspect,
+          otherPlanet,
+          orbValue: typeof aspect.orb === 'number' ? aspect.orb : Number(aspect.orb)
+        };
+      })
+      .sort((a, b) => (a.orbValue ?? 999) - (b.orbValue ?? 999));
+  }, [birthChart?.aspects, currentPlanet]);
 
   if (planets.length === 0) {
     return (
@@ -133,10 +182,65 @@ function PlanetsTab({ birthChart, basicAnalysis }) {
               )}
             </div>
 
-            {/* Summary (gold italic) */}
-            {interpretation?.description && (
-              <p className="planet-aspect-summary">{interpretation.description}</p>
-            )}
+            {/* Structured Position + Aspects (mobile-style) */}
+            <div className="planet-details-card">
+              <div className="planet-details-header">
+                <div className="planet-details-title">{currentPlanet.name}</div>
+                <div className="planet-details-subtitle">
+                  {currentPlanet.sign}
+                  {currentPlanet.house ? ` in House ${currentPlanet.house}` : ''}
+                </div>
+              </div>
+              <div className="planet-details-section">
+                <div className="planet-details-section-title">Aspects</div>
+                {currentPlanetAspects.length > 0 ? (
+                  <div className="planet-aspects-table">
+                    <div className="planet-aspects-header">
+                      <span className="planet-aspects-label">Planet</span>
+                      <span className="planet-aspects-label planet-aspects-label--center">Aspect</span>
+                      <span className="planet-aspects-label">Planet</span>
+                      <span className="planet-aspects-label planet-aspects-label--right">Orb</span>
+                    </div>
+                    <div className="planet-aspects-list">
+                      {currentPlanetAspects.map((aspect, idx) => {
+                        const orbLabel = getOrbLabel(aspect.orbValue);
+                        const otherPlanetData = getPlanetByName(aspect.otherPlanet);
+                        const otherName = otherPlanetData?.name || aspect.otherPlanet || 'Unknown';
+                        const orbValue = typeof aspect.orbValue === 'number' ? aspect.orbValue.toFixed(2) : null;
+                        return (
+                          <div
+                            key={`${aspect.aspectType}-${otherName}-${idx}`}
+                            className={`planet-aspect-row ${getAspectColorClass(aspect.aspectType)}`}
+                          >
+                            <div className="planet-aspect-planet">
+                              <span className="planet-symbol">
+                                {planetSymbols[currentPlanet.name] || currentPlanet.name.substring(0, 2)}
+                              </span>
+                              <span className="planet-name">{currentPlanet.name}</span>
+                            </div>
+                            <div className="planet-aspect-type">
+                              {orbLabel ? `${orbLabel} ` : ''}
+                              {formatAspectName(aspect.aspectType)}
+                            </div>
+                            <div className="planet-aspect-planet">
+                              <span className="planet-symbol">
+                                {planetSymbols[otherName] || otherName.substring(0, 2)}
+                              </span>
+                              <span className="planet-name">{otherName}</span>
+                            </div>
+                            <div className="planet-aspect-orb">
+                              {orbValue ? `${orbValue} Deg` : '—'}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="planet-details-empty">No major aspects found</div>
+                )}
+              </div>
+            </div>
 
             {/* Interpretation paragraphs */}
             {interpretation?.interpretation && (
