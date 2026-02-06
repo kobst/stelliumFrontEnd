@@ -10,7 +10,6 @@ import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
 import AnalysisTab from '../UI/dashboard/relationshipTabs/AnalysisTab';
-import AskStelliumRelationshipTab from '../UI/dashboard/relationshipTabs/AskStelliumRelationshipTab';
 import LockedContent from '../UI/shared/LockedContent';
 import './RelationshipAnalysisPage.css';
 
@@ -176,32 +175,11 @@ function RelationshipAnalysisPage() {
           }}
         />
       )
-    },
-    {
-      id: 'chat',
-      content: canAccessPremiumTabs ? (
-        <AskStelliumRelationshipTab
-          compositeId={compositeId}
-          isAnalysisComplete={isAnalysisComplete}
-        />
-      ) : (
-        <LockedContent
-          title="Ask About Your Relationship"
-          description="Get personalized AI insights about your relationship dynamics."
-          features={[
-            'Ask up to 50 questions per month',
-            'Compatibility deep dives',
-            'Guidance for challenges',
-            'Future outlook insights'
-          ]}
-          ctaText="Unlock with Plus"
-        />
-      )
     }
   ];
 
   // Determine which sections are locked
-  const lockedSections = canAccessPremiumTabs ? [] : ['analysis', 'chat'];
+  const lockedSections = canAccessPremiumTabs ? [] : ['analysis'];
 
   return (
     <DashboardLayout user={stelliumUser} defaultSection="relationships">

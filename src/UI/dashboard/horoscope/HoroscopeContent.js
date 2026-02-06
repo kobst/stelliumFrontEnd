@@ -14,7 +14,8 @@ function HoroscopeContent({
   onLoad,
   onRefresh,
   userId,
-  lockedContent
+  lockedContent,
+  transitWindows = []
 }) {
   const [chatOpen, setChatOpen] = useState(false);
   // Extract key transits from horoscope data
@@ -126,6 +127,8 @@ function HoroscopeContent({
           onClose={() => setChatOpen(false)}
           contentType="horoscope"
           contentId={userId}
+          transitWindows={transitWindows}
+          horoscopePeriod={timePeriod}
           contextLabel="About your horoscope"
           placeholderText="Ask about your horoscope..."
           suggestedQuestions={[
@@ -199,6 +202,8 @@ function HoroscopeContent({
         onClose={() => setChatOpen(false)}
         contentType="horoscope"
         contentId={userId}
+        transitWindows={transitWindows}
+        horoscopePeriod={timePeriod}
         contextLabel="About your horoscope"
         placeholderText="Ask about your horoscope..."
         suggestedQuestions={[

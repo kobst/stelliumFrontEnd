@@ -90,7 +90,7 @@ function PublicCelebrityDashboard() {
   const sections = [
     {
       id: 'overview',
-      content: <OverviewTab basicAnalysis={basicAnalysis} />
+      content: <OverviewTab basicAnalysis={basicAnalysis} birthChart={birthChart} />
     },
     {
       id: 'chart',

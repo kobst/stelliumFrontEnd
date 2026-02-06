@@ -52,8 +52,7 @@ const SECTIONS = [
   { id: 'overview', label: 'Overview' },
   { id: 'scores', label: 'Score' },
   { id: 'charts', label: 'Charts' },
-  { id: 'analysis', label: '360 Analysis' },
-  { id: 'chat', label: 'Ask Stellium' }
+  { id: 'analysis', label: '360 Analysis' }
 ];
 
 function RelationshipSidebar({

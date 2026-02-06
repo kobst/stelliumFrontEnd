@@ -6,6 +6,11 @@ function OverviewTab({ relationship, compositeId }) {
   const [chatOpen, setChatOpen] = useState(false);
   const initialOverview = relationship?.initialOverview;
   const holisticOverview = relationship?.completeAnalysis?.holisticOverview;
+  const relationshipScoredItems =
+    relationship?.scoredItems ||
+    relationship?.clusterAnalysis?.scoredItems ||
+    relationship?.clusterScoring?.scoredItems ||
+    [];
 
   // Use holistic overview if available (from full analysis), otherwise use initial overview
   const overview = holisticOverview || initialOverview;
@@ -29,6 +34,7 @@ function OverviewTab({ relationship, compositeId }) {
       onClose={() => setChatOpen(false)}
       contentType="relationship"
       contentId={compositeId}
+      relationshipScoredItems={relationshipScoredItems}
       contextLabel="About your relationship"
       placeholderText="Ask about your relationship..."
       suggestedQuestions={[

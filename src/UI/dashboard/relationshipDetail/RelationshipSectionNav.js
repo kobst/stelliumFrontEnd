@@ -5,8 +5,7 @@ const SECTIONS = [
   { id: 'scores', label: 'Scores', icon: '\u2661' },
   { id: 'overview', label: 'Overview', icon: '\u{1F4D6}' },
   { id: 'charts', label: 'Charts', icon: '\u25CE' },
-  { id: 'analysis', label: '360\u00B0', icon: '\u{1F52E}' },
-  { id: 'chat', label: 'Ask Stellium', icon: '\u{1F4AC}' }
+  { id: 'analysis', label: '360\u00B0', icon: '\u{1F52E}' }
 ];
 
 function RelationshipSectionNav({ activeSection, onSectionChange, lockedSections = [] }) {

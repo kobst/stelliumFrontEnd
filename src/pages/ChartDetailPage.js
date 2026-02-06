@@ -17,7 +17,6 @@ import ChartTab from '../UI/dashboard/chartTabs/ChartTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
-import AskStelliumChartTab from '../UI/dashboard/chartTabs/AskStelliumChartTab';
 import LockedContent from '../UI/shared/LockedContent';
 import './ChartDetailPage.css';
 
@@ -216,7 +215,7 @@ function ChartDetailPage() {
   const sections = [
     {
       id: 'overview',
-      content: <OverviewTab basicAnalysis={basicAnalysis} chartId={chartId} />
+      content: <OverviewTab basicAnalysis={basicAnalysis} chartId={chartId} birthChart={birthChart} />
     },
     {
       id: 'chart',
@@ -273,6 +272,7 @@ function ChartDetailPage() {
           analysisStatus={analysisStatus}
           onStartAnalysis={handleStartAnalysis}
           chartId={chartId}
+          birthChart={birthChart}
         />
       ) : (
         <LockedContent
@@ -304,31 +304,13 @@ function ChartDetailPage() {
           }}
         />
       )
-    },
-    {
-      id: 'chat',
-      content: canAccessPremiumTabs ? (
-        <AskStelliumChartTab chartId={chartId} isAnalysisComplete={isAnalysisComplete} />
-      ) : (
-        <LockedContent
-          title="Ask Stellium"
-          description="Chat with AI about your birth chart and get personalized insights."
-          features={[
-            'Ask up to 50 questions per month',
-            'Personalized interpretations',
-            'Aspect-by-aspect explanations',
-            'Life guidance based on your placements'
-          ]}
-          ctaText="Unlock with Plus"
-        />
-      )
     }
   ];
 
   // Determine which sections are locked
   const lockedSections = canAccessPremiumTabs
     ? []
-    : ['dominance', 'planets', 'houses', 'aspects', 'analysis', 'chat'];
+    : ['dominance', 'planets', 'houses', 'aspects', 'analysis'];
 
   return (
     <DashboardLayout user={stelliumUser} defaultSection="birth-charts">

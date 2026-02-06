@@ -371,7 +371,7 @@ function DomainContent({ domain, data, expandedCard, onCardToggle }) {
 
 // ============ MAIN COMPONENT ============
 
-function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, chartId }) {
+function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, chartId, birthChart }) {
   const [activeDomain, setActiveDomain] = useState(LIFE_DOMAINS[0].id);
   const [expandedCard, setExpandedCard] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
@@ -496,6 +496,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
         onClose={() => setChatOpen(false)}
         contentType="analysis"
         contentId={chartId}
+        birthChart={birthChart}
         contextLabel="About your 360 analysis"
         placeholderText="Ask about your analysis..."
         suggestedQuestions={[

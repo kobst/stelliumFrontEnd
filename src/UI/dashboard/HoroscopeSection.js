@@ -267,6 +267,7 @@ function HoroscopeSection({ userId, user, entitlements }) {
           onLoad={handleLoad}
           onRefresh={handleRefresh}
           userId={userId}
+          transitWindows={transitWindows}
           lockedContent={
             <LockedContent
               title="Daily Horoscope"
@@ -291,6 +292,7 @@ function HoroscopeSection({ userId, user, entitlements }) {
           onLoad={handleLoad}
           onRefresh={handleRefresh}
           userId={userId}
+          transitWindows={transitWindows}
         />
       )}
     </div>

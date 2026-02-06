@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   enhancedChatForUserBirthChart,
@@ -6,32 +6,139 @@ import {
   enhancedChatForRelationship,
   fetchRelationshipEnhancedChatHistory,
   fetchHoroscopeChatHistory,
-  enhancedChatForHoroscope
+  generateCustomHoroscope
 } from '../../Utilities/api';
 import useEntitlementsStore from '../../Utilities/entitlementsStore';
+import useStore from '../../Utilities/store';
 import './AskStelliumPanel.css';
 
-const API_CONFIG = {
+const HISTORY_CONFIG = {
   birthchart: {
-    fetchHistory: (id, limit) => fetchEnhancedChatHistory(id, limit),
-    sendMessage: (id, message) => enhancedChatForUserBirthChart(id, { message }),
-    responseField: 'response',
+    fetchHistory: (id, limit) => fetchEnhancedChatHistory(id, limit)
   },
   analysis: {
-    fetchHistory: (id, limit) => fetchEnhancedChatHistory(id, limit),
-    sendMessage: (id, message) => enhancedChatForUserBirthChart(id, { message }),
-    responseField: 'response',
+    fetchHistory: (id, limit) => fetchEnhancedChatHistory(id, limit)
   },
   relationship: {
-    fetchHistory: (id, limit) => fetchRelationshipEnhancedChatHistory(id, limit),
-    sendMessage: (id, message) => enhancedChatForRelationship(id, message),
-    responseField: 'answer',
+    fetchHistory: (id, limit) => fetchRelationshipEnhancedChatHistory(id, limit)
   },
   horoscope: {
-    fetchHistory: (id, limit) => fetchHoroscopeChatHistory(id, limit),
-    sendMessage: (id, message) => enhancedChatForHoroscope(id, { message }),
-    responseField: 'response',
-  },
+    fetchHistory: (id, limit) => fetchHoroscopeChatHistory(id, limit)
+  }
+};
+
+const MAX_SELECTIONS = 3;
+
+const signToCode = {
+  Aries: 'Ar', Taurus: 'Ta', Gemini: 'Ge', Cancer: 'Ca',
+  Leo: 'Le', Virgo: 'Vi', Libra: 'Li', Scorpio: 'Sc',
+  Sagittarius: 'Sa', Capricorn: 'Cp', Aquarius: 'Aq', Pisces: 'Pi'
+};
+
+const planetToCode = {
+  Sun: 'Su', Moon: 'Mo', Mercury: 'Me', Venus: 'Ve', Mars: 'Ma',
+  Jupiter: 'Ju', Saturn: 'Sa', Uranus: 'Ur', Neptune: 'Ne', Pluto: 'Pl',
+  Ascendant: 'As', Midheaven: 'Mc', Node: 'No', 'North Node': 'No', Chiron: 'Ch'
+};
+
+const aspectToCode = {
+  conjunction: 'Co', opposition: 'Op', trine: 'Tr',
+  square: 'Sq', sextile: 'Sx', quincunx: 'Qu'
+};
+
+const getOrdinal = (n) => {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+const findPlanetData = (planetName, planets) => {
+  return planets.find(p => p.name === planetName) || null;
+};
+
+const formatAspectData = (aspect, planet1Data, planet2Data) => {
+  const aspectType = (aspect.aspectType || 'aspect').toLowerCase();
+  const planet1Code = planetToCode[aspect.aspectedPlanet] || aspect.aspectedPlanet.substring(0, 2);
+  const planet2Code = planetToCode[aspect.aspectingPlanet] || aspect.aspectingPlanet.substring(0, 2);
+  const aspectCode = aspectToCode[aspectType] || aspectType.substring(0, 2);
+
+  const planet1Sign = signToCode[planet1Data.sign] || planet1Data.sign.substring(0, 2);
+  const planet2Sign = signToCode[planet2Data.sign] || planet2Data.sign.substring(0, 2);
+
+  const planet1House = planet1Data.house ? String(planet1Data.house).padStart(2, '0') : '00';
+  const planet2House = planet2Data.house ? String(planet2Data.house).padStart(2, '0') : '00';
+
+  return {
+    group: 'birthchart',
+    type: 'aspect',
+    code: `A-${planet1Code}s${planet1Sign}${planet1House}Ca${aspectCode}${planet2Code}s${planet2Sign}${planet2House}`,
+    planet1: aspect.aspectedPlanet,
+    planet1Sign: planet1Data.sign,
+    planet1House: planet1Data.house || null,
+    planet2: aspect.aspectingPlanet,
+    planet2Sign: planet2Data.sign,
+    planet2House: planet2Data.house || null,
+    aspectType: aspectType,
+    orb: aspect.orb,
+    label: `${aspect.aspectedPlanet} ${aspectType} ${aspect.aspectingPlanet}`,
+    description: `${aspect.aspectedPlanet} in ${planet1Data.sign}${planet1Data.house ? ` in ${getOrdinal(planet1Data.house)} house` : ''} ${aspectType} ${aspect.aspectingPlanet} in ${planet2Data.sign}${planet2Data.house ? ` in ${getOrdinal(planet2Data.house)} house` : ''}`
+  };
+};
+
+const formatPositionData = (planet) => {
+  const planetCode = planetToCode[planet.name] || planet.name.substring(0, 2);
+  const signCode = signToCode[planet.sign] || planet.sign.substring(0, 2);
+  const houseNumber = planet.house ? String(planet.house).padStart(2, '0') : '00';
+
+  return {
+    group: 'birthchart',
+    type: 'position',
+    code: `Pp-${planetCode}${signCode}${houseNumber}`,
+    planet: planet.name,
+    sign: planet.sign,
+    house: planet.house || null,
+    isRetrograde: planet.is_retro === 'true',
+    degree: planet.norm_degree,
+    label: `${planet.name} in ${planet.sign}`,
+    description: `${planet.name} in ${planet.sign}${planet.house ? ` in ${getOrdinal(planet.house)} house` : ''}`
+  };
+};
+
+const formatTransitEvent = (transit) => ({
+  type: transit.type,
+  transitingPlanet: transit.transitingPlanet,
+  exact: transit.exact,
+  targetPlanet: transit.targetPlanet,
+  aspect: transit.aspect,
+  start: transit.start,
+  end: transit.end,
+  description: transit.description,
+  transitingSign: transit.transitingSign,
+  targetSign: transit.targetSign,
+  transitingHouse: transit.transitingHouse,
+  targetHouse: transit.targetHouse,
+  moonPhaseData: transit.moonPhaseData
+});
+
+const formatDateShort = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const formatTransitDateRange = (transit) => {
+  const start = formatDateShort(transit.start);
+  const end = formatDateShort(transit.end);
+  const exact = formatDateShort(transit.exact);
+
+  if (!start && !end) return exact || '';
+  if (start && end && start === end) return start;
+  if (start && end && exact && exact !== start && exact !== end) {
+    return `${start} - ${end} (exact: ${exact})`;
+  }
+  if (start && end) return `${start} - ${end}`;
+  return start || end || '';
 };
 
 function AskStelliumPanel({
@@ -42,6 +149,10 @@ function AskStelliumPanel({
   contextLabel,
   placeholderText,
   suggestedQuestions,
+  birthChart,
+  relationshipScoredItems,
+  transitWindows = [],
+  horoscopePeriod
 }) {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -49,6 +160,11 @@ function AskStelliumPanel({
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState(null);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [selectedElements, setSelectedElements] = useState([]);
+  const [selectionError, setSelectionError] = useState(null);
+  const [activePeriod, setActivePeriod] = useState('weekly');
+  const [transitTypeFilter, setTransitTypeFilter] = useState('all');
+  const [relationshipFilter, setRelationshipFilter] = useState('all');
   const messagesEndRef = useRef(null);
   const panelRef = useRef(null);
   const textareaRef = useRef(null);
@@ -57,8 +173,19 @@ function AskStelliumPanel({
   const navigate = useNavigate();
   const hasEnoughCredits = useEntitlementsStore(state => state.hasEnoughCredits);
   const credits = useEntitlementsStore(state => state.credits);
+  const storedPlanets = useStore(state => state.userPlanets);
+  const storedAspects = useStore(state => state.userAspects);
 
-  const config = API_CONFIG[contentType];
+  const config = HISTORY_CONFIG[contentType];
+  const planets = birthChart?.planets || storedPlanets || [];
+  const aspects = birthChart?.aspects || storedAspects || [];
+
+  const resolvedPeriod = useMemo(() => {
+    if (horoscopePeriod === 'today') return 'daily';
+    if (horoscopePeriod === 'week') return 'weekly';
+    if (horoscopePeriod === 'month') return 'monthly';
+    return 'weekly';
+  }, [horoscopePeriod]);
 
   // Load chat history when panel opens
   useEffect(() => {
@@ -71,12 +198,20 @@ function AskStelliumPanel({
       setLoadingHistory(true);
       try {
         const history = await config.fetchHistory(contentId, 50);
-        if (history && Array.isArray(history)) {
-          setMessages(history.map(msg => ({
+        const historyArray = Array.isArray(history)
+          ? history
+          : Array.isArray(history?.chatHistory)
+            ? history.chatHistory
+            : [];
+        if (historyArray.length > 0) {
+          const mapped = historyArray.map((msg, idx) => ({
+            id: msg.id || msg._id || `${contentId}-history-${idx}`,
             role: msg.role,
             content: msg.content,
             timestamp: msg.timestamp,
-          })));
+            selectedElements: msg.metadata?.selectedElements || msg.metadata?.selectedAspects || null
+          }));
+          setMessages(prev => (prev.length > 0 ? prev : mapped));
         }
       } catch (err) {
         console.error('Error loading chat history:', err);
@@ -93,7 +228,13 @@ function AskStelliumPanel({
   useEffect(() => {
     hasLoadedRef.current = null;
     setMessages([]);
-  }, [contentId]);
+    setSelectedElements([]);
+    setSelectionError(null);
+  }, [contentId, contentType]);
+
+  useEffect(() => {
+    setActivePeriod(resolvedPeriod);
+  }, [resolvedPeriod]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -133,8 +274,149 @@ function AskStelliumPanel({
     };
   }, [isOpen]);
 
+  const positionsData = useMemo(() => {
+    return planets
+      .filter(planet => !['South Node', 'Part of Fortune'].includes(planet.name))
+      .map(planet => formatPositionData(planet));
+  }, [planets]);
+
+  const aspectsData = useMemo(() => {
+    return aspects.map(aspect => {
+      const planet1Data = findPlanetData(aspect.aspectedPlanet, planets);
+      const planet2Data = findPlanetData(aspect.aspectingPlanet, planets);
+      if (!planet1Data || !planet2Data) return null;
+      return formatAspectData(aspect, planet1Data, planet2Data);
+    }).filter(Boolean);
+  }, [aspects, planets]);
+
+  const relationshipElements = useMemo(() => {
+    if (!Array.isArray(relationshipScoredItems)) return [];
+    return relationshipScoredItems.map((item, index) => ({
+      group: 'relationship',
+      type: item.type || item.source || 'relationship',
+      key: `${item.code || item.id || item.source || 'rel'}-${index}`,
+      label: item.description || item.reason || item.label || 'Relationship element',
+      meta: item.source || item.category || '',
+      payload: item
+    }));
+  }, [relationshipScoredItems]);
+
+  const filteredRelationshipElements = useMemo(() => {
+    if (relationshipFilter === 'all') return relationshipElements;
+    return relationshipElements.filter(element => {
+      const source = (element.payload?.source || element.meta || '').toLowerCase();
+      if (relationshipFilter === 'synastry') {
+        return source.includes('synastry');
+      }
+      if (relationshipFilter === 'composite') {
+        return source.includes('composite');
+      }
+      if (relationshipFilter === 'placements') {
+        return source.includes('houseplacement');
+      }
+      return true;
+    });
+  }, [relationshipElements, relationshipFilter]);
+
+  const filteredTransits = useMemo(() => {
+    if (!transitWindows || transitWindows.length === 0) return [];
+
+    const now = new Date();
+    let start;
+    let end;
+
+    if (activePeriod === 'daily') {
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    } else if (activePeriod === 'monthly') {
+      start = new Date(now.getFullYear(), now.getMonth(), 1);
+      end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    } else {
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
+      monday.setHours(0, 0, 0, 0);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      start = monday;
+      end = sunday;
+    }
+
+    return transitWindows
+      .filter(transit => {
+        const transitStart = new Date(transit.start);
+        const transitEnd = new Date(transit.end);
+        const inRange = transitStart <= end && transitEnd >= start;
+        const matchesType = transitTypeFilter === 'all' || transit.type === transitTypeFilter;
+        return inRange && matchesType;
+      });
+  }, [transitWindows, activePeriod, transitTypeFilter]);
+
+  const transitElements = useMemo(() => {
+    return filteredTransits.map((transit, index) => {
+      const labelParts = [
+        transit.transitingPlanet,
+        transit.aspect,
+        transit.targetPlanet
+      ].filter(Boolean);
+      return {
+        group: 'horoscope',
+        type: 'transit',
+        key: transit.id || `${transit.transitingPlanet}-${transit.aspect}-${transit.targetPlanet}-${index}`,
+        label: labelParts.join(' '),
+        meta: transit.description || '',
+        payload: formatTransitEvent(transit)
+      };
+    });
+  }, [filteredTransits]);
+
+  const selectableElements = useMemo(() => {
+    if (contentType === 'birthchart' || contentType === 'analysis') {
+      return [...positionsData, ...aspectsData];
+    }
+    if (contentType === 'relationship') {
+      return filteredRelationshipElements;
+    }
+    if (contentType === 'horoscope') {
+      return transitElements;
+    }
+    return [];
+  }, [contentType, positionsData, aspectsData, relationshipElements, transitElements]);
+
+  const isSelected = useCallback((elementKey) => {
+    return selectedElements.some(el => el.key === elementKey);
+  }, [selectedElements]);
+
+  const handleToggleElement = useCallback((element) => {
+    setSelectionError(null);
+
+    if (isSelected(element.key)) {
+      setSelectedElements(prev => prev.filter(el => el.key !== element.key));
+      return;
+    }
+
+    if (selectedElements.length >= MAX_SELECTIONS) {
+      setSelectionError(`Select up to ${MAX_SELECTIONS} items.`);
+      return;
+    }
+
+    setSelectedElements(prev => [...prev, element]);
+  }, [isSelected, selectedElements.length]);
+
+  const clearSelections = useCallback(() => {
+    setSelectedElements([]);
+    setSelectionError(null);
+  }, []);
+
   const handleSendMessage = useCallback(async () => {
-    if (!inputMessage.trim() || loading || !config) return;
+    const trimmedMessage = inputMessage.trim();
+    const hasSelection = selectedElements.length > 0;
+    if ((!trimmedMessage && !hasSelection) || loading || !config) return;
+
+    if (!contentId) {
+      setError('Missing chat context. Please refresh and try again.');
+      return;
+    }
 
     // Check credits (1 credit per question)
     if (!hasEnoughCredits(1)) {
@@ -142,7 +424,7 @@ function AskStelliumPanel({
       return;
     }
 
-    const userMessage = inputMessage.trim();
+    const userMessage = trimmedMessage;
     setInputMessage('');
     setError(null);
     setShowPaywall(false);
@@ -150,22 +432,53 @@ function AskStelliumPanel({
     // Optimistic add
     setMessages(prev => [...prev, {
       role: 'user',
-      content: userMessage,
+      content: userMessage || 'Selected context',
+      selectedElements: hasSelection ? selectedElements : null,
       timestamp: new Date().toISOString(),
     }]);
 
     setLoading(true);
 
     try {
-      const response = await config.sendMessage(contentId, userMessage);
-      const responseField = config.responseField;
+      let response;
+      let responseText = '';
 
-      if (response && response[responseField]) {
+      if (contentType === 'birthchart' || contentType === 'analysis') {
+        const requestBody = {};
+        if (userMessage) {
+          requestBody.message = userMessage;
+          requestBody.query = userMessage;
+        }
+        if (hasSelection) {
+          requestBody.selectedAspects = selectedElements.map(el => el.payload || el);
+        }
+        response = await enhancedChatForUserBirthChart(contentId, requestBody);
+        responseText = response?.response || response?.answer || '';
+      } else if (contentType === 'relationship') {
+        const scoredItems = hasSelection ? selectedElements.map(el => el.payload || el) : [];
+        response = await enhancedChatForRelationship(contentId, userMessage || '', scoredItems);
+        responseText = response?.answer || response?.response || '';
+      } else if (contentType === 'horoscope') {
+        const requestBody = { period: activePeriod };
+        if (userMessage) {
+          requestBody.query = userMessage;
+        }
+        if (hasSelection) {
+          requestBody.selectedTransits = selectedElements.map(el => el.payload || el);
+        }
+        response = await generateCustomHoroscope(contentId, requestBody);
+        const payload = response?.horoscope || response;
+        responseText = payload?.text || payload?.interpretation || response?.response || '';
+      }
+
+      if (responseText) {
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: response[responseField],
+          content: responseText,
           timestamp: new Date().toISOString(),
         }]);
+        setSelectedElements([]);
+        setSelectionError(null);
       } else if (response?.error) {
         throw new Error(response.error);
       } else {
@@ -185,7 +498,16 @@ function AskStelliumPanel({
     } finally {
       setLoading(false);
     }
-  }, [inputMessage, loading, config, contentId, hasEnoughCredits]);
+  }, [
+    inputMessage,
+    loading,
+    config,
+    contentId,
+    contentType,
+    hasEnoughCredits,
+    selectedElements,
+    activePeriod
+  ]);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -200,6 +522,8 @@ function AskStelliumPanel({
   };
 
   if (!isOpen) return null;
+
+  const canSend = !loading && (inputMessage.trim().length > 0 || selectedElements.length > 0);
 
   return (
     <div className="ask-panel-backdrop" onClick={onClose}>
@@ -222,6 +546,143 @@ function AskStelliumPanel({
             </svg>
           </button>
         </div>
+
+        {/* Context Selection */}
+        {selectableElements.length > 0 && (
+          <div className="ask-panel__selection">
+            <div className="ask-panel__selection-header">
+              <div className="ask-panel__selection-title">Context</div>
+              <div className="ask-panel__selection-meta">
+                <span>{selectedElements.length}/{MAX_SELECTIONS} selected</span>
+                {selectedElements.length > 0 && (
+                  <button className="ask-panel__selection-clear" onClick={clearSelections}>
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+            {selectionError && (
+              <div className="ask-panel__selection-error">{selectionError}</div>
+            )}
+
+            {(contentType === 'birthchart' || contentType === 'analysis') && (
+              <div className="ask-panel__selection-section">
+                <div className="ask-panel__selection-subtitle">Positions</div>
+                <div className="ask-panel__selection-grid">
+                  {positionsData.map(position => (
+                    <button
+                      key={position.code}
+                      className={`ask-panel__selection-card ${isSelected(position.code) ? 'ask-panel__selection-card--selected' : ''}`}
+                      onClick={() => handleToggleElement({ ...position, key: position.code, payload: position })}
+                    >
+                      <div className="ask-panel__selection-card-title">{position.planet}</div>
+                      <div className="ask-panel__selection-card-meta">
+                        in {position.sign}
+                        {position.house && ` • H${position.house}`}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="ask-panel__selection-subtitle">Aspects</div>
+                <div className="ask-panel__selection-grid">
+                  {aspectsData.map(aspect => (
+                    <button
+                      key={aspect.code}
+                      className={`ask-panel__selection-card ${isSelected(aspect.code) ? 'ask-panel__selection-card--selected' : ''}`}
+                      onClick={() => handleToggleElement({ ...aspect, key: aspect.code, payload: aspect })}
+                    >
+                      <div className="ask-panel__selection-card-title">
+                        {aspect.planet1} {aspect.aspectType} {aspect.planet2}
+                      </div>
+                      <div className="ask-panel__selection-card-meta">
+                        {aspect.planet1Sign} → {aspect.planet2Sign}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {contentType === 'relationship' && (
+              <div className="ask-panel__selection-section">
+                <div className="ask-panel__selection-subtitle">Key Relationship Factors</div>
+                <div className="ask-panel__filters">
+                  {['all', 'synastry', 'composite', 'placements'].map(filter => (
+                    <button
+                      key={filter}
+                      className={`ask-panel__filter-pill ${relationshipFilter === filter ? 'active' : ''}`}
+                      onClick={() => setRelationshipFilter(filter)}
+                    >
+                      {filter === 'all' ? 'all' : filter}
+                    </button>
+                  ))}
+                </div>
+                <div className="ask-panel__selection-list">
+                  {filteredRelationshipElements.map(element => (
+                    <button
+                      key={element.key}
+                      className={`ask-panel__selection-row ${isSelected(element.key) ? 'ask-panel__selection-row--selected' : ''}`}
+                      onClick={() => handleToggleElement(element)}
+                    >
+                      <div className="ask-panel__selection-row-title">{element.label}</div>
+                      {element.meta && (
+                        <div className="ask-panel__selection-row-meta">{element.meta}</div>
+                      )}
+                    </button>
+                  ))}
+                  {filteredRelationshipElements.length === 0 && (
+                    <div className="ask-panel__selection-empty">No items match this filter.</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {contentType === 'horoscope' && (
+              <div className="ask-panel__selection-section">
+                <div className="ask-panel__selection-subtitle">Transit Events</div>
+                <div className="ask-panel__filters">
+                  {['daily', 'weekly', 'monthly'].map(period => (
+                    <button
+                      key={period}
+                      className={`ask-panel__filter-pill ${activePeriod === period ? 'active' : ''}`}
+                      onClick={() => setActivePeriod(period)}
+                    >
+                      {period}
+                    </button>
+                  ))}
+                  {['all', 'transit-to-natal', 'transit-to-transit'].map(type => (
+                    <button
+                      key={type}
+                      className={`ask-panel__filter-pill ${transitTypeFilter === type ? 'active' : ''}`}
+                      onClick={() => setTransitTypeFilter(type)}
+                    >
+                      {type === 'all' ? 'all' : type.replace('transit-', '')}
+                    </button>
+                  ))}
+                </div>
+                <div className="ask-panel__selection-list">
+                  {transitElements.map(element => (
+                    <button
+                      key={element.key}
+                      className={`ask-panel__selection-row ${isSelected(element.key) ? 'ask-panel__selection-row--selected' : ''}`}
+                      onClick={() => handleToggleElement(element)}
+                    >
+                      <div className="ask-panel__selection-row-title">{element.label}</div>
+                      <div className="ask-panel__selection-row-meta">
+                        {formatTransitDateRange(element.payload)}
+                        {element.meta ? ` • ${element.meta}` : ''}
+                      </div>
+                    </button>
+                  ))}
+                  {transitElements.length === 0 && (
+                    <div className="ask-panel__selection-empty">No transits available for this period.</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Messages */}
         <div className="ask-panel__messages">
@@ -257,6 +718,15 @@ function AskStelliumPanel({
                   key={index}
                   className={`ask-panel__message ${msg.role === 'user' ? 'ask-panel__message--user' : 'ask-panel__message--assistant'}`}
                 >
+                  {msg.role === 'user' && msg.selectedElements && msg.selectedElements.length > 0 && (
+                    <div className="ask-panel__selected-summary">
+                      {msg.selectedElements.slice(0, 3).map((element, idx) => (
+                        <span key={idx} className="ask-panel__selected-chip">
+                          {element.label || element.description || element.code}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <div className="ask-panel__message-content">
                     {msg.content.split('\n').map((paragraph, pIndex) => (
                       paragraph.trim() && <p key={pIndex}>{paragraph}</p>
@@ -312,7 +782,7 @@ function AskStelliumPanel({
           <button
             className="ask-panel__send"
             onClick={handleSendMessage}
-            disabled={loading || !inputMessage.trim()}
+            disabled={!canSend}
           >
             {loading ? '...' : '\u2192'}
           </button>

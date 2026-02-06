@@ -9,7 +9,6 @@ import WelcomeBanner from '../UI/dashboard/WelcomeBanner';
 import HoroscopeSection from '../UI/dashboard/HoroscopeSection';
 import BirthChartsSection from '../UI/dashboard/BirthChartsSection';
 import RelationshipsSection from '../UI/dashboard/RelationshipsSection';
-import AskStelliumSection from '../UI/dashboard/AskStelliumSection';
 import SettingsSection from '../UI/dashboard/SettingsSection';
 import './MainDashboard.css';
 
@@ -107,8 +106,6 @@ function MainDashboard() {
         return <BirthChartsSection userId={userId} user={user} />;
       case 'relationships':
         return <RelationshipsSection userId={userId} />;
-      case 'ask-stellium':
-        return <AskStelliumSection userId={userId} entitlements={entitlements} />;
       case 'settings':
         return <SettingsSection userId={userId} user={user} entitlements={entitlements} />;
       default:

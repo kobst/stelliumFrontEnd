@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './ChartTabs.css';
 
-function OverviewTab({ basicAnalysis, chartId }) {
+function OverviewTab({ basicAnalysis, chartId, birthChart }) {
   const [chatOpen, setChatOpen] = useState(false);
   // If no overview data
   if (!basicAnalysis?.overview) {
@@ -37,6 +37,7 @@ function OverviewTab({ basicAnalysis, chartId }) {
         onClose={() => setChatOpen(false)}
         contentType="birthchart"
         contentId={chartId}
+        birthChart={birthChart}
         contextLabel="About your birth chart"
         placeholderText="Ask about your birth chart..."
         suggestedQuestions={[
