@@ -1949,11 +1949,8 @@ export const deleteRelationship = async (compositeChartId, ownerUserId = null) =
 
 export const enhancedChatForUserBirthChart = async (userId, requestBody) => {
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/birthchart/enhanced-chat`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/birthchart/enhanced-chat`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify(requestBody)
     });
     
@@ -1977,7 +1974,7 @@ export const fetchEnhancedChatHistory = async (userId, limit = null) => {
       url += `?limit=${limit}`;
     }
     
-    const response = await fetch(url, {
+    const response = await authenticatedFetch(url, {
       method: 'GET'
     });
     
@@ -2004,11 +2001,8 @@ export const enhancedChatForRelationship = async (compositeChartId, query, score
     
     console.log('🔍 Enhanced chat request:', { compositeChartId, requestBody });
     
-    const response = await fetch(`${SERVER_URL}/relationships/${compositeChartId}/enhanced-chat`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/relationships/${compositeChartId}/enhanced-chat`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify(requestBody)
     });
     
@@ -2051,7 +2045,7 @@ export const fetchRelationshipEnhancedChatHistory = async (compositeChartId, lim
       url += `?limit=${limit}`;
     }
     
-    const response = await fetch(url, {
+    const response = await authenticatedFetch(url, {
       method: 'GET'
     });
     
@@ -2078,7 +2072,7 @@ export const fetchHoroscopeChatHistory = async (userId, limit = null) => {
       url += `?limit=${limit}`;
     }
 
-    const response = await fetch(url, {
+    const response = await authenticatedFetch(url, {
       method: 'GET',
     });
 
@@ -2096,11 +2090,8 @@ export const fetchHoroscopeChatHistory = async (userId, limit = null) => {
 
 export const enhancedChatForHoroscope = async (userId, requestBody) => {
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/enhanced-chat`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/horoscope/enhanced-chat`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON,
-      },
       body: JSON.stringify(requestBody),
     });
 
