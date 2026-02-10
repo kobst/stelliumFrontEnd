@@ -94,6 +94,35 @@ The admin app uses both env vars to enable runtime switching between dev and pro
 
 ---
 
+## Temporary Site Access Protection (Pre-Launch Validation)
+
+Date completed: February 10, 2026
+
+To protect pre-launch testing, branch-level access control was enabled in AWS Amplify Hosting for both public branches:
+
+- `mainDev`: Password protected
+- `main`: Password protected
+
+This keeps both environments gated while still using separate environment-specific API endpoints via existing Amplify environment variables.
+
+### Rollout Sequence Used
+
+1. Enabled Amplify access control on `mainDev`
+2. Validated password prompt and full app behavior on `mainDev`
+3. Enabled Amplify access control on `main`
+4. Merged `mainDev -> main`
+5. Validated `main` deployment behind password protection
+
+### Launch Toggle (When Ready to Go Public)
+
+1. Go to Amplify Console -> App -> Hosting -> Access control
+2. Set `main` branch access from password protected to publicly viewable
+3. Save and confirm production URL is publicly reachable
+
+Keep `mainDev` password protected for ongoing internal testing unless intentionally changed.
+
+---
+
 ## Which Data Do I See?
 
 The data you see depends on which API URL the app is configured to use:
