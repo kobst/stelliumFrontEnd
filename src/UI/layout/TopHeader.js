@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PlanBadge from '../entitlements/PlanBadge';
+import CreditsIndicator from '../entitlements/CreditsIndicator';
+import useEntitlementsStore from '../../Utilities/entitlementsStore';
 import './TopHeader.css';
 
 const NAV_ITEMS = [
@@ -10,7 +12,10 @@ const NAV_ITEMS = [
 
 function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [creditsPopoverOpen, setCreditsPopoverOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const creditsPopoverRef = useRef(null);
+  const credits = useEntitlementsStore((state) => state.credits);
 
   // Get user's subscription tier
   const getUserPlan = () => {
@@ -52,6 +57,9 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
+      }
+      if (creditsPopoverRef.current && !creditsPopoverRef.current.contains(event.target)) {
+        setCreditsPopoverOpen(false);
       }
     };
 
@@ -125,8 +133,42 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
         ))}
       </nav>
 
-      {/* Right section - Profile */}
-      <div className="top-header__right" ref={dropdownRef}>
+      {/* Right section - Credits + Profile */}
+      <div className="top-header__right">
+        {/* Credit balance pill */}
+        <div className="top-header__credits-wrapper" ref={creditsPopoverRef}>
+          <button
+            className={`top-header__credits ${
+              credits.total === 0 ? 'top-header__credits--empty' :
+              credits.total <= 20 ? 'top-header__credits--low' : ''
+            }`}
+            onClick={() => setCreditsPopoverOpen((prev) => !prev)}
+            aria-label="View credits"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+            <span className="top-header__credits-count">{credits.total}</span>
+          </button>
+
+          {creditsPopoverOpen && (
+            <div className="top-header__credits-popover">
+              <CreditsIndicator
+                total={credits.total}
+                monthly={credits.monthly}
+                pack={credits.pack}
+                monthlyLimit={credits.monthlyLimit}
+                resetDate={credits.resetDate}
+                onBuyMore={() => {
+                  setCreditsPopoverOpen(false);
+                  if (onNavClick) onNavClick('settings');
+                }}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="top-header__profile-section" ref={dropdownRef}>
         <div className="top-header__profile" onClick={toggleDropdown}>
           <div className="top-header__profile-info">
             <span className="top-header__username">{getFullName()}</span>
@@ -151,6 +193,7 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
             </button>
           </div>
         )}
+        </div>
       </div>
     </header>
   );

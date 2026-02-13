@@ -154,6 +154,55 @@
   color: white;
 }
 
+/* Credits pill */
+.top-header__credits-wrapper {
+  position: relative;
+}
+
+.top-header__credits {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.top-header__credits:hover {
+  background: var(--color-bg-tertiary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.top-header__credits--low .top-header__credits-count {
+  color: #fbbf24;
+}
+
+.top-header__credits--empty .top-header__credits-count {
+  color: #f87171;
+}
+
+.top-header__credits-popover {
+  position: absolute;
+  top: calc(100% + var(--spacing-sm));
+  right: 0;
+  min-width: 280px;
+  z-index: 100;
+  animation: dropdownFadeIn 150ms ease;
+}
+
+/* Profile section wrapper */
+.top-header__profile-section {
+  position: relative;
+}
+
 /* Dropdown menu */
 .top-header__dropdown {
   position: absolute;
@@ -242,6 +291,17 @@
   .top-header__avatar {
     width: 36px;
     height: 36px;
+  }
+
+  /* Credits pill stays visible on mobile */
+  .top-header__credits {
+    padding: 5px 10px;
+    font-size: var(--font-size-xs);
+  }
+
+  .top-header__credits-popover {
+    right: -40px;
+    min-width: 260px;
   }
 }
 

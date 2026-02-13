@@ -36,6 +36,9 @@ const initialState = {
     monthly: true,
   },
 
+  // Toast notification
+  toast: { message: '', type: 'info', isVisible: false },
+
   // Loading states
   isLoading: false,
   error: null,
@@ -46,6 +49,20 @@ const useEntitlementsStore = create((set, get) => ({
   ...initialState,
 
   // ========== ACTIONS ==========
+
+  showToast: (message, type = 'info') => {
+    set({ toast: { message, type, isVisible: true } });
+    setTimeout(() => {
+      set((state) => state.toast.message === message
+        ? { toast: { ...state.toast, isVisible: false } }
+        : state
+      );
+    }, 4000);
+  },
+
+  dismissToast: () => {
+    set({ toast: { message: '', type: 'info', isVisible: false } });
+  },
 
   /**
    * Fetch entitlements and unlocked analyses from backend
@@ -161,6 +178,9 @@ const useEntitlementsStore = create((set, get) => ({
       // Refresh entitlements to get updated credits and unlocks
       await get().fetchEntitlements(userId);
 
+      const updatedCredits = get().credits.total;
+      get().showToast(`${cost} credits used. ${updatedCredits} remaining.`, 'success');
+
       return { success: true, result };
     } catch (error) {
       set({ isLoading: false, error: error.message });
@@ -181,6 +201,9 @@ const useEntitlementsStore = create((set, get) => ({
       // Refresh entitlements to update credits after question usage
       await get().fetchEntitlements(userId);
       set({ isLoading: false });
+
+      const updatedCredits = get().credits.total;
+      get().showToast(`1 credit used. ${updatedCredits} remaining.`, 'info');
 
       return { success: true, result };
     } catch (error) {

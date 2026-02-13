@@ -508,11 +508,13 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
       {/* Header Section */}
       <div className="analysis-header">
         <h3 className="analysis-header__title">360 Analysis</h3>
-        <div
-          className="analysis-gradient-icon analysis-gradient-icon--clickable"
+        <button
+          className="ask-stellium-trigger"
           onClick={() => setChatOpen(true)}
-          title="Ask Stellium"
-        ></div>
+        >
+          <span className="ask-stellium-trigger__icon">&#10024;</span>
+          Ask Stellium
+        </button>
       </div>
 
       {/* Domain Tabs */}

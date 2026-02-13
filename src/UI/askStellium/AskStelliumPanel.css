@@ -299,6 +299,25 @@
   color: #e2b98a;
 }
 
+/* Credit cost label */
+.ask-panel__credit-cost {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 24px 4px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.ask-panel__credit-cost svg {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.ask-panel__credit-cost-remaining {
+  opacity: 0.7;
+}
+
 /* Input area */
 .ask-panel__input {
   display: flex;

@@ -1,8 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import useEntitlementsStore from '../../Utilities/entitlementsStore';
 import TopHeader from './TopHeader';
 import Sidebar from './Sidebar';
+import Toast from '../shared/Toast';
 import './DashboardLayout.css';
 
 function DashboardLayout({
@@ -15,6 +17,8 @@ function DashboardLayout({
   const location = useLocation();
   const { userId } = useParams();
   const { signOut } = useAuth();
+  const toast = useEntitlementsStore((state) => state.toast);
+  const dismissToast = useEntitlementsStore((state) => state.dismissToast);
 
   const [currentSection, setCurrentSection] = useState(defaultSection);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -87,6 +91,13 @@ function DashboardLayout({
           {renderContent()}
         </main>
       </div>
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onDismiss={dismissToast}
+      />
     </div>
   );
 }

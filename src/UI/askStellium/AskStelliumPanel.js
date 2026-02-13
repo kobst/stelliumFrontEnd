@@ -10,6 +10,7 @@ import {
 } from '../../Utilities/api';
 import useEntitlementsStore from '../../Utilities/entitlementsStore';
 import useStore from '../../Utilities/store';
+import InsufficientCreditsModal from '../entitlements/InsufficientCreditsModal';
 import './AskStelliumPanel.css';
 
 const HISTORY_CONFIG = {
@@ -867,23 +868,25 @@ function AskStelliumPanel({
           <div className="ask-panel__error">{error}</div>
         )}
 
-        {/* Paywall CTA */}
-        {showPaywall && (
-          <div className="ask-panel__paywall">
-            <p>You need 1 credit to ask a question. You have {credits.total} credits remaining.</p>
-            <div className="ask-panel__paywall-actions">
-              <button className="ask-panel__paywall-cta" onClick={() => navigate('/pricingTable')}>
-                Upgrade to Plus (200 credits/mo)
-              </button>
-              <button className="ask-panel__paywall-cta ask-panel__paywall-cta--secondary" onClick={() => navigate('/pricingTable')}>
-                Buy Credit Pack (100 for $10)
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Insufficient Credits Modal */}
+        <InsufficientCreditsModal
+          isOpen={showPaywall}
+          onClose={() => setShowPaywall(false)}
+          creditsNeeded={1}
+          creditsAvailable={credits.total}
+          onBuyCredits={() => { setShowPaywall(false); navigate('/pricingTable'); }}
+          onSubscribe={() => { setShowPaywall(false); navigate('/pricingTable'); }}
+        />
 
         {/* Input with inline chips */}
         <div className="ask-panel__input">
+          <div className="ask-panel__credit-cost">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+            <span>1 credit per message</span>
+            <span className="ask-panel__credit-cost-remaining">({credits.total} remaining)</span>
+          </div>
           <div className="ask-panel__input-wrapper">
             {selectedElements.length > 0 && (
               <div className="ask-panel__context-chips">

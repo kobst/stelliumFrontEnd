@@ -19,11 +19,13 @@ function OverviewTab({ basicAnalysis, chartId, birthChart }) {
       <div className="overview-section">
         <div className="overview-section-header">
           <h3 className="overview-section-title">Overview</h3>
-          <div
-            className="overview-gradient-icon overview-gradient-icon--clickable"
+          <button
+            className="ask-stellium-trigger"
             onClick={() => setChatOpen(true)}
-            title="Ask Stellium"
-          />
+          >
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
         </div>
         <div className="overview-text">
           {basicAnalysis.overview.split('\n').map((paragraph, index) => (

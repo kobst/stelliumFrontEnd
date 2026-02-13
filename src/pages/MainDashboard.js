@@ -4,8 +4,10 @@ import { fetchUser } from '../Utilities/api';
 import useStore from '../Utilities/store';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
+import useEntitlementsStore from '../Utilities/entitlementsStore';
 import DashboardLayout from '../UI/layout/DashboardLayout';
 import WelcomeBanner from '../UI/dashboard/WelcomeBanner';
+import LowCreditsBanner from '../UI/entitlements/LowCreditsBanner';
 import HoroscopeSection from '../UI/dashboard/HoroscopeSection';
 import BirthChartsSection from '../UI/dashboard/BirthChartsSection';
 import RelationshipsSection from '../UI/dashboard/RelationshipsSection';
@@ -21,6 +23,7 @@ function MainDashboard() {
   const sectionFromState = location.state?.section;
   const [user, setUser] = useState(null);
   const entitlements = useEntitlements(user);
+  const credits = useEntitlementsStore((state) => state.credits);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -115,11 +118,15 @@ function MainDashboard() {
 
   return (
     <DashboardLayout user={user} defaultSection={sectionFromState || 'horoscope'}>
-      {({ currentSection }) => (
+      {({ currentSection, setCurrentSection }) => (
         <div className="main-dashboard__content">
           <WelcomeBanner
             isTrialActive={entitlements.isTrialActive}
             trialDaysRemaining={entitlements.trialDaysRemaining}
+          />
+          <LowCreditsBanner
+            credits={credits}
+            onGetMore={() => setCurrentSection('settings')}
           />
           {renderSection(currentSection)}
         </div>

@@ -44,6 +44,26 @@ function CreditsIndicator({
         <span className="credits-indicator__remaining">remaining</span>
       </div>
 
+      {!compact && monthlyLimit > 0 && (
+        <div className="credits-indicator__progress">
+          <div className="credits-indicator__progress-bar">
+            <div
+              className={`credits-indicator__progress-fill ${
+                monthly / monthlyLimit <= 0.25
+                  ? monthly === 0
+                    ? 'credits-indicator__progress-fill--empty'
+                    : 'credits-indicator__progress-fill--low'
+                  : ''
+              }`}
+              style={{ width: `${Math.min((monthly / monthlyLimit) * 100, 100)}%` }}
+            />
+          </div>
+          <span className="credits-indicator__progress-label">
+            {monthly} / {monthlyLimit} monthly credits
+          </span>
+        </div>
+      )}
+
       {!compact && total > 0 && (
         <div className="credits-indicator__breakdown">
           <span className="credits-indicator__breakdown-item">
