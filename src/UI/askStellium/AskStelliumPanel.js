@@ -141,6 +141,53 @@ const formatTransitDateRange = (transit) => {
   return start || end || '';
 };
 
+const getFilterOptions = (contentType) => {
+  if (contentType === 'birthchart' || contentType === 'analysis') {
+    return [
+      { value: 'all', label: 'All' },
+      { value: 'positions', label: 'Positions' },
+      { value: 'aspects', label: 'Aspects' }
+    ];
+  }
+  if (contentType === 'relationship') {
+    return [
+      { value: 'all', label: 'All' },
+      { value: 'synastry', label: 'Synastry' },
+      { value: 'composite', label: 'Composite' },
+      { value: 'placements', label: 'Placements' }
+    ];
+  }
+  if (contentType === 'horoscope') {
+    return [
+      { value: 'all', label: 'All' },
+      { value: 'transit-to-natal', label: 'Natal' },
+      { value: 'transit-to-transit', label: 'World' }
+    ];
+  }
+  return [];
+};
+
+const getCategoryBadgeInfo = (contentType, element) => {
+  if (contentType === 'birthchart' || contentType === 'analysis') {
+    if (element.type === 'position') {
+      return { label: 'Position', colorClass: 'badge--position' };
+    }
+    return { label: 'Aspect', colorClass: 'badge--aspect' };
+  }
+  if (contentType === 'relationship') {
+    const source = (element.payload?.source || element.meta || '').toLowerCase();
+    if (source.includes('composite')) return { label: 'Composite', colorClass: 'badge--composite' };
+    if (source.includes('houseplacement')) return { label: 'Placements', colorClass: 'badge--placements' };
+    return { label: 'Synastry', colorClass: 'badge--synastry' };
+  }
+  if (contentType === 'horoscope') {
+    const transitType = element.payload?.type || '';
+    if (transitType === 'transit-to-transit') return { label: 'World', colorClass: 'badge--world' };
+    return { label: 'Natal', colorClass: 'badge--natal' };
+  }
+  return { label: '', colorClass: '' };
+};
+
 function AskStelliumPanel({
   isOpen,
   onClose,
@@ -165,10 +212,14 @@ function AskStelliumPanel({
   const [activePeriod, setActivePeriod] = useState('weekly');
   const [transitTypeFilter, setTransitTypeFilter] = useState('all');
   const [relationshipFilter, setRelationshipFilter] = useState('all');
+  const [birthchartFilter, setBirthchartFilter] = useState('all');
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  const [overlaySearch, setOverlaySearch] = useState('');
   const messagesEndRef = useRef(null);
   const panelRef = useRef(null);
   const textareaRef = useRef(null);
   const hasLoadedRef = useRef(null);
+  const overlayRef = useRef(null);
 
   const navigate = useNavigate();
   const hasEnoughCredits = useEntitlementsStore(state => state.hasEnoughCredits);
@@ -190,8 +241,6 @@ function AskStelliumPanel({
   // Load chat history when panel opens
   useEffect(() => {
     if (!isOpen || !contentId || !config) return;
-
-    // Avoid reloading if we already loaded for this contentId
     if (hasLoadedRef.current === contentId) return;
 
     const loadHistory = async () => {
@@ -224,17 +273,23 @@ function AskStelliumPanel({
     loadHistory();
   }, [isOpen, contentId, config]);
 
-  // Reset loaded ref when contentId changes
+  // Reset state when contentId changes
   useEffect(() => {
     hasLoadedRef.current = null;
     setMessages([]);
     setSelectedElements([]);
     setSelectionError(null);
+    setOverlayOpen(false);
   }, [contentId, contentType]);
 
   useEffect(() => {
     setActivePeriod(resolvedPeriod);
   }, [resolvedPeriod]);
+
+  // Clear search when overlay closes
+  useEffect(() => {
+    if (!overlayOpen) setOverlaySearch('');
+  }, [overlayOpen]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -251,16 +306,30 @@ function AskStelliumPanel({
   // Escape key handler
   useEffect(() => {
     if (!isOpen) return;
-
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        onClose();
+        if (overlayOpen) {
+          setOverlayOpen(false);
+        } else {
+          onClose();
+        }
       }
     };
-
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, overlayOpen]);
+
+  // Close overlay on outside click
+  useEffect(() => {
+    if (!overlayOpen) return;
+    const handleClickOutside = (e) => {
+      if (overlayRef.current && !overlayRef.current.contains(e.target)) {
+        setOverlayOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [overlayOpen]);
 
   // Prevent body scroll when panel is open
   useEffect(() => {
@@ -269,9 +338,7 @@ function AskStelliumPanel({
     } else {
       document.body.style.overflow = '';
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
   const positionsData = useMemo(() => {
@@ -289,6 +356,14 @@ function AskStelliumPanel({
     }).filter(Boolean);
   }, [aspects, planets]);
 
+  const filteredBirthchartElements = useMemo(() => {
+    const positions = positionsData.map(p => ({ ...p, key: p.code, payload: p }));
+    const aspectItems = aspectsData.map(a => ({ ...a, key: a.code, payload: a }));
+    if (birthchartFilter === 'positions') return positions;
+    if (birthchartFilter === 'aspects') return aspectItems;
+    return [...positions, ...aspectItems];
+  }, [positionsData, aspectsData, birthchartFilter]);
+
   const relationshipElements = useMemo(() => {
     if (!Array.isArray(relationshipScoredItems)) return [];
     return relationshipScoredItems.map((item, index) => ({
@@ -302,20 +377,30 @@ function AskStelliumPanel({
   }, [relationshipScoredItems]);
 
   const filteredRelationshipElements = useMemo(() => {
-    if (relationshipFilter === 'all') return relationshipElements;
-    return relationshipElements.filter(element => {
-      const source = (element.payload?.source || element.meta || '').toLowerCase();
-      if (relationshipFilter === 'synastry') {
-        return source.includes('synastry');
-      }
-      if (relationshipFilter === 'composite') {
-        return source.includes('composite');
-      }
-      if (relationshipFilter === 'placements') {
-        return source.includes('houseplacement');
-      }
-      return true;
+    let filtered;
+    if (relationshipFilter === 'all') {
+      filtered = [...relationshipElements];
+    } else {
+      filtered = relationshipElements.filter(element => {
+        const source = (element.payload?.source || element.meta || '').toLowerCase();
+        if (relationshipFilter === 'synastry') return source.includes('synastry');
+        if (relationshipFilter === 'composite') return source.includes('composite');
+        if (relationshipFilter === 'placements') return source.includes('houseplacement');
+        return true;
+      });
+    }
+    // Sort by badge type so section dividers can group cleanly
+    const getOrder = (src) => {
+      if (src.includes('composite')) return 1;
+      if (src.includes('houseplacement')) return 2;
+      return 0; // synastry aspects
+    };
+    filtered.sort((a, b) => {
+      const aSource = (a.payload?.source || a.meta || '').toLowerCase();
+      const bSource = (b.payload?.source || b.meta || '').toLowerCase();
+      return getOrder(aSource) - getOrder(bSource);
     });
+    return filtered;
   }, [relationshipElements, relationshipFilter]);
 
   const filteredTransits = useMemo(() => {
@@ -372,7 +457,7 @@ function AskStelliumPanel({
 
   const selectableElements = useMemo(() => {
     if (contentType === 'birthchart' || contentType === 'analysis') {
-      return [...positionsData, ...aspectsData];
+      return filteredBirthchartElements;
     }
     if (contentType === 'relationship') {
       return filteredRelationshipElements;
@@ -381,7 +466,41 @@ function AskStelliumPanel({
       return transitElements;
     }
     return [];
-  }, [contentType, positionsData, aspectsData, relationshipElements, transitElements]);
+  }, [contentType, filteredBirthchartElements, filteredRelationshipElements, transitElements]);
+
+  const filteredOverlayElements = useMemo(() => {
+    if (!overlaySearch.trim()) return selectableElements;
+    const query = overlaySearch.toLowerCase();
+    return selectableElements.filter(el =>
+      (el.label || el.description || '').toLowerCase().includes(query)
+    );
+  }, [selectableElements, overlaySearch]);
+
+  const hasContextData = useMemo(() => {
+    if (contentType === 'birthchart' || contentType === 'analysis') {
+      return positionsData.length > 0 || aspectsData.length > 0;
+    }
+    if (contentType === 'relationship') {
+      return relationshipElements.length > 0;
+    }
+    if (contentType === 'horoscope') {
+      return transitWindows && transitWindows.length > 0;
+    }
+    return false;
+  }, [contentType, positionsData, aspectsData, relationshipElements, transitWindows]);
+
+  const getActiveFilter = useCallback(() => {
+    if (contentType === 'birthchart' || contentType === 'analysis') return birthchartFilter;
+    if (contentType === 'relationship') return relationshipFilter;
+    if (contentType === 'horoscope') return transitTypeFilter;
+    return 'all';
+  }, [contentType, birthchartFilter, relationshipFilter, transitTypeFilter]);
+
+  const setActiveFilterCb = useCallback((value) => {
+    if (contentType === 'birthchart' || contentType === 'analysis') setBirthchartFilter(value);
+    else if (contentType === 'relationship') setRelationshipFilter(value);
+    else if (contentType === 'horoscope') setTransitTypeFilter(value);
+  }, [contentType]);
 
   const isSelected = useCallback((elementKey) => {
     return selectedElements.some(el => el.key === elementKey);
@@ -401,10 +520,20 @@ function AskStelliumPanel({
     }
 
     setSelectedElements(prev => [...prev, element]);
+
+    // Auto-close overlay when max selections reached
+    if (selectedElements.length + 1 >= MAX_SELECTIONS) {
+      setOverlayOpen(false);
+    }
   }, [isSelected, selectedElements.length]);
 
   const clearSelections = useCallback(() => {
     setSelectedElements([]);
+    setSelectionError(null);
+  }, []);
+
+  const removeSelection = useCallback((key) => {
+    setSelectedElements(prev => prev.filter(el => el.key !== key));
     setSelectionError(null);
   }, []);
 
@@ -418,7 +547,6 @@ function AskStelliumPanel({
       return;
     }
 
-    // Check credits (1 credit per question)
     if (!hasEnoughCredits(1)) {
       setShowPaywall(true);
       return;
@@ -429,7 +557,6 @@ function AskStelliumPanel({
     setError(null);
     setShowPaywall(false);
 
-    // Optimistic add
     setMessages(prev => [...prev, {
       role: 'user',
       content: userMessage || 'Selected context',
@@ -492,7 +619,6 @@ function AskStelliumPanel({
       }
 
       setError(err.message || 'Failed to send message');
-      // Remove optimistic user message
       setMessages(prev => prev.slice(0, -1));
       setInputMessage(userMessage);
     } finally {
@@ -524,6 +650,10 @@ function AskStelliumPanel({
   if (!isOpen) return null;
 
   const canSend = !loading && (inputMessage.trim().length > 0 || selectedElements.length > 0);
+  const activeFilter = getActiveFilter();
+  const filterOptions = getFilterOptions(contentType);
+  const totalCount = selectableElements.length;
+  const shownCount = filteredOverlayElements.length;
 
   return (
     <div className="ask-panel-backdrop" onClick={onClose}>
@@ -547,136 +677,120 @@ function AskStelliumPanel({
           </button>
         </div>
 
-        {/* Context Selection */}
-        {selectableElements.length > 0 && (
-          <div className="ask-panel__selection">
-            <div className="ask-panel__selection-header">
-              <div className="ask-panel__selection-title">Context</div>
-              <div className="ask-panel__selection-meta">
-                <span>{selectedElements.length}/{MAX_SELECTIONS} selected</span>
+        {/* Compact Context Bar */}
+        {hasContextData && (
+          <div className="ask-panel__compact-context" ref={overlayRef}>
+            <div className="ask-panel__compact-bar">
+              <button
+                className={`ask-panel__context-trigger ${overlayOpen ? 'ask-panel__context-trigger--open' : ''} ${selectedElements.length > 0 ? 'ask-panel__context-trigger--has-selection' : ''}`}
+                onClick={() => setOverlayOpen(!overlayOpen)}
+              >
+                Context{selectedElements.length > 0 && ` (${selectedElements.length})`}
+                <span className={`ask-panel__chevron ${overlayOpen ? 'ask-panel__chevron--open' : ''}`}>
+                  &#9662;
+                </span>
+              </button>
+              <div className="ask-panel__compact-right">
+                <span className="ask-panel__selection-count">
+                  {selectedElements.length}/{MAX_SELECTIONS}
+                </span>
                 {selectedElements.length > 0 && (
-                  <button className="ask-panel__selection-clear" onClick={clearSelections}>
+                  <button className="ask-panel__selection-clear-inline" onClick={clearSelections}>
                     Clear
                   </button>
                 )}
               </div>
             </div>
-            {selectionError && (
-              <div className="ask-panel__selection-error">{selectionError}</div>
-            )}
 
-            {(contentType === 'birthchart' || contentType === 'analysis') && (
-              <div className="ask-panel__selection-section">
-                <div className="ask-panel__selection-subtitle">Positions</div>
-                <div className="ask-panel__selection-grid">
-                  {positionsData.map(position => (
-                    <button
-                      key={position.code}
-                      className={`ask-panel__selection-card ${isSelected(position.code) ? 'ask-panel__selection-card--selected' : ''}`}
-                      onClick={() => handleToggleElement({ ...position, key: position.code, payload: position })}
-                    >
-                      <div className="ask-panel__selection-card-title">{position.planet}</div>
-                      <div className="ask-panel__selection-card-meta">
-                        in {position.sign}
-                        {position.house && ` • H${position.house}`}
-                      </div>
-                    </button>
-                  ))}
+            {/* Overlay — floats over messages area */}
+            {overlayOpen && (
+              <div className="ask-panel__items-overlay">
+                <div className="ask-panel__overlay-header">
+                  <div className="ask-panel__overlay-tabs">
+                    {filterOptions.map(option => (
+                      <button
+                        key={option.value}
+                        className={`ask-panel__overlay-tab ${activeFilter === option.value ? 'ask-panel__overlay-tab--active' : ''}`}
+                        onClick={() => setActiveFilterCb(option.value)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                  <span className="ask-panel__overlay-count">
+                    {overlaySearch.trim() && shownCount !== totalCount
+                      ? `${shownCount} of ${totalCount}`
+                      : totalCount
+                    }
+                  </span>
                 </div>
-
-                <div className="ask-panel__selection-subtitle">Aspects</div>
-                <div className="ask-panel__selection-grid">
-                  {aspectsData.map(aspect => (
+                <div className="ask-panel__overlay-search">
+                  <input
+                    type="text"
+                    value={overlaySearch}
+                    onChange={(e) => setOverlaySearch(e.target.value)}
+                    placeholder="Search..."
+                    className="ask-panel__search-input"
+                  />
+                  {overlaySearch && (
                     <button
-                      key={aspect.code}
-                      className={`ask-panel__selection-card ${isSelected(aspect.code) ? 'ask-panel__selection-card--selected' : ''}`}
-                      onClick={() => handleToggleElement({ ...aspect, key: aspect.code, payload: aspect })}
+                      className="ask-panel__search-clear"
+                      onClick={() => setOverlaySearch('')}
+                      aria-label="Clear search"
                     >
-                      <div className="ask-panel__selection-card-title">
-                        {aspect.planet1} {aspect.aspectType} {aspect.planet2}
-                      </div>
-                      <div className="ask-panel__selection-card-meta">
-                        {aspect.planet1Sign} → {aspect.planet2Sign}
-                      </div>
+                      &times;
                     </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {contentType === 'relationship' && (
-              <div className="ask-panel__selection-section">
-                <div className="ask-panel__selection-subtitle">Key Relationship Factors</div>
-                <div className="ask-panel__filters">
-                  {['all', 'synastry', 'composite', 'placements'].map(filter => (
-                    <button
-                      key={filter}
-                      className={`ask-panel__filter-pill ${relationshipFilter === filter ? 'active' : ''}`}
-                      onClick={() => setRelationshipFilter(filter)}
-                    >
-                      {filter === 'all' ? 'all' : filter}
-                    </button>
-                  ))}
-                </div>
-                <div className="ask-panel__selection-list">
-                  {filteredRelationshipElements.map(element => (
-                    <button
-                      key={element.key}
-                      className={`ask-panel__selection-row ${isSelected(element.key) ? 'ask-panel__selection-row--selected' : ''}`}
-                      onClick={() => handleToggleElement(element)}
-                    >
-                      <div className="ask-panel__selection-row-title">{element.label}</div>
-                      {element.meta && (
-                        <div className="ask-panel__selection-row-meta">{element.meta}</div>
-                      )}
-                    </button>
-                  ))}
-                  {filteredRelationshipElements.length === 0 && (
-                    <div className="ask-panel__selection-empty">No items match this filter.</div>
                   )}
                 </div>
-              </div>
-            )}
+                {selectionError && (
+                  <div className="ask-panel__overlay-error">{selectionError}</div>
+                )}
+                <div className="ask-panel__overlay-items-wrap">
+                  <div className="ask-panel__overlay-items">
+                    {(() => {
+                      // Check if relationship items have mixed badge types (for section dividers)
+                      const showDividers = contentType === 'relationship' && filteredOverlayElements.length > 1 &&
+                        new Set(filteredOverlayElements.map(el => getCategoryBadgeInfo(contentType, el).label)).size > 1;
 
-            {contentType === 'horoscope' && (
-              <div className="ask-panel__selection-section">
-                <div className="ask-panel__selection-subtitle">Transit Events</div>
-                <div className="ask-panel__filters">
-                  {['daily', 'weekly', 'monthly'].map(period => (
-                    <button
-                      key={period}
-                      className={`ask-panel__filter-pill ${activePeriod === period ? 'active' : ''}`}
-                      onClick={() => setActivePeriod(period)}
-                    >
-                      {period}
-                    </button>
-                  ))}
-                  {['all', 'transit-to-natal', 'transit-to-transit'].map(type => (
-                    <button
-                      key={type}
-                      className={`ask-panel__filter-pill ${transitTypeFilter === type ? 'active' : ''}`}
-                      onClick={() => setTransitTypeFilter(type)}
-                    >
-                      {type === 'all' ? 'all' : type.replace('transit-', '')}
-                    </button>
-                  ))}
-                </div>
-                <div className="ask-panel__selection-list">
-                  {transitElements.map(element => (
-                    <button
-                      key={element.key}
-                      className={`ask-panel__selection-row ${isSelected(element.key) ? 'ask-panel__selection-row--selected' : ''}`}
-                      onClick={() => handleToggleElement(element)}
-                    >
-                      <div className="ask-panel__selection-row-title">{element.label}</div>
-                      <div className="ask-panel__selection-row-meta">
-                        {formatTransitDateRange(element.payload)}
-                        {element.meta ? ` • ${element.meta}` : ''}
+                      return filteredOverlayElements.map((element, index) => {
+                        const badge = getCategoryBadgeInfo(contentType, element);
+                        const key = element.key || element.code;
+                        const prevBadge = index > 0 ? getCategoryBadgeInfo(contentType, filteredOverlayElements[index - 1]) : null;
+                        const sectionHeader = showDividers && (!prevBadge || prevBadge.label !== badge.label);
+
+                        return (
+                          <React.Fragment key={key}>
+                            {sectionHeader && (
+                              <div className="ask-panel__section-divider">{badge.label}</div>
+                            )}
+                            <button
+                              className={`ask-panel__item-row ${isSelected(key) ? 'ask-panel__item-row--selected' : ''}`}
+                              onClick={() => handleToggleElement({ ...element, key })}
+                            >
+                              <div className="ask-panel__item-label">
+                                {element.label}
+                              </div>
+                              {contentType === 'horoscope' && element.payload && (
+                                <div className="ask-panel__item-sublabel">
+                                  {formatTransitDateRange(element.payload)}
+                                </div>
+                              )}
+                              <span className={`ask-panel__item-badge ${badge.colorClass}`}>
+                                {badge.label}
+                              </span>
+                            </button>
+                          </React.Fragment>
+                        );
+                      });
+                    })()}
+                    {filteredOverlayElements.length === 0 && (
+                      <div className="ask-panel__selection-empty">
+                        {overlaySearch.trim() ? 'No items match your search.' : 'No items match this filter.'}
                       </div>
-                    </button>
-                  ))}
-                  {transitElements.length === 0 && (
-                    <div className="ask-panel__selection-empty">No transits available for this period.</div>
+                    )}
+                  </div>
+                  {filteredOverlayElements.length > 6 && (
+                    <div className="ask-panel__overlay-fade" />
                   )}
                 </div>
               </div>
@@ -768,17 +882,35 @@ function AskStelliumPanel({
           </div>
         )}
 
-        {/* Input */}
+        {/* Input with inline chips */}
         <div className="ask-panel__input">
-          <textarea
-            ref={textareaRef}
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={placeholderText || 'Ask a question...'}
-            rows={2}
-            disabled={loading}
-          />
+          <div className="ask-panel__input-wrapper">
+            {selectedElements.length > 0 && (
+              <div className="ask-panel__context-chips">
+                {selectedElements.map((el, idx) => (
+                  <span key={idx} className="ask-panel__context-chip">
+                    {el.label || el.description || el.code}
+                    <button
+                      className="ask-panel__chip-dismiss"
+                      onClick={() => removeSelection(el.key)}
+                      aria-label="Remove"
+                    >
+                      &times;
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <textarea
+              ref={textareaRef}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={placeholderText || 'Ask a question...'}
+              rows={2}
+              disabled={loading}
+            />
+          </div>
           <button
             className="ask-panel__send"
             onClick={handleSendMessage}
