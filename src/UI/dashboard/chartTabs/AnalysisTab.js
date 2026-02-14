@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
+import InsufficientCreditsModal from '../../entitlements/InsufficientCreditsModal';
 import useEntitlementsStore from '../../../Utilities/entitlementsStore';
 import './ChartTabs.css';
 
@@ -413,11 +415,18 @@ function DomainContent({ domain, data, expandedCard, onCardToggle }) {
 
 // ============ MAIN COMPONENT ============
 
-function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, chartId, birthChart }) {
+function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, chartId, birthChart, userId }) {
   const [activeDomain, setActiveDomain] = useState(LIFE_DOMAINS[0].id);
   const [expandedCard, setExpandedCard] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
+  const isAnalysisUnlocked = useEntitlementsStore((state) => state.isAnalysisUnlocked);
+  const hasEnoughCredits = useEntitlementsStore((state) => state.hasEnoughCredits);
+  const checkAndUseAnalysis = useEntitlementsStore((state) => state.checkAndUseAnalysis);
 
   const isAnalysisComplete = analysisStatus?.completed ||
     (broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
@@ -438,6 +447,29 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
     setExpandedCard(expandedCard === cardKey ? null : cardKey);
   };
 
+  // Credit-gated start analysis
+  const handleStartClick = () => {
+    if (isAnalysisUnlocked('BIRTH_CHART', chartId)) {
+      onStartAnalysis();
+      return;
+    }
+    if (!hasEnoughCredits(75)) {
+      setShowInsufficientModal(true);
+      return;
+    }
+    setShowConfirm(true);
+  };
+
+  const handleConfirmStart = async () => {
+    setIsConfirming(true);
+    const result = await checkAndUseAnalysis(userId, 'BIRTH_CHART', chartId);
+    setIsConfirming(false);
+    setShowConfirm(false);
+    if (result.success) {
+      onStartAnalysis();
+    }
+  };
+
   // Render the start analysis prompt
   if (!isAnalysisComplete && !isAnalysisInProgress) {
     return (
@@ -447,11 +479,46 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
           <h3>360° Analysis</h3>
           <p>Generate a comprehensive AI-powered analysis of your birth chart across 6 life categories.</p>
           <p className="prompt-note">This analysis includes ~86 detailed interpretations and may take a few minutes.</p>
-          <button className="start-analysis-button" onClick={onStartAnalysis}>
-            Start 360° Analysis (75 credits)
-          </button>
+
+          {!showConfirm ? (
+            <button className="start-analysis-button" onClick={handleStartClick}>
+              Start 360° Analysis (75 credits)
+            </button>
+          ) : (
+            <div className="locked-content__confirm">
+              <p className="locked-content__confirm-text">
+                This will use 75 credits. You'll have {credits.total - 75} remaining.
+              </p>
+              <div className="locked-content__confirm-actions">
+                <button
+                  className="locked-content__confirm-btn"
+                  onClick={handleConfirmStart}
+                  disabled={isConfirming}
+                >
+                  {isConfirming ? 'Unlocking...' : 'Confirm'}
+                </button>
+                <button
+                  className="locked-content__confirm-cancel"
+                  onClick={() => setShowConfirm(false)}
+                  disabled={isConfirming}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           <p className="prompt-credit-balance">You have {credits.total} credits</p>
         </div>
+
+        <InsufficientCreditsModal
+          isOpen={showInsufficientModal}
+          onClose={() => setShowInsufficientModal(false)}
+          creditsNeeded={75}
+          creditsAvailable={credits.total}
+          onBuyCredits={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
+          onSubscribe={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
+        />
       </div>
     );
   }

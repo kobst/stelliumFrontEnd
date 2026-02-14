@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { startRelationshipWorkflow, getRelationshipWorkflowStatus } from '../../../Utilities/api';
+import InsufficientCreditsModal from '../../entitlements/InsufficientCreditsModal';
 import useEntitlementsStore from '../../../Utilities/entitlementsStore';
 import './RelationshipTabs.css';
 
@@ -22,14 +24,21 @@ const getQuadrantLabel = (quadrant) => {
   return quadrant;
 };
 
-function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
+function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) {
   const [selectedCluster, setSelectedCluster] = useState('Harmony');
   const [selectedAnalysisType, setSelectedAnalysisType] = useState('synastry');
   const [selectedPanel, setSelectedPanel] = useState('support');
   const [analysisStatus, setAnalysisStatus] = useState(null);
   const [isStarting, setIsStarting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
   const pollingRef = useRef(null);
+  const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
+  const isAnalysisUnlocked = useEntitlementsStore((state) => state.isAnalysisUnlocked);
+  const hasEnoughCredits = useEntitlementsStore((state) => state.hasEnoughCredits);
+  const checkAndUseAnalysis = useEntitlementsStore((state) => state.checkAndUseAnalysis);
 
   const completeAnalysis = relationship?.completeAnalysis;
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
@@ -84,7 +93,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
     pollingRef.current = setInterval(poll, 3000);
   }, [compositeId, onAnalysisComplete]);
 
-  const handleStartAnalysis = async () => {
+  const proceedWithAnalysis = async () => {
     try {
       setIsStarting(true);
       const response = await startRelationshipWorkflow(null, null, compositeId, true);
@@ -97,6 +106,28 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
       console.error('Error starting analysis:', err);
     } finally {
       setIsStarting(false);
+    }
+  };
+
+  const handleStartAnalysis = () => {
+    if (isAnalysisUnlocked('RELATIONSHIP', compositeId)) {
+      proceedWithAnalysis();
+      return;
+    }
+    if (!hasEnoughCredits(60)) {
+      setShowInsufficientModal(true);
+      return;
+    }
+    setShowConfirm(true);
+  };
+
+  const handleConfirmStart = async () => {
+    setIsConfirming(true);
+    const result = await checkAndUseAnalysis(userId, 'RELATIONSHIP', compositeId);
+    setIsConfirming(false);
+    setShowConfirm(false);
+    if (result.success) {
+      proceedWithAnalysis();
     }
   };
 
@@ -168,22 +199,57 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
             The full analysis examines synastry and composite aspects, revealing support patterns,
             challenges, and keystone aspects that define your unique connection.
           </p>
-          <button
-            className="start-analysis-button"
-            onClick={handleStartAnalysis}
-            disabled={isStarting}
-          >
-            {isStarting ? (
-              <>
-                <span className="button-spinner"></span>
-                Starting Analysis...
-              </>
-            ) : (
-              'Start 360° Analysis (60 credits)'
-            )}
-          </button>
+
+          {!showConfirm ? (
+            <button
+              className="start-analysis-button"
+              onClick={handleStartAnalysis}
+              disabled={isStarting}
+            >
+              {isStarting ? (
+                <>
+                  <span className="button-spinner"></span>
+                  Starting Analysis...
+                </>
+              ) : (
+                'Start 360° Analysis (60 credits)'
+              )}
+            </button>
+          ) : (
+            <div className="locked-content__confirm">
+              <p className="locked-content__confirm-text">
+                This will use 60 credits. You'll have {credits.total - 60} remaining.
+              </p>
+              <div className="locked-content__confirm-actions">
+                <button
+                  className="locked-content__confirm-btn"
+                  onClick={handleConfirmStart}
+                  disabled={isConfirming}
+                >
+                  {isConfirming ? 'Unlocking...' : 'Confirm'}
+                </button>
+                <button
+                  className="locked-content__confirm-cancel"
+                  onClick={() => setShowConfirm(false)}
+                  disabled={isConfirming}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           <p className="prompt-credit-balance">You have {credits.total} credits</p>
         </div>
+
+        <InsufficientCreditsModal
+          isOpen={showInsufficientModal}
+          onClose={() => setShowInsufficientModal(false)}
+          creditsNeeded={60}
+          creditsAvailable={credits.total}
+          onBuyCredits={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
+          onSubscribe={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
+        />
       </div>
     );
   }

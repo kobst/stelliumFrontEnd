@@ -144,6 +144,7 @@ function RelationshipAnalysisPage() {
           relationship={relationship}
           compositeId={compositeId}
           onAnalysisComplete={handleAnalysisComplete}
+          userId={userId}
         />
       ) : (
         <LockedContent

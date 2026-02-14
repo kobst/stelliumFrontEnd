@@ -273,6 +273,7 @@ function ChartDetailPage() {
           onStartAnalysis={handleStartAnalysis}
           chartId={chartId}
           birthChart={birthChart}
+          userId={userId}
         />
       ) : (
         <LockedContent

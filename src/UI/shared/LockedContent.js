@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import UpgradeModal from '../entitlements/UpgradeModal';
+import InsufficientCreditsModal from '../entitlements/InsufficientCreditsModal';
 import './LockedContent.css';
 
 /**
@@ -33,6 +34,7 @@ function LockedContent({
 }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showInsufficientModal, setShowInsufficientModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
   const handleUpgradeClick = () => {
@@ -183,12 +185,14 @@ function LockedContent({
             </button>
           )}
 
-          {/* Plus user with no quota - show purchase only */}
+          {/* Plus user with no quota - show insufficient credits modal trigger */}
           {isPlus && !canUseCredits && !canPurchase && (
-            <p className="locked-content__no-quota">
-              Not enough credits to unlock.
-              {purchasePrice && ` You can purchase this analysis for $${purchasePrice}.`}
-            </p>
+            <button
+              className="locked-content__quota-button"
+              onClick={() => setShowInsufficientModal(true)}
+            >
+              Check credit options
+            </button>
           )}
         </div>
 
@@ -222,6 +226,16 @@ function LockedContent({
               }
             : null
         }
+      />
+
+      {/* Insufficient Credits Modal */}
+      <InsufficientCreditsModal
+        isOpen={showInsufficientModal}
+        onClose={() => setShowInsufficientModal(false)}
+        creditsNeeded={creditCost}
+        creditsAvailable={quotaRemaining}
+        onBuyCredits={() => { setShowInsufficientModal(false); if (onUpgradeClick) onUpgradeClick(); }}
+        onSubscribe={() => { setShowInsufficientModal(false); if (onUpgradeClick) onUpgradeClick(); }}
       />
     </>
   );
