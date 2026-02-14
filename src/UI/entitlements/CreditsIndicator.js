@@ -45,7 +45,7 @@ function CreditsIndicator({
       </div>
 
       {!compact && monthlyLimit > 0 && (
-        <div className="credits-indicator__progress">
+        <div className="credits-indicator__progress" title="Monthly credit usage">
           <div className="credits-indicator__progress-bar">
             <div
               className={`credits-indicator__progress-fill ${
@@ -66,11 +66,17 @@ function CreditsIndicator({
 
       {!compact && total > 0 && (
         <div className="credits-indicator__breakdown">
-          <span className="credits-indicator__breakdown-item">
+          <span
+            className="credits-indicator__breakdown-item"
+            title={resetDate ? `Monthly credits used first. Reset on ${formatResetDate(resetDate)}` : 'Monthly credits used first'}
+          >
             {monthly} monthly
           </span>
-          <span className="credits-indicator__breakdown-item">
-            {pack} purchased
+          <span
+            className="credits-indicator__breakdown-item"
+            title="Pack credits never expire"
+          >
+            {pack} pack
           </span>
         </div>
       )}
@@ -84,7 +90,7 @@ function CreditsIndicator({
           )}
           {pack > 0 && (
             <div className="credits-indicator__pack-info">
-              Purchased credits never expire
+              Pack credits never expire
             </div>
           )}
         </div>
@@ -107,9 +113,9 @@ function CreditsIndicator({
         </div>
       )}
 
-      {(isLow || isEmpty) && onBuyMore && (
+      {onBuyMore && (
         <button className="credits-indicator__buy-btn" onClick={onBuyMore}>
-          {isEmpty ? 'Buy Credits' : 'Get More'}
+          {isEmpty || isLow ? 'Upgrade Plan' : 'Buy Credits'}
         </button>
       )}
     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { startRelationshipWorkflow, getRelationshipWorkflowStatus } from '../../../Utilities/api';
+import useEntitlementsStore from '../../../Utilities/entitlementsStore';
 import './RelationshipTabs.css';
 
 const CLUSTER_ICONS = {
@@ -28,6 +29,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
   const [analysisStatus, setAnalysisStatus] = useState(null);
   const [isStarting, setIsStarting] = useState(false);
   const pollingRef = useRef(null);
+  const credits = useEntitlementsStore((state) => state.credits);
 
   const completeAnalysis = relationship?.completeAnalysis;
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
@@ -177,9 +179,10 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete }) {
                 Starting Analysis...
               </>
             ) : (
-              'Start 360° Analysis'
+              'Start 360° Analysis (60 credits)'
             )}
           </button>
+          <p className="prompt-credit-balance">You have {credits.total} credits</p>
         </div>
       </div>
     );

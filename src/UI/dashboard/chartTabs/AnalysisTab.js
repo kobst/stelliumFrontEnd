@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
+import useEntitlementsStore from '../../../Utilities/entitlementsStore';
 import './ChartTabs.css';
 
 // ============ MAPPING TABLES ============
@@ -416,6 +417,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
   const [activeDomain, setActiveDomain] = useState(LIFE_DOMAINS[0].id);
   const [expandedCard, setExpandedCard] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
+  const credits = useEntitlementsStore((state) => state.credits);
 
   const isAnalysisComplete = analysisStatus?.completed ||
     (broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
@@ -446,8 +448,9 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
           <p>Generate a comprehensive AI-powered analysis of your birth chart across 6 life categories.</p>
           <p className="prompt-note">This analysis includes ~86 detailed interpretations and may take a few minutes.</p>
           <button className="start-analysis-button" onClick={onStartAnalysis}>
-            Start 360° Analysis
+            Start 360° Analysis (75 credits)
           </button>
+          <p className="prompt-credit-balance">You have {credits.total} credits</p>
         </div>
       </div>
     );

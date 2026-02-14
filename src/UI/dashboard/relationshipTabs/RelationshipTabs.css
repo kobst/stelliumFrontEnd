@@ -1644,6 +1644,12 @@
   cursor: not-allowed;
 }
 
+.prompt-credit-balance {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.8rem;
+  margin-top: 8px;
+}
+
 .button-spinner {
   width: 16px;
   height: 16px;

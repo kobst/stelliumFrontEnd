@@ -12,8 +12,8 @@ const TABS = [
   { id: 'privacy', label: 'Privacy & Data' }
 ];
 
-function SettingsSection({ userId, user, entitlements }) {
-  const [activeTab, setActiveTab] = useState('profile');
+function SettingsSection({ userId, user, entitlements, initialTab = 'profile' }) {
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   const renderTabContent = () => {
     switch (activeTab) {

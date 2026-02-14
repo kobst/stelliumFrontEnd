@@ -140,10 +140,12 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
           <button
             className={`top-header__credits ${
               credits.total === 0 ? 'top-header__credits--empty' :
+              credits.monthlyLimit > 0 && credits.total <= credits.monthlyLimit * 0.25 ? 'top-header__credits--low' :
               credits.total <= 20 ? 'top-header__credits--low' : ''
             }`}
             onClick={() => setCreditsPopoverOpen((prev) => !prev)}
             aria-label="View credits"
+            title="Click to view credit details"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
@@ -161,7 +163,7 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
                 resetDate={credits.resetDate}
                 onBuyMore={() => {
                   setCreditsPopoverOpen(false);
-                  if (onNavClick) onNavClick('settings');
+                  if (onNavClick) onNavClick('settings:subscription');
                 }}
               />
             </div>

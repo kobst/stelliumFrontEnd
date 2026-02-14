@@ -3,6 +3,7 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getUserSubjects, createRelationshipDirect } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
+import DashboardLayout from '../UI/layout/DashboardLayout';
 import './CreateRelationshipPage.css';
 
 function CreateRelationshipPage() {
@@ -99,118 +100,124 @@ function CreateRelationshipPage() {
 
   if (loading) {
     return (
-      <div className="create-relationship-page">
-        <div className="create-relationship-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading charts...</p>
-        </div>
-      </div>
+      <DashboardLayout user={stelliumUser} defaultSection="relationships">
+        {() => (
+          <div className="create-relationship-page">
+            <div className="create-relationship-loading">
+              <div className="loading-spinner"></div>
+              <p>Loading charts...</p>
+            </div>
+          </div>
+        )}
+      </DashboardLayout>
     );
   }
 
   const hasGuests = guests.length >= 1;
 
   return (
-    <div className="create-relationship-page">
-      <div className="create-relationship-header">
-        <button className="back-button" onClick={handleBackClick}>
-          ← Back to Dashboard
-        </button>
-        <h1>Create Relationship</h1>
-        <p className="header-subtitle">Analyze your compatibility with someone</p>
-      </div>
+    <DashboardLayout user={stelliumUser} defaultSection="relationships">
+      {() => (
+        <div className="create-relationship-page">
+          <div className="create-relationship-header">
+            <button className="back-button" onClick={handleBackClick}>
+              ← Back to Dashboard
+            </button>
+            <h1>Create Relationship</h1>
+            <p className="header-subtitle">Analyze your compatibility with someone</p>
+          </div>
 
-      {error && (
-        <div className="create-relationship-error">
-          {error}
-        </div>
-      )}
+          {error && (
+            <div className="create-relationship-error">
+              {error}
+            </div>
+          )}
 
-      {!hasGuests ? (
-        <div className="not-enough-guests">
-          <div className="not-enough-icon">♡</div>
-          <h3>No Guest Charts</h3>
-          <p>You need at least 1 guest chart to create a relationship.</p>
-          <p className="not-enough-hint">Add a birth chart for someone from the Birth Charts section first.</p>
-          <button className="back-to-dashboard-button" onClick={handleBackClick}>
-            Back to Dashboard
-          </button>
-        </div>
-      ) : (
-        <div className="create-relationship-content">
-          {/* Your Chart (Person A - fixed) */}
-          <div className="selection-section">
-            <h2 className="selection-title">
-              <span className="selection-label">You</span>
-            </h2>
-            <div className="person-grid">
-              <div className="person-card selected owner-card">
-                <div className="person-name">{getPersonName(stelliumUser)}</div>
-                {getPersonSign(stelliumUser) && (
-                  <div className="person-sign">{getPersonSign(stelliumUser)} Sun</div>
+          {!hasGuests ? (
+            <div className="not-enough-guests">
+              <div className="not-enough-icon">♡</div>
+              <h3>No Guest Charts</h3>
+              <p>You need at least 1 guest chart to create a relationship.</p>
+              <p className="not-enough-hint">Add a birth chart for someone from the Birth Charts section first.</p>
+              <button className="back-to-dashboard-button" onClick={handleBackClick}>
+                Back to Dashboard
+              </button>
+            </div>
+          ) : (
+            <div className="create-relationship-content">
+              {/* Your Chart (Person A - fixed) */}
+              <div className="selection-section">
+                <h2 className="selection-title">
+                  <span className="selection-label">You</span>
+                </h2>
+                <div className="person-grid">
+                  <div className="person-card selected owner-card">
+                    <div className="person-name">{getPersonName(stelliumUser)}</div>
+                    {getPersonSign(stelliumUser) && (
+                      <div className="person-sign">{getPersonSign(stelliumUser)} Sun</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Connector */}
+              <div className="selection-connector">
+                <span className="connector-heart">♡</span>
+              </div>
+
+              {/* Partner Selection (Person B) */}
+              <div className="selection-section">
+                <h2 className="selection-title">
+                  <span className="selection-label">Select Partner</span>
+                  {selectedPartner && (
+                    <span className="selected-name">{getPersonName(selectedPartner)}</span>
+                  )}
+                </h2>
+                <div className="person-grid">
+                  {guests.map(guest => (
+                    <div
+                      key={guest._id}
+                      className={`person-card ${selectedPartner?._id === guest._id ? 'selected' : ''}`}
+                      onClick={() => handlePartnerSelect(guest)}
+                    >
+                      <div className="person-name">{getPersonName(guest)}</div>
+                      {getPersonSign(guest) && (
+                        <div className="person-sign">{getPersonSign(guest)} Sun</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Relationships are free to create; no quota indicator needed */}
+
+              {/* Create Button */}
+              <div className="create-button-container">
+                <button
+                  className="create-relationship-button"
+                  onClick={handleCreateRelationship}
+                  disabled={!selectedPartner || creating || !canCreateRelationship()}
+                >
+                  {creating ? (
+                    <>
+                      <span className="button-spinner"></span>
+                      Creating Relationship...
+                    </>
+                  ) : (
+                    'Create Relationship'
+                  )}
+                </button>
+                {selectedPartner && (
+                  <p className="create-preview">
+                    {getPersonName(stelliumUser)} ♡ {getPersonName(selectedPartner)}
+                  </p>
                 )}
               </div>
             </div>
-          </div>
-
-          {/* Connector */}
-          <div className="selection-connector">
-            <span className="connector-heart">♡</span>
-          </div>
-
-          {/* Partner Selection (Person B) */}
-          <div className="selection-section">
-            <h2 className="selection-title">
-              <span className="selection-label">Select Partner</span>
-              {selectedPartner && (
-                <span className="selected-name">{getPersonName(selectedPartner)}</span>
-              )}
-            </h2>
-            <div className="person-grid">
-              {guests.map(guest => (
-                <div
-                  key={guest._id}
-                  className={`person-card ${selectedPartner?._id === guest._id ? 'selected' : ''}`}
-                  onClick={() => handlePartnerSelect(guest)}
-                >
-                  <div className="person-name">{getPersonName(guest)}</div>
-                  {getPersonSign(guest) && (
-                    <div className="person-sign">{getPersonSign(guest)} Sun</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Relationships are free to create; no quota indicator needed */}
-
-          {/* Create Button */}
-          <div className="create-button-container">
-            <button
-              className="create-relationship-button"
-              onClick={handleCreateRelationship}
-              disabled={!selectedPartner || creating || !canCreateRelationship()}
-            >
-              {creating ? (
-                <>
-                  <span className="button-spinner"></span>
-                  Creating Relationship...
-                </>
-              ) : (
-                'Create Relationship'
-              )}
-            </button>
-            {selectedPartner && (
-              <p className="create-preview">
-                {getPersonName(stelliumUser)} ♡ {getPersonName(selectedPartner)}
-              </p>
-            )}
-          </div>
+          )}
         </div>
       )}
-
-      {/* No relationship limit modal in credit system */}
-    </div>
+    </DashboardLayout>
   );
 }
 

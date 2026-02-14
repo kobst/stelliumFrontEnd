@@ -32,6 +32,7 @@ function LockedContent({
   isLoading = false,
 }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
   const handleUpgradeClick = () => {
@@ -125,14 +126,39 @@ function LockedContent({
 
         <div className="locked-content__actions">
           {/* Option 1: Use monthly quota (Plus users with available quota) */}
-          {canUseCredits && (
+          {canUseCredits && !showConfirm && (
             <button
               className="locked-content__quota-button"
-              onClick={handleUseQuota}
+              onClick={() => setShowConfirm(true)}
               disabled={loading}
             >
               {loading ? 'Unlocking...' : `Use ${creditCost} credits (You have ${quotaRemaining})`}
             </button>
+          )}
+
+          {/* Confirmation step before credit deduction */}
+          {canUseCredits && showConfirm && (
+            <div className="locked-content__confirm">
+              <p className="locked-content__confirm-text">
+                This will use {creditCost} credits. You'll have {quotaRemaining - creditCost} remaining.
+              </p>
+              <div className="locked-content__confirm-actions">
+                <button
+                  className="locked-content__confirm-btn"
+                  onClick={() => { setShowConfirm(false); handleUseQuota(); }}
+                  disabled={loading}
+                >
+                  {loading ? 'Unlocking...' : 'Confirm'}
+                </button>
+                <button
+                  className="locked-content__confirm-cancel"
+                  onClick={() => setShowConfirm(false)}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           )}
 
           {/* Option 2: One-time purchase */}

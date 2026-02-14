@@ -102,6 +102,12 @@ function MainDashboard() {
 
   // Render section based on current navigation state
   const renderSection = (currentSection) => {
+    // Support settings:subscription convention for deep-linking to a specific tab
+    if (currentSection === 'settings' || currentSection.startsWith('settings:')) {
+      const settingsTab = currentSection.split(':')[1] || 'profile';
+      return <SettingsSection userId={userId} user={user} entitlements={entitlements} initialTab={settingsTab} />;
+    }
+
     switch (currentSection) {
       case 'horoscope':
         return <HoroscopeSection userId={userId} user={user} entitlements={entitlements} />;
@@ -109,8 +115,6 @@ function MainDashboard() {
         return <BirthChartsSection userId={userId} user={user} />;
       case 'relationships':
         return <RelationshipsSection userId={userId} />;
-      case 'settings':
-        return <SettingsSection userId={userId} user={user} entitlements={entitlements} />;
       default:
         return <HoroscopeSection userId={userId} user={user} entitlements={entitlements} />;
     }
@@ -126,7 +130,7 @@ function MainDashboard() {
           />
           <LowCreditsBanner
             credits={credits}
-            onGetMore={() => setCurrentSection('settings')}
+            onGetMore={() => setCurrentSection('settings:subscription')}
           />
           {renderSection(currentSection)}
         </div>
