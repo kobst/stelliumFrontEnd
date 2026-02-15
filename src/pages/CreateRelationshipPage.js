@@ -225,16 +225,16 @@ function CreateRelationshipPage() {
               </div>
             </div>
           )}
-        </div>
 
-        <InsufficientCreditsModal
-          isOpen={showPaywall}
-          onClose={() => setShowPaywall(false)}
-          creditsNeeded={CREDIT_COSTS.RELATIONSHIP_OVERVIEW}
-          creditsAvailable={credits.total}
-          onBuyCredits={() => { setShowPaywall(false); navigate('/pricingTable'); }}
-          onSubscribe={() => { setShowPaywall(false); navigate('/pricingTable'); }}
-        />
+          <InsufficientCreditsModal
+            isOpen={showPaywall}
+            onClose={() => setShowPaywall(false)}
+            creditsNeeded={CREDIT_COSTS.RELATIONSHIP_OVERVIEW}
+            creditsAvailable={credits.total}
+            onBuyCredits={() => { setShowPaywall(false); navigate('/pricingTable'); }}
+            onSubscribe={() => { setShowPaywall(false); navigate('/pricingTable'); }}
+          />
+        </div>
       )}
     </DashboardLayout>
   );

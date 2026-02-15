@@ -163,10 +163,8 @@ const useEntitlementsStore = create((set, get) => ({
     }
 
     // Check if has enough credits for this analysis
-    const costBirthChart = 75;
-    const costRelationship = 60;
     const normalizedType = (entityType || '').toUpperCase();
-    const cost = normalizedType === 'BIRTH_CHART' ? costBirthChart : costRelationship;
+    const cost = normalizedType === 'BIRTH_CHART' ? CREDIT_COSTS.FULL_NATAL : CREDIT_COSTS.FULL_RELATIONSHIP;
     if (state.credits.total < cost) {
       return { success: false, error: 'Not enough credits' };
     }
@@ -265,9 +263,7 @@ const useEntitlementsStore = create((set, get) => ({
     }
 
     // Check if user has enough credits to unlock
-    const costBirthChart = 75;
-    const costRelationship = 60;
-    const cost = entityType === 'birthChart' ? costBirthChart : costRelationship;
+    const cost = entityType === 'birthChart' ? CREDIT_COSTS.FULL_NATAL : CREDIT_COSTS.FULL_RELATIONSHIP;
     
     return state.credits.total >= cost;
   },

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { startRelationshipWorkflow, getRelationshipWorkflowStatus } from '../../../Utilities/api';
 import InsufficientCreditsModal from '../../entitlements/InsufficientCreditsModal';
 import useEntitlementsStore from '../../../Utilities/entitlementsStore';
+import { CREDIT_COSTS } from '../../../Utilities/creditCosts';
 import './RelationshipTabs.css';
 
 const CLUSTER_ICONS = {
@@ -114,7 +115,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
       proceedWithAnalysis();
       return;
     }
-    if (!hasEnoughCredits(60)) {
+    if (!hasEnoughCredits(CREDIT_COSTS.FULL_RELATIONSHIP)) {
       setShowInsufficientModal(true);
       return;
     }
@@ -212,13 +213,13 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
                   Starting Analysis...
                 </>
               ) : (
-                'Start 360° Analysis (60 credits)'
+                `Start 360° Analysis (${CREDIT_COSTS.FULL_RELATIONSHIP} credits)`
               )}
             </button>
           ) : (
             <div className="locked-content__confirm">
               <p className="locked-content__confirm-text">
-                This will use 60 credits. You'll have {credits.total - 60} remaining.
+                This will use {CREDIT_COSTS.FULL_RELATIONSHIP} credits. You'll have {credits.total - CREDIT_COSTS.FULL_RELATIONSHIP} remaining.
               </p>
               <div className="locked-content__confirm-actions">
                 <button
@@ -245,7 +246,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
         <InsufficientCreditsModal
           isOpen={showInsufficientModal}
           onClose={() => setShowInsufficientModal(false)}
-          creditsNeeded={60}
+          creditsNeeded={CREDIT_COSTS.FULL_RELATIONSHIP}
           creditsAvailable={credits.total}
           onBuyCredits={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
           onSubscribe={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}

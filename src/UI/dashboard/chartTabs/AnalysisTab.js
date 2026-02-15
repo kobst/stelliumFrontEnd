@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import InsufficientCreditsModal from '../../entitlements/InsufficientCreditsModal';
 import useEntitlementsStore from '../../../Utilities/entitlementsStore';
+import { CREDIT_COSTS } from '../../../Utilities/creditCosts';
 import './ChartTabs.css';
 
 // ============ MAPPING TABLES ============
@@ -453,7 +454,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
       onStartAnalysis();
       return;
     }
-    if (!hasEnoughCredits(75)) {
+    if (!hasEnoughCredits(CREDIT_COSTS.FULL_NATAL)) {
       setShowInsufficientModal(true);
       return;
     }
@@ -482,12 +483,12 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
 
           {!showConfirm ? (
             <button className="start-analysis-button" onClick={handleStartClick}>
-              Start 360° Analysis (75 credits)
+              Start 360° Analysis ({CREDIT_COSTS.FULL_NATAL} credits)
             </button>
           ) : (
             <div className="locked-content__confirm">
               <p className="locked-content__confirm-text">
-                This will use 75 credits. You'll have {credits.total - 75} remaining.
+                This will use {CREDIT_COSTS.FULL_NATAL} credits. You'll have {credits.total - CREDIT_COSTS.FULL_NATAL} remaining.
               </p>
               <div className="locked-content__confirm-actions">
                 <button
@@ -514,7 +515,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
         <InsufficientCreditsModal
           isOpen={showInsufficientModal}
           onClose={() => setShowInsufficientModal(false)}
-          creditsNeeded={75}
+          creditsNeeded={CREDIT_COSTS.FULL_NATAL}
           creditsAvailable={credits.total}
           onBuyCredits={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
           onSubscribe={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
