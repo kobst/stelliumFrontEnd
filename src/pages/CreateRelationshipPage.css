@@ -60,61 +60,39 @@
   font-size: 0.9rem;
 }
 
-.not-enough-guests {
-  max-width: 500px;
-  margin: 60px auto;
-  text-align: center;
-  padding: 40px;
-  background: rgba(139, 92, 246, 0.05);
-  border: 1px solid rgba(139, 92, 246, 0.15);
-  border-radius: 16px;
-}
-
-.not-enough-icon {
-  font-size: 3rem;
-  color: #ec4899;
-  margin-bottom: 16px;
-}
-
-.not-enough-guests h3 {
-  color: white;
-  margin: 0 0 12px 0;
-  font-size: 1.3rem;
-}
-
-.not-enough-guests p {
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0 0 8px 0;
-}
-
-.not-enough-hint {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.9rem;
-}
-
-.back-to-dashboard-button {
-  margin-top: 20px;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.back-to-dashboard-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-}
-
 .create-relationship-content {
   max-width: 800px;
   margin: 0 auto;
 }
 
+/* Centered "You" card */
+.your-chart-section {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.your-card {
+  display: inline-block;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+  color: white;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+}
+
+.your-card .person-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.your-card .person-sign {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Guest selection section */
 .selection-section {
   background: rgba(139, 92, 246, 0.05);
   border: 1px solid rgba(139, 92, 246, 0.15);
@@ -157,7 +135,7 @@
   position: relative;
 }
 
-.person-card:hover:not(.disabled) {
+.person-card:hover {
   background: rgba(139, 92, 246, 0.1);
   border-color: rgba(139, 92, 246, 0.3);
   transform: translateY(-2px);
@@ -166,21 +144,6 @@
 .person-card.selected {
   background: rgba(236, 72, 153, 0.15);
   border-color: #ec4899;
-}
-
-.person-card.owner-card {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(167, 139, 250, 0.15));
-  border-color: rgba(167, 139, 250, 0.5);
-  cursor: default;
-}
-
-.person-card.owner-card:hover {
-  transform: none;
-}
-
-.person-card.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
 }
 
 .person-name {
@@ -211,6 +174,7 @@
   color: white;
 }
 
+/* Connector */
 .selection-connector {
   display: flex;
   justify-content: center;
@@ -228,6 +192,171 @@
   50% { transform: scale(1.1); opacity: 0.8; }
 }
 
+/* Celebrity section (dark themed) */
+.celebrity-section {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.celebrity-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.celebrity-search {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.celebrity-search::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.celebrity-search:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-btn {
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  color: white;
+}
+
+.filter-btn.active {
+  background: #8b5cf6;
+  color: white;
+  border-color: #8b5cf6;
+}
+
+/* Celebrity grid */
+.celebrity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.grid-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Celebrity card (dark themed) */
+.celebrity-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.celebrity-card:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+.celebrity-card.selected {
+  background: rgba(236, 72, 153, 0.15);
+  border-color: #ec4899;
+  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2);
+}
+
+.celebrity-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.celebrity-photo.placeholder {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-placeholder-icon {
+  font-size: 1.5rem;
+  color: #a78bfa;
+}
+
+.celebrity-info {
+  flex: 1;
+}
+
+.celebrity-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: white;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.celebrity-sign {
+  font-size: 0.75rem;
+  color: #a78bfa;
+  font-weight: 500;
+}
+
+.celebrity-profession {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 4px;
+}
+
+/* Create button */
 .create-button-container {
   margin-top: 24px;
   text-align: center;
@@ -293,10 +422,47 @@
   animation: spin 0.8s linear infinite;
 }
 
+.loading-spinner.small {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .person-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .celebrity-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .celebrity-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .celebrity-search {
+    width: 100%;
+  }
+
+  .filter-buttons {
+    justify-content: center;
+  }
+
+  .celebrity-card {
+    padding: 8px;
+  }
+
+  .celebrity-photo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .celebrity-name {
+    font-size: 0.8rem;
   }
 
   .create-relationship-header h1 {

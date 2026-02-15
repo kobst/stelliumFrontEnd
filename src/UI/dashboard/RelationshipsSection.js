@@ -37,18 +37,11 @@ function RelationshipsSection({ userId }) {
     navigate(`/dashboard/${userId}/relationship/create`);
   };
 
-  const handleCelebrityAnalysis = () => {
-    navigate(`/dashboard/${userId}/celebrity-analysis`);
-  };
-
   return (
     <div className="relationships-section">
       <div className="relationships-section__header">
         <h3 className="relationships-section__title">My Relationships</h3>
         <div className="relationships-section__actions">
-          <button className="relationships-section__celebrity-btn" onClick={handleCelebrityAnalysis}>
-            ★ Celebrity Compatibility
-          </button>
           <button className="relationships-section__add-btn" onClick={handleAddRelationship}>
             Add Relationship
           </button>
