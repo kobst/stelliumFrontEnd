@@ -1,18 +1,24 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserSubjects, createGuestSubject } from '../../Utilities/api';
+import useEntitlementsStore from '../../Utilities/entitlementsStore';
+import { CREDIT_COSTS } from '../../Utilities/creditCosts';
 import ChartsList from './birthCharts/ChartsList';
 import AddChartModal from './AddChartModal';
+import InsufficientCreditsModal from '../entitlements/InsufficientCreditsModal';
 import './BirthChartsSection.css';
 
 function BirthChartsSection({ userId, user }) {
   const navigate = useNavigate();
+  const credits = useEntitlementsStore((state) => state.credits);
+
   const [guestCharts, setGuestCharts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [creatingChart, setCreatingChart] = useState(null);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const loadGuestCharts = useCallback(async () => {
     try {
@@ -44,6 +50,12 @@ function BirthChartsSection({ userId, user }) {
   };
 
   const handleChartSubmit = async (guestData) => {
+    const cost = CREDIT_COSTS.GUEST_CHART;
+    if (credits.total < cost) {
+      setShowPaywall(true);
+      return;
+    }
+
     setCreatingChart({ firstName: guestData.firstName, lastName: guestData.lastName });
 
     try {
@@ -58,8 +70,12 @@ function BirthChartsSection({ userId, user }) {
       }
     } catch (err) {
       console.error('Error creating guest chart:', err);
-      setError(`Failed to create chart for ${guestData.firstName}. Please try again.`);
-      setTimeout(() => setError(null), 5000);
+      if (err?.statusCode === 402) {
+        setShowPaywall(true);
+      } else {
+        setError(`Failed to create chart for ${guestData.firstName}. Please try again.`);
+        setTimeout(() => setError(null), 5000);
+      }
     } finally {
       setCreatingChart(null);
     }
@@ -95,6 +111,15 @@ function BirthChartsSection({ userId, user }) {
         onClose={() => setIsModalOpen(false)}
         userId={userId}
         onSubmit={handleChartSubmit}
+      />
+
+      <InsufficientCreditsModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        creditsNeeded={CREDIT_COSTS.GUEST_CHART}
+        creditsAvailable={credits.total}
+        onBuyCredits={() => { setShowPaywall(false); navigate('/pricingTable'); }}
+        onSubscribe={() => { setShowPaywall(false); navigate('/pricingTable'); }}
       />
     </div>
   );

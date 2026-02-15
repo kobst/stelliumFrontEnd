@@ -5,6 +5,7 @@ import {
   useAnalysis as apiUseAnalysis,
   useQuestion as apiUseQuestion,
 } from './entitlementsApi';
+import { CREDIT_COSTS } from './creditCosts';
 
 // Default/initial state
 const initialState = {
@@ -302,11 +303,11 @@ const useEntitlementsStore = create((set, get) => ({
   },
 
   /**
-   * Check if user can create a relationship (deprecated - no longer gated by quota)
-   * In credit system, creating relationships is free (just chart generation)
+   * Check if user can create a relationship
    */
   canCreateRelationship: () => {
-    return true; // Relationships are always allowed, analyses cost credits
+    const state = get();
+    return state.credits.total >= CREDIT_COSTS.RELATIONSHIP_OVERVIEW;
   },
 
   /**

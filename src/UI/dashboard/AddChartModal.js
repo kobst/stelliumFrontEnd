@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Autocomplete from 'react-google-autocomplete';
-import { fetchTimeZone, createGuestSubject } from '../../Utilities/api';
+import { fetchTimeZone } from '../../Utilities/api';
+import { CREDIT_COSTS } from '../../Utilities/creditCosts';
 import './AddChartModal.css';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY;
@@ -140,7 +141,10 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
     <div className="modal-backdrop" onClick={handleBackdropClick}>
       <div className="modal-content">
         <div className="modal-header">
-          <h2>Add Birth Chart</h2>
+          <div className="modal-header__text">
+            <h2>Add Birth Chart</h2>
+            <p className="modal-subtitle">Costs {CREDIT_COSTS.GUEST_CHART} credit</p>
+          </div>
           <button
             className="modal-close-btn"
             onClick={onClose}

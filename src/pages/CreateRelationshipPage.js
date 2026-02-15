@@ -3,7 +3,9 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getUserSubjects, createRelationshipDirect } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
+import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import DashboardLayout from '../UI/layout/DashboardLayout';
+import InsufficientCreditsModal from '../UI/entitlements/InsufficientCreditsModal';
 import './CreateRelationshipPage.css';
 
 function CreateRelationshipPage() {
@@ -13,13 +15,14 @@ function CreateRelationshipPage() {
 
   // Entitlements store
   const canCreateRelationship = useEntitlementsStore((state) => state.canCreateRelationship);
-  const isPlusUser = useEntitlementsStore((state) => state.isPlusUser);
+  const credits = useEntitlementsStore((state) => state.credits);
 
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [creating, setCreating] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   // Person A is always the owner (stelliumUser)
   // Person B is selected from guests
@@ -57,7 +60,11 @@ function CreateRelationshipPage() {
   const handleCreateRelationship = async () => {
     if (!stelliumUser || !selectedPartner) return;
 
-    // Creating relationships is free in the credit system; proceed
+    const cost = CREDIT_COSTS.RELATIONSHIP_OVERVIEW;
+    if (credits.total < cost) {
+      setShowPaywall(true);
+      return;
+    }
 
     try {
       setCreating(true);
@@ -77,9 +84,13 @@ function CreateRelationshipPage() {
       }
     } catch (err) {
       console.error('Error creating relationship:', err);
-      
-      setError(err.message || 'Failed to create relationship');
-      
+
+      if (err?.statusCode === 402) {
+        setShowPaywall(true);
+      } else {
+        setError(err.message || 'Failed to create relationship');
+      }
+
       setCreating(false);
     }
   };
@@ -189,8 +200,6 @@ function CreateRelationshipPage() {
                 </div>
               </div>
 
-              {/* Relationships are free to create; no quota indicator needed */}
-
               {/* Create Button */}
               <div className="create-button-container">
                 <button
@@ -207,6 +216,7 @@ function CreateRelationshipPage() {
                     'Create Relationship'
                   )}
                 </button>
+                <p className="create-credit-note">Costs {CREDIT_COSTS.RELATIONSHIP_OVERVIEW} credits</p>
                 {selectedPartner && (
                   <p className="create-preview">
                     {getPersonName(stelliumUser)} ♡ {getPersonName(selectedPartner)}
@@ -216,6 +226,15 @@ function CreateRelationshipPage() {
             </div>
           )}
         </div>
+
+        <InsufficientCreditsModal
+          isOpen={showPaywall}
+          onClose={() => setShowPaywall(false)}
+          creditsNeeded={CREDIT_COSTS.RELATIONSHIP_OVERVIEW}
+          creditsAvailable={credits.total}
+          onBuyCredits={() => { setShowPaywall(false); navigate('/pricingTable'); }}
+          onSubscribe={() => { setShowPaywall(false); navigate('/pricingTable'); }}
+        />
       )}
     </DashboardLayout>
   );

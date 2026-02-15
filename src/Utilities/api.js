@@ -1784,7 +1784,15 @@ export const createGuestSubject = async (guestData) => {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => null);
+      if (response.status === 402 && errorData) {
+        const error = new Error(errorData.message || errorData.error || 'Payment required');
+        error.code = errorData.error;
+        error.details = errorData;
+        error.statusCode = 402;
+        throw error;
+      }
+      throw new Error(errorData?.error || `HTTP error! status: ${response.status}`);
     }
 
     const responseData = await response.json();
