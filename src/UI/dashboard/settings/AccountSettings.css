@@ -16,7 +16,7 @@
   margin-bottom: 16px;
 }
 
-.account-settings__section--signout {
+.account-settings__section:last-child {
   margin-bottom: 0;
 }
 
@@ -98,10 +98,10 @@
 
 .account-settings__signout-btn {
   padding: 10px 20px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: transparent;
+  border: 1px solid rgba(139, 92, 246, 0.5);
   border-radius: 8px;
-  color: #f87171;
+  color: #a78bfa;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -109,11 +109,17 @@
 }
 
 .account-settings__signout-btn:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
+  background: rgba(139, 92, 246, 0.1);
+  border-color: #8b5cf6;
 }
 
 .account-settings__signout-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.account-settings__email-note {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+  margin-top: 8px;
 }

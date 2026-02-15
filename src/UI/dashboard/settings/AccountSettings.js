@@ -57,7 +57,6 @@ function AccountSettings({ userId, user }) {
     <div className="account-settings">
       <div className="settings-section-header">
         <h3 className="settings-section-title">Account</h3>
-        <div className="settings-gradient-icon" />
       </div>
 
       <p className="account-settings__description">
@@ -70,6 +69,7 @@ function AccountSettings({ userId, user }) {
           <div className="account-settings__email">
             {email || 'No email found'}
           </div>
+          <p className="account-settings__email-note">To change your email, contact support</p>
         </div>
       </div>
 
@@ -100,7 +100,7 @@ function AccountSettings({ userId, user }) {
         </button>
       </div>
 
-      <div className="account-settings__section account-settings__section--signout">
+      <div className="account-settings__section">
         <h4 className="account-settings__section-title">Sign Out</h4>
         <p className="account-settings__section-description">
           Sign out of your account on this device.

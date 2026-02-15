@@ -77,12 +77,13 @@
 }
 
 .subscription-settings__manage-btn {
-  padding: 12px 24px;
+  width: 100%;
+  padding: 14px 28px;
   background: transparent;
   border: 1px solid rgba(139, 92, 246, 0.5);
-  border-radius: 8px;
+  border-radius: 10px;
   color: #a78bfa;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;

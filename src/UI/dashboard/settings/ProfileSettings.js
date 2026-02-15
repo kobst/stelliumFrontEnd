@@ -4,7 +4,7 @@ import { useAuth } from '../../../context/AuthContext';
 import './ProfileSettings.css';
 
 function ProfileSettings({ userId, user }) {
-  const { refreshStelliumUser } = useAuth();
+  const { firebaseUser, refreshStelliumUser } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -51,7 +51,6 @@ function ProfileSettings({ userId, user }) {
     <div className="profile-settings">
       <div className="settings-section-header">
         <h3 className="settings-section-title">Profile</h3>
-        <div className="settings-gradient-icon" />
       </div>
 
       <p className="profile-settings__description">
@@ -59,6 +58,13 @@ function ProfileSettings({ userId, user }) {
       </p>
 
       <form onSubmit={handleSubmit} className="profile-settings__form">
+        <div className="profile-settings__field">
+          <label className="profile-settings__label">Email</label>
+          <div className="profile-settings__email-display">
+            {firebaseUser?.email || 'No email found'}
+          </div>
+        </div>
+
         <div className="profile-settings__field">
           <label htmlFor="firstName" className="profile-settings__label">
             First Name
@@ -106,6 +112,10 @@ function ProfileSettings({ userId, user }) {
         >
           {loading ? 'Saving...' : 'Save Changes'}
         </button>
+
+        {!hasChanges && !loading && !success && (
+          <p className="profile-settings__hint">Make a change above to save</p>
+        )}
       </form>
     </div>
   );

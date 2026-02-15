@@ -57,6 +57,12 @@
   border-color: #ef4444;
 }
 
+.privacy-settings__reassurance {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+  margin-top: 12px;
+}
+
 /* Modal styles */
 .privacy-settings__modal-overlay {
   position: fixed;

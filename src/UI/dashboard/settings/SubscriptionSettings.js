@@ -21,7 +21,6 @@ function SubscriptionSettings({ userId, user, entitlements }) {
     <div className="subscription-settings">
       <div className="settings-section-header">
         <h3 className="settings-section-title">Subscription</h3>
-        <div className="settings-gradient-icon" />
       </div>
 
       <p className="subscription-settings__description">

@@ -50,7 +50,6 @@ function PrivacySettings({ userId, user }) {
     <div className="privacy-settings">
       <div className="settings-section-header">
         <h3 className="settings-section-title">Privacy & Data</h3>
-        <div className="settings-gradient-icon" />
       </div>
 
       <p className="privacy-settings__description">
@@ -79,6 +78,9 @@ function PrivacySettings({ userId, user }) {
         >
           Delete Account
         </button>
+        <p className="privacy-settings__reassurance">
+          You'll be asked to confirm before anything is deleted
+        </p>
       </div>
 
       {showConfirmModal && (

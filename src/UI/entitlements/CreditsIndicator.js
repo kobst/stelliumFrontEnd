@@ -59,8 +59,13 @@ function CreditsIndicator({
             />
           </div>
           <span className="credits-indicator__progress-label">
-            {monthly} / {monthlyLimit} monthly credits
+            Monthly: {monthly} of {monthlyLimit} remaining
           </span>
+          {pack > 0 && (
+            <span className="credits-indicator__pack-note">
+              + {pack} pack credits (never expire)
+            </span>
+          )}
         </div>
       )}
 
@@ -97,6 +102,8 @@ function CreditsIndicator({
       )}
 
       {!compact && (
+        <>
+        <h5 className="credits-indicator__costs-heading">Credit Costs</h5>
         <div className="credits-indicator__usage-hints">
           <div className="credits-indicator__hint">
             <span className="credits-indicator__hint-label">Birth Chart:</span>
@@ -111,6 +118,7 @@ function CreditsIndicator({
             <span className="credits-indicator__hint-value">1 credit</span>
           </div>
         </div>
+        </>
       )}
 
       {onBuyMore && (
