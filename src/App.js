@@ -22,6 +22,7 @@ import MainDashboard from './pages/MainDashboard';
 import ChartDetailPage from './pages/ChartDetailPage';
 import RelationshipAnalysisPage from './pages/RelationshipAnalysisPage';
 import CreateRelationshipPage from './pages/CreateRelationshipPage';
+import CelebrityRelationshipPage from './pages/CelebrityRelationshipPage';
 import UserSelectionPage from './pages/UserSelectionPage';
 import SynastryPage_v2 from './pages/synastryPage_v2';
 import CompositeDashboard_v4 from './pages/compositeDashboard_v4';
@@ -112,6 +113,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CreateRelationshipPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/:userId/celebrity-analysis"
+              element={
+                <ProtectedRoute>
+                  <CelebrityRelationshipPage />
                 </ProtectedRoute>
               }
             />
