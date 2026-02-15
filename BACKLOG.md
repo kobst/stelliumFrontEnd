@@ -38,6 +38,21 @@
 
 ## Features
 
+- [ ] **Detailed Relationship Score Breakdown**
+  - **Scores Tab Improvements:**
+    - List key factors in full detail for each score
+    - Format: "Ed's Sun in Scorpio trine Becky's Moon in Pisces (+15 points)"
+    - Show aspect type (trine, square, conjunction, etc.) with orb
+    - Visual indicator: Green for harmonious, red for challenging
+    - Expandable sections per score category (Emotional, Intellectual, etc.)
+  - **360 Analysis Category Details:**
+    - Add "View All Aspects" section for each category
+    - List ALL supportive aspects (not just top 3-5)
+    - List ALL challenging aspects (not just top 3-5)
+    - Format: "Person A's Planet in Sign [aspect] Person B's Planet in Sign (±X points)"
+    - Sortable by strength/points
+    - Collapsible sections to avoid overwhelming UI
+    - Summary stats: X supportive aspects, Y challenging aspects, net impact
 - [ ] **Interactive Chart Hover** - Hover over planet in ephemeris to:
   - Highlight only aspect lines connected to that planet
   - Show tooltip with planet info (sign, house, degree)
