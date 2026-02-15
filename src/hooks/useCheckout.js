@@ -21,7 +21,7 @@ export function useCheckout(user, onSuccess) {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const entitlementsStore = useEntitlementsStore();
+  const refreshAfterPurchase = useEntitlementsStore((state) => state.refreshAfterPurchase);
 
   // Handle post-checkout URL parameters
   useEffect(() => {
@@ -47,7 +47,7 @@ export function useCheckout(user, onSuccess) {
 
       // Refresh entitlements after Stripe webhook processing
       if (user?._id) {
-        entitlementsStore.refreshAfterPurchase(user._id, 2000);
+        refreshAfterPurchase(user._id, 2000);
       }
 
       // Clean up URL parameters
@@ -71,7 +71,7 @@ export function useCheckout(user, onSuccess) {
         setShowSuccessToast(false);
       }, 5000);
     }
-  }, [location.search, user?._id, navigate, location.pathname, onSuccess, entitlementsStore]);
+  }, [location.search, user?._id, navigate, location.pathname, onSuccess, refreshAfterPurchase]);
 
   /**
    * Build success/cancel URLs for checkout
