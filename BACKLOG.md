@@ -22,6 +22,18 @@
 - [ ] **Low credit warning banner** - Show when < 20 credits
 - [ ] **Credit breakdown in dropdown** - Monthly vs purchased, reset date
 - [ ] **Pre-action confirmation** - For expensive actions (>50 credits)
+- [ ] **Insufficient Credits Handling**
+  - Frontend: Check user credit balance before allowing action
+  - Block action button when credits < required amount
+  - Show modal when user tries action with insufficient credits:
+    - "You need X more credits for this action"
+    - Current balance display
+    - Credit cost breakdown
+    - "Purchase Credits" button → redirect to credit store
+    - Option to dismiss and return
+  - Visual state: Disabled/grayed out buttons with tooltip explaining credit requirement
+  - Backend validation: Return 402 Payment Required if credits insufficient (don't trust frontend)
+  - Handle edge case: Credits depleted during long-running operation (refund partial work?)
 - [ ] **Make Ask Stellium logo/button more obvious** - Users not finding it
 
 ## Features
