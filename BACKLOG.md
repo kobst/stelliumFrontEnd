@@ -27,6 +27,15 @@
 
 ## Features
 
+- [ ] **Interactive Chart Hover** - Hover over planet in ephemeris to:
+  - Highlight only aspect lines connected to that planet
+  - Show tooltip with planet info (sign, house, degree)
+  - Display list of aspects (e.g., "♂ Mars square ♀ Venus 3°")
+  - Works for all chart types:
+    - Birth charts (hover planet → show aspects to other planets in same chart)
+    - Synastry charts (hover Person A planet → show aspects to Person B planets)
+    - Transit charts (hover transit planet → show aspects to natal planets)
+  - Optional: Click to "pin" the highlight (sticky mode)
 - [ ] Credit gifting between users
 - [ ] Subscription tiers (monthly credit bundles)
 - [ ] Usage analytics dashboard
