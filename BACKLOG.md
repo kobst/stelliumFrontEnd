@@ -86,6 +86,18 @@
   - Added "★ Celebrity Compatibility" button to RelationshipsSection
   - Standard credit cost (5 credits) - same as regular relationship
   - Future enhancements: Save favorites, share results
+- [ ] **Celebrity Suggestion Form**
+  - Simple form for users to suggest celebrities to add to database
+  - Fields:
+    - User email (pre-filled from auth)
+    - User name (pre-filled from profile)
+    - Celebrity name (required)
+    - Optional: Celebrity birth details if known (date/time/location)
+  - Submit button sends to backend endpoint
+  - Success message: "Thanks! We'll review your suggestion."
+  - Error handling for failed submissions
+  - Rate limiting: Max 5 suggestions per user per day
+  - Link accessible from celebrity browse page ("Don't see who you're looking for? Suggest a celebrity")
 - [ ] Credit gifting between users
 - [ ] Subscription tiers (monthly credit bundles)
 - [ ] Usage analytics dashboard
