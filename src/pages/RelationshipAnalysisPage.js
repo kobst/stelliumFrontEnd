@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { getUserCompositeCharts, fetchRelationshipAnalysis } from '../Utilities/api';
+import { getUserCompositeCharts, fetchRelationshipAnalysis, fetchUser } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import { useCheckout } from '../hooks/useCheckout';
@@ -36,27 +36,43 @@ function RelationshipAnalysisPage() {
       const composites = await getUserCompositeCharts(userId);
       const found = composites?.find(c => c._id === compositeId);
       if (found) {
-        // Try to fetch full analysis data
+        // Fetch analysis data and individual birth charts in parallel
+        let analysisData = null;
+        let userABirthChart = null;
+        let userBBirthChart = null;
+
         try {
-          const analysisData = await fetchRelationshipAnalysis(compositeId);
+          const promises = [fetchRelationshipAnalysis(compositeId)];
+
+          // Fetch individual birth charts if we have user IDs
+          if (found.userA_id && found.userB_id) {
+            promises.push(
+              fetchUser(found.userA_id).then(u => u?.birthChart).catch(() => null),
+              fetchUser(found.userB_id).then(u => u?.birthChart).catch(() => null)
+            );
+          }
+
+          const [analysis, chartA, chartB] = await Promise.all(promises);
+          analysisData = analysis;
+          userABirthChart = chartA || null;
+          userBBirthChart = chartB || null;
+
           console.log('Fetched analysis data:', {
             hasCompleteAnalysis: !!analysisData?.completeAnalysis,
             completeAnalysisKeys: analysisData?.completeAnalysis ? Object.keys(analysisData.completeAnalysis) : [],
             hasClusterScoring: !!analysisData?.clusterScoring
           });
-          if (analysisData) {
-            // Merge analysis data with relationship
-            setRelationship({
-              ...found,
-              ...analysisData
-            });
-          } else {
-            setRelationship(found);
-          }
         } catch (analysisErr) {
           console.warn('Could not fetch analysis data:', analysisErr);
-          setRelationship(found);
         }
+
+        const merged = {
+          ...found,
+          ...(analysisData || {}),
+          ...(userABirthChart && { userA_birthChart: userABirthChart }),
+          ...(userBBirthChart && { userB_birthChart: userBBirthChart })
+        };
+        setRelationship(merged);
       } else {
         setError('Relationship not found');
       }

@@ -300,35 +300,121 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         });
     }, []); // Empty dependency array since using constant CANVAS_DIMENSIONS
 
-    const drawTransits = useCallback((ctx, transits, rotationRadians, houseRotationRadians) => {
-        transits.forEach(planet => {
+    const drawTransits = useCallback(async (ctx, transits, rotationRadians, houseRotationRadians) => {
+        const ICON_WIDTH = 36;
+        const ICON_HEIGHT = 36;
+        const ICON_DRAW_OFFSET = ICON_WIDTH / 2;
+        const BASE_TRANSIT_RADIUS = CANVAS_DIMENSIONS.outerRadius + 85;
+        const MAX_ADJUSTMENT_ATTEMPTS = 10;
+        const RADIAL_PUSH_INCREMENT = 14;
+
+        const sortedTransits = [...transits].sort((a, b) => a.full_degree - b.full_degree);
+        const transitDrawInfos = [];
+        const occupiedPositions = [];
+
+        // Phase 1: Calculate non-overlapping positions
+        for (const planet of sortedTransits) {
             const planetIndex = planetNameToIndex[planet.name];
-            if (planetIndex !== undefined) {
-                const planetDegree = planet.full_degree;
-                const planetRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
-                const planetX = CANVAS_DIMENSIONS.centerX + (CANVAS_DIMENSIONS.outerRadius + 50) * Math.cos(planetRadians) - 25;
-                const planetY = CANVAS_DIMENSIONS.centerY + (CANVAS_DIMENSIONS.outerRadius + 50) * Math.sin(planetRadians) - 25;
+            if (planetIndex === undefined) continue;
 
-                // console.log(`Drawing transit for ${planet.name} at (${planetX}, ${planetY})`);
+            const planetDegree = planet.full_degree;
+            const truePlanetRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
 
-                const planetImage = new Image();
-                planetImage.src = planetIcons[planetIndex];
-                planetImage.onload = () => {
-                    ctx.drawImage(planetImage, planetX, planetY, 50, 50);
-                };
-                planetImage.onerror = (error) => {
-                    console.error(`Error loading image for ${planet.name}:`, error);
-                };
+            let currentRadius = BASE_TRANSIT_RADIUS;
+            let iconX, iconY;
+            let collisionDetected = true;
+            let attempts = 0;
 
-                const planetHashRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + houseRotationRadians;
-                ctx.beginPath();
-                ctx.moveTo(CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.outerRadius * Math.cos(planetHashRadians), CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.outerRadius * Math.sin(planetHashRadians));
-                ctx.lineTo(CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.houseCircleRadius * Math.cos(planetHashRadians), CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.houseCircleRadius * Math.sin(planetHashRadians));
-                ctx.strokeStyle = 'blue';
-                ctx.stroke();
+            while (collisionDetected && attempts < MAX_ADJUSTMENT_ATTEMPTS) {
+                const anchorX = CANVAS_DIMENSIONS.centerX + currentRadius * Math.cos(truePlanetRadians);
+                const anchorY = CANVAS_DIMENSIONS.centerY + currentRadius * Math.sin(truePlanetRadians);
+                iconX = anchorX - ICON_DRAW_OFFSET;
+                iconY = anchorY - ICON_DRAW_OFFSET;
+
+                collisionDetected = false;
+                for (const pos of occupiedPositions) {
+                    if (
+                        iconX < pos.x + pos.width &&
+                        iconX + ICON_WIDTH > pos.x &&
+                        iconY < pos.y + pos.height &&
+                        iconY + ICON_HEIGHT > pos.y
+                    ) {
+                        collisionDetected = true;
+                        break;
+                    }
+                }
+
+                if (collisionDetected) {
+                    currentRadius += RADIAL_PUSH_INCREMENT;
+                    attempts++;
+                }
             }
-        });
-    }, []); // Empty dependency array since using constant CANVAS_DIMENSIONS
+
+            occupiedPositions.push({ x: iconX, y: iconY, width: ICON_WIDTH, height: ICON_HEIGHT });
+
+            transitDrawInfos.push({
+                planetName: planet.name,
+                iconUrl: planetIcons[planetIndex],
+                drawX: iconX,
+                drawY: iconY,
+                truePlanetRadians,
+                wasMoved: currentRadius !== BASE_TRANSIT_RADIUS
+            });
+        }
+
+        // Phase 2: Draw transit icons with hash marks and indicator lines
+        for (const info of transitDrawInfos) {
+            const { planetName, iconUrl, drawX, drawY, truePlanetRadians, wasMoved } = info;
+            const planetColor = '#A9A9A9'; // Uniform muted grey for transit/partner planets
+
+            // Hash mark on the outer ring
+            const hashRadians = ((270 - transits.find(p => p.name === planetName).full_degree) % 360) * Math.PI / 180 + houseRotationRadians;
+            ctx.beginPath();
+            ctx.moveTo(
+                CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.outerRadius * Math.cos(hashRadians),
+                CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.outerRadius * Math.sin(hashRadians)
+            );
+            ctx.lineTo(
+                CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.houseCircleRadius * Math.cos(hashRadians),
+                CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.houseCircleRadius * Math.sin(hashRadians)
+            );
+            ctx.strokeStyle = hexToRgba(planetColor, 0.6);
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Draw the planet icon
+            try {
+                const coloredIconUrl = await loadAndModifySVG(iconUrl, planetColor, instanceId + '-transit');
+                const planetImage = new Image();
+                planetImage.src = coloredIconUrl;
+                planetImage.onload = () => {
+                    ctx.drawImage(planetImage, drawX, drawY, ICON_WIDTH, ICON_HEIGHT);
+
+                    // Indicator line if pushed outward
+                    if (wasMoved) {
+                        ctx.beginPath();
+                        ctx.moveTo(drawX + ICON_WIDTH / 2, drawY + ICON_HEIGHT / 2);
+                        ctx.lineTo(
+                            CANVAS_DIMENSIONS.centerX + CANVAS_DIMENSIONS.houseCircleRadius * Math.cos(truePlanetRadians),
+                            CANVAS_DIMENSIONS.centerY + CANVAS_DIMENSIONS.houseCircleRadius * Math.sin(truePlanetRadians)
+                        );
+                        ctx.strokeStyle = hexToRgba(planetColor, 0.35);
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                        ctx.lineWidth = 1;
+                    }
+                };
+                planetImage.onerror = () => {
+                    ctx.fillStyle = planetColor;
+                    ctx.beginPath();
+                    ctx.arc(drawX + ICON_WIDTH / 2, drawY + ICON_HEIGHT / 2, ICON_WIDTH / 2, 0, 2 * Math.PI);
+                    ctx.fill();
+                };
+            } catch (error) {
+                console.error(`Error processing transit SVG for ${planetName}:`, error);
+            }
+        }
+    }, [instanceId]); // Depends on instanceId for SVG cache keys
 
 
     const drawZodiacWheel = useCallback(async (ctx, planets, houses, aspects, transits) => {

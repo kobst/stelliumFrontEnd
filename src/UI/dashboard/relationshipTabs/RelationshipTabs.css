@@ -927,6 +927,59 @@
   margin: 0;
 }
 
+/* Synastry Biwheel Charts */
+.synastry-biwheels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.synastry-biwheel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.synastry-biwheel__label {
+  color: #d4a574;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+.synastry-biwheel__canvas {
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+}
+
+.synastry-biwheel__canvas canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
+@media (max-width: 900px) {
+  .synastry-biwheels {
+    grid-template-columns: 1fr;
+  }
+
+  .synastry-biwheel__canvas {
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 600px) {
+  .synastry-biwheel__canvas {
+    max-width: 100%;
+  }
+
+  .synastry-biwheel__label {
+    font-size: 0.85rem;
+  }
+}
+
 /* Synastry Tab Content */
 .synastry-tab-content,
 .composite-tab-content {

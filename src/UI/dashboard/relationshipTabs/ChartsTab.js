@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import Ephemeris from '../../shared/Ephemeris';
 import BirthChartSummaryTable from '../../birthChart/tables/BirthChartSummaryTable';
 import './RelationshipTabs.css';
 
@@ -111,6 +112,80 @@ function ChartsTab({ relationship }) {
   const compositeChart = relationship?.compositeChart || {};
   const userAName = relationship?.userA_name || 'Person A';
   const userBName = relationship?.userB_name || 'Person B';
+  const birthChartA = relationship?.userA_birthChart;
+  const birthChartB = relationship?.userB_birthChart;
+
+  const hasBothCharts = birthChartA?.planets?.length > 0 && birthChartB?.planets?.length > 0;
+
+  // Stable keys for Ephemeris memoization
+  const chartAKey = useMemo(() => {
+    if (!birthChartA?.planets) return 'a';
+    return JSON.stringify({
+      p: birthChartA.planets.map(p => p.name + p.full_degree),
+      h: birthChartA.houses?.map(h => h.house + h.degree)
+    });
+  }, [birthChartA]);
+
+  const chartBKey = useMemo(() => {
+    if (!birthChartB?.planets) return 'b';
+    return JSON.stringify({
+      p: birthChartB.planets.map(p => p.name + p.full_degree),
+      h: birthChartB.houses?.map(h => h.house + h.degree)
+    });
+  }, [birthChartB]);
+
+  // Build synastry aspects with degree data for Ephemeris rendering.
+  // Person A's planet is "aspected" (inner ring), Person B's planet is "aspecting" (transit ring),
+  // and vice versa for chart B.
+  const synastryAspectsForChartA = useMemo(() => {
+    if (!hasBothCharts || !synastryAspects.length) return [];
+    const degreeMapA = {};
+    birthChartA.planets.forEach(p => { degreeMapA[p.name] = p.full_degree; });
+    const degreeMapB = {};
+    birthChartB.planets.forEach(p => { degreeMapB[p.name] = p.full_degree; });
+
+    return synastryAspects
+      .map(a => {
+        const planetA = a.transitingPlanet || a.aspectedPlanet || a.planet1;
+        const planetB = a.aspectingPlanet || a.planet2;
+        const degA = degreeMapA[planetA];
+        const degB = degreeMapB[planetB];
+        if (degA == null || degB == null) return null;
+        return {
+          aspectedPlanet: planetA,
+          aspectingPlanet: planetB,
+          aspectedPlanetDegree: degA,
+          aspectingPlanetDegree: degB,
+          aspectType: a.aspectType
+        };
+      })
+      .filter(Boolean);
+  }, [hasBothCharts, synastryAspects, birthChartA, birthChartB]);
+
+  const synastryAspectsForChartB = useMemo(() => {
+    if (!hasBothCharts || !synastryAspects.length) return [];
+    const degreeMapA = {};
+    birthChartA.planets.forEach(p => { degreeMapA[p.name] = p.full_degree; });
+    const degreeMapB = {};
+    birthChartB.planets.forEach(p => { degreeMapB[p.name] = p.full_degree; });
+
+    return synastryAspects
+      .map(a => {
+        const planetA = a.transitingPlanet || a.aspectedPlanet || a.planet1;
+        const planetB = a.aspectingPlanet || a.planet2;
+        const degA = degreeMapA[planetA];
+        const degB = degreeMapB[planetB];
+        if (degA == null || degB == null) return null;
+        return {
+          aspectedPlanet: planetB,
+          aspectingPlanet: planetA,
+          aspectedPlanetDegree: degB,
+          aspectingPlanetDegree: degA,
+          aspectType: a.aspectType
+        };
+      })
+      .filter(Boolean);
+  }, [hasBothCharts, synastryAspects, birthChartA, birthChartB]);
 
   const hasCompositeData = compositeChart?.planets && compositeChart.planets.length > 0;
 
@@ -155,6 +230,43 @@ function ChartsTab({ relationship }) {
         <div className="charts-content-redesign">
         {activeSubTab === 'synastry' ? (
           <div className="synastry-tab-content">
+            {hasBothCharts && (
+              <>
+                <div className="charts-section-header">
+                  <h3>Synastry Charts</h3>
+                  <p>Each wheel shows one person's birth chart with the other's planets overlaid on the outer ring.</p>
+                </div>
+                <div className="synastry-biwheels">
+                  <div className="synastry-biwheel">
+                    <h4 className="synastry-biwheel__label">{userAName}'s Chart</h4>
+                    <div className="synastry-biwheel__canvas">
+                      <Ephemeris
+                        key={chartAKey}
+                        planets={birthChartA.planets}
+                        houses={birthChartA.houses || []}
+                        aspects={synastryAspectsForChartA}
+                        transits={birthChartB.planets}
+                        instanceId="synastry-a"
+                      />
+                    </div>
+                  </div>
+                  <div className="synastry-biwheel">
+                    <h4 className="synastry-biwheel__label">{userBName}'s Chart</h4>
+                    <div className="synastry-biwheel__canvas">
+                      <Ephemeris
+                        key={chartBKey}
+                        planets={birthChartB.planets}
+                        houses={birthChartB.houses || []}
+                        aspects={synastryAspectsForChartB}
+                        transits={birthChartA.planets}
+                        instanceId="synastry-b"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className="charts-section-header">
               <h3>Synastry Aspects</h3>
               <p>The Synastry Chart Shows How {userAName}'s Planets Interact With {userBName}'s Planets Through Aspects.</p>
