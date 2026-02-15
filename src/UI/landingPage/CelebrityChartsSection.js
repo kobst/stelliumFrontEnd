@@ -15,8 +15,9 @@ function CelebrityChartsSection() {
       try {
         setLoading(true);
         const fetchedCelebrities = await fetchCelebrities();
-        // Take first 4 celebrities
-        setCelebrities(fetchedCelebrities.slice(0, 4));
+        // Shuffle and take random 4 celebrities
+        const shuffled = [...fetchedCelebrities].sort(() => Math.random() - 0.5);
+        setCelebrities(shuffled.slice(0, 4));
       } catch (err) {
         console.error('Error fetching celebrities:', err);
         setError('Unable to load celebrity charts');

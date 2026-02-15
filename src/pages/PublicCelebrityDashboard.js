@@ -16,6 +16,7 @@ function PublicCelebrityDashboard() {
   const [analysisData, setAnalysisData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeSection, setActiveSection] = useState('overview');
 
   useEffect(() => {
     const loadCelebrityData = async () => {
@@ -84,8 +85,7 @@ function PublicCelebrityDashboard() {
   const quadrants = analysisData?.quadrants || birthChart.quadrants;
   const planetaryDominance = analysisData?.planetaryDominance || birthChart.planetaryDominance;
 
-  const hasFullAnalysis = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
-
+  // Celebrities always have full analysis
   // Build sections array — all content is accessible for celebrities (no locking)
   const sections = [
     {
@@ -106,27 +106,29 @@ function PublicCelebrityDashboard() {
           modalities={modalities}
           quadrants={quadrants}
           planetaryDominance={planetaryDominance}
+          hasAnalysis={true}
         />
       )
     },
     {
       id: 'planets',
-      content: <PlanetsTab birthChart={birthChart} basicAnalysis={basicAnalysis} />
+      content: (
+        <PlanetsTab
+          birthChart={birthChart}
+          basicAnalysis={basicAnalysis}
+          hasAnalysis={true}
+        />
+      )
     },
     {
       id: 'analysis',
-      content: hasFullAnalysis ? (
+      content: (
         <AnalysisTab
           broadCategoryAnalyses={broadCategoryAnalyses}
           analysisStatus={{ status: 'complete' }}
           onStartAnalysis={() => {}}
           analysisLoading={false}
         />
-      ) : (
-        <div className="chart-tab-empty">
-          <h3>360° Analysis</h3>
-          <p>Full analysis not available for this celebrity yet.</p>
-        </div>
       )
     }
   ];
@@ -137,7 +139,9 @@ function PublicCelebrityDashboard() {
         chart={celebrity}
         onBackClick={handleBack}
         sections={sections}
-        defaultSection="overview"
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+        hasAnalysis={true}
       />
     </div>
   );
