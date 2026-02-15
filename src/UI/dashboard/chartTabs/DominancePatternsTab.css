@@ -277,84 +277,230 @@
   flex-shrink: 0;
 }
 
-/* Donut Chart */
-.donut-chart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* Elements: Horizontal Stacked Bar */
+.elements-bar {
   background: rgba(45, 48, 65, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 20px;
 }
 
-.donut-chart {
-  width: 180px;
-  height: 180px;
-  margin-bottom: 16px;
+.elements-bar__track {
+  display: flex;
+  height: 28px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
 }
 
-.donut-chart-label {
-  fill: rgba(255, 255, 255, 0.9);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 1px;
+.elements-bar__segment {
+  transition: flex 0.3s ease;
+  min-width: 2px;
 }
 
-/* Donut Legend */
-.donut-legend {
-  width: 100%;
+.elements-bar__legend {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.donut-legend-item {
+.elements-bar__legend-item {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.donut-legend-row {
+.elements-bar__legend-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.donut-legend-color {
-  width: 12px;
-  height: 12px;
+.elements-bar__icon {
+  flex-shrink: 0;
+}
+
+.elements-bar__dot {
+  width: 10px;
+  height: 10px;
   border-radius: 2px;
   flex-shrink: 0;
 }
 
-.donut-legend-name {
+.elements-bar__name {
   color: #d4a574;
   font-size: 0.85rem;
   font-weight: 500;
   flex: 1;
 }
 
-.donut-legend-percent {
+.elements-bar__pct {
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-.donut-legend-planets {
+.elements-bar__planets {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding-left: 20px;
+  padding-left: 32px;
 }
 
-.donut-planet-tag {
+.elements-bar__planet-tag {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 4px;
   padding: 2px 8px;
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.8);
+}
+
+/* Modalities: Semi-Circle Arc Gauges */
+.modality-gauges {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+  background: rgba(45, 48, 65, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.modality-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.modality-gauge__svg {
+  width: 100%;
+  max-width: 120px;
+}
+
+.modality-gauge__value {
+  fill: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.modality-gauge__label {
+  color: #d4a574;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.modality-gauge--dominant .modality-gauge__label {
+  color: #fff;
+}
+
+.modality-gauge__planets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.modality-gauge__planet-tag {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Quadrants: 2x2 Spatial Grid */
+.quadrant-grid {
+  position: relative;
+  background: rgba(45, 48, 65, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.quadrant-grid__wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.quadrant-grid__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px;
+  min-height: 90px;
+  text-align: center;
+}
+
+.quadrant-grid__name {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.quadrant-grid__pct {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.quadrant-grid__planets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.quadrant-grid__planet-tag {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.quadrant-grid__axis {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.quadrant-grid__axis--top {
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.quadrant-grid__axis--bottom {
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.quadrant-grid__axis--left {
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.quadrant-grid__axis--right {
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Pattern Wheels Grid */
@@ -422,8 +568,14 @@
     justify-self: center;
   }
 
-  .donut-chart-container {
-    max-width: 320px;
+  .elements-bar,
+  .modality-gauges,
+  .quadrant-grid {
+    max-width: 400px;
+  }
+
+  .modality-gauges {
+    flex-wrap: wrap;
   }
 }
 

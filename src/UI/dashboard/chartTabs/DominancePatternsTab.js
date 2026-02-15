@@ -45,78 +45,185 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
   const patterns = birthChart?.patterns?.patterns || birthChart?.patterns || [];
   const planets = birthChart?.planets || [];
 
-  // Donut Chart Component
-  const DonutChart = ({ data, colorMap, title }) => {
-    if (!data || data.length === 0) return null;
-
-    const total = data.reduce((sum, item) => sum + (item.percentage || 0), 0);
-    let currentAngle = -90; // Start from top
-
-    const radius = 80;
-    const strokeWidth = 35;
-    const center = 100;
-
-    return (
-      <div className="donut-chart-container">
-        <svg viewBox="0 0 200 200" className="donut-chart">
-          {data.map((item, index) => {
-            const percentage = item.percentage || 0;
-            const angle = (percentage / 100) * 360;
-            const startAngle = currentAngle;
-            const endAngle = currentAngle + angle;
-            currentAngle = endAngle;
-
-            // Calculate arc path
-            const startRad = (startAngle * Math.PI) / 180;
-            const endRad = (endAngle * Math.PI) / 180;
-
-            const x1 = center + radius * Math.cos(startRad);
-            const y1 = center + radius * Math.sin(startRad);
-            const x2 = center + radius * Math.cos(endRad);
-            const y2 = center + radius * Math.sin(endRad);
-
-            const largeArc = angle > 180 ? 1 : 0;
-
-            const pathData = `
-              M ${x1} ${y1}
-              A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}
-            `;
-
-            return (
-              <path
-                key={index}
-                d={pathData}
-                fill="none"
-                stroke={colorMap?.[item.name] || '#8b5cf6'}
-                strokeWidth={strokeWidth}
-                strokeLinecap="butt"
-              />
-            );
-          })}
-          <text x={center} y={center} textAnchor="middle" dominantBaseline="middle" className="donut-chart-label">
-            {title}
-          </text>
+  // Element icon SVGs
+  const ElementIcon = ({ element }) => {
+    const icons = {
+      Fire: (
+        <svg width="14" height="14" viewBox="0 0 14 14" className="elements-bar__icon">
+          <path d="M7 1C4.5 4.5 3 7 3 9a4 4 0 008 0c0-2-1.5-4.5-4-8z" fill={elementColors.Fire} />
         </svg>
-        <div className="donut-legend">
-          {data.map((item, index) => (
-            <div key={index} className="donut-legend-item">
-              <div className="donut-legend-row">
-                <span
-                  className="donut-legend-color"
-                  style={{ backgroundColor: colorMap?.[item.name] || '#8b5cf6' }}
-                />
-                <span className="donut-legend-name">{item.name}</span>
-                <span className="donut-legend-percent">{item.percentage?.toFixed(1)}%</span>
+      ),
+      Earth: (
+        <svg width="14" height="14" viewBox="0 0 14 14" className="elements-bar__icon">
+          <path d="M7 2l5 10H2z" fill={elementColors.Earth} />
+        </svg>
+      ),
+      Air: (
+        <svg width="14" height="14" viewBox="0 0 14 14" className="elements-bar__icon">
+          <path d="M1 4h9M1 7h6M1 10h11" stroke={elementColors.Air} strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      ),
+      Water: (
+        <svg width="14" height="14" viewBox="0 0 14 14" className="elements-bar__icon">
+          <path d="M7 1L3.5 7a4 4 0 007 0L7 1z" fill={elementColors.Water} />
+        </svg>
+      )
+    };
+    return icons[element] || null;
+  };
+
+  // Elements: Horizontal Stacked Bar
+  const ElementsBar = ({ data }) => {
+    if (!data || data.length === 0) return null;
+    return (
+      <div className="elements-bar">
+        <div className="elements-bar__track">
+          {data.map((item, i) => (
+            <div
+              key={i}
+              className="elements-bar__segment"
+              style={{
+                flex: item.percentage || 0,
+                backgroundColor: elementColors[item.name] || '#8b5cf6'
+              }}
+            />
+          ))}
+        </div>
+        <div className="elements-bar__legend">
+          {data.map((item, i) => (
+            <div key={i} className="elements-bar__legend-item">
+              <div className="elements-bar__legend-row">
+                <ElementIcon element={item.name} />
+                <span className="elements-bar__dot" style={{ backgroundColor: elementColors[item.name] }} />
+                <span className="elements-bar__name">{item.name}</span>
+                <span className="elements-bar__pct">{item.percentage?.toFixed(1)}%</span>
               </div>
               {item.planets && item.planets.length > 0 && (
-                <div className="donut-legend-planets">
-                  {item.planets.map((planet, pIndex) => (
-                    <span key={pIndex} className="donut-planet-tag">{planet}</span>
+                <div className="elements-bar__planets">
+                  {item.planets.map((p, j) => (
+                    <span key={j} className="elements-bar__planet-tag">{p}</span>
                   ))}
                 </div>
               )}
             </div>
           ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Modalities: Three Semi-Circle Arc Gauges
+  const ModalityGauges = ({ data }) => {
+    if (!data || data.length === 0) return null;
+    const maxPct = Math.max(...data.map(d => d.percentage || 0));
+
+    return (
+      <div className="modality-gauges">
+        {data.map((item, i) => {
+          const pct = item.percentage || 0;
+          const isDominant = pct === maxPct && pct > 0;
+          const sweepAngle = (pct / 100) * 180;
+          const endAngleRad = ((180 + sweepAngle) * Math.PI) / 180;
+          const r = 40;
+          const cx = 60;
+          const cy = 50;
+          const x2 = cx + r * Math.cos(endAngleRad);
+          const y2 = cy + r * Math.sin(endAngleRad);
+          const color = modalityColors[item.name] || '#8b5cf6';
+
+          return (
+            <div key={i} className={`modality-gauge${isDominant ? ' modality-gauge--dominant' : ''}`}>
+              <svg viewBox="0 0 120 65" className="modality-gauge__svg">
+                <path
+                  d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.1)"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                />
+                {pct > 0 && (
+                  <path
+                    d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${x2} ${y2}`}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    style={isDominant ? { filter: `drop-shadow(0 0 6px ${color})` } : undefined}
+                  />
+                )}
+                <text x={cx} y={cy - 8} textAnchor="middle" dominantBaseline="middle" className="modality-gauge__value">
+                  {pct.toFixed(1)}%
+                </text>
+              </svg>
+              <div className="modality-gauge__label">{item.name}</div>
+              {item.planets && item.planets.length > 0 && (
+                <div className="modality-gauge__planets">
+                  {item.planets.map((p, j) => (
+                    <span key={j} className="modality-gauge__planet-tag">{p}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Quadrants: 2x2 Spatial Grid
+  const QuadrantGrid = ({ data }) => {
+    if (!data || data.length === 0) return null;
+
+    const byName = {};
+    data.forEach(d => { byName[d.name] = d; });
+
+    const cells = [
+      { key: 'SouthEast', label: 'South East' },
+      { key: 'SouthWest', label: 'South West' },
+      { key: 'NorthEast', label: 'North East' },
+      { key: 'NorthWest', label: 'North West' }
+    ];
+
+    const maxPct = Math.max(...data.map(d => d.percentage || 0));
+
+    const hexToRgba = (hex, alpha) => {
+      const rv = parseInt(hex.slice(1, 3), 16);
+      const gv = parseInt(hex.slice(3, 5), 16);
+      const bv = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${rv}, ${gv}, ${bv}, ${alpha})`;
+    };
+
+    return (
+      <div className="quadrant-grid">
+        <div className="quadrant-grid__axis quadrant-grid__axis--top">S</div>
+        <div className="quadrant-grid__axis quadrant-grid__axis--bottom">N</div>
+        <div className="quadrant-grid__axis quadrant-grid__axis--left">E</div>
+        <div className="quadrant-grid__axis quadrant-grid__axis--right">W</div>
+        <div className="quadrant-grid__wrapper">
+          {cells.map(({ key, label }) => {
+            const item = byName[key] || { percentage: 0, planets: [] };
+            const pct = item.percentage || 0;
+            const color = quadrantColors[key] || '#8b5cf6';
+            const alpha = maxPct > 0 && pct > 0 ? 0.12 + (pct / maxPct) * 0.38 : 0.06;
+
+            return (
+              <div
+                key={key}
+                className="quadrant-grid__cell"
+                style={{ backgroundColor: hexToRgba(color, alpha) }}
+              >
+                <span className="quadrant-grid__name">{label}</span>
+                <span className="quadrant-grid__pct">{pct.toFixed(1)}%</span>
+                {item.planets && item.planets.length > 0 && (
+                  <div className="quadrant-grid__planets">
+                    {item.planets.map((p, j) => (
+                      <span key={j} className="quadrant-grid__planet-tag">{p}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -154,8 +261,8 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
     );
   };
 
-  // Render distribution section with donut chart
-  const renderDistributionSection = (data, colorMap, interpretation, chartTitle) => {
+  // Render Elements section
+  const renderElementsSection = (data, interpretation) => {
     if (!data || !Array.isArray(data) || data.length === 0) {
       return (
         <div className="patterns-empty-section">
@@ -163,7 +270,6 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
         </div>
       );
     }
-
     return (
       <div className="patterns-section-content">
         <div className="patterns-section-left">
@@ -176,7 +282,61 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
           )}
         </div>
         <div className="patterns-section-right">
-          <DonutChart data={data} colorMap={colorMap} title={chartTitle} />
+          <ElementsBar data={data} />
+        </div>
+      </div>
+    );
+  };
+
+  // Render Modalities section
+  const renderModalitiesSection = (data, interpretation) => {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      return (
+        <div className="patterns-empty-section">
+          <p>No data available for this section.</p>
+        </div>
+      );
+    }
+    return (
+      <div className="patterns-section-content">
+        <div className="patterns-section-left">
+          {interpretation && (
+            <div className="patterns-interpretation">
+              {interpretation.split('\n').map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="patterns-section-right">
+          <ModalityGauges data={data} />
+        </div>
+      </div>
+    );
+  };
+
+  // Render Quadrants section
+  const renderQuadrantsSection = (data, interpretation) => {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      return (
+        <div className="patterns-empty-section">
+          <p>No data available for this section.</p>
+        </div>
+      );
+    }
+    return (
+      <div className="patterns-section-content">
+        <div className="patterns-section-left">
+          {interpretation && (
+            <div className="patterns-interpretation">
+              {interpretation.split('\n').map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="patterns-section-right">
+          <QuadrantGrid data={data} />
         </div>
       </div>
     );
@@ -477,25 +637,19 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
   const renderTabContent = () => {
     switch (activeTab) {
       case 'elements':
-        return renderDistributionSection(
+        return renderElementsSection(
           elements?.elements,
-          elementColors,
-          basicAnalysis?.dominance?.elements?.interpretation,
-          'ELEMENTS'
+          basicAnalysis?.dominance?.elements?.interpretation
         );
       case 'modalities':
-        return renderDistributionSection(
+        return renderModalitiesSection(
           modalities?.modalities,
-          modalityColors,
-          basicAnalysis?.dominance?.modalities?.interpretation,
-          'MODALITIES'
+          basicAnalysis?.dominance?.modalities?.interpretation
         );
       case 'quadrants':
-        return renderDistributionSection(
+        return renderQuadrantsSection(
           quadrants?.quadrants,
-          quadrantColors,
-          basicAnalysis?.dominance?.quadrants?.interpretation,
-          'QUADRANTS'
+          basicAnalysis?.dominance?.quadrants?.interpretation
         );
       case 'planetary':
         return renderPlanetaryInfluenceSection(
