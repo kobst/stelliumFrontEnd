@@ -422,12 +422,10 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
   const [chatOpen, setChatOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showInsufficientModal, setShowInsufficientModal] = useState(false);
-  const [isConfirming, setIsConfirming] = useState(false);
   const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
   const isAnalysisUnlocked = useEntitlementsStore((state) => state.isAnalysisUnlocked);
   const hasEnoughCredits = useEntitlementsStore((state) => state.hasEnoughCredits);
-  const checkAndUseAnalysis = useEntitlementsStore((state) => state.checkAndUseAnalysis);
 
   const isAnalysisComplete = analysisStatus?.completed ||
     (broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
@@ -461,14 +459,9 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
     setShowConfirm(true);
   };
 
-  const handleConfirmStart = async () => {
-    setIsConfirming(true);
-    const result = await checkAndUseAnalysis(userId, 'BIRTH_CHART', chartId);
-    setIsConfirming(false);
+  const handleConfirmStart = () => {
     setShowConfirm(false);
-    if (result.success) {
-      onStartAnalysis();
-    }
+    onStartAnalysis();
   };
 
   // Render the start analysis prompt
@@ -494,14 +487,12 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
                 <button
                   className="locked-content__confirm-btn"
                   onClick={handleConfirmStart}
-                  disabled={isConfirming}
                 >
-                  {isConfirming ? 'Unlocking...' : 'Confirm'}
+                  Confirm
                 </button>
                 <button
                   className="locked-content__confirm-cancel"
                   onClick={() => setShowConfirm(false)}
-                  disabled={isConfirming}
                 >
                   Cancel
                 </button>

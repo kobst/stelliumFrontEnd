@@ -33,13 +33,11 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
   const [isStarting, setIsStarting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showInsufficientModal, setShowInsufficientModal] = useState(false);
-  const [isConfirming, setIsConfirming] = useState(false);
   const pollingRef = useRef(null);
   const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
   const isAnalysisUnlocked = useEntitlementsStore((state) => state.isAnalysisUnlocked);
   const hasEnoughCredits = useEntitlementsStore((state) => state.hasEnoughCredits);
-  const checkAndUseAnalysis = useEntitlementsStore((state) => state.checkAndUseAnalysis);
 
   const completeAnalysis = relationship?.completeAnalysis;
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
@@ -122,14 +120,9 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
     setShowConfirm(true);
   };
 
-  const handleConfirmStart = async () => {
-    setIsConfirming(true);
-    const result = await checkAndUseAnalysis(userId, 'RELATIONSHIP', compositeId);
-    setIsConfirming(false);
+  const handleConfirmStart = () => {
     setShowConfirm(false);
-    if (result.success) {
-      proceedWithAnalysis();
-    }
+    proceedWithAnalysis();
   };
 
   const getClusterAnalysisData = (clusterKey) => {
@@ -225,14 +218,12 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
                 <button
                   className="locked-content__confirm-btn"
                   onClick={handleConfirmStart}
-                  disabled={isConfirming}
                 >
-                  {isConfirming ? 'Unlocking...' : 'Confirm'}
+                  Confirm
                 </button>
                 <button
                   className="locked-content__confirm-cancel"
                   onClick={() => setShowConfirm(false)}
-                  disabled={isConfirming}
                 >
                   Cancel
                 </button>
