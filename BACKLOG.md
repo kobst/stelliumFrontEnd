@@ -23,7 +23,6 @@
 - [ ] **Credit breakdown in dropdown** - Monthly vs purchased, reset date
 - [ ] **Pre-action confirmation** - For expensive actions (>50 credits)
 - [ ] **Make Ask Stellium logo/button more obvious** - Users not finding it
-- [ ] **Transaction history page** - Show all credit charges and purchases
 
 ## Features
 
@@ -36,6 +35,21 @@
     - Synastry charts (hover Person A planet → show aspects to Person B planets)
     - Transit charts (hover transit planet → show aspects to natal planets)
   - Optional: Click to "pin" the highlight (sticky mode)
+- [ ] **Credit Transaction History / Receipts**
+  - Dedicated section in account/profile for reviewing all credit activity
+  - Show two types of transactions:
+    - **Purchases:** Credit packs bought (date, amount, price, payment method)
+    - **Charges:** Credits spent on actions (date, action type, cost, remaining balance)
+  - Transaction details include:
+    - Timestamp
+    - Description (e.g., "Birth Chart Report for John Doe", "100 Credit Pack Purchase")
+    - Credits added/deducted
+    - Balance after transaction
+    - Receipt/invoice ID
+  - Filtering options: All / Purchases / Charges, Date range
+  - Export as CSV or PDF for record-keeping
+  - Link to Stripe receipts for purchases
+  - Searchable by action type or description
 - [ ] Credit gifting between users
 - [ ] Subscription tiers (monthly credit bundles)
 - [ ] Usage analytics dashboard
