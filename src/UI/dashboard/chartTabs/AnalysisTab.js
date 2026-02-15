@@ -525,7 +525,6 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
           <div className="progress-bar-container">
             <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
           </div>
-          <p className="progress-text">{completedTasks} of {totalTasks} tasks completed ({progressPercent}%)</p>
           <p className="progress-note">This may take a few minutes. Please don't close this page.</p>
         </div>
       </div>

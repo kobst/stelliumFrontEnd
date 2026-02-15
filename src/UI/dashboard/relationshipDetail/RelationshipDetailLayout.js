@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import RelationshipSidebar from './RelationshipSidebar';
 import './RelationshipDetailLayout.css';
 
@@ -7,14 +7,9 @@ function RelationshipDetailLayout({
   onBackClick,
   sections,
   lockedSections = [],
-  defaultSection = 'overview'
+  activeSection,
+  onSectionChange
 }) {
-  const [activeSection, setActiveSection] = useState(defaultSection);
-
-  const handleSectionChange = (sectionId) => {
-    setActiveSection(sectionId);
-  };
-
   // Find the current section's content
   const currentSection = sections.find(s => s.id === activeSection);
 
@@ -26,7 +21,7 @@ function RelationshipDetailLayout({
           <RelationshipSidebar
             relationship={relationship}
             activeSection={activeSection}
-            onSectionChange={handleSectionChange}
+            onSectionChange={onSectionChange}
             lockedSections={lockedSections}
           />
         </div>

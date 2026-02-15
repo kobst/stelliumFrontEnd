@@ -4,6 +4,7 @@ import { getUserCompositeCharts, fetchRelationshipAnalysis, fetchUser } from '..
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import { useCheckout } from '../hooks/useCheckout';
+import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import DashboardLayout from '../UI/layout/DashboardLayout';
 import RelationshipDetailLayout from '../UI/dashboard/relationshipDetail/RelationshipDetailLayout';
 import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
@@ -28,6 +29,7 @@ function RelationshipAnalysisPage() {
   const [relationship, setRelationship] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeSection, setActiveSection] = useState('overview');
 
   const loadRelationship = useCallback(async () => {
     try {
@@ -139,11 +141,22 @@ function RelationshipAnalysisPage() {
     );
   }
 
+  const hasAnalysis = !!(relationship?.completeAnalysis && Object.keys(relationship.completeAnalysis).length > 0);
+  const navigateToAnalysis = () => setActiveSection('analysis');
+
   // Build sections array for RelationshipDetailLayout
   const sections = [
     {
       id: 'scores',
-      content: <ScoresTab relationship={relationship} />
+      content: (
+        <ScoresTab
+          relationship={relationship}
+          hasAnalysis={hasAnalysis}
+          onNavigateToAnalysis={navigateToAnalysis}
+          creditCost={CREDIT_COSTS.FULL_RELATIONSHIP}
+          creditsRemaining={entitlements.credits?.total}
+        />
+      )
     },
     {
       id: 'overview',
@@ -207,7 +220,8 @@ function RelationshipAnalysisPage() {
             onBackClick={handleBackClick}
             sections={sections}
             lockedSections={lockedSections}
-            defaultSection="overview"
+            activeSection={activeSection}
+            onSectionChange={setActiveSection}
           />
         </div>
       )}

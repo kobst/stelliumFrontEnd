@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
+import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
 import './RelationshipTabs.css';
 
-// Cluster colors for bar chart
-const CLUSTER_COLORS = {
-  Harmony: '#5eead4',     // teal
-  Passion: '#fda4af',     // salmon/pink
-  Connection: '#f0abfc',  // magenta/pink
-  Stability: '#c4b5fd',   // lavender
-  Growth: '#86efac'       // green
+// Score-band color: green/teal for strong, amber for moderate, coral for weak
+const getScoreColor = (score) => {
+  if (score >= 75) return 'var(--score-high, #5eead4)';
+  if (score >= 50) return 'var(--score-mid, #fbbf24)';
+  return 'var(--score-low, #fb923c)';
 };
 
 // Cluster icons
 const CLUSTER_ICONS = {
-  Harmony: '💕',
-  Passion: '🔥',
-  Connection: '🧠',
-  Stability: '💎',
-  Growth: '🌱'
+  Harmony: '\u{1F495}',
+  Passion: '\u{1F525}',
+  Connection: '\u{1F9E0}',
+  Stability: '\u{1F48E}',
+  Growth: '\u{1F331}'
 };
 
 // Cluster descriptions
@@ -42,8 +41,32 @@ const getStatusClass = (score) => {
   return 'status-tough';
 };
 
-function ScoresTab({ relationship }) {
-  const [selectedCluster, setSelectedCluster] = useState('Harmony');
+// Get tier class for overall tier pill
+const getTierClass = (tier) => {
+  if (!tier) return '';
+  const t = tier.toLowerCase();
+  if (t.includes('thriv')) return 'tier-thriving';
+  if (t.includes('flourish')) return 'tier-flourishing';
+  if (t.includes('emerg')) return 'tier-emerging';
+  if (t.includes('build')) return 'tier-building';
+  if (t.includes('develop')) return 'tier-developing';
+  return '';
+};
+
+// Get initials from a name
+const getInitials = (name) => {
+  if (!name) return '?';
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+};
+
+function ScoresTab({
+  relationship,
+  hasAnalysis,
+  onNavigateToAnalysis,
+  creditCost,
+  creditsRemaining
+}) {
+  const [expandedCluster, setExpandedCluster] = useState(null);
 
   // Get cluster data from relationship
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
@@ -52,9 +75,12 @@ function ScoresTab({ relationship }) {
 
   const orderedClusters = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
 
-  // Get cluster scores
   const getClusterScore = (clusterKey) => {
     return clusters?.[clusterKey]?.score || 0;
+  };
+
+  const handleRowClick = (cluster) => {
+    setExpandedCluster(prev => prev === cluster ? null : cluster);
   };
 
   // If no cluster data available
@@ -78,7 +104,7 @@ function ScoresTab({ relationship }) {
         </div>
         <div className="scores-body">
           <div className="scores-empty-state">
-            <span className="empty-icon">📊</span>
+            <span className="empty-icon">{'\u{1F4CA}'}</span>
             <h3>No Score Data</h3>
             <p>Compatibility scores are not yet available for this relationship.</p>
           </div>
@@ -87,8 +113,8 @@ function ScoresTab({ relationship }) {
     );
   }
 
-  const selectedClusterData = clusters[selectedCluster];
-  const selectedScore = getClusterScore(selectedCluster);
+  const overallScore = overall?.score;
+  const overallTier = overall?.tier;
 
   return (
     <div className="scores-tab-redesign">
@@ -97,10 +123,10 @@ function ScoresTab({ relationship }) {
         <h2 className="scores-header__title">Compatibility Score</h2>
         <div className="scores-header__icon">
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <circle cx="24" cy="24" r="20" stroke="url(#scoreGradient)" strokeWidth="2" strokeDasharray="4 4" />
-            <circle cx="24" cy="24" r="12" stroke="url(#scoreGradient)" strokeWidth="1.5" opacity="0.6" />
+            <circle cx="24" cy="24" r="20" stroke="url(#scoreGradient2)" strokeWidth="2" strokeDasharray="4 4" />
+            <circle cx="24" cy="24" r="12" stroke="url(#scoreGradient2)" strokeWidth="1.5" opacity="0.6" />
             <defs>
-              <linearGradient id="scoreGradient" x1="0" y1="0" x2="48" y2="48">
+              <linearGradient id="scoreGradient2" x1="0" y1="0" x2="48" y2="48">
                 <stop stopColor="#60a5fa" />
                 <stop offset="1" stopColor="#a78bfa" />
               </linearGradient>
@@ -109,108 +135,103 @@ function ScoresTab({ relationship }) {
         </div>
       </div>
 
-      {/* Main Content - Two Column Layout */}
-      <div className="scores-content">
-        {/* Left Column - Bar Chart */}
-        <div className="scores-chart-column">
-          <div className="bar-chart-container">
-            <h3 className="bar-chart-title">ASPECT COMPATIBILITY SCORE</h3>
+      {/* Overall Score Header */}
+      {overallScore != null && (
+        <div className="scores-overall">
+          <div className="scores-overall__avatar">
+            {relationship.userA_profilePhotoUrl ? (
+              <img src={relationship.userA_profilePhotoUrl} alt={relationship.userA_name} />
+            ) : (
+              <span className="scores-overall__initials">{getInitials(relationship.userA_name)}</span>
+            )}
+          </div>
 
-            {/* Scale Header Row */}
-            <div className="bar-chart-scale-row">
-              <span className="bar-chart-label-spacer"></span>
-              <div className="bar-chart-scale">
-                <span>0%</span>
-                <span>25%</span>
-                <span>50%</span>
-                <span>75%</span>
-                <span>100%</span>
-              </div>
-              <span className="bar-chart-value-spacer"></span>
-            </div>
+          <div className="scores-overall__center">
+            <span className="scores-overall__score">{Math.round(overallScore)}%</span>
+            <span className="scores-overall__label">Overall Compatibility</span>
+            {overallTier && (
+              <span className={`scores-overall__tier ${getTierClass(overallTier)}`}>
+                {overallTier}
+              </span>
+            )}
+          </div>
 
-            {/* Bars */}
-            <div className="bar-chart-bars">
-              {orderedClusters.map(cluster => {
-                const score = getClusterScore(cluster);
-                const isSelected = selectedCluster === cluster;
-                return (
-                  <div
-                    key={cluster}
-                    className={`bar-chart-row ${isSelected ? 'bar-chart-row--selected' : ''}`}
-                    onClick={() => setSelectedCluster(cluster)}
-                  >
-                    <span className="bar-chart-label">{cluster}</span>
-                    <div className="bar-chart-track">
-                      <div
-                        className="bar-chart-fill"
-                        style={{
-                          width: `${score}%`,
-                          backgroundColor: CLUSTER_COLORS[cluster]
-                        }}
-                      />
-                    </div>
-                    <span className="bar-chart-value">{Math.round(score)}%</span>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="scores-overall__avatar">
+            {relationship.userB_profilePhotoUrl ? (
+              <img src={relationship.userB_profilePhotoUrl} alt={relationship.userB_name} />
+            ) : (
+              <span className="scores-overall__initials">{getInitials(relationship.userB_name)}</span>
+            )}
           </div>
         </div>
+      )}
 
-        {/* Right Column - Cluster Cards */}
-        <div className="scores-cards-column">
-          {orderedClusters.map(cluster => {
-            const score = getClusterScore(cluster);
-            const clusterData = clusters[cluster];
-            const isSelected = selectedCluster === cluster;
-            const statusLabel = getStatusLabel(score);
-            const statusClass = getStatusClass(score);
+      {/* Unified Dimension Rows */}
+      <div className="scores-dimensions">
+        {orderedClusters.map(cluster => {
+          const score = getClusterScore(cluster);
+          const clusterData = clusters[cluster];
+          const isExpanded = expandedCluster === cluster;
+          const statusLabel = getStatusLabel(score);
+          const statusClass = getStatusClass(score);
 
-            return (
-              <div
-                key={cluster}
-                className={`cluster-detail-card ${isSelected ? 'cluster-detail-card--selected' : ''}`}
-                onClick={() => setSelectedCluster(cluster)}
-              >
-                <div className="cluster-detail-card__header">
-                  <div className="cluster-detail-card__info">
-                    <span className="cluster-detail-card__icon">{CLUSTER_ICONS[cluster]}</span>
-                    <span className="cluster-detail-card__name">{cluster}</span>
-                  </div>
-                  <div className="cluster-detail-card__score">
-                    <span className="cluster-detail-card__value">{Math.round(score)}%</span>
-                    <span className={`cluster-detail-card__status ${statusClass}`}>
-                      {statusLabel}
+          return (
+            <div
+              key={cluster}
+              className={`scores-dimension-row ${isExpanded ? 'scores-dimension-row--expanded' : ''}`}
+              onClick={() => handleRowClick(cluster)}
+            >
+              <div className="scores-dimension-row__main">
+                <span className="scores-dimension-row__icon">{CLUSTER_ICONS[cluster]}</span>
+                <span className="scores-dimension-row__name">{cluster}</span>
+                <div className="scores-dimension-row__bar-track">
+                  <div
+                    className="scores-dimension-row__bar-fill"
+                    style={{
+                      width: `${score}%`,
+                      backgroundColor: getScoreColor(score)
+                    }}
+                  />
+                </div>
+                <span className="scores-dimension-row__pct">{Math.round(score)}%</span>
+                <span className={`scores-dimension-row__tier ${statusClass}`}>
+                  {statusLabel}
+                </span>
+              </div>
+
+              {isExpanded && (
+                <div className="scores-dimension-row__detail">
+                  <p className="scores-dimension-row__desc">
+                    {CLUSTER_DESCRIPTIONS[cluster]}
+                  </p>
+                  <div className="scores-dimension-row__metrics">
+                    <span className="metric-item">
+                      <span className="metric-label">Support</span>
+                      <span className="metric-separator">-</span>
+                      <span className="metric-value">{clusterData?.supportPct || 0}%</span>
+                    </span>
+                    <span className="metric-item">
+                      <span className="metric-label">Challenge</span>
+                      <span className="metric-separator">-</span>
+                      <span className="metric-value">{clusterData?.challengePct || 0}%</span>
                     </span>
                   </div>
                 </div>
-
-                {isSelected && (
-                  <div className="cluster-detail-card__body">
-                    <p className="cluster-detail-card__description">
-                      {CLUSTER_DESCRIPTIONS[cluster]}
-                      {overall?.profile && `. ${overall.profile}`}
-                    </p>
-                    <div className="cluster-detail-card__metrics">
-                      <span className="metric-item">
-                        <span className="metric-label">Support</span>
-                        <span className="metric-separator">-</span>
-                        <span className="metric-value">{clusterData?.supportPct || 0}%</span>
-                      </span>
-                      <span className="metric-item">
-                        <span className="metric-label">Challenge</span>
-                        <span className="metric-separator">-</span>
-                        <span className="metric-value">{clusterData?.challengePct || 0}%</span>
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {/* 360 Analysis CTA */}
+      {!hasAnalysis && onNavigateToAnalysis && (
+        <AnalysisPromptCard
+          message="Unlock detailed relationship interpretations across all compatibility dimensions."
+          onNavigate={onNavigateToAnalysis}
+          creditCost={creditCost}
+          creditsRemaining={creditsRemaining}
+        />
+      )}
     </div>
   );
 }
