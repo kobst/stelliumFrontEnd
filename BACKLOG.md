@@ -43,6 +43,17 @@
 
 ## Technical
 
+- [ ] **Robust Polling System for Long Operations**
+  - Improve reliability for birth chart generation and relationship analysis
+  - Issues to address:
+    - Handle network interruptions gracefully (reconnect and resume)
+    - Exponential backoff on polling failures
+    - Client-side timeout with clear error messages
+    - Server-side job status persistence (don't lose progress on Lambda timeout)
+    - Progress indicators (% complete, current step)
+    - Retry mechanism for failed jobs
+    - Fallback to WebSocket/Server-Sent Events for real-time updates?
+  - Current pain points: Polling can fail silently, no recovery mechanism
 - [ ] Optimize Lambda cold starts
 - [ ] Add caching layer for chart calculations
 - [ ] Improve error handling and logging
