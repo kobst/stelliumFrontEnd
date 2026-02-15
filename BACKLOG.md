@@ -77,6 +77,16 @@
   - Export as CSV or PDF for record-keeping
   - Link to Stripe receipts for purchases
   - Searchable by action type or description
+- [ ] **Celebrity Relationship Analysis**
+  - Add section to create relationship with celebrities
+  - Browse existing celebrity birth chart database
+  - Search/filter celebrities (by name, profession, birth year)
+  - "Analyze with [Celebrity]" button → runs relationship analysis
+  - Show compatibility scores with selected celebrity
+  - Save favorite celebrity comparisons
+  - Share results ("My compatibility with Taylor Swift")
+  - Consider credit cost: Maybe discounted vs custom relationship (5 credits instead of 10?)
+  - Pre-cache popular celebrity relationships for faster loading?
 - [ ] Credit gifting between users
 - [ ] Subscription tiers (monthly credit bundles)
 - [ ] Usage analytics dashboard
