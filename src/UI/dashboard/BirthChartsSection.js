@@ -1,6 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserSubjects, createGuestSubject } from '../../Utilities/api';
+import {
+  getUserSubjects,
+  createGuestSubject,
+  getProfilePhotoPresignedUrl,
+  uploadProfilePhotoToS3,
+  confirmProfilePhotoUpload
+} from '../../Utilities/api';
 import useEntitlementsStore from '../../Utilities/entitlementsStore';
 import { CREDIT_COSTS } from '../../Utilities/creditCosts';
 import ChartsList from './birthCharts/ChartsList';
@@ -56,12 +62,27 @@ function BirthChartsSection({ userId, user }) {
       return;
     }
 
+    // Extract photoFile before sending to API (not a server field)
+    const { photoFile, ...apiData } = guestData;
+
     setCreatingChart({ firstName: guestData.firstName, lastName: guestData.lastName });
 
     try {
-      const result = await createGuestSubject(guestData);
+      const result = await createGuestSubject(apiData);
 
       if (result.success || result.userId || result.guestSubject) {
+        // Upload photo if provided
+        const subjectId = result.userId || result.guestSubject?._id;
+        if (photoFile && subjectId) {
+          try {
+            const { uploadUrl, photoKey } = await getProfilePhotoPresignedUrl(subjectId, photoFile.type);
+            await uploadProfilePhotoToS3(uploadUrl, photoFile);
+            await confirmProfilePhotoUpload(subjectId, photoKey);
+          } catch (photoErr) {
+            console.error('Photo upload failed (chart still created):', photoErr);
+          }
+        }
+
         await loadGuestCharts();
         setSuccessMessage(`${guestData.firstName}'s birth chart created!`);
         setTimeout(() => setSuccessMessage(''), 3000);

@@ -8,7 +8,9 @@ function ChartDetailLayout({
   onBackClick,
   sections,
   lockedSections = [],
-  defaultSection = 'overview'
+  defaultSection = 'overview',
+  isGuest = false,
+  onPhotoUpdated
 }) {
   const [activeSection, setActiveSection] = useState(defaultSection);
 
@@ -32,6 +34,8 @@ function ChartDetailLayout({
               activeSection={activeSection}
               onSectionChange={handleSectionChange}
               lockedSections={lockedSections}
+              isGuest={isGuest}
+              onPhotoUpdated={onPhotoUpdated}
             />
           </div>
 

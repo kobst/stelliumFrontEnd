@@ -2115,6 +2115,80 @@ export const enhancedChatForHoroscope = async (userId, requestBody) => {
   }
 };
 
+// Profile Photo API Functions
+
+export const getProfilePhotoPresignedUrl = async (subjectId, contentType) => {
+  try {
+    const response = await authenticatedFetch(`${SERVER_URL}/subjects/${subjectId}/profile-photo/presigned-url`, {
+      method: HTTP_POST,
+      body: JSON.stringify({ contentType })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting profile photo presigned URL:', error);
+    throw error;
+  }
+};
+
+export const uploadProfilePhotoToS3 = async (presignedUrl, file) => {
+  try {
+    const response = await fetch(presignedUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file
+    });
+
+    if (!response.ok) {
+      throw new Error(`S3 upload failed! status: ${response.status}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error uploading profile photo to S3:', error);
+    throw error;
+  }
+};
+
+export const confirmProfilePhotoUpload = async (subjectId, photoKey) => {
+  try {
+    const response = await authenticatedFetch(`${SERVER_URL}/subjects/${subjectId}/profile-photo/confirm`, {
+      method: HTTP_POST,
+      body: JSON.stringify({ photoKey })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error confirming profile photo upload:', error);
+    throw error;
+  }
+};
+
+export const deleteProfilePhoto = async (subjectId) => {
+  try {
+    const response = await authenticatedFetch(`${SERVER_URL}/subjects/${subjectId}/profile-photo`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting profile photo:', error);
+    throw error;
+  }
+};
+
 // Update user profile (firstName, lastName)
 export const updateUserProfile = async (userId, updates) => {
   try {

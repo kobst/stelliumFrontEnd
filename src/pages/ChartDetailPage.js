@@ -168,6 +168,12 @@ function ChartDetailPage() {
     navigate(`/dashboard/${userId}`);
   };
 
+  const isGuest = chartId !== userId;
+
+  const handlePhotoUpdated = (newPhotoUrl) => {
+    setChart(prev => ({ ...prev, profilePhotoUrl: newPhotoUrl }));
+  };
+
   // Extract analysis components
   const birthChart = chart?.birthChart || {};
   const basicAnalysis = analysisData?.interpretation?.basicAnalysis;
@@ -328,6 +334,8 @@ function ChartDetailPage() {
             sections={sections}
             lockedSections={lockedSections}
             defaultSection="overview"
+            isGuest={isGuest}
+            onPhotoUpdated={handlePhotoUpdated}
           />
         </div>
       )}

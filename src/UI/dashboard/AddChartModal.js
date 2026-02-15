@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Autocomplete from 'react-google-autocomplete';
 import { fetchTimeZone } from '../../Utilities/api';
 import { CREDIT_COSTS } from '../../Utilities/creditCosts';
@@ -19,6 +19,9 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [unknownTime, setUnknownTime] = useState(false);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const photoInputRef = useRef(null);
 
   // UI state
   const [formErrors, setFormErrors] = useState({});
@@ -53,8 +56,37 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
       setUnknownTime(false);
       setFormErrors({});
       setSubmitError('');
+      setPhotoFile(null);
+      if (photoPreview) {
+        URL.revokeObjectURL(photoPreview);
+      }
+      setPhotoPreview(null);
     }
-  }, [isOpen]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handlePhotoSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setFormErrors(prev => ({ ...prev, photo: 'Image must be under 5MB' }));
+      return;
+    }
+
+    setFormErrors(prev => { const { photo, ...rest } = prev; return rest; });
+    setPhotoFile(file);
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const handleRemovePhoto = (e) => {
+    e.stopPropagation();
+    setPhotoFile(null);
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(null);
+  };
 
   const validateForm = () => {
     const errors = {};
@@ -116,7 +148,8 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
         lon: parseFloat(lon),
         tzone: parseFloat(totalOffsetHours),
         gender,
-        unknownTime
+        unknownTime,
+        ...(photoFile && { photoFile })
       };
 
       // Close modal immediately and let parent handle the API call
@@ -155,6 +188,46 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
+          {/* Optional Photo */}
+          <div className="modal-photo-upload">
+            <div
+              className="modal-photo-upload__circle"
+              onClick={() => !isSubmitting && photoInputRef.current?.click()}
+            >
+              {photoPreview ? (
+                <>
+                  <img src={photoPreview} alt="Preview" className="modal-photo-upload__img" />
+                  <button
+                    type="button"
+                    className="modal-photo-upload__remove"
+                    onClick={handleRemovePhoto}
+                    disabled={isSubmitting}
+                  >
+                    &times;
+                  </button>
+                </>
+              ) : (
+                <div className="modal-photo-upload__placeholder">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <span className="modal-photo-upload__hint">Add photo (optional)</span>
+            {formErrors.photo && (
+              <span className="field-error">{formErrors.photo}</span>
+            )}
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoSelect}
+              style={{ display: 'none' }}
+            />
+          </div>
+
           {/* Name fields */}
           <div className="form-row">
             <div className="form-group">

@@ -82,6 +82,76 @@
   gap: 20px;
 }
 
+/* Photo Upload */
+.modal-photo-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-photo-upload__circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px dashed rgba(139, 92, 246, 0.4);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: rgba(139, 92, 246, 0.08);
+  transition: all 0.2s ease;
+}
+
+.modal-photo-upload__circle:hover {
+  border-color: rgba(139, 92, 246, 0.7);
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.modal-photo-upload__placeholder {
+  color: rgba(139, 92, 246, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-photo-upload__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-photo-upload__remove {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.85);
+  color: white;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.2s ease;
+}
+
+.modal-photo-upload__remove:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 1);
+}
+
+.modal-photo-upload__hint {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+}
+
 /* Form Row (for side-by-side fields) */
 .form-row {
   display: flex;

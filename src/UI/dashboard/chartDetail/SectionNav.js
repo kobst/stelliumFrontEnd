@@ -1,4 +1,9 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
+import {
+  getProfilePhotoPresignedUrl,
+  uploadProfilePhotoToS3,
+  confirmProfilePhotoUpload
+} from '../../../Utilities/api';
 import './SectionNav.css';
 
 const ZODIAC_GLYPHS = {
@@ -24,7 +29,67 @@ const SECTIONS = [
   { id: 'analysis', label: '360 Analysis' }
 ];
 
-function SectionNav({ chart, activeSection, onSectionChange, lockedSections = [] }) {
+function SectionNav({ chart, activeSection, onSectionChange, lockedSections = [], isGuest = false, onPhotoUpdated }) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const getInitials = () => {
+    const first = chart?.firstName?.[0] || '';
+    const last = chart?.lastName?.[0] || '';
+    return (first + last).toUpperCase() || '?';
+  };
+
+  const handleAvatarClick = () => {
+    if (isGuest && !uploading) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset file input so the same file can be re-selected
+    e.target.value = '';
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please select an image file');
+      setTimeout(() => setUploadError(null), 3000);
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('Image must be under 5MB');
+      setTimeout(() => setUploadError(null), 3000);
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setUploadError(null);
+
+      // 1. Get presigned URL
+      const { uploadUrl, photoKey } = await getProfilePhotoPresignedUrl(chart._id, file.type);
+
+      // 2. Upload to S3
+      await uploadProfilePhotoToS3(uploadUrl, file);
+
+      // 3. Confirm upload
+      const { profilePhotoUrl } = await confirmProfilePhotoUpload(chart._id, photoKey);
+
+      // 4. Notify parent
+      onPhotoUpdated?.(profilePhotoUrl);
+    } catch (err) {
+      console.error('Photo upload failed:', err);
+      setUploadError('Upload failed');
+      setTimeout(() => setUploadError(null), 3000);
+    } finally {
+      setUploading(false);
+    }
+  };
   // Extract sign info from birth chart
   const getSunSign = () => {
     if (!chart?.birthChart?.planets) return null;
@@ -90,6 +155,44 @@ function SectionNav({ chart, activeSection, onSectionChange, lockedSections = []
     <nav className="section-nav">
       {/* Person Info Section */}
       <div className="section-nav__person">
+        {/* Avatar */}
+        <div
+          className={`section-nav__avatar ${uploading ? 'section-nav__avatar--uploading' : ''} ${isGuest ? 'section-nav__avatar--guest' : ''}`}
+          onClick={handleAvatarClick}
+        >
+          {chart?.profilePhotoUrl ? (
+            <img src={chart.profilePhotoUrl} alt={fullName} className="section-nav__avatar-img" />
+          ) : (
+            <span className="section-nav__avatar-initials">{getInitials()}</span>
+          )}
+          {isGuest && !uploading && (
+            <div className="section-nav__avatar-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-1-9h2v2h-2V3zm0 16h2v2h-2v-2zM3 11h2v2H3v-2zm16 0h2v2h-2v-2z" opacity="0" />
+                <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
+              </svg>
+            </div>
+          )}
+          {uploading && (
+            <div className="section-nav__avatar-overlay section-nav__avatar-overlay--loading">
+              <div className="section-nav__avatar-spinner" />
+            </div>
+          )}
+          {uploadError && (
+            <div className="section-nav__avatar-error">{uploadError}</div>
+          )}
+          {isGuest && (
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              style={{ display: 'none' }}
+            />
+          )}
+        </div>
+
         <div className="section-nav__name-row">
           <h3 className="section-nav__name">{fullName}</h3>
           {sunSign && (
