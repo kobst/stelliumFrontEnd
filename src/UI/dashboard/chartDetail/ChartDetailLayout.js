@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ChartDetailHeader from './ChartDetailHeader';
 import SectionNav from './SectionNav';
 import './ChartDetailLayout.css';
@@ -8,16 +8,12 @@ function ChartDetailLayout({
   onBackClick,
   sections,
   lockedSections = [],
-  defaultSection = 'overview',
+  activeSection,
+  onSectionChange,
   isGuest = false,
-  onPhotoUpdated
+  onPhotoUpdated,
+  hasAnalysis = false
 }) {
-  const [activeSection, setActiveSection] = useState(defaultSection);
-
-  const handleSectionChange = (sectionId) => {
-    setActiveSection(sectionId);
-  };
-
   // Find the current section's content
   const currentSection = sections.find(s => s.id === activeSection);
 
@@ -32,10 +28,11 @@ function ChartDetailLayout({
             <SectionNav
               chart={chart}
               activeSection={activeSection}
-              onSectionChange={handleSectionChange}
+              onSectionChange={onSectionChange}
               lockedSections={lockedSections}
               isGuest={isGuest}
               onPhotoUpdated={onPhotoUpdated}
+              hasAnalysis={hasAnalysis}
             />
           </div>
 

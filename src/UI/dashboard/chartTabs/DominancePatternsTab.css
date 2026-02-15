@@ -108,6 +108,30 @@
   border-radius: 1px;
 }
 
+/* Get Interpretations pill */
+.patterns-tabs__pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 6px 14px;
+  background: rgba(167, 139, 250, 0.12);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.patterns-tabs__pill:hover {
+  background: rgba(167, 139, 250, 0.22);
+  color: rgba(255, 255, 255, 0.9);
+}
+
 /* Content Area */
 .patterns-content {
   animation: fadeIn 150ms ease;

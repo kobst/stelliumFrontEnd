@@ -244,6 +244,11 @@
   opacity: 0.6;
 }
 
+.section-nav__sparkle {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
 /* Tablet - keep vertical sidebar, just hide person card */
 @media (max-width: 1199px) {
   .section-nav__person {

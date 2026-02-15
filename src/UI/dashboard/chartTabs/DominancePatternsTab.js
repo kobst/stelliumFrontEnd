@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import SimplifiedPatternWheel from '../../astrology/SimplifiedPatternWheel';
+import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
 import {
   calculateStelliumSpanFromPlanets,
   generateTSquareLinesFromStructured,
@@ -39,7 +40,7 @@ const quadrantColors = {
   'NorthEast': '#34d399'
 };
 
-function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance }) {
+function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining }) {
   const [activeTab, setActiveTab] = useState('elements');
 
   const patterns = birthChart?.patterns?.patterns || birthChart?.patterns || [];
@@ -273,13 +274,20 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
     return (
       <div className="patterns-section-content">
         <div className="patterns-section-left">
-          {interpretation && (
+          {interpretation ? (
             <div className="patterns-interpretation">
               {interpretation.split('\n').map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
             </div>
-          )}
+          ) : !hasAnalysis ? (
+            <AnalysisPromptCard
+              message="Discover what your elemental balance means for your personality and how it shapes your strengths."
+              onNavigate={onNavigateToAnalysis}
+              creditCost={creditCost}
+              creditsRemaining={creditsRemaining}
+            />
+          ) : null}
         </div>
         <div className="patterns-section-right">
           <ElementsBar data={data} />
@@ -300,13 +308,20 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
     return (
       <div className="patterns-section-content">
         <div className="patterns-section-left">
-          {interpretation && (
+          {interpretation ? (
             <div className="patterns-interpretation">
               {interpretation.split('\n').map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
             </div>
-          )}
+          ) : !hasAnalysis ? (
+            <AnalysisPromptCard
+              message="Learn how your Cardinal, Fixed, and Mutable energies influence your approach to life."
+              onNavigate={onNavigateToAnalysis}
+              creditCost={creditCost}
+              creditsRemaining={creditsRemaining}
+            />
+          ) : null}
         </div>
         <div className="patterns-section-right">
           <ModalityGauges data={data} />
@@ -327,13 +342,20 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
     return (
       <div className="patterns-section-content">
         <div className="patterns-section-left">
-          {interpretation && (
+          {interpretation ? (
             <div className="patterns-interpretation">
               {interpretation.split('\n').map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
             </div>
-          )}
+          ) : !hasAnalysis ? (
+            <AnalysisPromptCard
+              message="Understand what your chart emphasis reveals about where you focus your energy."
+              onNavigate={onNavigateToAnalysis}
+              creditCost={creditCost}
+              creditsRemaining={creditsRemaining}
+            />
+          ) : null}
         </div>
         <div className="patterns-section-right">
           <QuadrantGrid data={data} />
@@ -355,13 +377,20 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
     return (
       <div className="patterns-section-content patterns-section-content--planetary">
         <HorizontalBarChart data={data} title="PLANETARY INFLUENCE" />
-        {interpretation && (
+        {interpretation ? (
           <div className="patterns-interpretation patterns-interpretation--below">
             {interpretation.split('\n').map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
           </div>
-        )}
+        ) : !hasAnalysis ? (
+          <AnalysisPromptCard
+            message="See what your planetary strengths and weaknesses reveal about your character."
+            onNavigate={onNavigateToAnalysis}
+            creditCost={creditCost}
+            creditsRemaining={creditsRemaining}
+          />
+        ) : null}
       </div>
     );
   };
@@ -622,13 +651,20 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
             ))}
           </div>
         )}
-        {patternInterpretation && (
+        {patternInterpretation ? (
           <div className="patterns-interpretation patterns-interpretation--full">
             {patternInterpretation.split('\n').map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
           </div>
-        )}
+        ) : !hasAnalysis && patternVisuals.length > 0 ? (
+          <AnalysisPromptCard
+            message="Uncover the deeper meaning behind your chart patterns and how they interact."
+            onNavigate={onNavigateToAnalysis}
+            creditCost={creditCost}
+            creditsRemaining={creditsRemaining}
+          />
+        ) : null}
       </div>
     );
   };
@@ -685,6 +721,14 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
             {tab.label}
           </button>
         ))}
+        {!hasAnalysis && (
+          <button className="patterns-tabs__pill" onClick={onNavigateToAnalysis}>
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+              <path d="M8 0L9.2 5.3L14.5 4L10.6 8L14.5 12L9.2 10.7L8 16L6.8 10.7L1.5 12L5.4 8L1.5 4L6.8 5.3L8 0Z" fill="#a78bfa" />
+            </svg>
+            Get Interpretations
+          </button>
+        )}
       </div>
 
       {/* Tab Content */}

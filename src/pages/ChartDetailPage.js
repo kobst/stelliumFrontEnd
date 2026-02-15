@@ -18,6 +18,7 @@ import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
 import LockedContent from '../UI/shared/LockedContent';
+import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import './ChartDetailPage.css';
 
 function ChartDetailPage() {
@@ -41,6 +42,9 @@ function ChartDetailPage() {
   const [analysisData, setAnalysisData] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisStatus, setAnalysisStatus] = useState(null);
+
+  // Section navigation state
+  const [activeSection, setActiveSection] = useState('overview');
 
   // Polling ref
   const pollingIntervalRef = useRef(null);
@@ -174,6 +178,8 @@ function ChartDetailPage() {
     setChart(prev => ({ ...prev, profilePhotoUrl: newPhotoUrl }));
   };
 
+  const navigateToAnalysis = () => setActiveSection('analysis');
+
   // Extract analysis components
   const birthChart = chart?.birthChart || {};
   const basicAnalysis = analysisData?.interpretation?.basicAnalysis;
@@ -185,6 +191,7 @@ function ChartDetailPage() {
 
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
   const canAccessPremiumTabs = isAnalysisComplete || entitlements.isPlus;
+  const hasAnalysis = !!(basicAnalysis?.dominance || basicAnalysis?.planets);
 
   // Security check: Redirect if user tries to access a different user's data
   if (stelliumUser && userId !== stelliumUser._id) {
@@ -229,7 +236,7 @@ function ChartDetailPage() {
     },
     {
       id: 'dominance',
-      content: canAccessPremiumTabs ? (
+      content: (
         <DominancePatternsTab
           birthChart={birthChart}
           basicAnalysis={basicAnalysis}
@@ -237,36 +244,23 @@ function ChartDetailPage() {
           modalities={modalities}
           quadrants={quadrants}
           planetaryDominance={planetaryDominance}
-        />
-      ) : (
-        <LockedContent
-          title="Dominance & Patterns"
-          description="Discover the dominant elements, modalities, and patterns that shape your personality."
-          features={[
-            'Element and modality balance analysis',
-            'Planetary strength rankings',
-            'Chart pattern identification',
-            'Quadrant emphasis interpretation'
-          ]}
-          ctaText="Unlock with Plus"
+          hasAnalysis={hasAnalysis}
+          onNavigateToAnalysis={navigateToAnalysis}
+          creditCost={CREDIT_COSTS.FULL_NATAL}
+          creditsRemaining={entitlements.credits?.total}
         />
       )
     },
     {
       id: 'planets',
-      content: canAccessPremiumTabs ? (
-        <PlanetsTab birthChart={birthChart} basicAnalysis={basicAnalysis} />
-      ) : (
-        <LockedContent
-          title="Planets Deep Dive"
-          description="Explore detailed interpretations of each planet in your chart."
-          features={[
-            'Individual planet meanings in signs',
-            'House placements explained',
-            'Planetary aspects breakdown',
-            'Retrograde planet insights'
-          ]}
-          ctaText="Unlock with Plus"
+      content: (
+        <PlanetsTab
+          birthChart={birthChart}
+          basicAnalysis={basicAnalysis}
+          hasAnalysis={hasAnalysis}
+          onNavigateToAnalysis={navigateToAnalysis}
+          creditCost={CREDIT_COSTS.FULL_NATAL}
+          creditsRemaining={entitlements.credits?.total}
         />
       )
     },
@@ -317,7 +311,7 @@ function ChartDetailPage() {
   // Determine which sections are locked
   const lockedSections = canAccessPremiumTabs
     ? []
-    : ['dominance', 'planets', 'houses', 'aspects', 'analysis'];
+    : ['analysis'];
 
   return (
     <DashboardLayout user={stelliumUser} defaultSection="birth-charts">
@@ -333,9 +327,11 @@ function ChartDetailPage() {
             onBackClick={handleBackClick}
             sections={sections}
             lockedSections={lockedSections}
-            defaultSection="overview"
+            activeSection={activeSection}
+            onSectionChange={setActiveSection}
             isGuest={isGuest}
             onPhotoUpdated={handlePhotoUpdated}
+            hasAnalysis={hasAnalysis}
           />
         </div>
       )}

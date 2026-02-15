@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
 import './PlanetsTab.css';
 
 // Planet and zodiac symbols
@@ -32,7 +33,7 @@ const splitIntoParagraphs = (text) => {
   ));
 };
 
-function PlanetsTab({ birthChart, basicAnalysis }) {
+function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining }) {
   const planets = useMemo(() => {
     const rawPlanets = birthChart?.planets?.filter(p => !excludedPlanets.includes(p.name)) || [];
     // Sort planets by the canonical order
@@ -243,11 +244,18 @@ function PlanetsTab({ birthChart, basicAnalysis }) {
             </div>
 
             {/* Interpretation paragraphs */}
-            {interpretation?.interpretation && (
+            {interpretation?.interpretation ? (
               <div className="planet-interpretation-section">
                 {splitIntoParagraphs(interpretation.interpretation)}
               </div>
-            )}
+            ) : !hasAnalysis ? (
+              <AnalysisPromptCard
+                message={`Get a detailed interpretation of your ${currentPlanet.name} in ${currentPlanet.sign}${currentPlanet.house ? ` in the ${currentPlanet.house}${getOrdinalSuffix(currentPlanet.house)} House` : ''}.`}
+                onNavigate={onNavigateToAnalysis}
+                creditCost={creditCost}
+                creditsRemaining={creditsRemaining}
+              />
+            ) : null}
           </div>
         )}
       </div>
