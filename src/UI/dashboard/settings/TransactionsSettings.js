@@ -287,31 +287,40 @@ function TransactionsSettings({ userId }) {
                   </td>
                   <td>{tx.description || '—'}</td>
                   <td>
-                    <span className={tx.type === 'purchase'
-                      ? 'transactions-settings__amount--positive'
-                      : 'transactions-settings__amount--negative'
-                    }>
-                      {tx.type === 'purchase' ? '+' : '-'}{tx.amount} credits
-                    </span>
+                    {(() => {
+                      const isPositive = tx.type === 'purchase';
+                      const absAmount = Math.abs(tx.amount);
+                      return (
+                        <span className={isPositive
+                          ? 'transactions-settings__amount--positive'
+                          : 'transactions-settings__amount--negative'
+                        }>
+                          {isPositive ? '+' : '-'}{absAmount} credits
+                        </span>
+                      );
+                    })()}
                   </td>
-                  <td>{tx.balanceAfter != null ? tx.balanceAfter : '—'}</td>
+                  <td>{(tx.balance_after ?? tx.balanceAfter) != null ? (tx.balance_after ?? tx.balanceAfter) : '—'}</td>
                   <td>
-                    {tx.receiptId ? (
+                    {(() => {
+                      const rid = tx.stripe_receipt_id || tx.receiptId;
+                      return rid ? (
                       <span className="transactions-settings__receipt">
                         <span className="transactions-settings__receipt-id">
-                          {tx.receiptId}
+                          {rid}
                         </span>
                         <button
                           className="transactions-settings__copy-btn"
-                          onClick={() => handleCopy(tx.receiptId)}
+                          onClick={() => handleCopy(rid)}
                           title="Copy receipt ID"
                         >
-                          {copiedId === tx.receiptId ? 'Copied' : 'Copy'}
+                          {copiedId === rid ? 'Copied' : 'Copy'}
                         </button>
                       </span>
                     ) : (
                       '—'
-                    )}
+                    );
+                    })()}
                   </td>
                 </tr>
               ))
