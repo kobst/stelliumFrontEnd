@@ -157,3 +157,7 @@
 .subscription-settings__credits {
   margin: 24px 0;
 }
+
+.subscription-settings__history-link {
+  margin-bottom: 16px;
+}

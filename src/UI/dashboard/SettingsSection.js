@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ProfileSettings from './settings/ProfileSettings';
 import SubscriptionSettings from './settings/SubscriptionSettings';
+import TransactionsSettings from './settings/TransactionsSettings';
 import AccountSettings from './settings/AccountSettings';
 import PrivacySettings from './settings/PrivacySettings';
 import './SettingsSection.css';
@@ -8,6 +9,7 @@ import './SettingsSection.css';
 const TABS = [
   { id: 'profile', label: 'Profile' },
   { id: 'subscription', label: 'Subscription' },
+  { id: 'transactions', label: 'Transactions' },
   { id: 'account', label: 'Account' },
   { id: 'privacy', label: 'Privacy & Data' }
 ];
@@ -20,7 +22,9 @@ function SettingsSection({ userId, user, entitlements, initialTab = 'profile' })
       case 'profile':
         return <ProfileSettings userId={userId} user={user} />;
       case 'subscription':
-        return <SubscriptionSettings userId={userId} user={user} entitlements={entitlements} />;
+        return <SubscriptionSettings userId={userId} user={user} entitlements={entitlements} onNavigateTab={setActiveTab} />;
+      case 'transactions':
+        return <TransactionsSettings userId={userId} />;
       case 'account':
         return <AccountSettings userId={userId} user={user} />;
       case 'privacy':

@@ -2115,6 +2115,33 @@ export const enhancedChatForHoroscope = async (userId, requestBody) => {
   }
 };
 
+// Credit Transactions API
+export const fetchCreditTransactions = async ({ type, limit, cursor, startDate, endDate, format } = {}) => {
+  const params = new URLSearchParams();
+  if (type && type !== 'all') params.append('type', type);
+  if (limit) params.append('limit', limit);
+  if (cursor) params.append('cursor', cursor);
+  if (startDate) params.append('startDate', startDate);
+  if (endDate) params.append('endDate', endDate);
+  if (format) params.append('format', format);
+
+  const response = await authenticatedFetch(
+    `${SERVER_URL}/api/credits/transactions?${params.toString()}`
+  );
+
+  if (format === 'csv' || format === 'pdf') {
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.message || 'Failed to export transactions');
+    }
+    return response.blob();
+  }
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to fetch transactions');
+  return data;
+};
+
 // Profile Photo API Functions
 
 export const getProfilePhotoPresignedUrl = async (subjectId, contentType) => {

@@ -3,7 +3,7 @@ import { PlanBadge, CreditsIndicator } from '../../entitlements';
 import { useCheckout } from '../../../hooks/useCheckout';
 import './SubscriptionSettings.css';
 
-function SubscriptionSettings({ userId, user, entitlements }) {
+function SubscriptionSettings({ userId, user, entitlements, onNavigateTab }) {
   const { startSubscription, purchaseCreditPack, openCustomerPortal, isLoading, error } = useCheckout(user);
 
   const isPlus = entitlements?.isPlus;
@@ -53,6 +53,15 @@ function SubscriptionSettings({ userId, user, entitlements }) {
           resetDate={entitlements?.credits?.resetDate}
           onBuyMore={purchaseCreditPack}
         />
+      </div>
+
+      <div className="subscription-settings__history-link">
+        <button
+          className="subscription-settings__link-button"
+          onClick={() => onNavigateTab && onNavigateTab('transactions')}
+        >
+          View Transaction History
+        </button>
       </div>
 
       {error && (
