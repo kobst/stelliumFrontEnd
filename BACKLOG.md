@@ -6,13 +6,13 @@
 
 ## High Priority (Next Up)
 
-- [ ] Complete Stripe credit system migration
-- [ ] Test credit purchase flow end-to-end
-- [ ] Update frontend to use new credit API
-- [ ] **Add Medium Credit Pack to Stripe + UI** (200 credits / $24.99)
-- [ ] **Add credit costs for new actions:**
+- [x] Complete Stripe credit system migration ✅
+- [x] Test credit purchase flow end-to-end ✅
+- [x] Update frontend to use new credit API ✅
+- [x] **Add credit costs for new actions:** ✅
   - Birth Chart Overview: 2 credits
   - Relationship Score: 10 credits
+- [ ] **Add Medium Credit Pack to Stripe + UI** (200 credits / $24.99)
 
 ## UI Improvements (Credit Visibility)
 
