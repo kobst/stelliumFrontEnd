@@ -276,6 +276,19 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
     : selectedPanel === 'challenge' ? 'GROWTH CHALLENGES'
     : 'SYNTHESIS';
 
+  const getPanelAspects = () => {
+    const analysisData = selectedAnalysisType === 'synastry'
+      ? currentAnalysisData?.synastry
+      : currentAnalysisData?.composite;
+
+    if (!analysisData) return [];
+    if (selectedPanel === 'support') return analysisData.supportAspects || [];
+    if (selectedPanel === 'challenge') return analysisData.challengeAspects || [];
+    return [];
+  };
+
+  const panelAspects = getPanelAspects();
+
   // Full analysis complete - show redesigned layout
   return (
     <div className="analysis-tab-redesign">
@@ -411,6 +424,28 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
                       <p className="no-content">No analysis content available for this section.</p>
                     )}
                   </div>
+
+                  {(selectedPanel === 'support' || selectedPanel === 'challenge') && (
+                    <div className="panel-aspects">
+                      <h5 className="panel-aspects__title">
+                        {selectedPanel === 'support' ? 'Support Aspects' : 'Challenge Aspects'}
+                      </h5>
+                      {panelAspects.length > 0 ? (
+                        <ul className="panel-aspects__list">
+                          {panelAspects.map((aspect, index) => (
+                            <li key={`${aspect.code || 'aspect'}-${index}`} className="panel-aspects__item">
+                              <span className="panel-aspects__description">{aspect.description || aspect.code}</span>
+                              {typeof aspect.score === 'number' && (
+                                <span className="panel-aspects__score">{Math.round(aspect.score)}</span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="panel-aspects__empty">No aspects available for this section.</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
