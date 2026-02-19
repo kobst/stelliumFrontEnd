@@ -72,6 +72,7 @@ function ScoresTab({
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
   const clusters = clusterAnalysis?.clusters;
   const overall = clusterAnalysis?.overall;
+  const allScoredItems = clusterAnalysis?.scoredItems || [];
 
   const orderedClusters = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
 
@@ -204,18 +205,36 @@ function ScoresTab({
                   <p className="scores-dimension-row__desc">
                     {CLUSTER_DESCRIPTIONS[cluster]}
                   </p>
-                  <div className="scores-dimension-row__metrics">
-                    <span className="metric-item">
-                      <span className="metric-label">Support</span>
-                      <span className="metric-separator">-</span>
-                      <span className="metric-value">{clusterData?.supportPct || 0}%</span>
-                    </span>
-                    <span className="metric-item">
-                      <span className="metric-label">Challenge</span>
-                      <span className="metric-separator">-</span>
-                      <span className="metric-value">{clusterData?.challengePct || 0}%</span>
-                    </span>
-                  </div>
+                  {/* Top aspects */}
+                  {allScoredItems.length > 0 && (() => {
+                    const clusterItems = allScoredItems
+                      .map(item => {
+                        const contribution = item.clusterContributions?.find(c => c.cluster === cluster);
+                        if (!contribution || contribution.score === 0) return null;
+                        return { ...item, clusterScore: contribution.score };
+                      })
+                      .filter(Boolean)
+                      .sort((a, b) => Math.abs(b.clusterScore) - Math.abs(a.clusterScore));
+                    const topSupport = clusterItems.find(i => i.clusterScore > 0);
+                    const topChallenge = clusterItems.find(i => i.clusterScore < 0);
+                    if (!topSupport && !topChallenge) return null;
+                    return (
+                      <div className="scores-dimension-row__top-aspects">
+                        {topSupport && (
+                          <span className="scores-top-aspect scores-top-aspect--support">
+                            <span className="scores-top-aspect__bullet">●</span>
+                            {topSupport.description}
+                          </span>
+                        )}
+                        {topChallenge && (
+                          <span className="scores-top-aspect scores-top-aspect--challenge">
+                            <span className="scores-top-aspect__bullet">●</span>
+                            {topChallenge.description}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>

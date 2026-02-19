@@ -25,15 +25,6 @@ const getQuadrantLabel = (quadrant) => {
   return quadrant;
 };
 
-// Format category key for display: OVERALL_ATTRACTION_CHEMISTRY → "Overall Attraction & Chemistry"
-const formatCategoryLabel = (key) => {
-  return key
-    .split('_')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(' ')
-    .replace(/ And /g, ' & ');
-};
-
 function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) {
   const [selectedCluster, setSelectedCluster] = useState('Harmony');
   const [selectedAnalysisType, setSelectedAnalysisType] = useState('synastry');
@@ -42,9 +33,10 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
   const [isStarting, setIsStarting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showInsufficientModal, setShowInsufficientModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const [aspectPanel, setAspectPanel] = useState('support');
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [showAllAspects, setShowAllAspects] = useState(false);
+  const [showSourceFilters, setShowSourceFilters] = useState(false);
   const pollingRef = useRef(null);
   const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
@@ -60,26 +52,25 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
   // Check if full analysis is complete
   const isAnalysisComplete = completeAnalysis && Object.keys(completeAnalysis).length > 0;
 
-  // scoreAnalysis from the relationship (populated by fetchRelationshipAnalysis)
-  const scoreAnalysis = relationship?.scoreAnalysis;
-  const scoreAnalysisCategories = scoreAnalysis ? Object.keys(scoreAnalysis) : [];
+  // Scored items from clusterScoring (flat array with per-cluster contributions)
+  const allScoredItems = clusterAnalysis?.scoredItems || [];
 
-  // Auto-select first category when scoreAnalysis becomes available
-  useEffect(() => {
-    if (scoreAnalysisCategories.length > 0 && !selectedCategory) {
-      setSelectedCategory(scoreAnalysisCategories[0]);
-    }
-  }, [scoreAnalysisCategories.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Get scored items for a specific cluster, filtered into support/challenge
+  const getClusterScoredItems = (clusterName, panel) => {
+    let items = allScoredItems
+      .map(item => {
+        const contribution = item.clusterContributions?.find(
+          c => c.cluster === clusterName
+        );
+        if (!contribution || contribution.score === 0) return null;
+        return { ...item, clusterScore: contribution.score, starRating: contribution.starRating };
+      })
+      .filter(Boolean);
 
-  // Get filtered scored items for the selected category
-  const getFilteredItems = (panel) => {
-    if (!scoreAnalysis || !selectedCategory) return [];
-    const category = scoreAnalysis[selectedCategory];
-    if (!category?.scoredItems) return [];
-
-    let items = panel === 'support'
-      ? category.scoredItems.filter(i => i.score > 0)
-      : category.scoredItems.filter(i => i.score < 0);
+    // Filter by support/challenge
+    items = panel === 'support'
+      ? items.filter(i => i.clusterScore > 0)
+      : items.filter(i => i.clusterScore < 0);
 
     // Apply source filter
     if (sourceFilter === 'synastry') {
@@ -91,8 +82,13 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
     }
 
     // Sort by absolute score descending
-    return items.sort((a, b) => Math.abs(b.score) - Math.abs(a.score));
+    return items.sort((a, b) => Math.abs(b.clusterScore) - Math.abs(a.clusterScore));
   };
+
+  // Reset showAllAspects when cluster or panel changes
+  useEffect(() => {
+    setShowAllAspects(false);
+  }, [selectedCluster, aspectPanel]);
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -373,36 +369,33 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
             <span className="cluster-content-score">{Math.round(currentScore)}%</span>
           </div>
 
-          {/* Metrics Row */}
-          <div className="cluster-metrics-row">
-            <div className="cluster-metric-box">
-              <span className="metric-box-label">Support</span>
-              <span className="metric-box-value">{currentClusterData?.supportPct || 0}%</span>
-            </div>
-            <div className="cluster-metric-box">
-              <span className="metric-box-label">Challenge</span>
-              <span className="metric-box-value">{currentClusterData?.challengePct || 0}%</span>
-            </div>
-            <div className="cluster-metric-box">
-              <span className="metric-box-label">Heat</span>
-              <span className="metric-box-value">{currentClusterData?.heatPct || 0}%</span>
-            </div>
-            <div className="cluster-metric-box">
-              <span className="metric-box-label">Quadrant</span>
-              <span className="metric-box-value quadrant">{getQuadrantLabel(currentClusterData?.quadrant)}</span>
-            </div>
-          </div>
 
           {/* Key Factors */}
           {currentClusterData?.keystoneAspects && currentClusterData.keystoneAspects.length > 0 && (
             <div className="key-factors-section">
               <h4 className="key-factors-title">KEY FACTORS</h4>
               <div className="key-factors-list">
-                {currentClusterData.keystoneAspects.slice(0, 3).map((aspect, index) => (
-                  <div key={index} className="key-factor-item">
-                    {aspect.description}
-                  </div>
-                ))}
+                {currentClusterData.keystoneAspects.slice(0, 4).map((aspect, index) => {
+                  // Find star rating from scoredItems cluster contribution
+                  const scoredItem = allScoredItems.find(si => si.description === aspect.description || si.item === aspect.item);
+                  const contribution = scoredItem?.clusterContributions?.find(c => c.cluster === selectedCluster);
+                  const starRating = contribution?.starRating || 0;
+                  const contributionScore = contribution?.score || 0;
+                  const isSupport = contributionScore > 0;
+                  return (
+                    <div key={index} className={`key-factor-item ${isSupport ? 'key-factor-item--support' : 'key-factor-item--challenge'}`}>
+                      <div className="key-factor-item__header">
+                        <span className="key-factor-item__description">{aspect.description}</span>
+                        {starRating > 0 && (
+                          <span className="key-factor-item__stars" title={`Score: ${contributionScore.toFixed(1)}`}>{'★'.repeat(starRating)}</span>
+                        )}
+                      </div>
+                      {aspect.impact && (
+                        <span className="key-factor-item__impact">{aspect.impact}</span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -465,112 +458,123 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
         </div>
       </div>
 
-      {/* Scored Items Section — from scoreAnalysis */}
-      {scoreAnalysis && scoreAnalysisCategories.length > 0 && (
+      {/* Scored Items — from clusterScoring.scoredItems, filtered by selected cluster */}
+      {allScoredItems.length > 0 && (
         <div className="scored-items-section">
-          <h3 className="scored-items-section__title">Aspect Breakdown</h3>
+          <h3 className="scored-items-section__title">
+            Aspect Breakdown
+          </h3>
 
-          {/* Category tabs */}
-          <div className="scored-items-section__categories">
-            {scoreAnalysisCategories.map(catKey => (
-              <button
-                key={catKey}
-                className={`scored-items-section__cat-btn ${selectedCategory === catKey ? 'active' : ''}`}
-                onClick={() => { setSelectedCategory(catKey); setAspectPanel('support'); }}
-              >
-                {formatCategoryLabel(catKey)}
-              </button>
-            ))}
+          {/* Support / Challenge toggle */}
+          <div className="scored-items-section__panel-toggle">
+            <button
+              className={`scored-items-section__toggle-btn ${aspectPanel === 'support' ? 'active' : ''}`}
+              onClick={() => setAspectPanel('support')}
+            >
+              Support
+            </button>
+            <button
+              className={`scored-items-section__toggle-btn ${aspectPanel === 'challenge' ? 'active' : ''}`}
+              onClick={() => setAspectPanel('challenge')}
+            >
+              Challenge
+            </button>
           </div>
 
-          {selectedCategory && scoreAnalysis[selectedCategory] && (
-            <>
-              {/* Support / Challenge toggle */}
-              <div className="scored-items-section__panel-toggle">
+          {/* Filter toggle + source filters */}
+          <div className="scored-items-section__filter-toggle-row">
+            <button
+              className={`scored-items-section__filter-toggle-btn ${showSourceFilters ? 'active' : ''}`}
+              onClick={() => setShowSourceFilters(prev => !prev)}
+              title="Filter by source"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              Filter
+            </button>
+          </div>
+          {showSourceFilters && (
+            <div className="scored-items-section__source-filter">
+              {['all', 'synastry', 'composite', 'housePlacement'].map(f => (
                 <button
-                  className={`scored-items-section__toggle-btn ${aspectPanel === 'support' ? 'active' : ''}`}
-                  onClick={() => setAspectPanel('support')}
+                  key={f}
+                  className={`scored-items-section__filter-btn ${sourceFilter === f ? 'active' : ''}`}
+                  onClick={() => setSourceFilter(f)}
                 >
-                  Support
+                  {f === 'all' ? 'All' : f === 'housePlacement' ? 'House Placements' : f.charAt(0).toUpperCase() + f.slice(1)}
                 </button>
-                <button
-                  className={`scored-items-section__toggle-btn ${aspectPanel === 'challenge' ? 'active' : ''}`}
-                  onClick={() => setAspectPanel('challenge')}
-                >
-                  Challenge
-                </button>
-              </div>
+              ))}
+            </div>
+          )}
 
-              {/* Source filter */}
-              <div className="scored-items-section__source-filter">
-                {['all', 'synastry', 'composite', 'housePlacement'].map(f => (
-                  <button
-                    key={f}
-                    className={`scored-items-section__filter-btn ${sourceFilter === f ? 'active' : ''}`}
-                    onClick={() => setSourceFilter(f)}
-                  >
-                    {f === 'all' ? 'All' : f === 'housePlacement' ? 'House Placements' : f.charAt(0).toUpperCase() + f.slice(1)}
-                  </button>
-                ))}
-              </div>
-
-              {/* Items list */}
-              {(() => {
-                const items = getFilteredItems(aspectPanel);
-                if (items.length === 0) {
-                  return (
-                    <p className="panel-aspects__empty">
-                      {aspectPanel === 'support'
-                        ? 'No supportive items found.'
-                        : 'No challenging items found.'}
-                    </p>
-                  );
-                }
-                return (
-                  <ul className="panel-aspects__list">
-                    {items.map((item, index) => (
-                      <li key={`${item.code || item.id || 'item'}-${index}`} className="panel-aspects__item">
-                        <div className="panel-aspects__item-main">
-                          <span className="panel-aspects__description">{item.description}</span>
-                          <span className={`panel-aspects__score ${aspectPanel === 'support' ? 'panel-aspects__score--support' : 'panel-aspects__score--challenge'}`}>
-                            {Math.abs(Math.round(item.score))}
+          {/* Items list */}
+          {(() => {
+            const items = getClusterScoredItems(selectedCluster, aspectPanel);
+            if (items.length === 0) {
+              return (
+                <p className="panel-aspects__empty">
+                  {aspectPanel === 'support'
+                    ? 'No supportive aspects found for this cluster.'
+                    : 'No challenging aspects found for this cluster.'}
+                </p>
+              );
+            }
+            const maxScore = Math.max(...items.map(i => Math.abs(i.clusterScore)));
+            const visibleItems = showAllAspects ? items : items.slice(0, 5);
+            return (
+              <>
+                <ul className="panel-aspects__list">
+                  {visibleItems.map((item, index) => (
+                    <li key={`${item.id || 'item'}-${index}`} className="panel-aspects__item">
+                      <div className="panel-aspects__item-main">
+                        <span className="panel-aspects__description">{item.description}</span>
+                        {item.starRating != null && item.starRating > 0 ? (
+                          <span
+                            className="panel-aspects__stars panel-aspects__stars--prominent"
+                            title={`Score: ${Math.abs(item.clusterScore).toFixed(1)}`}
+                          >
+                            {'★'.repeat(item.starRating)}
                           </span>
-                        </div>
-                        <div className="panel-aspects__meta">
-                          <span className="panel-aspects__source">{item.source}</span>
-                          {item.type === 'aspect' && item.aspect && (
-                            <span className="panel-aspects__detail">{item.aspect}{item.orb != null ? ` (${item.orb.toFixed(1)}°)` : ''}</span>
-                          )}
-                          {item.type === 'housePlacement' && (
-                            <span className="panel-aspects__detail">
-                              {item.planet && `${item.planet} `}
-                              {item.house != null && `House ${item.house}`}
-                              {item.direction && ` (${item.direction})`}
-                            </span>
-                          )}
-                          {item.starRating != null && item.starRating > 0 && (
-                            <span className="panel-aspects__stars">{'★'.repeat(item.starRating)}</span>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                );
-              })()}
-
-              {/* Category analysis narrative */}
-              {scoreAnalysis[selectedCategory]?.analysis && (
-                <div className="scored-items-section__narrative">
-                  <h5 className="scored-items-section__narrative-title">Analysis</h5>
-                  <p>{scoreAnalysis[selectedCategory].analysis}</p>
-                </div>
-              )}
-            </>
-          )}
-
-          {!selectedCategory && (
-            <p className="panel-aspects__empty">Select a category above to view scored aspects.</p>
-          )}
+                        ) : (
+                          <span
+                            className="panel-aspects__strength-bar-wrap"
+                            title={`Score: ${Math.abs(item.clusterScore).toFixed(1)}`}
+                          >
+                            <span
+                              className={`panel-aspects__strength-bar ${aspectPanel === 'support' ? 'panel-aspects__strength-bar--support' : 'panel-aspects__strength-bar--challenge'}`}
+                              style={{ width: `${maxScore > 0 ? (Math.abs(item.clusterScore) / maxScore) * 100 : 0}%` }}
+                            />
+                          </span>
+                        )}
+                      </div>
+                      <div className="panel-aspects__meta">
+                        <span className="panel-aspects__source">{item.source}</span>
+                        {item.type === 'aspect' && item.aspect && (
+                          <span className="panel-aspects__detail">{item.aspect}{item.orb != null ? ` (${item.orb.toFixed(1)}°)` : ''}</span>
+                        )}
+                        {item.type === 'housePlacement' && (
+                          <span className="panel-aspects__detail">
+                            {item.planet && `${item.planet} `}
+                            {item.house != null && `House ${item.house}`}
+                            {item.direction && ` (${item.direction})`}
+                          </span>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                {items.length > 5 && !showAllAspects && (
+                  <button
+                    className="panel-aspects__show-all"
+                    onClick={() => setShowAllAspects(true)}
+                  >
+                    Show all {items.length} aspects
+                  </button>
+                )}
+              </>
+            );
+          })()}
         </div>
       )}
     </div>
