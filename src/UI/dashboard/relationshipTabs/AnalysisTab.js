@@ -25,6 +25,15 @@ const getQuadrantLabel = (quadrant) => {
   return quadrant;
 };
 
+// Format category key for display: OVERALL_ATTRACTION_CHEMISTRY → "Overall Attraction & Chemistry"
+const formatCategoryLabel = (key) => {
+  return key
+    .split('_')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ')
+    .replace(/ And /g, ' & ');
+};
+
 function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) {
   const [selectedCluster, setSelectedCluster] = useState('Harmony');
   const [selectedAnalysisType, setSelectedAnalysisType] = useState('synastry');
@@ -33,6 +42,9 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
   const [isStarting, setIsStarting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [aspectPanel, setAspectPanel] = useState('support');
+  const [sourceFilter, setSourceFilter] = useState('all');
   const pollingRef = useRef(null);
   const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
@@ -47,6 +59,40 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
 
   // Check if full analysis is complete
   const isAnalysisComplete = completeAnalysis && Object.keys(completeAnalysis).length > 0;
+
+  // scoreAnalysis from the relationship (populated by fetchRelationshipAnalysis)
+  const scoreAnalysis = relationship?.scoreAnalysis;
+  const scoreAnalysisCategories = scoreAnalysis ? Object.keys(scoreAnalysis) : [];
+
+  // Auto-select first category when scoreAnalysis becomes available
+  useEffect(() => {
+    if (scoreAnalysisCategories.length > 0 && !selectedCategory) {
+      setSelectedCategory(scoreAnalysisCategories[0]);
+    }
+  }, [scoreAnalysisCategories.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Get filtered scored items for the selected category
+  const getFilteredItems = (panel) => {
+    if (!scoreAnalysis || !selectedCategory) return [];
+    const category = scoreAnalysis[selectedCategory];
+    if (!category?.scoredItems) return [];
+
+    let items = panel === 'support'
+      ? category.scoredItems.filter(i => i.score > 0)
+      : category.scoredItems.filter(i => i.score < 0);
+
+    // Apply source filter
+    if (sourceFilter === 'synastry') {
+      items = items.filter(i => i.source === 'synastry');
+    } else if (sourceFilter === 'composite') {
+      items = items.filter(i => i.source === 'composite');
+    } else if (sourceFilter === 'housePlacement') {
+      items = items.filter(i => i.type === 'housePlacement');
+    }
+
+    // Sort by absolute score descending
+    return items.sort((a, b) => Math.abs(b.score) - Math.abs(a.score));
+  };
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -276,19 +322,6 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
     : selectedPanel === 'challenge' ? 'GROWTH CHALLENGES'
     : 'SYNTHESIS';
 
-  const getPanelAspects = () => {
-    const analysisData = selectedAnalysisType === 'synastry'
-      ? currentAnalysisData?.synastry
-      : currentAnalysisData?.composite;
-
-    if (!analysisData) return [];
-    if (selectedPanel === 'support') return analysisData.supportAspects || [];
-    if (selectedPanel === 'challenge') return analysisData.challengeAspects || [];
-    return [];
-  };
-
-  const panelAspects = getPanelAspects();
-
   // Full analysis complete - show redesigned layout
   return (
     <div className="analysis-tab-redesign">
@@ -425,33 +458,121 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
                     )}
                   </div>
 
-                  {(selectedPanel === 'support' || selectedPanel === 'challenge') && (
-                    <div className="panel-aspects">
-                      <h5 className="panel-aspects__title">
-                        {selectedPanel === 'support' ? 'Support Aspects' : 'Challenge Aspects'}
-                      </h5>
-                      {panelAspects.length > 0 ? (
-                        <ul className="panel-aspects__list">
-                          {panelAspects.map((aspect, index) => (
-                            <li key={`${aspect.code || 'aspect'}-${index}`} className="panel-aspects__item">
-                              <span className="panel-aspects__description">{aspect.description || aspect.code}</span>
-                              {typeof aspect.score === 'number' && (
-                                <span className="panel-aspects__score">{Math.round(aspect.score)}</span>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="panel-aspects__empty">No aspects available for this section.</p>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Scored Items Section — from scoreAnalysis */}
+      {scoreAnalysis && scoreAnalysisCategories.length > 0 && (
+        <div className="scored-items-section">
+          <h3 className="scored-items-section__title">Aspect Breakdown</h3>
+
+          {/* Category tabs */}
+          <div className="scored-items-section__categories">
+            {scoreAnalysisCategories.map(catKey => (
+              <button
+                key={catKey}
+                className={`scored-items-section__cat-btn ${selectedCategory === catKey ? 'active' : ''}`}
+                onClick={() => { setSelectedCategory(catKey); setAspectPanel('support'); }}
+              >
+                {formatCategoryLabel(catKey)}
+              </button>
+            ))}
+          </div>
+
+          {selectedCategory && scoreAnalysis[selectedCategory] && (
+            <>
+              {/* Support / Challenge toggle */}
+              <div className="scored-items-section__panel-toggle">
+                <button
+                  className={`scored-items-section__toggle-btn ${aspectPanel === 'support' ? 'active' : ''}`}
+                  onClick={() => setAspectPanel('support')}
+                >
+                  Support
+                </button>
+                <button
+                  className={`scored-items-section__toggle-btn ${aspectPanel === 'challenge' ? 'active' : ''}`}
+                  onClick={() => setAspectPanel('challenge')}
+                >
+                  Challenge
+                </button>
+              </div>
+
+              {/* Source filter */}
+              <div className="scored-items-section__source-filter">
+                {['all', 'synastry', 'composite', 'housePlacement'].map(f => (
+                  <button
+                    key={f}
+                    className={`scored-items-section__filter-btn ${sourceFilter === f ? 'active' : ''}`}
+                    onClick={() => setSourceFilter(f)}
+                  >
+                    {f === 'all' ? 'All' : f === 'housePlacement' ? 'House Placements' : f.charAt(0).toUpperCase() + f.slice(1)}
+                  </button>
+                ))}
+              </div>
+
+              {/* Items list */}
+              {(() => {
+                const items = getFilteredItems(aspectPanel);
+                if (items.length === 0) {
+                  return (
+                    <p className="panel-aspects__empty">
+                      {aspectPanel === 'support'
+                        ? 'No supportive items found.'
+                        : 'No challenging items found.'}
+                    </p>
+                  );
+                }
+                return (
+                  <ul className="panel-aspects__list">
+                    {items.map((item, index) => (
+                      <li key={`${item.code || item.id || 'item'}-${index}`} className="panel-aspects__item">
+                        <div className="panel-aspects__item-main">
+                          <span className="panel-aspects__description">{item.description}</span>
+                          <span className={`panel-aspects__score ${aspectPanel === 'support' ? 'panel-aspects__score--support' : 'panel-aspects__score--challenge'}`}>
+                            {Math.abs(Math.round(item.score))}
+                          </span>
+                        </div>
+                        <div className="panel-aspects__meta">
+                          <span className="panel-aspects__source">{item.source}</span>
+                          {item.type === 'aspect' && item.aspect && (
+                            <span className="panel-aspects__detail">{item.aspect}{item.orb != null ? ` (${item.orb.toFixed(1)}°)` : ''}</span>
+                          )}
+                          {item.type === 'housePlacement' && (
+                            <span className="panel-aspects__detail">
+                              {item.planet && `${item.planet} `}
+                              {item.house != null && `House ${item.house}`}
+                              {item.direction && ` (${item.direction})`}
+                            </span>
+                          )}
+                          {item.starRating != null && item.starRating > 0 && (
+                            <span className="panel-aspects__stars">{'★'.repeat(item.starRating)}</span>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                );
+              })()}
+
+              {/* Category analysis narrative */}
+              {scoreAnalysis[selectedCategory]?.analysis && (
+                <div className="scored-items-section__narrative">
+                  <h5 className="scored-items-section__narrative-title">Analysis</h5>
+                  <p>{scoreAnalysis[selectedCategory].analysis}</p>
+                </div>
+              )}
+            </>
+          )}
+
+          {!selectedCategory && (
+            <p className="panel-aspects__empty">Select a category above to view scored aspects.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
