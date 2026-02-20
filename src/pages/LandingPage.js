@@ -55,6 +55,41 @@ const LandingPage = () => {
 
   return (
     <div className="landing-page">
+      {/* Sticky Nav */}
+      <nav className="landing-nav">
+        <div className="landing-nav__inner">
+          <a href="/" className="landing-nav__logo">
+            <img src={stelliumIcon} alt="Stellium" className="landing-nav__logo-img" />
+            <span className="landing-nav__wordmark">STELLIUM</span>
+          </a>
+          <div className="landing-nav__actions">
+            {stelliumUser ? (
+              <button
+                className="landing-nav__link"
+                onClick={() => navigate(`/dashboard/${stelliumUser._id}`)}
+              >
+                Go to Dashboard
+              </button>
+            ) : (
+              <>
+                <button
+                  className="landing-nav__link"
+                  onClick={() => navigate('/login')}
+                >
+                  Sign In
+                </button>
+                <button
+                  className="landing-nav__btn"
+                  onClick={() => navigate('/birthChartEntry')}
+                >
+                  Get Started
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-content">
@@ -65,7 +100,7 @@ const LandingPage = () => {
           </div>
           <p className="hero-subtitle">Birth chart analysis, relationship reports, custom horoscopes...<br />and your own AI astrologer to answer your most personal questions</p>
           <div className="hero-buttons">
-           <CTABand />
+           <CTABand onGetStarted={handleGetStarted} />
           </div>
         </div>
       </section>
