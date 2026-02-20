@@ -15,19 +15,6 @@ function OverviewTab({ relationship, compositeId }) {
   // Use holistic overview if available (from full analysis), otherwise use initial overview
   const overview = holisticOverview || initialOverview;
 
-  const iconSvg = (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-      <circle cx="24" cy="24" r="20" stroke="url(#gradient)" strokeWidth="2" strokeDasharray="4 4" />
-      <circle cx="24" cy="24" r="12" stroke="url(#gradient)" strokeWidth="1.5" opacity="0.6" />
-      <defs>
-        <linearGradient id="gradient" x1="0" y1="0" x2="48" y2="48">
-          <stop stopColor="#60a5fa" />
-          <stop offset="1" stopColor="#a78bfa" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-
   const panel = (
     <AskStelliumPanel
       isOpen={chatOpen}
@@ -50,13 +37,13 @@ function OverviewTab({ relationship, compositeId }) {
       <div className="overview-tab-redesign">
         <div className="overview-header">
           <h2 className="overview-header__title">Relationship Overview</h2>
-          <div
-            className="overview-header__icon overview-header__icon--clickable"
+          <button
+            className="ask-stellium-trigger"
             onClick={() => setChatOpen(true)}
-            title="Ask Stellium"
           >
-            {iconSvg}
-          </div>
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
         </div>
         <div className="overview-body">
           <div className="overview-empty-state">
@@ -74,13 +61,13 @@ function OverviewTab({ relationship, compositeId }) {
     <div className="overview-tab-redesign">
       <div className="overview-header">
         <h2 className="overview-header__title">Relationship Overview</h2>
-        <div
-          className="overview-header__icon overview-header__icon--clickable"
+        <button
+          className="ask-stellium-trigger"
           onClick={() => setChatOpen(true)}
-          title="Ask Stellium"
         >
-          {iconSvg}
-        </div>
+          <span className="ask-stellium-trigger__icon">&#10024;</span>
+          Ask Stellium
+        </button>
       </div>
 
       <div className="overview-body">

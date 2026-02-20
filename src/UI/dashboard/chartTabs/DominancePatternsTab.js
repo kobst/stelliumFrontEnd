@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SimplifiedPatternWheel from '../../astrology/SimplifiedPatternWheel';
 import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
+import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import {
   calculateStelliumSpanFromPlanets,
   generateTSquareLinesFromStructured,
@@ -40,8 +41,9 @@ const quadrantColors = {
   'NorthEast': '#34d399'
 };
 
-function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining }) {
+function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId }) {
   const [activeTab, setActiveTab] = useState('elements');
+  const [chatOpen, setChatOpen] = useState(false);
 
   const patterns = birthChart?.patterns?.patterns || birthChart?.patterns || [];
   const planets = birthChart?.planets || [];
@@ -707,7 +709,13 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
       {/* Header */}
       <div className="patterns-header">
         <h2 className="patterns-header-title">Patterns</h2>
-        <div className="patterns-gradient-icon"></div>
+        <button
+          className="ask-stellium-trigger"
+          onClick={() => setChatOpen(true)}
+        >
+          <span className="ask-stellium-trigger__icon">&#10024;</span>
+          Ask Stellium
+        </button>
       </div>
 
       {/* Tab Navigation */}
@@ -735,6 +743,21 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
       <div className="patterns-content">
         {renderTabContent()}
       </div>
+
+      <AskStelliumPanel
+        isOpen={chatOpen}
+        onClose={() => setChatOpen(false)}
+        contentType="birthchart"
+        contentId={chartId}
+        birthChart={birthChart}
+        contextLabel="About your birth chart"
+        placeholderText="Ask about your birth chart..."
+        suggestedQuestions={[
+          "What are my greatest strengths?",
+          "How does my Moon sign affect my emotions?",
+          "What should I focus on for personal growth?"
+        ]}
+      />
     </div>
   );
 }

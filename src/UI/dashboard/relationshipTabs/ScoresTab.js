@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
+import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './RelationshipTabs.css';
 
 // Score-band color: green/teal for strong, amber for moderate, coral for weak
@@ -64,9 +65,11 @@ function ScoresTab({
   hasAnalysis,
   onNavigateToAnalysis,
   creditCost,
-  creditsRemaining
+  creditsRemaining,
+  compositeId
 }) {
   const [expandedCluster, setExpandedCluster] = useState(null);
+  const [chatOpen, setChatOpen] = useState(false);
 
   // Get cluster data from relationship
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
@@ -84,24 +87,39 @@ function ScoresTab({
     setExpandedCluster(prev => prev === cluster ? null : cluster);
   };
 
+  const relationshipScoredItems =
+    relationship?.scoredItems ||
+    relationship?.clusterAnalysis?.scoredItems ||
+    relationship?.clusterScoring?.scoredItems ||
+    [];
+
+  const chatPanel = (
+    <AskStelliumPanel
+      isOpen={chatOpen}
+      onClose={() => setChatOpen(false)}
+      contentType="relationship"
+      contentId={compositeId}
+      relationshipScoredItems={relationshipScoredItems}
+      contextLabel="About your relationship"
+      placeholderText="Ask about your relationship..."
+      suggestedQuestions={[
+        "What are our relationship strengths?",
+        "How can we improve our communication?",
+        "What challenges should we be aware of?"
+      ]}
+    />
+  );
+
   // If no cluster data available
   if (!clusters) {
     return (
       <div className="scores-tab-redesign">
         <div className="scores-header">
           <h2 className="scores-header__title">Compatibility Score</h2>
-          <div className="scores-header__icon">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-              <circle cx="24" cy="24" r="20" stroke="url(#scoreGradient)" strokeWidth="2" strokeDasharray="4 4" />
-              <circle cx="24" cy="24" r="12" stroke="url(#scoreGradient)" strokeWidth="1.5" opacity="0.6" />
-              <defs>
-                <linearGradient id="scoreGradient" x1="0" y1="0" x2="48" y2="48">
-                  <stop stopColor="#60a5fa" />
-                  <stop offset="1" stopColor="#a78bfa" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
+          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
         </div>
         <div className="scores-body">
           <div className="scores-empty-state">
@@ -110,6 +128,7 @@ function ScoresTab({
             <p>Compatibility scores are not yet available for this relationship.</p>
           </div>
         </div>
+        {chatPanel}
       </div>
     );
   }
@@ -122,18 +141,10 @@ function ScoresTab({
       {/* Header */}
       <div className="scores-header">
         <h2 className="scores-header__title">Compatibility Score</h2>
-        <div className="scores-header__icon">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <circle cx="24" cy="24" r="20" stroke="url(#scoreGradient2)" strokeWidth="2" strokeDasharray="4 4" />
-            <circle cx="24" cy="24" r="12" stroke="url(#scoreGradient2)" strokeWidth="1.5" opacity="0.6" />
-            <defs>
-              <linearGradient id="scoreGradient2" x1="0" y1="0" x2="48" y2="48">
-                <stop stopColor="#60a5fa" />
-                <stop offset="1" stopColor="#a78bfa" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
+        <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+          <span className="ask-stellium-trigger__icon">&#10024;</span>
+          Ask Stellium
+        </button>
       </div>
 
       {/* Overall Score Header */}
@@ -251,6 +262,7 @@ function ScoresTab({
           creditsRemaining={creditsRemaining}
         />
       )}
+      {chatPanel}
     </div>
   );
 }

@@ -879,14 +879,14 @@ function AskStelliumPanel({
         />
 
         {/* Input with inline chips */}
+        <div className="ask-panel__credit-cost">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
+          <span>1 credit per message</span>
+          <span className="ask-panel__credit-cost-remaining">({credits.total} remaining)</span>
+        </div>
         <div className="ask-panel__input">
-          <div className="ask-panel__credit-cost">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-            </svg>
-            <span>1 credit per message</span>
-            <span className="ask-panel__credit-cost-remaining">({credits.total} remaining)</span>
-          </div>
           <div className="ask-panel__input-wrapper">
             {selectedElements.length > 0 && (
               <div className="ask-panel__context-chips">

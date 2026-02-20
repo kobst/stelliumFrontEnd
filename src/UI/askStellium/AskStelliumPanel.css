@@ -304,9 +304,11 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 24px 4px;
+  padding: 4px 24px;
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.4);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .ask-panel__credit-cost svg {
@@ -321,10 +323,9 @@
 /* Input area */
 .ask-panel__input {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 8px;
-  padding: 16px 24px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 24px 20px;
   flex-shrink: 0;
 }
 
@@ -335,6 +336,8 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   transition: border-color 200ms ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .ask-panel__input-wrapper:focus-within {
@@ -343,6 +346,7 @@
 
 .ask-panel__input textarea {
   width: 100%;
+  min-height: 40px;
   background: none;
   border: none;
   padding: 10px 14px;

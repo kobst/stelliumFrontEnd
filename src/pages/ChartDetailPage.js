@@ -232,7 +232,7 @@ function ChartDetailPage() {
     },
     {
       id: 'chart',
-      content: <ChartTab birthChart={birthChart} />
+      content: <ChartTab birthChart={birthChart} chartId={chartId} />
     },
     {
       id: 'dominance',
@@ -248,6 +248,7 @@ function ChartDetailPage() {
           onNavigateToAnalysis={navigateToAnalysis}
           creditCost={CREDIT_COSTS.FULL_NATAL}
           creditsRemaining={entitlements.credits?.total}
+          chartId={chartId}
         />
       )
     },
@@ -261,6 +262,7 @@ function ChartDetailPage() {
           onNavigateToAnalysis={navigateToAnalysis}
           creditCost={CREDIT_COSTS.FULL_NATAL}
           creditsRemaining={entitlements.credits?.total}
+          chartId={chartId}
         />
       )
     },

@@ -150,11 +150,13 @@ function HoroscopeContent({
             <h1 className="horoscope-content__title">How my Day? Stellium</h1>
             <span className="horoscope-content__date">{formatDate()}</span>
           </div>
-          <div
-            className="horoscope-content__moon-icon horoscope-content__moon-icon--clickable"
+          <button
+            className="ask-stellium-trigger"
             onClick={() => setChatOpen(true)}
-            title="Ask Stellium"
-          />
+          >
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
         </div>
 
         <TimeSelector

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Ephemeris from '../../shared/Ephemeris';
 import BirthChartSummaryTable from '../../birthChart/tables/BirthChartSummaryTable';
+import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './RelationshipTabs.css';
 
 // Planet symbols for display
@@ -105,8 +106,9 @@ function SynastryAspectsTable({ aspects, userAName, userBName }) {
   );
 }
 
-function ChartsTab({ relationship }) {
+function ChartsTab({ relationship, compositeId }) {
   const [activeSubTab, setActiveSubTab] = useState('synastry');
+  const [chatOpen, setChatOpen] = useState(false);
 
   const synastryAspects = relationship?.synastryAspects || [];
   const compositeChart = relationship?.compositeChart || {};
@@ -194,18 +196,10 @@ function ChartsTab({ relationship }) {
       {/* Header */}
       <div className="charts-header">
         <h2 className="charts-header__title">Charts</h2>
-        <div className="charts-header__icon">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <circle cx="24" cy="24" r="20" stroke="url(#chartGradient)" strokeWidth="2" strokeDasharray="4 4" />
-            <circle cx="24" cy="24" r="12" stroke="url(#chartGradient)" strokeWidth="1.5" opacity="0.6" />
-            <defs>
-              <linearGradient id="chartGradient" x1="0" y1="0" x2="48" y2="48">
-                <stop stopColor="#60a5fa" />
-                <stop offset="1" stopColor="#a78bfa" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
+        <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+          <span className="ask-stellium-trigger__icon">&#10024;</span>
+          Ask Stellium
+        </button>
       </div>
 
       {/* Card containing tabs + content */}
@@ -308,6 +302,19 @@ function ChartsTab({ relationship }) {
         )}
         </div>
       </div>
+      <AskStelliumPanel
+        isOpen={chatOpen}
+        onClose={() => setChatOpen(false)}
+        contentType="relationship"
+        contentId={compositeId}
+        contextLabel="About your relationship"
+        placeholderText="Ask about your relationship..."
+        suggestedQuestions={[
+          "What are our relationship strengths?",
+          "How can we improve our communication?",
+          "What challenges should we be aware of?"
+        ]}
+      />
     </div>
   );
 }

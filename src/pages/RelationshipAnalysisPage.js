@@ -155,6 +155,7 @@ function RelationshipAnalysisPage() {
           onNavigateToAnalysis={navigateToAnalysis}
           creditCost={CREDIT_COSTS.FULL_RELATIONSHIP}
           creditsRemaining={entitlements.credits?.total}
+          compositeId={compositeId}
         />
       )
     },
@@ -164,7 +165,7 @@ function RelationshipAnalysisPage() {
     },
     {
       id: 'charts',
-      content: <ChartsTab relationship={relationship} />
+      content: <ChartsTab relationship={relationship} compositeId={compositeId} />
     },
     {
       id: 'analysis',

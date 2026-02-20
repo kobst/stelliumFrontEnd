@@ -4,6 +4,7 @@ import { startRelationshipWorkflow, getRelationshipWorkflowStatus } from '../../
 import InsufficientCreditsModal from '../../entitlements/InsufficientCreditsModal';
 import useEntitlementsStore from '../../../Utilities/entitlementsStore';
 import { CREDIT_COSTS } from '../../../Utilities/creditCosts';
+import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './RelationshipTabs.css';
 
 const CLUSTER_ICONS = {
@@ -37,6 +38,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
   const [sourceFilter, setSourceFilter] = useState('all');
   const [showAllAspects, setShowAllAspects] = useState(false);
   const [showSourceFilters, setShowSourceFilters] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const pollingRef = useRef(null);
   const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
@@ -179,24 +181,39 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
     return null;
   };
 
+  const relationshipScoredItems =
+    relationship?.scoredItems ||
+    relationship?.clusterAnalysis?.scoredItems ||
+    relationship?.clusterScoring?.scoredItems ||
+    [];
+
+  const chatPanel = (
+    <AskStelliumPanel
+      isOpen={chatOpen}
+      onClose={() => setChatOpen(false)}
+      contentType="relationship"
+      contentId={compositeId}
+      relationshipScoredItems={relationshipScoredItems}
+      contextLabel="About your relationship"
+      placeholderText="Ask about your relationship..."
+      suggestedQuestions={[
+        "What are our relationship strengths?",
+        "How can we improve our communication?",
+        "What challenges should we be aware of?"
+      ]}
+    />
+  );
+
   // If analysis is in progress
   if (analysisStatus && !analysisStatus.completed && analysisStatus.status !== 'failed') {
     return (
       <div className="analysis-tab-redesign">
         <div className="analysis-header">
           <h2 className="analysis-header__title">360° Analysis</h2>
-          <div className="analysis-header__icon">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-              <circle cx="24" cy="24" r="20" stroke="url(#analysisGradient)" strokeWidth="2" strokeDasharray="4 4" />
-              <circle cx="24" cy="24" r="12" stroke="url(#analysisGradient)" strokeWidth="1.5" opacity="0.6" />
-              <defs>
-                <linearGradient id="analysisGradient" x1="0" y1="0" x2="48" y2="48">
-                  <stop stopColor="#60a5fa" />
-                  <stop offset="1" stopColor="#a78bfa" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
+          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
         </div>
         <div className="analysis-progress-card">
           <div className="progress-spinner"></div>
@@ -204,6 +221,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
           <p>We're analyzing your relationship in depth...</p>
           <p className="progress-note">This may take a few minutes</p>
         </div>
+        {chatPanel}
       </div>
     );
   }
@@ -214,18 +232,10 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
       <div className="analysis-tab-redesign">
         <div className="analysis-header">
           <h2 className="analysis-header__title">360° Analysis</h2>
-          <div className="analysis-header__icon">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-              <circle cx="24" cy="24" r="20" stroke="url(#analysisGradient2)" strokeWidth="2" strokeDasharray="4 4" />
-              <circle cx="24" cy="24" r="12" stroke="url(#analysisGradient2)" strokeWidth="1.5" opacity="0.6" />
-              <defs>
-                <linearGradient id="analysisGradient2" x1="0" y1="0" x2="48" y2="48">
-                  <stop stopColor="#60a5fa" />
-                  <stop offset="1" stopColor="#a78bfa" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
+          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
         </div>
         <div className="analysis-empty-card">
           <div className="empty-icon">🔮</div>
@@ -284,6 +294,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
           onBuyCredits={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
           onSubscribe={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
         />
+        {chatPanel}
       </div>
     );
   }
@@ -324,18 +335,10 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
       {/* Header */}
       <div className="analysis-header">
         <h2 className="analysis-header__title">360° Analysis</h2>
-        <div className="analysis-header__icon">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <circle cx="24" cy="24" r="20" stroke="url(#analysisGradient3)" strokeWidth="2" strokeDasharray="4 4" />
-            <circle cx="24" cy="24" r="12" stroke="url(#analysisGradient3)" strokeWidth="1.5" opacity="0.6" />
-            <defs>
-              <linearGradient id="analysisGradient3" x1="0" y1="0" x2="48" y2="48">
-                <stop stopColor="#60a5fa" />
-                <stop offset="1" stopColor="#a78bfa" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
+        <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+          <span className="ask-stellium-trigger__icon">&#10024;</span>
+          Ask Stellium
+        </button>
       </div>
 
       {/* Main Content Card */}
@@ -577,6 +580,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
           })()}
         </div>
       )}
+      {chatPanel}
     </div>
   );
 }
