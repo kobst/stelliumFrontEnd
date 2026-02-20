@@ -174,6 +174,14 @@ const LoginPage = () => {
               />
             </div>
 
+            {!isSignUp && (
+              <div className="forgot-password-row">
+                <button type="button" className="forgot-password-btn" disabled={isSubmitting}>
+                  Forgot password?
+                </button>
+              </div>
+            )}
+
             {isSignUp && (
               <div className="form-group">
                 <label htmlFor="confirmPassword">Confirm Password</label>
