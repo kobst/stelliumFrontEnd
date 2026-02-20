@@ -169,11 +169,16 @@
   padding: 0 16px;
 }
 
-/* Form Styles */
+/* Form Styles — override global form{} in App.css */
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }
 
 .form-group {
@@ -192,8 +197,11 @@
 }
 
 .form-group input {
+  width: 100% !important;
+  box-sizing: border-box;
   padding: 14px 16px;
   font-size: 1rem;
+  font-style: normal;
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
