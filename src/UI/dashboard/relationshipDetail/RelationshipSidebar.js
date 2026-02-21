@@ -68,11 +68,16 @@ function RelationshipSidebar({
 
   const aspectCounts = countAspectsByType(synastryAspects);
 
-  // Get partner info (Person B)
-  const partnerName = relationship?.userB_name || 'Partner';
-  const partnerPhoto = relationship?.userB_photoUrl || relationship?.userB_profilePhotoUrl;
+  // Get info for both partners
+  const userAName = relationship?.userA_name || 'Person A';
+  const userAPhoto = relationship?.userA_photoUrl || relationship?.userA_profilePhotoUrl;
+  const userAPlanets = relationship?.userA_birthChart?.planets;
+  const userASun = getSign(userAPlanets, 'Sun');
+
+  const userBName = relationship?.userB_name || 'Person B';
+  const userBPhoto = relationship?.userB_photoUrl || relationship?.userB_profilePhotoUrl;
   const userBPlanets = relationship?.userB_birthChart?.planets;
-  const partnerSun = getSign(userBPlanets, 'Sun');
+  const userBSun = getSign(userBPlanets, 'Sun');
 
   // Get strongest and challenge clusters
   const dominantCluster = overall?.dominantCluster;
@@ -87,20 +92,25 @@ function RelationshipSidebar({
     <aside className="relationship-sidebar">
       {/* Info Card - Profile + Stats */}
       <div className="relationship-sidebar__card">
-        {/* Profile Section */}
+        {/* Profile Section - Both Partners */}
         <div className="relationship-sidebar__profile">
           <div className="profile-header">
-            {partnerPhoto ? (
-              <img
-                src={partnerPhoto}
-                alt={partnerName}
-                className="profile-photo"
-              />
-            ) : (
-              <div className="profile-photo profile-photo--placeholder">
-                {partnerName.charAt(0)}
-              </div>
-            )}
+            <div className="profile-photos">
+              {userAPhoto ? (
+                <img src={userAPhoto} alt={userAName} className="profile-photo" />
+              ) : (
+                <div className="profile-photo profile-photo--placeholder">
+                  {userAName.charAt(0)}
+                </div>
+              )}
+              {userBPhoto ? (
+                <img src={userBPhoto} alt={userBName} className="profile-photo" />
+              ) : (
+                <div className="profile-photo profile-photo--placeholder">
+                  {userBName.charAt(0)}
+                </div>
+              )}
+            </div>
             <div className="profile-score">
               <span className="score-label">Overall Score</span>
               <span className="score-value">
@@ -109,8 +119,12 @@ function RelationshipSidebar({
             </div>
           </div>
 
-          <h2 className="profile-name">{partnerName}</h2>
-          {partnerSun && <span className="profile-sign">{partnerSun}</span>}
+          <h2 className="profile-name">{userAName} & {userBName}</h2>
+          {(userASun || userBSun) && (
+            <span className="profile-sign">
+              {[userASun, userBSun].filter(Boolean).join(' & ')}
+            </span>
+          )}
 
           <p className="profile-description">{compatDescription}</p>
 

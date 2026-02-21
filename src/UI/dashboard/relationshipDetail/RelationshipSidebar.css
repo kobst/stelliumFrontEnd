@@ -5,10 +5,8 @@
   border: none;
   border-radius: 0;
   padding: 0;
-  position: sticky;
-  top: var(--spacing-xl, 24px);
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
+  position: relative;
+  top: 0;
 }
 
 /* Info Card - Contains Profile + Stats */
@@ -32,6 +30,11 @@
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: var(--spacing-md, 16px);
+}
+
+.profile-photos {
+  display: flex;
+  gap: 6px;
 }
 
 .profile-photo {
