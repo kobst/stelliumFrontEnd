@@ -117,7 +117,7 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
         </button>
 
         {/* Branding */}
-        <span className="top-header__branding">STELLIUM</span>
+        <a href="/" className="top-header__branding">STELLIUM</a>
       </div>
 
       {/* Center Navigation */}
