@@ -1118,18 +1118,19 @@ export const getCompleteWorkflowData = async (userId, workflowId) => {
 
 // Relationship Workflow API Functions
 
-export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChartId, immediate = true) => {
-  console.log("🔥 startRelationshipWorkflow called:", { userIdA, userIdB, compositeChartId, immediate });
+export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChartId, immediate = true, useAdmin = false) => {
+  console.log("🔥 startRelationshipWorkflow called:", { userIdA, userIdB, compositeChartId, immediate, useAdmin });
   try {
     const requestBody = { userIdA, userIdB, compositeChartId };
     if (!immediate) {
       requestBody.immediate = false;
     }
     
+    const endpoint = useAdmin ? '/admin/workflow/relationship/start' : '/workflow/relationship/start';
     console.log("📤 RELATIONSHIP REQUEST BODY:", JSON.stringify(requestBody));
-    console.log("📍 RELATIONSHIP REQUEST URL:", `${getServerUrl()}/workflow/relationship/start`);
+    console.log("📍 RELATIONSHIP REQUEST URL:", `${getServerUrl()}${endpoint}`);
     
-    const response = await fetch(`${getServerUrl()}/workflow/relationship/start`, {
+    const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
@@ -1150,10 +1151,11 @@ export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChart
   }
 };
 
-export const getRelationshipWorkflowStatus = async (compositeChartId) => {
-  console.log("Getting relationship workflow status for:", compositeChartId);
+export const getRelationshipWorkflowStatus = async (compositeChartId, useAdmin = false) => {
+  console.log("Getting relationship workflow status for:", compositeChartId, "useAdmin:", useAdmin);
   try {
-    const response = await fetch(`${getServerUrl()}/workflow/relationship/status`, {
+    const endpoint = useAdmin ? '/admin/workflow/relationship/status' : '/workflow/relationship/status';
+    const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ compositeChartId })
@@ -1174,10 +1176,11 @@ export const getRelationshipWorkflowStatus = async (compositeChartId) => {
   }
 };
 
-export const resumeRelationshipWorkflow = async (compositeChartId) => {
-  console.log("🔄 Resuming relationship workflow for:", compositeChartId);
+export const resumeRelationshipWorkflow = async (compositeChartId, useAdmin = false) => {
+  console.log("🔄 Resuming relationship workflow for:", compositeChartId, "useAdmin:", useAdmin);
   try {
-    const response = await fetch(`${getServerUrl()}/workflow/relationship/resume`, {
+    const endpoint = useAdmin ? '/admin/workflow/relationship/resume' : '/workflow/relationship/resume';
+    const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ compositeChartId })
@@ -1201,14 +1204,16 @@ export const resumeRelationshipWorkflow = async (compositeChartId) => {
 // Enhanced relationship workflow functions for the new two-stage system
 
 // Start full relationship analysis from existing relationship (Stage 2)
-export const startFullRelationshipAnalysis = async (compositeChartId) => {
+export const startFullRelationshipAnalysis = async (compositeChartId, useAdmin = false) => {
   console.log("🚀 Starting full relationship analysis for:", compositeChartId);
+  console.log("🚀 startFullRelationshipAnalysis useAdmin:", useAdmin);
   console.log("🚀 compositeChartId type:", typeof compositeChartId);
   console.log("🚀 compositeChartId value:", compositeChartId);
   const requestBody = { compositeChartId, immediate: true };
   console.log("🚀 Request body:", requestBody);
   try {
-    const response = await fetch(`${getServerUrl()}/workflow/relationship/start`, {
+    const endpoint = useAdmin ? '/admin/workflow/relationship/start' : '/workflow/relationship/start';
+    const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
@@ -1230,10 +1235,11 @@ export const startFullRelationshipAnalysis = async (compositeChartId) => {
 };
 
 // Auto-create relationship and start full analysis in one call
-export const createRelationshipWithFullAnalysis = async (userIdA, userIdB) => {
-  console.log("🔥 Creating relationship with full analysis:", { userIdA, userIdB });
+export const createRelationshipWithFullAnalysis = async (userIdA, userIdB, useAdmin = false) => {
+  console.log("🔥 Creating relationship with full analysis:", { userIdA, userIdB, useAdmin });
   try {
-    const response = await fetch(`${getServerUrl()}/workflow/relationship/start`, {
+    const endpoint = useAdmin ? '/admin/workflow/relationship/start' : '/workflow/relationship/start';
+    const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ userIdA, userIdB, immediate: true })

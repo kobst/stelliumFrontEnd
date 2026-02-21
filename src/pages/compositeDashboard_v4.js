@@ -246,6 +246,11 @@ function CompositeDashboard_v4({}) {
     const compositeChart = useStore(state => state.compositeChart)
     const [userA, setUserA] = useState(null);
     const [userB, setUserB] = useState(null);
+    const useAdminRelationshipWorkflow = Boolean(
+      compositeChart?.isCelebrityRelationship === true ||
+      ((userA?.kind === 'celebrity' || userA?.isCelebrity === true) &&
+       (userB?.kind === 'celebrity' || userB?.isCelebrity === true))
+    );
     const [userAVectorizationStatus, setUserAVectorizationStatus] = useState(false);
     const [userBVectorizationStatus, setUserBVectorizationStatus] = useState(false);
     const [scoreDebugInfo, setScoreDebugInfo] = useState(null);
@@ -791,7 +796,7 @@ function CompositeDashboard_v4({}) {
       console.log('userB:', userB?._id);
       
       // Use the new enhanced API for starting full analysis from existing relationship
-      const startResponse = await startFullRelationshipAnalysis(compositeChart._id);
+      const startResponse = await startFullRelationshipAnalysis(compositeChart._id, useAdminRelationshipWorkflow);
       console.log('Start full analysis response:', startResponse);
       
       if (startResponse.success) {
@@ -827,7 +832,7 @@ function CompositeDashboard_v4({}) {
       console.log('🚀 STARTING PREVIEW WORKFLOW for composite:', compositeChart._id);
       
       // Start workflow with immediate=false for scores only
-      const startResponse = await startRelationshipWorkflow(userA._id, userB._id, compositeChart._id, false);
+      const startResponse = await startRelationshipWorkflow(userA._id, userB._id, compositeChart._id, false, useAdminRelationshipWorkflow);
       console.log('📥 PREVIEW WORKFLOW START RESPONSE:', JSON.stringify(startResponse, null, 2));
       
       if (startResponse.success) {
@@ -863,7 +868,7 @@ function CompositeDashboard_v4({}) {
     console.log('🔄 Resuming relationship workflow for composite:', compositeChart._id);
     
     try {
-      const response = await resumeRelationshipWorkflow(compositeChart._id);
+      const response = await resumeRelationshipWorkflow(compositeChart._id, useAdminRelationshipWorkflow);
       console.log('📥 Resume relationship workflow response:', JSON.stringify(response, null, 2));
       
       if (response.success) {
@@ -889,7 +894,7 @@ function CompositeDashboard_v4({}) {
     
     try {
       console.log('Manually checking workflow status');
-      const response = await getRelationshipWorkflowStatus(compositeChart._id);
+      const response = await getRelationshipWorkflowStatus(compositeChart._id, useAdminRelationshipWorkflow);
       console.log('Manual check response:', response);
       
       if (response.success) {
@@ -942,7 +947,7 @@ function CompositeDashboard_v4({}) {
     if (!compositeChart?._id) return;
 
     try {
-      const response = await getRelationshipWorkflowStatus(compositeChart._id);
+      const response = await getRelationshipWorkflowStatus(compositeChart._id, useAdminRelationshipWorkflow);
       console.log('📊 RELATIONSHIP WORKFLOW STATUS RESPONSE:', JSON.stringify(response, null, 2));
       
       if (response.success) {
@@ -1020,7 +1025,7 @@ function CompositeDashboard_v4({}) {
     
     const interval = setInterval(async () => {
       try {
-        const response = await getRelationshipWorkflowStatus(compositeChart._id);
+        const response = await getRelationshipWorkflowStatus(compositeChart._id, useAdminRelationshipWorkflow);
         console.log('Poll response:', response);
         
         if (response.success) {
