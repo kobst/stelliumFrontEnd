@@ -1,0 +1,123 @@
+/* Celebrity Relationships Section */
+.celeb-relationships-section {
+  padding: 80px 20px;
+  background: linear-gradient(180deg,
+    rgba(13, 11, 26, 0) 0%,
+    rgba(30, 20, 50, 0.3) 50%,
+    rgba(13, 11, 26, 0) 100%
+  );
+}
+
+.celeb-relationships-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.celeb-relationships-header {
+  margin-bottom: 50px;
+}
+
+.celeb-relationships-pretitle {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: #d138d4;
+  margin-bottom: 16px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.celeb-relationships-title {
+  font-size: 2rem;
+  font-weight: 300;
+  color: white;
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  margin: 0;
+}
+
+/* Cards Container - 3 columns for wider cards */
+.celeb-relationships-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+/* Loading/Error States */
+.celeb-relationships-loading,
+.celeb-relationships-error {
+  color: #D9DBE1;
+  font-size: 1.1rem;
+  padding: 40px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.celeb-relationships-error {
+  color: #ff6b6b;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+  .celeb-relationships-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .celeb-relationships-title {
+    font-size: 1.75rem;
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+  .celeb-relationships-section {
+    padding: 60px 20px;
+  }
+
+  .celeb-relationships-header {
+    margin-bottom: 30px;
+  }
+
+  .celeb-relationships-pretitle {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+  }
+
+  .celeb-relationships-title {
+    font-size: 1.5rem;
+  }
+
+  .celeb-relationships-cards {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 16px;
+    padding: 10px 0 20px;
+    margin: 0 -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .celeb-relationships-cards::-webkit-scrollbar {
+    display: none;
+  }
+
+  .celeb-relationships-cards .celeb-rel-card {
+    flex: 0 0 auto;
+    width: calc(85vw - 40px);
+    max-width: 280px;
+    scroll-snap-align: center;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .celeb-relationships-cards .celeb-rel-card {
+    width: calc(90vw - 40px);
+  }
+}

@@ -9,6 +9,7 @@ import HowItWorksSection from '../UI/landingPage/HowItWorksSection';
 import FeatureGridSection from '../UI/landingPage/FeatureGridSection';
 import CTABand from '../UI/landingPage/CTABand';
 import CelebrityChartsSection from '../UI/landingPage/CelebrityChartsSection';
+import CelebrityRelationshipsSection from '../UI/landingPage/CelebrityRelationshipsSection';
 import PricingSection from '../UI/landingPage/PricingSection';
 import { useAuth } from '../context/AuthContext';
 import { useCheckout } from '../hooks/useCheckout';
@@ -113,6 +114,9 @@ const LandingPage = () => {
 
       {/* Celebrity Charts Section */}
       <CelebrityChartsSection />
+
+      {/* Celebrity Relationships Section */}
+      <CelebrityRelationshipsSection />
 
       {/* Objection Buster */}
       {/* <ObjectionBusterSection /> */}
