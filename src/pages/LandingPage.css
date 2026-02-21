@@ -149,6 +149,17 @@
   font-optical-sizing: auto;
 }
 
+.hero-subtitle__link {
+  color: #d4a574;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.4);
+  transition: border-color 0.2s ease;
+}
+
+.hero-subtitle__link:hover {
+  border-bottom-color: #d4a574;
+}
+
 .hero-buttons {
   display: flex;
   gap: 20px;

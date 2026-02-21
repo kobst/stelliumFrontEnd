@@ -9,6 +9,7 @@ import HowItWorksSection from '../UI/landingPage/HowItWorksSection';
 import FeatureGridSection from '../UI/landingPage/FeatureGridSection';
 import CTABand from '../UI/landingPage/CTABand';
 import CelebrityChartsSection from '../UI/landingPage/CelebrityChartsSection';
+import AskStelliumShowcase from '../UI/landingPage/AskStelliumShowcase';
 import CelebrityRelationshipsSection from '../UI/landingPage/CelebrityRelationshipsSection';
 import PricingSection from '../UI/landingPage/PricingSection';
 import { useAuth } from '../context/AuthContext';
@@ -99,7 +100,7 @@ const LandingPage = () => {
             <h1 className="logotxt">STELLIUM</h1>
             <h3 className="logosubtxt">Personalized Astrology, Powered by AI</h3>
           </div>
-          <p className="hero-subtitle">Birth chart analysis, relationship reports, custom horoscopes...<br />and your own AI astrologer to answer your most personal questions</p>
+          <p className="hero-subtitle">Birth chart analysis, relationship reports, custom horoscopes...<br />and <a href="#ask-stellium" className="hero-subtitle__link">your own AI astrologer</a> to answer your most personal questions</p>
           <div className="hero-buttons">
            <CTABand onGetStarted={handleGetStarted} />
           </div>
@@ -108,6 +109,9 @@ const LandingPage = () => {
 
       {/* 4 Pillars */}
       <FourPillarsSection />
+
+      {/* Ask Stellium Showcase */}
+      <AskStelliumShowcase />
 
       {/* CTA after pillars */}
       <CTABand />
