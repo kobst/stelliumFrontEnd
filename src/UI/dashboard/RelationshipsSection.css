@@ -1,5 +1,21 @@
 .relationships-section {
   padding: 0;
+  position: relative;
+}
+
+.relationships-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 40%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 90% 60%, rgba(45, 212, 191, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(212, 165, 116, 0.03) 0%, transparent 45%);
+  z-index: 0;
 }
 
 .relationships-section__header {
@@ -7,6 +23,8 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--spacing-xl, 24px);
+  position: relative;
+  z-index: 1;
 }
 
 .relationships-section__title {
@@ -26,7 +44,8 @@
 }
 
 .relationships-section__add-btn {
-  padding: 12px 24px;
+  padding: 12px 36px;
+  min-width: 220px;
   background: #2dd4bf;
   border: none;
   border-radius: 24px;

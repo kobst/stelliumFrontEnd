@@ -43,7 +43,7 @@ function RelationshipsSection({ userId }) {
         <h3 className="relationships-section__title">My Relationships</h3>
         <div className="relationships-section__actions">
           <button className="relationships-section__add-btn" onClick={handleAddRelationship}>
-            Add Relationship
+            Add New Relationship
           </button>
         </div>
       </div>

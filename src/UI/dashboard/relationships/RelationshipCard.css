@@ -28,10 +28,17 @@
   overflow: hidden;
 }
 
-.relationship-card__photo svg {
-  width: 50%;
-  height: 50%;
-  color: rgba(255, 255, 255, 0.3);
+.relationship-card__initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6c3fa0, #4a2d7a);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .relationship-card__photo img {
@@ -46,9 +53,6 @@
   flex: 1;
   min-width: 0;
   text-align: left;
-  background: rgba(40, 42, 64, 0.6);
-  padding: 16px 20px;
-  border-radius: 8px;
 }
 
 .relationship-card__name {
@@ -94,8 +98,8 @@
 }
 
 .relationship-card__score-label {
-  font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.3;
