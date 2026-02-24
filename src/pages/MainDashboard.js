@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 import DashboardLayout from '../UI/layout/DashboardLayout';
-import WelcomeBanner from '../UI/dashboard/WelcomeBanner';
+
 import LowCreditsBanner from '../UI/entitlements/LowCreditsBanner';
 import HoroscopeSection from '../UI/dashboard/HoroscopeSection';
 import BirthChartsSection from '../UI/dashboard/BirthChartsSection';
@@ -124,10 +124,6 @@ function MainDashboard() {
     <DashboardLayout user={user} defaultSection={sectionFromState || 'horoscope'}>
       {({ currentSection, setCurrentSection }) => (
         <div className="main-dashboard__content">
-          <WelcomeBanner
-            isTrialActive={entitlements.isTrialActive}
-            trialDaysRemaining={entitlements.trialDaysRemaining}
-          />
           <LowCreditsBanner
             credits={credits}
             onGetMore={() => setCurrentSection('settings:subscription')}

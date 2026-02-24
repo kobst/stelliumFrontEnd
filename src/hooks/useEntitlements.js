@@ -1,8 +1,6 @@
 import { useMemo, useEffect, useCallback } from 'react';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 
-const TRIAL_DURATION_DAYS = 7;
-
 // Pricing constants
 const PRICING = {
   BIRTH_CHART: {
@@ -41,10 +39,6 @@ export function useEntitlements(user) {
     if (!user) {
       return {
         tier: 'free',
-        isTrialActive: false,
-        trialDaysRemaining: 0,
-        canAccessWeekly: false,
-        canAccessAskStelliumHoroscope: false,
         isPremiumOrHigher: false,
         isProUser: false,
       };
@@ -57,35 +51,8 @@ export function useEntitlements(user) {
     const isPremiumOrHigher = tier === 'plus' || tier === 'pro';
     const isProUser = tier === 'pro';
 
-    // Calculate trial status (7 days from account creation)
-    const createdAt = user?.createdAt ? new Date(user.createdAt) : null;
-    const now = new Date();
-
-    let isTrialActive = false;
-    let trialDaysRemaining = 0;
-
-    if (createdAt && tier === 'free') {
-      const trialEndDate = new Date(createdAt);
-      trialEndDate.setDate(trialEndDate.getDate() + TRIAL_DURATION_DAYS);
-
-      const timeDiff = trialEndDate.getTime() - now.getTime();
-      trialDaysRemaining = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
-      isTrialActive = trialDaysRemaining > 0;
-    }
-
-    // Calculate access permissions
-    // Weekly horoscope: Plus+ OR active trial
-    const canAccessWeekly = isPremiumOrHigher || isTrialActive;
-
-    // Ask Stellium (horoscope): Plus+ OR active trial
-    const canAccessAskStelliumHoroscope = isPremiumOrHigher || isTrialActive;
-
     return {
       tier,
-      isTrialActive,
-      trialDaysRemaining,
-      canAccessWeekly,
-      canAccessAskStelliumHoroscope,
       isPremiumOrHigher,
       isProUser,
     };
