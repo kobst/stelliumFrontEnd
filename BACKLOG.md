@@ -13,6 +13,12 @@
   - Birth Chart Overview: 2 credits
   - Relationship Score: 10 credits
 - [ ] **Add Medium Credit Pack to Stripe + UI** (200 credits / $24.99)
+- [ ] **Fix Firebase auth/unauthorized-domain error** (already raised with stelliumdev)
+- [ ] **Mobile optimization** - Site layout doesn't display properly on mobile devices
+- [ ] **Ask Stellium for celeb charts/relationships** - Either remove feature or show "not available" message
+- [ ] **Pronoun handling in reports/Ask Stellium**
+  - Use "you" when talking about the user
+  - Use 3rd person when talking about celebs or guest charts
 
 ## UI Improvements (Credit Visibility)
 
