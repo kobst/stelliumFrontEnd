@@ -416,7 +416,7 @@ function DomainContent({ domain, data, expandedCard, onCardToggle }) {
 
 // ============ MAIN COMPONENT ============
 
-function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, chartId, birthChart, userId }) {
+function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, chartId, birthChart, userId, isCelebrity = false }) {
   const [activeDomain, setActiveDomain] = useState(LIFE_DOMAINS[0].id);
   const [expandedCard, setExpandedCard] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
@@ -569,13 +569,15 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
       {/* Header Section */}
       <div className="analysis-header">
         <h3 className="analysis-header__title">360 Analysis</h3>
-        <button
-          className="ask-stellium-trigger"
-          onClick={() => setChatOpen(true)}
-        >
-          <span className="ask-stellium-trigger__icon">&#10024;</span>
-          Ask Stellium
-        </button>
+        {!isCelebrity && (
+          <button
+            className="ask-stellium-trigger"
+            onClick={() => setChatOpen(true)}
+          >
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
+        )}
       </div>
 
       {/* Domain Tabs */}
@@ -595,20 +597,22 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
         />
       )}
 
-      <AskStelliumPanel
-        isOpen={chatOpen}
-        onClose={() => setChatOpen(false)}
-        contentType="analysis"
-        contentId={chartId}
-        birthChart={birthChart}
-        contextLabel="About your 360 analysis"
-        placeholderText="Ask about your analysis..."
-        suggestedQuestions={[
-          "What does my career analysis reveal?",
-          "How do my emotional patterns show up?",
-          "What are my relationship tendencies?"
-        ]}
-      />
+      {!isCelebrity && (
+        <AskStelliumPanel
+          isOpen={chatOpen}
+          onClose={() => setChatOpen(false)}
+          contentType="analysis"
+          contentId={chartId}
+          birthChart={birthChart}
+          contextLabel="About your 360 analysis"
+          placeholderText="Ask about your analysis..."
+          suggestedQuestions={[
+            "What does my career analysis reveal?",
+            "How do my emotional patterns show up?",
+            "What are my relationship tendencies?"
+          ]}
+        />
+      )}
     </div>
   );
 }

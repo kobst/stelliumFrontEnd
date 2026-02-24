@@ -94,7 +94,7 @@ function PublicCelebrityDashboard() {
     },
     {
       id: 'chart',
-      content: <ChartTab birthChart={birthChart} />
+      content: <ChartTab birthChart={birthChart} isCelebrity={true} />
     },
     {
       id: 'dominance',
@@ -117,6 +117,7 @@ function PublicCelebrityDashboard() {
           birthChart={birthChart}
           basicAnalysis={basicAnalysis}
           hasAnalysis={true}
+          isCelebrity={true}
         />
       )
     },
@@ -128,6 +129,7 @@ function PublicCelebrityDashboard() {
           analysisStatus={{ status: 'complete' }}
           onStartAnalysis={() => {}}
           analysisLoading={false}
+          isCelebrity={true}
         />
       )
     }

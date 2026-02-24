@@ -66,7 +66,8 @@ function ScoresTab({
   onNavigateToAnalysis,
   creditCost,
   creditsRemaining,
-  compositeId
+  compositeId,
+  isCelebrity = false
 }) {
   const [expandedCluster, setExpandedCluster] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
@@ -93,7 +94,7 @@ function ScoresTab({
     relationship?.clusterScoring?.scoredItems ||
     [];
 
-  const chatPanel = (
+  const chatPanel = !isCelebrity ? (
     <AskStelliumPanel
       isOpen={chatOpen}
       onClose={() => setChatOpen(false)}
@@ -108,7 +109,7 @@ function ScoresTab({
         "What challenges should we be aware of?"
       ]}
     />
-  );
+  ) : null;
 
   // If no cluster data available
   if (!clusters) {
@@ -116,10 +117,12 @@ function ScoresTab({
       <div className="scores-tab-redesign">
         <div className="scores-header">
           <h2 className="scores-header__title">Compatibility Score</h2>
-          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-            <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
-          </button>
+          {!isCelebrity && (
+            <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+              <span className="ask-stellium-trigger__icon">&#10024;</span>
+              Ask Stellium
+            </button>
+          )}
         </div>
         <div className="scores-body">
           <div className="scores-empty-state">
@@ -141,10 +144,12 @@ function ScoresTab({
       {/* Header */}
       <div className="scores-header">
         <h2 className="scores-header__title">Compatibility Score</h2>
-        <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-          <span className="ask-stellium-trigger__icon">&#10024;</span>
-          Ask Stellium
-        </button>
+        {!isCelebrity && (
+          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
+        )}
       </div>
 
       {/* Overall Score Header */}

@@ -106,7 +106,7 @@ function SynastryAspectsTable({ aspects, userAName, userBName }) {
   );
 }
 
-function ChartsTab({ relationship, compositeId }) {
+function ChartsTab({ relationship, compositeId, isCelebrity = false }) {
   const [activeSubTab, setActiveSubTab] = useState('synastry');
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -196,10 +196,12 @@ function ChartsTab({ relationship, compositeId }) {
       {/* Header */}
       <div className="charts-header">
         <h2 className="charts-header__title">Charts</h2>
-        <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-          <span className="ask-stellium-trigger__icon">&#10024;</span>
-          Ask Stellium
-        </button>
+        {!isCelebrity && (
+          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
+        )}
       </div>
 
       {/* Card containing tabs + content */}
@@ -302,19 +304,21 @@ function ChartsTab({ relationship, compositeId }) {
         )}
         </div>
       </div>
-      <AskStelliumPanel
-        isOpen={chatOpen}
-        onClose={() => setChatOpen(false)}
-        contentType="relationship"
-        contentId={compositeId}
-        contextLabel="About your relationship"
-        placeholderText="Ask about your relationship..."
-        suggestedQuestions={[
-          "What are our relationship strengths?",
-          "How can we improve our communication?",
-          "What challenges should we be aware of?"
-        ]}
-      />
+      {!isCelebrity && (
+        <AskStelliumPanel
+          isOpen={chatOpen}
+          onClose={() => setChatOpen(false)}
+          contentType="relationship"
+          contentId={compositeId}
+          contextLabel="About your relationship"
+          placeholderText="Ask about your relationship..."
+          suggestedQuestions={[
+            "What are our relationship strengths?",
+            "How can we improve our communication?",
+            "What challenges should we be aware of?"
+          ]}
+        />
+      )}
     </div>
   );
 }

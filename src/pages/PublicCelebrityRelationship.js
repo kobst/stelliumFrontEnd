@@ -111,16 +111,17 @@ function PublicCelebrityRelationship() {
           hasAnalysis={hasAnalysis}
           onNavigateToAnalysis={() => setActiveSection('analysis')}
           compositeId={compositeId}
+          isCelebrity={true}
         />
       )
     },
     {
       id: 'overview',
-      content: <OverviewTab relationship={relationship} compositeId={compositeId} />
+      content: <OverviewTab relationship={relationship} compositeId={compositeId} isCelebrity={true} />
     },
     {
       id: 'charts',
-      content: <ChartsTab relationship={relationship} compositeId={compositeId} />
+      content: <ChartsTab relationship={relationship} compositeId={compositeId} isCelebrity={true} />
     },
     {
       id: 'analysis',
@@ -129,6 +130,7 @@ function PublicCelebrityRelationship() {
           relationship={relationship}
           compositeId={compositeId}
           onAnalysisComplete={() => {}}
+          isCelebrity={true}
         />
       )
     }

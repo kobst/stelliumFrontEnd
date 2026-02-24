@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './RelationshipTabs.css';
 
-function OverviewTab({ relationship, compositeId }) {
+function OverviewTab({ relationship, compositeId, isCelebrity = false }) {
   const [chatOpen, setChatOpen] = useState(false);
   const initialOverview = relationship?.initialOverview;
   const holisticOverview = relationship?.completeAnalysis?.holisticOverview;
@@ -15,7 +15,7 @@ function OverviewTab({ relationship, compositeId }) {
   // Use holistic overview if available (from full analysis), otherwise use initial overview
   const overview = holisticOverview || initialOverview;
 
-  const panel = (
+  const panel = !isCelebrity ? (
     <AskStelliumPanel
       isOpen={chatOpen}
       onClose={() => setChatOpen(false)}
@@ -30,20 +30,22 @@ function OverviewTab({ relationship, compositeId }) {
         "What challenges should we be aware of?"
       ]}
     />
-  );
+  ) : null;
 
   if (!overview) {
     return (
       <div className="overview-tab-redesign">
         <div className="overview-header">
           <h2 className="overview-header__title">Relationship Overview</h2>
-          <button
-            className="ask-stellium-trigger"
-            onClick={() => setChatOpen(true)}
-          >
-            <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
-          </button>
+          {!isCelebrity && (
+            <button
+              className="ask-stellium-trigger"
+              onClick={() => setChatOpen(true)}
+            >
+              <span className="ask-stellium-trigger__icon">&#10024;</span>
+              Ask Stellium
+            </button>
+          )}
         </div>
         <div className="overview-body">
           <div className="overview-empty-state">
@@ -61,13 +63,15 @@ function OverviewTab({ relationship, compositeId }) {
     <div className="overview-tab-redesign">
       <div className="overview-header">
         <h2 className="overview-header__title">Relationship Overview</h2>
-        <button
-          className="ask-stellium-trigger"
-          onClick={() => setChatOpen(true)}
-        >
-          <span className="ask-stellium-trigger__icon">&#10024;</span>
-          Ask Stellium
-        </button>
+        {!isCelebrity && (
+          <button
+            className="ask-stellium-trigger"
+            onClick={() => setChatOpen(true)}
+          >
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
+        )}
       </div>
 
       <div className="overview-body">
