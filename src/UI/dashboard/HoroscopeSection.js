@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import HoroscopeContent from './horoscope/HoroscopeContent';
 import LockedContent from '../shared/LockedContent';
-import TrialBadge from '../shared/TrialBadge';
+
 import {
   getTransitWindows,
   generateDailyHoroscope,
@@ -250,12 +250,6 @@ function HoroscopeSection({ userId, user, entitlements }) {
 
   return (
     <div className="horoscope-section">
-      {entitlements?.isTrialActive && timePeriod === 'today' && (
-        <div className="horoscope-section__trial-banner">
-          <TrialBadge text="Unlocked for your first 7 days" />
-        </div>
-      )}
-
       {isDailyLocked ? (
         <HoroscopeContent
           timePeriod={timePeriod}

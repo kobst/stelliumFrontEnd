@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getTransitWindows } from '../../Utilities/api';
 import AskStelliumTab from './AskStelliumTab';
 import LockedContent from '../shared/LockedContent';
-import TrialBadge from '../shared/TrialBadge';
+
 import './AskStelliumSection.css';
 
 function AskStelliumSection({ userId, entitlements }) {
@@ -50,7 +50,7 @@ function AskStelliumSection({ userId, entitlements }) {
   }, [userId]);
 
   // Locked content for Ask Stellium
-  if (!entitlements?.canAccessAskStelliumHoroscope) {
+  if (!entitlements?.isPremiumOrHigher && !entitlements?.isPlus) {
     return (
       <div className="ask-stellium-section">
         <LockedContent
@@ -69,12 +69,6 @@ function AskStelliumSection({ userId, entitlements }) {
 
   return (
     <div className="ask-stellium-section">
-      {entitlements?.isTrialActive && (
-        <div className="ask-stellium-section__trial-banner">
-          <TrialBadge text="Includes 5 free questions this week" />
-        </div>
-      )}
-
       {transitLoading && (
         <div className="ask-stellium-section__loading">
           <div className="ask-stellium-section__spinner" />
