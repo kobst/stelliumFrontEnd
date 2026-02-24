@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './styles/variables.css';
 import './index.css';
 import App from './App';
+import './styles/mobile-fixes.css'; // Mobile responsive fixes - load last for proper specificity
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

@@ -338,9 +338,10 @@ body {
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  width: 100vw;
-  margin: 0 auto;
-  /* overflow: hidden; */
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  overflow-x: hidden;
 }
 
 .simple-form-container {
@@ -357,6 +358,16 @@ body {
   text-align: center;
   padding-top: 200px;
   padding-left: 25px;
+  padding-right: 25px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-top: 100px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 }
 
 .maintxt {
@@ -468,7 +479,8 @@ input {
   outline: 0;
   font-size: 16px;
   color: white;
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
   padding: 7px 0;
   background: transparent;
   transition: border-color 0.2s;

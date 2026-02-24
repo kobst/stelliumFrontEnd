@@ -1,0 +1,710 @@
+/* ===========================================
+   Mobile Layout Fixes - Feb 2026
+   Comprehensive responsive design improvements
+   =========================================== */
+
+/* ===== GLOBAL FIXES ===== */
+
+/* Fix horizontal overflow from 100vw (scrollbar issue) */
+html {
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure all containers respect viewport */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Fix images and media to not overflow */
+img, video, iframe, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ===== TOUCH TARGET IMPROVEMENTS ===== */
+/* Minimum 44x44px for all interactive elements */
+
+@media (max-width: 767px) {
+  /* Buttons minimum touch target */
+  button,
+  .btn,
+  [role="button"],
+  a.button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Tab buttons */
+  .tab-button,
+  .tab-menu button,
+  .analysis-domain-tab,
+  .filter-btn {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  /* Nav items */
+  .top-header__nav-item,
+  .sidebar__nav button,
+  .nav-item {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  /* Form inputs minimum height */
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+
+  /* Credits pill touch target */
+  .top-header__credits {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px 14px;
+  }
+
+  /* Back buttons */
+  .back-button {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+
+  /* Chart cards clickable area */
+  .chart-card {
+    min-height: 60px;
+  }
+
+  /* Profile dropdown trigger */
+  .top-header__profile {
+    min-height: 44px;
+    padding: 8px;
+  }
+
+  /* Modal close buttons */
+  .modal-close-btn,
+  .insufficient-modal__close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ===== HEADER FIXES ===== */
+
+@media (max-width: 767px) {
+  .top-header {
+    padding: 0 12px;
+    height: auto;
+    min-height: var(--header-height, 80px);
+    flex-wrap: nowrap;
+  }
+
+  .top-header__left {
+    flex: 0 0 auto;
+    gap: 8px;
+  }
+
+  .top-header__right {
+    flex: 0 0 auto;
+    gap: 8px;
+  }
+
+  /* Ensure menu toggle is visible and accessible */
+  .top-header__menu-toggle {
+    display: flex;
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Branding text size on small screens */
+  .top-header__branding {
+    font-size: 14px;
+    letter-spacing: 0.1em;
+  }
+}
+
+@media (max-width: 400px) {
+  .top-header__branding {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .top-header__credits {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+}
+
+/* ===== SIDEBAR FIXES ===== */
+
+@media (max-width: 767px) {
+  .sidebar {
+    width: 85%;
+    max-width: 320px;
+  }
+
+  .sidebar-overlay {
+    touch-action: none; /* Prevent scroll passthrough */
+  }
+
+  /* Prevent body scroll when sidebar is open */
+  body.sidebar-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+}
+
+/* ===== TAB MENU FIXES ===== */
+
+@media (max-width: 767px) {
+  /* Horizontal scrollable tabs */
+  .tab-menu {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: 8px;
+    padding: 8px 0;
+    flex-wrap: nowrap;
+  }
+
+  .tab-menu::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-menu button,
+  .tab-button {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Chart detail tabs */
+  .chart-detail-content .tab-menu {
+    justify-content: flex-start;
+    padding: 12px 4px;
+  }
+
+  .chart-detail-content .tab-button {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  /* Horoscope section tabs */
+  .horoscope-section .tab-menu {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .horoscope-section .tab-button {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  /* Analysis domain tabs */
+  .analysis-domain-tabs {
+    padding: 4px;
+    margin-bottom: 16px;
+  }
+
+  .analysis-domain-tab {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}
+
+/* ===== FORM FIXES ===== */
+
+@media (max-width: 767px) {
+  /* Fix global input width issues */
+  input {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Form groups full width */
+  .form-group {
+    width: 100%;
+  }
+
+  /* Modal form improvements */
+  .modal-form .form-group input,
+  .modal-form .form-group select {
+    font-size: 16px; /* Prevent iOS zoom on focus */
+  }
+
+  /* Location input container */
+  .location-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .location-label {
+    margin-bottom: 8px;
+  }
+
+  .location-input-container {
+    width: 100%;
+  }
+
+  /* Search inputs */
+  .celebs-search {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* ===== MODAL FIXES ===== */
+
+@media (max-width: 520px) {
+  .modal-backdrop {
+    padding: 12px;
+    align-items: flex-end; /* Slide up from bottom on mobile */
+  }
+
+  .modal-content {
+    max-height: 90vh;
+    border-radius: 16px 16px 0 0;
+    margin-bottom: 0;
+  }
+
+  .modal-form {
+    padding: 16px;
+  }
+
+  /* Insufficient credits modal */
+  .insufficient-modal {
+    padding: 20px 16px;
+    max-width: 100%;
+  }
+
+  .insufficient-modal__title {
+    font-size: 1.1rem;
+  }
+
+  .insufficient-modal__btn {
+    padding: 14px 20px;
+  }
+}
+
+/* ===== DASHBOARD CONTENT FIXES ===== */
+
+@media (max-width: 767px) {
+  .dashboard-layout__content {
+    padding: 12px;
+  }
+
+  /* Sections padding */
+  .horoscope-section,
+  .birth-charts-section,
+  .relationships-section,
+  .settings-section {
+    padding: 12px;
+  }
+
+  /* Welcome banner */
+  .welcome-banner {
+    padding: 16px;
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* ===== CHART DETAIL FIXES ===== */
+
+@media (max-width: 767px) {
+  .chart-detail-header {
+    padding: 12px;
+  }
+
+  .chart-person-info {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chart-person-name {
+    font-size: 1.2rem;
+    width: 100%;
+  }
+
+  .chart-detail-content {
+    padding: 12px;
+  }
+
+  /* Analysis header mobile */
+  .analysis-header {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .analysis-header__title {
+    font-size: 1rem;
+  }
+
+  /* Theme items */
+  .analysis-theme-item__header {
+    padding: 12px;
+  }
+
+  .analysis-theme-item__content {
+    padding: 0 12px 12px;
+  }
+}
+
+/* ===== GRID AND CARD FIXES ===== */
+
+@media (max-width: 767px) {
+  /* Key placements grid */
+  .key-placements-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .placement-card {
+    padding: 10px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .placement-symbol {
+    min-width: auto;
+    font-size: 1.5rem;
+  }
+
+  /* Distribution grid */
+  .distributions-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Patterns grid */
+  .patterns-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Celebrity grid */
+  .celebs-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  /* Birth chart cards */
+  .chart-card {
+    padding: 12px;
+  }
+
+  .chart-card-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .chart-card-info {
+    margin-left: 12px;
+  }
+}
+
+@media (max-width: 400px) {
+  .key-placements-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .celebs-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+/* ===== HOROSCOPE CONTENT FIXES ===== */
+
+@media (max-width: 767px) {
+  .horoscope-content__card {
+    padding: 16px;
+  }
+
+  .horoscope-content__card-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .horoscope-content__title {
+    font-size: 1.25rem;
+  }
+
+  .horoscope-content__moon-icon {
+    align-self: flex-end;
+    margin-top: -48px;
+  }
+
+  .horoscope-content__influence-pills {
+    gap: 8px;
+  }
+
+  .influence-pill {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+/* ===== CREDITS INDICATOR FIXES ===== */
+
+@media (max-width: 767px) {
+  .credits-indicator {
+    padding: 16px;
+  }
+
+  .credits-indicator__number {
+    font-size: 28px;
+  }
+
+  .credits-indicator__breakdown {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Credits popover positioning */
+  .top-header__credits-popover {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    min-width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}
+
+/* ===== PLANET CARDS FIXES ===== */
+
+@media (max-width: 767px) {
+  .planet-card-header {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .planet-symbol {
+    font-size: 1.4rem;
+    min-width: 32px;
+  }
+
+  .planet-name {
+    font-size: 0.9rem;
+  }
+
+  .planet-interpretation {
+    padding: 0 12px 12px 54px;
+  }
+
+  .interpretation-text {
+    font-size: 0.85rem;
+  }
+}
+
+/* ===== CHAT CONTAINER FIXES ===== */
+
+@media (max-width: 767px) {
+  .chat-container {
+    height: calc(100vh - 200px);
+    max-height: none;
+  }
+
+  .chat-messages {
+    padding: 12px;
+  }
+
+  .chat-message {
+    max-width: 95%;
+  }
+
+  .chat-input-container {
+    padding: 12px;
+  }
+
+  .chat-input-container textarea {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+
+  .send-button {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ===== RELATIONSHIP DETAIL FIXES ===== */
+
+@media (max-width: 767px) {
+  .relationship-detail-layout__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .relationship-sidebar {
+    position: static;
+    max-height: none;
+  }
+}
+
+/* ===== LOGIN/SIGNUP FIXES ===== */
+
+@media (max-width: 480px) {
+  .login-page,
+  .signup-page {
+    padding: 12px;
+  }
+
+  .login-container,
+  .signup-container {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .login-title,
+  .signup-title {
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+  }
+
+  .login-logo,
+  .signup-logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .google-signin-btn,
+  .login-submit-btn {
+    min-height: 48px;
+    font-size: 14px;
+  }
+
+  /* Form inputs on mobile */
+  .login-form .form-group input {
+    font-size: 16px; /* Prevent iOS zoom */
+    padding: 14px 16px;
+  }
+}
+
+/* ===== CELEBRITY PAGE FIXES ===== */
+
+@media (max-width: 767px) {
+  .celebs-header {
+    padding-top: 40px;
+  }
+
+  .celebs-controls {
+    gap: 16px;
+  }
+
+  .filter-buttons {
+    flex-wrap: wrap;
+    padding: 6px;
+    gap: 6px;
+  }
+
+  .filter-btn {
+    padding: 10px 14px;
+    font-size: 12px;
+    flex: 1 1 auto;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .celebs-grid-container {
+    padding: 12px;
+  }
+}
+
+/* ===== TEXT READABILITY ===== */
+
+@media (max-width: 767px) {
+  /* Ensure minimum font sizes for readability */
+  body {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  p, li, span {
+    font-size: inherit;
+    line-height: 1.6;
+  }
+
+  /* Section titles */
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.3rem; }
+  h3 { font-size: 1.1rem; }
+  h4 { font-size: 1rem; }
+
+  /* Interpretation text */
+  .overview-text,
+  .interpretation-text,
+  .analysis-domain-overview,
+  .horoscope-text {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+}
+
+/* ===== SAFE AREA INSETS (notch devices) ===== */
+
+@supports (padding: env(safe-area-inset-top)) {
+  .top-header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .sidebar {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .modal-content {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  @media (max-width: 767px) {
+    .chat-input-container {
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+  }
+}
+
+/* ===== LANDSCAPE MODE FIXES ===== */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-content {
+    max-height: 95vh;
+  }
+
+  .chat-container {
+    height: calc(100vh - 120px);
+  }
+
+  .sidebar {
+    padding-top: 60px;
+  }
+}
+
+/* ===== PRINT STYLES (prevent issues) ===== */
+
+@media print {
+  .sidebar,
+  .top-header__menu-toggle,
+  .modal-backdrop {
+    display: none !important;
+  }
+
+  .dashboard-layout__content {
+    padding: 0;
+  }
+}

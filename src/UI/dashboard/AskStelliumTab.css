@@ -285,10 +285,27 @@
 }
 
 @media (max-width: 768px) {
+  .ask-stellium-tab {
+    padding: 16px;
+  }
+
   .ask-stellium-period,
   .ask-stellium-type-filter {
     flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
+  }
+
+  .period-buttons {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .period-button {
+    padding: 10px 16px;
+    min-height: 44px;
+    flex: 1 1 auto;
+    text-align: center;
   }
 
   .ask-stellium-actions {
@@ -298,9 +315,26 @@
 
   .generate-button {
     width: 100%;
+    min-height: 48px;
+    padding: 14px 24px;
   }
 
   .transits-list {
     max-height: 300px;
+  }
+
+  .transit-item {
+    padding: 12px;
+    min-height: 56px;
+  }
+
+  .transit-item input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ask-stellium-query textarea {
+    font-size: 16px; /* Prevent iOS zoom */
+    min-height: 80px;
   }
 }
