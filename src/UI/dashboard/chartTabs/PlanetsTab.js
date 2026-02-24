@@ -34,7 +34,7 @@ const splitIntoParagraphs = (text) => {
   ));
 };
 
-function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId }) {
+function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false }) {
   const planets = useMemo(() => {
     const rawPlanets = birthChart?.planets?.filter(p => !excludedPlanets.includes(p.name)) || [];
     // Sort planets by the canonical order
@@ -122,13 +122,15 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
         <div className="planets-main-container">
           <div className="planets-header">
             <h3 className="planets-header-title">Planets</h3>
-            <button
-              className="ask-stellium-trigger"
-              onClick={(e) => { e.stopPropagation(); setChatOpen(true); }}
-            >
-              <span className="ask-stellium-trigger__icon">&#10024;</span>
-              Ask Stellium
-            </button>
+            {!isCelebrity && (
+              <button
+                className="ask-stellium-trigger"
+                onClick={(e) => { e.stopPropagation(); setChatOpen(true); }}
+              >
+                <span className="ask-stellium-trigger__icon">&#10024;</span>
+                Ask Stellium
+              </button>
+            )}
           </div>
           <div className="planets-empty-section">
             <p>No planetary data available yet.</p>
@@ -267,20 +269,22 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
           </div>
         )}
       </div>
-      <AskStelliumPanel
-        isOpen={chatOpen}
-        onClose={() => setChatOpen(false)}
-        contentType="birthchart"
-        contentId={chartId}
-        birthChart={birthChart}
-        contextLabel="About your birth chart"
-        placeholderText="Ask about your birth chart..."
-        suggestedQuestions={[
-          "What are my greatest strengths?",
-          "How does my Moon sign affect my emotions?",
-          "What should I focus on for personal growth?"
-        ]}
-      />
+      {!isCelebrity && (
+        <AskStelliumPanel
+          isOpen={chatOpen}
+          onClose={() => setChatOpen(false)}
+          contentType="birthchart"
+          contentId={chartId}
+          birthChart={birthChart}
+          contextLabel="About your birth chart"
+          placeholderText="Ask about your birth chart..."
+          suggestedQuestions={[
+            "What are my greatest strengths?",
+            "How does my Moon sign affect my emotions?",
+            "What should I focus on for personal growth?"
+          ]}
+        />
+      )}
     </div>
   );
 }

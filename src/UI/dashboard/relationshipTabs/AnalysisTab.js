@@ -26,7 +26,7 @@ const getQuadrantLabel = (quadrant) => {
   return quadrant;
 };
 
-function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) {
+function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, isCelebrity = false }) {
   const [selectedCluster, setSelectedCluster] = useState('Harmony');
   const [selectedAnalysisType, setSelectedAnalysisType] = useState('synastry');
   const [selectedPanel, setSelectedPanel] = useState('support');
@@ -187,7 +187,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
     relationship?.clusterScoring?.scoredItems ||
     [];
 
-  const chatPanel = (
+  const chatPanel = !isCelebrity ? (
     <AskStelliumPanel
       isOpen={chatOpen}
       onClose={() => setChatOpen(false)}
@@ -202,7 +202,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
         "What challenges should we be aware of?"
       ]}
     />
-  );
+  ) : null;
 
   // If analysis is in progress
   if (analysisStatus && !analysisStatus.completed && analysisStatus.status !== 'failed') {
@@ -210,10 +210,12 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
       <div className="analysis-tab-redesign">
         <div className="analysis-header">
           <h2 className="analysis-header__title">360° Analysis</h2>
-          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-            <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
-          </button>
+          {!isCelebrity && (
+            <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+              <span className="ask-stellium-trigger__icon">&#10024;</span>
+              Ask Stellium
+            </button>
+          )}
         </div>
         <div className="analysis-progress-card">
           <div className="progress-spinner"></div>
@@ -232,10 +234,12 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
       <div className="analysis-tab-redesign">
         <div className="analysis-header">
           <h2 className="analysis-header__title">360° Analysis</h2>
-          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-            <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
-          </button>
+          {!isCelebrity && (
+            <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+              <span className="ask-stellium-trigger__icon">&#10024;</span>
+              Ask Stellium
+            </button>
+          )}
         </div>
         <div className="analysis-empty-card">
           <div className="empty-icon">🔮</div>
@@ -335,10 +339,12 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId }) 
       {/* Header */}
       <div className="analysis-header">
         <h2 className="analysis-header__title">360° Analysis</h2>
-        <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-          <span className="ask-stellium-trigger__icon">&#10024;</span>
-          Ask Stellium
-        </button>
+        {!isCelebrity && (
+          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
+        )}
       </div>
 
       {/* Main Content Card */}
