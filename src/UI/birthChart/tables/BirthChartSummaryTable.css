@@ -110,20 +110,21 @@
 @media (max-width: 768px) {
   .chart-grid {
     gap: 12px;
+    overflow: hidden;
   }
 
   .chart-box {
     padding: var(--spacing-md, 12px);
-    min-height: 250px;
+    min-height: auto;
   }
 
   .chart-box--ephemeris {
-    min-height: 300px;
+    min-height: auto;
   }
 
   .chart-box--ephemeris canvas {
-    max-width: 280px;
-    max-height: 280px;
+    max-width: 100%;
+    max-height: none;
   }
 
   .chart-box__title {

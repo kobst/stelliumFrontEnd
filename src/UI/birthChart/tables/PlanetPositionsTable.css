@@ -71,3 +71,18 @@
   vertical-align: middle;
   margin-right: 2px;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .planet-positions-table {
+    font-size: 0.75rem;
+  }
+
+  .planet-positions-table td {
+    padding: 4px 4px;
+  }
+
+  .planet-positions-table td:nth-child(3) {
+    padding-right: 6px;
+  }
+}
