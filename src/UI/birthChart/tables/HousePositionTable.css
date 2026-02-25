@@ -73,6 +73,14 @@
 @media (max-width: 768px) {
   .house-position-table {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 8px;
+  }
+
+  .house-column {
+    font-size: 0.75rem;
+  }
+
+  .house-column td {
+    padding: 4px 4px;
   }
 }

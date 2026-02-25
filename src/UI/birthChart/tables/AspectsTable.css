@@ -79,16 +79,20 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .aspects-table {
+    font-size: 0.75rem;
+  }
+
   .aspects-planet-name,
   .aspects-type-name {
     display: none;
   }
 
   .aspects-cell {
-    padding: 8px 4px;
+    padding: 4px 4px;
   }
 
   .aspects-symbol {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 }

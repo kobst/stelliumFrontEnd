@@ -57,10 +57,15 @@
   }
 
   .chart-detail-layout__nav {
-    order: 1;
+    order: 0;
   }
 
   .chart-detail-layout__content {
-    order: 2;
+    order: 1;
+  }
+
+  .chart-detail-layout {
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 }
