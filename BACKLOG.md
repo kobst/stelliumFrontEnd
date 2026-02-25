@@ -33,7 +33,7 @@
   - Buttons disabled when credits insufficient
   - Backend validation with 402 Payment Required
 - [ ] **Pre-action confirmation** - For expensive actions (>50 credits)
-- [ ] **Make Ask Stellium logo/button more obvious** - Users not finding it
+- [x] **Make Ask Stellium logo/button more obvious** ✅
 
 ## Features
 
