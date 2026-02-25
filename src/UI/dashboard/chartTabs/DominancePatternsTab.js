@@ -41,7 +41,7 @@ const quadrantColors = {
   'NorthEast': '#34d399'
 };
 
-function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId }) {
+function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity }) {
   const [activeTab, setActiveTab] = useState('elements');
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -709,13 +709,15 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
       {/* Header */}
       <div className="patterns-header">
         <h2 className="patterns-header-title">Patterns</h2>
-        <button
-          className="ask-stellium-trigger"
-          onClick={() => setChatOpen(true)}
-        >
-          <span className="ask-stellium-trigger__icon">&#10024;</span>
-          Ask Stellium
-        </button>
+        {!isCelebrity && (
+          <button
+            className="ask-stellium-trigger"
+            onClick={() => setChatOpen(true)}
+          >
+            <span className="ask-stellium-trigger__icon">&#10024;</span>
+            Ask Stellium
+          </button>
+        )}
       </div>
 
       {/* Tab Navigation */}
@@ -744,20 +746,22 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
         {renderTabContent()}
       </div>
 
-      <AskStelliumPanel
-        isOpen={chatOpen}
-        onClose={() => setChatOpen(false)}
-        contentType="birthchart"
-        contentId={chartId}
-        birthChart={birthChart}
-        contextLabel="About your birth chart"
-        placeholderText="Ask about your birth chart..."
-        suggestedQuestions={[
-          "What are my greatest strengths?",
-          "How does my Moon sign affect my emotions?",
-          "What should I focus on for personal growth?"
-        ]}
-      />
+      {!isCelebrity && (
+        <AskStelliumPanel
+          isOpen={chatOpen}
+          onClose={() => setChatOpen(false)}
+          contentType="birthchart"
+          contentId={chartId}
+          birthChart={birthChart}
+          contextLabel="About your birth chart"
+          placeholderText="Ask about your birth chart..."
+          suggestedQuestions={[
+            "What are my greatest strengths?",
+            "How does my Moon sign affect my emotions?",
+            "What should I focus on for personal growth?"
+          ]}
+        />
+      )}
     </div>
   );
 }

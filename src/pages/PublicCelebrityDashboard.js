@@ -90,7 +90,7 @@ function PublicCelebrityDashboard() {
   const sections = [
     {
       id: 'overview',
-      content: <OverviewTab basicAnalysis={basicAnalysis} birthChart={birthChart} />
+      content: <OverviewTab basicAnalysis={basicAnalysis} birthChart={birthChart} isCelebrity={true} />
     },
     {
       id: 'chart',
@@ -107,6 +107,7 @@ function PublicCelebrityDashboard() {
           quadrants={quadrants}
           planetaryDominance={planetaryDominance}
           hasAnalysis={true}
+          isCelebrity={true}
         />
       )
     },

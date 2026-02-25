@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './ChartTabs.css';
 
-function OverviewTab({ basicAnalysis, chartId, birthChart }) {
+function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity }) {
   const [chatOpen, setChatOpen] = useState(false);
   // If no overview data
   if (!basicAnalysis?.overview) {
@@ -19,13 +19,15 @@ function OverviewTab({ basicAnalysis, chartId, birthChart }) {
       <div className="overview-section">
         <div className="overview-section-header">
           <h3 className="overview-section-title">Overview</h3>
-          <button
-            className="ask-stellium-trigger"
-            onClick={() => setChatOpen(true)}
-          >
-            <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
-          </button>
+          {!isCelebrity && (
+            <button
+              className="ask-stellium-trigger"
+              onClick={() => setChatOpen(true)}
+            >
+              <span className="ask-stellium-trigger__icon">&#10024;</span>
+              Ask Stellium
+            </button>
+          )}
         </div>
         <div className="overview-text">
           {basicAnalysis.overview.split('\n').map((paragraph, index) => (
@@ -34,20 +36,22 @@ function OverviewTab({ basicAnalysis, chartId, birthChart }) {
         </div>
       </div>
 
-      <AskStelliumPanel
-        isOpen={chatOpen}
-        onClose={() => setChatOpen(false)}
-        contentType="birthchart"
-        contentId={chartId}
-        birthChart={birthChart}
-        contextLabel="About your birth chart"
-        placeholderText="Ask about your birth chart..."
-        suggestedQuestions={[
-          "What are my greatest strengths?",
-          "How does my Moon sign affect my emotions?",
-          "What should I focus on for personal growth?"
-        ]}
-      />
+      {!isCelebrity && (
+        <AskStelliumPanel
+          isOpen={chatOpen}
+          onClose={() => setChatOpen(false)}
+          contentType="birthchart"
+          contentId={chartId}
+          birthChart={birthChart}
+          contextLabel="About your birth chart"
+          placeholderText="Ask about your birth chart..."
+          suggestedQuestions={[
+            "What are my greatest strengths?",
+            "How does my Moon sign affect my emotions?",
+            "What should I focus on for personal growth?"
+          ]}
+        />
+      )}
     </div>
   );
 }
