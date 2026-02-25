@@ -12,53 +12,39 @@
 - [x] **Add credit costs for new actions:** ✅
   - Birth Chart Overview: 2 credits
   - Relationship Score: 10 credits
-- [ ] **Add Medium Credit Pack to Stripe + UI** (200 credits / $24.99)
-- [ ] **Fix Firebase auth/unauthorized-domain error** (already raised with stelliumdev)
-- [ ] **Mobile optimization** - Site layout doesn't display properly on mobile devices
-- [ ] **Ask Stellium for celeb charts/relationships** - Either remove feature or show "not available" message
+- [x] **Fix Firebase auth/unauthorized-domain error** ✅ (fixed in Firebase console)
+- [x] **Mobile optimization** ✅ (commit 9a5cae6 on mainDev)
+- [x] **Ask Stellium for celeb charts/relationships** ✅ (commits 034f77e mainDev, 7d6db4e main)
+- [ ] **Add Medium Credit Pack to Stripe + UI** (200 credits / $24.99) - not urgent
 - [ ] **Pronoun handling in reports/Ask Stellium**
   - Use "you" when talking about the user
   - Use 3rd person when talking about celebs or guest charts
+  - Note: Module exists (`addressingUtils.ts`), needs database migration to fix celebrity markers
 
 ## UI Improvements (Credit Visibility)
 
-- [ ] **Credits in header/profile dropdown** - Always visible, show `[⚡ 150]` next to profile
-- [ ] **Credit cost on action buttons** - e.g., `[Generate Report - 75 ⚡]`
-- [ ] **Credit deduction toast** - "✓ Report generated (-75 credits), 150 remaining"
-- [ ] **Low credit warning banner** - Show when < 20 credits
-- [ ] **Credit breakdown in dropdown** - Monthly vs purchased, reset date
+- [x] **Credits in header/profile dropdown** ✅ - `TopHeader.js` with credits pill + popover
+- [x] **Credit cost on action buttons** ✅ - e.g., `AnalysisTab.js` shows "(75 credits)"
+- [x] **Credit deduction toast** ✅ - `entitlementsStore.js` shows "{cost} credits used. {remaining} remaining."
+- [x] **Low credit warning banner** ✅ - `TopHeader.js` highlights when ≤20 or ≤25% of limit
+- [x] **Credit breakdown in dropdown** ✅ - Shows monthly vs purchased, reset date
+- [x] **Insufficient Credits Handling** ✅
+  - `InsufficientCreditsModal.js` shows balance, required amount, purchase options
+  - Buttons disabled when credits insufficient
+  - Backend validation with 402 Payment Required
 - [ ] **Pre-action confirmation** - For expensive actions (>50 credits)
-- [ ] **Insufficient Credits Handling**
-  - Frontend: Check user credit balance before allowing action
-  - Block action button when credits < required amount
-  - Show modal when user tries action with insufficient credits:
-    - "You need X more credits for this action"
-    - Current balance display
-    - Credit cost breakdown
-    - "Purchase Credits" button → redirect to credit store
-    - Option to dismiss and return
-  - Visual state: Disabled/grayed out buttons with tooltip explaining credit requirement
-  - Backend validation: Return 402 Payment Required if credits insufficient (don't trust frontend)
-  - Handle edge case: Credits depleted during long-running operation (refund partial work?)
 - [ ] **Make Ask Stellium logo/button more obvious** - Users not finding it
 
 ## Features
 
-- [ ] **Detailed Relationship Score Breakdown**
-  - **Scores Tab Improvements:**
-    - List key factors in full detail for each score
-    - Format: "Ed's Sun in Scorpio trine Becky's Moon in Pisces (+15 points)"
-    - Show aspect type (trine, square, conjunction, etc.) with orb
-    - Visual indicator: Green for harmonious, red for challenging
-    - Expandable sections per score category (Emotional, Intellectual, etc.)
-  - **360 Analysis Category Details:**
-    - Add "View All Aspects" section for each category
-    - List ALL supportive aspects (not just top 3-5)
-    - List ALL challenging aspects (not just top 3-5)
-    - Format: "Person A's Planet in Sign [aspect] Person B's Planet in Sign (±X points)"
-    - Sortable by strength/points
-    - Collapsible sections to avoid overwhelming UI
-    - Summary stats: X supportive aspects, Y challenging aspects, net impact
+- [x] **Detailed Relationship Score Breakdown** ✅ (commits c86fbb0, 1ff2a8d, d126d1d)
+  - Expandable cluster tabs (Harmony, Passion, Connection, Stability, Growth)
+  - "View All Aspects" button shows full list
+  - Support vs challenge aspect lists with toggle
+  - ALL aspects included (not just top 3-5)
+  - Sortable by strength/points
+  - Source filtering (all/synastry/composite/housePlacement)
+  - Score badges with star ratings
 - [ ] **Interactive Chart Hover** - Hover over planet in ephemeris to:
   - Highlight only aspect lines connected to that planet
   - Show tooltip with planet info (sign, house, degree)
@@ -68,21 +54,13 @@
     - Synastry charts (hover Person A planet → show aspects to Person B planets)
     - Transit charts (hover transit planet → show aspects to natal planets)
   - Optional: Click to "pin" the highlight (sticky mode)
-- [ ] **Credit Transaction History / Receipts**
-  - Dedicated section in account/profile for reviewing all credit activity
-  - Show two types of transactions:
-    - **Purchases:** Credit packs bought (date, amount, price, payment method)
-    - **Charges:** Credits spent on actions (date, action type, cost, remaining balance)
-  - Transaction details include:
-    - Timestamp
-    - Description (e.g., "Birth Chart Report for John Doe", "100 Credit Pack Purchase")
-    - Credits added/deducted
-    - Balance after transaction
-    - Receipt/invoice ID
-  - Filtering options: All / Purchases / Charges, Date range
-  - Export as CSV or PDF for record-keeping
-  - Link to Stripe receipts for purchases
-  - Searchable by action type or description
+- [x] **Credit Transaction History / Receipts** ✅ (commits 2dd6df5 backend, f05b19c frontend)
+  - Transactions tab in Settings (`TransactionsSettings.js`)
+  - Shows purchases (credit packs) and charges (actions)
+  - Filtering: All / Purchases / Charges, date range
+  - CSV and PDF export functionality
+  - Stripe receipt links with copy button
+  - Cursor-based pagination
 - [x] **Celebrity Relationship Analysis** ✅ IMPLEMENTED 2026-02-15
   - Created CelebrityRelationshipPage (`/dashboard/:userId/celebrity-analysis`)
   - Browse celebrities with search and pagination
