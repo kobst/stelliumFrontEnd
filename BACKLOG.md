@@ -34,6 +34,7 @@
   - Backend validation with 402 Payment Required
 - [ ] **Pre-action confirmation** - For expensive actions (>50 credits)
 - [x] **Make Ask Stellium logo/button more obvious** ✅
+- [ ] **Real-time credit deduction** - Update credit counter in top nav immediately after spending credits (especially for Ask Stellium feature). Currently requires page refresh to see updated balance.
 
 ## Features
 
@@ -82,6 +83,14 @@
   - Error handling for failed submissions
   - Rate limiting: Max 5 suggestions per user per day
   - Link accessible from celebrity browse page ("Don't see who you're looking for? Suggest a celebrity")
+- [ ] **Email Horoscope Delivery (Plus Plan Feature)**
+  - Allow Plus plan users to opt-in to receive their horoscopes via email
+  - Settings toggle: "Send me my daily/weekly horoscope via email"
+  - Frequency options: Daily, Weekly, or Both
+  - Email template with branding + horoscope content
+  - Unsubscribe link in email footer
+  - Backend: Scheduled job to generate and send emails
+  - Track delivery status and bounce handling
 - [ ] Credit gifting between users
 - [ ] Subscription tiers (monthly credit bundles)
 - [ ] Usage analytics dashboard
