@@ -86,9 +86,8 @@ const OnboardingForm = () => {
             const epochTimeSeconds = Math.floor(dateTime.getTime() / 1000);
             const totalOffsetHours = await fetchTimeZone(lat, lon, epochTimeSeconds);
 
-            // Prepare data for confirmation page - include firebaseUid
+            // Prepare data for confirmation page
             const userData = {
-                firebaseUid: firebaseUser.uid,
                 firstName,
                 lastName,
                 email: firebaseUser.email,

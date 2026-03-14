@@ -43,13 +43,7 @@ const OnboardingConfirmation = () => {
 
             const performCreation = async () => {
                 try {
-                    // Ensure firebaseUid is included
-                    const userDataWithFirebase = {
-                        ...userData,
-                        firebaseUid: firebaseUser.uid
-                    };
-
-                    const result = await createUser(userDataWithFirebase);
+                    const result = await createUser(userData);
                     setCreationResult(result);
 
                     // Store user data immediately (no polling needed)
