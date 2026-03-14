@@ -13,14 +13,16 @@ const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 export const authenticatedFetch = async (url, options = {}, token = null) => {
   const authToken = token || await getIdToken();
 
+  if (!authToken) {
+    throw new Error('Authentication required');
+  }
+
   const headers = {
     [CONTENT_TYPE_HEADER]: APPLICATION_JSON,
     ...options.headers,
   };
 
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
-  }
+  headers['Authorization'] = `Bearer ${authToken}`;
 
   return fetch(url, {
     ...options,
@@ -129,16 +131,15 @@ export const createUser = async (userData) => {
     const endpoint = userData.time === 'unknown' ? '/createUserUnknownTimeEmailValidation' : '/createUserEmailValidation';
     const requestData = { ...userData };
 
+    delete requestData.firebaseUid;
+
     // Remove time field for unknown time endpoint
     if (userData.time === 'unknown') {
       delete requestData.time;
     }
 
-    const response = await fetch(`${SERVER_URL}${endpoint}`, {
+    const response = await authenticatedFetch(`${SERVER_URL}${endpoint}`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify(requestData)
     });
 
