@@ -162,9 +162,9 @@
 
 .hero-buttons {
   display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
 }
 
 .cta-button {
@@ -189,16 +189,65 @@
 .cta-button.primary:hover {
 }
 
-.cta-button.secondary {
-  background: transparent;
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
+.hero-sign-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 680px;
 }
 
-.cta-button.secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.5);
+.hero-sign-picker__label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.hero-sign-picker__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.hero-sign-picker__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.hero-sign-picker__pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.hero-sign-picker__pill.is-active {
+  background: transparent;
+  border: 1px solid rgba(212, 165, 116, 0.8);
+  color: #ffffff;
+}
+
+.hero-sign-picker__pill.is-active:hover {
+  background: rgba(212, 165, 116, 0.08);
+}
+
+.hero-sign-picker__glyph {
+  line-height: 1;
 }
 
 /* Demo Section */
@@ -1735,6 +1784,17 @@
   }
 }
 
+@media (max-width: 768px) {
+  .hero-sign-picker__grid {
+    gap: 6px;
+  }
+
+  .hero-sign-picker__pill {
+    padding: 7px 11px;
+    font-size: 13px;
+  }
+}
+
 @media (max-width: 480px) {
   .landing-nav__wordmark {
     display: none;
@@ -1761,6 +1821,16 @@
 
   .cta-button {
     width: 100%;
+  }
+
+  .hero-sign-picker {
+    max-width: 100%;
+    padding: 0 16px;
+  }
+
+  .hero-sign-picker__pill {
+    padding: 6px 10px;
+    font-size: 12px;
   }
 
   .feature-card,
