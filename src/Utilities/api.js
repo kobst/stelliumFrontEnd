@@ -1353,6 +1353,47 @@ export const generateWeeklyHoroscope = async (userId, startDate) => {
   }
 };
 
+export const getPublicWeeklyHoroscope = async (sign, date) => {
+  const params = new URLSearchParams();
+
+  if (date) {
+    params.set('date', date);
+  }
+
+  const queryString = params.toString();
+  const url = `${SERVER_URL}/horoscopes/weekly/${sign}${queryString ? `?${queryString}` : ''}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
+    });
+
+    const responseData = await response.json();
+
+    if (response.status === 404) {
+      return {
+        ok: false,
+        notReady: true,
+        data: responseData
+      };
+    }
+
+    if (!response.ok) {
+      throw new Error(responseData?.message || responseData?.error || `HTTP error! status: ${response.status}`);
+    }
+
+    return {
+      ok: true,
+      notReady: false,
+      data: responseData
+    };
+  } catch (error) {
+    console.error('Error fetching public weekly horoscope:', error);
+    throw error;
+  }
+};
+
 export const generateMonthlyHoroscope = async (userId, startDate) => {
   console.log("Generating monthly horoscope for userId:", userId, "startDate:", startDate);
   try {
