@@ -14,6 +14,7 @@ import CelebrityRelationshipsSection from '../UI/landingPage/CelebrityRelationsh
 import PricingSection from '../UI/landingPage/PricingSection';
 import { useAuth } from '../context/AuthContext';
 import { useCheckout } from '../hooks/useCheckout';
+import { ZODIAC_SIGNS } from '../Utilities/zodiac';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -55,8 +56,8 @@ const LandingPage = () => {
     }
   };
 
-  const handleWeeklyHoroscopes = () => {
-    navigate('/horoscopes/weekly');
+  const handleSignPick = (sign) => {
+    navigate(`/horoscopes/weekly/${sign}`);
   };
 
   return (
@@ -70,28 +71,14 @@ const LandingPage = () => {
           </a>
           <div className="landing-nav__actions">
             {stelliumUser ? (
-              <>
-                <button
-                  className="landing-nav__link"
-                  onClick={handleWeeklyHoroscopes}
-                >
-                  Weekly Horoscopes
-                </button>
-                <button
-                  className="landing-nav__link"
-                  onClick={() => navigate(`/dashboard/${stelliumUser._id}`)}
-                >
-                  Go to Dashboard
-                </button>
-              </>
+              <button
+                className="landing-nav__link"
+                onClick={() => navigate(`/dashboard/${stelliumUser._id}`)}
+              >
+                Go to Dashboard
+              </button>
             ) : (
               <>
-                <button
-                  className="landing-nav__link"
-                  onClick={handleWeeklyHoroscopes}
-                >
-                  Weekly Horoscopes
-                </button>
                 <button
                   className="landing-nav__link"
                   onClick={() => navigate('/login')}
@@ -121,13 +108,24 @@ const LandingPage = () => {
           <p className="hero-subtitle">Birth chart analysis, relationship reports, custom horoscopes...<br />and <a href="#ask-stellium" className="hero-subtitle__link">your own AI astrologer</a> to answer your most personal questions</p>
           <div className="hero-buttons">
             <CTABand onGetStarted={handleGetStarted} />
-            <button
-              type="button"
-              className="cta-button secondary"
-              onClick={handleWeeklyHoroscopes}
-            >
-              Read Weekly Horoscopes
-            </button>
+            <div className="hero-sign-picker">
+              <p className="hero-sign-picker__label">Read this week&apos;s horoscope — pick your sign</p>
+              <div className="hero-sign-picker__grid">
+                {ZODIAC_SIGNS.map((sign) => (
+                  <button
+                    key={sign.value}
+                    type="button"
+                    className="hero-sign-picker__pill"
+                    onClick={() => handleSignPick(sign.value)}
+                    aria-label={sign.label}
+                    aria-pressed="false"
+                  >
+                    <span aria-hidden="true" className="hero-sign-picker__glyph">{sign.glyph}</span>
+                    <span>{sign.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
