@@ -55,6 +55,10 @@ const LandingPage = () => {
     }
   };
 
+  const handleWeeklyHoroscopes = () => {
+    navigate('/horoscopes/weekly');
+  };
+
   return (
     <div className="landing-page">
       {/* Sticky Nav */}
@@ -66,14 +70,28 @@ const LandingPage = () => {
           </a>
           <div className="landing-nav__actions">
             {stelliumUser ? (
-              <button
-                className="landing-nav__link"
-                onClick={() => navigate(`/dashboard/${stelliumUser._id}`)}
-              >
-                Go to Dashboard
-              </button>
+              <>
+                <button
+                  className="landing-nav__link"
+                  onClick={handleWeeklyHoroscopes}
+                >
+                  Weekly Horoscopes
+                </button>
+                <button
+                  className="landing-nav__link"
+                  onClick={() => navigate(`/dashboard/${stelliumUser._id}`)}
+                >
+                  Go to Dashboard
+                </button>
+              </>
             ) : (
               <>
+                <button
+                  className="landing-nav__link"
+                  onClick={handleWeeklyHoroscopes}
+                >
+                  Weekly Horoscopes
+                </button>
                 <button
                   className="landing-nav__link"
                   onClick={() => navigate('/login')}
@@ -102,7 +120,14 @@ const LandingPage = () => {
           </div>
           <p className="hero-subtitle">Birth chart analysis, relationship reports, custom horoscopes...<br />and <a href="#ask-stellium" className="hero-subtitle__link">your own AI astrologer</a> to answer your most personal questions</p>
           <div className="hero-buttons">
-           <CTABand onGetStarted={handleGetStarted} />
+            <CTABand onGetStarted={handleGetStarted} />
+            <button
+              type="button"
+              className="cta-button secondary"
+              onClick={handleWeeklyHoroscopes}
+            >
+              Read Weekly Horoscopes
+            </button>
           </div>
         </div>
       </section>
