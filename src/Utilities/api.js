@@ -3,6 +3,23 @@ import { getIdToken } from '../firebase/auth';
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const reportCreateUserFailure = (payload) => {
+  const telemetry = {
+    event: 'create_user_failed',
+    timestamp: new Date().toISOString(),
+    appVersion: process.env.REACT_APP_VERSION || 'unknown',
+    ...payload,
+  };
+
+  console.error('[CreateUserTelemetry]', telemetry);
+
+  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+    window.dispatchEvent(new CustomEvent('stellium:createUserFailure', { detail: telemetry }));
+  }
+};
+
 /**
  * Make an authenticated fetch request with Firebase ID token
  * @param {string} url - The URL to fetch
@@ -127,27 +144,49 @@ export const getSubtopicAstroData = async (userId) => {
 };
 
 export const createUser = async (userData) => {
+  const endpoint = userData.time === 'unknown' ? '/createUserUnknownTimeEmailValidation' : '/createUserEmailValidation';
+  const requestData = { ...userData };
+
+  delete requestData.firebaseUid;
+
+  // Remove time field for unknown time endpoint
+  if (userData.time === 'unknown') {
+    delete requestData.time;
+  }
+
+  const maxAttempts = 3;
+
   try {
-    const endpoint = userData.time === 'unknown' ? '/createUserUnknownTimeEmailValidation' : '/createUserEmailValidation';
-    const requestData = { ...userData };
+    let lastError = null;
 
-    delete requestData.firebaseUid;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const token = await getIdToken(attempt === 1);
 
-    // Remove time field for unknown time endpoint
-    if (userData.time === 'unknown') {
-      delete requestData.time;
-    }
+      const response = await authenticatedFetch(`${SERVER_URL}${endpoint}`, {
+        method: HTTP_POST,
+        body: JSON.stringify(requestData)
+      }, token);
 
-    const response = await authenticatedFetch(`${SERVER_URL}${endpoint}`, {
-      method: HTTP_POST,
-      body: JSON.stringify(requestData)
-    });
+      const responseData = await response.json().catch(() => ({}));
 
-    const responseData = await response.json();
+      if (response.ok) {
+        return responseData;
+      }
 
-    // Handle email validation errors with specific error codes
-    if (!response.ok) {
-      // Check for specific error codes
+      const isRetryable = response.status === 401 || response.status === 403 || response.status >= 500;
+
+      reportCreateUserFailure({
+        endpoint,
+        status: response.status,
+        code: responseData?.code || null,
+        message: responseData?.error || `HTTP ${response.status}`,
+        attempt,
+        maxAttempts,
+        firebaseUid: userData?.firebaseUid || null,
+        email: requestData?.email || null,
+      });
+
+      // Handle email validation errors with specific error codes
       if (response.status === 409 && responseData.code === 'EMAIL_EXISTS') {
         const error = new Error('Email already in use');
         error.code = 'EMAIL_EXISTS';
@@ -162,12 +201,32 @@ export const createUser = async (userData) => {
         throw error;
       }
 
-      // Generic error handling
-      throw new Error(responseData.error || `HTTP error! status: ${response.status}`);
+      const apiError = new Error(responseData?.error || `HTTP error! status: ${response.status}`);
+      apiError.code = responseData?.code;
+      apiError.statusCode = response.status;
+      lastError = apiError;
+
+      if (isRetryable && attempt < maxAttempts) {
+        await sleep(attempt * 600);
+        continue;
+      }
+
+      throw apiError;
     }
 
-    return responseData;
+    throw lastError || new Error('Failed to create user');
   } catch (error) {
+    reportCreateUserFailure({
+      endpoint,
+      status: error?.statusCode || null,
+      code: error?.code || null,
+      message: error?.message || 'Unknown createUser error',
+      attempt: maxAttempts,
+      maxAttempts,
+      firebaseUid: userData?.firebaseUid || null,
+      email: requestData?.email || null,
+    });
+
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
       console.error('Network/CORS error - likely the new API endpoint is not deployed yet');
       throw new Error('Cannot connect to new API endpoint. The backend may not be updated with the new endpoints yet.');

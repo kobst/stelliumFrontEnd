@@ -23,11 +23,12 @@ const OnboardingConfirmation = () => {
         completeData
     } = useSubjectCreation();
 
-    const creationStarted = useRef(false);
+    const creationInFlight = useRef(false);
     const [creationResult, setCreationResult] = useState(null);
     const [userId, setLocalUserId] = useState(null);
     const [overviewContent, setOverviewContent] = useState(null);
     const [birthChartData, setBirthChartData] = useState(null);
+    const [creationAttempt, setCreationAttempt] = useState(0);
 
     // Redirect if not authenticated
     useEffect(() => {
@@ -38,53 +39,57 @@ const OnboardingConfirmation = () => {
 
     // Start user creation when component mounts
     useEffect(() => {
-        if (userData && firebaseUser && !creationStarted.current) {
-            creationStarted.current = true;
-
-            const performCreation = async () => {
-                try {
-                    const result = await createUser(userData);
-                    setCreationResult(result);
-
-                    // Store user data immediately (no polling needed)
-                    if (result.success) {
-                        setUserId(result.userId);
-                        setLocalUserId(result.userId);
-
-                        // Store birth chart data from direct response
-                        if (result.birthChart) {
-                            setBirthChartData(result.birthChart);
-                            setUserPlanets(result.birthChart.planets || []);
-                            setUserHouses(result.birthChart.houses || []);
-                            setUserAspects(result.birthChart.aspects || []);
-                        }
-
-                        // Store overview content from direct response
-                        if (result.overview) {
-                            setOverviewContent(result.overview);
-                        }
-
-                        // Set selected user for dashboard compatibility
-                        setSelectedUser({
-                            _id: result.userId,
-                            firstName: result.user.firstName,
-                            lastName: result.user.lastName,
-                            email: result.user.email,
-                            kind: result.user.kind || 'accountSelf'
-                        });
-
-                        // Note: Don't refresh auth context here - it will trigger OnboardingRoute
-                        // to redirect to dashboard before user sees confirmation page.
-                        // We'll refresh when user clicks "Go to Dashboard"
-                    }
-                } catch (error) {
-                    console.error('Error creating user:', error);
-                }
-            };
-
-            performCreation();
+        if (!userData || !firebaseUser || creationInFlight.current || creationResult?.success) {
+            return;
         }
-    }, [userData, firebaseUser, createUser, setUserId, setUserPlanets, setUserHouses, setUserAspects, setSelectedUser, refreshStelliumUser]);
+
+        const performCreation = async () => {
+            creationInFlight.current = true;
+            try {
+                const result = await createUser(userData);
+                setCreationResult(result);
+
+                // Store user data immediately (no polling needed)
+                if (result.success) {
+                    setUserId(result.userId);
+                    setLocalUserId(result.userId);
+
+                    // Store birth chart data from direct response
+                    if (result.birthChart) {
+                        setBirthChartData(result.birthChart);
+                        setUserPlanets(result.birthChart.planets || []);
+                        setUserHouses(result.birthChart.houses || []);
+                        setUserAspects(result.birthChart.aspects || []);
+                    }
+
+                    // Store overview content from direct response
+                    if (result.overview) {
+                        setOverviewContent(result.overview);
+                    }
+
+                    // Set selected user for dashboard compatibility
+                    setSelectedUser({
+                        _id: result.userId,
+                        firstName: result.user.firstName,
+                        lastName: result.user.lastName,
+                        email: result.user.email,
+                        kind: result.user.kind || 'accountSelf'
+                    });
+
+                    // Note: Don't refresh auth context here - it will trigger OnboardingRoute
+                    // to redirect to dashboard before user sees confirmation page.
+                    // We'll refresh when user clicks "Go to Dashboard"
+                }
+            } catch (creationError) {
+                console.error('Error creating user:', creationError);
+                setCreationResult(null);
+            } finally {
+                creationInFlight.current = false;
+            }
+        };
+
+        performCreation();
+    }, [creationAttempt, userData, firebaseUser, creationResult?.success, createUser, setUserId, setUserPlanets, setUserHouses, setUserAspects, setSelectedUser]);
 
     // Update local state when creation completes
     useEffect(() => {
@@ -119,6 +124,17 @@ const OnboardingConfirmation = () => {
         creationResult?.user?._id ||
         completeData?.subject?._id;
     const isComplete = creationResult?.success && !loading;
+    const canGoToDashboard = Boolean(isComplete && effectiveUserId);
+
+    const handleRetryCreation = () => {
+        if (loading) return;
+
+        setCreationResult(null);
+        setLocalUserId(null);
+        setOverviewContent(null);
+        setBirthChartData(null);
+        setCreationAttempt((prev) => prev + 1);
+    };
 
     const handleGoToDashboard = async () => {
         if (effectiveUserId) {
@@ -134,7 +150,7 @@ const OnboardingConfirmation = () => {
                 Welcome to Stellium, {userData?.firstName || firebaseUser?.displayName || 'User'}!
             </h1>
             <p style={{ color: 'white' }}>
-                {isCreating ? 'Creating your profile...' : isComplete ? 'Your profile has been created successfully!' : 'Processing...'}
+                {isCreating ? 'Creating your profile...' : isComplete ? 'Your profile has been created successfully!' : error ? 'Profile creation failed. Please retry.' : 'Processing...'}
             </p>
 
             {/* Birth Date Display */}
@@ -234,6 +250,23 @@ const OnboardingConfirmation = () => {
                             Try Logging In
                         </button>
                     )}
+                    {!error.includes('Email already in use') && (
+                        <button
+                            onClick={handleRetryCreation}
+                            disabled={loading}
+                            style={{
+                                padding: '10px 20px',
+                                backgroundColor: '#8b5cf6',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                opacity: loading ? 0.7 : 1
+                            }}
+                        >
+                            {loading ? 'Retrying...' : 'Retry Profile Creation'}
+                        </button>
+                    )}
                 </div>
             )}
 
@@ -275,23 +308,23 @@ const OnboardingConfirmation = () => {
 
             {/* Navigation Buttons */}
             <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                {(effectiveUserId || hasBirthChartData) && (
+                {canGoToDashboard && (
                     <button
                         onClick={handleGoToDashboard}
-                        disabled={!effectiveUserId}
+                        disabled={!canGoToDashboard}
                         style={{
                             padding: '15px 30px',
                             backgroundColor: '#8b5cf6',
                             color: 'white',
                             border: 'none',
                             borderRadius: '8px',
-                            cursor: effectiveUserId ? 'pointer' : 'not-allowed',
+                            cursor: canGoToDashboard ? 'pointer' : 'not-allowed',
                             fontSize: '16px',
                             fontWeight: 'bold',
-                            opacity: effectiveUserId ? 1 : 0.7
+                            opacity: canGoToDashboard ? 1 : 0.7
                         }}
                     >
-                        {effectiveUserId ? 'Go to My Dashboard' : 'Loading...'}
+                        Go to My Dashboard
                     </button>
                 )}
             </div>
