@@ -1817,11 +1817,8 @@ export const createGuestSubject = async (guestData) => {
       throw new Error('ownerUserId is required for guest subjects');
     }
     
-    const response = await fetch(`${SERVER_URL}${endpoint}`, {
+    const response = await authenticatedFetch(`${SERVER_URL}${endpoint}`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify(requestData)
     });
 
