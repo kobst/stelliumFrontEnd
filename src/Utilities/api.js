@@ -4,6 +4,67 @@ import { getIdToken } from '../firebase/auth';
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const CLIENT_REQUEST_ID_HEADER = 'x-client-request-id';
+const CLIENT_SESSION_ID_HEADER = 'x-client-session-id';
+const CLIENT_ROUTE_HEADER = 'x-client-route';
+
+const isBackendUrl = (url) => {
+  if (!url || !SERVER_URL) return false;
+  if (typeof url !== 'string') return false;
+  return url.startsWith(SERVER_URL);
+};
+
+const createRequestId = () => {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+  } catch (error) {
+    // Ignore and use fallback ID
+  }
+  return `req_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+};
+
+const getSessionId = () => {
+  try {
+    if (typeof window === 'undefined' || !window.sessionStorage) {
+      return `sess_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+    const existing = window.sessionStorage.getItem('stellium_client_session_id');
+    if (existing) return existing;
+    const generated = createRequestId().replace('req_', 'sess_');
+    window.sessionStorage.setItem('stellium_client_session_id', generated);
+    return generated;
+  } catch (error) {
+    return `sess_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  }
+};
+
+const getClientRoute = () => {
+  try {
+    if (typeof window === 'undefined' || !window.location) return '';
+    return `${window.location.pathname || ''}${window.location.search || ''}`.slice(0, 200);
+  } catch (error) {
+    return '';
+  }
+};
+
+const buildTelemetryHeaders = (url, existingHeaders = {}) => {
+  const headers = { ...existingHeaders };
+  if (!isBackendUrl(url)) return headers;
+  headers[CLIENT_REQUEST_ID_HEADER] = headers[CLIENT_REQUEST_ID_HEADER] || createRequestId();
+  headers[CLIENT_SESSION_ID_HEADER] = headers[CLIENT_SESSION_ID_HEADER] || getSessionId();
+  headers[CLIENT_ROUTE_HEADER] = headers[CLIENT_ROUTE_HEADER] || getClientRoute();
+  return headers;
+};
+
+export const telemetryFetch = (url, options = {}) => {
+  const headers = buildTelemetryHeaders(url, options.headers || {});
+  return window.fetch(url, {
+    ...options,
+    headers,
+  });
+};
 
 const reportCreateUserFailure = (payload) => {
   const telemetry = {
@@ -34,14 +95,14 @@ export const authenticatedFetch = async (url, options = {}, token = null) => {
     throw new Error('Authentication required');
   }
 
-  const headers = {
+  const headers = buildTelemetryHeaders(url, {
     [CONTENT_TYPE_HEADER]: APPLICATION_JSON,
     ...options.headers,
-  };
+  });
 
   headers['Authorization'] = `Bearer ${authToken}`;
 
-  return fetch(url, {
+  return telemetryFetch(url, {
     ...options,
     headers,
   });
@@ -95,7 +156,7 @@ export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
   const url = `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lon}&timestamp=${epochTimeSeconds}&key=${apiKey}`;
 
   try {
-    const response = await fetch(url);
+    const response = await telemetryFetch(url);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -122,7 +183,7 @@ export const getSubtopicAstroData = async (userId) => {
     console.log('Getting subtopic astro data for userId:', userId);
     const requestBody = { userId: userId };
     
-    const response = await fetch(`${SERVER_URL}/debug/subtopic-astro-data`, {
+    const response = await telemetryFetch(`${SERVER_URL}/debug/subtopic-astro-data`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -241,7 +302,7 @@ export const fetchUser = async (userId) => {
   console.log("fetchUseruserId")
   console.log(userId)
   try {
-    const response = await fetch(`${SERVER_URL}/getUser`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getUser`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ userId })
@@ -255,7 +316,7 @@ export const fetchUser = async (userId) => {
 
 export const fetchUsers = async () => {
   try {
-    const response = await fetch(`${SERVER_URL}/getUsers`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getUsers`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -299,7 +360,7 @@ export const fetchUsersPaginated = async (options = {}) => {
       requestBody.search = search;
     }
 
-    const response = await fetch(`${SERVER_URL}/getUsers`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getUsers`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -327,7 +388,7 @@ export const fetchUsersPaginated = async (options = {}) => {
 
 export const fetchComposites = async () => {
   try {
-    const response = await fetch(`${SERVER_URL}/getCompositeCharts`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getCompositeCharts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -352,7 +413,7 @@ export const handleUserInput = async (userId, query) => {
   try {
     console.log("query:", query)
     console.log("userId:", userId)      
-    const response = await fetch(`${SERVER_URL}/handleUserQuery`, {
+    const response = await telemetryFetch(`${SERVER_URL}/handleUserQuery`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON,
@@ -393,7 +454,7 @@ export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = n
       requestBody.celebRelationship = true;
     }
     
-    const response = await fetch(`${SERVER_URL}/enhanced-relationship-analysis`, {
+    const response = await telemetryFetch(`${SERVER_URL}/enhanced-relationship-analysis`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
@@ -458,7 +519,7 @@ export const createCompositeChartProfile = async (userAId, userBId, userAName, u
   console.log("compositeBirthChart x:");
   console.log(compositeBirthChart);
   try {
-    const response = await fetch(`${SERVER_URL}/saveCompositeChartProfile`, {
+    const response = await telemetryFetch(`${SERVER_URL}/saveCompositeChartProfile`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -490,7 +551,7 @@ export const createCompositeChartProfile = async (userAId, userBId, userAName, u
 //     console.log("compositeChart: ", compositeChart)
 //     console.log("birthChart1: ", userA.birthChart)
 //     console.log("birthChart2: ", userB.birthChart)
-//     const response = await fetch(`${SERVER_URL}/getRelationshipScore`, {
+//     const response = await telemetryFetch(`${SERVER_URL}/getRelationshipScore`, {
 //       method: HTTP_POST,
 //       headers: {
 //         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -521,7 +582,7 @@ export const createCompositeChartProfile = async (userAId, userBId, userAName, u
 // export const generateRelationshipAnalysis = async (compositeChartId) => {
 //   console.log("compositeChartId: ", compositeChartId)
 //   try {
-//     const response = await fetch(`${SERVER_URL}/generateRelationshipAnalysis`, {
+//     const response = await telemetryFetch(`${SERVER_URL}/generateRelationshipAnalysis`, {
 //       method: HTTP_POST,
 //       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //       body: JSON.stringify({compositeChartId})
@@ -575,7 +636,7 @@ export const getShortOverview = async (birthData) => {
 
   console.log("birthchart: ", birthData)
   try {
-    const response = await fetch(`${SERVER_URL}/getShortOverview`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getShortOverview`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({birthData})
@@ -593,7 +654,7 @@ export const getShortOverview = async (birthData) => {
 export const getPlanetOverview = async (planetName, birthData) => {
   console.log("Sending request with:", { planetName, birthData });
   try {
-    const response = await fetch(`${SERVER_URL}/getShortOverviewPlanet`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getShortOverviewPlanet`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({planetName, birthData})
@@ -633,7 +694,7 @@ export const getPlanetOverview = async (planetName, birthData) => {
 // export const getAllPlanetOverview = async (birthData) => {
 //   console.log("Sending request with:", { birthData });
 //   try {
-//     const response = await fetch(`${SERVER_URL}/getShortOverviewAllPlanets`, {
+//     const response = await telemetryFetch(`${SERVER_URL}/getShortOverviewAllPlanets`, {
 //       method: HTTP_POST,
 //       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //       body: JSON.stringify({birthData})
@@ -668,7 +729,7 @@ export const getPlanetOverview = async (planetName, birthData) => {
 
 //   console.log("user: ", user)
 //   try {
-//     const response = await fetch(`${SERVER_URL}/getBirthChartAnalysis`, {
+//     const response = await telemetryFetch(`${SERVER_URL}/getBirthChartAnalysis`, {
 //       method: HTTP_POST,
 //       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //       body: JSON.stringify({user})
@@ -723,7 +784,7 @@ export const fetchAnalysis = async (userId) => {
 
 //         console.log(`Processing subtopic: ${subtopicKey}`);
 
-//         const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
+//         const response = await telemetryFetch(`${SERVER_URL}/getSubtopicAnalysis`, {
 //           method: HTTP_POST,
 //           headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //           body: JSON.stringify({
@@ -775,7 +836,7 @@ export const fetchAnalysis = async (userId) => {
 //   console.log(`Processing subtopic: ${subtopicLabel}`);
 //
 //   try {
-//     const response = await fetch(`${SERVER_URL}/getSubtopicAnalysis`, {
+//     const response = await telemetryFetch(`${SERVER_URL}/getSubtopicAnalysis`, {
 //       method: HTTP_POST,
 //       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //       body: JSON.stringify({
@@ -820,7 +881,7 @@ export const fetchAnalysis = async (userId) => {
 //   while (!isComplete) {
 //     try {
 //       console.log(`Processing section: ${section}, index: ${index}`);
-//       const response = await fetch(`${SERVER_URL}/processBasicAnalysis`, {
+//       const response = await telemetryFetch(`${SERVER_URL}/processBasicAnalysis`, {
 //         method: HTTP_POST,
 //         headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //         body: JSON.stringify({ userId, section, index })
@@ -888,7 +949,7 @@ export const fetchAnalysis = async (userId) => {
 //     while (!isComplete) {
 //       console.log(`Processing topic: ${currentTopic}, subtopic: ${currentSubtopic}`);
       
-//       const response = await fetch(`${SERVER_URL}/processTopicAnalysis`, {
+//       const response = await telemetryFetch(`${SERVER_URL}/processTopicAnalysis`, {
 //         method: HTTP_POST,
 //         headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //         body: JSON.stringify({ 
@@ -970,7 +1031,7 @@ export const fetchAnalysis = async (userId) => {
 //     while (!isComplete) {
 //       console.log(`Processing relationship category: ${currentCategory || 'initial'}`);
       
-//       const response = await fetch(`${SERVER_URL}/processRelationshipAnalysis`, {
+//       const response = await telemetryFetch(`${SERVER_URL}/processRelationshipAnalysis`, {
 //         method: HTTP_POST,
 //         headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
 //         body: JSON.stringify({ 
@@ -1020,7 +1081,7 @@ export const chatForUserRelationship = async (userId, compositeChartId, query) =
   console.log("compositeChartId: ", compositeChartId)
   console.log("query: ", query)
   try {
-    const response = await fetch(`${SERVER_URL}/userChatRelationshipAnalysis`, {
+    const response = await telemetryFetch(`${SERVER_URL}/userChatRelationshipAnalysis`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({userId, compositeChartId, query})
@@ -1038,7 +1099,7 @@ export const fetchUserChatRelationshipAnalysis = async (userId, compositeChartId
   console.log("userId: ", userId)
   console.log("compositeChartId: ", compositeChartId)
   try {
-    const response = await fetch(`${SERVER_URL}/fetchUserChatRelationshipAnalysis`, {
+    const response = await telemetryFetch(`${SERVER_URL}/fetchUserChatRelationshipAnalysis`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({userId, compositeChartId})
@@ -1059,7 +1120,7 @@ export const getTransitWindows = async (userId, from, to) => {
   console.log("from: ", from)
   console.log("to: ", to)
   try {
-    const response = await fetch(`${SERVER_URL}/getTransitWindows`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getTransitWindows`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({userId, from, to})
@@ -1079,7 +1140,7 @@ export const getTransitWindows = async (userId, from, to) => {
 export const checkUserCreationStatus = async (workflowId) => {
   console.log('Checking user creation status for workflowId:', workflowId);
   try {
-    const response = await fetch(`${SERVER_URL}/user/creation-status`, {
+    const response = await telemetryFetch(`${SERVER_URL}/user/creation-status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ workflowId })
@@ -1102,7 +1163,7 @@ export const checkUserCreationStatus = async (workflowId) => {
 export const checkCelebrityCreationStatus = async (workflowId) => {
   console.log('Checking celebrity creation status for workflowId:', workflowId);
   try {
-    const response = await fetch(`${SERVER_URL}/celebrity/creation-status`, {
+    const response = await telemetryFetch(`${SERVER_URL}/celebrity/creation-status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ workflowId })
@@ -1125,7 +1186,7 @@ export const checkCelebrityCreationStatus = async (workflowId) => {
 export const checkGuestCreationStatus = async (workflowId) => {
   console.log('Checking guest creation status for workflowId:', workflowId);
   try {
-    const response = await fetch(`${SERVER_URL}/guest/creation-status`, {
+    const response = await telemetryFetch(`${SERVER_URL}/guest/creation-status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ workflowId })
@@ -1159,7 +1220,7 @@ export const startWorkflow = async (userId, immediate = true) => {
     console.log("📤 REQUEST BODY:", JSON.stringify(requestBody));
     console.log("📍 REQUEST URL:", `${SERVER_URL}/workflow/individual/start`);
     
-    const response = await fetch(`${SERVER_URL}/workflow/individual/start`, {
+    const response = await telemetryFetch(`${SERVER_URL}/workflow/individual/start`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
@@ -1181,7 +1242,7 @@ export const startWorkflow = async (userId, immediate = true) => {
 export const getWorkflowStatus = async (userId) => {
   console.log("Getting workflow status for userId:", userId);
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/individual/status`, {
+    const response = await telemetryFetch(`${SERVER_URL}/workflow/individual/status`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ workflowId: userId })
@@ -1209,7 +1270,7 @@ export const getWorkflowStatus = async (userId) => {
 export const resumeWorkflow = async (userId) => {
   console.log("Resuming workflow for userId:", userId);
   try {
-    const response = await fetch(`${SERVER_URL}/workflow/individual/resume`, {
+    const response = await telemetryFetch(`${SERVER_URL}/workflow/individual/resume`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ workflowId: userId })
@@ -1236,7 +1297,7 @@ export const getCompleteWorkflowData = async (userId, workflowId) => {
     if (userId) requestBody.userId = userId;
     if (workflowId) requestBody.workflowId = workflowId;
     
-    const response = await fetch(`${SERVER_URL}/workflow/get-complete-data`, {
+    const response = await telemetryFetch(`${SERVER_URL}/workflow/get-complete-data`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
@@ -1393,7 +1454,7 @@ export const createRelationshipWithFullAnalysis = async (userIdA, userIdB) => {
 export const generateWeeklyHoroscope = async (userId, startDate) => {
   console.log("Generating weekly horoscope for userId:", userId, "startDate:", startDate);
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/weekly`, {
+    const response = await telemetryFetch(`${SERVER_URL}/users/${userId}/horoscope/weekly`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ startDate })
@@ -1423,7 +1484,7 @@ export const getPublicWeeklyHoroscope = async (sign, date) => {
   const url = `${SERVER_URL}/horoscopes/weekly/${sign}${queryString ? `?${queryString}` : ''}`;
 
   try {
-    const response = await fetch(url, {
+    const response = await telemetryFetch(url, {
       method: 'GET',
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
     });
@@ -1456,7 +1517,7 @@ export const getPublicWeeklyHoroscope = async (sign, date) => {
 export const generateMonthlyHoroscope = async (userId, startDate) => {
   console.log("Generating monthly horoscope for userId:", userId, "startDate:", startDate);
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/monthly`, {
+    const response = await telemetryFetch(`${SERVER_URL}/users/${userId}/horoscope/monthly`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ startDate })
@@ -1478,7 +1539,7 @@ export const generateMonthlyHoroscope = async (userId, startDate) => {
 export const generateDailyHoroscope = async (userId, startDate) => {
   console.log("Generating daily horoscope for userId:", userId, "startDate:", startDate);
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/daily`, {
+    const response = await telemetryFetch(`${SERVER_URL}/users/${userId}/horoscope/daily`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ startDate })
@@ -1505,7 +1566,7 @@ export const getHoroscopeHistory = async (userId, type = null, limit = 10) => {
       url += `&type=${type}`;
     }
     
-    const response = await fetch(url, {
+    const response = await telemetryFetch(url, {
       method: 'GET',
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
     });
@@ -1531,7 +1592,7 @@ export const getLatestHoroscope = async (userId, type = null) => {
       url += `?type=${type}`;
     }
     
-    const response = await fetch(url, {
+    const response = await telemetryFetch(url, {
       method: 'GET',
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
     });
@@ -1552,7 +1613,7 @@ export const getLatestHoroscope = async (userId, type = null) => {
 export const deleteHoroscope = async (userId, horoscopeId) => {
   console.log("Deleting horoscope for userId:", userId, "horoscopeId:", horoscopeId);
   try {
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscopes/${horoscopeId}`, {
+    const response = await telemetryFetch(`${SERVER_URL}/users/${userId}/horoscopes/${horoscopeId}`, {
       method: 'DELETE',
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
     });
@@ -1603,7 +1664,7 @@ export const generateCustomHoroscope = async (userId, options) => {
       }
     }
 
-    const response = await fetch(`${SERVER_URL}/users/${userId}/horoscope/custom`, {
+    const response = await telemetryFetch(`${SERVER_URL}/users/${userId}/horoscope/custom`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1628,7 +1689,7 @@ export const generateCustomHoroscope = async (userId, options) => {
 
 export const fetchCelebrities = async () => {
   try {
-    const response = await fetch(`${SERVER_URL}/getCelebs`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getCelebs`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1670,7 +1731,7 @@ export const fetchCelebritiesPaginated = async (options = {}) => {
       requestBody.search = search;
     }
 
-    const response = await fetch(`${SERVER_URL}/getCelebs`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getCelebs`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1699,7 +1760,7 @@ export const fetchCelebritiesPaginated = async (options = {}) => {
 export const getCelebrityRelationships = async (limit = 50) => {
   try {
     console.log('Fetching celebrity relationships with limit:', limit);
-    const response = await fetch(`${SERVER_URL}/getCelebrityRelationships`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getCelebrityRelationships`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1740,7 +1801,7 @@ export const createCelebrity = async (celebrityData) => {
     // Remove email field for celebrities (not required)
     delete requestData.email;
     
-    const response = await fetch(`${SERVER_URL}${endpoint}`, {
+    const response = await telemetryFetch(`${SERVER_URL}${endpoint}`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1765,7 +1826,7 @@ export const createCelebrity = async (celebrityData) => {
 
 export const getUserSubjects = async (ownerUserId) => {
   try {
-    const response = await fetch(`${SERVER_URL}/getUserSubjects`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getUserSubjects`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -1810,7 +1871,7 @@ export const getUserSubjectsPaginated = async (ownerUserId, options = {}) => {
       requestBody.search = search;
     }
 
-    const response = await fetch(`${SERVER_URL}/getUserSubjects`, {
+    const response = await telemetryFetch(`${SERVER_URL}/getUserSubjects`, {
       method: HTTP_POST,
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON
@@ -2004,7 +2065,7 @@ export const deleteSubject = async (subjectId, ownerUserId = null) => {
       requestOptions.body = JSON.stringify({ ownerUserId });
     }
 
-    const response = await fetch(`${SERVER_URL}/subjects/${subjectId}`, requestOptions);
+    const response = await telemetryFetch(`${SERVER_URL}/subjects/${subjectId}`, requestOptions);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -2037,7 +2098,7 @@ export const deleteRelationship = async (compositeChartId, ownerUserId = null) =
       requestOptions.body = JSON.stringify({ ownerUserId });
     }
 
-    const response = await fetch(`${SERVER_URL}/relationships/${compositeChartId}`, requestOptions);
+    const response = await telemetryFetch(`${SERVER_URL}/relationships/${compositeChartId}`, requestOptions);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -2262,7 +2323,7 @@ export const getProfilePhotoPresignedUrl = async (subjectId, contentType) => {
 
 export const uploadProfilePhotoToS3 = async (presignedUrl, file) => {
   try {
-    const response = await fetch(presignedUrl, {
+    const response = await telemetryFetch(presignedUrl, {
       method: 'PUT',
       headers: { 'Content-Type': file.type },
       body: file
