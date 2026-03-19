@@ -6,14 +6,25 @@ import './LoginPage.css';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { firebaseUser, stelliumUser, needsOnboarding, signInWithGoogle, signInWithEmail, signUpWithEmail, loading } = useAuth();
+  const {
+    firebaseUser,
+    stelliumUser,
+    needsOnboarding,
+    signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
+    sendPasswordReset,
+    loading
+  } = useAuth();
 
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -77,8 +88,31 @@ const LoginPage = () => {
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
     setError('');
+    setResetMessage('');
     setPassword('');
     setConfirmPassword('');
+  };
+
+  const handleForgotPassword = async () => {
+    setError('');
+    setResetMessage('');
+
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail) {
+      setError('Enter your email first, then click Forgot password.');
+      return;
+    }
+
+    setIsResetting(true);
+    const result = await sendPasswordReset(normalizedEmail);
+
+    if (result.success) {
+      setResetMessage('If an account exists for this email, a reset link has been sent.');
+    } else {
+      setError(result.error || 'Unable to send password reset email right now.');
+    }
+
+    setIsResetting(false);
   };
 
   if (loading) {
@@ -176,8 +210,13 @@ const LoginPage = () => {
 
             {!isSignUp && (
               <div className="forgot-password-row">
-                <button type="button" className="forgot-password-btn" disabled={isSubmitting}>
-                  Forgot password?
+                <button
+                  type="button"
+                  className="forgot-password-btn"
+                  onClick={handleForgotPassword}
+                  disabled={isSubmitting || isResetting}
+                >
+                  {isResetting ? 'Sending...' : 'Forgot password?'}
                 </button>
               </div>
             )}
@@ -198,6 +237,7 @@ const LoginPage = () => {
             )}
 
             {error && <div className="login-error">{error}</div>}
+            {resetMessage && <div className="login-success">{resetMessage}</div>}
 
             <button
               type="submit"
