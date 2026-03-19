@@ -1,4 +1,4 @@
-import { authenticatedFetch } from './api';
+import { authenticatedFetch, telemetryFetch } from './api';
 import { HTTP_POST, CONTENT_TYPE_HEADER, APPLICATION_JSON } from './constants';
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
@@ -242,7 +242,7 @@ export const openCustomerPortal = async (userId, returnUrl) => {
  */
 export const getProducts = async () => {
   try {
-    const response = await fetch(`${SERVER_URL}/checkout/products`, {
+    const response = await telemetryFetch(`${SERVER_URL}/checkout/products`, {
       method: 'GET',
       headers: {
         [CONTENT_TYPE_HEADER]: APPLICATION_JSON,
