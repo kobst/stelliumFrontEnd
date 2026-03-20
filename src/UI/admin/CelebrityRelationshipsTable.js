@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../prototype/UsersTable.css';
-import { getCelebrityRelationships, deleteRelationship } from '../../Utilities/api';
+import { getCelebrityRelationships, deleteRelationship } from '../../Utilities/adminApi';
 import useStore from '../../Utilities/store';
 
 function CelebrityRelationshipsTable() {

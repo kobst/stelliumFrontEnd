@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import CelebrityRelationshipSelector from './CelebrityRelationshipSelector';
 import CelebrityRelationshipsTable from './CelebrityRelationshipsTable';
 import TabMenu from '../shared/TabMenu';
-import { createRelationshipDirect } from '../../Utilities/api';
+import { createRelationshipDirect } from '../../Utilities/adminApi';
 
 function CelebrityRelationshipsTab() {
   const [selectedCelebrityA, setSelectedCelebrityA] = useState(null);
