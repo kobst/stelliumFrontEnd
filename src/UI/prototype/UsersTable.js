@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './UsersTable.css';
-import { fetchUsers, fetchUsersPaginated, deleteSubject } from '../../Utilities/api'
+import { fetchUsers, fetchUsersPaginated, deleteSubject } from '../../Utilities/adminApi'
 import useStore from '../../Utilities/store';
 import { usePaginatedData } from '../../hooks/usePaginatedData';
 import ProfilePhoto from '../shared/ProfilePhoto';

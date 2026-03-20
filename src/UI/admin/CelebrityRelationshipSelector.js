@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { fetchCelebrities, fetchCelebritiesPaginated } from '../../Utilities/api';
+import { fetchCelebrities, fetchCelebritiesPaginated } from '../../Utilities/adminApi';
 import { usePaginatedData } from '../../hooks/usePaginatedData';
 import './CelebrityRelationshipSelector.css';
 

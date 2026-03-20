@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './UsersTable.css';
-import { fetchCelebrities, fetchCelebritiesPaginated, deleteSubject } from '../../Utilities/api'
+import { fetchCelebrities, fetchCelebritiesPaginated, deleteSubject } from '../../Utilities/adminApi'
 import { usePaginatedData } from '../../hooks/usePaginatedData';
 
 function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFilter = 'all', usePagination = false }) {
