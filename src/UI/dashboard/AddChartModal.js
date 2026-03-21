@@ -172,14 +172,14 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
 
   return (
     <div className="modal-backdrop" onClick={handleBackdropClick}>
-      <div className="modal-content">
-        <div className="modal-header">
-          <div className="modal-header__text">
+      <div className="add-chart-modal__content">
+        <div className="add-chart-modal__header">
+          <div className="add-chart-modal__header-text">
             <h2>Add Birth Chart</h2>
-            <p className="modal-subtitle">Costs {CREDIT_COSTS.GUEST_CHART} credit</p>
+            <p className="add-chart-modal__subtitle">Costs {CREDIT_COSTS.GUEST_CHART} credit</p>
           </div>
           <button
-            className="modal-close-btn"
+            className="add-chart-modal__close-btn"
             onClick={onClose}
             disabled={isSubmitting}
           >
@@ -187,7 +187,7 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="modal-form">
+        <form onSubmit={handleSubmit} className="add-chart-modal__form">
           {/* Optional Photo */}
           <div className="modal-photo-upload">
             <div
@@ -217,7 +217,7 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
             </div>
             <span className="modal-photo-upload__hint">Add photo (optional)</span>
             {formErrors.photo && (
-              <span className="field-error">{formErrors.photo}</span>
+              <span className="add-chart-modal__field-error">{formErrors.photo}</span>
             )}
             <input
               ref={photoInputRef}
@@ -229,8 +229,8 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
           </div>
 
           {/* Name fields */}
-          <div className="form-row">
-            <div className="form-group">
+          <div className="add-chart-modal__row">
+            <div className="add-chart-modal__group">
               <label htmlFor="firstName">First Name</label>
               <input
                 type="text"
@@ -242,10 +242,10 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
                 className={formErrors.firstName ? 'error' : ''}
               />
               {formErrors.firstName && (
-                <span className="field-error">{formErrors.firstName}</span>
+                <span className="add-chart-modal__field-error">{formErrors.firstName}</span>
               )}
             </div>
-            <div className="form-group">
+            <div className="add-chart-modal__group">
               <label htmlFor="lastName">Last Name</label>
               <input
                 type="text"
@@ -257,13 +257,13 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
                 className={formErrors.lastName ? 'error' : ''}
               />
               {formErrors.lastName && (
-                <span className="field-error">{formErrors.lastName}</span>
+                <span className="add-chart-modal__field-error">{formErrors.lastName}</span>
               )}
             </div>
           </div>
 
           {/* Gender */}
-          <div className="form-group">
+          <div className="add-chart-modal__group">
             <label htmlFor="gender">Gender</label>
             <select
               id="gender"
@@ -278,12 +278,12 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
               <option value="nonbinary">Non-binary</option>
             </select>
             {formErrors.gender && (
-              <span className="field-error">{formErrors.gender}</span>
+              <span className="add-chart-modal__field-error">{formErrors.gender}</span>
             )}
           </div>
 
           {/* Birth Location */}
-          <div className="form-group">
+          <div className="add-chart-modal__group">
             <label htmlFor="location">Birth Location</label>
             {isGoogleLoaded ? (
               <Autocomplete
@@ -292,23 +292,23 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
                 options={{ types: ['(cities)'] }}
                 placeholder="City, Country"
                 disabled={isSubmitting}
-                className={`location-input ${formErrors.location ? 'error' : ''}`}
+                className={`add-chart-modal__location-input ${formErrors.location ? 'error' : ''}`}
               />
             ) : (
               <input
                 type="text"
                 placeholder="Loading location search..."
                 disabled
-                className="location-input"
+                className="add-chart-modal__location-input"
               />
             )}
             {formErrors.location && (
-              <span className="field-error">{formErrors.location}</span>
+              <span className="add-chart-modal__field-error">{formErrors.location}</span>
             )}
           </div>
 
           {/* Birth Date */}
-          <div className="form-group">
+          <div className="add-chart-modal__group">
             <label htmlFor="date">Birth Date</label>
             <input
               type="date"
@@ -319,14 +319,14 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
               className={formErrors.date ? 'error' : ''}
             />
             {formErrors.date && (
-              <span className="field-error">{formErrors.date}</span>
+              <span className="add-chart-modal__field-error">{formErrors.date}</span>
             )}
           </div>
 
           {/* Birth Time */}
-          <div className="form-group">
+          <div className="add-chart-modal__group">
             <label>Birth Time</label>
-            <div className="time-row">
+            <div className="add-chart-modal__time-row">
               <select
                 value={unknownTime ? 'unknown' : 'known'}
                 onChange={(e) => {
@@ -338,7 +338,7 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
                   }
                 }}
                 disabled={isSubmitting}
-                className="time-select"
+                className="add-chart-modal__time-select"
               >
                 <option value="known">Known Time</option>
                 <option value="unknown">Unknown</option>
@@ -350,24 +350,24 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
                   disabled={isSubmitting}
-                  className={`time-input ${formErrors.time ? 'error' : ''}`}
+                  className={`add-chart-modal__time-input ${formErrors.time ? 'error' : ''}`}
                 />
               )}
             </div>
             {formErrors.time && (
-              <span className="field-error">{formErrors.time}</span>
+              <span className="add-chart-modal__field-error">{formErrors.time}</span>
             )}
           </div>
 
           {/* Submit Error */}
           {submitError && (
-            <div className="submit-error">{submitError}</div>
+            <div className="add-chart-modal__submit-error">{submitError}</div>
           )}
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="submit-btn"
+            className="add-chart-modal__submit-btn"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Creating Chart...' : 'Create Birth Chart'}
