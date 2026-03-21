@@ -3,7 +3,7 @@ import Autocomplete from 'react-google-autocomplete';
 import useStore from '../../Utilities/store';
 import { fetchTimeZone } from '../../Utilities/api';
 import useSubjectCreation from '../../hooks/useSubjectCreation';
-import '../landingPage/UserSignUpForm.css';
+import './AddGuestForm.css';
 
 const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY;
 
@@ -142,69 +142,38 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
     }
   };
 
-  const headerStyle = {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: '20px',
-    textAlign: 'center',
-    width: '100%',
-    marginBottom: '20px',
-    padding: '10px 0',
-    borderBottom: '1px solid white'
-  };
-  
-  const inputStyle = {
-    color: '#5116b5',
-    width: '140px',
-    marginRight: '10px',
-    backgroundColor: 'transparent',
-    border: '1px solid white',
-    padding: '5px',
-    borderRadius: '3px'
-  };
-
-  const labelStyle = {
-    color: 'white',
-    width: '140px',
-    display: 'inline-block',
-    marginRight: '10px'
-  };
-
-  const formGroupStyle = {
-    marginBottom: '15px',
-    display: 'flex',
-    alignItems: 'center'
-  };
-
   return (
-    <div className="email_form" style={{ marginTop: '30px', padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
+    <div className="add-guest-form">
       <form onSubmit={handleSubmit}>
-        <h2 style={headerStyle}>{title}</h2>
+        <h2 className="add-guest-form__title">{title}</h2>
 
-        <div style={formGroupStyle}>
-          <label style={labelStyle}>Name</label>
-          <input 
-            type="text" 
-            placeholder="First Name" 
-            value={firstName}
-            onChange={e => setFirstName(e.target.value)}
-            style={inputStyle}
-            className="input-dark-placeholder"
-            disabled={loading}
-          />
-          <input 
-            type="text" 
-            placeholder="Last Name" 
-            value={lastName}
-            onChange={e => setLastName(e.target.value)}
-            style={inputStyle}
-            className="input-dark-placeholder"
-            disabled={loading}
-          />
+        <div className="add-guest-form__row add-guest-form__row--two-col">
+          <div className="add-guest-form__field">
+            <label className="add-guest-form__label">First Name</label>
+            <input
+              type="text"
+              placeholder="First name"
+              value={firstName}
+              onChange={e => setFirstName(e.target.value)}
+              className="add-guest-form__input"
+              disabled={loading}
+            />
+          </div>
+          <div className="add-guest-form__field">
+            <label className="add-guest-form__label">Last Name</label>
+            <input
+              type="text"
+              placeholder="Last name"
+              value={lastName}
+              onChange={e => setLastName(e.target.value)}
+              className="add-guest-form__input"
+              disabled={loading}
+            />
+          </div>
         </div>
 
-        <div style={formGroupStyle}>
-          <label htmlFor="location" style={labelStyle}>Born in</label>
+        <div className="add-guest-form__field">
+          <label htmlFor="location" className="add-guest-form__label">Birth Location</label>
           {isGoogleLoaded ? (
             <Autocomplete
               apiKey={GOOGLE_API}
@@ -212,41 +181,34 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
               options={{
                 types: ['(cities)']
               }}
-              style={{
-                ...inputStyle,
-                width: '290px',
-                backgroundColor: 'white'
-              }}
+              className="add-guest-form__input"
               placeholder="City, Country"
               disabled={loading}
             />
           ) : (
             <input
               type="text"
-              style={{
-                ...inputStyle,
-                width: '290px',
-                backgroundColor: 'white'
-              }}
+              className="add-guest-form__input"
               placeholder="Loading location search..."
               disabled
             />
           )}
         </div>
 
-        <div style={formGroupStyle}>
-          <label style={labelStyle}>Born on</label>
-          <input 
-            type="date" 
-            value={date} 
-            onChange={e => setDate(e.target.value)} 
-            style={inputStyle}
+        <div className="add-guest-form__field">
+          <label className="add-guest-form__label">Birth Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            className="add-guest-form__input"
             disabled={loading}
           />
         </div>
 
-        <div style={formGroupStyle}>
-          <label style={labelStyle}>at this time</label>
+        <div className="add-guest-form__field">
+          <label className="add-guest-form__label">Birth Time</label>
+          <div className="add-guest-form__time-row">
           <select
             value={unknownTime ? 'unknown' : 'known'}
             onChange={(e) => {
@@ -257,17 +219,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
                 setUnknownTime(false);
               }
             }}
-            style={{
-              ...inputStyle,
-              width: '120px',
-              backgroundColor: 'transparent',
-              color: '#5116b5',
-              border: '1px solid white',
-              padding: '5px',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              marginRight: '8px'
-            }}
+            className="add-guest-form__input add-guest-form__input--time-mode"
             disabled={loading}
           >
             <option value="known">Known Time</option>
@@ -278,30 +230,19 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
               type="time"
               value={time}
               onChange={e => setTime(e.target.value)}
-              style={{
-                ...inputStyle,
-                margin: 0
-              }}
+              className="add-guest-form__input add-guest-form__input--time"
               disabled={loading}
             />
           )}
+          </div>
         </div>
 
-        <div style={formGroupStyle}>
-          <label style={labelStyle}>Gender/Sex</label>
+        <div className="add-guest-form__field">
+          <label className="add-guest-form__label">Gender</label>
           <select
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            style={{
-              ...inputStyle,
-              width: '140px',
-              backgroundColor: 'transparent',
-              color: '#5116b5',
-              border: '1px solid white',
-              padding: '5px',
-              borderRadius: '3px',
-              cursor: 'pointer'
-            }}
+            className="add-guest-form__input"
             disabled={loading}
           >
             <option value="">Select...</option>
@@ -311,20 +252,11 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
           </select>
         </div>
 
-        <div style={formGroupStyle}>
-          <input 
-            className="email-submit-btn" 
-            type="submit" 
+        <div className="add-guest-form__actions">
+          <input
+            className="add-guest-form__submit-btn"
+            type="submit"
             value={loading ? "Adding..." : "Add Profile"}
-            style={{ 
-              ...inputStyle, 
-              width: 'auto', 
-              cursor: loading ? 'not-allowed' : 'pointer', 
-              backgroundColor: loading ? '#ccc' : 'white', 
-              color: 'black', 
-              fontWeight: 'bold',
-              opacity: loading ? 0.6 : 1
-            }}
             disabled={loading}
           />
         </div>
@@ -332,25 +264,19 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
       
       {/* Loading Status Display */}
       {loading && (
-        <div style={{ 
-          backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-          padding: '15px', 
-          borderRadius: '6px', 
-          margin: '15px 0',
-          textAlign: 'center'
-        }}>
-          <p style={{ color: 'white', margin: '0' }}>Creating guest profile and generating overview...</p>
+        <div className="add-guest-form__status">
+          <p>Creating guest profile and generating overview...</p>
         </div>
       )}
       
       {submitMessage && (
-        <div style={{ color: submitMessage.includes('Error') ? 'red' : 'green', marginTop: '15px', textAlign: 'center' }}>
+        <div className={`add-guest-form__message ${submitMessage.includes('Error') ? 'add-guest-form__message--error' : 'add-guest-form__message--success'}`}>
           <p>{submitMessage}</p>
         </div>
       )}
       
       {(Object.keys(formErrors).length > 0 || error) && (
-        <div style={{ color: 'red', marginTop: '15px' }}>
+        <div className="add-guest-form__message add-guest-form__message--error">
           {Object.values(formErrors).map((err, index) => (
             <p key={index}>{err}</p>
           ))}
