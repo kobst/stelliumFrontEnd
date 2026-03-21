@@ -1,1 +1,137 @@
-/* This file is no longer used - AddGuestForm now uses UserSignUpForm.css to match AddCelebrityForm styling */
+.add-guest-form {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(5, 8, 30, 0.35);
+}
+
+.add-guest-form__title {
+  color: #ececff;
+  font-weight: 700;
+  font-size: 20px;
+  text-align: center;
+  margin: 0 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.add-guest-form__row {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.add-guest-form__row--two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.add-guest-form__field {
+  margin-bottom: 14px;
+}
+
+.add-guest-form__label {
+  display: block;
+  margin-bottom: 6px;
+  color: #d4d7ff;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.add-guest-form__input {
+  width: 100%;
+  color: #f8f9ff !important;
+  font-style: normal !important;
+  font-family: "Montserrat", sans-serif !important;
+  border: 1px solid rgba(180, 168, 255, 0.45) !important;
+  border-radius: 10px !important;
+  background: rgba(28, 20, 64, 0.95) !important;
+  padding: 12px 14px !important;
+  outline: none !important;
+  text-align: left !important;
+  min-height: 46px;
+  box-sizing: border-box;
+}
+
+.add-guest-form__input::placeholder {
+  color: rgba(225, 220, 255, 0.68);
+}
+
+.add-guest-form__input:focus {
+  border-color: #8c74ff !important;
+  box-shadow: 0 0 0 2px rgba(145, 115, 255, 0.25);
+}
+
+.add-guest-form__time-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 10px;
+}
+
+.add-guest-form__input--time-mode {
+  min-width: 0;
+}
+
+.add-guest-form__actions {
+  margin-top: 18px;
+}
+
+.add-guest-form__submit-btn {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(120deg, #7f54ff 0%, #9a78ff 100%);
+  cursor: pointer;
+}
+
+.add-guest-form__submit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.add-guest-form__status {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  text-align: center;
+  color: #ecedff;
+}
+
+.add-guest-form__status p,
+.add-guest-form__message p {
+  margin: 0;
+}
+
+.add-guest-form__message {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.add-guest-form__message--success {
+  color: #44d68d;
+}
+
+.add-guest-form__message--error {
+  color: #ff6c7d;
+}
+
+@media (max-width: 720px) {
+  .add-guest-form {
+    padding: 14px;
+  }
+
+  .add-guest-form__row--two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .add-guest-form__time-row {
+    grid-template-columns: 1fr;
+  }
+}
