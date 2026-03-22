@@ -38,6 +38,11 @@ function MainDashboard() {
 
   useEffect(() => {
     const loadUser = async () => {
+      if (stelliumUser && userId !== stelliumUser._id) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         const userData = await fetchUser(userId);
@@ -72,7 +77,7 @@ function MainDashboard() {
     if (userId) {
       loadUser();
     }
-  }, [userId, setSelectedUser, setUserId, setUserPlanets, setUserHouses, setUserAspects, setCurrentUserContext, setActiveUserContext]);
+  }, [userId, stelliumUser, setSelectedUser, setUserId, setUserPlanets, setUserHouses, setUserAspects, setCurrentUserContext, setActiveUserContext]);
 
   // Security check: Redirect if user tries to access a different user's dashboard
   if (stelliumUser && userId !== stelliumUser._id) {

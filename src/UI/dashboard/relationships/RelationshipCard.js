@@ -78,6 +78,7 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
 
   const handleDeleteClick = (event) => {
     event.stopPropagation();
+    event.preventDefault();
     onDelete?.(relationship._id, userBName);
   };
 
@@ -102,6 +103,8 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
             type="button"
             className="relationship-card__delete-btn"
             aria-label={`Delete relationship with ${userBName}`}
+            onMouseDown={handleDeleteClick}
+            onPointerDown={handleDeleteClick}
             onClick={handleDeleteClick}
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">

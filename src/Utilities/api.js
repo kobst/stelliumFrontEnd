@@ -1463,9 +1463,8 @@ export const createRelationshipWithFullAnalysis = async (userIdA, userIdB) => {
 export const generateWeeklyHoroscope = async (userId, startDate) => {
   console.log("Generating weekly horoscope for userId:", userId, "startDate:", startDate);
   try {
-    const response = await telemetryFetch(`${SERVER_URL}/users/${userId}/horoscope/weekly`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/horoscope/weekly`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ startDate })
     });
     
@@ -1526,9 +1525,8 @@ export const getPublicWeeklyHoroscope = async (sign, date) => {
 export const generateMonthlyHoroscope = async (userId, startDate) => {
   console.log("Generating monthly horoscope for userId:", userId, "startDate:", startDate);
   try {
-    const response = await telemetryFetch(`${SERVER_URL}/users/${userId}/horoscope/monthly`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/horoscope/monthly`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ startDate })
     });
     
@@ -1548,9 +1546,8 @@ export const generateMonthlyHoroscope = async (userId, startDate) => {
 export const generateDailyHoroscope = async (userId, startDate) => {
   console.log("Generating daily horoscope for userId:", userId, "startDate:", startDate);
   try {
-    const response = await telemetryFetch(`${SERVER_URL}/users/${userId}/horoscope/daily`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/horoscope/daily`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ startDate })
     });
     
@@ -1575,9 +1572,8 @@ export const getHoroscopeHistory = async (userId, type = null, limit = 10) => {
       url += `&type=${type}`;
     }
     
-    const response = await telemetryFetch(url, {
-      method: 'GET',
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
+    const response = await authenticatedFetch(url, {
+      method: 'GET'
     });
     
     if (!response.ok) {
@@ -1601,9 +1597,8 @@ export const getLatestHoroscope = async (userId, type = null) => {
       url += `?type=${type}`;
     }
     
-    const response = await telemetryFetch(url, {
-      method: 'GET',
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
+    const response = await authenticatedFetch(url, {
+      method: 'GET'
     });
     
     if (!response.ok) {
@@ -1622,9 +1617,8 @@ export const getLatestHoroscope = async (userId, type = null) => {
 export const deleteHoroscope = async (userId, horoscopeId) => {
   console.log("Deleting horoscope for userId:", userId, "horoscopeId:", horoscopeId);
   try {
-    const response = await telemetryFetch(`${SERVER_URL}/users/${userId}/horoscopes/${horoscopeId}`, {
-      method: 'DELETE',
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
+    const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/horoscopes/${horoscopeId}`, {
+      method: 'DELETE'
     });
     
     if (!response.ok) {
@@ -1673,11 +1667,8 @@ export const generateCustomHoroscope = async (userId, options) => {
       }
     }
 
-    const response = await telemetryFetch(`${SERVER_URL}/users/${userId}/horoscope/custom`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/horoscope/custom`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify(body)
     });
 
