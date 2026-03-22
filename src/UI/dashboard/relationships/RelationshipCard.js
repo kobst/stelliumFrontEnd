@@ -46,7 +46,7 @@ const getScoreColor = (score) => {
   return '#f87171'; // Red for low scores
 };
 
-function RelationshipCard({ relationship, onClick }) {
+function RelationshipCard({ relationship, onClick, onDelete }) {
   const userBName = relationship?.userB_name || 'Partner';
 
   // Get score from available sources
@@ -75,8 +75,21 @@ function RelationshipCard({ relationship, onClick }) {
   const percentage = score !== undefined && score !== null ? Math.round(score) : null;
   const scoreColor = percentage !== null ? getScoreColor(percentage) : '#4ade80';
 
+  const handleDeleteClick = (event) => {
+    event.stopPropagation();
+    onDelete?.(relationship._id, userBName);
+  };
+
   return (
     <div className="relationship-card" onClick={onClick}>
+      <button
+        type="button"
+        className="relationship-card__delete-btn"
+        aria-label={`Delete relationship with ${userBName}`}
+        onClick={handleDeleteClick}
+      >
+        Delete
+      </button>
       {/* Photo */}
       <div className="relationship-card__photo">
         {userBPhotoUrl ? (

@@ -1,4 +1,5 @@
 .relationship-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-lg, 20px);
@@ -13,6 +14,27 @@
 .relationship-card:hover {
   background: linear-gradient(135deg, rgba(40, 42, 64, 0.95), rgba(50, 52, 74, 0.9));
   transform: translateY(-2px);
+}
+
+.relationship-card__delete-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  background: rgba(10, 10, 16, 0.75);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 8px 12px;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.2s ease;
+}
+
+.relationship-card__delete-btn:hover {
+  background: rgba(158, 31, 61, 0.9);
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
 /* Photo Section */
@@ -121,6 +143,13 @@
   .relationship-card__photo {
     width: 80px;
     height: 80px;
+  }
+
+  .relationship-card__delete-btn {
+    top: 12px;
+    right: 12px;
+    font-size: 0.65rem;
+    padding: 7px 10px;
   }
 
   .relationship-card__info {

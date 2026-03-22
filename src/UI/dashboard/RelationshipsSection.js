@@ -1,6 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserCompositeCharts, getUserSubjects, fetchCelebrities } from '../../Utilities/api';
+import {
+  getUserCompositeCharts,
+  getUserSubjects,
+  fetchCelebrities,
+  deleteRelationship
+} from '../../Utilities/api';
 import RelationshipsList from './relationships/RelationshipsList';
 import './RelationshipsSection.css';
 
@@ -66,6 +71,26 @@ function RelationshipsSection({ userId }) {
     navigate(`/dashboard/${userId}/relationship/create`);
   };
 
+  const handleDeleteRelationship = async (relationshipId, relationshipName) => {
+    const confirmed = window.confirm(
+      `Delete ${relationshipName || 'this relationship'}? This action cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteRelationship(relationshipId, userId);
+      setRelationships((currentRelationships) =>
+        currentRelationships.filter((relationship) => relationship._id !== relationshipId)
+      );
+    } catch (err) {
+      console.error('Error deleting relationship:', err);
+      setError(`Failed to delete ${relationshipName || 'relationship'}. Please try again.`);
+    }
+  };
+
   return (
     <div className="relationships-section">
       <div className="relationships-section__header">
@@ -79,6 +104,7 @@ function RelationshipsSection({ userId }) {
       <RelationshipsList
         relationships={relationships}
         onRelationshipClick={handleRelationshipClick}
+        onDeleteRelationship={handleDeleteRelationship}
         onAddRelationship={handleAddRelationship}
         loading={loading}
         error={error}
