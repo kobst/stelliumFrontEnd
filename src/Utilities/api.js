@@ -2065,6 +2065,11 @@ export const deleteSubject = async (subjectId, ownerUserId = null) => {
     };
 
     const response = await authenticatedFetch(`${SERVER_URL}/subjects/${subjectId}`, requestOptions);
+    // Add body only if ownerUserId is provided (for guest subjects)
+    if (ownerUserId) {
+      requestOptions.body = JSON.stringify({ ownerUserId });
+    }
+    const response = await authenticatedFetch(`${SERVER_URL}/subjects/${subjectId}`, requestOptions);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -2089,6 +2094,11 @@ export const deleteRelationship = async (compositeChartId, ownerUserId = null) =
       method: 'DELETE'
     };
 
+    const response = await authenticatedFetch(`${SERVER_URL}/relationships/${compositeChartId}`, requestOptions);
+    // Add body only if ownerUserId is provided (optional ownership check)
+    if (ownerUserId) {
+      requestOptions.body = JSON.stringify({ ownerUserId });
+    }
     const response = await authenticatedFetch(`${SERVER_URL}/relationships/${compositeChartId}`, requestOptions);
 
     if (!response.ok) {
