@@ -1,5 +1,6 @@
 import React from 'react';
 import './RelationshipCard.css';
+import { formatCalendarDate } from '../../../Utilities/dateFormatting';
 
 // Zodiac sign names
 const SIGN_NAMES = {
@@ -28,11 +29,11 @@ const getSign = (planets, planetName) => {
 const formatDate = (dateString) => {
   if (!dateString) return '';
   try {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.toLocaleString('default', { month: 'long' });
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    return formatCalendarDate(dateString, 'en-US', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
   } catch {
     return dateString;
   }
