@@ -116,8 +116,6 @@ export const authenticatedFetch = async (url, options = {}, token = null) => {
  */
 export const getUserByFirebaseUid = async (firebaseUid, token) => {
   try {
-    console.log('Calling getUserByFirebaseUid with:', { firebaseUid, url: `${SERVER_URL}/getUserByFirebaseUid` });
-
     const response = await authenticatedFetch(
       `${SERVER_URL}/getUserByFirebaseUid`,
       {
@@ -126,8 +124,6 @@ export const getUserByFirebaseUid = async (firebaseUid, token) => {
       },
       token
     );
-
-    console.log('getUserByFirebaseUid response status:', response.status);
 
     if (response.status === 404) {
       // User not found - this is expected for new users

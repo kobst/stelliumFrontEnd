@@ -38,9 +38,7 @@ export const AuthProvider = ({ children }) => {
         // User is signed in, check if they exist in backend
         try {
           const token = await user.getIdToken();
-          console.log('Checking backend for Firebase UID:', user.uid);
           const response = await getUserByFirebaseUid(user.uid, token);
-          console.log('Backend response:', response);
 
           // Check if we got a valid user back
           // Response format: {success: true, user: {...}} or direct user object
