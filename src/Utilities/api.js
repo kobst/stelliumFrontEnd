@@ -302,11 +302,25 @@ export const fetchUser = async (userId) => {
   console.log("fetchUseruserId")
   console.log(userId)
   try {
-    const response = await telemetryFetch(`${SERVER_URL}/getUser`, {
+    const requestOptions = {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify({ userId })
-    });
+    };
+
+    let response;
+    try {
+      response = await authenticatedFetch(`${SERVER_URL}/getUser`, requestOptions);
+    } catch (authError) {
+      response = await telemetryFetch(`${SERVER_URL}/getUser`, {
+        ...requestOptions,
+        headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON }
+      });
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     return response.json();
   } catch (error) {
     console.error('Error fetching user:', error);
@@ -1297,9 +1311,8 @@ export const getCompleteWorkflowData = async (userId, workflowId) => {
     if (userId) requestBody.userId = userId;
     if (workflowId) requestBody.workflowId = workflowId;
     
-    const response = await telemetryFetch(`${SERVER_URL}/workflow/get-complete-data`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/workflow/get-complete-data`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
     });
     
@@ -1826,11 +1839,8 @@ export const createCelebrity = async (celebrityData) => {
 
 export const getUserSubjects = async (ownerUserId) => {
   try {
-    const response = await telemetryFetch(`${SERVER_URL}/getUserSubjects`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/getUserSubjects`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify({ ownerUserId })
     });
 
@@ -1871,11 +1881,8 @@ export const getUserSubjectsPaginated = async (ownerUserId, options = {}) => {
       requestBody.search = search;
     }
 
-    const response = await telemetryFetch(`${SERVER_URL}/getUserSubjects`, {
+    const response = await authenticatedFetch(`${SERVER_URL}/getUserSubjects`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
       body: JSON.stringify(requestBody)
     });
 
@@ -2054,18 +2061,15 @@ export const deleteSubject = async (subjectId, ownerUserId = null) => {
     console.log('Deleting subject:', subjectId, 'ownerUserId:', ownerUserId);
     
     const requestOptions = {
-      method: 'DELETE',
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      }
+      method: 'DELETE'
     };
 
+    const response = await authenticatedFetch(`${SERVER_URL}/subjects/${subjectId}`, requestOptions);
     // Add body only if ownerUserId is provided (for guest subjects)
     if (ownerUserId) {
       requestOptions.body = JSON.stringify({ ownerUserId });
     }
-
-    const response = await telemetryFetch(`${SERVER_URL}/subjects/${subjectId}`, requestOptions);
+    const response = await authenticatedFetch(`${SERVER_URL}/subjects/${subjectId}`, requestOptions);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -2087,18 +2091,15 @@ export const deleteRelationship = async (compositeChartId, ownerUserId = null) =
     console.log('Deleting relationship:', compositeChartId, 'ownerUserId:', ownerUserId);
     
     const requestOptions = {
-      method: 'DELETE',
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      }
+      method: 'DELETE'
     };
 
+    const response = await authenticatedFetch(`${SERVER_URL}/relationships/${compositeChartId}`, requestOptions);
     // Add body only if ownerUserId is provided (optional ownership check)
     if (ownerUserId) {
       requestOptions.body = JSON.stringify({ ownerUserId });
     }
-
-    const response = await telemetryFetch(`${SERVER_URL}/relationships/${compositeChartId}`, requestOptions);
+    const response = await authenticatedFetch(`${SERVER_URL}/relationships/${compositeChartId}`, requestOptions);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -2110,6 +2111,26 @@ export const deleteRelationship = async (compositeChartId, ownerUserId = null) =
     return responseData;
   } catch (error) {
     console.error('Error deleting relationship:', error);
+    throw error;
+  }
+};
+
+export const deleteAccount = async (userId) => {
+  try {
+    const response = await authenticatedFetch(`${SERVER_URL}/account/delete`, {
+      method: HTTP_POST,
+      body: JSON.stringify({ userId })
+    });
+
+    const responseData = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(responseData.error || 'Failed to delete account');
+    }
+
+    return responseData;
+  } catch (error) {
+    console.error('Error deleting account:', error);
     throw error;
   }
 };

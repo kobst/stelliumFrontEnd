@@ -1,5 +1,6 @@
 import React from 'react';
 import './RelationshipCard.css';
+import { formatCalendarDate } from '../../../Utilities/dateFormatting';
 
 // Zodiac sign names
 const SIGN_NAMES = {
@@ -28,11 +29,11 @@ const getSign = (planets, planetName) => {
 const formatDate = (dateString) => {
   if (!dateString) return '';
   try {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.toLocaleString('default', { month: 'long' });
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    return formatCalendarDate(dateString, 'en-US', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
   } catch {
     return dateString;
   }
@@ -46,7 +47,7 @@ const getScoreColor = (score) => {
   return '#f87171'; // Red for low scores
 };
 
-function RelationshipCard({ relationship, onClick }) {
+function RelationshipCard({ relationship, onClick, onDelete }) {
   const userBName = relationship?.userB_name || 'Partner';
 
   // Get score from available sources
@@ -75,6 +76,11 @@ function RelationshipCard({ relationship, onClick }) {
   const percentage = score !== undefined && score !== null ? Math.round(score) : null;
   const scoreColor = percentage !== null ? getScoreColor(percentage) : '#4ade80';
 
+  const handleDeleteClick = (event) => {
+    event.stopPropagation();
+    onDelete?.(relationship._id, userBName);
+  };
+
   return (
     <div className="relationship-card" onClick={onClick}>
       {/* Photo */}
@@ -90,7 +96,26 @@ function RelationshipCard({ relationship, onClick }) {
 
       {/* Info section */}
       <div className="relationship-card__info">
-        <h4 className="relationship-card__name">{userBName}</h4>
+        <div className="relationship-card__header">
+          <h4 className="relationship-card__name">{userBName}</h4>
+          <button
+            type="button"
+            className="relationship-card__delete-btn"
+            aria-label={`Delete relationship with ${userBName}`}
+            onClick={handleDeleteClick}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M9 3h6m-9 4h12m-9 0v11m6-11v11M8 7l1 13h6l1-13"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
         {dateSignLine && (
           <p className="relationship-card__date-sign">{dateSignLine}</p>
         )}

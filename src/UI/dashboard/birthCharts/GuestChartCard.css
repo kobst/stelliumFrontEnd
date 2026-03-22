@@ -81,6 +81,13 @@
   gap: 2px;
 }
 
+.guest-chart-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .guest-chart-card__name {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -90,6 +97,36 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.guest-chart-card__delete-btn {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.32);
+  cursor: pointer;
+  opacity: 0;
+  transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.guest-chart-card:hover .guest-chart-card__delete-btn,
+.guest-chart-card__delete-btn:focus-visible {
+  opacity: 1;
+}
+
+.guest-chart-card__delete-btn:hover,
+.guest-chart-card__delete-btn:focus-visible {
+  color: rgba(255, 130, 130, 0.92);
+  transform: scale(1.05);
+  outline: none;
+}
+
+.guest-chart-card__delete-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 .guest-chart-card__sign {
@@ -116,5 +153,11 @@
     width: 20px;
     height: 20px;
     font-size: 10px;
+  }
+
+  .guest-chart-card__delete-btn {
+    width: 22px;
+    height: 22px;
+    opacity: 1;
   }
 }

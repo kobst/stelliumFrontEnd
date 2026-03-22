@@ -6,6 +6,7 @@ function ChartsList({
   userChart,
   guestCharts,
   onChartClick,
+  onDeleteChart,
   onAddChart,
   loading,
   error
@@ -36,6 +37,7 @@ function ChartsList({
               key={chart._id}
               chart={chart}
               onClick={() => onChartClick(chart._id)}
+              onDelete={onDeleteChart}
               featured={chart.isFeatured}
               index={index + 1}
             />

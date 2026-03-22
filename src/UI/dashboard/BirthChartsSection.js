@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   getUserSubjects,
   createGuestSubject,
+  deleteSubject,
   getProfilePhotoPresignedUrl,
   uploadProfilePhotoToS3,
   confirmProfilePhotoUpload
@@ -53,6 +54,27 @@ function BirthChartsSection({ userId, user }) {
 
   const handleAddChart = () => {
     setIsModalOpen(true);
+  };
+
+  const handleDeleteChart = async (chartId, chartName) => {
+    const confirmed = window.confirm(
+      `Delete ${chartName || 'this birth chart'}? This action cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteSubject(chartId, userId);
+      setGuestCharts((currentCharts) => currentCharts.filter((chart) => chart._id !== chartId));
+      setSuccessMessage(`${chartName || 'Birth chart'} deleted.`);
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      console.error('Error deleting guest chart:', err);
+      setError(`Failed to delete ${chartName || 'birth chart'}. Please try again.`);
+      setTimeout(() => setError(null), 5000);
+    }
   };
 
   const handleChartSubmit = async (guestData) => {
@@ -108,6 +130,7 @@ function BirthChartsSection({ userId, user }) {
         userChart={user}
         guestCharts={guestCharts}
         onChartClick={handleChartClick}
+        onDeleteChart={handleDeleteChart}
         onAddChart={handleAddChart}
         loading={loading}
         error={error}

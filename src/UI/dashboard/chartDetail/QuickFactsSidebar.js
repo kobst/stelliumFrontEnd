@@ -1,5 +1,6 @@
 import React from 'react';
 import './QuickFactsSidebar.css';
+import { formatCalendarDate } from '../../../Utilities/dateFormatting';
 
 // Map sign to its ruling planet
 const SIGN_RULERS = {
@@ -21,8 +22,7 @@ function QuickFactsSidebar({ chart }) {
   const formatDate = (dateString) => {
     if (!dateString) return 'Unknown';
     try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
+      return formatCalendarDate(dateString, 'en-US', {
         month: 'long',
         day: 'numeric',
         year: 'numeric'

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { deleteSubject } from '../../../Utilities/api';
+import { deleteAccount } from '../../../Utilities/api';
 import './PrivacySettings.css';
 
 function PrivacySettings({ userId, user }) {
@@ -36,7 +36,7 @@ function PrivacySettings({ userId, user }) {
     setDeleteError(null);
 
     try {
-      await deleteSubject(userId);
+      await deleteAccount(userId);
       await signOut();
       navigate('/login');
     } catch (err) {

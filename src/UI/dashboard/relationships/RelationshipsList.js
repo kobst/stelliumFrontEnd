@@ -5,6 +5,7 @@ import './RelationshipsList.css';
 function RelationshipsList({
   relationships,
   onRelationshipClick,
+  onDeleteRelationship,
   onAddRelationship,
   loading,
   error
@@ -49,6 +50,7 @@ function RelationshipsList({
         <RelationshipsGrid
           relationships={relationships}
           onRelationshipClick={onRelationshipClick}
+          onDeleteRelationship={onDeleteRelationship}
         />
       )}
     </div>

@@ -184,6 +184,8 @@
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
   .logout-button span {
@@ -191,7 +193,9 @@
   }
 
   .logout-button {
-    padding: 8px;
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .user-avatar {
@@ -219,7 +223,25 @@
   }
 
   .plan-action-button {
-    padding: 3px 8px;
-    font-size: 0.7rem;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    min-height: 36px;
+  }
+
+  .settings-button {
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-details {
+    display: none;
+  }
+
+  .user-info {
+    gap: 8px;
   }
 }

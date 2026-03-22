@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../Utilities/store';
 import useSubjectCreation from '../hooks/useSubjectCreation';
+import { formatCalendarDate } from '../Utilities/dateFormatting';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 import Ephemeris from '../UI/shared/Ephemeris';
 
@@ -131,7 +132,7 @@ const ConfirmationV2 = () => {
                         fontSize: '18px',
                         fontWeight: '500'
                     }}>
-                        Birth Date: {new Date(userData.dateOfBirth).toLocaleDateString('en-US', {
+                        Birth Date: {formatCalendarDate(userData.dateOfBirth, 'en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'

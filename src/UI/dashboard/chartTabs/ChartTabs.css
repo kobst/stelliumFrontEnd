@@ -1580,11 +1580,12 @@
 /* Responsive */
 @media (max-width: 768px) {
   .chart-tab-content {
-    padding: 16px;
+    padding: 12px;
   }
 
   .key-placements-grid {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 
   .distributions-grid {
@@ -1592,15 +1593,70 @@
   }
 
   .patterns-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: 1fr;
     gap: 16px;
   }
 
   .chat-container {
-    height: 400px;
+    height: calc(100vh - 200px);
+    max-height: 60vh;
   }
 
   .chat-message {
-    max-width: 90%;
+    max-width: 92%;
+  }
+
+  /* Planet cards mobile */
+  .planet-card-header {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .planet-symbol {
+    font-size: 1.4rem;
+    min-width: 32px;
+  }
+
+  .planet-interpretation {
+    padding: 0 12px 12px 54px;
+  }
+
+  /* Category cards mobile */
+  .category-header {
+    padding: 14px 16px;
+  }
+
+  .category-content {
+    padding: 0 16px 16px;
+  }
+
+  /* Chat improvements */
+  .chat-input-container {
+    padding: 12px;
+  }
+
+  .chat-input-container textarea {
+    padding: 12px;
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+
+  .send-button {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .key-placements-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .placement-card {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .planet-interpretation {
+    padding: 0 12px 12px 12px;
   }
 }

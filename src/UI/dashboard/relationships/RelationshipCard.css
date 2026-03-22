@@ -55,6 +55,13 @@
   text-align: left;
 }
 
+.relationship-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .relationship-card__name {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 1.25rem;
@@ -62,6 +69,36 @@
   font-style: italic;
   color: #d4a574;
   margin: 0 0 4px 0;
+}
+
+.relationship-card__delete-btn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  opacity: 0;
+  transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.relationship-card:hover .relationship-card__delete-btn,
+.relationship-card__delete-btn:focus-visible {
+  opacity: 1;
+}
+
+.relationship-card__delete-btn:hover,
+.relationship-card__delete-btn:focus-visible {
+  color: rgba(255, 130, 130, 0.92);
+  transform: scale(1.05);
+  outline: none;
+}
+
+.relationship-card__delete-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 .relationship-card__date-sign {
@@ -126,6 +163,12 @@
   .relationship-card__info {
     flex: 1;
     min-width: calc(100% - 100px);
+  }
+
+  .relationship-card__delete-btn {
+    width: 24px;
+    height: 24px;
+    opacity: 1;
   }
 
   .relationship-card__score-section {

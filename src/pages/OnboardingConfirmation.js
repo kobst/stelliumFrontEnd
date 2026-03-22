@@ -4,6 +4,7 @@ import useStore from '../Utilities/store';
 import { useAuth } from '../context/AuthContext';
 import useSubjectCreation from '../hooks/useSubjectCreation';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
+import { formatCalendarDate } from '../Utilities/dateFormatting';
 
 const OnboardingConfirmation = () => {
     const navigate = useNavigate();
@@ -169,7 +170,7 @@ const OnboardingConfirmation = () => {
                         fontSize: '18px',
                         fontWeight: '500'
                     }}>
-                        Birth Date: {new Date(userData.dateOfBirth).toLocaleDateString('en-US', {
+                        Birth Date: {formatCalendarDate(userData.dateOfBirth, 'en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
