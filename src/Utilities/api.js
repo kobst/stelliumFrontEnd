@@ -2063,8 +2063,6 @@ export const deleteSubject = async (subjectId, ownerUserId = null) => {
     const requestOptions = {
       method: 'DELETE'
     };
-
-    const response = await authenticatedFetch(`${SERVER_URL}/subjects/${subjectId}`, requestOptions);
     // Add body only if ownerUserId is provided (for guest subjects)
     if (ownerUserId) {
       requestOptions.body = JSON.stringify({ ownerUserId });
@@ -2093,8 +2091,6 @@ export const deleteRelationship = async (compositeChartId, ownerUserId = null) =
     const requestOptions = {
       method: 'DELETE'
     };
-
-    const response = await authenticatedFetch(`${SERVER_URL}/relationships/${compositeChartId}`, requestOptions);
     // Add body only if ownerUserId is provided (optional ownership check)
     if (ownerUserId) {
       requestOptions.body = JSON.stringify({ ownerUserId });
