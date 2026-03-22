@@ -82,14 +82,6 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
 
   return (
     <div className="relationship-card" onClick={onClick}>
-      <button
-        type="button"
-        className="relationship-card__delete-btn"
-        aria-label={`Delete relationship with ${userBName}`}
-        onClick={handleDeleteClick}
-      >
-        Delete
-      </button>
       {/* Photo */}
       <div className="relationship-card__photo">
         {userBPhotoUrl ? (
@@ -103,7 +95,26 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
 
       {/* Info section */}
       <div className="relationship-card__info">
-        <h4 className="relationship-card__name">{userBName}</h4>
+        <div className="relationship-card__header">
+          <h4 className="relationship-card__name">{userBName}</h4>
+          <button
+            type="button"
+            className="relationship-card__delete-btn"
+            aria-label={`Delete relationship with ${userBName}`}
+            onClick={handleDeleteClick}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M9 3h6m-9 4h12m-9 0v11m6-11v11M8 7l1 13h6l1-13"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
         {dateSignLine && (
           <p className="relationship-card__date-sign">{dateSignLine}</p>
         )}
