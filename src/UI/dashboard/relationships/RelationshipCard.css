@@ -72,6 +72,8 @@
 }
 
 .relationship-card__delete-btn {
+  position: relative;
+  z-index: 3;
   flex-shrink: 0;
   width: 26px;
   height: 26px;
