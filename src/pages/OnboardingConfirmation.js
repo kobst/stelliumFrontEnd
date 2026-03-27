@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import useSubjectCreation from '../hooks/useSubjectCreation';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 import { formatCalendarDate } from '../Utilities/dateFormatting';
+import { trackSignupCompleted, identifyUser } from '../Utilities/analytics';
 
 const OnboardingConfirmation = () => {
     const navigate = useNavigate();
@@ -76,6 +77,13 @@ const OnboardingConfirmation = () => {
                         email: result.user.email,
                         kind: result.user.kind || 'accountSelf'
                     });
+
+                    // Analytics: identify user and track signup
+                    identifyUser(result.userId, {
+                        email: result.user.email,
+                        name: `${result.user.firstName} ${result.user.lastName}`,
+                    });
+                    trackSignupCompleted(result.userId, userData);
 
                     // Note: Don't refresh auth context here - it will trigger OnboardingRoute
                     // to redirect to dashboard before user sees confirmation page.

@@ -11,6 +11,7 @@ import {
 import useEntitlementsStore from '../../Utilities/entitlementsStore';
 import useStore from '../../Utilities/store';
 import InsufficientCreditsModal from '../entitlements/InsufficientCreditsModal';
+import { trackChatMessageSent, trackCreditWallHit } from '../../Utilities/analytics';
 import './AskStelliumPanel.css';
 
 const HISTORY_CONFIG = {
@@ -549,6 +550,7 @@ function AskStelliumPanel({
     }
 
     if (!hasEnoughCredits(1)) {
+      trackCreditWallHit('ask_stellium', { creditsNeeded: 1, creditsAvailable: 0 });
       setShowPaywall(true);
       return;
     }
@@ -565,6 +567,7 @@ function AskStelliumPanel({
       timestamp: new Date().toISOString(),
     }]);
 
+    trackChatMessageSent(contentType);
     setLoading(true);
 
     try {

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { generateWeeklyHoroscope, generateMonthlyHoroscope, generateCustomHoroscope, generateDailyHoroscope } from '../../Utilities/api';
+import { trackHoroscopeGenerated } from '../../Utilities/analytics';
 import './HoroscopeContainer.css';
 
 const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null, userId }) => {
@@ -526,6 +527,7 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       if (cappedEvents.length > 0) requestBody.selectedTransits = cappedEvents;
 
       const response = await generateCustomHoroscope(userId, requestBody);
+      trackHoroscopeGenerated(period);
       // Be flexible with backend shape: allow either { success, horoscope } or direct horoscope response
       const hasSuccess = response && typeof response.success === 'boolean';
       const gotHoroscope = response?.horoscope || (!hasSuccess && response && (response.interpretation || response.text));

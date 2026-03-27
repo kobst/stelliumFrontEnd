@@ -15,6 +15,7 @@ import PricingSection from '../UI/landingPage/PricingSection';
 import { useAuth } from '../context/AuthContext';
 import { useCheckout } from '../hooks/useCheckout';
 import { ZODIAC_SIGNS } from '../Utilities/zodiac';
+import { trackLandingCTAClicked } from '../Utilities/analytics';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const LandingPage = () => {
   const checkout = useCheckout(stelliumUser);
 
   const handleDiscoverMe = () => {
+    trackLandingCTAClicked('discover_me');
     navigate('/birthChartEntry');
   };
 
@@ -39,16 +41,16 @@ const LandingPage = () => {
   };
 
   const handleStartPlus = () => {
+    trackLandingCTAClicked('start_plus');
     if (stelliumUser) {
-      // Logged in - go directly to Stripe checkout
       checkout.startSubscription();
     } else {
-      // Not logged in - go to signup with upgrade intent
       navigate('/birthChartEntry?intent=plus');
     }
   };
 
   const handleGetStarted = () => {
+    trackLandingCTAClicked('get_started');
     if (stelliumUser) {
       navigate(`/dashboard/${stelliumUser._id}`);
     } else {

@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
+import { trackUpgradeModalViewed, trackUpgradeModalDismissed } from '../../Utilities/analytics';
 import './UpgradeModal.css';
 
 /**
@@ -34,6 +35,7 @@ function UpgradeModal({
 
   useEffect(() => {
     if (isOpen) {
+      trackUpgradeModalViewed(title);
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
     }
@@ -47,6 +49,7 @@ function UpgradeModal({
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget && !isLoading) {
+      trackUpgradeModalDismissed();
       onClose();
     }
   };
