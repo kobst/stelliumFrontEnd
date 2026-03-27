@@ -2,14 +2,7 @@ import { HTTP_POST, CONTENT_TYPE_HEADER, APPLICATION_JSON, ERROR_API_CALL } from
 
 // Dynamic server URL based on current environment
 const getServerUrl = () => {
-  const environment = sessionStorage.getItem('stellium_environment') || 'dev';
-  switch (environment) {
-    case 'prod':
-      return process.env.REACT_APP_SERVER_URL_PROD;
-    case 'dev':
-    default:
-      return process.env.REACT_APP_SERVER_URL;
-  }
+  return process.env.REACT_APP_SERVER_URL;
 };
 
 // For backward compatibility and debugging
