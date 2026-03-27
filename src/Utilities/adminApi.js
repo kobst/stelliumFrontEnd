@@ -2,10 +2,6 @@ import { HTTP_POST, CONTENT_TYPE_HEADER, APPLICATION_JSON } from './constants';
 import { getFirebaseIdToken } from '../firebase/adminAuth';
 
 const getServerUrl = () => {
-  const environment = sessionStorage.getItem('stellium_environment') || 'dev';
-  if (environment === 'prod') {
-    return process.env.REACT_APP_SERVER_URL_PROD || process.env.REACT_APP_SERVER_URL;
-  }
   return process.env.REACT_APP_SERVER_URL;
 };
 

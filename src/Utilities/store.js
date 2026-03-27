@@ -170,7 +170,11 @@ const useStore = create(set => ({
 
     // Environment management for admin functionality
     currentEnvironment: () => {
-        return sessionStorage.getItem('stellium_environment') || 'dev';
+        const explicitEnv = (process.env.REACT_APP_ADMIN_ENV || '').toLowerCase();
+        if (explicitEnv === 'prod' || explicitEnv === 'production') return 'prod';
+        if (explicitEnv === 'dev' || explicitEnv === 'development') return 'dev';
+        const apiUrl = process.env.REACT_APP_SERVER_URL || '';
+        return apiUrl.includes('api.dev.') ? 'dev' : 'prod';
     },
     environmentData: {
         lastSwitched: null,
@@ -182,17 +186,9 @@ const useStore = create(set => ({
 
     // Helper to get current API URL
     getCurrentApiUrl: () => {
-        const environment = sessionStorage.getItem('stellium_environment') || 'dev';
-        switch (environment) {
-            case 'prod':
-                return process.env.REACT_APP_SERVER_URL_PROD;
-            case 'dev':
-            default:
-                return process.env.REACT_APP_SERVER_URL;
-        }
+        return process.env.REACT_APP_SERVER_URL;
     },
 
 }));
 
 export default useStore;
-

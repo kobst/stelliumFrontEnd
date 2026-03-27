@@ -5,7 +5,6 @@ import UsersTable from '../UI/prototype/UsersTable';
 import CelebritiesTable from '../UI/prototype/CelebritiesTable';
 import AddCelebrityForm from '../UI/admin/AddCelebrityForm';
 import CelebrityRelationshipsTab from '../UI/admin/CelebrityRelationshipsTab';
-import EnvironmentDropdown from '../UI/admin/EnvironmentDropdown';
 import useStore from '../Utilities/store';
 
 function AdminPage() {
@@ -64,9 +63,6 @@ function AdminPage() {
       <div className="admin-header">
         <div className="maintxt mont-font">
           <h1 className="logotxt">ADMIN - USER MANAGEMENT</h1>
-        </div>
-        <div className="admin-controls">
-          <EnvironmentDropdown />
         </div>
       </div>
 
