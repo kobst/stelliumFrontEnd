@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import UsersTable from '../UI/prototype/UsersTable';
 import { createCompositeChartProfile, postCreateRelationshipProfile, createRelationshipDirect } from '../Utilities/api';
+import { trackRelationshipCreated } from '../Utilities/analytics';
 
 function SynastryPage() {
   const [userA, setUserA] = useState(null);
@@ -30,6 +31,7 @@ function SynastryPage() {
       console.log("response", response)
       // if response is successful, set the relationship profile to the response
       if (response && response.relationshipProfile._id) {
+        trackRelationshipCreated();
         setSuccess(true)
       }
     }

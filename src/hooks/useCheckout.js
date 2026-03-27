@@ -6,6 +6,7 @@ import {
   openCustomerPortal as apiOpenCustomerPortal,
 } from '../Utilities/entitlementsApi';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
+import { trackCheckoutStarted, trackCheckoutCompleted } from '../Utilities/analytics';
 
 /**
  * Hook to handle Stripe checkout flows and post-checkout return
@@ -31,6 +32,12 @@ export function useCheckout(user, onSuccess) {
     const purchaseType = params.get('type');
 
     if (upgraded === 'true' || purchased === 'true') {
+      // Track completed checkout
+      trackCheckoutCompleted(
+        upgraded === 'true' ? 'subscription' : 'purchase',
+        purchaseType
+      );
+
       // Show success message
       if (upgraded === 'true') {
         setSuccessMessage('Welcome to Plus! Your subscription is now active.');
@@ -106,6 +113,7 @@ export function useCheckout(user, onSuccess) {
       return { success: false, error: 'Not signed in' };
     }
 
+    trackCheckoutStarted('subscription');
     setIsLoading(true);
     setError(null);
 
@@ -145,6 +153,7 @@ export function useCheckout(user, onSuccess) {
         return { success: false, error: 'Invalid parameters' };
       }
 
+      trackCheckoutStarted(entityType);
       setIsLoading(true);
       setError(null);
 
@@ -184,6 +193,7 @@ export function useCheckout(user, onSuccess) {
       return { success: false, error: 'Not signed in' };
     }
 
+    trackCheckoutStarted('CREDIT_PACK');
     setIsLoading(true);
     setError(null);
 

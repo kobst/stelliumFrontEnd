@@ -19,6 +19,7 @@ import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
 import LockedContent from '../UI/shared/LockedContent';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
+import { trackChartViewed, trackAnalysisStarted, trackAnalysisCompleted, trackCreditWallHit } from '../Utilities/analytics';
 import './ChartDetailPage.css';
 
 function ChartDetailPage() {
@@ -59,12 +60,14 @@ function ChartDetailPage() {
         if (chartId === userId) {
           const userData = await fetchUser(userId);
           setChart(userData);
+          trackChartViewed(chartId, { isGuest: false });
         } else {
           // Otherwise, fetch from guest subjects
           const subjects = await getUserSubjects(userId);
           const foundChart = subjects?.find(s => s._id === chartId);
           if (foundChart) {
             setChart(foundChart);
+            trackChartViewed(chartId, { isGuest: true });
           } else {
             setError('Chart not found');
           }
@@ -128,6 +131,7 @@ function ChartDetailPage() {
         if (status?.completed || status?.status === 'completed' || status?.status === 'completed_with_failures') {
           clearInterval(pollingIntervalRef.current);
           pollingIntervalRef.current = null;
+          trackAnalysisCompleted(chartId);
 
           const completeData = await fetchAnalysis(chartId);
           if (completeData) {
@@ -155,6 +159,7 @@ function ChartDetailPage() {
     try {
       setAnalysisLoading(true);
       const response = await startFullAnalysis(chartId);
+      trackAnalysisStarted(chartId);
 
       if (response?.success && response?.workflowId) {
         setAnalysisStatus(response);

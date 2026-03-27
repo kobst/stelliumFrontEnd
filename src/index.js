@@ -5,6 +5,9 @@ import './index.css';
 import App from './App';
 import './styles/mobile-fixes.css'; // Mobile responsive fixes - load last for proper specificity
 import reportWebVitals from './reportWebVitals';
+import { initAnalytics } from './Utilities/analytics';
+
+initAnalytics();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

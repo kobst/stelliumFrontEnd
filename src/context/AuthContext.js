@@ -12,6 +12,7 @@ import {
 import { getUserByFirebaseUid } from '../Utilities/api';
 import { initializeEntitlements } from '../Utilities/entitlementsApi';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
+import { identifyUser, resetUser } from '../Utilities/analytics';
 
 const AuthContext = createContext(null);
 
@@ -46,6 +47,10 @@ export const AuthProvider = ({ children }) => {
           if (userData && userData._id) {
             console.log('User found in backend:', userData._id);
             setStelliumUser(userData);
+            identifyUser(userData._id, {
+              email: userData.email,
+              name: [userData.firstName, userData.lastName].filter(Boolean).join(' '),
+            });
 
             // Initialize and fetch entitlements
             try {
@@ -65,6 +70,7 @@ export const AuthProvider = ({ children }) => {
         }
       } else {
         // User is signed out
+        resetUser();
         setStelliumUser(null);
       }
 

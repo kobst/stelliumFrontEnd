@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCheckout } from '../hooks/useCheckout';
+import { trackPricingPageViewed } from '../Utilities/analytics';
 
 /**
  * Simple helper for list bullets.
@@ -77,6 +78,8 @@ export default function PricingTable() {
     // Refresh after successful purchase
     window.location.reload();
   });
+
+  React.useEffect(() => { trackPricingPageViewed(); }, []);
 
   const handlePlanClick = (planId) => {
     if (planId === 'free') {
