@@ -1,4 +1,5 @@
 import { HTTP_POST, CONTENT_TYPE_HEADER, APPLICATION_JSON, ERROR_API_CALL } from "./constants";
+import { getFirebaseIdToken } from '../firebase/adminAuth';
 
 // Dynamic server URL based on current environment
 const getServerUrl = () => {
@@ -7,6 +8,19 @@ const getServerUrl = () => {
 
 // For backward compatibility and debugging
 const SERVER_URL = getServerUrl();
+
+// Build headers with Firebase auth token for admin API calls
+const buildAuthHeaders = async (extraHeaders = {}) => {
+  const token = await getFirebaseIdToken();
+  const headers = {
+    [CONTENT_TYPE_HEADER]: APPLICATION_JSON,
+    ...extraHeaders,
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+};
 
 export const fetchTimeZone = async (lat, lon, epochTimeSeconds) => {
   const apiKey = process.env.REACT_APP_GOOGLE_API_KEY; 
@@ -1756,15 +1770,13 @@ export const startFullAnalysis = async (userId) => {
   }
 };
 
-// Admin endpoint for starting full analysis for celebrities (no auth required)
+// Admin endpoint for starting full analysis for celebrities (requires admin auth)
 export const startFullAnalysisAdmin = async (userId) => {
   try {
     console.log('Starting admin full analysis for celebrity userId:', userId);
     const response = await fetch(`${getServerUrl()}/admin/analysis/start-full`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
+      headers: await buildAuthHeaders(),
       body: JSON.stringify({ userId })
     });
 
@@ -1825,9 +1837,7 @@ export const checkFullAnalysisStatusAdmin = async (userId, workflowId = null) =>
 
     const response = await fetch(`${getServerUrl()}/admin/analysis/full-status`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
+      headers: await buildAuthHeaders(),
       body: JSON.stringify(requestBody)
     });
 
@@ -1997,11 +2007,9 @@ export const fetchEnhancedChatHistory = async (userId, limit = null) => {
 export const getProfilePhotoPresignedUrl = async (subjectId, contentType = 'image/jpeg') => {
   try {
     console.log('Getting presigned URL for subjectId:', subjectId, 'contentType:', contentType);
-    const response = await fetch(`${getServerUrl()}/subjects/${subjectId}/profile-photo/presigned-url`, {
+    const response = await fetch(`${getServerUrl()}/admin/subjects/${subjectId}/profile-photo/presigned-url`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
+      headers: await buildAuthHeaders(),
       body: JSON.stringify({ contentType })
     });
 
@@ -2047,11 +2055,9 @@ export const uploadProfilePhotoToS3 = async (presignedUrl, file) => {
 export const confirmProfilePhotoUpload = async (subjectId, photoKey) => {
   try {
     console.log('Confirming upload for subjectId:', subjectId, 'photoKey:', photoKey);
-    const response = await fetch(`${getServerUrl()}/subjects/${subjectId}/profile-photo/confirm`, {
+    const response = await fetch(`${getServerUrl()}/admin/subjects/${subjectId}/profile-photo/confirm`, {
       method: HTTP_POST,
-      headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
-      },
+      headers: await buildAuthHeaders(),
       body: JSON.stringify({ photoKey })
     });
 
@@ -2076,8 +2082,15 @@ export const uploadProfilePhotoDirect = async (subjectId, file) => {
     const formData = new FormData();
     formData.append('photo', file);
 
-    const response = await fetch(`${getServerUrl()}/subjects/${subjectId}/profile-photo`, {
+    const token = await getFirebaseIdToken();
+    const headers = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${getServerUrl()}/admin/subjects/${subjectId}/profile-photo`, {
       method: HTTP_POST,
+      headers,
       body: formData
       // Note: Don't set Content-Type header - browser sets it automatically with boundary
     });
