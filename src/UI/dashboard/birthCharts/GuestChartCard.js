@@ -47,7 +47,7 @@ function GuestChartCard({ chart, onClick, onDelete, featured, index }) {
       <div className="guest-chart-card__info">
         <div className="guest-chart-card__header">
           <h4 className="guest-chart-card__name">{displayName}</h4>
-          {!featured && (
+          {!featured && onDelete && (
             <button
               type="button"
               className="guest-chart-card__delete-btn"
