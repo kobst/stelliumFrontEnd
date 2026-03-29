@@ -133,7 +133,7 @@ const LandingPage = () => {
           <div className="hero-buttons">
             <CTABand onGetStarted={handleGetStarted} />
             <div className="hero-sign-picker">
-              <p className="hero-sign-picker__label">Read this week&apos;s horoscope — pick your sign</p>
+              <p className="hero-sign-picker__label">Read This Week&apos;s Horoscope — Pick Your Sign</p>
               <div className="hero-sign-picker__grid">
                 {ZODIAC_SIGNS.map((sign) => (
                   <button

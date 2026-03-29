@@ -224,18 +224,23 @@ html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 18px;
   width: 100%;
-  max-width: 680px;
+  max-width: 750px;
+  margin-top: 8px;
+  padding: 28px 32px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
 }
 
 .hero-sign-picker__label {
   margin: 0;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--color-text-secondary);
+  color: #d4a574;
   text-align: center;
 }
 
@@ -243,7 +248,7 @@ html {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .hero-sign-picker__pill {
@@ -254,9 +259,9 @@ html {
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: 400;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
