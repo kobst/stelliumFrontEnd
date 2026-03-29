@@ -64,7 +64,18 @@ function CelebrityRelationshipsSection() {
         </div>
 
         {loading ? (
-          <div className="celeb-relationships-loading">Loading celebrity relationships...</div>
+          <div className="celeb-relationships-cards">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rel-skeleton-card">
+                <div className="rel-skeleton-avatars">
+                  <div className="rel-skeleton-element rel-skeleton-avatar" />
+                  <div className="rel-skeleton-element rel-skeleton-avatar" />
+                </div>
+                <div className="rel-skeleton-element rel-skeleton-name" />
+                <div className="rel-skeleton-element rel-skeleton-score" />
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <div className="celeb-relationships-error">{error}</div>
         ) : (

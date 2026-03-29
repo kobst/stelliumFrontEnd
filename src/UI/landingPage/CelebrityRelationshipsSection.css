@@ -47,16 +47,56 @@
 }
 
 /* Loading/Error States */
-.celeb-relationships-loading,
 .celeb-relationships-error {
-  color: #D9DBE1;
+  color: #ff6b6b;
   font-size: 1.1rem;
   padding: 40px;
   font-family: "Montserrat", sans-serif;
 }
 
-.celeb-relationships-error {
-  color: #ff6b6b;
+/* Skeleton Loaders */
+@keyframes rel-skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.rel-skeleton-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.rel-skeleton-element {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: rel-skeleton-shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+.rel-skeleton-avatars {
+  display: flex;
+  gap: 12px;
+}
+
+.rel-skeleton-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.rel-skeleton-name {
+  width: 80%;
+  height: 16px;
+}
+
+.rel-skeleton-score {
+  width: 40%;
+  height: 14px;
 }
 
 /* Responsive - Tablet */
