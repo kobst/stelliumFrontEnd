@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
 import stelliumIcon from '../assets/StelliumIcon.svg';
@@ -48,6 +48,28 @@ const LandingPage = () => {
       navigate('/birthChartEntry?intent=plus');
     }
   };
+
+  // Scroll fade-in observer
+  const fadeRef = useRef([]);
+  const addFadeRef = useCallback((el) => {
+    if (el && !fadeRef.current.includes(el)) fadeRef.current.push(el);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    fadeRef.current.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   const handleGetStarted = () => {
     trackLandingCTAClicked('get_started');
@@ -133,31 +155,37 @@ const LandingPage = () => {
       </section>
 
       {/* 4 Pillars */}
-      <FourPillarsSection />
+      <div ref={addFadeRef} className="fade-in-section">
+        <FourPillarsSection />
+      </div>
 
       {/* Ask Stellium Showcase */}
-      <AskStelliumShowcase />
+      <div ref={addFadeRef} className="fade-in-section">
+        <AskStelliumShowcase />
+      </div>
 
       {/* CTA after pillars */}
       <CTABand />
 
       {/* Celebrity Charts Section */}
-      <CelebrityChartsSection />
+      <div ref={addFadeRef} className="fade-in-section">
+        <CelebrityChartsSection />
+      </div>
 
       {/* Celebrity Relationships Section */}
-      <CelebrityRelationshipsSection />
-
-      {/* Objection Buster */}
-      {/* <ObjectionBusterSection /> */}
+      <div ref={addFadeRef} className="fade-in-section">
+        <CelebrityRelationshipsSection />
+      </div>
 
       {/* How it Works */}
-      <HowItWorksSection />
-
-      {/* Feature Grid */}
-      {/* <FeatureGridSection /> */}
+      <div ref={addFadeRef} className="fade-in-section">
+        <HowItWorksSection />
+      </div>
 
       {/* Pricing */}
-      <PricingSection onStartPlus={handleStartPlus} onGetStarted={handleGetStarted} />
+      <div ref={addFadeRef} className="fade-in-section">
+        <PricingSection onStartPlus={handleStartPlus} onGetStarted={handleGetStarted} />
+      </div>
 
       {/* CTA after pricing */}
       <CTABand showTitle={true} />
@@ -165,6 +193,12 @@ const LandingPage = () => {
       {/* SEO Footer with Email Capture */}
       <footer className="footer-section">
         <div className="footer-content">
+
+          <div className="footer-brand">
+            <img src={stelliumIcon} alt="Stellium" className="footer-brand__logo" />
+            <span className="footer-brand__name">STELLIUM</span>
+            <p className="footer-brand__tagline">Personalized Astrology, Powered by AI</p>
+          </div>
 
           <div className="footer-links">
             <div className="link-column">

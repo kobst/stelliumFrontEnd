@@ -25,6 +25,7 @@ export default function CTABand({ showTitle = false, onGetStarted }) {
         <button className="cta-button primary" onClick={handleClick}>
           {buttonLabel}
         </button>
+        {!stelliumUser && <p className="cta-microcopy">No credit card required</p>}
       </div>
     </section>
   );

@@ -50,7 +50,15 @@ function CelebrityChartsSection() {
         </div>
 
         {loading ? (
-          <div className="celebrity-charts-loading">Loading celebrity charts...</div>
+          <div className="celebrity-cards-container">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="skeleton-card">
+                <div className="skeleton-element skeleton-avatar" />
+                <div className="skeleton-element skeleton-title" />
+                <div className="skeleton-element skeleton-subtitle" />
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <div className="celebrity-charts-error">{error}</div>
         ) : (
