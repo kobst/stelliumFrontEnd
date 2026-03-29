@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Stellium",
+  "name": "Stellium — Personalized Astrology, Powered by AI",
+  "description": "Birth chart analysis, relationship compatibility, daily horoscopes, and an AI astrologer that knows your chart.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +21,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#1a1b2e",
+  "background_color": "#1a1b2e"
 }
