@@ -144,7 +144,12 @@ const LandingPage = () => {
                     aria-label={sign.label}
                     aria-pressed="false"
                   >
-                    <span aria-hidden="true" className="hero-sign-picker__glyph">{sign.glyph}</span>
+                    <img
+                      src={`/assets/signs/${sign.value}.svg`}
+                      alt=""
+                      aria-hidden="true"
+                      className="hero-sign-picker__icon"
+                    />
                     <span>{sign.label}</span>
                   </button>
                 ))}

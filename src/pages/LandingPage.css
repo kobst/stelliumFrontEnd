@@ -274,7 +274,7 @@ html {
   box-shadow: 0 0 10px rgba(167, 139, 250, 0.2);
 }
 
-.hero-sign-picker__pill:hover .hero-sign-picker__glyph {
+.hero-sign-picker__pill:hover .hero-sign-picker__icon {
   transform: scale(1.15);
 }
 
@@ -288,8 +288,10 @@ html {
   background: rgba(212, 165, 116, 0.08);
 }
 
-.hero-sign-picker__glyph {
-  line-height: 1;
+.hero-sign-picker__icon {
+  width: 24px;
+  height: 24px;
+  filter: invert(1) brightness(1) sepia(0.3) hue-rotate(220deg) saturate(2.5);
   transition: transform 0.2s ease;
 }
 
