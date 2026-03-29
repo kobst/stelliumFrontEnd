@@ -17,7 +17,7 @@ const LoginPage = () => {
     loading
   } = useAuth();
 
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -139,11 +139,12 @@ const LoginPage = () => {
 
         {isSignUp && (
           <div className="signup-benefits">
-            <p className="benefits-title">Start your free trial</p>
+            <p className="benefits-title">Start free — no credit card required</p>
             <ul className="benefits-list">
-              <li>Your personalized birth chart</li>
-              <li>Daily &amp; monthly horoscopes</li>
-              <li>7 days of expanded insights</li>
+              <li>Your personalized birth chart analysis</li>
+              <li>Daily, weekly &amp; monthly horoscopes</li>
+              <li>Relationship compatibility reports</li>
+              <li>Chat with your AI astrologer</li>
             </ul>
           </div>
         )}
@@ -244,7 +245,7 @@ const LoginPage = () => {
               className="login-submit-btn"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Please wait...' : (isSignUp ? 'Create Account' : 'Sign In')}
+              {isSubmitting ? 'Please wait...' : (isSignUp ? 'Start Free Trial' : 'Sign In')}
             </button>
           </form>
 
