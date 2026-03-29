@@ -99,7 +99,7 @@ const loadAndModifySVG = async (url, color, instanceId) => {
 };
 
 const getColorForZodiac = (index) => {
-    return 'purple';
+    return 'white';
   };
 
 // Base dimensions at 600px canvas size — used as ratios for scaling
@@ -154,7 +154,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         });
     }, [dims]);
 
-    const drawPlanets = useCallback(async (ctx, planetsToDraw, rotationRadians) => {
+    const drawPlanets = useCallback(async (ctx, planetsToDraw, rotationRadians, isCancelled) => {
         const scale = canvasSize / BASE_SIZE;
         const ICON_WIDTH = Math.round(40 * scale);
         const ICON_HEIGHT = Math.round(40 * scale);
@@ -242,10 +242,13 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
 
             // Load and draw the planet icon
             try {
+                if (isCancelled()) return;
                 const coloredIconUrl = await loadAndModifySVG(iconUrl, planetColor, instanceId);
+                if (isCancelled()) return;
                 const planetImage = new Image();
                 planetImage.src = coloredIconUrl;
                 planetImage.onload = () => {
+                    if (isCancelled()) return;
                     ctx.drawImage(planetImage, drawX, drawY, ICON_WIDTH, ICON_HEIGHT);
 
                     // If the icon was moved, draw an indicator line
@@ -264,6 +267,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                     }
                 };
                 planetImage.onerror = () => {
+                    if (isCancelled()) return;
                     console.error(`Error loading image for ${planetName} at ${iconUrl}`);
                     // Fallback drawing for failed image load
                     ctx.fillStyle = planetColor;
@@ -317,7 +321,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         });
     }, [dims]);
 
-    const drawTransits = useCallback(async (ctx, transits, rotationRadians, houseRotationRadians) => {
+    const drawTransits = useCallback(async (ctx, transits, rotationRadians, houseRotationRadians, isCancelled) => {
         const scale = canvasSize / BASE_SIZE;
         const ICON_WIDTH = Math.round(36 * scale);
         const ICON_HEIGHT = Math.round(36 * scale);
@@ -402,10 +406,13 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
 
             // Draw the planet icon
             try {
+                if (isCancelled()) return;
                 const coloredIconUrl = await loadAndModifySVG(iconUrl, planetColor, instanceId + '-transit');
+                if (isCancelled()) return;
                 const planetImage = new Image();
                 planetImage.src = coloredIconUrl;
                 planetImage.onload = () => {
+                    if (isCancelled()) return;
                     ctx.drawImage(planetImage, drawX, drawY, ICON_WIDTH, ICON_HEIGHT);
 
                     // Indicator line if pushed outward
@@ -423,6 +430,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                     }
                 };
                 planetImage.onerror = () => {
+                    if (isCancelled()) return;
                     ctx.fillStyle = planetColor;
                     ctx.beginPath();
                     ctx.arc(drawX + ICON_WIDTH / 2, drawY + ICON_HEIGHT / 2, ICON_WIDTH / 2, 0, 2 * Math.PI);
@@ -435,7 +443,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
     }, [instanceId, dims, canvasSize]);
 
 
-    const drawZodiacWheel = useCallback(async (ctx, planets, houses, aspects, transits) => {
+    const drawZodiacWheel = useCallback(async (ctx, planets, houses, aspects, transits, isCancelled) => {
 
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -476,7 +484,9 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         const zodiacRingOffset = Math.round(32 * scale);
 
         zodiacIcons.forEach(async (iconAddress, index) => {
+            if (isCancelled()) return;
             const icon = await loadAndModifySVG(iconAddress, getColorForZodiac(index), instanceId);
+            if (isCancelled()) return;
             const iconDegree = 15 + index * 30;
             const iconRadians = ((270 - iconDegree) % 360) * Math.PI / 180 + rotationRadians;
             const iconX = dims.centerX + (dims.innerRadius + zodiacRingOffset) * Math.cos(iconRadians) - zodiacIconOffset;
@@ -485,12 +495,13 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
             const image = new Image();
             image.src = icon;
             image.onload = () => {
+                if (isCancelled()) return;
                 ctx.drawImage(image, iconX, iconY, zodiacIconSize, zodiacIconSize);
             };
         });
 
         if (planets && planets.length !== 0) {
-            drawPlanets(ctx, planets, rotationRadians)
+            drawPlanets(ctx, planets, rotationRadians, isCancelled)
         }
 
         if (houses && houses.length !== 0) {
@@ -502,7 +513,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         }
 
         if (transits && transits.length !== 0) {
-            drawTransits(ctx, transits, rotationRadians, houseRotationRadians);
+            drawTransits(ctx, transits, rotationRadians, houseRotationRadians, isCancelled);
         }
 
         ctx.restore();
@@ -511,15 +522,18 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
 
     // Single effect for drawing
     useEffect(() => {
+        let cancelled = false;
+        const isCancelled = () => cancelled;
+
         const canvas = canvasRef.current;
         if (!canvas) return;
-        
+
         const context = canvas.getContext('2d');
-        drawZodiacWheel(context, planets, houses, aspects, transits);
-        
-        // Cleanup function to release resources
+        drawZodiacWheel(context, planets, houses, aspects, transits, isCancelled);
+
+        // Cleanup function to cancel stale async draws and release resources
         return () => {
-            // Release any cached SVGs when component unmounts
+            cancelled = true;
             svgCache.forEach(url => URL.revokeObjectURL(url));
             svgCache.clear();
         };
