@@ -5,6 +5,7 @@ import UsersTable from '../UI/prototype/UsersTable';
 import CelebritiesTable from '../UI/prototype/CelebritiesTable';
 import AddCelebrityForm from '../UI/admin/AddCelebrityForm';
 import CelebrityRelationshipsTab from '../UI/admin/CelebrityRelationshipsTab';
+import HoroscopePreview from '../UI/admin/HoroscopePreview';
 import useStore from '../Utilities/store';
 
 function AdminPage() {
@@ -70,6 +71,7 @@ function AdminPage() {
       <CelebritiesTable onCelebritySelect={handleCelebritySelect} key={refreshCelebrities} usePagination={true} />
       <AddCelebrityForm onCelebrityAdded={handleCelebrityAdded} />
       <CelebrityRelationshipsTab />
+      <HoroscopePreview />
     </div>
   );
 }

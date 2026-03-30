@@ -1,0 +1,269 @@
+.horoscope-preview {
+  margin: 30px 20px;
+  padding: 20px;
+}
+
+.horoscope-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.horoscope-preview-header h2 {
+  color: white;
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.week-nav button {
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.week-nav button:hover {
+  background: rgba(139, 92, 246, 0.4);
+}
+
+.week-nav button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.week-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  min-width: 200px;
+  text-align: center;
+}
+
+.week-label .preview-badge {
+  display: inline-block;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.horoscope-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.complete {
+  background: #22c55e;
+}
+
+.status-dot.partial {
+  background: #fbbf24;
+}
+
+.status-dot.empty {
+  background: #ef4444;
+}
+
+.signs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sign-card {
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sign-card:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.sign-card.selected {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: #a78bfa;
+}
+
+.sign-card.missing {
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+.sign-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.sign-emoji {
+  font-size: 1.4rem;
+}
+
+.sign-name {
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.sign-card-snippet {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sign-detail-panel {
+  background: rgba(139, 92, 246, 0.06);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 12px;
+}
+
+.sign-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sign-detail-header h3 {
+  color: white;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.close-detail-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.close-detail-btn:hover {
+  color: white;
+}
+
+.sign-detail-interpretation {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  margin-bottom: 16px;
+}
+
+.sign-detail-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.sign-detail-themes {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+.sign-detail-themes h4 {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.theme-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.82rem;
+}
+
+.theme-priority {
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.horoscope-loading,
+.horoscope-error {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.95rem;
+}
+
+.horoscope-error {
+  color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .signs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .horoscope-preview-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .week-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .signs-grid {
+    grid-template-columns: 1fr;
+  }
+}
