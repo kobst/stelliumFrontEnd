@@ -116,6 +116,22 @@ export async function deleteSubject(subjectId, ownerUserId = null) {
   return apiFetch(`/subjects/${subjectId}`, requestOptions);
 }
 
+export async function fetchWeeklyHoroscopePreview(date = null) {
+  const query = date ? `?date=${date}` : '';
+  return apiFetch(`/admin/horoscopes/weekly/preview${query}`, {
+    method: 'GET',
+    headers: await buildAuthHeaders(),
+  });
+}
+
+export async function fetchAdminWeeklySunSign(sign, date = null) {
+  const query = date ? `?date=${date}` : '';
+  return apiFetch(`/admin/horoscopes/weekly/${sign}${query}`, {
+    method: 'GET',
+    headers: await buildAuthHeaders(),
+  });
+}
+
 export async function deleteRelationship(compositeChartId, ownerUserId = null) {
   const requestOptions = {
     method: 'DELETE',
