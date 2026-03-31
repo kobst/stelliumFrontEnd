@@ -167,12 +167,17 @@ function HoroscopePreview() {
               {selectedHoroscope.analysis?.keyThemes?.length > 0 && (
                 <div className="sign-detail-themes">
                   <h4>Key Transits</h4>
-                  {selectedHoroscope.analysis.keyThemes.map((theme, i) => (
-                    <div key={i} className="theme-item">
-                      <span className="theme-priority">P{theme.priority}</span>
-                      <span>{theme.description}</span>
-                    </div>
-                  ))}
+                  {selectedHoroscope.analysis.keyThemes.map((theme, i) => {
+                    const label = [theme.transitingPlanet, theme.aspect, theme.targetPlanet]
+                      .filter(Boolean)
+                      .join(' ') || theme.description || `Transit ${i + 1}`;
+                    return (
+                      <div key={i} className="theme-item">
+                        <span className="theme-priority">P{theme.priority}</span>
+                        <span>{label}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
