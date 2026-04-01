@@ -144,6 +144,22 @@
     font-size: 1.5rem;
   }
 
+  .celebrity-charts-content {
+    position: relative;
+  }
+
+  .celebrity-charts-content::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to left, rgba(13, 11, 26, 0.9), transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
+
   .celebrity-cards-container {
     display: flex;
     overflow-x: auto;

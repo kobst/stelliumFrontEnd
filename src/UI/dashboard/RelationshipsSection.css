@@ -46,10 +46,10 @@
 .relationships-section__add-btn {
   padding: 12px 36px;
   min-width: 220px;
-  background: #2dd4bf;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   border: none;
   border-radius: 24px;
-  color: #1a1a2e;
+  color: #ffffff;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -57,7 +57,7 @@
 }
 
 .relationships-section__add-btn:hover {
-  background: #5eead4;
+  background: linear-gradient(135deg, #9b6ff6, #8b5cf6);
   transform: translateY(-1px);
 }
 

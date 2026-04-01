@@ -1594,6 +1594,7 @@ html {
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   transition: color 0.3s ease;
+  display: inline-block;
 }
 
 .link-column a:hover {
@@ -1660,7 +1661,9 @@ html {
   }
 
   .section-title {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    white-space: normal;
+    letter-spacing: 1px;
   }
 
   /* Four Pillars Mobile */
@@ -1862,6 +1865,33 @@ html {
 
   .demo-container {
     grid-template-columns: 1fr;
+  }
+
+  /* Reduce section padding on mobile */
+  .demo-section,
+  .four-pillars-section,
+  .objection-buster-section,
+  .how-it-works-section,
+  .feature-grid-section {
+    padding: 48px 20px;
+  }
+
+  .pricing-section {
+    padding: 48px 20px;
+  }
+
+  .footer-section {
+    padding: 48px 20px 32px;
+  }
+
+  /* Footer link touch targets */
+  .link-column a {
+    min-height: 44px;
+    line-height: 44px;
+  }
+
+  .link-column li {
+    margin-bottom: 0;
   }
 }
 
