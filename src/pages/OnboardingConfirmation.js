@@ -85,9 +85,9 @@ const OnboardingConfirmation = () => {
                     });
                     trackSignupCompleted(result.userId, userData);
 
-                    // Note: Don't refresh auth context here - it will trigger OnboardingRoute
-                    // to redirect to dashboard before user sees confirmation page.
-                    // We'll refresh when user clicks "Go to Dashboard"
+                    // Auto-navigate to birth chart dashboard view
+                    await refreshStelliumUser();
+                    navigate(`/dashboard/${result.userId}/chart/${result.userId}`, { replace: true });
                 }
             } catch (creationError) {
                 console.error('Error creating user:', creationError);
