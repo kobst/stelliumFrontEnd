@@ -1,14 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Autocomplete from 'react-google-autocomplete';
 import { fetchTimeZone } from '../../Utilities/api';
 import { CREDIT_COSTS } from '../../Utilities/creditCosts';
+import GooglePlaceAutocomplete from '../shared/GooglePlaceAutocomplete';
 import './AddChartModal.css';
 
-const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY;
-
 function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
-  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
-
   // Form state
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -21,26 +17,13 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
   const [unknownTime, setUnknownTime] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [locationInputKey, setLocationInputKey] = useState(0);
   const photoInputRef = useRef(null);
 
   // UI state
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
-
-  // Load Google Places API script
-  useEffect(() => {
-    if (!window.google) {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => setIsGoogleLoaded(true);
-      document.head.appendChild(script);
-    } else {
-      setIsGoogleLoaded(true);
-    }
-  }, []);
 
   // Reset form when modal closes
   useEffect(() => {
@@ -61,6 +44,7 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
         URL.revokeObjectURL(photoPreview);
       }
       setPhotoPreview(null);
+      setLocationInputKey((current) => current + 1);
     }
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -99,19 +83,21 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
     return errors;
   };
 
-  const handlePlaceSelect = (place) => {
+  const handlePlaceSelect = ({ formattedAddress, lat, lon }) => {
     try {
-      if (!place || !place.geometry || !place.geometry.location) {
-        console.error("Invalid place object or missing geometry:", place);
+      if (lat == null || lon == null) {
+        console.error('Invalid place object or missing coordinates:', { formattedAddress, lat, lon });
         return;
       }
-      const lat = place.geometry.location.lat();
-      const lon = place.geometry.location.lng();
       setLat(lat);
       setLon(lon);
-      setPlaceOfBirth(place.formatted_address);
+      setPlaceOfBirth(formattedAddress);
+      setFormErrors((prev) => {
+        const { location, ...rest } = prev;
+        return rest;
+      });
     } catch (error) {
-      console.error("Error processing place selection:", error);
+      console.error('Error processing place selection:', error);
     }
   };
 
@@ -285,23 +271,13 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
           {/* Birth Location */}
           <div className="add-chart-modal__group">
             <label htmlFor="location">Birth Location</label>
-            {isGoogleLoaded ? (
-              <Autocomplete
-                apiKey={GOOGLE_API}
-                onPlaceSelected={handlePlaceSelect}
-                options={{ types: ['(cities)'] }}
-                placeholder="City, Country"
-                disabled={isSubmitting}
-                className={`add-chart-modal__location-input ${formErrors.location ? 'error' : ''}`}
-              />
-            ) : (
-              <input
-                type="text"
-                placeholder="Loading location search..."
-                disabled
-                className="add-chart-modal__location-input"
-              />
-            )}
+            <GooglePlaceAutocomplete
+              key={locationInputKey}
+              onPlaceSelected={handlePlaceSelect}
+              placeholder="City, Country"
+              disabled={isSubmitting}
+              className={`add-chart-modal__location-input ${formErrors.location ? 'error' : ''}`}
+            />
             {formErrors.location && (
               <span className="add-chart-modal__field-error">{formErrors.location}</span>
             )}
