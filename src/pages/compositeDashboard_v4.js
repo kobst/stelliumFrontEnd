@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import useStore from '../Utilities/store';
 import SynastryBirthChartComparison_v2 from '../UI/birthChart/tables/SynastryBirthChartComparison_v2'
 import RelationshipScoresRadarChart from '../UI/prototype/RelationshipScoresRadarChart';
-import { RelationshipCategoriesEnum, orderedCategoryKeys } from '../Utilities/constants';
 import {
   fetchUser,
   fetchRelationshipAnalysis,
@@ -19,226 +18,6 @@ import TabMenu from '../UI/shared/TabMenu';
 import './compositeDashboard_v4.css';
 
 
-// Helper functions for filtering consolidated scored items
-const getAspectsForCategory = (items, category) => {
-  return items.filter(item => 
-    item.categoryData.some(cd => cd.category === category)
-  );
-};
-
-const getSupportAspects = (items, category) => {
-  return getAspectsForCategory(items, category)
-    .filter(item => 
-      item.categoryData.some(cd => 
-        cd.category === category && cd.valence === 1
-      )
-    )
-    .sort((a, b) => {
-      const aScore = a.categoryData.find(cd => cd.category === category)?.score || 0;
-      const bScore = b.categoryData.find(cd => cd.category === category)?.score || 0;
-      return bScore - aScore;
-    });
-};
-
-const getChallengeAspects = (items, category) => {
-  return getAspectsForCategory(items, category)
-    .filter(item => 
-      item.categoryData.some(cd => 
-        cd.category === category && cd.valence === -1
-      )
-    )
-    .sort((a, b) => {
-      const aScore = Math.abs(a.categoryData.find(cd => cd.category === category)?.score || 0);
-      const bScore = Math.abs(b.categoryData.find(cd => cd.category === category)?.score || 0);
-      return bScore - aScore;
-    });
-};
-
-const getHeatAspects = (items, category) => {
-  return getAspectsForCategory(items, category)
-    .filter(item => 
-      item.categoryData.some(cd => 
-        cd.category === category && (cd.spark === true || cd.intensity > 1.5)
-      )
-    )
-    .sort((a, b) => {
-      const aIntensity = a.categoryData.find(cd => cd.category === category)?.intensity || 0;
-      const bIntensity = b.categoryData.find(cd => cd.category === category)?.intensity || 0;
-      return bIntensity - aIntensity;
-    });
-};
-
-const getActivityAspects = (items, category) => {
-  return getAspectsForCategory(items, category)
-    .filter(item => 
-      item.categoryData.some(cd => 
-        cd.category === category && cd.weight > 0
-      )
-    )
-    .sort((a, b) => {
-      const aWeight = a.categoryData.find(cd => cd.category === category)?.weight || 0;
-      const bWeight = b.categoryData.find(cd => cd.category === category)?.weight || 0;
-      return bWeight - aWeight;
-    });
-};
-
-const getSparkIcon = (sparkType) => {
-  switch (sparkType) {
-    case 'sexual': return '🔥';
-    case 'transformative': return '💫';
-    case 'intellectual': return '🧠';
-    case 'emotional': return '💝';
-    case 'power': return '⚡';
-    default: return '✨';
-  }
-};
-
-// AspectTable component for displaying filtered aspects
-const AspectTable = ({ aspects, category, metricType, themeColor }) => {
-  if (!aspects || aspects.length === 0) {
-    return (
-      <div style={{ 
-        padding: '20px', 
-        textAlign: 'center', 
-        color: '#9ca3af',
-        fontStyle: 'italic'
-      }}>
-        No {metricType.toLowerCase()} aspects found for this category
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ 
-      backgroundColor: `${themeColor}15`, 
-      border: `1px solid ${themeColor}40`,
-      borderRadius: '8px',
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        backgroundColor: `${themeColor}25`,
-        padding: '12px 16px',
-        borderBottom: `1px solid ${themeColor}40`,
-        fontWeight: 'bold',
-        color: themeColor,
-        fontSize: '14px'
-      }}>
-        {metricType} Aspects ({aspects.length})
-      </div>
-      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-        {aspects.map((aspect, index) => {
-          const categoryData = aspect.categoryData.find(cd => cd.category === category);
-          const starRating = categoryData?.starRating || 0;
-          const stars = '⭐'.repeat(Math.min(starRating, 5));
-          
-          return (
-            <div key={aspect.id || index} style={{
-              padding: '12px 16px',
-              borderBottom: index < aspects.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none',
-              fontSize: '14px'
-            }}>
-              <div style={{ 
-                color: 'white', 
-                marginBottom: '6px',
-                lineHeight: '1.4'
-              }}>
-                {aspect.description}
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                fontSize: '12px',
-                color: '#9ca3af'
-              }}>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <span style={{ 
-                    backgroundColor: (aspect.source === 'synastry' || aspect.source === 'synastryHousePlacement') ? 'rgba(59, 130, 246, 0.3)' : 'rgba(168, 85, 247, 0.3)',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    color: 'white'
-                  }}>
-                    {(aspect.source === 'synastry' || aspect.source === 'synastryHousePlacement') ? 'SYN' : 'COMP'}
-                  </span>
-                  {starRating > 0 && <span>{stars}</span>}
-                  {categoryData?.spark && (
-                    <span style={{ fontSize: '14px' }}>
-                      {getSparkIcon(categoryData.sparkType)}
-                    </span>
-                  )}
-                  {categoryData?.isKeystone && (
-                    <span style={{ 
-                      color: '#fbbf24',
-                      fontWeight: 'bold',
-                      fontSize: '11px'
-                    }}>
-                      KEY
-                    </span>
-                  )}
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <span>Score: <strong style={{color: categoryData?.score >= 0 ? '#10b981' : '#ef4444'}}>{categoryData?.score}</strong></span>
-                  {metricType === 'Heat' && <span>Intensity: <strong>{categoryData?.intensity?.toFixed(1)}</strong></span>}
-                  {metricType === 'Activity' && <span>Weight: <strong>{categoryData?.weight?.toFixed(1)}</strong></span>}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-// MetricCard component for expandable metrics
-const MetricCard = ({ title, value, color, aspects, category, metricType }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const hasAspects = aspects && aspects.length > 0;
-  
-  return (
-    <div style={{ textAlign: 'center' }}>
-      <div 
-        onClick={() => hasAspects && setIsExpanded(!isExpanded)}
-        style={{ 
-          fontSize: '24px', 
-          fontWeight: 'bold', 
-          color: color,
-          cursor: hasAspects ? 'pointer' : 'default',
-          padding: '8px',
-          borderRadius: '8px',
-          transition: 'background-color 0.2s',
-          ':hover': hasAspects ? { backgroundColor: `${color}20` } : {}
-        }}
-      >
-        {value}
-      </div>
-      <div style={{ fontSize: '14px', color: '#9ca3af', marginBottom: '8px' }}>
-        {title}
-      </div>
-      {hasAspects && (
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          style={{
-            background: 'none',
-            border: `1px solid ${color}`,
-            color: color,
-            padding: '4px 8px',
-            borderRadius: '4px',
-            fontSize: '11px',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            marginTop: '4px'
-          }}
-        >
-          {isExpanded ? '▼ Hide' : '▶ View'} {aspects.length} aspects
-        </button>
-      )}
-    </div>
-  );
-};
-
 function CompositeDashboard_v4({}) {
   
     const [relationshipScores, setRelationshipScores] = useState(null);
@@ -249,7 +28,6 @@ function CompositeDashboard_v4({}) {
     const [userAVectorizationStatus, setUserAVectorizationStatus] = useState(false);
     const [userBVectorizationStatus, setUserBVectorizationStatus] = useState(false);
     const [scoreDebugInfo, setScoreDebugInfo] = useState(null);
-    const [detailedRelationshipAnalysis, setDetailedRelationshipAnalysis] = useState(null);
     
     // Add state for holistic overview
     const [holisticOverview, setHolisticOverview] = useState(null);
@@ -266,25 +44,6 @@ function CompositeDashboard_v4({}) {
     // Add state for overall compatibility data (new API structure)
     const [overall, setOverall] = useState(null);
     
-    // Extract scored items from cluster analysis
-    const extractScoredItemsFromClusters = useCallback((clusterData) => {
-        if (!clusterData?.clusters) return [];
-        
-        const allScoredItems = [];
-        Object.values(clusterData.clusters).forEach(cluster => {
-            if (cluster.keystoneAspects) {
-                cluster.keystoneAspects.forEach(keystoneAspect => {
-                    if (keystoneAspect.item) {
-                        allScoredItems.push(keystoneAspect.item);
-                    }
-                });
-            }
-        });
-        
-        console.log("🔍 Extracted scored items from clusters:", allScoredItems);
-        return allScoredItems;
-    }, []);
-    
     // Add state for tension flow analysis
     const [tensionFlowAnalysis, setTensionFlowAnalysis] = useState(null);
     
@@ -292,14 +51,7 @@ function CompositeDashboard_v4({}) {
     const [initialOverview, setInitialOverview] = useState(null);
     
     // Add V2 state management
-    const [v2Analysis, setV2Analysis] = useState(null);
-    const [v2Metrics, setV2Metrics] = useState(null);
-    const [v2KeystoneAspects, setV2KeystoneAspects] = useState([]);
-    const [isV2Analysis, setIsV2Analysis] = useState(false);
     const [consolidatedScoredItems, setConsolidatedScoredItems] = useState([]);
-    
-    // State for expanded metrics in each category
-    const [expandedMetrics, setExpandedMetrics] = useState({});
     
     // Preview mode state
     const relationshipWorkflowState = useStore(state => state.relationshipWorkflowState);
@@ -413,16 +165,6 @@ function CompositeDashboard_v4({}) {
                     setScoreDebugInfo(fetchedData.debug);
                 }
 
-                // Handle relationship analysis
-                if (fetchedData?.analysis) {
-                    console.log("Detailed analysis available: ", fetchedData.analysis);
-                    setDetailedRelationshipAnalysis({
-                        analysis: fetchedData.analysis,
-                        userAName: fetchedData.debug?.inputSummary?.userAName || userA?.firstName,
-                        userBName: fetchedData.debug?.inputSummary?.userBName || userB?.firstName
-                    });
-                }
-
                 // Handle holistic overview
                 if (fetchedData?.holisticOverview) {
                     console.log("Holistic overview available: ", fetchedData.holisticOverview);
@@ -468,25 +210,6 @@ function CompositeDashboard_v4({}) {
                     setTensionFlowAnalysis(fetchedData.tensionFlowAnalysis);
                 }
 
-                // Handle legacy V2 Analysis data (if present)
-                if (fetchedData?.v2Analysis) {
-                    console.log("✅ Legacy V2 Analysis available: ", fetchedData.v2Analysis);
-                    setV2Analysis(fetchedData.v2Analysis);
-                    setIsV2Analysis(true);
-                }
-
-                // Handle V2 Metrics
-                if (fetchedData?.v2Metrics) {
-                    console.log("V2 Metrics available: ", fetchedData.v2Metrics);
-                    setV2Metrics(fetchedData.v2Metrics);
-                }
-
-                // Handle V2 Keystone Aspects
-                if (fetchedData?.v2KeystoneAspects) {
-                    console.log("V2 Keystone Aspects available: ", fetchedData.v2KeystoneAspects);
-                    setV2KeystoneAspects(fetchedData.v2KeystoneAspects);
-                }
-
                 // Handle Scored Items (NEW API: direct scoredItems field)
                 console.log("🔍 CHECKING FOR scoredItems in response:");
                 console.log("🎯 fetchedData.scoredItems:", fetchedData?.scoredItems);
@@ -500,15 +223,6 @@ function CompositeDashboard_v4({}) {
                     setConsolidatedScoredItems(fetchedData.clusterAnalysis.scoredItems);
                 } else {
                     console.log("❌ scoredItems NOT FOUND in response or not an array");
-                }
-
-                // Set V2 flag if we detected it
-                if (fetchedData?.isV2Analysis) {
-                    console.log("🚀 SETTING isV2Analysis to TRUE");
-                    setIsV2Analysis(true);
-                } else {
-                    console.log("❌ isV2Analysis flag NOT found in response");
-                    console.log("📊 Available keys:", Object.keys(fetchedData || {}));
                 }
 
                 // Handle vectorization status from the backend
@@ -618,14 +332,6 @@ function CompositeDashboard_v4({}) {
       setRelationshipScores(analysisData.scores);
     }
 
-    if (analysisData.analysis) {
-      setDetailedRelationshipAnalysis({
-        analysis: analysisData.analysis,
-        userAName: userA?.firstName,
-        userBName: userB?.firstName
-      });
-    }
-
     // Handle holistic overview from workflow response
     if (analysisData.holisticOverview) {
       console.log("Holistic overview from workflow:", analysisData.holisticOverview);
@@ -669,25 +375,6 @@ function CompositeDashboard_v4({}) {
     if (analysisData.tensionFlowAnalysis) {
       console.log("Tension flow analysis from workflow:", analysisData.tensionFlowAnalysis);
       setTensionFlowAnalysis(analysisData.tensionFlowAnalysis);
-    }
-
-    // Handle V2 Analysis data from workflow
-    if (analysisData.v2Analysis) {
-      console.log("V2 Analysis from workflow:", analysisData.v2Analysis);
-      setV2Analysis(analysisData.v2Analysis);
-      setIsV2Analysis(true);
-    }
-
-    // Handle V2 Metrics from workflow
-    if (analysisData.v2Metrics) {
-      console.log("V2 Metrics from workflow:", analysisData.v2Metrics);
-      setV2Metrics(analysisData.v2Metrics);
-    }
-
-    // Handle V2 Keystone Aspects from workflow
-    if (analysisData.v2KeystoneAspects) {
-      console.log("V2 Keystone Aspects from workflow:", analysisData.v2KeystoneAspects);
-      setV2KeystoneAspects(analysisData.v2KeystoneAspects);
     }
 
     // Handle Scored Items from workflow (NEW API: direct scoredItems field)
@@ -1193,335 +880,6 @@ function CompositeDashboard_v4({}) {
   const availableScores = relationshipScores || relationshipWorkflowState.scores;
   const availableScoreAnalysis = relationshipWorkflowState.scoreAnalysis;
 
-  const analysisTabs = [];
-
-  if (detailedRelationshipAnalysis) {
-    orderedCategoryKeys.forEach(cat => {
-      const value = detailedRelationshipAnalysis.analysis[cat];
-      if (!value) return;
-      analysisTabs.push({
-        id: cat,
-        label: RelationshipCategoriesEnum[cat]?.label || cat.replace(/_/g, ' '),
-        content: (
-          <div style={{ padding: '20px' }}>
-            {v2Metrics?.[cat] && (() => {
-              const expandedMetric = expandedMetrics[cat];
-              const setExpandedMetric = (metricKey) => {
-                setExpandedMetrics(prev => ({
-                  ...prev,
-                  [cat]: prev[cat] === metricKey ? null : metricKey
-                }));
-              };
-              
-              const supportAspects = getSupportAspects(consolidatedScoredItems, cat);
-              const challengeAspects = getChallengeAspects(consolidatedScoredItems, cat);
-              const heatAspects = getHeatAspects(consolidatedScoredItems, cat);
-              const activityAspects = getActivityAspects(consolidatedScoredItems, cat);
-              
-              console.log(`=== DEBUGGING ASPECTS FOR CATEGORY ${cat} ===`);
-              console.log('consolidatedScoredItems length:', consolidatedScoredItems?.length || 0);
-              console.log('supportAspects:', supportAspects?.length || 0);
-              console.log('challengeAspects:', challengeAspects?.length || 0);
-              console.log('heatAspects:', heatAspects?.length || 0);
-              console.log('activityAspects:', activityAspects?.length || 0);
-              
-              const metricsData = [
-                {
-                  key: 'support',
-                  title: 'Support',
-                  value: `${v2Metrics[cat].supportPct}%`,
-                  color: '#10b981',
-                  aspects: supportAspects,
-                  metricType: 'Support'
-                },
-                {
-                  key: 'challenge', 
-                  title: 'Challenge',
-                  value: `${v2Metrics[cat].challengePct}%`,
-                  color: '#ef4444',
-                  aspects: challengeAspects,
-                  metricType: 'Challenge'
-                },
-                {
-                  key: 'heat',
-                  title: 'Heat', 
-                  value: `${v2Metrics[cat].heatPct}%`,
-                  color: '#f59e0b',
-                  aspects: heatAspects,
-                  metricType: 'Heat'
-                },
-                {
-                  key: 'activity',
-                  title: 'Activity',
-                  value: `${v2Metrics[cat].activityPct}%`,
-                  color: '#3b82f6', 
-                  aspects: activityAspects,
-                  metricType: 'Activity'
-                }
-              ];
-
-              return (
-                <div style={{ 
-                  backgroundColor: 'rgba(99, 102, 241, 0.1)', 
-                  padding: '20px', 
-                  borderRadius: '8px',
-                  border: '1px solid rgba(99, 102, 241, 0.3)',
-                  marginBottom: '20px'
-                }}>
-                  <h3 style={{ color: '#8b5cf6', margin: '0 0 15px 0' }}>📊 Relationship Dynamics</h3>
-                  <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-                    gap: '15px',
-                    marginBottom: '15px'
-                  }}>
-                    {metricsData.map(metric => {
-                      const hasAspects = metric.aspects && metric.aspects.length > 0;
-                      const isExpanded = expandedMetric === metric.key;
-                      
-                      return (
-                        <div key={metric.key} style={{ textAlign: 'center' }}>
-                          <div 
-                            onClick={() => {
-                              console.log(`Clicked ${metric.title} - hasAspects: ${hasAspects}, aspects count: ${metric.aspects?.length || 0}`);
-                              if (hasAspects) {
-                                setExpandedMetric(metric.key);
-                              } else {
-                                console.log(`No aspects found for ${metric.title} in category ${cat}`);
-                                alert(`Debug: No ${metric.title.toLowerCase()} aspects found for this category. Check console for details.`);
-                              }
-                            }}
-                            style={{ 
-                              fontSize: '24px', 
-                              fontWeight: 'bold', 
-                              color: metric.color,
-                              cursor: 'pointer', // Always show pointer cursor for debugging
-                              padding: '8px',
-                              borderRadius: '8px',
-                              backgroundColor: isExpanded ? `${metric.color}20` : 'transparent',
-                              transition: 'background-color 0.2s',
-                              border: hasAspects ? `2px solid transparent` : `2px dashed ${metric.color}40` // Show visual indicator
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = `${metric.color}20`;
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isExpanded) e.target.style.backgroundColor = 'transparent';
-                            }}
-                          >
-                            {metric.value}
-                          </div>
-                          <div style={{ fontSize: '14px', color: '#9ca3af', marginBottom: '8px' }}>
-                            {metric.title}
-                          </div>
-                          {/* Always show button for debugging */}
-                          <button
-                            onClick={() => {
-                              console.log(`Button clicked for ${metric.title}`);
-                              if (hasAspects) {
-                                setExpandedMetric(metric.key);
-                              } else {
-                                alert(`Debug: Found ${metric.aspects?.length || 0} ${metric.title.toLowerCase()} aspects`);
-                              }
-                            }}
-                            style={{
-                              background: 'none',
-                              border: `1px solid ${metric.color}`,
-                              color: metric.color,
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              fontSize: '11px',
-                              cursor: 'pointer',
-                              fontWeight: 'bold',
-                              marginTop: '4px',
-                              opacity: hasAspects ? 1 : 0.5
-                            }}
-                          >
-                            {hasAspects 
-                              ? `${isExpanded ? '▼ Hide' : '▶ View'} ${metric.aspects.length} aspects`
-                              : `Debug: ${metric.aspects?.length || 0} aspects`
-                            }
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* Spark Elements and Quadrant */}
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingTop: '15px',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ color: '#9ca3af' }}>Spark Elements:</span>
-                      <span style={{ 
-                        color: '#fbbf24', 
-                        fontWeight: 'bold',
-                        fontSize: '18px'
-                      }}>
-                        {v2Metrics[cat].sparkElements > 0 ? '⚡'.repeat(Math.min(v2Metrics[cat].sparkElements, 5)) : '—'}
-                      </span>
-                    </div>
-                    <div style={{ 
-                      backgroundColor: 'rgba(139, 92, 246, 0.2)',
-                      padding: '6px 12px',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                      color: '#a78bfa'
-                    }}>
-                      {v2Metrics[cat].quadrant}
-                    </div>
-                  </div>
-
-                  {/* Show expanded aspect table below the metrics grid */}
-                  {expandedMetric && (() => {
-                    const selectedMetric = metricsData.find(m => m.key === expandedMetric);
-                    return selectedMetric && selectedMetric.aspects ? (
-                      <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                        <AspectTable 
-                          aspects={selectedMetric.aspects}
-                          category={cat}
-                          metricType={selectedMetric.metricType}
-                          themeColor={selectedMetric.color}
-                        />
-                      </div>
-                    ) : null;
-                  })()}
-                </div>
-              );
-            })()}
-
-            {value.v3MetricsInterpretation && (
-              <div style={{ 
-                backgroundColor: 'rgba(34, 197, 94, 0.1)', 
-                padding: '20px', 
-                borderRadius: '8px',
-                border: '1px solid rgba(34, 197, 94, 0.3)',
-                marginBottom: '20px'
-              }}>
-                <h3 style={{ color: '#22c55e', margin: '0 0 15px 0' }}>💫 Quick Analysis Overview</h3>
-                <p style={{ 
-                  color: 'white', 
-                  lineHeight: '1.6', 
-                  margin: '0',
-                  fontSize: '16px',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {value.v3MetricsInterpretation}
-                </p>
-              </div>
-            )}
-
-            {value.panels?.synastry && (
-              <div style={{ 
-                backgroundColor: 'rgba(59, 130, 246, 0.1)', 
-                padding: '20px', 
-                borderRadius: '8px',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                marginBottom: '20px'
-              }}>
-                <h3 style={{ color: '#3b82f6', margin: '0 0 15px 0' }}>🔗 Synastry Analysis</h3>
-                <p style={{ 
-                  color: 'white', 
-                  lineHeight: '1.6', 
-                  margin: '0',
-                  fontSize: '16px',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {value.panels.synastry}
-                </p>
-              </div>
-            )}
-
-            {value.panels?.composite && (
-              <div style={{ 
-                backgroundColor: 'rgba(168, 85, 247, 0.1)', 
-                padding: '20px', 
-                borderRadius: '8px',
-                border: '1px solid rgba(168, 85, 247, 0.3)',
-                marginBottom: '20px'
-              }}>
-                <h3 style={{ color: '#a855f7', margin: '0 0 15px 0' }}>🌟 Composite Analysis</h3>
-                <p style={{ 
-                  color: 'white', 
-                  lineHeight: '1.6', 
-                  margin: '0',
-                  fontSize: '16px',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {value.panels.composite}
-                </p>
-              </div>
-            )}
-
-            {value.panels?.fullAnalysis && (
-              <div style={{ 
-                backgroundColor: 'rgba(139, 92, 246, 0.1)', 
-                padding: '20px', 
-                borderRadius: '8px',
-                border: '1px solid rgba(139, 92, 246, 0.3)',
-                marginBottom: '20px'
-              }}>
-                <h3 style={{ color: '#a78bfa', margin: '0 0 15px 0' }}>💫 Detailed Analysis</h3>
-                <p style={{ 
-                  color: 'white', 
-                  lineHeight: '1.6', 
-                  margin: '0',
-                  fontSize: '16px',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {value.panels.fullAnalysis}
-                </p>
-              </div>
-            )}
-          </div>
-        )
-      });
-    });
-  } else if (relationshipWorkflowState.isPaused) {
-    // Show complete analysis prompts for each category when paused
-    orderedCategoryKeys.forEach(cat => {
-      analysisTabs.push({
-        id: cat,
-        label: RelationshipCategoriesEnum[cat]?.label || cat.replace(/_/g, ' '),
-        content: (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px 20px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '8px',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
-            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>💕 {RelationshipCategoriesEnum[cat]?.label} Analysis</h3>
-            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
-              Discover detailed insights about this aspect of your relationship compatibility, 
-              including synastry analysis, composite chart interpretation, and personalized guidance.
-            </p>
-            <button
-              onClick={handleResumeWorkflow}
-              style={{
-                backgroundColor: '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '16px'
-              }}
-            >
-              Complete Analysis to Unlock
-            </button>
-          </div>
-        )
-      });
-    });
-  }
-
   const mainTabs = [];
 
   console.log('🔍 Building main tabs - relationshipScores:', relationshipScores);
@@ -1574,12 +932,11 @@ function CompositeDashboard_v4({}) {
   }
 
   // Add Enhanced Relationship Analysis tab (shows cluster analysis and initial overview)
-  if (clusterScoring?.clusters || initialOverview || detailedRelationshipAnalysis) {
+  if (clusterScoring?.clusters || initialOverview) {
     mainTabs.push({
       id: 'overview',
       label: 'Overview',
       content: <RelationshipAnalysis 
-        analysis={detailedRelationshipAnalysis} 
         userAName={userA?.firstName || 'User A'} 
         userBName={userB?.firstName || 'User B'} 
         scoreAnalysis={relationshipWorkflowState.scoreAnalysis}
@@ -1604,14 +961,6 @@ function CompositeDashboard_v4({}) {
         userAName={userA?.firstName || 'User A'} 
         userBName={userB?.firstName || 'User B'} 
       />
-    });
-  }
-
-  if (analysisTabs.length > 0) {
-    mainTabs.push({
-      id: 'analysis',
-      label: 'Analysis',
-      content: <TabMenu tabs={analysisTabs} />
     });
   }
 
