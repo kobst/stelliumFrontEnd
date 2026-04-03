@@ -1,32 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Autocomplete from 'react-google-autocomplete';
 import useStore from '../../Utilities/store';
 import { fetchTimeZone } from '../../Utilities/api';
+import GooglePlaceAutocomplete from '../shared/GooglePlaceAutocomplete';
 import './UserSignUpForm.css';
-
-
-
-const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
 
 const UserSignUpForm = () => {
     const navigate = useNavigate();
-    const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
-
-    // Load Google Places API script
-    useEffect(() => {
-        if (!window.google) {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API}&libraries=places`;
-            script.async = true;
-            script.defer = true;
-            script.onload = () => setIsGoogleLoaded(true);
-            document.head.appendChild(script);
-        } else {
-            setIsGoogleLoaded(true);
-        }
-    }, []);
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -135,21 +116,19 @@ const UserSignUpForm = () => {
       alignItems: 'center'
     };
 
-    const handlePlaceSelect = (place) => {
+    const handlePlaceSelect = ({ formattedAddress, lat, lon }) => {
         try {
-            if (!place || !place.geometry || !place.geometry.location) {
-                console.error("Invalid place object or missing geometry:", place);
+            if (lat == null || lon == null) {
+                console.error('Invalid place object or missing coordinates:', { formattedAddress, lat, lon });
                 return;
             }
-            
-            const lat = place.geometry.location.lat();
-            const lon = place.geometry.location.lng();
-            
+
             setLat(lat);
             setLon(lon);
-            setPlaceOfBirth(place.formatted_address);
+            setPlaceOfBirth(formattedAddress);
+            setFormErrors((prev) => ({ ...prev, location: undefined }));
         } catch (error) {
-            console.error("Error processing place selection:", error);
+            console.error('Error processing place selection:', error);
         }
     };
 
@@ -184,32 +163,15 @@ const UserSignUpForm = () => {
 
           <div style={formGroupStyle}>
             <label htmlFor="location" style={labelStyle}>I was born in</label>
-            {isGoogleLoaded ? (
-                <Autocomplete
-                    apiKey={GOOGLE_API}
-                    onPlaceSelected={handlePlaceSelect}
-                    options={{
-                        types: ['(cities)']
-                    }}
-                    style={{
-                        ...inputStyle,
-                        width: '290px'
-                    }}
-                    placeholder="City, Country"
-                    className="input-dark-placeholder"
-                />
-            ) : (
-                <input
-                    type="text"
-                    style={{
-                        ...inputStyle,
-                        width: '290px',
-                        backgroundColor: 'white'
-                    }}
-                    placeholder="Loading location search..."
-                    disabled
-                />
-            )}
+            <GooglePlaceAutocomplete
+                onPlaceSelected={handlePlaceSelect}
+                style={{
+                    ...inputStyle,
+                    width: '290px'
+                }}
+                placeholder="City, Country"
+                className="input-dark-placeholder"
+            />
           </div>
 
           <div style={formGroupStyle}>
@@ -351,6 +313,4 @@ const UserSignUpForm = () => {
   };
   
   export default UserSignUpForm;
-
-
 
