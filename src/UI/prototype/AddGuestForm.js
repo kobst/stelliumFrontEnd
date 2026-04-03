@@ -1,30 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import Autocomplete from 'react-google-autocomplete';
+import React, { useState } from 'react';
 import useStore from '../../Utilities/store';
 import { fetchTimeZone } from '../../Utilities/api';
 import useSubjectCreation from '../../hooks/useSubjectCreation';
 import '../landingPage/UserSignUpForm.css';
-
-const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY;
+import GooglePlaceAutocomplete from '../shared/GooglePlaceAutocomplete';
 
 const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
-  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const userId = useStore(state => state.userId);
   const { createGuest, loading, error } = useSubjectCreation();
-
-  // Load Google Places API script
-  useEffect(() => {
-    if (!window.google) {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => setIsGoogleLoaded(true);
-      document.head.appendChild(script);
-    } else {
-      setIsGoogleLoaded(true);
-    }
-  }, []);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -38,6 +21,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
   const [formErrors, setFormErrors] = useState({});
   const [submitMessage, setSubmitMessage] = useState('');
   const [workflowStatus, setWorkflowStatus] = useState(null);
+  const [locationInputKey, setLocationInputKey] = useState(0);
 
   const validateForm = () => {
     const errors = {};
@@ -103,6 +87,7 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
         setGender('');
         setUnknownTime(false);
         setFormErrors({});
+        setLocationInputKey((current) => current + 1);
         
         // Notify parent component to refresh guest table
         if (onGuestAdded) {
@@ -122,23 +107,19 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
     }
   };
 
-  const handlePlaceSelected = (place) => {
+  const handlePlaceSelected = ({ formattedAddress, lat, lon }) => {
     try {
-      if (!place || !place.geometry || !place.geometry.location) {
-        console.error("Invalid place object or missing geometry:", place);
+      if (lat == null || lon == null) {
+        console.error('Invalid place object or missing coordinates:', { formattedAddress, lat, lon });
         return;
       }
-      
-      const lat = place.geometry.location.lat();
-      const lon = place.geometry.location.lng();
-      console.log("Selected location:", { lat, lon, address: place.formatted_address });
-      
+
       setLat(lat);
       setLon(lon);
-      setPlaceOfBirth(place.formatted_address);
+      setPlaceOfBirth(formattedAddress);
       setFormErrors(prev => ({ ...prev, location: null }));
     } catch (error) {
-      console.error("Error processing place selection:", error);
+      console.error('Error processing place selection:', error);
     }
   };
 
@@ -205,33 +186,17 @@ const AddGuestForm = ({ onGuestAdded, title = "Add New Profile" }) => {
 
         <div style={formGroupStyle}>
           <label htmlFor="location" style={labelStyle}>Born in</label>
-          {isGoogleLoaded ? (
-            <Autocomplete
-              apiKey={GOOGLE_API}
-              onPlaceSelected={handlePlaceSelected}
-              options={{
-                types: ['(cities)']
-              }}
-              style={{
-                ...inputStyle,
-                width: '290px',
-                backgroundColor: 'white'
-              }}
-              placeholder="City, Country"
-              disabled={loading}
-            />
-          ) : (
-            <input
-              type="text"
-              style={{
-                ...inputStyle,
-                width: '290px',
-                backgroundColor: 'white'
-              }}
-              placeholder="Loading location search..."
-              disabled
-            />
-          )}
+          <GooglePlaceAutocomplete
+            key={locationInputKey}
+            onPlaceSelected={handlePlaceSelected}
+            style={{
+              ...inputStyle,
+              width: '290px',
+              backgroundColor: 'white'
+            }}
+            placeholder="City, Country"
+            disabled={loading}
+          />
         </div>
 
         <div style={formGroupStyle}>

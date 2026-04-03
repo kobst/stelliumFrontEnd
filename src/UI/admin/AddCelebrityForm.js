@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import Autocomplete from 'react-google-autocomplete';
+import React, { useState } from 'react';
 import {
   fetchTimeZone,
   getProfilePhotoPresignedUrl,
@@ -7,27 +6,11 @@ import {
   confirmProfilePhotoUpload
 } from '../../Utilities/api';
 import useSubjectCreation from '../../hooks/useSubjectCreation';
+import GooglePlaceAutocomplete from '../shared/GooglePlaceAutocomplete';
 import '../landingPage/UserSignUpForm.css';
 
-const GOOGLE_API = process.env.REACT_APP_GOOGLE_API_KEY
-
 const AddCelebrityForm = ({ onCelebrityAdded }) => {
-    const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
     const { createCelebrity, loading, error } = useSubjectCreation();
-
-    // Load Google Places API script
-    useEffect(() => {
-        if (!window.google) {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API}&libraries=places`;
-            script.async = true;
-            script.defer = true;
-            script.onload = () => setIsGoogleLoaded(true);
-            document.head.appendChild(script);
-        } else {
-            setIsGoogleLoaded(true);
-        }
-    }, []);
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -41,6 +24,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
     const [formErrors, setFormErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [workflowStatus, setWorkflowStatus] = useState(null);
+    const [locationInputKey, setLocationInputKey] = useState(0);
 
     // Profile photo state
     const [photoFile, setPhotoFile] = useState(null);
@@ -178,6 +162,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
           setPlaceOfBirth('');
           setGender('');
           setUnknownTime(false);
+          setLocationInputKey((current) => current + 1);
           clearPhoto();
 
           // Notify parent component to refresh celebrity table
@@ -226,22 +211,18 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
       alignItems: 'center'
     };
 
-    const handlePlaceSelect = (place) => {
+    const handlePlaceSelect = ({ formattedAddress, lat, lon }) => {
         try {
-            if (!place || !place.geometry || !place.geometry.location) {
-                console.error("Invalid place object or missing geometry:", place);
+            if (lat == null || lon == null) {
+                console.error('Invalid place object or missing coordinates:', { formattedAddress, lat, lon });
                 return;
             }
-            
-            const lat = place.geometry.location.lat();
-            const lon = place.geometry.location.lng();
-            console.log("Selected location:", { lat, lon, address: place.formatted_address });
-            
+
             setLat(lat);
             setLon(lon);
-            setPlaceOfBirth(place.formatted_address);
+            setPlaceOfBirth(formattedAddress);
         } catch (error) {
-            console.error("Error processing place selection:", error);
+            console.error('Error processing place selection:', error);
         }
     };
 
@@ -274,33 +255,17 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
 
           <div style={formGroupStyle}>
             <label htmlFor="location" style={labelStyle}>Born in</label>
-            {isGoogleLoaded ? (
-                <Autocomplete
-                    apiKey={GOOGLE_API}
-                    onPlaceSelected={handlePlaceSelect}
-                    options={{
-                        types: ['(cities)']
-                    }}
-                    style={{
-                        ...inputStyle,
-                        width: '290px',
-                        backgroundColor: 'white'
-                    }}
-                    placeholder="City, Country"
-                    disabled={loading}
-                />
-            ) : (
-                <input
-                    type="text"
-                    style={{
-                        ...inputStyle,
-                        width: '290px',
-                        backgroundColor: 'white'
-                    }}
-                    placeholder="Loading location search..."
-                    disabled
-                />
-            )}
+            <GooglePlaceAutocomplete
+                key={locationInputKey}
+                onPlaceSelected={handlePlaceSelect}
+                style={{
+                    ...inputStyle,
+                    width: '290px',
+                    backgroundColor: 'white'
+                }}
+                placeholder="City, Country"
+                disabled={loading}
+            />
           </div>
 
           <div style={formGroupStyle}>

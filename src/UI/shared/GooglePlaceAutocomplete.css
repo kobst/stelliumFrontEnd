@@ -1,0 +1,32 @@
+.google-place-autocomplete {
+  position: relative;
+  width: 100%;
+}
+
+.google-place-autocomplete__mount {
+  width: 100%;
+  display: none;
+}
+
+.google-place-autocomplete__mount--ready {
+  display: block;
+}
+
+.google-place-autocomplete__element {
+  display: block;
+  width: 100%;
+}
+
+.google-place-autocomplete__fallback {
+  width: 100%;
+}
+
+.google-place-autocomplete--disabled {
+  opacity: 0.6;
+}
+
+.google-place-autocomplete__disabled-mask {
+  position: absolute;
+  inset: 0;
+  cursor: not-allowed;
+}
