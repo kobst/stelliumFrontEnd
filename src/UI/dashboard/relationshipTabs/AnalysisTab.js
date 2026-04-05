@@ -26,7 +26,7 @@ const getQuadrantLabel = (quadrant) => {
   return quadrant;
 };
 
-function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, isCelebrity = false }) {
+function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, isCelebrity = false, initialAnalysisStatus = null }) {
   const [selectedCluster, setSelectedCluster] = useState('Harmony');
   const [selectedAnalysisType, setSelectedAnalysisType] = useState('synastry');
   const [selectedPanel, setSelectedPanel] = useState('support');
@@ -48,6 +48,12 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
   const completeAnalysis = relationship?.completeAnalysis;
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
   const clusters = clusterAnalysis?.clusters;
+
+  useEffect(() => {
+    if (initialAnalysisStatus) {
+      setAnalysisStatus(initialAnalysisStatus);
+    }
+  }, [initialAnalysisStatus]);
 
   const orderedClusters = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
 

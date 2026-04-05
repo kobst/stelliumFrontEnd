@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { getUserCompositeCharts, fetchRelationshipAnalysis, fetchUser } from '../Utilities/api';
+import { getUserCompositeCharts, fetchRelationshipAnalysis, fetchUser, getRelationshipWorkflowStatus } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import { useCheckout } from '../hooks/useCheckout';
@@ -30,6 +30,8 @@ function RelationshipAnalysisPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('overview');
+  const [analysisStatus, setAnalysisStatus] = useState(null);
+  const pollingRef = useRef(null);
 
   const loadRelationship = useCallback(async () => {
     try {
@@ -92,6 +94,66 @@ function RelationshipAnalysisPage() {
     }
   }, [userId, compositeId, loadRelationship]);
 
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
+    };
+  }, []);
+
+  const startRelationshipStatusPolling = useCallback((workflowId) => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+    }
+
+    const poll = async () => {
+      try {
+        const response = await getRelationshipWorkflowStatus(compositeId);
+        setAnalysisStatus(response);
+
+        if (response?.completed || response?.status === 'completed' || response?.status === 'completed_with_failures') {
+          clearInterval(pollingRef.current);
+          pollingRef.current = null;
+          loadRelationship();
+        } else if (response?.status === 'failed' || response?.status === 'error' || response?.status === 'unknown') {
+          clearInterval(pollingRef.current);
+          pollingRef.current = null;
+        }
+      } catch (err) {
+        console.error('Error polling relationship workflow status:', err);
+      }
+    };
+
+    poll();
+    pollingRef.current = setInterval(poll, 3000);
+  }, [compositeId, loadRelationship]);
+
+  const syncExistingWorkflowStatus = useCallback(async () => {
+    if (!compositeId) return;
+
+    try {
+      const response = await getRelationshipWorkflowStatus(compositeId);
+
+      if (!response?.success) {
+        return;
+      }
+
+      setAnalysisStatus(response);
+
+      if (response?.status === 'in_progress') {
+        startRelationshipStatusPolling(response.workflowId || compositeId);
+        return;
+      }
+
+      if (response?.completed || response?.status === 'completed' || response?.status === 'completed_with_failures') {
+        loadRelationship();
+      }
+    } catch (err) {
+      console.warn('No existing relationship workflow to resume:', err?.message || err);
+    }
+  }, [compositeId, loadRelationship, startRelationshipStatusPolling]);
+
   // Callback for when analysis completes - reload the data
   const handleAnalysisComplete = useCallback(() => {
     console.log('Analysis complete callback triggered - reloading relationship data');
@@ -101,10 +163,19 @@ function RelationshipAnalysisPage() {
   // Check if full analysis is complete
   const isAnalysisComplete = relationship?.completeAnalysis &&
     Object.keys(relationship.completeAnalysis).length > 0;
+  const isAnalysisUnlocked = compositeId
+    ? entitlements.isAnalysisUnlocked('RELATIONSHIP', compositeId)
+    : false;
+  const isAnalysisRunning = analysisStatus?.status === 'in_progress';
 
   // Check if user can access premium tabs:
   // Either the relationship has been analyzed (purchased) OR user has Plus subscription
-  const canAccessPremiumTabs = isAnalysisComplete || entitlements.isPlus;
+  const canAccessPremiumTabs = isAnalysisComplete || isAnalysisUnlocked || isAnalysisRunning || entitlements.isPlus;
+
+  useEffect(() => {
+    if (!compositeId || isAnalysisComplete || !isAnalysisUnlocked) return;
+    syncExistingWorkflowStatus();
+  }, [compositeId, isAnalysisComplete, isAnalysisUnlocked, syncExistingWorkflowStatus]);
 
   const handleBackClick = () => {
     navigate(`/dashboard/${userId}`);
@@ -175,6 +246,7 @@ function RelationshipAnalysisPage() {
           compositeId={compositeId}
           onAnalysisComplete={handleAnalysisComplete}
           userId={userId}
+          initialAnalysisStatus={analysisStatus}
         />
       ) : (
         <LockedContent
@@ -200,8 +272,20 @@ function RelationshipAnalysisPage() {
           onUseQuota={async (type, id) => {
             const result = await entitlements.checkAndUseAnalysis(type, id);
             if (result.success) {
-              // Refresh the page to show unlocked content
-              window.location.reload();
+              const workflowResult = result.result;
+              setActiveSection('analysis');
+
+              if (workflowResult?.workflowStatus === 'started' || workflowResult?.workflowStatus === 'already_running') {
+                setAnalysisStatus({
+                  success: true,
+                  workflowId: workflowResult.workflowId || compositeId,
+                  status: 'in_progress',
+                });
+                startRelationshipStatusPolling(workflowResult.workflowId || compositeId);
+                return;
+              }
+
+              await syncExistingWorkflowStatus();
             }
           }}
         />

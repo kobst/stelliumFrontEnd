@@ -152,6 +152,35 @@ function ChartDetailPage() {
     pollingIntervalRef.current = setInterval(pollStatus, 3000);
   }, [chartId]);
 
+  const syncExistingWorkflowStatus = useCallback(async () => {
+    if (!chartId) return;
+
+    try {
+      const status = await checkFullAnalysisStatus(chartId);
+
+      if (!status?.success) {
+        return;
+      }
+
+      setAnalysisStatus(status);
+
+      if (status?.status === 'in_progress' && status?.workflowId) {
+        setAnalysisLoading(true);
+        startStatusPolling(status.workflowId);
+        return;
+      }
+
+      if (status?.completed || status?.status === 'completed' || status?.status === 'completed_with_failures') {
+        const completeData = await fetchAnalysis(chartId);
+        if (completeData) {
+          setAnalysisData(completeData);
+        }
+      }
+    } catch (err) {
+      console.warn('No existing analysis workflow to resume:', err?.message || err);
+    }
+  }, [chartId, startStatusPolling]);
+
   // Start full analysis workflow
   const handleStartAnalysis = useCallback(async () => {
     if (!chartId) return;
@@ -194,9 +223,18 @@ function ChartDetailPage() {
   const quadrants = analysisData?.quadrants || birthChart.quadrants;
   const planetaryDominance = analysisData?.planetaryDominance || birthChart.planetaryDominance;
 
+  const isAnalysisUnlocked = chartId
+    ? entitlements.isAnalysisUnlocked('BIRTH_CHART', chartId)
+    : false;
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
-  const canAccessPremiumTabs = isAnalysisComplete || entitlements.isPlus;
+  const isAnalysisRunning = analysisStatus?.status === 'in_progress';
+  const canAccessPremiumTabs = isAnalysisComplete || isAnalysisUnlocked || isAnalysisRunning || entitlements.isPlus;
   const hasAnalysis = !!(basicAnalysis?.dominance || basicAnalysis?.planets);
+
+  useEffect(() => {
+    if (!chartId || isAnalysisComplete || !isAnalysisUnlocked) return;
+    syncExistingWorkflowStatus();
+  }, [chartId, isAnalysisComplete, isAnalysisUnlocked, syncExistingWorkflowStatus]);
 
   // Security check: Redirect if user tries to access a different user's data
   if (stelliumUser && userId !== stelliumUser._id) {
@@ -306,8 +344,25 @@ function ChartDetailPage() {
           onUseQuota={async (type, id) => {
             const result = await entitlements.checkAndUseAnalysis(type, id);
             if (result.success) {
-              // Refresh the page to show unlocked content
-              window.location.reload();
+              const workflowResult = result.result;
+              setActiveSection('analysis');
+
+              if (workflowResult?.workflowStatus === 'started' || workflowResult?.workflowStatus === 'already_running') {
+                setAnalysisLoading(true);
+                setAnalysisStatus({
+                  success: true,
+                  workflowId: workflowResult.workflowId,
+                  status: 'in_progress',
+                });
+                if (workflowResult?.workflowId) {
+                  startStatusPolling(workflowResult.workflowId);
+                } else {
+                  syncExistingWorkflowStatus();
+                }
+                return;
+              }
+
+              await syncExistingWorkflowStatus();
             }
           }}
         />
