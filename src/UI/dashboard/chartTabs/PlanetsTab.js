@@ -146,7 +146,15 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
         {/* Header with title and gradient icon */}
         <div className="planets-header">
           <h3 className="planets-header-title">Planets</h3>
-          <div className="planets-gradient-icon"></div>
+          {!isCelebrity && canUseAskStellium && (
+            <button
+              className="ask-stellium-trigger"
+              onClick={(e) => { e.stopPropagation(); setChatOpen(true); }}
+            >
+              <span className="ask-stellium-trigger__icon">&#10024;</span>
+              Ask Stellium
+            </button>
+          )}
         </div>
 
         {/* Horizontal Tab Bar */}
