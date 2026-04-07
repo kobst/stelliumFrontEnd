@@ -1220,6 +1220,13 @@
   font-size: 1rem;
 }
 
+.ask-stellium-helper {
+  margin: -8px 0 16px;
+  color: rgba(212, 165, 116, 0.72);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
 /* Domain Tabs - Dark bar with simple text tabs */
 .analysis-domain-tabs {
   display: flex;
@@ -1595,6 +1602,20 @@
 @media (max-width: 768px) {
   .chart-tab-content {
     padding: 12px;
+  }
+
+  .overview-section-header {
+    gap: 12px;
+  }
+
+  .ask-stellium-trigger {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .ask-stellium-helper {
+    margin: -4px 0 14px;
+    font-size: 0.8rem;
   }
 
   .key-placements-grid {
