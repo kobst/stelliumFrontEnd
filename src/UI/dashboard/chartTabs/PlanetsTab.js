@@ -122,13 +122,18 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
         <div className="planets-main-container">
           <div className="planets-header">
             <h3 className="planets-header-title">Planets</h3>
-            {!isCelebrity && canUseAskStellium && (
+            {!isCelebrity && (
               <button
                 className="ask-stellium-trigger"
-                onClick={(e) => { e.stopPropagation(); setChatOpen(true); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (canUseAskStellium) setChatOpen(true);
+                }}
+                disabled={!canUseAskStellium}
+                title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
               >
                 <span className="ask-stellium-trigger__icon">&#10024;</span>
-                Ask Stellium
+                {canUseAskStellium ? 'Ask Stellium' : 'Full Analysis Required'}
               </button>
             )}
           </div>

@@ -23,13 +23,15 @@ function ChartTab({ birthChart, chartId, isCelebrity = false, canUseAskStellium 
     <div className="chart-tab">
       <div className="chart-section-header">
         <h2 className="chart-section-title">Chart</h2>
-        {!isCelebrity && canUseAskStellium && (
+        {!isCelebrity && (
           <button
             className="ask-stellium-trigger"
-            onClick={() => setChatOpen(true)}
+            onClick={() => canUseAskStellium && setChatOpen(true)}
+            disabled={!canUseAskStellium}
+            title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
           >
             <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
+            {canUseAskStellium ? 'Ask Stellium' : 'Full Analysis Required'}
           </button>
         )}
       </div>
