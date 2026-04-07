@@ -213,6 +213,7 @@ function RelationshipAnalysisPage() {
   }
 
   const hasAnalysis = !!(relationship?.completeAnalysis && Object.keys(relationship.completeAnalysis).length > 0);
+  const canUseAskStellium = Boolean(hasAnalysis);
   const navigateToAnalysis = () => setActiveSection('analysis');
 
   // Build sections array for RelationshipDetailLayout
@@ -223,6 +224,7 @@ function RelationshipAnalysisPage() {
         <ScoresTab
           relationship={relationship}
           hasAnalysis={hasAnalysis}
+          canUseAskStellium={canUseAskStellium}
           onNavigateToAnalysis={navigateToAnalysis}
           creditCost={CREDIT_COSTS.FULL_RELATIONSHIP}
           creditsRemaining={entitlements.credits?.total}
@@ -232,11 +234,11 @@ function RelationshipAnalysisPage() {
     },
     {
       id: 'overview',
-      content: <OverviewTab relationship={relationship} compositeId={compositeId} />
+      content: <OverviewTab relationship={relationship} compositeId={compositeId} canUseAskStellium={canUseAskStellium} />
     },
     {
       id: 'charts',
-      content: <ChartsTab relationship={relationship} compositeId={compositeId} />
+      content: <ChartsTab relationship={relationship} compositeId={compositeId} canUseAskStellium={canUseAskStellium} />
     },
     {
       id: 'analysis',
@@ -244,6 +246,7 @@ function RelationshipAnalysisPage() {
         <AnalysisTab
           relationship={relationship}
           compositeId={compositeId}
+          canUseAskStellium={canUseAskStellium}
           onAnalysisComplete={handleAnalysisComplete}
           userId={userId}
           initialAnalysisStatus={analysisStatus}

@@ -5,6 +5,7 @@ import InsufficientCreditsModal from '../../entitlements/InsufficientCreditsModa
 import useEntitlementsStore from '../../../Utilities/entitlementsStore';
 import { CREDIT_COSTS } from '../../../Utilities/creditCosts';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
+import AskStelliumCta from '../chartTabs/AskStelliumCta';
 import './RelationshipTabs.css';
 
 const CLUSTER_ICONS = {
@@ -26,7 +27,7 @@ const getQuadrantLabel = (quadrant) => {
   return quadrant;
 };
 
-function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, isCelebrity = false, initialAnalysisStatus = null }) {
+function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, isCelebrity = false, initialAnalysisStatus = null, canUseAskStellium = false }) {
   const [selectedCluster, setSelectedCluster] = useState('Harmony');
   const [selectedAnalysisType, setSelectedAnalysisType] = useState('synastry');
   const [selectedPanel, setSelectedPanel] = useState('support');
@@ -193,7 +194,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
     relationship?.clusterScoring?.scoredItems ||
     [];
 
-  const chatPanel = !isCelebrity ? (
+  const chatPanel = !isCelebrity && canUseAskStellium ? (
     <AskStelliumPanel
       isOpen={chatOpen}
       onClose={() => setChatOpen(false)}
@@ -217,10 +218,10 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
         <div className="analysis-header">
           <h2 className="analysis-header__title">360° Analysis</h2>
           {!isCelebrity && (
-            <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-              <span className="ask-stellium-trigger__icon">&#10024;</span>
-              Ask Stellium
-            </button>
+            <AskStelliumCta
+              hasFullAccess={canUseAskStellium}
+              onActivate={() => setChatOpen(true)}
+            />
           )}
         </div>
         <div className="analysis-progress-card">
@@ -241,10 +242,10 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
         <div className="analysis-header">
           <h2 className="analysis-header__title">360° Analysis</h2>
           {!isCelebrity && (
-            <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-              <span className="ask-stellium-trigger__icon">&#10024;</span>
-              Ask Stellium
-            </button>
+            <AskStelliumCta
+              hasFullAccess={canUseAskStellium}
+              onActivate={() => setChatOpen(true)}
+            />
           )}
         </div>
         <div className="analysis-empty-card">
@@ -346,10 +347,10 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
       <div className="analysis-header">
         <h2 className="analysis-header__title">360° Analysis</h2>
         {!isCelebrity && (
-          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-            <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
-          </button>
+          <AskStelliumCta
+            hasFullAccess={canUseAskStellium}
+            onActivate={() => setChatOpen(true)}
+          />
         )}
       </div>
 
