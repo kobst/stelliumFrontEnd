@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
+import AskStelliumCta from '../chartTabs/AskStelliumCta';
 import './RelationshipTabs.css';
 
-function OverviewTab({ relationship, compositeId, isCelebrity = false }) {
+function OverviewTab({ relationship, compositeId, isCelebrity = false, canUseAskStellium = false }) {
   const [chatOpen, setChatOpen] = useState(false);
   const initialOverview = relationship?.initialOverview;
   const holisticOverview = relationship?.completeAnalysis?.holisticOverview;
@@ -15,7 +16,7 @@ function OverviewTab({ relationship, compositeId, isCelebrity = false }) {
   // Use holistic overview if available (from full analysis), otherwise use initial overview
   const overview = holisticOverview || initialOverview;
 
-  const panel = !isCelebrity ? (
+  const panel = !isCelebrity && canUseAskStellium ? (
     <AskStelliumPanel
       isOpen={chatOpen}
       onClose={() => setChatOpen(false)}
@@ -38,13 +39,10 @@ function OverviewTab({ relationship, compositeId, isCelebrity = false }) {
         <div className="overview-header">
           <h2 className="overview-header__title">Relationship Overview</h2>
           {!isCelebrity && (
-            <button
-              className="ask-stellium-trigger"
-              onClick={() => setChatOpen(true)}
-            >
-              <span className="ask-stellium-trigger__icon">&#10024;</span>
-              Ask Stellium
-            </button>
+            <AskStelliumCta
+              hasFullAccess={canUseAskStellium}
+              onActivate={() => setChatOpen(true)}
+            />
           )}
         </div>
         <div className="overview-body">
@@ -64,13 +62,10 @@ function OverviewTab({ relationship, compositeId, isCelebrity = false }) {
       <div className="overview-header">
         <h2 className="overview-header__title">Relationship Overview</h2>
         {!isCelebrity && (
-          <button
-            className="ask-stellium-trigger"
-            onClick={() => setChatOpen(true)}
-          >
-            <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
-          </button>
+          <AskStelliumCta
+            hasFullAccess={canUseAskStellium}
+            onActivate={() => setChatOpen(true)}
+          />
         )}
       </div>
 

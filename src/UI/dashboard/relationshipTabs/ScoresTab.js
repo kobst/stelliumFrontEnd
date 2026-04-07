@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
+import AskStelliumCta from '../chartTabs/AskStelliumCta';
 import './RelationshipTabs.css';
 
 // Score-band color: green/teal for strong, amber for moderate, coral for weak
@@ -67,7 +68,8 @@ function ScoresTab({
   creditCost,
   creditsRemaining,
   compositeId,
-  isCelebrity = false
+  isCelebrity = false,
+  canUseAskStellium = false
 }) {
   const [expandedCluster, setExpandedCluster] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
@@ -94,7 +96,7 @@ function ScoresTab({
     relationship?.clusterScoring?.scoredItems ||
     [];
 
-  const chatPanel = !isCelebrity ? (
+  const chatPanel = !isCelebrity && canUseAskStellium ? (
     <AskStelliumPanel
       isOpen={chatOpen}
       onClose={() => setChatOpen(false)}
@@ -118,10 +120,10 @@ function ScoresTab({
         <div className="scores-header">
           <h2 className="scores-header__title">Compatibility Score</h2>
           {!isCelebrity && (
-            <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-              <span className="ask-stellium-trigger__icon">&#10024;</span>
-              Ask Stellium
-            </button>
+            <AskStelliumCta
+              hasFullAccess={canUseAskStellium}
+              onActivate={() => setChatOpen(true)}
+            />
           )}
         </div>
         <div className="scores-body">
@@ -145,10 +147,10 @@ function ScoresTab({
       <div className="scores-header">
         <h2 className="scores-header__title">Compatibility Score</h2>
         {!isCelebrity && (
-          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-            <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
-          </button>
+          <AskStelliumCta
+            hasFullAccess={canUseAskStellium}
+            onActivate={() => setChatOpen(true)}
+          />
         )}
       </div>
 

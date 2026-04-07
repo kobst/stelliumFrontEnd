@@ -24,8 +24,88 @@
   transform: translateY(-1px);
 }
 
+.ask-stellium-trigger:disabled {
+  cursor: default;
+  opacity: 0.72;
+  transform: none;
+  pointer-events: none;
+}
+
 .ask-stellium-trigger__icon {
   font-size: 1rem;
+}
+
+.ask-stellium-cta {
+  display: inline-flex;
+}
+
+.ask-stellium-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.ask-stellium-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(212, 165, 116, 0.4);
+  color: rgba(212, 165, 116, 0.55);
+  font-size: 9px;
+  font-weight: 800;
+  font-style: normal;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
+.ask-stellium-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  background: #1a1e2e;
+  border: 1px solid rgba(212, 165, 116, 0.35);
+  border-radius: 8px;
+  color: rgba(212, 165, 116, 0.92);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  padding: 8px 12px;
+  width: 200px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 200;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  white-space: normal;
+  text-align: left;
+}
+
+.ask-stellium-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 20px;
+  border: 6px solid transparent;
+  border-top-color: rgba(212, 165, 116, 0.35);
+}
+
+.ask-stellium-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 21px;
+  border: 5px solid transparent;
+  border-top-color: #1a1e2e;
+  z-index: 1;
+}
+
+.ask-stellium-tooltip--visible,
+.ask-stellium-wrapper:hover .ask-stellium-tooltip {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Common Tab Content */

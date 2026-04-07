@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Ephemeris from '../../shared/Ephemeris';
 import BirthChartSummaryTable from '../../birthChart/tables/BirthChartSummaryTable';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
+import AskStelliumCta from '../chartTabs/AskStelliumCta';
 import './RelationshipTabs.css';
 
 // Planet symbols for display
@@ -106,7 +107,7 @@ function SynastryAspectsTable({ aspects, userAName, userBName }) {
   );
 }
 
-function ChartsTab({ relationship, compositeId, isCelebrity = false }) {
+function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskStellium = false }) {
   const [activeSubTab, setActiveSubTab] = useState('synastry');
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -190,6 +191,11 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false }) {
   }, [hasBothCharts, synastryAspects, birthChartA, birthChartB]);
 
   const hasCompositeData = compositeChart?.planets && compositeChart.planets.length > 0;
+  const relationshipScoredItems =
+    relationship?.scoredItems ||
+    relationship?.clusterAnalysis?.scoredItems ||
+    relationship?.clusterScoring?.scoredItems ||
+    [];
 
   return (
     <div className="charts-tab-redesign">
@@ -197,10 +203,10 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false }) {
       <div className="charts-header">
         <h2 className="charts-header__title">Charts</h2>
         {!isCelebrity && (
-          <button className="ask-stellium-trigger" onClick={() => setChatOpen(true)}>
-            <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
-          </button>
+          <AskStelliumCta
+            hasFullAccess={canUseAskStellium}
+            onActivate={() => setChatOpen(true)}
+          />
         )}
       </div>
 
@@ -304,12 +310,13 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false }) {
         )}
         </div>
       </div>
-      {!isCelebrity && (
+      {!isCelebrity && canUseAskStellium && (
         <AskStelliumPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
           contentType="relationship"
           contentId={compositeId}
+          relationshipScoredItems={relationshipScoredItems}
           contextLabel="About your relationship"
           placeholderText="Ask about your relationship..."
           suggestedQuestions={[
