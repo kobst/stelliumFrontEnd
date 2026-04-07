@@ -20,20 +20,22 @@ function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity, canUseAs
         <div className="overview-section-header">
           <h3 className="overview-section-title">Overview</h3>
           {!isCelebrity && (
-            <button
-              className="ask-stellium-trigger"
-              onClick={() => canUseAskStellium && setChatOpen(true)}
-              disabled={!canUseAskStellium}
-              title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
-            >
-              <span className="ask-stellium-trigger__icon">&#10024;</span>
-              Ask Stellium
-            </button>
+            <div className="ask-stellium-cta">
+              <button
+                className="ask-stellium-trigger"
+                onClick={() => canUseAskStellium && setChatOpen(true)}
+                disabled={!canUseAskStellium}
+                title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
+              >
+                <span className="ask-stellium-trigger__icon">&#10024;</span>
+                Ask Stellium
+              </button>
+              {!canUseAskStellium && (
+                <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
+              )}
+            </div>
           )}
         </div>
-        {!isCelebrity && !canUseAskStellium && (
-          <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
-        )}
         <div className="overview-text">
           {basicAnalysis.overview.split('\n').map((paragraph, index) => (
             paragraph.trim() && <p key={index}>{paragraph}</p>

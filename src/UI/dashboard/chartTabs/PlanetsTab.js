@@ -123,23 +123,25 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
           <div className="planets-header">
             <h3 className="planets-header-title">Planets</h3>
             {!isCelebrity && (
-              <button
-                className="ask-stellium-trigger"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (canUseAskStellium) setChatOpen(true);
-                }}
-                disabled={!canUseAskStellium}
-                title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
-              >
-                <span className="ask-stellium-trigger__icon">&#10024;</span>
-                Ask Stellium
-              </button>
+              <div className="ask-stellium-cta">
+                <button
+                  className="ask-stellium-trigger"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (canUseAskStellium) setChatOpen(true);
+                  }}
+                  disabled={!canUseAskStellium}
+                  title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
+                >
+                  <span className="ask-stellium-trigger__icon">&#10024;</span>
+                  Ask Stellium
+                </button>
+                {!canUseAskStellium && (
+                  <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
+                )}
+              </div>
             )}
           </div>
-          {!isCelebrity && !canUseAskStellium && (
-            <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
-          )}
           <div className="planets-empty-section">
             <p>No planetary data available yet.</p>
           </div>
@@ -155,23 +157,25 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
         <div className="planets-header">
           <h3 className="planets-header-title">Planets</h3>
           {!isCelebrity && (
-            <button
-              className="ask-stellium-trigger"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (canUseAskStellium) setChatOpen(true);
-              }}
-              disabled={!canUseAskStellium}
-              title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
-            >
-              <span className="ask-stellium-trigger__icon">&#10024;</span>
-              Ask Stellium
-            </button>
+            <div className="ask-stellium-cta">
+              <button
+                className="ask-stellium-trigger"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (canUseAskStellium) setChatOpen(true);
+                }}
+                disabled={!canUseAskStellium}
+                title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
+              >
+                <span className="ask-stellium-trigger__icon">&#10024;</span>
+                Ask Stellium
+              </button>
+              {!canUseAskStellium && (
+                <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
+              )}
+            </div>
           )}
         </div>
-        {!isCelebrity && !canUseAskStellium && (
-          <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
-        )}
 
         {/* Horizontal Tab Bar */}
         <div className="planets-tabs">
