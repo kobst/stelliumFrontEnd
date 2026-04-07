@@ -133,10 +133,13 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
                 title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
               >
                 <span className="ask-stellium-trigger__icon">&#10024;</span>
-                {canUseAskStellium ? 'Ask Stellium' : 'Full Analysis Required'}
+                Ask Stellium
               </button>
             )}
           </div>
+          {!isCelebrity && !canUseAskStellium && (
+            <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
+          )}
           <div className="planets-empty-section">
             <p>No planetary data available yet.</p>
           </div>
@@ -151,8 +154,24 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
         {/* Header with title and gradient icon */}
         <div className="planets-header">
           <h3 className="planets-header-title">Planets</h3>
-          <div className="planets-gradient-icon"></div>
+          {!isCelebrity && (
+            <button
+              className="ask-stellium-trigger"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (canUseAskStellium) setChatOpen(true);
+              }}
+              disabled={!canUseAskStellium}
+              title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
+            >
+              <span className="ask-stellium-trigger__icon">&#10024;</span>
+              Ask Stellium
+            </button>
+          )}
         </div>
+        {!isCelebrity && !canUseAskStellium && (
+          <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
+        )}
 
         {/* Horizontal Tab Bar */}
         <div className="planets-tabs">
