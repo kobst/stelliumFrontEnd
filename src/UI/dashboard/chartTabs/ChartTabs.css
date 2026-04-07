@@ -1202,6 +1202,20 @@
   transform: translateY(-1px);
 }
 
+.ask-stellium-trigger:disabled {
+  background: rgba(212, 165, 116, 0.06);
+  border-color: rgba(212, 165, 116, 0.16);
+  color: rgba(212, 165, 116, 0.55);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ask-stellium-trigger:disabled:hover {
+  background: rgba(212, 165, 116, 0.06);
+  border-color: rgba(212, 165, 116, 0.16);
+  transform: none;
+}
+
 .ask-stellium-trigger__icon {
   font-size: 1rem;
 }
