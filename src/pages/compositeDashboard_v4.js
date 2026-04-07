@@ -18,8 +18,39 @@ import TabMenu from '../UI/shared/TabMenu';
 import './compositeDashboard_v4.css';
 
 
+// Replace "Partner A" / "Partner B" with actual names in description strings
+const replacePartnerNames = (text, nameA, nameB) => {
+  if (!text || typeof text !== 'string') return text;
+  return text
+    .replace(/Partner A's/g, `${nameA}'s`)
+    .replace(/Partner B's/g, `${nameB}'s`)
+    .replace(/Partner A/g, nameA)
+    .replace(/Partner B/g, nameB);
+};
+
+// Recursively replace partner names in all "description" fields of an object
+const replacePartnerNamesInData = (data, nameA, nameB) => {
+  if (!data || !nameA || !nameB) return data;
+  if (typeof data === 'string') return data;
+  if (Array.isArray(data)) {
+    return data.map(item => replacePartnerNamesInData(item, nameA, nameB));
+  }
+  if (typeof data === 'object') {
+    const result = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (key === 'description' && typeof value === 'string') {
+        result[key] = replacePartnerNames(value, nameA, nameB);
+      } else {
+        result[key] = replacePartnerNamesInData(value, nameA, nameB);
+      }
+    }
+    return result;
+  }
+  return data;
+};
+
 function CompositeDashboard_v4({}) {
-  
+
     const [relationshipScores, setRelationshipScores] = useState(null);
     const [synastryAspects, setSynastryAspects] = useState([]);
     const compositeChart = useStore(state => state.compositeChart)
@@ -180,21 +211,21 @@ function CompositeDashboard_v4({}) {
                 // Handle cluster analysis (NEW API: clusterAnalysis contains cluster data)
                 if (fetchedData?.clusterAnalysis) {
                     console.log("Cluster analysis available: ", fetchedData.clusterAnalysis);
-                    setClusterScoring(fetchedData.clusterAnalysis);
+                    setClusterScoring(replacePartnerNamesInData(fetchedData.clusterAnalysis, userA?.firstName, userB?.firstName));
                 }
-                
+
                 // Handle overall compatibility data (NEW API field)
                 if (fetchedData?.overall) {
                     console.log("Overall compatibility data available: ", fetchedData.overall);
                     setOverall(fetchedData.overall);
                 }
-                
+
                 // Handle complete analysis (LLM-generated 6-panel text)
                 if (fetchedData?.completeAnalysis) {
                     console.log("Complete analysis available: ", fetchedData.completeAnalysis);
-                    setCompleteAnalysis(fetchedData.completeAnalysis);
+                    setCompleteAnalysis(replacePartnerNamesInData(fetchedData.completeAnalysis, userA?.firstName, userB?.firstName));
                 }
-                
+
                 // Handle initial overview
                 if (fetchedData?.initialOverview) {
                     console.log("Initial overview available: ", fetchedData.initialOverview);
@@ -207,20 +238,20 @@ function CompositeDashboard_v4({}) {
                 // Handle tension flow analysis
                 if (fetchedData?.tensionFlowAnalysis) {
                     console.log("Tension flow analysis available: ", fetchedData.tensionFlowAnalysis);
-                    setTensionFlowAnalysis(fetchedData.tensionFlowAnalysis);
+                    setTensionFlowAnalysis(replacePartnerNamesInData(fetchedData.tensionFlowAnalysis, userA?.firstName, userB?.firstName));
                 }
 
                 // Handle Scored Items (NEW API: direct scoredItems field)
                 console.log("🔍 CHECKING FOR scoredItems in response:");
                 console.log("🎯 fetchedData.scoredItems:", fetchedData?.scoredItems);
-                
+
                 if (fetchedData?.scoredItems && Array.isArray(fetchedData.scoredItems)) {
                     console.log("✅ Scored Items found in response (length: " + fetchedData.scoredItems.length + ")");
-                    setConsolidatedScoredItems(fetchedData.scoredItems);
+                    setConsolidatedScoredItems(replacePartnerNamesInData(fetchedData.scoredItems, userA?.firstName, userB?.firstName));
                 } else if (fetchedData?.clusterAnalysis?.scoredItems && Array.isArray(fetchedData.clusterAnalysis.scoredItems)) {
                     // Fallback for nested structure
                     console.log("✅ Scored Items found in clusterAnalysis (length: " + fetchedData.clusterAnalysis.scoredItems.length + ")");
-                    setConsolidatedScoredItems(fetchedData.clusterAnalysis.scoredItems);
+                    setConsolidatedScoredItems(replacePartnerNamesInData(fetchedData.clusterAnalysis.scoredItems, userA?.firstName, userB?.firstName));
                 } else {
                     console.log("❌ scoredItems NOT FOUND in response or not an array");
                 }
@@ -347,9 +378,9 @@ function CompositeDashboard_v4({}) {
     // Handle cluster analysis from workflow response (NEW API structure)
     if (analysisData.clusterAnalysis) {
       console.log("Cluster analysis from workflow:", analysisData.clusterAnalysis);
-      setClusterScoring(analysisData.clusterAnalysis);
+      setClusterScoring(replacePartnerNamesInData(analysisData.clusterAnalysis, userA?.firstName, userB?.firstName));
     }
-    
+
     // Handle overall compatibility data from workflow response
     if (analysisData.overall) {
       console.log("Overall compatibility from workflow:", analysisData.overall);
@@ -359,7 +390,7 @@ function CompositeDashboard_v4({}) {
     // Handle complete analysis from workflow response (6-panel structure)
     if (analysisData.completeAnalysis) {
       console.log("Complete analysis from workflow:", analysisData.completeAnalysis);
-      setCompleteAnalysis(analysisData.completeAnalysis);
+      setCompleteAnalysis(replacePartnerNamesInData(analysisData.completeAnalysis, userA?.firstName, userB?.firstName));
     }
 
     // Handle initial overview from workflow response
@@ -374,20 +405,20 @@ function CompositeDashboard_v4({}) {
     // Handle tension flow analysis from workflow response
     if (analysisData.tensionFlowAnalysis) {
       console.log("Tension flow analysis from workflow:", analysisData.tensionFlowAnalysis);
-      setTensionFlowAnalysis(analysisData.tensionFlowAnalysis);
+      setTensionFlowAnalysis(replacePartnerNamesInData(analysisData.tensionFlowAnalysis, userA?.firstName, userB?.firstName));
     }
 
     // Handle Scored Items from workflow (NEW API: direct scoredItems field)
     console.log("🔍 WORKFLOW: Checking for scoredItems in response:");
     console.log("🎯 WORKFLOW: analysisData.scoredItems:", analysisData?.scoredItems);
-    
+
     if (analysisData?.scoredItems && Array.isArray(analysisData.scoredItems)) {
       console.log("✅ WORKFLOW: Scored Items found in response (length: " + analysisData.scoredItems.length + ")");
-      setConsolidatedScoredItems(analysisData.scoredItems);
+      setConsolidatedScoredItems(replacePartnerNamesInData(analysisData.scoredItems, userA?.firstName, userB?.firstName));
     } else if (analysisData?.clusterAnalysis?.scoredItems && Array.isArray(analysisData.clusterAnalysis.scoredItems)) {
       // Fallback for nested structure
       console.log("✅ WORKFLOW: Scored Items found in clusterAnalysis (length: " + analysisData.clusterAnalysis.scoredItems.length + ")");
-      setConsolidatedScoredItems(analysisData.clusterAnalysis.scoredItems);
+      setConsolidatedScoredItems(replacePartnerNamesInData(analysisData.clusterAnalysis.scoredItems, userA?.firstName, userB?.firstName));
     } else {
       console.log("❌ WORKFLOW: scoredItems NOT FOUND in response or not an array");
     }
