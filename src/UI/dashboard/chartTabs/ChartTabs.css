@@ -1227,6 +1227,14 @@
   line-height: 1.4;
 }
 
+.overview-section > .ask-stellium-helper {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  white-space: normal;
+}
+
 /* Domain Tabs - Dark bar with simple text tabs */
 .analysis-domain-tabs {
   display: flex;
