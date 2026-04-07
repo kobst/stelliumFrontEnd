@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
+import AskStelliumCta from './AskStelliumCta';
 import './PlanetsTab.css';
 
 // Planet and zodiac symbols
@@ -123,23 +124,10 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
           <div className="planets-header">
             <h3 className="planets-header-title">Planets</h3>
             {!isCelebrity && (
-              <div className="ask-stellium-cta">
-                <button
-                  className="ask-stellium-trigger"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (canUseAskStellium) setChatOpen(true);
-                  }}
-                  disabled={!canUseAskStellium}
-                  title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
-                >
-                  <span className="ask-stellium-trigger__icon">&#10024;</span>
-                  Ask Stellium
-                </button>
-                {!canUseAskStellium && (
-                  <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
-                )}
-              </div>
+              <AskStelliumCta
+                hasFullAccess={canUseAskStellium}
+                onActivate={() => setChatOpen(true)}
+              />
             )}
           </div>
           <div className="planets-empty-section">
@@ -157,23 +145,10 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
         <div className="planets-header">
           <h3 className="planets-header-title">Planets</h3>
           {!isCelebrity && (
-            <div className="ask-stellium-cta">
-              <button
-                className="ask-stellium-trigger"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (canUseAskStellium) setChatOpen(true);
-                }}
-                disabled={!canUseAskStellium}
-                title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
-              >
-                <span className="ask-stellium-trigger__icon">&#10024;</span>
-                Ask Stellium
-              </button>
-              {!canUseAskStellium && (
-                <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
-              )}
-            </div>
+            <AskStelliumCta
+              hasFullAccess={canUseAskStellium}
+              onActivate={() => setChatOpen(true)}
+            />
           )}
         </div>
 
