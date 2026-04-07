@@ -10,6 +10,7 @@ import {
 } from '../../Utilities/api';
 import useEntitlementsStore from '../../Utilities/entitlementsStore';
 import useStore from '../../Utilities/store';
+import { useAuth } from '../../context/AuthContext';
 import InsufficientCreditsModal from '../entitlements/InsufficientCreditsModal';
 import { trackChatMessageSent, trackCreditWallHit } from '../../Utilities/analytics';
 import './AskStelliumPanel.css';
@@ -224,8 +225,12 @@ function AskStelliumPanel({
   const overlayRef = useRef(null);
 
   const navigate = useNavigate();
+  const { stelliumUser } = useAuth();
   const hasEnoughCredits = useEntitlementsStore(state => state.hasEnoughCredits);
   const credits = useEntitlementsStore(state => state.credits);
+  const fetchEntitlements = useEntitlementsStore(state => state.fetchEntitlements);
+  const applyOptimisticCreditSpend = useEntitlementsStore(state => state.applyOptimisticCreditSpend);
+  const restoreCredits = useEntitlementsStore(state => state.restoreCredits);
   const storedPlanets = useStore(state => state.userPlanets);
   const storedAspects = useStore(state => state.userAspects);
 
@@ -570,7 +575,10 @@ function AskStelliumPanel({
     trackChatMessageSent(contentType);
     setLoading(true);
 
+    let creditsSnapshot = null;
     try {
+      creditsSnapshot = applyOptimisticCreditSpend(1);
+
       let response;
       let responseText = '';
 
@@ -610,6 +618,11 @@ function AskStelliumPanel({
         }]);
         setSelectedElements([]);
         setSelectionError(null);
+
+        // Reconcile optimistic counter against backend state.
+        if (stelliumUser?._id) {
+          fetchEntitlements(stelliumUser._id);
+        }
       } else if (response?.error) {
         throw new Error(response.error);
       } else {
@@ -617,6 +630,7 @@ function AskStelliumPanel({
       }
     } catch (err) {
       console.error('Error sending message:', err);
+      restoreCredits(creditsSnapshot);
 
       if (err.status === 403 || err.message?.includes('403')) {
         setShowPaywall(true);
@@ -635,6 +649,10 @@ function AskStelliumPanel({
     contentId,
     contentType,
     hasEnoughCredits,
+    applyOptimisticCreditSpend,
+    restoreCredits,
+    fetchEntitlements,
+    stelliumUser?._id,
     selectedElements,
     activePeriod
   ]);
