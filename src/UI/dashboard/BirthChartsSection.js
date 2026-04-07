@@ -18,6 +18,9 @@ import './BirthChartsSection.css';
 function BirthChartsSection({ userId, user }) {
   const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
+  const fetchEntitlements = useEntitlementsStore((state) => state.fetchEntitlements);
+  const applyOptimisticCreditSpend = useEntitlementsStore((state) => state.applyOptimisticCreditSpend);
+  const restoreCredits = useEntitlementsStore((state) => state.restoreCredits);
 
   const [guestCharts, setGuestCharts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,7 +92,9 @@ function BirthChartsSection({ userId, user }) {
 
     setCreatingChart({ firstName: guestData.firstName, lastName: guestData.lastName });
 
+    let creditsSnapshot = null;
     try {
+      creditsSnapshot = applyOptimisticCreditSpend(cost);
       const result = await createGuestSubject(apiData);
 
       if (result.success || result.userId || result.guestSubject) {
@@ -106,6 +111,7 @@ function BirthChartsSection({ userId, user }) {
         }
 
         await loadGuestCharts();
+        fetchEntitlements(userId);
         setSuccessMessage(`${guestData.firstName}'s birth chart created!`);
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
@@ -113,6 +119,7 @@ function BirthChartsSection({ userId, user }) {
       }
     } catch (err) {
       console.error('Error creating guest chart:', err);
+      restoreCredits(creditsSnapshot);
       if (err?.statusCode === 402) {
         setShowPaywall(true);
       } else {

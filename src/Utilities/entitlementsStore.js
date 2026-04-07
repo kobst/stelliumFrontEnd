@@ -46,6 +46,22 @@ const initialState = {
   lastFetched: null,
 };
 
+const spendCreditsLocally = (credits, cost) => {
+  const safeCost = Math.max(0, cost || 0);
+  const monthly = Math.max(0, credits?.monthly || 0);
+  const pack = Math.max(0, credits?.pack || 0);
+  const monthlySpent = Math.min(monthly, safeCost);
+  const remainingCost = safeCost - monthlySpent;
+  const packSpent = Math.min(pack, remainingCost);
+
+  return {
+    ...(credits || {}),
+    total: Math.max(0, (credits?.total || 0) - safeCost),
+    monthly: monthly - monthlySpent,
+    pack: pack - packSpent,
+  };
+};
+
 const useEntitlementsStore = create((set, get) => ({
   ...initialState,
 
@@ -170,18 +186,28 @@ const useEntitlementsStore = create((set, get) => ({
     }
 
     // Use quota via API
+    let creditsSnapshot = null;
     try {
       set({ isLoading: true });
+      creditsSnapshot = get().applyOptimisticCreditSpend(cost);
       const result = await apiUseAnalysis(userId, entityType, entityId);
 
-      // Refresh entitlements to get updated credits and unlocks
-      await get().fetchEntitlements(userId);
+      // Reconcile against backend state, but keep the optimistic deduction if refresh fails.
+      try {
+        await get().fetchEntitlements(userId);
+      } catch (refreshError) {
+        console.warn('Could not refresh entitlements after analysis unlock:', refreshError);
+        set({ isLoading: false });
+      }
 
       const updatedCredits = get().credits.total;
       get().showToast(`${cost} credits used. ${updatedCredits} remaining.`, 'success');
 
       return { success: true, result };
     } catch (error) {
+      if (creditsSnapshot) {
+        get().restoreCredits(creditsSnapshot);
+      }
       set({ isLoading: false, error: error.message });
       return { success: false, error: error.message };
     }
@@ -193,19 +219,28 @@ const useEntitlementsStore = create((set, get) => ({
   useQuestion: async (userId) => {
     if (!userId) return { success: false, error: 'No user ID' };
 
+    let creditsSnapshot = null;
     try {
       set({ isLoading: true });
+      creditsSnapshot = get().applyOptimisticCreditSpend(1);
       const result = await apiUseQuestion(userId);
 
-      // Refresh entitlements to update credits after question usage
-      await get().fetchEntitlements(userId);
-      set({ isLoading: false });
+      // Reconcile against backend state, but keep the optimistic deduction if refresh fails.
+      try {
+        await get().fetchEntitlements(userId);
+      } catch (refreshError) {
+        console.warn('Could not refresh entitlements after question usage:', refreshError);
+        set({ isLoading: false });
+      }
 
       const updatedCredits = get().credits.total;
       get().showToast(`1 credit used. ${updatedCredits} remaining.`, 'info');
 
       return { success: true, result };
     } catch (error) {
+      if (creditsSnapshot) {
+        get().restoreCredits(creditsSnapshot);
+      }
       set({ isLoading: false, error: error.message });
       return { success: false, error: error.message };
     }
@@ -216,6 +251,36 @@ const useEntitlementsStore = create((set, get) => ({
    */
   reset: () => {
     set(initialState);
+  },
+
+  /**
+   * Optimistically decrement credits so the UI updates immediately.
+   * Returns a snapshot that can be restored if the chargeable action fails.
+   */
+  applyOptimisticCreditSpend: (cost) => {
+    const state = get();
+
+    if (state.credits.total < cost) {
+      return null;
+    }
+
+    const previousCredits = { ...state.credits };
+    set({
+      credits: spendCreditsLocally(state.credits, cost),
+    });
+
+    return previousCredits;
+  },
+
+  /**
+   * Restore credits from a snapshot after a failed optimistic deduction.
+   */
+  restoreCredits: (creditsSnapshot) => {
+    if (!creditsSnapshot) return;
+
+    set({
+      credits: creditsSnapshot,
+    });
   },
 
   // ========== HELPERS / SELECTORS ==========

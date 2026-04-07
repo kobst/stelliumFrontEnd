@@ -16,6 +16,9 @@ function CreateRelationshipPage() {
   // Entitlements store
   const canCreateRelationship = useEntitlementsStore((state) => state.canCreateRelationship);
   const credits = useEntitlementsStore((state) => state.credits);
+  const fetchEntitlements = useEntitlementsStore((state) => state.fetchEntitlements);
+  const applyOptimisticCreditSpend = useEntitlementsStore((state) => state.applyOptimisticCreditSpend);
+  const restoreCredits = useEntitlementsStore((state) => state.restoreCredits);
 
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -130,9 +133,11 @@ function CreateRelationshipPage() {
       return;
     }
 
+    let creditsSnapshot = null;
     try {
       setCreating(true);
       setError(null);
+      creditsSnapshot = applyOptimisticCreditSpend(cost);
 
       const response = await createRelationshipDirect(
         stelliumUser._id,
@@ -142,12 +147,15 @@ function CreateRelationshipPage() {
       );
 
       if (response && response.compositeChartId) {
+        // Refresh credit counter after deduction
+        fetchEntitlements(userId);
         navigate(`/dashboard/${userId}/relationship/${response.compositeChartId}`);
       } else {
         throw new Error('Failed to create relationship');
       }
     } catch (err) {
       console.error('Error creating relationship:', err);
+      restoreCredits(creditsSnapshot);
 
       if (err?.statusCode === 402) {
         setShowPaywall(true);
