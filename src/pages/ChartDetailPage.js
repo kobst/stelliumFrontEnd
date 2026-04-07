@@ -229,6 +229,7 @@ function ChartDetailPage() {
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
   const isAnalysisRunning = analysisStatus?.status === 'in_progress';
   const canAccessPremiumTabs = isAnalysisComplete || isAnalysisUnlocked || isAnalysisRunning || entitlements.isPlus;
+  const canUseAskStellium = isAnalysisComplete;
   const hasAnalysis = !!(basicAnalysis?.dominance || basicAnalysis?.planets);
 
   useEffect(() => {
@@ -271,11 +272,24 @@ function ChartDetailPage() {
   const sections = [
     {
       id: 'overview',
-      content: <OverviewTab basicAnalysis={basicAnalysis} chartId={chartId} birthChart={birthChart} />
+      content: (
+        <OverviewTab
+          basicAnalysis={basicAnalysis}
+          chartId={chartId}
+          birthChart={birthChart}
+          canUseAskStellium={canUseAskStellium}
+        />
+      )
     },
     {
       id: 'chart',
-      content: <ChartTab birthChart={birthChart} chartId={chartId} />
+      content: (
+        <ChartTab
+          birthChart={birthChart}
+          chartId={chartId}
+          canUseAskStellium={canUseAskStellium}
+        />
+      )
     },
     {
       id: 'dominance',
@@ -292,6 +306,7 @@ function ChartDetailPage() {
           creditCost={CREDIT_COSTS.FULL_NATAL}
           creditsRemaining={entitlements.credits?.total}
           chartId={chartId}
+          canUseAskStellium={canUseAskStellium}
         />
       )
     },
@@ -306,6 +321,7 @@ function ChartDetailPage() {
           creditCost={CREDIT_COSTS.FULL_NATAL}
           creditsRemaining={entitlements.credits?.total}
           chartId={chartId}
+          canUseAskStellium={canUseAskStellium}
         />
       )
     },

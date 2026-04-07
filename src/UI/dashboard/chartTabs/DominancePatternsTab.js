@@ -41,7 +41,7 @@ const quadrantColors = {
   'NorthEast': '#34d399'
 };
 
-function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity }) {
+function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity, canUseAskStellium = false }) {
   const [activeTab, setActiveTab] = useState('elements');
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -709,7 +709,7 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
       {/* Header */}
       <div className="patterns-header">
         <h2 className="patterns-header-title">Patterns</h2>
-        {!isCelebrity && (
+        {!isCelebrity && canUseAskStellium && (
           <button
             className="ask-stellium-trigger"
             onClick={() => setChatOpen(true)}
@@ -746,7 +746,7 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
         {renderTabContent()}
       </div>
 
-      {!isCelebrity && (
+      {!isCelebrity && canUseAskStellium && (
         <AskStelliumPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}

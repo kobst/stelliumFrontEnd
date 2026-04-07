@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './ChartTabs.css';
 
-function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity }) {
+function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity, canUseAskStellium = false }) {
   const [chatOpen, setChatOpen] = useState(false);
   // If no overview data
   if (!basicAnalysis?.overview) {
@@ -19,7 +19,7 @@ function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity }) {
       <div className="overview-section">
         <div className="overview-section-header">
           <h3 className="overview-section-title">Overview</h3>
-          {!isCelebrity && (
+          {!isCelebrity && canUseAskStellium && (
             <button
               className="ask-stellium-trigger"
               onClick={() => setChatOpen(true)}
@@ -36,7 +36,7 @@ function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity }) {
         </div>
       </div>
 
-      {!isCelebrity && (
+      {!isCelebrity && canUseAskStellium && (
         <AskStelliumPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}

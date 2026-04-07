@@ -34,7 +34,7 @@ const splitIntoParagraphs = (text) => {
   ));
 };
 
-function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false }) {
+function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseAskStellium = false }) {
   const planets = useMemo(() => {
     const rawPlanets = birthChart?.planets?.filter(p => !excludedPlanets.includes(p.name)) || [];
     // Sort planets by the canonical order
@@ -122,7 +122,7 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
         <div className="planets-main-container">
           <div className="planets-header">
             <h3 className="planets-header-title">Planets</h3>
-            {!isCelebrity && (
+            {!isCelebrity && canUseAskStellium && (
               <button
                 className="ask-stellium-trigger"
                 onClick={(e) => { e.stopPropagation(); setChatOpen(true); }}
@@ -269,7 +269,7 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
           </div>
         )}
       </div>
-      {!isCelebrity && (
+      {!isCelebrity && canUseAskStellium && (
         <AskStelliumPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
