@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
+import AskStelliumCta from './AskStelliumCta';
 import './ChartTabs.css';
 
 function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity, canUseAskStellium = false }) {
@@ -20,20 +21,10 @@ function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity, canUseAs
         <div className="overview-section-header">
           <h3 className="overview-section-title">Overview</h3>
           {!isCelebrity && (
-            <div className="ask-stellium-cta">
-              <button
-                className="ask-stellium-trigger"
-                onClick={() => canUseAskStellium && setChatOpen(true)}
-                disabled={!canUseAskStellium}
-                title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
-              >
-                <span className="ask-stellium-trigger__icon">&#10024;</span>
-                Ask Stellium
-              </button>
-              {!canUseAskStellium && (
-                <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
-              )}
-            </div>
+            <AskStelliumCta
+              hasFullAccess={canUseAskStellium}
+              onActivate={() => setChatOpen(true)}
+            />
           )}
         </div>
         <div className="overview-text">
