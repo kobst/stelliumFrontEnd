@@ -3,7 +3,7 @@ import BirthChartSummaryTable from '../../birthChart/tables/BirthChartSummaryTab
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import './ChartTab.css';
 
-function ChartTab({ birthChart, chartId, isCelebrity = false }) {
+function ChartTab({ birthChart, chartId, isCelebrity = false, canUseAskStellium = false }) {
   const [chatOpen, setChatOpen] = useState(false);
   const planets = birthChart?.planets || [];
   const houses = birthChart?.houses || [];
@@ -23,7 +23,7 @@ function ChartTab({ birthChart, chartId, isCelebrity = false }) {
     <div className="chart-tab">
       <div className="chart-section-header">
         <h2 className="chart-section-title">Chart</h2>
-        {!isCelebrity && (
+        {!isCelebrity && canUseAskStellium && (
           <button
             className="ask-stellium-trigger"
             onClick={() => setChatOpen(true)}
@@ -38,7 +38,7 @@ function ChartTab({ birthChart, chartId, isCelebrity = false }) {
         houses={houses}
         aspects={aspects}
       />
-      {!isCelebrity && (
+      {!isCelebrity && canUseAskStellium && (
         <AskStelliumPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
