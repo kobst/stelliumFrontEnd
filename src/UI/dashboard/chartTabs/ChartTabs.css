@@ -1220,19 +1220,20 @@
   font-size: 1rem;
 }
 
-.ask-stellium-helper {
-  margin: -8px 0 16px;
-  color: rgba(212, 165, 116, 0.72);
-  font-size: 0.85rem;
-  line-height: 1.4;
+.ask-stellium-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
 }
 
-.overview-section > .ask-stellium-helper {
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  white-space: normal;
+.ask-stellium-helper {
+  margin: 0;
+  color: rgba(212, 165, 116, 0.72);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  max-width: 280px;
+  text-align: right;
 }
 
 /* Domain Tabs - Dark bar with simple text tabs */
@@ -1614,6 +1615,7 @@
 
   .overview-section-header {
     gap: 12px;
+    align-items: flex-start;
   }
 
   .ask-stellium-trigger {
@@ -1621,9 +1623,13 @@
     font-size: 0.8rem;
   }
 
+  .ask-stellium-cta {
+    max-width: 52%;
+  }
+
   .ask-stellium-helper {
-    margin: -4px 0 14px;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
+    max-width: 100%;
   }
 
   .key-placements-grid {

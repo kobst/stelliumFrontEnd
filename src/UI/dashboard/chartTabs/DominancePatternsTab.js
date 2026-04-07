@@ -710,20 +710,22 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
       <div className="patterns-header">
         <h2 className="patterns-header-title">Patterns</h2>
         {!isCelebrity && (
-          <button
-            className="ask-stellium-trigger"
-            onClick={() => canUseAskStellium && setChatOpen(true)}
-            disabled={!canUseAskStellium}
-            title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
-          >
-            <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
-          </button>
+          <div className="ask-stellium-cta">
+            <button
+              className="ask-stellium-trigger"
+              onClick={() => canUseAskStellium && setChatOpen(true)}
+              disabled={!canUseAskStellium}
+              title={!canUseAskStellium ? 'Full Analysis Required for Ask Stellium on Birth Chart Analysis' : undefined}
+            >
+              <span className="ask-stellium-trigger__icon">&#10024;</span>
+              Ask Stellium
+            </button>
+            {!canUseAskStellium && (
+              <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
+            )}
+          </div>
         )}
       </div>
-      {!isCelebrity && !canUseAskStellium && (
-        <p className="ask-stellium-helper">Full analysis required for Ask Stellium on birth chart analysis.</p>
-      )}
 
       {/* Tab Navigation */}
       <div className="patterns-tabs">
