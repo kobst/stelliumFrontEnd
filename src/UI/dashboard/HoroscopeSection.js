@@ -8,6 +8,12 @@ import {
   generateWeeklyHoroscope,
   generateMonthlyHoroscope
 } from '../../Utilities/api';
+import {
+  formatLocalDateParam,
+  getUtcWeekStartDateString,
+  getUtcMonthStartDateString,
+  isCurrentHoroscopeForPeriod
+} from '../../Utilities/horoscopeDates';
 import './HoroscopeSection.css';
 
 function HoroscopeSection({ userId, user, entitlements }) {
@@ -47,35 +53,20 @@ function HoroscopeSection({ userId, user, entitlements }) {
     month: 0
   });
 
-  // Date range helpers
-  const getTodayRange = () => {
-    const now = new Date();
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(now);
-    endOfDay.setHours(23, 59, 59, 999);
-    return { start: startOfDay, end: endOfDay };
-  };
+  const getPeriodStartDate = useCallback((period) => {
+    const today = formatLocalDateParam();
 
-  const getCurrentWeekRange = () => {
-    const now = new Date();
-    const monday = new Date(now);
-    monday.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
-    monday.setHours(0, 0, 0, 0);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
-    return { start: monday, end: sunday };
-  };
-
-  const getCurrentMonthRange = () => {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    endOfMonth.setHours(23, 59, 59, 999);
-    return { start: startOfMonth, end: endOfMonth };
-  };
+    switch (period) {
+      case 'today':
+        return today;
+      case 'week':
+        return getUtcWeekStartDateString(today);
+      case 'month':
+        return getUtcMonthStartDateString(today);
+      default:
+        throw new Error(`Unknown period: ${period}`);
+    }
+  }, []);
 
   // Helper function to add timeout to promises
   const withTimeout = (promise, timeoutMs = 30000) => {
@@ -147,21 +138,17 @@ function HoroscopeSection({ userId, user, entitlements }) {
     }
 
     try {
-      let startDate;
       let response;
 
       switch (period) {
         case 'today':
-          startDate = getTodayRange().start.toISOString().split('T')[0];
-          response = await withTimeout(generateDailyHoroscope(userId, startDate));
+          response = await withTimeout(generateDailyHoroscope(userId, getPeriodStartDate(period)));
           break;
         case 'week':
-          startDate = getCurrentWeekRange().start;
-          response = await withTimeout(generateWeeklyHoroscope(userId, startDate));
+          response = await withTimeout(generateWeeklyHoroscope(userId));
           break;
         case 'month':
-          startDate = getCurrentMonthRange().start;
-          response = await withTimeout(generateMonthlyHoroscope(userId, startDate));
+          response = await withTimeout(generateMonthlyHoroscope(userId));
           break;
         default:
           throw new Error(`Unknown period: ${period}`);
@@ -169,6 +156,15 @@ function HoroscopeSection({ userId, user, entitlements }) {
 
       if (!response.success) {
         throw new Error('Failed to fetch horoscope');
+      }
+
+      // Daily still uses an explicit client-supplied date anchor. Weekly/monthly now let the
+      // server resolve the current period, so rejecting those responses from the client side
+      // would reintroduce clock-skew bugs that the backend patch is designed to avoid.
+      if (period === 'today' && !isCurrentHoroscopeForPeriod(period, response.horoscope)) {
+        throw new Error(
+          `Received stale ${period} horoscope starting ${response.horoscope?.startDate || 'unknown'}`
+        );
       }
 
       setHoroscopeCache(prev => ({
@@ -201,7 +197,7 @@ function HoroscopeSection({ userId, user, entitlements }) {
     } finally {
       setLoadingStates(prev => ({ ...prev, [period]: false }));
     }
-  }, [userId, horoscopeCache, retryAttempts, entitlements?.canAccessDaily]);
+  }, [userId, horoscopeCache, retryAttempts, entitlements?.canAccessDaily, getPeriodStartDate]);
 
   // Handle time period change
   const handleTimePeriodChange = useCallback((newPeriod) => {
