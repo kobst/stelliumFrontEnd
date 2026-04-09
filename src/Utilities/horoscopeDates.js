@@ -40,6 +40,37 @@ export const getUtcWeekStartDateString = (dateString) => {
   ].join('-');
 };
 
+export const getUtcMonthStartDateString = (dateString) => {
+  const parsed = parseDateInput(dateString) || parseDateInput(formatLocalDateParam());
+
+  return [
+    parsed.getUTCFullYear(),
+    pad(parsed.getUTCMonth() + 1),
+    '01'
+  ].join('-');
+};
+
+export const isCurrentHoroscopeForPeriod = (period, horoscope, referenceDate = new Date()) => {
+  if (!horoscope?.startDate || !horoscope?.endDate) {
+    return false;
+  }
+
+  const currentDateParam = formatLocalDateParam(referenceDate);
+  const expectedStartByPeriod = {
+    today: currentDateParam,
+    week: getUtcWeekStartDateString(currentDateParam),
+    month: getUtcMonthStartDateString(currentDateParam)
+  };
+
+  const expectedStart = expectedStartByPeriod[period];
+  if (!expectedStart) {
+    return true;
+  }
+
+  const actualStart = horoscope.startDate.slice(0, 10);
+  return actualStart === expectedStart;
+};
+
 export const formatDateRange = (startDate, endDate) => {
   if (!startDate || !endDate) return '';
 

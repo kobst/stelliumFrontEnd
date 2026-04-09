@@ -1485,9 +1485,14 @@ export const createRelationshipWithFullAnalysis = async (userIdA, userIdB) => {
 export const generateWeeklyHoroscope = async (userId, startDate) => {
   console.log("Generating weekly horoscope for userId:", userId, "startDate:", startDate);
   try {
+    const requestBody = {
+      clientTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      clientTimezoneOffsetMinutes: -new Date().getTimezoneOffset()
+    };
+    if (startDate) requestBody.startDate = startDate;
     const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/horoscope/weekly`, {
       method: HTTP_POST,
-      body: JSON.stringify({ startDate })
+      body: JSON.stringify(requestBody)
     });
     
     if (!response.ok) {
@@ -1547,9 +1552,14 @@ export const getPublicWeeklyHoroscope = async (sign, date) => {
 export const generateMonthlyHoroscope = async (userId, startDate) => {
   console.log("Generating monthly horoscope for userId:", userId, "startDate:", startDate);
   try {
+    const requestBody = {
+      clientTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      clientTimezoneOffsetMinutes: -new Date().getTimezoneOffset()
+    };
+    if (startDate) requestBody.startDate = startDate;
     const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/horoscope/monthly`, {
       method: HTTP_POST,
-      body: JSON.stringify({ startDate })
+      body: JSON.stringify(requestBody)
     });
     
     if (!response.ok) {
@@ -1568,9 +1578,14 @@ export const generateMonthlyHoroscope = async (userId, startDate) => {
 export const generateDailyHoroscope = async (userId, startDate) => {
   console.log("Generating daily horoscope for userId:", userId, "startDate:", startDate);
   try {
+    const requestBody = {
+      startDate,
+      clientTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      clientTimezoneOffsetMinutes: -new Date().getTimezoneOffset()
+    };
     const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/horoscope/daily`, {
       method: HTTP_POST,
-      body: JSON.stringify({ startDate })
+      body: JSON.stringify(requestBody)
     });
     
     if (!response.ok) {
