@@ -72,7 +72,7 @@ function HoroscopeContent({
         <div className="horoscope-content__card">
           <div className="horoscope-content__card-header">
             <div className="horoscope-content__title-section">
-              <h1 className="horoscope-content__title">How my Day? Stellium</h1>
+              <h1 className="horoscope-content__title">Horoscopes by Stellium</h1>
               <span className="horoscope-content__date">{formatDate()}</span>
             </div>
           </div>
@@ -96,7 +96,7 @@ function HoroscopeContent({
         <div className="horoscope-content__card">
           <div className="horoscope-content__card-header">
             <div className="horoscope-content__title-section">
-              <h1 className="horoscope-content__title">How my Day? Stellium</h1>
+              <h1 className="horoscope-content__title">Horoscopes by Stellium</h1>
               <span className="horoscope-content__date">{formatDate()}</span>
             </div>
             <div
@@ -147,7 +147,7 @@ function HoroscopeContent({
       <div className="horoscope-content__card">
         <div className="horoscope-content__card-header">
           <div className="horoscope-content__title-section">
-            <h1 className="horoscope-content__title">How my Day? Stellium</h1>
+            <h1 className="horoscope-content__title">Horoscopes by Stellium</h1>
             <span className="horoscope-content__date">{formatDate()}</span>
           </div>
           <button
