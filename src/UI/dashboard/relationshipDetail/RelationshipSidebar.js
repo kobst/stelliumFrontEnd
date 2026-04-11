@@ -1,5 +1,6 @@
 import React from 'react';
 import './RelationshipSidebar.css';
+import { getRelationshipSummary } from '../../../Utilities/relationshipSummary';
 
 // Cluster icons
 const CLUSTER_ICONS = {
@@ -65,6 +66,7 @@ function RelationshipSidebar({
   const overall = clusterAnalysis?.overall;
   const clusters = clusterAnalysis?.clusters;
   const synastryAspects = relationship?.synastryAspects || [];
+  const { label, blurb, score, tier } = getRelationshipSummary(overall);
 
   const aspectCounts = countAspectsByType(synastryAspects);
 
@@ -86,7 +88,7 @@ function RelationshipSidebar({
   const challengeScore = challengeCluster && clusters?.[challengeCluster]?.score;
 
   // Get compatibility description
-  const compatDescription = overall?.description || 'Highly compatible with strong connection';
+  const compatDescription = blurb || 'Highly compatible with strong connection';
 
   return (
     <aside className="relationship-sidebar">
@@ -112,14 +114,17 @@ function RelationshipSidebar({
               )}
             </div>
             <div className="profile-score">
-              <span className="score-label">Overall Score</span>
+              <span className="score-label">Compatibility</span>
               <span className="score-value">
-                {overall?.score !== undefined ? `${Math.round(overall.score)}%` : '--'}
+                {score !== undefined ? `${Math.round(score)}%` : '--'}
               </span>
             </div>
           </div>
 
           <h2 className="profile-name">{userAName} & {userBName}</h2>
+          {label && (
+            <p className="profile-archetype">{label}</p>
+          )}
           {(userASun || userBSun) && (
             <span className="profile-sign">
               {[userASun, userBSun].filter(Boolean).join(' & ')}
@@ -128,9 +133,9 @@ function RelationshipSidebar({
 
           <p className="profile-description">{compatDescription}</p>
 
-          {overall?.tier && (
-            <span className={`profile-tier ${getTierClass(overall.tier)}`}>
-              {overall.tier}
+          {tier && (
+            <span className={`profile-tier ${getTierClass(tier)}`}>
+              {tier}
             </span>
           )}
         </div>

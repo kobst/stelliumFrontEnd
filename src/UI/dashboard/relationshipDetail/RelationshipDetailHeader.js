@@ -1,5 +1,6 @@
 import React from 'react';
 import './RelationshipDetailHeader.css';
+import { getRelationshipSummary } from '../../../Utilities/relationshipSummary';
 
 // Zodiac sign glyphs
 const SIGN_GLYPHS = {
@@ -43,8 +44,7 @@ function RelationshipDetailHeader({ relationship, onBackClick }) {
   // Get score and tier
   const overall = relationship?.clusterScoring?.overall ||
                   relationship?.clusterAnalysis?.overall;
-  const score = overall?.score;
-  const tier = overall?.tier;
+  const { label, score, tier } = getRelationshipSummary(overall);
 
   // Try to get Sun/Moon signs from birth charts if available
   const userAPlanets = relationship?.userA_birthChart?.planets;
@@ -71,15 +71,23 @@ function RelationshipDetailHeader({ relationship, onBackClick }) {
           <h1 className="relationship-detail-header__names">
             {userAName} <span className="connector">&</span> {userBName}
           </h1>
+          {label && (
+            <p className="relationship-detail-header__archetype">{label}</p>
+          )}
 
           <div className="relationship-detail-header__meta">
+            {!score && tier && (
+              <span className={`relationship-detail-header__tier ${getTierClass(tier)}`}>
+                {tier}
+              </span>
+            )}
             {score !== undefined && score !== null && (
               <div className="relationship-detail-header__score">
                 <span className="score-value">{Math.round(score)}</span>
-                <span className="score-label">Score</span>
+                <span className="score-label">Compatibility</span>
               </div>
             )}
-            {tier && (
+            {tier && score !== undefined && score !== null && (
               <span className={`relationship-detail-header__tier ${getTierClass(tier)}`}>
                 {tier}
               </span>

@@ -1,5 +1,6 @@
 import React from 'react';
 import './RelationshipQuickFacts.css';
+import { getRelationshipSummary } from '../../../Utilities/relationshipSummary';
 
 // Cluster icons
 const CLUSTER_ICONS = {
@@ -69,6 +70,7 @@ function RelationshipQuickFacts({ relationship }) {
   const overall = clusterAnalysis?.overall;
   const clusters = clusterAnalysis?.clusters;
   const synastryAspects = relationship?.synastryAspects || [];
+  const { label, blurb, score, tier } = getRelationshipSummary(overall);
 
   const aspectCounts = countAspectsByType(synastryAspects);
 
@@ -88,23 +90,37 @@ function RelationshipQuickFacts({ relationship }) {
     <aside className="relationship-quick-facts">
       <h3 className="relationship-quick-facts__title">Relationship Overview</h3>
 
+      {label && (
+        <div className="relationship-quick-facts__section">
+          <span className="relationship-quick-facts__label">Archetype</span>
+          <div className="relationship-quick-facts__headline">{label}</div>
+        </div>
+      )}
+
+      {blurb && (
+        <div className="relationship-quick-facts__section">
+          <span className="relationship-quick-facts__label">Summary</span>
+          <div className="relationship-quick-facts__summary">{blurb}</div>
+        </div>
+      )}
+
       {/* Overall Score */}
-      {overall?.score !== undefined && (
+      {score !== undefined && (
         <div className="relationship-quick-facts__section">
           <span className="relationship-quick-facts__label">Overall Score</span>
           <div className="relationship-quick-facts__score">
-            <span className="score-value">{Math.round(overall.score)}</span>
+            <span className="score-value">{Math.round(score)}</span>
             <span className="score-percent">%</span>
           </div>
         </div>
       )}
 
       {/* Tier/Status */}
-      {overall?.tier && (
+      {tier && (
         <div className="relationship-quick-facts__section">
           <span className="relationship-quick-facts__label">Status</span>
-          <span className={`relationship-quick-facts__tier ${getTierClass(overall.tier)}`}>
-            {overall.tier}
+          <span className={`relationship-quick-facts__tier ${getTierClass(tier)}`}>
+            {tier}
           </span>
         </div>
       )}

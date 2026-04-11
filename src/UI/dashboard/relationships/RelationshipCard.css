@@ -109,6 +109,14 @@
   margin: 0 0 8px 0;
 }
 
+.relationship-card__archetype {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #f3d19c;
+  margin: 0 0 6px 0;
+}
+
 .relationship-card__description {
   font-size: 0.875rem;
   color: rgba(255, 255, 255, 0.6);
