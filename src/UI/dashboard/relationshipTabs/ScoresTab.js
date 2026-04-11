@@ -3,6 +3,7 @@ import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import AskStelliumCta from '../chartTabs/AskStelliumCta';
 import './RelationshipTabs.css';
+import { getRelationshipSummary } from '../../../Utilities/relationshipSummary';
 
 // Score-band color: green/teal for strong, amber for moderate, coral for weak
 const getScoreColor = (score) => {
@@ -79,6 +80,7 @@ function ScoresTab({
   const clusters = clusterAnalysis?.clusters;
   const overall = clusterAnalysis?.overall;
   const allScoredItems = clusterAnalysis?.scoredItems || [];
+  const { label, blurb, score: overallScore, tier: overallTier } = getRelationshipSummary(overall);
 
   const orderedClusters = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
 
@@ -138,14 +140,11 @@ function ScoresTab({
     );
   }
 
-  const overallScore = overall?.score;
-  const overallTier = overall?.tier;
-
   return (
     <div className="scores-tab-redesign">
       {/* Header */}
-      <div className="scores-header">
-        <h2 className="scores-header__title">Compatibility Score</h2>
+        <div className="scores-header">
+          <h2 className="scores-header__title">{label || 'Compatibility Score'}</h2>
         {!isCelebrity && (
           <AskStelliumCta
             hasFullAccess={canUseAskStellium}
@@ -153,6 +152,13 @@ function ScoresTab({
           />
         )}
       </div>
+
+      {blurb && (
+        <div className="scores-summary-card">
+          <span className="scores-summary-card__label">Relationship Summary</span>
+          <p className="scores-summary-card__body">{blurb}</p>
+        </div>
+      )}
 
       {/* Overall Score Header */}
       {overallScore != null && (
@@ -167,7 +173,7 @@ function ScoresTab({
 
           <div className="scores-overall__center">
             <span className="scores-overall__score">{Math.round(overallScore)}%</span>
-            <span className="scores-overall__label">Overall Compatibility</span>
+            <span className="scores-overall__label">Compatibility Score</span>
             {overallTier && (
               <span className={`scores-overall__tier ${getTierClass(overallTier)}`}>
                 {overallTier}

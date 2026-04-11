@@ -81,6 +81,13 @@
   margin: 0 0 var(--spacing-xs, 4px) 0;
 }
 
+.profile-archetype {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: #f3d19c;
+  margin: 0 0 var(--spacing-xs, 8px) 0;
+}
+
 .profile-sign {
   display: block;
   font-size: var(--font-size-sm, 0.875rem);

@@ -43,6 +43,18 @@
   margin-bottom: var(--spacing-sm, 8px);
 }
 
+.relationship-quick-facts__headline {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: #f3d19c;
+}
+
+.relationship-quick-facts__summary {
+  font-size: var(--font-size-sm, 0.875rem);
+  line-height: 1.55;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.78));
+}
+
 /* Score Display */
 .relationship-quick-facts__score {
   display: flex;
