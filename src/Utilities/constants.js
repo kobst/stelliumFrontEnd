@@ -29,6 +29,41 @@ export const planetIcons = [
   '/assets/planets/Ascendant.svg', // Adding both spellings for compatibility
 ];
 
+// Name-to-path mappings for inline icon usage
+export const signIconPaths = {
+  'Aries': '/assets/signs/aries.svg',
+  'Taurus': '/assets/signs/taurus.svg',
+  'Gemini': '/assets/signs/gemini.svg',
+  'Cancer': '/assets/signs/cancer.svg',
+  'Leo': '/assets/signs/leo.svg',
+  'Virgo': '/assets/signs/virgo.svg',
+  'Libra': '/assets/signs/libra.svg',
+  'Scorpio': '/assets/signs/scorpio.svg',
+  'Sagittarius': '/assets/signs/sagittarius.svg',
+  'Capricorn': '/assets/signs/capricorn.svg',
+  'Aquarius': '/assets/signs/aquarius.svg',
+  'Pisces': '/assets/signs/pisces.svg'
+};
+
+export const planetIconPaths = {
+  'Sun': '/assets/planets/Sun.svg',
+  'Moon': '/assets/planets/Moon.svg',
+  'Mercury': '/assets/planets/Mercury.svg',
+  'Venus': '/assets/planets/Venus.svg',
+  'Mars': '/assets/planets/Mars.svg',
+  'Jupiter': '/assets/planets/Jupiter.svg',
+  'Saturn': '/assets/planets/Saturn.svg',
+  'Uranus': '/assets/planets/Uranus.svg',
+  'Neptune': '/assets/planets/Neptune.svg',
+  'Pluto': '/assets/planets/Pluto.svg',
+  'Ascendant': '/assets/planets/Ascendent.svg',
+  'Midheaven': '/assets/planets/Ascendent.svg',
+  'Chiron': '/assets/planets/Pluto.svg',
+  'Node': '/assets/planets/Moon.svg',
+  'North Node': '/assets/planets/Moon.svg',
+  'South Node': '/assets/planets/Moon.svg'
+};
+
 export const relevantPromptAspects = {
     "personality": {
       "planets": ["Sun", "Moon", "Ascendant"],

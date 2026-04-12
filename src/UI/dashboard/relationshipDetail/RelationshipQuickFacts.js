@@ -1,6 +1,7 @@
 import React from 'react';
 import './RelationshipQuickFacts.css';
 import { getRelationshipSummary } from '../../../Utilities/relationshipSummary';
+import { SignIcon } from '../../shared/AstroIcon';
 
 // Cluster icons
 const CLUSTER_ICONS = {
@@ -9,22 +10,6 @@ const CLUSTER_ICONS = {
   Connection: '\u{1F9E0}',
   Stability: '\u{1F48E}',
   Growth: '\u{1F331}'
-};
-
-// Zodiac sign glyphs
-const SIGN_GLYPHS = {
-  'Aries': '\u2648',
-  'Taurus': '\u2649',
-  'Gemini': '\u264A',
-  'Cancer': '\u264B',
-  'Leo': '\u264C',
-  'Virgo': '\u264D',
-  'Libra': '\u264E',
-  'Scorpio': '\u264F',
-  'Sagittarius': '\u2650',
-  'Capricorn': '\u2651',
-  'Aquarius': '\u2652',
-  'Pisces': '\u2653'
 };
 
 // Get tier class for styling
@@ -160,13 +145,13 @@ function RelationshipQuickFacts({ relationship }) {
           <div className="relationship-quick-facts__pairing">
             {userASun && (
               <span className="sign-display">
-                {userASun} {SIGN_GLYPHS[userASun] || ''}
+                {userASun} <SignIcon name={userASun} size={16} />
               </span>
             )}
             {userASun && userBSun && <span className="pairing-separator">&</span>}
             {userBSun && (
               <span className="sign-display">
-                {userBSun} {SIGN_GLYPHS[userBSun] || ''}
+                {userBSun} <SignIcon name={userBSun} size={16} />
               </span>
             )}
           </div>

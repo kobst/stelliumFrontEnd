@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import stelliumIcon from '../../assets/StelliumIcon.svg';
+import { PlanetIcon } from '../shared/AstroIcon';
 import '../../pages/LandingPage.css';
 
 const aiReplies = [
@@ -55,14 +56,14 @@ export default function DemoSection() {
             <div className="card-face card-front">
               <div className="card-header">Today's Energy</div>
               <div className="card-content">
-                <div className="transit-info">☽ Moon in Pisces</div>
+                <div className="transit-info"><PlanetIcon name="Moon" size={16} /> Moon in Pisces</div>
                 <p>Intuition runs high today. Trust your gut feelings in creative projects.</p>
               </div>
             </div>
             <div className="card-face card-back">
               <div className="card-header">Tomorrow's Focus</div>
               <div className="card-content">
-                <div className="transit-info">☿ Mercury trine Mars</div>
+                <div className="transit-info"><PlanetIcon name="Mercury" size={16} /> Mercury trine Mars</div>
                 <p>Perfect for important conversations. Your words carry extra power.</p>
               </div>
             </div>

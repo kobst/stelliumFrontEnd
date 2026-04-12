@@ -2,21 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import AskStelliumCta from './AskStelliumCta';
+import { PlanetIcon, SignIcon } from '../../shared/AstroIcon';
 import './PlanetsTab.css';
-
-// Planet and zodiac symbols
-const planetSymbols = {
-  'Sun': '☉', 'Moon': '☽', 'Mercury': '☿', 'Venus': '♀', 'Mars': '♂',
-  'Jupiter': '♃', 'Saturn': '♄', 'Uranus': '♅', 'Neptune': '♆', 'Pluto': '♇',
-  'Ascendant': 'AC', 'Midheaven': 'MC', 'Chiron': '⚷',
-  'North Node': '☊', 'South Node': '☋', 'Node': '☊'
-};
-
-const zodiacSymbols = {
-  'Aries': '♈', 'Taurus': '♉', 'Gemini': '♊', 'Cancer': '♋',
-  'Leo': '♌', 'Virgo': '♍', 'Libra': '♎', 'Scorpio': '♏',
-  'Sagittarius': '♐', 'Capricorn': '♑', 'Aquarius': '♒', 'Pisces': '♓'
-};
 
 const excludedPlanets = ['South Node', 'Part of Fortune'];
 
@@ -172,12 +159,12 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
             <div className="planet-info-row">
               <div className="planet-info-left">
                 <span className="planet-main-symbol">
-                  {planetSymbols[currentPlanet.name] || currentPlanet.name.substring(0, 2)}
+                  <PlanetIcon name={currentPlanet.name} size={24} />
                 </span>
                 <div className="planet-sign-display">
                   <span className="planet-sign-name">{currentPlanet.sign}</span>
                   <span className="planet-sign-symbol">
-                    {zodiacSymbols[currentPlanet.sign] || ''}
+                    <SignIcon name={currentPlanet.sign} size={20} />
                   </span>
                 </div>
                 {currentPlanet.norm_degree !== undefined && (
@@ -228,7 +215,7 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
                           >
                             <div className="planet-aspect-planet">
                               <span className="planet-symbol">
-                                {planetSymbols[currentPlanet.name] || currentPlanet.name.substring(0, 2)}
+                                <PlanetIcon name={currentPlanet.name} size={16} />
                               </span>
                               <span className="planet-name">{currentPlanet.name}</span>
                             </div>
@@ -238,7 +225,7 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
                             </div>
                             <div className="planet-aspect-planet">
                               <span className="planet-symbol">
-                                {planetSymbols[otherName] || otherName.substring(0, 2)}
+                                <PlanetIcon name={otherName} size={16} />
                               </span>
                               <span className="planet-name">{otherName}</span>
                             </div>

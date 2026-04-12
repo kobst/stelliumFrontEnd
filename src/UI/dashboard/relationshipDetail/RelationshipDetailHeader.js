@@ -1,22 +1,7 @@
 import React from 'react';
 import './RelationshipDetailHeader.css';
 import { getRelationshipSummary } from '../../../Utilities/relationshipSummary';
-
-// Zodiac sign glyphs
-const SIGN_GLYPHS = {
-  'Aries': '\u2648',
-  'Taurus': '\u2649',
-  'Gemini': '\u264A',
-  'Cancer': '\u264B',
-  'Leo': '\u264C',
-  'Virgo': '\u264D',
-  'Libra': '\u264E',
-  'Scorpio': '\u264F',
-  'Sagittarius': '\u2650',
-  'Capricorn': '\u2651',
-  'Aquarius': '\u2652',
-  'Pisces': '\u2653'
-};
+import { SignIcon } from '../../shared/AstroIcon';
 
 // Get tier class for styling
 const getTierClass = (tier) => {
@@ -101,12 +86,12 @@ function RelationshipDetailHeader({ relationship, onBackClick }) {
               <span className="placement-name">{userAName}:</span>
               {userASun && (
                 <span className="placement-sign">
-                  {SIGN_GLYPHS[userASun]} {userASun}
+                  <SignIcon name={userASun} size={16} /> {userASun}
                 </span>
               )}
               {userAMoon && (
                 <span className="placement-sign moon">
-                  {SIGN_GLYPHS[userAMoon]} {userAMoon}
+                  <SignIcon name={userAMoon} size={16} /> {userAMoon}
                 </span>
               )}
             </div>
@@ -114,12 +99,12 @@ function RelationshipDetailHeader({ relationship, onBackClick }) {
               <span className="placement-name">{userBName}:</span>
               {userBSun && (
                 <span className="placement-sign">
-                  {SIGN_GLYPHS[userBSun]} {userBSun}
+                  <SignIcon name={userBSun} size={16} /> {userBSun}
                 </span>
               )}
               {userBMoon && (
                 <span className="placement-sign moon">
-                  {SIGN_GLYPHS[userBMoon]} {userBMoon}
+                  <SignIcon name={userBMoon} size={16} /> {userBMoon}
                 </span>
               )}
             </div>
