@@ -1,6 +1,7 @@
 import React from 'react';
 import { RelationshipCategoriesEnum, orderedCategoryKeys } from '../../Utilities/constants';
 import ScoredItemsTable from './ScoredItemsTable';
+import { getRelationshipSummary } from '../../Utilities/relationshipSummary';
 
 function RelationshipAnalysis({ 
   analysis, 
@@ -15,17 +16,35 @@ function RelationshipAnalysis({
   onStartFullAnalysis = null,
   isStartingAnalysis = false
 }) {
+    const { label, blurb, score, tier } = getRelationshipSummary(overall);
+
     // If we have cluster analysis, prioritize it
     if (clusterAnalysis?.clusters) {
       
       return (
         <div className="relationship-analysis-display" style={{ marginTop: '20px', padding: '15px', border: '1px solid #eee', borderRadius: '8px' }}>
           <h3>Enhanced Relationship Analysis for {userAName} and {userBName}</h3>
+
+          {(label || blurb) && (
+            <div style={{ marginBottom: '25px', padding: '20px', backgroundColor: '#fff8eb', borderRadius: '8px', border: '2px solid #f3d19c' }}>
+              <h4 style={{ color: '#8a5a15', marginBottom: '12px' }}>Archetype Summary</h4>
+              {label && (
+                <div style={{ color: '#6b450f', fontSize: '22px', fontWeight: 700, marginBottom: blurb ? '10px' : 0 }}>
+                  {label}
+                </div>
+              )}
+              {blurb && (
+                <p style={{ lineHeight: '1.65', color: '#4a5568', margin: 0, fontSize: '16px' }}>
+                  {blurb}
+                </p>
+              )}
+            </div>
+          )}
           
           {/* Initial Overview (Phase 1) */}
           {initialOverview && (
             <div style={{ marginBottom: '25px', padding: '20px', backgroundColor: '#f8f9ff', borderRadius: '8px', border: '2px solid #e0e7ff' }}>
-              <h4 style={{ color: '#3730a3', marginBottom: '15px' }}>💫 Initial Overview</h4>
+              <h4 style={{ color: '#3730a3', marginBottom: '15px' }}>💫 Extended Overview</h4>
               <p style={{ lineHeight: '1.6', color: '#1f2937', margin: 0, fontSize: '16px' }}>
                 {initialOverview}
               </p>
@@ -39,7 +58,7 @@ function RelationshipAnalysis({
               
               {/* Tier and Profile */}
               <div style={{ marginBottom: '15px' }}>
-                {overall.tier && (
+                {tier && (
                   <div style={{ display: 'inline-block', marginRight: '15px' }}>
                     <span style={{ 
                       backgroundColor: '#0c4a6e', 
@@ -49,20 +68,20 @@ function RelationshipAnalysis({
                       fontSize: '13px', 
                       fontWeight: '600' 
                     }}>
-                      {overall.tier}
+                      {tier}
                     </span>
                   </div>
                 )}
-                {overall.profile && (
+                {label && (
                   <div style={{ color: '#374151', fontSize: '16px', fontWeight: '500', marginTop: '8px' }}>
-                    {overall.profile}
+                    {label}
                   </div>
                 )}
               </div>
               
               <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', color: '#1f2937' }}>
                 <div>
-                  <strong style={{ color: '#0c4a6e' }}>Overall Score:</strong> <span style={{ color: '#1f2937' }}>{overall.score}%</span>
+                  <strong style={{ color: '#0c4a6e' }}>Compatibility Score:</strong> <span style={{ color: '#1f2937' }}>{score ?? overall.score}%</span>
                 </div>
                 {overall.dominantCluster && (
                   <div>
