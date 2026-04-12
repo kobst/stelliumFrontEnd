@@ -4,22 +4,8 @@ import {
   uploadProfilePhotoToS3,
   confirmProfilePhotoUpload
 } from '../../../Utilities/api';
+import { SignIcon } from '../../shared/AstroIcon';
 import './SectionNav.css';
-
-const ZODIAC_GLYPHS = {
-  'Aries': '♈',
-  'Taurus': '♉',
-  'Gemini': '♊',
-  'Cancer': '♋',
-  'Leo': '♌',
-  'Virgo': '♍',
-  'Libra': '♎',
-  'Scorpio': '♏',
-  'Sagittarius': '♐',
-  'Capricorn': '♑',
-  'Aquarius': '♒',
-  'Pisces': '♓'
-};
 
 const SECTIONS = [
   { id: 'overview', label: 'Overview' },
@@ -196,7 +182,7 @@ function SectionNav({ chart, activeSection, onSectionChange, lockedSections = []
         <div className="section-nav__name-row">
           <h3 className="section-nav__name">{fullName}</h3>
           {sunSign && (
-            <span className="section-nav__zodiac-icon">{ZODIAC_GLYPHS[sunSign]}</span>
+            <span className="section-nav__zodiac-icon"><SignIcon name={sunSign} size={20} /></span>
           )}
         </div>
 

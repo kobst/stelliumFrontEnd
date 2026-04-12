@@ -3,27 +3,8 @@ import Ephemeris from '../../shared/Ephemeris';
 import BirthChartSummaryTable from '../../birthChart/tables/BirthChartSummaryTable';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import AskStelliumCta from '../chartTabs/AskStelliumCta';
+import { PlanetIcon } from '../../shared/AstroIcon';
 import './RelationshipTabs.css';
-
-// Planet symbols for display
-const planetSymbols = {
-  'Sun': '☉',
-  'Moon': '☽',
-  'Mercury': '☿',
-  'Venus': '♀',
-  'Mars': '♂',
-  'Jupiter': '♃',
-  'Saturn': '♄',
-  'Uranus': '♅',
-  'Neptune': '♆',
-  'Pluto': '♇',
-  'Ascendant': 'AC',
-  'Midheaven': 'MC',
-  'Chiron': '⚷',
-  'Node': '☊',
-  'North Node': '☊',
-  'South Node': '☋'
-};
 
 // Format aspect name
 const getAspectName = (aspectType) => {
@@ -83,7 +64,7 @@ function SynastryAspectsTable({ aspects, userAName, userBName }) {
             <div key={index} className={`synastry-aspect-row ${getAspectColorClass(aspect.aspectType)}`}>
               <div className="synastry-planet">
                 <span className="planet-symbol">
-                  {planetSymbols[planetA] || (planetA ? planetA.substring(0, 2) : '??')}
+                  <PlanetIcon name={planetA} size={16} />
                 </span>
                 <span className="planet-name">{planetA}</span>
               </div>
@@ -92,7 +73,7 @@ function SynastryAspectsTable({ aspects, userAName, userBName }) {
               </div>
               <div className="synastry-planet">
                 <span className="planet-symbol">
-                  {planetSymbols[planetB] || (planetB ? planetB.substring(0, 2) : '??')}
+                  <PlanetIcon name={planetB} size={16} />
                 </span>
                 <span className="planet-name">{planetB}</span>
               </div>

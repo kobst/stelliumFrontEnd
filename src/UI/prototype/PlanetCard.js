@@ -1,31 +1,20 @@
 import React, { memo } from 'react';
+import { PlanetIcon } from '../shared/AstroIcon';
 
 const PlanetCard = memo(({ planet, interpretation, description }) => (
-  <div style={{ 
-    backgroundColor: 'rgba(139, 92, 246, 0.1)', 
-    padding: '20px', 
+  <div style={{
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    padding: '20px',
     borderRadius: '8px',
     border: '1px solid rgba(139, 92, 246, 0.3)',
     marginBottom: '20px'
   }}>
-    <h3 style={{ 
-      color: '#a78bfa', 
+    <h3 style={{
+      color: '#a78bfa',
       margin: '0 0 15px 0',
       fontSize: '1.3rem'
     }}>
-      {planet === 'Node' ? '☊ ' : ''}
-      {planet === 'Sun' ? '☉ ' : ''}
-      {planet === 'Moon' ? '☽ ' : ''}
-      {planet === 'Mercury' ? '☿ ' : ''}
-      {planet === 'Venus' ? '♀ ' : ''}
-      {planet === 'Mars' ? '♂ ' : ''}
-      {planet === 'Jupiter' ? '♃ ' : ''}
-      {planet === 'Saturn' ? '♄ ' : ''}
-      {planet === 'Uranus' ? '♅ ' : ''}
-      {planet === 'Neptune' ? '♆ ' : ''}
-      {planet === 'Pluto' ? '♇ ' : ''}
-      {planet === 'Ascendant' ? '↑ ' : ''}
-      {planet === 'Midheaven' ? '⟂ ' : ''}
+      <PlanetIcon name={planet} size={22} style={{ marginRight: 6 }} />
       {planet}
     </h3>
     {description && (

@@ -1,28 +1,9 @@
 import React, { useMemo } from 'react';
+import { PlanetIcon } from '../../shared/AstroIcon';
 import './AspectsTable.css';
 
 const AspectsTable = ({ aspectsArray }) => {
-  // Unicode symbols for planets
-  const planetSymbols = {
-    'Sun': '☉',
-    'Moon': '☽',
-    'Mercury': '☿',
-    'Venus': '♀',
-    'Mars': '♂',
-    'Jupiter': '♃',
-    'Saturn': '♄',
-    'Uranus': '♅',
-    'Neptune': '♆',
-    'Pluto': '♇',
-    'Ascendant': 'AC',
-    'Midheaven': 'MC',
-    'Chiron': '⚷',
-    'Node': '☊',
-    'North Node': '☊',
-    'South Node': '☋'
-  };
-
-  // Unicode symbols for aspects
+  // Unicode symbols for aspects (no SVGs for these yet)
   const aspectSymbols = {
     'conjunction': '☌',
     'opposition': '☍',
@@ -53,11 +34,6 @@ const AspectsTable = ({ aspectsArray }) => {
     return aspectSymbols[aspectType.toLowerCase()] || '•';
   };
 
-  // Get planet symbol
-  const getPlanetSymbol = (planet) => {
-    return planetSymbols[planet] || (planet ? planet.substring(0, 2) : '??');
-  };
-
   if (!aspectsArray || aspectsArray.length === 0) {
     return <div className="aspects-empty">No aspects found</div>;
   }
@@ -69,7 +45,7 @@ const AspectsTable = ({ aspectsArray }) => {
           {aspectsArray.map((aspect, index) => (
             <tr key={index} className="aspects-row">
               <td className="aspects-cell aspects-cell--planet">
-                <span className="aspects-symbol">{getPlanetSymbol(aspect.aspectedPlanet)}</span>
+                <span className="aspects-symbol"><PlanetIcon name={aspect.aspectedPlanet} size={18} /></span>
                 <span className="aspects-planet-name">{aspect.aspectedPlanet}</span>
               </td>
               <td className="aspects-cell aspects-cell--aspect">
@@ -77,7 +53,7 @@ const AspectsTable = ({ aspectsArray }) => {
                 <span className="aspects-type-name">{getAspectName(aspect.aspectType)}</span>
               </td>
               <td className="aspects-cell aspects-cell--planet">
-                <span className="aspects-symbol">{getPlanetSymbol(aspect.aspectingPlanet)}</span>
+                <span className="aspects-symbol"><PlanetIcon name={aspect.aspectingPlanet} size={18} /></span>
                 <span className="aspects-planet-name">{aspect.aspectingPlanet}</span>
               </td>
               <td className="aspects-cell aspects-cell--orb">

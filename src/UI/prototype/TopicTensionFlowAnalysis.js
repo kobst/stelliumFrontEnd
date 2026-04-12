@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { PlanetIcon } from '../shared/AstroIcon';
 import './TopicTensionFlowAnalysis.css';
 
 const TopicTensionFlowAnalysis = ({ topicData, topicTitle }) => {
@@ -156,25 +157,7 @@ const TopicTensionFlowAnalysis = ({ topicData, topicTitle }) => {
   const tensionLevel = getTensionLevel(challengeDensity);
   const balanceDesc = getBalanceDescription(polarityRatio);
 
-  // Unicode symbols for planets
-  const planetSymbols = {
-    'Sun': '☉',
-    'Moon': '☽',
-    'Mercury': '☿',
-    'Venus': '♀',
-    'Mars': '♂',
-    'Jupiter': '♃',
-    'Saturn': '♄',
-    'Uranus': '♅',
-    'Neptune': '♆',
-    'Pluto': '♇',
-    'Ascendant': 'AC',
-    'Midheaven': 'MC',
-    'Chiron': '⚷',
-    'Node': '☊',
-    'North Node': '☊',
-    'South Node': '☋'
-  };
+  // planetSymbols removed — using PlanetIcon SVG component instead
 
   // Function to get the aspect name
   const getAspectName = (aspectType) => {
@@ -324,14 +307,7 @@ const TopicTensionFlowAnalysis = ({ topicData, topicTitle }) => {
               {keystoneAspects.slice(0, 3).map((aspect, index) => (
                 <tr key={index}>
                   <td>
-                    <span 
-                      style={{ 
-                        fontSize: (aspect.planet1 === 'Ascendant' || aspect.planet1 === 'Midheaven') ? '14px' : '20px',
-                        fontWeight: (aspect.planet1 === 'Ascendant' || aspect.planet1 === 'Midheaven') ? 'normal' : 'bold'
-                      }}
-                    >
-                      {planetSymbols[aspect.planet1] || (aspect.planet1 ? aspect.planet1.substring(0, 2) : '??')}
-                    </span>
+                    <PlanetIcon name={aspect.planet1} size={20} />
                   </td>
                   <td>{aspect.planet1}</td>
                   <td className="aspect-name">
@@ -341,14 +317,7 @@ const TopicTensionFlowAnalysis = ({ topicData, topicTitle }) => {
                     {getAspectName(aspect.aspectType)}
                   </td>
                   <td>
-                    <span 
-                      style={{ 
-                        fontSize: (aspect.planet2 === 'Ascendant' || aspect.planet2 === 'Midheaven') ? '14px' : '20px',
-                        fontWeight: (aspect.planet2 === 'Ascendant' || aspect.planet2 === 'Midheaven') ? 'normal' : 'bold'
-                      }}
-                    >
-                      {planetSymbols[aspect.planet2] || (aspect.planet2 ? aspect.planet2.substring(0, 2) : '??')}
-                    </span>
+                    <PlanetIcon name={aspect.planet2} size={20} />
                   </td>
                   <td>{aspect.planet2}</td>
                   <td>{Number.isFinite(Number(aspect.orb)) ? `${Number(aspect.orb).toFixed(2)}°` : '—'}</td>
