@@ -14,6 +14,28 @@
   font-size: 1.5rem;
 }
 
+.archetype-summary-banner {
+  margin-bottom: 24px;
+  padding: 20px 22px;
+  background: linear-gradient(135deg, #fff8eb 0%, #fff2d6 100%);
+  border: 1px solid rgba(212, 165, 116, 0.45);
+  border-radius: 12px;
+}
+
+.archetype-summary-banner__label {
+  color: #8a5a15;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.archetype-summary-banner__blurb {
+  color: #4a5568;
+  font-size: 1rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
 /* V2 Analysis Banner */
 .v2-analysis-banner {
   display: flex;

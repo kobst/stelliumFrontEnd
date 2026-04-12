@@ -11,6 +11,7 @@ import {
 } from 'chart.js';
 import { Radar } from 'react-chartjs-2';
 import './RelationshipScoresRadarChart.css';
+import { getRelationshipSummary } from '../../Utilities/relationshipSummary';
 
 // Register Chart.js components
 ChartJS.register(
@@ -34,6 +35,7 @@ const RelationshipScoresRadarChart = ({
 }) => {
   const [selectedCluster, setSelectedCluster] = useState(null);
   const [hoveredCluster, setHoveredCluster] = useState(null);
+  const { label, blurb, score, tier } = getRelationshipSummary(clusterAnalysis?.overall);
   
   // 5-Cluster categories from new API
   const clusterCategories = {
@@ -282,7 +284,14 @@ const RelationshipScoresRadarChart = ({
 
   return (
     <div className="relationship-scores-radar-chart">
-      <h2>Relationship Compatibility Analysis</h2>
+      <h2>{label || 'Relationship Compatibility Analysis'}</h2>
+
+      {(label || blurb) && (
+        <div className="archetype-summary-banner">
+          {label && <div className="archetype-summary-banner__label">{label}</div>}
+          {blurb && <p className="archetype-summary-banner__blurb">{blurb}</p>}
+        </div>
+      )}
       
       {/* Initial Overview Display (Phase 1) */}
       {initialOverview && (
@@ -309,9 +318,15 @@ const RelationshipScoresRadarChart = ({
       {clusterAnalysis?.overall && (
         <div className="overall-analysis-banner">
           <div className="overall-score">
-            <span className="score-label">Overall Compatibility:</span>
-            <span className="score-value">{clusterAnalysis.overall.score}%</span>
+            <span className="score-label">Compatibility Score:</span>
+            <span className="score-value">{score ?? clusterAnalysis.overall.score}%</span>
           </div>
+          {tier && (
+            <div className="dominant-cluster">
+              <span className="dominant-label">Status:</span>
+              <span className="dominant-value">{tier}</span>
+            </div>
+          )}
           {clusterAnalysis.overall.dominantCluster && (
             <div className="dominant-cluster">
               <span className="dominant-label">Strongest Area:</span>
