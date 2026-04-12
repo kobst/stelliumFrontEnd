@@ -38,7 +38,7 @@ function RelationshipsList({
         <div className="relationships-list__empty">
           <div className="empty-icon">&#x2661;</div>
           <h3>No Relationships Yet</h3>
-          <p>Create a relationship to see compatibility scores</p>
+          <p>Create a relationship to explore your compatibility dimensions</p>
           <button
             className="relationships-list__add-btn primary"
             onClick={onAddRelationship}

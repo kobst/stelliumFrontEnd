@@ -40,14 +40,6 @@ const formatDate = (dateString) => {
   }
 };
 
-// Get color based on score
-const getScoreColor = (score) => {
-  if (score >= 70) return '#4ade80'; // Green for high scores
-  if (score >= 50) return '#facc15'; // Yellow/amber for medium
-  if (score >= 30) return '#fb923c'; // Orange for lower
-  return '#f87171'; // Red for low scores
-};
-
 function RelationshipCard({ relationship, onClick, onDelete }) {
   const userBName = relationship?.userB_name || 'Partner';
 
@@ -55,7 +47,7 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
   const overall = relationship?.relationshipAnalysisStatus?.overall ||
                   relationship?.clusterScoring?.overall ||
                   relationship?.clusterAnalysis?.overall;
-  const { label, blurb, score } = getRelationshipSummary(overall);
+  const { label, blurb } = getRelationshipSummary(overall);
 
   // Get birth data for partner (userB)
   const userBPlanets = relationship?.userB_birthChart?.planets;
@@ -72,10 +64,6 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
 
   // Get description/summary if available
   const description = blurb || relationship?.description || '';
-
-  // Calculate percentage and color
-  const percentage = score !== undefined && score !== null ? Math.round(score) : null;
-  const scoreColor = percentage !== null ? getScoreColor(percentage) : '#4ade80';
 
   const handleDeleteClick = (event) => {
     event.stopPropagation();
@@ -130,16 +118,6 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
           <p className="relationship-card__description">{description}</p>
         )}
       </div>
-
-      {/* Score section */}
-      {percentage !== null && (
-        <div className="relationship-card__score-section">
-          <span className="relationship-card__score-label">Compatibility<br/>Factor</span>
-          <span className="relationship-card__percentage" style={{ color: scoreColor }}>
-            {percentage}%
-          </span>
-        </div>
-      )}
     </div>
   );
 }

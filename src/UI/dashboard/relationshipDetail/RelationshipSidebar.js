@@ -11,18 +11,6 @@ const CLUSTER_ICONS = {
   Growth: '\u{1F331}'
 };
 
-// Get tier class for styling
-const getTierClass = (tier) => {
-  if (!tier) return '';
-  const tierLower = tier.toLowerCase();
-  if (tierLower === 'thriving') return 'tier-thriving';
-  if (tierLower === 'flourishing') return 'tier-flourishing';
-  if (tierLower === 'emerging') return 'tier-emerging';
-  if (tierLower === 'building') return 'tier-building';
-  if (tierLower === 'developing') return 'tier-developing';
-  return '';
-};
-
 // Count aspects by type
 const countAspectsByType = (aspects) => {
   if (!aspects || !Array.isArray(aspects)) return { harmonious: 0, challenging: 0 };
@@ -42,13 +30,6 @@ const countAspectsByType = (aspects) => {
   return { harmonious, challenging };
 };
 
-// Get sign from planets array
-const getSign = (planets, planetName) => {
-  if (!planets || !Array.isArray(planets)) return null;
-  const planet = planets.find(p => p.name === planetName);
-  return planet?.sign || null;
-};
-
 const SECTIONS = [
   { id: 'overview', label: 'Overview' },
   { id: 'scores', label: 'Score' },
@@ -66,29 +47,22 @@ function RelationshipSidebar({
   const overall = clusterAnalysis?.overall;
   const clusters = clusterAnalysis?.clusters;
   const synastryAspects = relationship?.synastryAspects || [];
-  const { label, blurb, score, tier } = getRelationshipSummary(overall);
+  const { label, blurb } = getRelationshipSummary(overall);
 
   const aspectCounts = countAspectsByType(synastryAspects);
 
   // Get info for both partners
   const userAName = relationship?.userA_name || 'Person A';
   const userAPhoto = relationship?.userA_photoUrl || relationship?.userA_profilePhotoUrl;
-  const userAPlanets = relationship?.userA_birthChart?.planets;
-  const userASun = getSign(userAPlanets, 'Sun');
 
   const userBName = relationship?.userB_name || 'Person B';
   const userBPhoto = relationship?.userB_photoUrl || relationship?.userB_profilePhotoUrl;
-  const userBPlanets = relationship?.userB_birthChart?.planets;
-  const userBSun = getSign(userBPlanets, 'Sun');
 
   // Get strongest and challenge clusters
   const dominantCluster = overall?.dominantCluster;
   const challengeCluster = overall?.challengeCluster;
   const dominantScore = dominantCluster && clusters?.[dominantCluster]?.score;
   const challengeScore = challengeCluster && clusters?.[challengeCluster]?.score;
-
-  // Get compatibility description
-  const compatDescription = blurb || 'Highly compatible with strong connection';
 
   return (
     <aside className="relationship-sidebar">
@@ -113,31 +87,13 @@ function RelationshipSidebar({
                 </div>
               )}
             </div>
-            <div className="profile-score">
-              <span className="score-label">Compatibility</span>
-              <span className="score-value">
-                {score !== undefined ? `${Math.round(score)}%` : '--'}
-              </span>
-            </div>
           </div>
 
           <h2 className="profile-name">{userAName} & {userBName}</h2>
           {label && (
             <p className="profile-archetype">{label}</p>
           )}
-          {(userASun || userBSun) && (
-            <span className="profile-sign">
-              {[userASun, userBSun].filter(Boolean).join(' & ')}
-            </span>
-          )}
-
-          <p className="profile-description">{compatDescription}</p>
-
-          {tier && (
-            <span className={`profile-tier ${getTierClass(tier)}`}>
-              {tier}
-            </span>
-          )}
+          {blurb && <p className="profile-description">{blurb}</p>}
         </div>
 
         {/* Stats Section */}
