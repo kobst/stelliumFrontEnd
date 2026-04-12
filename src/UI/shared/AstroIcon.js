@@ -1,6 +1,13 @@
 import React from 'react';
 import { planetIconPaths, signIconPaths } from '../../Utilities/constants';
 
+// SVGs are black on transparent — invert to white for the dark UI
+const iconStyle = {
+  verticalAlign: 'middle',
+  filter: 'invert(1)',
+  opacity: 0.95,
+};
+
 /**
  * Inline icon for a planet name.
  * Falls back to a two-letter abbreviation when no SVG exists.
@@ -15,7 +22,7 @@ export function PlanetIcon({ name, size = 18, className = '', style = {} }) {
       src={src}
       alt={name}
       className={className}
-      style={{ width: size, height: size, verticalAlign: 'middle', ...style }}
+      style={{ ...iconStyle, width: size, height: size, ...style }}
     />
   );
 }
@@ -34,7 +41,7 @@ export function SignIcon({ name, size = 18, className = '', style = {} }) {
       src={src}
       alt={name}
       className={className}
-      style={{ width: size, height: size, verticalAlign: 'middle', ...style }}
+      style={{ ...iconStyle, width: size, height: size, ...style }}
     />
   );
 }
