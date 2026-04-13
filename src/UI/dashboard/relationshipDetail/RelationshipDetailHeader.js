@@ -29,7 +29,7 @@ function RelationshipDetailHeader({ relationship, onBackClick }) {
   // Get score and tier
   const overall = relationship?.clusterScoring?.overall ||
                   relationship?.clusterAnalysis?.overall;
-  const { label, score, tier } = getRelationshipSummary(overall);
+  const { label, tier } = getRelationshipSummary(overall);
 
   // Try to get Sun/Moon signs from birth charts if available
   const userAPlanets = relationship?.userA_birthChart?.planets;
@@ -60,24 +60,13 @@ function RelationshipDetailHeader({ relationship, onBackClick }) {
             <p className="relationship-detail-header__archetype">{label}</p>
           )}
 
-          <div className="relationship-detail-header__meta">
-            {!score && tier && (
+          {tier && (
+            <div className="relationship-detail-header__meta">
               <span className={`relationship-detail-header__tier ${getTierClass(tier)}`}>
                 {tier}
               </span>
-            )}
-            {score !== undefined && score !== null && (
-              <div className="relationship-detail-header__score">
-                <span className="score-value">{Math.round(score)}</span>
-                <span className="score-label">Compatibility</span>
-              </div>
-            )}
-            {tier && score !== undefined && score !== null && (
-              <span className={`relationship-detail-header__tier ${getTierClass(tier)}`}>
-                {tier}
-              </span>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {hasSignData && (

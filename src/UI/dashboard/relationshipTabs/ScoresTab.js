@@ -30,20 +30,6 @@ const CLUSTER_DESCRIPTIONS = {
   Growth: 'Transformative potential and personal evolution'
 };
 
-// Get status label based on score
-const getStatusLabel = (score) => {
-  if (score >= 70) return 'Easy Going';
-  if (score >= 50) return 'Efforts Needed';
-  return 'Tough Road';
-};
-
-// Get status class based on score
-const getStatusClass = (score) => {
-  if (score >= 70) return 'status-easy';
-  if (score >= 50) return 'status-moderate';
-  return 'status-tough';
-};
-
 // Get tier class for overall tier pill
 const getTierClass = (tier) => {
   if (!tier) return '';
@@ -80,7 +66,7 @@ function ScoresTab({
   const clusters = clusterAnalysis?.clusters;
   const overall = clusterAnalysis?.overall;
   const allScoredItems = clusterAnalysis?.scoredItems || [];
-  const { label, blurb, score: overallScore, tier: overallTier } = getRelationshipSummary(overall);
+  const { label, blurb, tier: overallTier } = getRelationshipSummary(overall);
 
   const orderedClusters = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
 
@@ -120,7 +106,7 @@ function ScoresTab({
     return (
       <div className="scores-tab-redesign">
         <div className="scores-header">
-          <h2 className="scores-header__title">Compatibility Score</h2>
+          <h2 className="scores-header__title">Compatibility</h2>
           {!isCelebrity && (
             <AskStelliumCta
               hasFullAccess={canUseAskStellium}
@@ -160,8 +146,8 @@ function ScoresTab({
         </div>
       )}
 
-      {/* Overall Score Header */}
-      {overallScore != null && (
+      {/* Overall tier (score removed) */}
+      {overallTier && (
         <div className="scores-overall">
           <div className="scores-overall__avatar">
             {relationship.userA_profilePhotoUrl ? (
@@ -172,13 +158,9 @@ function ScoresTab({
           </div>
 
           <div className="scores-overall__center">
-            <span className="scores-overall__score">{Math.round(overallScore)}%</span>
-            <span className="scores-overall__label">Compatibility Score</span>
-            {overallTier && (
-              <span className={`scores-overall__tier ${getTierClass(overallTier)}`}>
-                {overallTier}
-              </span>
-            )}
+            <span className={`scores-overall__tier ${getTierClass(overallTier)}`}>
+              {overallTier}
+            </span>
           </div>
 
           <div className="scores-overall__avatar">
@@ -197,9 +179,6 @@ function ScoresTab({
           const score = getClusterScore(cluster);
           const clusterData = clusters[cluster];
           const isExpanded = expandedCluster === cluster;
-          const statusLabel = getStatusLabel(score);
-          const statusClass = getStatusClass(score);
-
           return (
             <div
               key={cluster}
@@ -219,9 +198,6 @@ function ScoresTab({
                   />
                 </div>
                 <span className="scores-dimension-row__pct">{Math.round(score)}%</span>
-                <span className={`scores-dimension-row__tier ${statusClass}`}>
-                  {statusLabel}
-                </span>
               </div>
 
               {isExpanded && (
