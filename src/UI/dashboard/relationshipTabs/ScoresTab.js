@@ -30,18 +30,6 @@ const CLUSTER_DESCRIPTIONS = {
   Growth: 'Transformative potential and personal evolution'
 };
 
-// Get tier class for overall tier pill
-const getTierClass = (tier) => {
-  if (!tier) return '';
-  const t = tier.toLowerCase();
-  if (t.includes('thriv')) return 'tier-thriving';
-  if (t.includes('flourish')) return 'tier-flourishing';
-  if (t.includes('emerg')) return 'tier-emerging';
-  if (t.includes('build')) return 'tier-building';
-  if (t.includes('develop')) return 'tier-developing';
-  return '';
-};
-
 // Get initials from a name
 const getInitials = (name) => {
   if (!name) return '?';
@@ -66,7 +54,7 @@ function ScoresTab({
   const clusters = clusterAnalysis?.clusters;
   const overall = clusterAnalysis?.overall;
   const allScoredItems = clusterAnalysis?.scoredItems || [];
-  const { label, blurb, tier: overallTier } = getRelationshipSummary(overall);
+  const { label, blurb } = getRelationshipSummary(overall);
 
   const orderedClusters = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
 
@@ -146,32 +134,24 @@ function ScoresTab({
         </div>
       )}
 
-      {/* Overall tier (score removed) */}
-      {overallTier && (
-        <div className="scores-overall">
-          <div className="scores-overall__avatar">
-            {relationship.userA_profilePhotoUrl ? (
-              <img src={relationship.userA_profilePhotoUrl} alt={relationship.userA_name} />
-            ) : (
-              <span className="scores-overall__initials">{getInitials(relationship.userA_name)}</span>
-            )}
-          </div>
-
-          <div className="scores-overall__center">
-            <span className={`scores-overall__tier ${getTierClass(overallTier)}`}>
-              {overallTier}
-            </span>
-          </div>
-
-          <div className="scores-overall__avatar">
-            {relationship.userB_profilePhotoUrl ? (
-              <img src={relationship.userB_profilePhotoUrl} alt={relationship.userB_name} />
-            ) : (
-              <span className="scores-overall__initials">{getInitials(relationship.userB_name)}</span>
-            )}
-          </div>
+      {/* Avatars */}
+      <div className="scores-overall">
+        <div className="scores-overall__avatar">
+          {relationship.userA_profilePhotoUrl ? (
+            <img src={relationship.userA_profilePhotoUrl} alt={relationship.userA_name} />
+          ) : (
+            <span className="scores-overall__initials">{getInitials(relationship.userA_name)}</span>
+          )}
         </div>
-      )}
+
+        <div className="scores-overall__avatar">
+          {relationship.userB_profilePhotoUrl ? (
+            <img src={relationship.userB_profilePhotoUrl} alt={relationship.userB_name} />
+          ) : (
+            <span className="scores-overall__initials">{getInitials(relationship.userB_name)}</span>
+          )}
+        </div>
+      </div>
 
       {/* Unified Dimension Rows */}
       <div className="scores-dimensions">
