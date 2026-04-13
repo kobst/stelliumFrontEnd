@@ -55,7 +55,7 @@ function RelationshipQuickFacts({ relationship }) {
   const overall = clusterAnalysis?.overall;
   const clusters = clusterAnalysis?.clusters;
   const synastryAspects = relationship?.synastryAspects || [];
-  const { label, blurb, score, tier } = getRelationshipSummary(overall);
+  const { label, blurb, tier } = getRelationshipSummary(overall);
 
   const aspectCounts = countAspectsByType(synastryAspects);
 
@@ -86,17 +86,6 @@ function RelationshipQuickFacts({ relationship }) {
         <div className="relationship-quick-facts__section">
           <span className="relationship-quick-facts__label">Summary</span>
           <div className="relationship-quick-facts__summary">{blurb}</div>
-        </div>
-      )}
-
-      {/* Overall Score */}
-      {score !== undefined && (
-        <div className="relationship-quick-facts__section">
-          <span className="relationship-quick-facts__label">Overall Score</span>
-          <div className="relationship-quick-facts__score">
-            <span className="score-value">{Math.round(score)}</span>
-            <span className="score-percent">%</span>
-          </div>
         </div>
       )}
 
