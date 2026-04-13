@@ -1,9 +1,21 @@
 import React, { useState } from 'react';
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  RadarController
+} from 'chart.js';
+import { Radar } from 'react-chartjs-2';
 import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import AskStelliumCta from '../chartTabs/AskStelliumCta';
 import './RelationshipTabs.css';
 import { getRelationshipSummary } from '../../../Utilities/relationshipSummary';
+
+ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, RadarController);
 
 // Score-band color: green/teal for strong, amber for moderate, coral for weak
 const getScoreColor = (score) => {
@@ -28,12 +40,6 @@ const CLUSTER_DESCRIPTIONS = {
   Connection: 'Emotional and mental bonding',
   Stability: 'Long-term potential and commitment',
   Growth: 'Transformative potential and personal evolution'
-};
-
-// Get initials from a name
-const getInitials = (name) => {
-  if (!name) return '?';
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 };
 
 function ScoresTab({
@@ -134,26 +140,71 @@ function ScoresTab({
         </div>
       )}
 
-      {/* Avatars */}
-      <div className="scores-overall">
-        <div className="scores-overall__avatar">
-          {relationship.userA_profilePhotoUrl ? (
-            <img src={relationship.userA_profilePhotoUrl} alt={relationship.userA_name} />
-          ) : (
-            <span className="scores-overall__initials">{getInitials(relationship.userA_name)}</span>
-          )}
-        </div>
-
-        <div className="scores-overall__avatar">
-          {relationship.userB_profilePhotoUrl ? (
-            <img src={relationship.userB_profilePhotoUrl} alt={relationship.userB_name} />
-          ) : (
-            <span className="scores-overall__initials">{getInitials(relationship.userB_name)}</span>
-          )}
-        </div>
+      {/* Radar Chart */}
+      <div className="scores-radar-wrapper">
+        <Radar
+          data={{
+            labels: orderedClusters.map(c => `${CLUSTER_ICONS[c]} ${c}`),
+            datasets: [{
+              data: orderedClusters.map(c => getClusterScore(c)),
+              backgroundColor: 'rgba(139, 92, 246, 0.15)',
+              borderColor: 'rgba(139, 92, 246, 0.9)',
+              pointBackgroundColor: orderedClusters.map(c => {
+                const s = getClusterScore(c);
+                return `rgba(139, 92, 246, ${0.5 + (s / 100) * 0.5})`;
+              }),
+              pointBorderColor: '#fff',
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              borderWidth: 2,
+              fill: true,
+            }]
+          }}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                beginAtZero: true,
+                min: 0,
+                max: 100,
+                ticks: {
+                  stepSize: 25,
+                  color: 'rgba(255, 255, 255, 0.4)',
+                  font: { size: 10 },
+                  callback: v => v === 0 || v === 100 ? '' : v + '%',
+                  backdropColor: 'transparent'
+                },
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.12)',
+                  circular: true
+                },
+                angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+                pointLabels: {
+                  color: 'rgba(255, 255, 255, 0.85)',
+                  font: { size: 12, weight: '500' },
+                  padding: 20
+                }
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                borderColor: 'rgba(139, 92, 246, 0.5)',
+                borderWidth: 1,
+                cornerRadius: 8,
+                padding: 10,
+                callbacks: {
+                  label: ctx => `${ctx.parsed.r}%`
+                }
+              }
+            }
+          }}
+        />
       </div>
 
-      {/* Unified Dimension Rows */}
+      {/* Dimension Rows */}
       <div className="scores-dimensions">
         {orderedClusters.map(cluster => {
           const score = getClusterScore(cluster);
