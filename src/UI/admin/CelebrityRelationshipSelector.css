@@ -15,23 +15,28 @@
 }
 
 .celebrity-table-container {
-  background: white;
+  background: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   overflow: hidden;
+  padding: 16px;
+  color: #212529;
 }
 
 .celebrity-table-scroll {
   max-height: 400px;
   overflow-y: auto;
-  border: 1px solid #dee2e6;
+  border: 1px solid #adb5bd;
   border-radius: 4px;
+  background: #ffffff;
 }
 
 .celebrity-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  color: #212529;
+  background: #ffffff;
 }
 
 .celebrity-table th,
@@ -39,22 +44,38 @@
   padding: 8px 12px;
   text-align: left;
   border-bottom: 1px solid #dee2e6;
+  color: #212529;
 }
 
 .celebrity-table th {
-  background-color: #f8f9fa;
+  background-color: #e9ecef;
   font-weight: bold;
   position: sticky;
   top: 0;
   z-index: 1;
+  border-bottom: 2px solid #adb5bd;
 }
 
-.celebrity-table tr:hover {
-  background-color: rgba(0, 123, 255, 0.1);
+.celebrity-table tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.12) !important;
 }
 
-.celebrity-table .selected-row {
+.celebrity-table .selected-row,
+.celebrity-table .selected-row td {
   background-color: rgba(0, 123, 255, 0.3) !important;
+  color: #0b3d91;
+  font-weight: 600;
+}
+
+.celebrity-table-container input::placeholder {
+  color: #6c757d;
+  opacity: 1;
+}
+
+.celebrity-table-container input:focus,
+.celebrity-table-container select:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 1px;
 }
 
 @media (max-width: 768px) {
