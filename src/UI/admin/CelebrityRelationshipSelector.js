@@ -83,11 +83,11 @@ function CelebrityRelationshipSelector({
   };
 
   const getSortableHeaderStyle = (field, paginatedData) => ({
-    color: 'orange',
+    color: '#b45309',
     cursor: usePagination && paginatedData ? 'pointer' : 'default',
     userSelect: 'none',
     padding: '8px',
-    borderBottom: usePagination && paginatedData && paginatedData.sortBy === field ? '2px solid orange' : 'none'
+    borderBottom: usePagination && paginatedData && paginatedData.sortBy === field ? '2px solid #b45309' : 'none'
   });
 
   const CelebrityTable = ({ 
@@ -102,8 +102,8 @@ function CelebrityRelationshipSelector({
     tableId
   }) => (
     <div className="celebrity-table-container">
-      <h3 style={{ color: 'grey', marginBottom: '15px' }}>{title}</h3>
-      
+      <h3 style={{ color: '#212529', marginBottom: '15px', fontWeight: 600 }}>{title}</h3>
+
       {/* Search and pagination controls - only show when usePagination is true */}
       {usePagination && paginatedData && (
         <div style={{ marginBottom: '15px' }}>
@@ -115,12 +115,15 @@ function CelebrityRelationshipSelector({
             style={{
               width: '100%',
               padding: '8px 12px',
-              border: '1px solid #ccc',
+              border: '1px solid #6c757d',
               borderRadius: '4px',
-              marginBottom: '10px'
+              marginBottom: '10px',
+              backgroundColor: '#ffffff',
+              color: '#212529',
+              fontSize: '14px'
             }}
           />
-          
+
           <div style={{
             display: 'flex',
             gap: '10px',
@@ -132,33 +135,35 @@ function CelebrityRelationshipSelector({
               onChange={(e) => paginatedData.pagination.changeItemsPerPage(Number(e.target.value))}
               style={{
                 padding: '4px 8px',
-                border: '1px solid #ccc',
+                border: '1px solid #6c757d',
                 borderRadius: '4px',
-                fontSize: '12px'
+                fontSize: '12px',
+                backgroundColor: '#ffffff',
+                color: '#212529'
               }}
             >
               <option value={5}>5 per page</option>
               <option value={10}>10 per page</option>
               <option value={20}>20 per page</option>
             </select>
-            
-            {paginatedData.loading && <span style={{ color: 'orange' }}>Loading...</span>}
+
+            {paginatedData.loading && <span style={{ color: '#d97706' }}>Loading...</span>}
           </div>
         </div>
       )}
       
-      <div style={{ 
-        marginBottom: '15px', 
-        padding: '10px', 
-        backgroundColor: '#f8f9fa', 
-        borderRadius: '8px', 
-        border: '1px solid #dee2e6',
+      <div style={{
+        marginBottom: '15px',
+        padding: '10px',
+        backgroundColor: '#e9ecef',
+        borderRadius: '8px',
+        border: '1px solid #adb5bd',
         display: 'flex',
         alignItems: 'center',
         gap: '10px'
       }}>
-        <label style={{ 
-          color: '#495057', 
+        <label style={{
+          color: '#212529',
           fontWeight: 'bold',
           fontSize: '14px'
         }}>
@@ -170,9 +175,9 @@ function CelebrityRelationshipSelector({
           style={{
             padding: '6px 10px',
             borderRadius: '4px',
-            border: '1px solid #ced4da',
-            backgroundColor: 'white',
-            color: '#495057',
+            border: '1px solid #6c757d',
+            backgroundColor: '#ffffff',
+            color: '#212529',
             fontSize: '14px',
             cursor: 'pointer',
             minWidth: '120px'
@@ -229,32 +234,34 @@ function CelebrityRelationshipSelector({
           <tbody>
             {celebrities.length === 0 ? (
               <tr>
-                <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: 'grey' }}>
+                <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: '#495057' }}>
                   {usePagination && paginatedData && paginatedData.loading ? 'Loading...' : 'No celebrities found'}
                 </td>
               </tr>
             ) : (
-              celebrities.map((celebrity) => {
+              celebrities.map((celebrity, index) => {
                 const isSelected = selectedCelebrity && selectedCelebrity._id === celebrity._id;
                 const isOtherSelected = otherSelectedCelebrity && otherSelectedCelebrity._id === celebrity._id;
-                
+                const zebra = index % 2 === 1 ? '#f8f9fa' : '#ffffff';
+
                 return (
                   <tr
                     key={celebrity._id}
                     onClick={() => !isOtherSelected && onSelect(celebrity)}
                     className={isSelected ? 'selected-row' : ''}
-                    style={{ 
+                    style={{
                       cursor: isOtherSelected ? 'not-allowed' : 'pointer',
-                      backgroundColor: isSelected ? 'rgba(0, 123, 255, 0.3)' : 
-                                     isOtherSelected ? 'rgba(255, 0, 0, 0.1)' : 'transparent',
+                      backgroundColor: isSelected ? 'rgba(0, 123, 255, 0.3)' :
+                                     isOtherSelected ? 'rgba(255, 0, 0, 0.1)' : zebra,
+                      color: '#212529',
                       transition: 'background-color 0.2s ease',
                       opacity: isOtherSelected ? 0.5 : 1
                     }}
                   >
-                    <td>{celebrity.firstName}</td>
-                    <td>{celebrity.lastName}</td>
-                    <td>{celebrity.dateOfBirth}</td>
-                    <td>{celebrity.placeOfBirth}</td>
+                    <td style={{ color: '#212529' }}>{celebrity.firstName}</td>
+                    <td style={{ color: '#212529' }}>{celebrity.lastName}</td>
+                    <td style={{ color: '#212529' }}>{celebrity.dateOfBirth}</td>
+                    <td style={{ color: '#212529' }}>{celebrity.placeOfBirth}</td>
                   </tr>
                 );
               })
@@ -273,38 +280,40 @@ function CelebrityRelationshipSelector({
           fontSize: '12px',
           gap: '10px'
         }}>
-          <div style={{ color: 'grey' }}>
+          <div style={{ color: '#495057' }}>
             Showing {celebrities.length} of {paginatedData.pagination.totalItems} celebrities
           </div>
-          
+
           <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
             <button
               onClick={paginatedData.pagination.goToPrev}
               disabled={!paginatedData.pagination.hasPrev || paginatedData.loading}
               style={{
                 padding: '4px 8px',
-                border: '1px solid #ccc',
+                border: '1px solid #6c757d',
                 borderRadius: '4px',
-                backgroundColor: paginatedData.pagination.hasPrev ? '#f8f9fa' : '#e9ecef',
+                backgroundColor: paginatedData.pagination.hasPrev ? '#ffffff' : '#e9ecef',
+                color: '#212529',
                 cursor: paginatedData.pagination.hasPrev ? 'pointer' : 'not-allowed',
                 fontSize: '11px'
               }}
             >
               Prev
             </button>
-            
-            <span style={{ margin: '0 5px', color: 'grey' }}>
+
+            <span style={{ margin: '0 5px', color: '#212529', fontWeight: 600 }}>
               {paginatedData.pagination.currentPage}/{paginatedData.pagination.totalPages}
             </span>
-            
+
             <button
               onClick={paginatedData.pagination.goToNext}
               disabled={!paginatedData.pagination.hasNext || paginatedData.loading}
               style={{
                 padding: '4px 8px',
-                border: '1px solid #ccc',
+                border: '1px solid #6c757d',
                 borderRadius: '4px',
-                backgroundColor: paginatedData.pagination.hasNext ? '#f8f9fa' : '#e9ecef',
+                backgroundColor: paginatedData.pagination.hasNext ? '#ffffff' : '#e9ecef',
+                color: '#212529',
                 cursor: paginatedData.pagination.hasNext ? 'pointer' : 'not-allowed',
                 fontSize: '11px'
               }}

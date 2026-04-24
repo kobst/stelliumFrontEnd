@@ -1136,13 +1136,17 @@ export const startRelationshipWorkflow = async (userIdA, userIdB, compositeChart
     const endpoint = useAdmin ? '/admin/workflow/relationship/start' : '/workflow/relationship/start';
     console.log("📤 RELATIONSHIP REQUEST BODY:", JSON.stringify(requestBody));
     console.log("📍 RELATIONSHIP REQUEST URL:", `${getServerUrl()}${endpoint}`);
-    
+
+    const headers = useAdmin
+      ? await buildAuthHeaders()
+      : { [CONTENT_TYPE_HEADER]: APPLICATION_JSON };
+
     const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      headers,
       body: JSON.stringify(requestBody)
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Start relationship workflow error response:", errorText);
@@ -1162,9 +1166,13 @@ export const getRelationshipWorkflowStatus = async (compositeChartId, useAdmin =
   console.log("Getting relationship workflow status for:", compositeChartId, "useAdmin:", useAdmin);
   try {
     const endpoint = useAdmin ? '/admin/workflow/relationship/status' : '/workflow/relationship/status';
+    const headers = useAdmin
+      ? await buildAuthHeaders()
+      : { [CONTENT_TYPE_HEADER]: APPLICATION_JSON };
+
     const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      headers,
       body: JSON.stringify({ compositeChartId })
     });
     
@@ -1187,9 +1195,13 @@ export const resumeRelationshipWorkflow = async (compositeChartId, useAdmin = fa
   console.log("🔄 Resuming relationship workflow for:", compositeChartId, "useAdmin:", useAdmin);
   try {
     const endpoint = useAdmin ? '/admin/workflow/relationship/resume' : '/workflow/relationship/resume';
+    const headers = useAdmin
+      ? await buildAuthHeaders()
+      : { [CONTENT_TYPE_HEADER]: APPLICATION_JSON };
+
     const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      headers,
       body: JSON.stringify({ compositeChartId })
     });
     
@@ -1220,12 +1232,16 @@ export const startFullRelationshipAnalysis = async (compositeChartId, useAdmin =
   console.log("🚀 Request body:", requestBody);
   try {
     const endpoint = useAdmin ? '/admin/workflow/relationship/start' : '/workflow/relationship/start';
+    const headers = useAdmin
+      ? await buildAuthHeaders()
+      : { [CONTENT_TYPE_HEADER]: APPLICATION_JSON };
+
     const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      headers,
       body: JSON.stringify(requestBody)
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Start full relationship analysis error:", errorText);
@@ -1246,9 +1262,13 @@ export const createRelationshipWithFullAnalysis = async (userIdA, userIdB, useAd
   console.log("🔥 Creating relationship with full analysis:", { userIdA, userIdB, useAdmin });
   try {
     const endpoint = useAdmin ? '/admin/workflow/relationship/start' : '/workflow/relationship/start';
+    const headers = useAdmin
+      ? await buildAuthHeaders()
+      : { [CONTENT_TYPE_HEADER]: APPLICATION_JSON };
+
     const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
-      headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
+      headers,
       body: JSON.stringify({ userIdA, userIdB, immediate: true })
     });
     
