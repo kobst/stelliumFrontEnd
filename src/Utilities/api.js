@@ -624,6 +624,20 @@ export const fetchRelationshipAnalysis = async (compositeChartId) => {
       });
     }
 
+    if (!response.ok) {
+      let errorMessage = `HTTP error! status: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData?.error || errorData?.message || errorMessage;
+      } catch (parseError) {
+        const errorText = await response.text().catch(() => '');
+        if (errorText) {
+          errorMessage = errorText;
+        }
+      }
+      throw new Error(errorMessage);
+    }
+
     const responseData = await response.json();
     
     console.log("🔍 FULL API RESPONSE:", JSON.stringify(responseData, null, 2));
