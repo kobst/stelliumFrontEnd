@@ -1,0 +1,336 @@
+.video-assets {
+  margin: 30px 20px;
+  padding: 20px;
+}
+
+.video-assets h2 {
+  color: white;
+  font-size: 1.4rem;
+  margin: 0 0 20px 0;
+}
+
+.video-assets h3 {
+  color: white;
+  font-size: 1.1rem;
+  margin: 24px 0 12px 0;
+}
+
+.va-section {
+  background: rgba(139, 92, 246, 0.06);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.va-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.va-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  min-width: 130px;
+}
+
+.va-input,
+.va-select {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 6px;
+  color: white;
+  padding: 6px 10px;
+  font-size: 0.88rem;
+  min-width: 220px;
+}
+
+.va-input:focus,
+.va-select:focus {
+  outline: none;
+  border-color: #a78bfa;
+}
+
+.va-input.va-input-wide {
+  min-width: 320px;
+  flex: 1;
+}
+
+.va-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.va-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.va-button {
+  background: rgba(139, 92, 246, 0.25);
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.va-button:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.4);
+}
+
+.va-button.va-button-primary {
+  background: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.va-button.va-button-primary:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.4);
+}
+
+.va-button.va-button-danger {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.va-button.va-button-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.4);
+}
+
+.va-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.va-celebrity-search-results {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.va-celebrity-result {
+  padding: 8px 12px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.va-celebrity-result:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.va-celebrity-result:last-child {
+  border-bottom: none;
+}
+
+.va-selected-celebrity {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(139, 92, 246, 0.2);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+}
+
+.va-selected-celebrity button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.va-job-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.va-job-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.va-job-badge.queued { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+.va-job-badge.running { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.va-job-badge.completed { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.va-job-badge.failed { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+.va-error {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+.va-asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.va-asset-card {
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.va-asset-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.va-asset-format {
+  color: #a78bfa;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.va-asset-status-pill {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.va-asset-status-pill.draft { background: rgba(156, 163, 175, 0.25); color: #d1d5db; }
+.va-asset-status-pill.approved { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.va-asset-status-pill.posted { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.va-asset-status-pill.trashed { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+.va-asset-field-label {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.va-asset-textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 6px;
+  color: white;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.va-asset-textarea:focus {
+  outline: none;
+  border-color: #a78bfa;
+}
+
+.va-slide-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.va-slide-type {
+  font-size: 0.7rem;
+  color: #a78bfa;
+  background: rgba(139, 92, 246, 0.18);
+  padding: 4px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+  min-width: 56px;
+  text-align: center;
+}
+
+.va-slide-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.va-asset-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.va-asset-meta {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.va-asset-save-status {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.va-asset-save-status.error {
+  color: #ef4444;
+}
+
+.va-empty {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .va-asset-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .va-input.va-input-wide,
+  .va-select {
+    min-width: 0;
+    width: 100%;
+  }
+}
