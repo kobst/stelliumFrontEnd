@@ -144,3 +144,68 @@ export async function deleteRelationship(compositeChartId, ownerUserId = null) {
 
   return apiFetch(`/relationships/${compositeChartId}`, requestOptions);
 }
+
+// ---------- Video Assets (admin-only) ----------
+
+export const VIDEO_ASSET_FORMATS = [
+  'big_three',
+  'pattern_callout',
+  'dominance_hook',
+  'domain_drill',
+];
+
+export const VIDEO_ASSET_STATUSES = ['draft', 'approved', 'posted', 'trashed'];
+
+export async function startVideoAssetJob({ celebrityId, formats, variantsPerFormat = 1 }) {
+  return apiFetch('/admin/video-assets/generate', {
+    method: HTTP_POST,
+    headers: await buildAuthHeaders(),
+    body: JSON.stringify({ celebrityId, formats, variantsPerFormat }),
+  });
+}
+
+export async function fetchVideoAssetJob(jobId) {
+  return apiFetch(`/admin/video-assets/jobs/${jobId}`, {
+    method: 'GET',
+    headers: await buildAuthHeaders(),
+  });
+}
+
+export async function fetchVideoAssets(filters = {}) {
+  const params = new URLSearchParams();
+  if (filters.celebrityId) params.set('celebrityId', filters.celebrityId);
+  if (filters.status) params.set('status', filters.status);
+  if (filters.format) params.set('format', filters.format);
+  if (filters.jobId) params.set('jobId', filters.jobId);
+  if (filters.limit != null) params.set('limit', String(filters.limit));
+  if (filters.offset != null) params.set('offset', String(filters.offset));
+  const query = params.toString();
+  return apiFetch(`/admin/video-assets${query ? `?${query}` : ''}`, {
+    method: 'GET',
+    headers: await buildAuthHeaders(),
+  });
+}
+
+export async function updateVideoAsset(assetId, patch) {
+  return apiFetch(`/admin/video-assets/${assetId}`, {
+    method: 'PATCH',
+    headers: await buildAuthHeaders(),
+    body: JSON.stringify(patch),
+  });
+}
+
+export async function trashVideoAsset(assetId) {
+  return apiFetch(`/admin/video-assets/${assetId}`, {
+    method: 'DELETE',
+    headers: await buildAuthHeaders(),
+  });
+}
+
+export async function regenerateVideoAsset(assetId, format = null) {
+  const body = format ? { format } : {};
+  return apiFetch(`/admin/video-assets/${assetId}/regenerate`, {
+    method: HTTP_POST,
+    headers: await buildAuthHeaders(),
+    body: JSON.stringify(body),
+  });
+}

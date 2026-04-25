@@ -6,6 +6,7 @@ import CelebritiesTable from '../UI/prototype/CelebritiesTable';
 import AddCelebrityForm from '../UI/admin/AddCelebrityForm';
 import CelebrityRelationshipsTab from '../UI/admin/CelebrityRelationshipsTab';
 import HoroscopePreview from '../UI/admin/HoroscopePreview';
+import VideoAssetsTab from '../UI/admin/VideoAssetsTab';
 import useStore from '../Utilities/store';
 
 function AdminPage() {
@@ -72,6 +73,7 @@ function AdminPage() {
       <AddCelebrityForm onCelebrityAdded={handleCelebrityAdded} />
       <CelebrityRelationshipsTab />
       <HoroscopePreview />
+      <VideoAssetsTab />
     </div>
   );
 }
