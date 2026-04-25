@@ -29,12 +29,12 @@ function CelebrityRelationshipSelector({
   // Use paginated data hooks for both tables when pagination is enabled
   const paginatedDataA = usePaginatedData(
     fetchCelebritiesWrapperA,
-    { page: 1, limit: 10, sortBy: 'name', sortOrder: 'asc' }
+    { page: 1, limit: 50, sortBy: 'name', sortOrder: 'asc' }
   );
 
   const paginatedDataB = usePaginatedData(
     fetchCelebritiesWrapperB,
-    { page: 1, limit: 10, sortBy: 'name', sortOrder: 'asc' }
+    { page: 1, limit: 50, sortBy: 'name', sortOrder: 'asc' }
   );
 
   // Legacy data loading for backward compatibility
@@ -120,7 +120,11 @@ function CelebrityRelationshipSelector({
               marginBottom: '10px',
               backgroundColor: '#ffffff',
               color: '#212529',
-              fontSize: '14px'
+              fontSize: '14px',
+              fontFamily: 'inherit',
+              fontStyle: 'normal',
+              textAlign: 'left',
+              boxSizing: 'border-box'
             }}
           />
 
@@ -139,12 +143,15 @@ function CelebrityRelationshipSelector({
                 borderRadius: '4px',
                 fontSize: '12px',
                 backgroundColor: '#ffffff',
-                color: '#212529'
+                color: '#212529',
+                fontFamily: 'inherit',
+                fontStyle: 'normal'
               }}
             >
-              <option value={5}>5 per page</option>
               <option value={10}>10 per page</option>
               <option value={20}>20 per page</option>
+              <option value={50}>50 per page</option>
+              <option value={100}>100 per page</option>
             </select>
 
             {paginatedData.loading && <span style={{ color: '#d97706' }}>Loading...</span>}
@@ -180,7 +187,9 @@ function CelebrityRelationshipSelector({
             color: '#212529',
             fontSize: '14px',
             cursor: 'pointer',
-            minWidth: '120px'
+            minWidth: '120px',
+            fontFamily: 'inherit',
+            fontStyle: 'normal'
           }}
         >
           <option value="all">All</option>
@@ -282,6 +291,12 @@ function CelebrityRelationshipSelector({
         }}>
           <div style={{ color: '#495057' }}>
             Showing {celebrities.length} of {paginatedData.pagination.totalItems} celebrities
+            {paginatedData.search.debouncedSearchTerm && (
+              <span> (filtered by "{paginatedData.search.debouncedSearchTerm}")</span>
+            )}
+            {genderFilter !== 'all' && (
+              <span> · gender: {genderFilter}</span>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>

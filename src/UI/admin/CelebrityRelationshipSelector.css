@@ -67,9 +67,19 @@
   font-weight: 600;
 }
 
+.celebrity-table-container input,
+.celebrity-table-container select {
+  font-family: inherit;
+  font-style: normal;
+  text-align: left;
+  color: #212529;
+  background: #ffffff;
+}
+
 .celebrity-table-container input::placeholder {
   color: #6c757d;
   opacity: 1;
+  font-style: normal;
 }
 
 .celebrity-table-container input:focus,
