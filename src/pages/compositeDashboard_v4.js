@@ -63,9 +63,6 @@ function CompositeDashboard_v4({}) {
     // Add state for holistic overview
     const [holisticOverview, setHolisticOverview] = useState(null);
     
-    // Add state for profile analysis
-    const [profileAnalysis, setProfileAnalysis] = useState(null);
-    
     // Add state for cluster scoring (numerical data)
     const [clusterScoring, setClusterScoring] = useState(null);
     
@@ -200,12 +197,6 @@ function CompositeDashboard_v4({}) {
                 if (fetchedData?.holisticOverview) {
                     console.log("Holistic overview available: ", fetchedData.holisticOverview);
                     setHolisticOverview(fetchedData.holisticOverview);
-                }
-
-                // Handle profile analysis
-                if (fetchedData?.profileAnalysis) {
-                    console.log("Profile analysis available: ", fetchedData.profileAnalysis);
-                    setProfileAnalysis(fetchedData.profileAnalysis);
                 }
 
                 // Handle cluster analysis (NEW API: clusterAnalysis contains cluster data)
@@ -367,12 +358,6 @@ function CompositeDashboard_v4({}) {
     if (analysisData.holisticOverview) {
       console.log("Holistic overview from workflow:", analysisData.holisticOverview);
       setHolisticOverview(analysisData.holisticOverview);
-    }
-
-    // Handle profile analysis from workflow response
-    if (analysisData.profileAnalysis) {
-      console.log("Profile analysis from workflow:", analysisData.profileAnalysis);
-      setProfileAnalysis(analysisData.profileAnalysis);
     }
 
     // Handle cluster analysis from workflow response (NEW API structure)
