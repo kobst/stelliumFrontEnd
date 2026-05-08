@@ -22,6 +22,13 @@ function formatLabel(format) {
     .join(' ');
 }
 
+function formatDomainLabel(domain) {
+  if (!domain) return '';
+  if (typeof domain === 'string') return domain;
+  if (typeof domain === 'object') return domain.title || domain.key || '';
+  return String(domain);
+}
+
 function CelebrityPicker({ selected, onSelect }) {
   const [term, setTerm] = useState('');
   const [results, setResults] = useState([]);
@@ -222,6 +229,7 @@ function AssetCard({ asset, onChanged, onRemoved }) {
 
   const slides = draft.copy?.slides || [];
   const hashtagInputValue = (draft.copy?.hashtags || []).map((h) => `#${h}`).join(' ');
+  const selectedDomainLabel = formatDomainLabel(asset.selectedDomain);
 
   return (
     <div className="va-asset-card">
@@ -253,14 +261,14 @@ function AssetCard({ asset, onChanged, onRemoved }) {
             <div className="va-slide-fields">
               <textarea
                 className="va-asset-textarea"
-                rows={2}
+                rows={3}
                 value={slide.text || ''}
                 onChange={(e) => handleSlideChange(i, 'text', e.target.value)}
                 placeholder="text"
               />
               <textarea
                 className="va-asset-textarea"
-                rows={1}
+                rows={2}
                 value={slide.subtext || ''}
                 onChange={(e) => handleSlideChange(i, 'subtext', e.target.value)}
                 placeholder="subtext"
@@ -274,7 +282,7 @@ function AssetCard({ asset, onChanged, onRemoved }) {
         <div className="va-asset-field-label">Caption</div>
         <textarea
           className="va-asset-textarea"
-          rows={2}
+          rows={4}
           value={draft.copy?.caption || ''}
           onChange={(e) => updateCopy((c) => ({ ...c, caption: e.target.value }))}
         />
@@ -282,9 +290,9 @@ function AssetCard({ asset, onChanged, onRemoved }) {
 
       <div>
         <div className="va-asset-field-label">Hashtags</div>
-        <input
-          type="text"
+        <textarea
           className="va-asset-textarea"
+          rows={2}
           value={hashtagInputValue}
           onChange={(e) => handleHashtagsChange(e.target.value)}
           placeholder="#example #tags"
@@ -295,7 +303,7 @@ function AssetCard({ asset, onChanged, onRemoved }) {
         <div className="va-asset-field-label">Notes</div>
         <textarea
           className="va-asset-textarea"
-          rows={2}
+          rows={3}
           value={draft.notes}
           onChange={(e) => setDraft((p) => ({ ...p, notes: e.target.value }))}
           onBlur={handleNotesBlur}
@@ -346,7 +354,7 @@ function AssetCard({ asset, onChanged, onRemoved }) {
         {asset.celebrityName && <span>{asset.celebrityName}</span>}
         {asset.source?.model && <span>{asset.source.model}</span>}
         {asset.source?.promptVersion && <span>{asset.source.promptVersion}</span>}
-        {asset.selectedDomain && <span>domain: {asset.selectedDomain}</span>}
+        {selectedDomainLabel && <span>domain: {selectedDomainLabel}</span>}
         {asset.postedAt && <span>posted: {new Date(asset.postedAt).toLocaleString()}</span>}
       </div>
     </div>
