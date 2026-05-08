@@ -195,19 +195,20 @@
 
 .va-asset-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: 16px;
-  margin-top: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 720px), 1fr));
+  gap: 20px;
+  margin: 16px auto 0;
+  max-width: 1500px;
 }
 
 .va-asset-card {
   background: rgba(139, 92, 246, 0.08);
   border: 1px solid rgba(139, 92, 246, 0.25);
   border-radius: 12px;
-  padding: 16px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
 }
 
 .va-asset-header {
@@ -244,7 +245,7 @@
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .va-asset-textarea {
@@ -253,9 +254,10 @@
   border: 1px solid rgba(139, 92, 246, 0.25);
   border-radius: 6px;
   color: white;
-  padding: 6px 10px;
-  font-size: 0.85rem;
+  padding: 10px 12px;
+  font-size: 0.92rem;
   font-family: inherit;
+  line-height: 1.35;
   resize: vertical;
   box-sizing: border-box;
 }
@@ -267,21 +269,21 @@
 
 .va-slide-row {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: flex-start;
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
 
 .va-slide-type {
   font-size: 0.7rem;
   color: #a78bfa;
   background: rgba(139, 92, 246, 0.18);
-  padding: 4px 8px;
+  padding: 8px 10px;
   border-radius: 4px;
   flex-shrink: 0;
   text-transform: uppercase;
   font-weight: 600;
-  min-width: 56px;
+  min-width: 76px;
   text-align: center;
 }
 
@@ -289,7 +291,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .va-asset-actions {
