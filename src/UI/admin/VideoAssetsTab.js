@@ -14,6 +14,16 @@ import './VideoAssetsTab.css';
 
 const POLL_INTERVAL_MS = 2500;
 const TERMINAL_STATUSES = new Set(['completed', 'failed']);
+const DOMAIN_DRILL_FORMAT = 'domain_drill';
+const DOMAIN_OPTIONS = [
+  { key: '', title: 'Default domain' },
+  { key: 'IDENTITY', title: 'Identity' },
+  { key: 'EMOTIONAL_FOUNDATIONS', title: 'Emotional Foundations' },
+  { key: 'PARTNERSHIPS', title: 'Partnerships' },
+  { key: 'CAREER', title: 'Career & Public Image' },
+  { key: 'SPIRITUAL', title: 'Spiritual' },
+  { key: 'COMMUNICATION', title: 'Communication' },
+];
 
 function formatLabel(format) {
   return format
@@ -346,6 +356,7 @@ function VideoAssetsTab() {
   const [celebrity, setCelebrity] = useState(null);
   const [selectedFormats, setSelectedFormats] = useState(['big_three']);
   const [variantsPerFormat, setVariantsPerFormat] = useState(1);
+  const [selectedDomainKey, setSelectedDomainKey] = useState('');
   const [job, setJob] = useState(null);
   const [jobError, setJobError] = useState(null);
   const [starting, setStarting] = useState(false);
@@ -364,6 +375,13 @@ function VideoAssetsTab() {
     () => selectedFormats.length * variantsPerFormat,
     [selectedFormats, variantsPerFormat],
   );
+  const includesDomainDrill = selectedFormats.includes(DOMAIN_DRILL_FORMAT);
+
+  useEffect(() => {
+    if (includesDomainDrill && variantsPerFormat !== 1) {
+      setVariantsPerFormat(1);
+    }
+  }, [includesDomainDrill, variantsPerFormat]);
 
   const loadAssets = useCallback(async () => {
     setAssetsLoading(true);
@@ -445,6 +463,7 @@ function VideoAssetsTab() {
         celebrityId: celebrity._id,
         formats: selectedFormats,
         variantsPerFormat,
+        domainKey: includesDomainDrill ? selectedDomainKey : null,
       });
       if (res?.job) {
         setJob(res.job);
@@ -516,12 +535,31 @@ function VideoAssetsTab() {
           </div>
         </div>
 
+        {includesDomainDrill && (
+          <div className="va-row">
+            <span className="va-label">Domain Drill domain</span>
+            <select
+              className="va-select"
+              value={selectedDomainKey}
+              onChange={(e) => setSelectedDomainKey(e.target.value)}
+              style={{ minWidth: 260 }}
+            >
+              {DOMAIN_OPTIONS.map((domain) => (
+                <option key={domain.key || 'default'} value={domain.key}>
+                  {domain.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div className="va-row">
           <span className="va-label">Variants per format</span>
           <select
             className="va-select"
             value={variantsPerFormat}
             onChange={(e) => setVariantsPerFormat(Number(e.target.value))}
+            disabled={includesDomainDrill}
             style={{ minWidth: 100 }}
           >
             {[1, 2, 3, 4, 5].map((n) => (

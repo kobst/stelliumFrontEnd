@@ -156,11 +156,19 @@ export const VIDEO_ASSET_FORMATS = [
 
 export const VIDEO_ASSET_STATUSES = ['draft', 'approved', 'posted', 'trashed'];
 
-export async function startVideoAssetJob({ celebrityId, formats, variantsPerFormat = 1 }) {
+export async function startVideoAssetJob({
+  celebrityId,
+  formats,
+  variantsPerFormat = 1,
+  domainKey = null,
+}) {
+  const body = { celebrityId, formats, variantsPerFormat };
+  if (domainKey) body.domainKey = domainKey;
+
   return apiFetch('/admin/video-assets/generate', {
     method: HTTP_POST,
     headers: await buildAuthHeaders(),
-    body: JSON.stringify({ celebrityId, formats, variantsPerFormat }),
+    body: JSON.stringify(body),
   });
 }
 
