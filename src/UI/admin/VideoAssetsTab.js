@@ -29,6 +29,53 @@ function formatDomainLabel(domain) {
   return String(domain);
 }
 
+function formatCopyValue(value) {
+  if (value == null) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (typeof value === 'object') return value.title || value.text || value.key || JSON.stringify(value);
+  return String(value);
+}
+
+function buildAssetMarkdown(asset) {
+  const copy = asset.copy || {};
+  const lines = [];
+  const hook = formatCopyValue(copy.hook);
+  const slides = Array.isArray(copy.slides) ? copy.slides : [];
+  const caption = formatCopyValue(copy.caption);
+  const hashtags = Array.isArray(copy.hashtags) ? copy.hashtags : [];
+
+  if (hook) {
+    lines.push('## Hook', hook);
+  }
+
+  if (slides.length > 0) {
+    if (lines.length > 0) lines.push('');
+    lines.push('## Slides');
+    slides.forEach((slide, index) => {
+      const type = formatCopyValue(slide?.type || `Slide ${index + 1}`);
+      const text = formatCopyValue(slide?.text);
+      const subtext = formatCopyValue(slide?.subtext);
+      lines.push(`### ${index + 1}. ${type}`);
+      if (text) lines.push(text);
+      if (subtext) lines.push('', subtext);
+      if (index < slides.length - 1) lines.push('');
+    });
+  }
+
+  if (caption) {
+    if (lines.length > 0) lines.push('');
+    lines.push('## Caption', caption);
+  }
+
+  if (hashtags.length > 0) {
+    if (lines.length > 0) lines.push('');
+    lines.push('## Hashtags', hashtags.map((tag) => `#${String(tag).replace(/^#/, '')}`).join(' '));
+  }
+
+  return lines.join('\n');
+}
+
 function CelebrityPicker({ selected, onSelect }) {
   const [term, setTerm] = useState('');
   const [results, setResults] = useState([]);
@@ -115,14 +162,12 @@ function CelebrityPicker({ selected, onSelect }) {
 
 function AssetCard({ asset, onChanged, onRemoved }) {
   const [draft, setDraft] = useState(() => ({
-    copy: asset.copy || { hook: '', slides: [], caption: '', hashtags: [] },
     status: asset.status || 'draft',
     notes: asset.notes || '',
     postedUrl: asset.postedUrl || '',
   }));
   const [saveState, setSaveState] = useState({ status: 'idle', message: '' });
   const [busy, setBusy] = useState(false);
-  const debounceRef = useRef(null);
   const lastSyncedAssetIdRef = useRef(asset.id);
 
   // If parent supplies a new asset object, sync local state.
@@ -130,13 +175,15 @@ function AssetCard({ asset, onChanged, onRemoved }) {
     if (lastSyncedAssetIdRef.current !== asset.id) {
       lastSyncedAssetIdRef.current = asset.id;
       setDraft({
-        copy: asset.copy || { hook: '', slides: [], caption: '', hashtags: [] },
         status: asset.status || 'draft',
         notes: asset.notes || '',
         postedUrl: asset.postedUrl || '',
       });
     }
   }, [asset]);
+
+  const assetMarkdown = useMemo(() => buildAssetMarkdown(asset), [asset]);
+  const selectedDomainLabel = formatDomainLabel(asset.selectedDomain);
 
   const persist = useCallback(async (patch) => {
     setSaveState({ status: 'saving', message: 'Saving...' });
@@ -148,21 +195,6 @@ function AssetCard({ asset, onChanged, onRemoved }) {
       setSaveState({ status: 'error', message: err.message || 'Save failed' });
     }
   }, [asset.id, onChanged]);
-
-  const debouncedPersistCopy = useCallback((nextCopy) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      persist({ copy: nextCopy });
-    }, 800);
-  }, [persist]);
-
-  const updateCopy = (mutator) => {
-    setDraft((prev) => {
-      const nextCopy = mutator(prev.copy);
-      debouncedPersistCopy(nextCopy);
-      return { ...prev, copy: nextCopy };
-    });
-  };
 
   const updateField = (field, value, options = {}) => {
     setDraft((prev) => ({ ...prev, [field]: value }));
@@ -179,23 +211,6 @@ function AssetCard({ asset, onChanged, onRemoved }) {
 
   const handlePostedUrlBlur = () => {
     if (draft.postedUrl !== (asset.postedUrl || '')) persist({ postedUrl: draft.postedUrl });
-  };
-
-  const handleHashtagsChange = (raw) => {
-    const next = raw
-      .split(/[\s,]+/)
-      .map((t) => t.replace(/^#/, '').trim())
-      .filter(Boolean);
-    updateCopy((c) => ({ ...c, hashtags: next }));
-  };
-
-  const handleSlideChange = (index, field, value) => {
-    updateCopy((c) => {
-      const slides = (c.slides || []).map((slide, i) =>
-        i === index ? { ...slide, [field]: value } : slide,
-      );
-      return { ...c, slides };
-    });
   };
 
   const handleTrash = async () => {
@@ -227,9 +242,14 @@ function AssetCard({ asset, onChanged, onRemoved }) {
     }
   };
 
-  const slides = draft.copy?.slides || [];
-  const hashtagInputValue = (draft.copy?.hashtags || []).map((h) => `#${h}`).join(' ');
-  const selectedDomainLabel = formatDomainLabel(asset.selectedDomain);
+  const handleCopyMarkdown = async () => {
+    try {
+      await navigator.clipboard.writeText(assetMarkdown);
+      setSaveState({ status: 'saved', message: 'Copied' });
+    } catch (err) {
+      setSaveState({ status: 'error', message: 'Copy failed' });
+    }
+  };
 
   return (
     <div className="va-asset-card">
@@ -241,61 +261,22 @@ function AssetCard({ asset, onChanged, onRemoved }) {
       </div>
 
       <div>
-        <div className="va-asset-field-label">Hook</div>
-        <input
-          type="text"
-          className="va-asset-textarea"
-          value={draft.copy?.hook || ''}
-          onChange={(e) => updateCopy((c) => ({ ...c, hook: e.target.value }))}
-        />
-      </div>
-
-      <div>
-        <div className="va-asset-field-label">Slides</div>
-        {slides.length === 0 && (
-          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>No slides.</div>
-        )}
-        {slides.map((slide, i) => (
-          <div key={i} className="va-slide-row">
-            <span className="va-slide-type">{slide.type || 'slide'}</span>
-            <div className="va-slide-fields">
-              <textarea
-                className="va-asset-textarea"
-                rows={3}
-                value={slide.text || ''}
-                onChange={(e) => handleSlideChange(i, 'text', e.target.value)}
-                placeholder="text"
-              />
-              <textarea
-                className="va-asset-textarea"
-                rows={2}
-                value={slide.subtext || ''}
-                onChange={(e) => handleSlideChange(i, 'subtext', e.target.value)}
-                placeholder="subtext"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div>
-        <div className="va-asset-field-label">Caption</div>
+        <div className="va-markdown-header">
+          <div className="va-asset-field-label">Generated Copy</div>
+          <button
+            type="button"
+            className="va-button va-button-compact"
+            onClick={handleCopyMarkdown}
+            disabled={!assetMarkdown}
+          >
+            Copy
+          </button>
+        </div>
         <textarea
-          className="va-asset-textarea"
-          rows={4}
-          value={draft.copy?.caption || ''}
-          onChange={(e) => updateCopy((c) => ({ ...c, caption: e.target.value }))}
-        />
-      </div>
-
-      <div>
-        <div className="va-asset-field-label">Hashtags</div>
-        <textarea
-          className="va-asset-textarea"
-          rows={2}
-          value={hashtagInputValue}
-          onChange={(e) => handleHashtagsChange(e.target.value)}
-          placeholder="#example #tags"
+          className="va-asset-textarea va-markdown-copy"
+          rows={16}
+          readOnly
+          value={assetMarkdown || 'No generated copy.'}
         />
       </div>
 
