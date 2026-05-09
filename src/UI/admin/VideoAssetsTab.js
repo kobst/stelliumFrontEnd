@@ -372,9 +372,12 @@ function VideoAssetsTab() {
   const [assets, setAssets] = useState([]);
   const [assetsLoading, setAssetsLoading] = useState(false);
   const [assetsError, setAssetsError] = useState(null);
+  const [assetsPagination, setAssetsPagination] = useState({ total: 0, limit: 50, offset: 0 });
   const [filterStatus, setFilterStatus] = useState('');
   const [filterFormat, setFilterFormat] = useState('');
-  const [filterScope, setFilterScope] = useState('celebrity'); // 'celebrity' | 'job'
+  const [filterScope, setFilterScope] = useState('all'); // 'all' | 'celebrity' | 'job'
+  const [assetLimit, setAssetLimit] = useState(50);
+  const [assetOffset, setAssetOffset] = useState(0);
 
   const reqAssetCount = useMemo(
     () => selectedFormats.length * variantsPerFormat,
@@ -382,30 +385,28 @@ function VideoAssetsTab() {
   );
 
   const loadAssets = useCallback(async () => {
-    if (!celebrity && !job) {
-      setAssets([]);
-      return;
-    }
     setAssetsLoading(true);
     setAssetsError(null);
     try {
-      const filters = { limit: 100 };
+      const filters = { limit: assetLimit, offset: assetOffset };
       if (filterScope === 'job' && job?.id) {
         filters.jobId = job.id;
-      } else if (celebrity) {
+      } else if (filterScope === 'celebrity' && celebrity) {
         filters.celebrityId = celebrity._id;
       }
       if (filterStatus) filters.status = filterStatus;
       if (filterFormat) filters.format = filterFormat;
       const res = await fetchVideoAssets(filters);
       setAssets(res?.assets || []);
+      setAssetsPagination(res?.pagination || { total: res?.assets?.length || 0, limit: assetLimit, offset: assetOffset });
     } catch (err) {
       setAssetsError(err.message || 'Failed to load assets');
       setAssets([]);
+      setAssetsPagination({ total: 0, limit: assetLimit, offset: assetOffset });
     } finally {
       setAssetsLoading(false);
     }
-  }, [celebrity, job, filterScope, filterStatus, filterFormat]);
+  }, [assetLimit, assetOffset, celebrity, job, filterScope, filterStatus, filterFormat]);
 
   useEffect(() => {
     loadAssets();
@@ -467,6 +468,7 @@ function VideoAssetsTab() {
       if (res?.job) {
         setJob(res.job);
         setFilterScope('job');
+        setAssetOffset(0);
       } else {
         throw new Error('No job returned');
       }
@@ -503,7 +505,18 @@ function VideoAssetsTab() {
 
         <div className="va-row">
           <span className="va-label">Celebrity</span>
-          <CelebrityPicker selected={celebrity} onSelect={setCelebrity} />
+          <CelebrityPicker
+            selected={celebrity}
+            onSelect={(nextCelebrity) => {
+              setCelebrity(nextCelebrity);
+              setAssetOffset(0);
+              if (nextCelebrity) {
+                setFilterScope('celebrity');
+              } else if (filterScope === 'celebrity') {
+                setFilterScope('all');
+              }
+            }}
+          />
         </div>
 
         <div className="va-row">
@@ -573,18 +586,24 @@ function VideoAssetsTab() {
           <select
             className="va-select"
             value={filterScope}
-            onChange={(e) => setFilterScope(e.target.value)}
+            onChange={(e) => {
+              setFilterScope(e.target.value);
+              setAssetOffset(0);
+            }}
             style={{ minWidth: 180 }}
-            disabled={!job}
           >
-            <option value="celebrity">All for selected celebrity</option>
-            <option value="job">From current job</option>
+            <option value="all">All generated assets</option>
+            <option value="celebrity" disabled={!celebrity}>All for selected celebrity</option>
+            <option value="job" disabled={!job}>From current job</option>
           </select>
 
           <select
             className="va-select"
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => {
+              setFilterStatus(e.target.value);
+              setAssetOffset(0);
+            }}
             style={{ minWidth: 140 }}
           >
             <option value="">Any status</option>
@@ -596,7 +615,10 @@ function VideoAssetsTab() {
           <select
             className="va-select"
             value={filterFormat}
-            onChange={(e) => setFilterFormat(e.target.value)}
+            onChange={(e) => {
+              setFilterFormat(e.target.value);
+              setAssetOffset(0);
+            }}
             style={{ minWidth: 160 }}
           >
             <option value="">Any format</option>
@@ -609,17 +631,52 @@ function VideoAssetsTab() {
             type="button"
             className="va-button"
             onClick={loadAssets}
-            disabled={assetsLoading || (!celebrity && !job)}
+            disabled={assetsLoading}
           >
             {assetsLoading ? 'Loading...' : 'Refresh'}
           </button>
         </div>
 
+        <div className="va-row va-pagination-row">
+          <span className="va-label">Results</span>
+          <span className="va-pagination-summary">
+            Showing {assets.length === 0 ? 0 : assetOffset + 1}
+            -{assetOffset + assets.length} of {assetsPagination.total ?? assets.length}
+          </span>
+          <select
+            className="va-select"
+            value={assetLimit}
+            onChange={(e) => {
+              setAssetLimit(Number(e.target.value));
+              setAssetOffset(0);
+            }}
+            style={{ minWidth: 110 }}
+          >
+            {[25, 50, 100].map((n) => (
+              <option key={n} value={n}>{n} per page</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="va-button"
+            onClick={() => setAssetOffset(Math.max(0, assetOffset - assetLimit))}
+            disabled={assetsLoading || assetOffset === 0}
+          >
+            Previous
+          </button>
+          <button
+            type="button"
+            className="va-button"
+            onClick={() => setAssetOffset(assetOffset + assetLimit)}
+            disabled={assetsLoading || assetOffset + assetLimit >= (assetsPagination.total ?? 0)}
+          >
+            Next
+          </button>
+        </div>
+
         {assetsError && <div className="va-error">{assetsError}</div>}
 
-        {!celebrity && !job ? (
-          <div className="va-empty">Pick a celebrity or start a job to view assets.</div>
-        ) : assets.length === 0 && !assetsLoading ? (
+        {assets.length === 0 && !assetsLoading ? (
           <div className="va-empty">No assets match the current filters.</div>
         ) : (
           <div className="va-asset-grid">
