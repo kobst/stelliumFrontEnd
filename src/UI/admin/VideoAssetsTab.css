@@ -60,18 +60,35 @@
 }
 
 .va-checkbox-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  flex: 1;
+  max-width: 820px;
 }
 
 .va-checkbox {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
+  min-height: 38px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  border-radius: 6px;
   color: rgba(255, 255, 255, 0.85);
   font-size: 0.85rem;
+  padding: 8px 10px;
   cursor: pointer;
+}
+
+.va-checkbox:hover {
+  border-color: rgba(167, 139, 250, 0.5);
+  background: rgba(139, 92, 246, 0.12);
+}
+
+.va-checkbox input {
+  margin: 0;
+  flex: 0 0 auto;
 }
 
 .va-button {
