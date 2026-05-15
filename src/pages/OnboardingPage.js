@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import stelliumIcon from '../assets/StelliumIcon.svg';
+import StelliumWordmark from '../UI/shared/StelliumWordmark';
 import OnboardingForm from '../UI/landingPage/OnboardingForm';
 import './signUpPage.css';
 
@@ -65,7 +65,7 @@ const OnboardingPage = () => {
             <div className="signup-container">
                 {/* Header */}
                 <div className="signup-header">
-                    <img className="signup-logo" src={stelliumIcon} alt="Stellium logo" />
+                    <StelliumWordmark size="lg" />
                     <h1 className="signup-title">Complete Your Profile</h1>
                     <p className="signup-subtitle">
                         Enter your birth information to unlock your personalized astrological insights

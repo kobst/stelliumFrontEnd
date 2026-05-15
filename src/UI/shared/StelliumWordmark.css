@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap');
+
+.stellium-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+}
+.stellium-wordmark__glyph {
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #2a1f4a, #1a1230);
+  box-shadow: 0 0 24px -6px rgba(202,190,255,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.stellium-wordmark__glyph svg {
+  display: block;
+}
+.stellium-wordmark__name {
+  font-family: "Newsreader", "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: #ece8ff;
+}
+
+/* Size variants */
+.stellium-wordmark--sm .stellium-wordmark__glyph { width: 28px; height: 28px; }
+.stellium-wordmark--sm .stellium-wordmark__glyph svg { width: 18px; height: 18px; }
+.stellium-wordmark--sm .stellium-wordmark__name { font-size: 18px; }
+
+.stellium-wordmark--md .stellium-wordmark__glyph { width: 34px; height: 34px; }
+.stellium-wordmark--md .stellium-wordmark__glyph svg { width: 22px; height: 22px; }
+.stellium-wordmark--md .stellium-wordmark__name { font-size: 22px; }
+
+.stellium-wordmark--lg .stellium-wordmark__glyph { width: 56px; height: 56px; border-radius: 14px; }
+.stellium-wordmark--lg .stellium-wordmark__glyph svg { width: 36px; height: 36px; }
+.stellium-wordmark--lg .stellium-wordmark__name { font-size: 40px; }
+
+.stellium-wordmark--xl .stellium-wordmark__glyph { width: 72px; height: 72px; border-radius: 18px; }
+.stellium-wordmark--xl .stellium-wordmark__glyph svg { width: 46px; height: 46px; }
+.stellium-wordmark--xl .stellium-wordmark__name { font-size: 52px; }
+
+/* Centered (column) layout for hero-style placements */
+.stellium-wordmark--stack {
+  flex-direction: column;
+  gap: 18px;
+  text-align: center;
+}

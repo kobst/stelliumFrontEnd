@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import stelliumIcon from '../assets/StelliumIcon.svg';
+import StelliumWordmark from '../UI/shared/StelliumWordmark';
 import './LoginPage.css';
 
 const LoginPage = () => {
@@ -130,8 +130,7 @@ const LoginPage = () => {
     <div className="login-page">
       <div className="login-container">
         <div className="login-header">
-          <img className="login-logo" src={stelliumIcon} alt="Stellium logo" />
-          <h1 className="login-title">STELLIUM</h1>
+          <StelliumWordmark size="lg" />
           <p className="login-subtitle">
             {isSignUp ? 'Create your account' : 'Welcome back'}
           </p>

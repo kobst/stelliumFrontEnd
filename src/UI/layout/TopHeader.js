@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import PlanBadge from '../entitlements/PlanBadge';
 import CreditsIndicator from '../entitlements/CreditsIndicator';
 import useEntitlementsStore from '../../Utilities/entitlementsStore';
+import StelliumWordmark from '../shared/StelliumWordmark';
 import './TopHeader.css';
 
 const NAV_ITEMS = [
@@ -117,7 +118,7 @@ function TopHeader({ user, onMenuToggle, currentSection, onNavClick, onLogout })
         </button>
 
         {/* Branding */}
-        <a href="/" className="top-header__branding">STELLIUM</a>
+        <StelliumWordmark href="/" size="md" className="top-header__branding" />
       </div>
 
       {/* Center Navigation */}
