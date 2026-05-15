@@ -1,3 +1,10 @@
+/**
+ * @deprecated 2026-05-13 — Replaced by the Stellium home redesign.
+ *   New equivalent: the Discover charts section in `src/pages/LandingPage.js`
+ *   (`.lp-celebs` / `.lp-celeb-card`). Same `fetchCelebrities()` data is now
+ *   rendered inline with the new portrait card styling.
+ *   No longer imported anywhere. Safe to delete (along with its .css file).
+ */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchCelebrities } from '../../Utilities/api';

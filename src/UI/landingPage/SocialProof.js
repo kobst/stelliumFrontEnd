@@ -1,3 +1,11 @@
+/**
+ * @deprecated 2026-05-13 — Replaced by the Stellium home redesign.
+ *   The redesign does not include a testimonials section. Social proof is
+ *   now implicit via the live Discover charts / Discover couples rows in
+ *   `src/pages/LandingPage.js`. Reintroduce a testimonials block here only
+ *   if the redesign brings one back.
+ *   No longer imported anywhere. Safe to delete.
+ */
 import React from 'react';
 
 export default function SocialProof() {

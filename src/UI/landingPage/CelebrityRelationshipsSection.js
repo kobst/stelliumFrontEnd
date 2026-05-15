@@ -1,3 +1,12 @@
+/**
+ * @deprecated 2026-05-13 — Replaced by the Stellium home redesign.
+ *   New equivalent: the Discover couples section in `src/pages/LandingPage.js`
+ *   (`.lp-pair-card` with overlapping avatars and the HAR/PAS/CON/STA/GRO
+ *   stat strip). Same `getCelebrityRelationships()` data is now rendered
+ *   inline with the new pair-card styling.
+ *   No longer imported anywhere. Safe to delete (along with its .css file
+ *   and `CelebrityRelationshipCard`).
+ */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCelebrityRelationships, fetchCelebrities } from '../../Utilities/api';

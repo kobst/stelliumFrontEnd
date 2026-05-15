@@ -1,3 +1,9 @@
+/**
+ * @deprecated 2026-05-13 — Replaced by the Stellium home redesign.
+ *   New equivalent: the How it works section in `src/pages/LandingPage.js`
+ *   (`.lp-how` — 3 tonal step cards with serif numerals).
+ *   No longer imported anywhere. Safe to delete.
+ */
 import React from 'react';
 
 export default function HowItWorksSection() {

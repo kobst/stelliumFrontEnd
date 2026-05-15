@@ -1,3 +1,9 @@
+/**
+ * @deprecated 2026-05-13 — Replaced by the Stellium home redesign.
+ *   Was used by the deprecated `CelebrityRelationshipsSection`. The redesign
+ *   renders pair cards inline as `.lp-pair-card` in `src/pages/LandingPage.js`.
+ *   No longer imported anywhere. Safe to delete (along with its .css file).
+ */
 import React from 'react';
 import './CelebrityRelationshipCard.css';
 
