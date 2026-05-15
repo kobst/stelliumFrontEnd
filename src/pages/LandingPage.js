@@ -428,6 +428,7 @@ function LandingPage() {
   };
 
   const handleViewAllCelebs = () => navigate('/celebrities');
+  const handleViewAllRelationships = () => navigate('/celebrity-relationships');
   const handleViewAllSigns = () => navigate('/horoscopes/weekly');
 
   const dashboardLabel = stelliumUser ? 'Go to Dashboard' : 'Start free';
@@ -658,7 +659,7 @@ function LandingPage() {
               <div className="lp-eyebrow gold">Explore celebrity relationships</div>
               <h2>Cosmic chemistry between <span className="italic">famous couples.</span></h2>
             </div>
-            <button type="button" className="lp-row-head__meta" onClick={handleViewAllCelebs}>
+            <button type="button" className="lp-row-head__meta" onClick={handleViewAllRelationships}>
               All relationships →
             </button>
           </div>

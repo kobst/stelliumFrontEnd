@@ -13,6 +13,7 @@ import HelpCenter from './pages/HelpCenter';
 import PublicCelebritiesPage from './pages/PublicCelebritiesPage';
 import PublicCelebrityDashboard from './pages/PublicCelebrityDashboard';
 import PublicCelebrityRelationship from './pages/PublicCelebrityRelationship';
+import PublicCelebrityRelationships from './pages/PublicCelebrityRelationships';
 import PublicWeeklyHoroscopesPage from './pages/PublicWeeklyHoroscopesPage';
 
 // Onboarding pages (auth required, no profile required)
@@ -47,6 +48,7 @@ function App() {
             <Route path="/help" element={<HelpCenter />} />
             <Route path="/celebrities" element={<PublicCelebritiesPage />} />
             <Route path="/celebrities/:celebrityId" element={<PublicCelebrityDashboard />} />
+            <Route path="/celebrity-relationships" element={<PublicCelebrityRelationships />} />
             <Route path="/celebrity-relationships/:compositeId" element={<PublicCelebrityRelationship />} />
             <Route path="/horoscopes/weekly" element={<PublicWeeklyHoroscopesPage />} />
             <Route path="/horoscopes/weekly/:sign" element={<PublicWeeklyHoroscopesPage />} />
