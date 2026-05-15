@@ -159,9 +159,11 @@ function FeatureCard({ celeb, tone, large, caption, onClick }) {
       className={`cc-feat${large ? ' cc-feat--large' : ''}`}
       onClick={onClick}
     >
-      <div className={`cc-feat__ports cc-portrait ${tone}`}>
-        <PortraitInner celeb={celeb} large={large} />
-        <SunPill sunSign={sunSign} />
+      <div className="cc-feat__ports">
+        <div className={`cc-portrait ${tone}`}>
+          <PortraitInner celeb={celeb} large={large} />
+          <SunPill sunSign={sunSign} />
+        </div>
       </div>
       <div className="cc-feat__body">
         {dateStr && <div className="cc-feat__sub">{dateStr}</div>}
@@ -186,9 +188,11 @@ function GridCelebCard({ celeb, tone, onClick }) {
   const dateStr = formatBirthDate(celeb);
   return (
     <button type="button" className="cc-celeb-card" onClick={onClick}>
-      <div className={`cc-celeb-card__ports cc-portrait ${tone}`}>
-        <PortraitInner celeb={celeb} />
-        <SunPill sunSign={sunSign} />
+      <div className="cc-celeb-card__ports">
+        <div className={`cc-portrait ${tone}`}>
+          <PortraitInner celeb={celeb} />
+          <SunPill sunSign={sunSign} />
+        </div>
       </div>
       <div className="cc-celeb-card__body">
         <h3 className="cc-celeb-card__name">{getFullName(celeb)}</h3>
