@@ -5,34 +5,47 @@ import './ChartTabs.css';
 
 function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity, canUseAskStellium = false }) {
   const [chatOpen, setChatOpen] = useState(false);
-  // If no overview data
-  if (!basicAnalysis?.overview) {
+
+  const overview = basicAnalysis?.overview;
+
+  if (!overview) {
     return (
-      <div className="chart-tab-empty">
-        <h3>Overview</h3>
-        <p>No overview data available yet.</p>
+      <div className="chart-tab-content overview-tab">
+        <div className="bcd-empty">No overview reading available yet.</div>
       </div>
     );
   }
 
+  const paragraphs = overview
+    .split(/\n\s*\n|\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
   return (
     <div className="chart-tab-content overview-tab">
-      <div className="overview-section">
-        <div className="overview-section-header">
-          <h3 className="overview-section-title">Overview</h3>
-          {!isCelebrity && (
-            <AskStelliumCta
-              hasFullAccess={canUseAskStellium}
-              onActivate={() => setChatOpen(true)}
-            />
-          )}
+      <article className="bcd-reading">
+        <div className="bcd-reading__quote">“</div>
+        <div className="bcd-reading__label-row">
+          <div className="bcd-eyebrow gold">The Reading</div>
+          <div className="bcd-reading__minutes">
+            {Math.max(1, Math.ceil(overview.split(/\s+/).length / 200))} MIN READ
+          </div>
         </div>
-        <div className="overview-text">
-          {basicAnalysis.overview.split('\n').map((paragraph, index) => (
-            paragraph.trim() && <p key={index}>{paragraph}</p>
+        <div className="bcd-reading__body">
+          {paragraphs.map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
           ))}
         </div>
-      </div>
+      </article>
+
+      {!isCelebrity && (
+        <div style={{ marginTop: 24 }}>
+          <AskStelliumCta
+            hasFullAccess={canUseAskStellium}
+            onActivate={() => setChatOpen(true)}
+          />
+        </div>
+      )}
 
       {!isCelebrity && canUseAskStellium && (
         <AskStelliumPanel
@@ -44,9 +57,9 @@ function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity, canUseAs
           contextLabel="About your birth chart"
           placeholderText="Ask about your birth chart..."
           suggestedQuestions={[
-            "What are my greatest strengths?",
-            "How does my Moon sign affect my emotions?",
-            "What should I focus on for personal growth?"
+            'What are my greatest strengths?',
+            'How does my Moon sign affect my emotions?',
+            'What should I focus on for personal growth?'
           ]}
         />
       )}

@@ -396,8 +396,8 @@ function ChartDetailPage() {
       {() => (
         <div className="chart-detail-page">
           {analysisLoading && !analysisStatus && (
-            <div className="analysis-loading-banner">
-              Loading analysis data...
+            <div className="bcd-loading-banner">
+              Loading analysis data…
             </div>
           )}
           <ChartDetailLayout
@@ -410,6 +410,7 @@ function ChartDetailPage() {
             isGuest={isGuest}
             onPhotoUpdated={handlePhotoUpdated}
             hasAnalysis={hasAnalysis}
+            credits={entitlements.credits}
           />
         </div>
       )}

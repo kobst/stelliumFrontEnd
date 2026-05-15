@@ -13,29 +13,28 @@ function ChartTab({ birthChart, chartId, isCelebrity = false, canUseAskStellium 
   if (!planets.length) {
     return (
       <div className="chart-tab">
-        <div className="chart-tab-empty">
-          <p>Birth chart data not available.</p>
-        </div>
+        <div className="bcd-empty">Birth chart data not available.</div>
       </div>
     );
   }
 
   return (
     <div className="chart-tab">
-      <div className="chart-section-header">
-        <h2 className="chart-section-title">Chart</h2>
-        {!isCelebrity && (
-          <AskStelliumCta
-            hasFullAccess={canUseAskStellium}
-            onActivate={() => setChatOpen(true)}
-          />
-        )}
-      </div>
       <BirthChartSummaryTable
         planets={planets}
         houses={houses}
         aspects={aspects}
       />
+
+      {!isCelebrity && (
+        <div style={{ marginTop: 24 }}>
+          <AskStelliumCta
+            hasFullAccess={canUseAskStellium}
+            onActivate={() => setChatOpen(true)}
+          />
+        </div>
+      )}
+
       {!isCelebrity && canUseAskStellium && (
         <AskStelliumPanel
           isOpen={chatOpen}
@@ -46,9 +45,9 @@ function ChartTab({ birthChart, chartId, isCelebrity = false, canUseAskStellium 
           contextLabel="About your birth chart"
           placeholderText="Ask about your birth chart..."
           suggestedQuestions={[
-            "What are my greatest strengths?",
-            "How does my Moon sign affect my emotions?",
-            "What should I focus on for personal growth?"
+            'What are my greatest strengths?',
+            'How does my Moon sign affect my emotions?',
+            'What should I focus on for personal growth?'
           ]}
         />
       )}
