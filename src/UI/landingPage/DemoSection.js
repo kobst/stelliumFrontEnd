@@ -1,3 +1,12 @@
+/**
+ * @deprecated 2026-05-13 — Replaced by the Stellium home redesign.
+ *   The rotating chat-bubble demo is superseded by the interactive
+ *   `AskStelliumShowcase` (still in use), wrapped in the new `.lp-ask`
+ *   atmospherics in `src/pages/LandingPage.js`. The horoscope flip-card
+ *   has no direct equivalent — its role is now played by the sign picker
+ *   (`.lp-sign-grid`) feeding into the Weekly Horoscopes page.
+ *   No longer imported anywhere. Safe to delete.
+ */
 import React, { useState, useEffect } from 'react';
 import stelliumIcon from '../../assets/StelliumIcon.svg';
 import { PlanetIcon } from '../shared/AstroIcon';

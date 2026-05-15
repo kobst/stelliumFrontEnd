@@ -1,3 +1,9 @@
+/**
+ * @deprecated 2026-05-13 — Replaced by the Stellium home redesign.
+ *   New equivalent: the Features section in `src/pages/LandingPage.js`
+ *   (`.lp-feature-grid` — four feat cards + hero feat card with chart-mini).
+ *   No longer imported anywhere. Safe to delete.
+ */
 import React from 'react';
 
 export default function FourPillarsSection() {

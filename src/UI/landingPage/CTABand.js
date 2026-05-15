@@ -1,3 +1,9 @@
+/**
+ * @deprecated 2026-05-13 — Replaced by the Stellium home redesign.
+ *   New equivalent: the hero CTA buttons and the Final CTA section
+ *   (`.lp-final-cta`) in `src/pages/LandingPage.js`.
+ *   No longer imported anywhere. Safe to delete.
+ */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';

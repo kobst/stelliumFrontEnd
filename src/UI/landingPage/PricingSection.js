@@ -1,3 +1,10 @@
+/**
+ * @deprecated 2026-05-13 — Replaced by the Stellium home redesign.
+ *   New equivalent: the Pricing section in `src/pages/LandingPage.js`
+ *   (`.lp-plans` 3-plan grid + `.lp-compare` table with Free / Plus / One-credit
+ *   columns). CTAs still wire to `useCheckout` the same way.
+ *   No longer imported anywhere. Safe to delete.
+ */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 

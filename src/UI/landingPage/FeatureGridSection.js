@@ -1,3 +1,10 @@
+/**
+ * @deprecated 2026-05-13 — Replaced by the Stellium home redesign.
+ *   Subsumed by the Features section in `src/pages/LandingPage.js`
+ *   (`.lp-feature-grid`). The "coming soon" celebrity matching badge is
+ *   superseded by the live Discover charts / Discover couples sections.
+ *   No longer imported anywhere. Safe to delete.
+ */
 import React from 'react';
 
 export default function FeatureGridSection() {
