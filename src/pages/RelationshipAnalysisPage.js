@@ -310,6 +310,7 @@ function RelationshipAnalysisPage() {
             lockedSections={lockedSections}
             activeSection={activeSection}
             onSectionChange={setActiveSection}
+            credits={entitlements.credits}
           />
         </div>
       )}
