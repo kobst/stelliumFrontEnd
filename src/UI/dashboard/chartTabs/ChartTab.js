@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import BirthChartSummaryTable from '../../birthChart/tables/BirthChartSummaryTable';
+import ChartTabSummary from './ChartTabSummary';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import AskStelliumCta from './AskStelliumCta';
 import './ChartTab.css';
@@ -20,11 +20,7 @@ function ChartTab({ birthChart, chartId, isCelebrity = false, canUseAskStellium 
 
   return (
     <div className="chart-tab">
-      <BirthChartSummaryTable
-        planets={planets}
-        houses={houses}
-        aspects={aspects}
-      />
+      <ChartTabSummary planets={planets} houses={houses} aspects={aspects} />
 
       {!isCelebrity && (
         <div style={{ marginTop: 24 }}>
