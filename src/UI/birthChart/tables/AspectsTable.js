@@ -38,6 +38,7 @@ function buildPlanetLookup(planets, houses) {
     byName.set(p.name, {
       sign: p.sign,
       degreeInSign: typeof p.norm_degree === 'number' ? p.norm_degree : undefined,
+      house: typeof p.house === 'number' ? p.house : undefined,
     });
   });
   const anglePoints = [
@@ -51,6 +52,8 @@ function buildPlanetLookup(planets, houses) {
     if (byName.has(name)) return;
     const h = (houses || []).find((x) => x.house === house);
     if (h) {
+      // Angles are house cusps themselves — omit `house` to avoid the
+      // redundant "Ascendant · 1st house" label.
       byName.set(name, {
         sign: h.sign,
         degreeInSign: typeof h.degree === 'number' ? h.degree % 30 : undefined,
@@ -125,12 +128,14 @@ const AspectsTable = ({ aspectsArray, planets = [], houses = [] }) => {
                           name: aName,
                           sign: aPos.sign,
                           degree: aPos.degreeInSign,
+                          house: aPos.house,
                           color: aName === 'Sun' ? 'gold' : 'lilac',
                         }}
                         to={{
                           name: bName,
                           sign: bPos.sign,
                           degree: bPos.degreeInSign,
+                          house: bPos.house,
                           color: bName === 'Sun' ? 'gold' : 'lilac',
                         }}
                         relation={getAspectName(aspect.aspectType)}

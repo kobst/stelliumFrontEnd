@@ -467,6 +467,11 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
                               name: scoredItem.planet1,
                               sign: planet1Sign,
                               degree: typeof scoredItem.planet1Degree === 'number' ? scoredItem.planet1Degree : undefined,
+                              house: typeof scoredItem.planet1House === 'number'
+                                ? scoredItem.planet1House
+                                : typeof scoredItem.planet1InHouse === 'number'
+                                ? scoredItem.planet1InHouse
+                                : undefined,
                               color: fromColor,
                               person: fromPerson,
                             }}
@@ -474,6 +479,11 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
                               name: scoredItem.planet2,
                               sign: planet2Sign,
                               degree: typeof scoredItem.planet2Degree === 'number' ? scoredItem.planet2Degree : undefined,
+                              house: typeof scoredItem.planet2House === 'number'
+                                ? scoredItem.planet2House
+                                : typeof scoredItem.planet2InHouse === 'number'
+                                ? scoredItem.planet2InHouse
+                                : undefined,
                               color: toColor,
                               person: toPerson,
                             }}

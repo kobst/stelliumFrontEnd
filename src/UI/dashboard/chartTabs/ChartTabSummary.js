@@ -213,6 +213,8 @@ function resolvePos(name, planets, houses) {
   if (houseNum) {
     const h = houses.find((x) => x.house === houseNum);
     if (!h) return null;
+    // Angles are house cusps themselves — omit `house` to avoid the
+    // redundant "Ascendant · 1st house" label.
     return {
       sign: h.sign,
       degreeInSign: typeof h.degree === 'number' ? h.degree % 30 : undefined,
@@ -223,6 +225,7 @@ function resolvePos(name, planets, houses) {
   return {
     sign: p.sign,
     degreeInSign: typeof p.norm_degree === 'number' ? p.norm_degree : undefined,
+    house: typeof p.house === 'number' ? p.house : undefined,
   };
 }
 
@@ -310,12 +313,14 @@ function KeyAspectsCard({ aspects, planets, houses }) {
                       name: aName,
                       sign: aPos.sign,
                       degree: aPos.degreeInSign,
+                      house: aPos.house,
                       color: aName === 'Sun' ? 'gold' : 'lilac',
                     }}
                     to={{
                       name: bName,
                       sign: bPos.sign,
                       degree: bPos.degreeInSign,
+                      house: bPos.house,
                       color: bName === 'Sun' ? 'gold' : 'lilac',
                     }}
                     relation={label}

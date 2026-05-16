@@ -81,6 +81,8 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
     if (houseNum) {
       const h = houses.find((x) => x.house === houseNum);
       if (!h) return null;
+      // Angles are house cusps themselves — omit `house` to avoid the
+      // redundant "Ascendant · 1st house" label.
       return {
         sign: h.sign,
         degreeInSign: typeof h.degree === 'number' ? h.degree % 30 : undefined,
@@ -91,6 +93,7 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
     return {
       sign: p.sign,
       degreeInSign: typeof p.norm_degree === 'number' ? p.norm_degree : undefined,
+      house: typeof p.house === 'number' ? p.house : undefined,
     };
   };
 
@@ -297,12 +300,14 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
                                     name: currentPlanet.name,
                                     sign: selfPos.sign,
                                     degree: selfPos.degreeInSign,
+                                    house: selfPos.house,
                                     color: currentPlanet.name === 'Sun' ? 'gold' : 'lilac',
                                   }}
                                   to={{
                                     name: otherName,
                                     sign: otherPos.sign,
                                     degree: otherPos.degreeInSign,
+                                    house: otherPos.house,
                                     color: otherName === 'Sun' ? 'gold' : 'lilac',
                                   }}
                                   relation={formatAspectName(aspect.aspectType)}
