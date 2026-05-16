@@ -99,7 +99,10 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskSt
   const birthChartA = relationship?.userA_birthChart;
   const birthChartB = relationship?.userB_birthChart;
 
-  const hasBothCharts = birthChartA?.planets?.length > 0 && birthChartB?.planets?.length > 0;
+  const hasChartA = birthChartA?.planets?.length > 0;
+  const hasChartB = birthChartB?.planets?.length > 0;
+  const hasBothCharts = hasChartA && hasChartB;
+  const hasAnyChart = hasChartA || hasChartB;
 
   // Stable keys for Ephemeris memoization
   const chartAKey = useMemo(() => {
@@ -213,39 +216,47 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskSt
         <div className="charts-content-redesign">
         {activeSubTab === 'synastry' ? (
           <div className="synastry-tab-content">
-            {hasBothCharts && (
+            {hasAnyChart && (
               <>
                 <div className="charts-section-header">
                   <h3>Synastry Charts</h3>
-                  <p>Each wheel shows one person's birth chart with the other's planets overlaid on the outer ring.</p>
+                  <p>
+                    {hasBothCharts
+                      ? "Each wheel shows one person's birth chart with the other's planets overlaid on the outer ring."
+                      : `Showing ${hasChartA ? userAName : userBName}'s natal chart. The other partner's birth chart isn't available, so the outer transit ring is empty.`}
+                  </p>
                 </div>
                 <div className="synastry-biwheels">
-                  <div className="synastry-biwheel">
-                    <h4 className="synastry-biwheel__label">{userAName}'s Chart</h4>
-                    <div className="synastry-biwheel__canvas">
-                      <Ephemeris
-                        key={chartAKey}
-                        planets={birthChartA.planets}
-                        houses={birthChartA.houses || []}
-                        aspects={synastryAspectsForChartA}
-                        transits={birthChartB.planets}
-                        instanceId="synastry-a"
-                      />
+                  {hasChartA && (
+                    <div className="synastry-biwheel">
+                      <h4 className="synastry-biwheel__label">{userAName}'s Chart</h4>
+                      <div className="synastry-biwheel__canvas">
+                        <Ephemeris
+                          key={chartAKey}
+                          planets={birthChartA.planets}
+                          houses={birthChartA.houses || []}
+                          aspects={hasBothCharts ? synastryAspectsForChartA : []}
+                          transits={hasChartB ? birthChartB.planets : []}
+                          instanceId="synastry-a"
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="synastry-biwheel">
-                    <h4 className="synastry-biwheel__label">{userBName}'s Chart</h4>
-                    <div className="synastry-biwheel__canvas">
-                      <Ephemeris
-                        key={chartBKey}
-                        planets={birthChartB.planets}
-                        houses={birthChartB.houses || []}
-                        aspects={synastryAspectsForChartB}
-                        transits={birthChartA.planets}
-                        instanceId="synastry-b"
-                      />
+                  )}
+                  {hasChartB && (
+                    <div className="synastry-biwheel">
+                      <h4 className="synastry-biwheel__label">{userBName}'s Chart</h4>
+                      <div className="synastry-biwheel__canvas">
+                        <Ephemeris
+                          key={chartBKey}
+                          planets={birthChartB.planets}
+                          houses={birthChartB.houses || []}
+                          aspects={hasBothCharts ? synastryAspectsForChartB : []}
+                          transits={hasChartA ? birthChartA.planets : []}
+                          instanceId="synastry-b"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </>
             )}
