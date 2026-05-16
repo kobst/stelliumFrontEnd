@@ -233,9 +233,8 @@
 
 /* ───────── Houses grid ───────── */
 .cts-house-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .cts-house-row {
@@ -247,8 +246,7 @@
   border-bottom: 1px solid var(--cts-ghost);
 }
 
-.cts-house-row:last-child,
-.cts-house-row:nth-last-child(2) {
+.cts-house-row:last-child {
   border-bottom: 0;
 }
 
@@ -398,13 +396,6 @@
   }
   .cts-wheel-layout {
     grid-template-columns: 1fr;
-  }
-  .cts-house-grid {
-    grid-template-columns: 1fr;
-    gap: 2px;
-  }
-  .cts-house-row:nth-last-child(2) {
-    border-bottom: 1px solid var(--cts-ghost);
   }
 }
 
