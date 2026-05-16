@@ -77,6 +77,39 @@
   font-style: italic;
 }
 
+/* Expandable mini-aspect row */
+.aspects-row[role="button"] {
+  cursor: pointer;
+}
+
+.aspects-row[role="button"]:focus-visible {
+  outline: 1px solid rgba(202, 190, 255, 0.5);
+  outline-offset: -1px;
+}
+
+.aspects-row--open {
+  background: rgba(202, 190, 255, 0.05);
+}
+
+.aspects-row--open .aspects-cell {
+  border-bottom-color: transparent;
+}
+
+.aspects-chev {
+  margin-left: 6px;
+  color: #e9c349;
+  font-size: 0.75rem;
+}
+
+.aspects-mini-row {
+  background: transparent;
+}
+
+.aspects-mini-cell {
+  padding: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .aspects-table {
