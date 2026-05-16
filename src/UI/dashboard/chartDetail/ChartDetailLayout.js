@@ -12,28 +12,60 @@ const SECTION_LABEL = {
   analysis: '360 Analysis'
 };
 
+function formatChartDate(chart) {
+  const value = chart?.dateOfBirth || chart?.birthDate;
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const day = date.getUTCDate();
+  const month = date.toLocaleString('default', { month: 'long', timeZone: 'UTC' });
+  const year = date.getUTCFullYear();
+  return `${day} ${month} ${year}`;
+}
+
+function formatChartMeta(chart) {
+  const parts = [];
+  const time = chart?.timeOfBirth || chart?.birthTime;
+  if (time) parts.push(String(time).toUpperCase());
+  const place = chart?.placeOfBirth || chart?.birthPlace;
+  if (place) {
+    const tokens = place.split(',').map((p) => p.trim()).filter(Boolean);
+    const primary = tokens[0] || place;
+    parts.push(primary.toUpperCase());
+  }
+  parts.push('TROPICAL', 'PLACIDUS');
+  return parts.join(' · ');
+}
+
 const SECTION_HEADLINE = {
-  overview: (
+  overview: () => (
     <>
       The chart, <span className="italic">in plain language.</span>
     </>
   ),
-  chart: (
-    <>
-      The sky, <span className="italic">read from the wheel.</span>
-    </>
-  ),
-  dominance: (
+  chart: (chart) => {
+    const date = formatChartDate(chart);
+    return date ? (
+      <>
+        The sky on <span className="italic">{date}.</span>
+      </>
+    ) : (
+      <>
+        The sky, <span className="italic">read from the wheel.</span>
+      </>
+    );
+  },
+  dominance: () => (
     <>
       The <span className="italic">weather system</span> of the chart.
     </>
   ),
-  planets: (
+  planets: () => (
     <>
       One body, <span className="italic">at a time.</span>
     </>
   ),
-  analysis: (
+  analysis: () => (
     <>
       Six lenses, <span className="italic">one chart.</span>
     </>
@@ -41,11 +73,11 @@ const SECTION_HEADLINE = {
 };
 
 const SECTION_META = {
-  overview: 'Plain-language reading',
-  chart: 'Positions · Houses · Aspects',
-  dominance: '5 lenses on the same sky',
-  planets: 'Body-by-body breakdown',
-  analysis: 'Twelve life areas, clustered'
+  overview: () => 'Plain-language reading',
+  chart: (chart) => formatChartMeta(chart),
+  dominance: () => '5 lenses on the same sky',
+  planets: () => 'Body-by-body breakdown',
+  analysis: () => 'Twelve life areas, clustered'
 };
 
 function generateStardustCircles(count, seed) {
@@ -96,8 +128,10 @@ function ChartDetailLayout({
 }) {
   const currentSection = sections.find((s) => s.id === activeSection);
   const sectionLabel = SECTION_LABEL[activeSection] || '';
-  const headline = SECTION_HEADLINE[activeSection];
-  const meta = SECTION_META[activeSection];
+  const headlineFn = SECTION_HEADLINE[activeSection];
+  const metaFn = SECTION_META[activeSection];
+  const headline = typeof headlineFn === 'function' ? headlineFn(chart) : headlineFn;
+  const meta = typeof metaFn === 'function' ? metaFn(chart) : metaFn;
 
   return (
     <div className="bcd-page">
