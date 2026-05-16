@@ -160,8 +160,7 @@ function PlanetsListCard({ planets }) {
 }
 
 function HousesGridCard({ houses }) {
-  // Order: 1, 7, 2, 8, 3, 9, 4, 10, 5, 11, 6, 12 (visually paired by axis)
-  const HOUSE_AXES = [1, 7, 2, 8, 3, 9, 4, 10, 5, 11, 6, 12];
+  const HOUSE_ORDER = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
   if (!houses || houses.length === 0) {
     return (
@@ -187,7 +186,7 @@ function HousesGridCard({ houses }) {
         <span className="cts-card-sub">Placidus</span>
       </header>
       <div className="cts-house-grid">
-        {HOUSE_AXES.map((n) => {
+        {HOUSE_ORDER.map((n) => {
           const h = byNumber.get(n);
           if (!h) return null;
           return (
