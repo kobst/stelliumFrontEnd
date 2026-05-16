@@ -80,6 +80,29 @@ export function formatRelation(relation) {
   return r.charAt(0).toUpperCase() + r.slice(1);
 }
 
+function ordinalSuffix(n) {
+  const v = Math.abs(n) % 100;
+  if (v >= 11 && v <= 13) return 'th';
+  const last = v % 10;
+  if (last === 1) return 'st';
+  if (last === 2) return 'nd';
+  if (last === 3) return 'rd';
+  return 'th';
+}
+
+function legendLabel({ sign, degree, house }) {
+  const parts = [];
+  if (typeof degree === 'number' && sign) {
+    parts.push(`${degree.toFixed(1)}° ${sign}`);
+  } else if (sign) {
+    parts.push(sign);
+  }
+  if (typeof house === 'number' && house >= 1 && house <= 12) {
+    parts.push(`${house}${ordinalSuffix(house)} house`);
+  }
+  return parts.join(' · ');
+}
+
 function polar(cx, cy, r, deg, ascDeg) {
   const adjusted = (180 - deg + (ascDeg || 0) + 360) % 360;
   const rad = (adjusted * Math.PI) / 180;
@@ -151,6 +174,11 @@ function AspectMiniChartImpl({
   const fromTintId = filterId('from-tint');
   const toTintId = filterId('to-tint');
   const ambientId = filterId('ambient');
+  const activeSignId = filterId('sign-active');
+
+  // Signs that contain one of the two involved planets — rendered more
+  // prominent so the eye lands on the relevant zodiac arc.
+  const activeSigns = new Set([from.sign, to.sign].filter(Boolean));
 
   const planetGlyphSize = size * 0.09;
   const signGlyphSize = size * 0.06;
@@ -180,17 +208,20 @@ function AspectMiniChartImpl({
     const mid = polar(cx, cy, (rInner + rOuter) / 2, cuspDeg + 15, ascendantDegree);
     const signName = SIGN_NAMES[i];
     const signSrc = signIconPaths[signName];
+    const isActive = activeSigns.has(signName);
+    const activeScale = isActive ? 1.25 : 1;
+    const activeSize = signGlyphSize * activeScale;
     if (signSrc) {
       zodiac.push(
         <image
           key={`sign-${i}`}
           href={signSrc}
           xlinkHref={signSrc}
-          x={mid.x - signGlyphSize / 2}
-          y={mid.y - signGlyphSize / 2}
-          width={signGlyphSize}
-          height={signGlyphSize}
-          filter={`url(#${ambientId})`}
+          x={mid.x - activeSize / 2}
+          y={mid.y - activeSize / 2}
+          width={activeSize}
+          height={activeSize}
+          filter={`url(#${isActive ? activeSignId : ambientId})`}
         />
       );
     } else {
@@ -198,11 +229,11 @@ function AspectMiniChartImpl({
         <text
           key={`sign-${i}`}
           x={mid.x}
-          y={mid.y + signGlyphSize * 0.35}
+          y={mid.y + activeSize * 0.35}
           textAnchor="middle"
           fontFamily="Manrope, sans-serif"
-          fontSize={signGlyphSize}
-          fill="rgba(202,190,255,0.34)"
+          fontSize={activeSize}
+          fill={isActive ? 'rgba(232,228,240,0.95)' : 'rgba(202,190,255,0.34)'}
         >
           {SIGN_FALLBACK_GLYPHS[i]}
         </text>
@@ -241,12 +272,8 @@ function AspectMiniChartImpl({
     );
   };
 
-  const fromDegLabel = typeof from.degree === 'number' && from.sign
-    ? `${from.degree.toFixed(1)}° ${from.sign}`
-    : from.sign || '';
-  const toDegLabel = typeof to.degree === 'number' && to.sign
-    ? `${to.degree.toFixed(1)}° ${to.sign}`
-    : to.sign || '';
+  const fromDegLabel = legendLabel(from);
+  const toDegLabel = legendLabel(to);
 
   const legendGlyphStyle = (src, color) => (
     src
@@ -272,6 +299,9 @@ function AspectMiniChartImpl({
           </filter>
           <filter id={ambientId} colorInterpolationFilters="sRGB">
             <feColorMatrix type="matrix" values={tintMatrix(TINT_LILAC, 0.34)} />
+          </filter>
+          <filter id={activeSignId} colorInterpolationFilters="sRGB">
+            <feColorMatrix type="matrix" values={tintMatrix('#e8e4f0', 0.95)} />
           </filter>
         </defs>
         <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke="rgba(202,190,255,0.30)" strokeWidth={0.6} />
