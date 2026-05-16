@@ -3,6 +3,7 @@ import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import AskStelliumCta from './AskStelliumCta';
 import { PlanetIcon, SignIcon } from '../../shared/AstroIcon';
+import AspectMiniChart, { aspectKindFor } from '../../shared/AspectMiniChart';
 import './PlanetsTab.css';
 
 const excludedPlanets = ['South Node', 'Part of Fortune'];
@@ -38,6 +39,13 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
 
   const [selectedPlanet, setSelectedPlanet] = useState(planets[0]?.name || null);
   const [chatOpen, setChatOpen] = useState(false);
+  const [openAspectIdx, setOpenAspectIdx] = useState(null);
+
+  const houses = useMemo(() => birthChart?.houses || [], [birthChart?.houses]);
+  const ascendantDegree = useMemo(() => {
+    const h1 = houses.find((h) => h.house === 1);
+    return typeof h1?.degree === 'number' ? h1.degree : 0;
+  }, [houses]);
 
   // Update selectedPlanet when planets load or change
   useEffect(() => {
@@ -46,6 +54,11 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
     }
   }, [planets, selectedPlanet]);
 
+  // Close any open mini chart when switching planets
+  useEffect(() => {
+    setOpenAspectIdx(null);
+  }, [selectedPlanet]);
+
   const getPlanetInterpretation = (planetName) => {
     if (!basicAnalysis?.planets) return null;
     return basicAnalysis.planets[planetName];
@@ -53,6 +66,32 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
 
   const getPlanetByName = (planetName) => {
     return planets.find(p => p.name === planetName);
+  };
+
+  const HOUSE_BY_ANGLE = {
+    Ascendant: 1,
+    Descendant: 7,
+    Midheaven: 10,
+    MC: 10,
+    IC: 4,
+  };
+
+  const resolvePosition = (planetName) => {
+    const houseNum = HOUSE_BY_ANGLE[planetName];
+    if (houseNum) {
+      const h = houses.find((x) => x.house === houseNum);
+      if (!h) return null;
+      return {
+        sign: h.sign,
+        degreeInSign: typeof h.degree === 'number' ? h.degree % 30 : undefined,
+      };
+    }
+    const p = getPlanetByName(planetName);
+    if (!p) return null;
+    return {
+      sign: p.sign,
+      degreeInSign: typeof p.norm_degree === 'number' ? p.norm_degree : undefined,
+    };
   };
 
   const formatAspectName = (aspectType) => {
@@ -208,31 +247,72 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
                         const otherPlanetData = getPlanetByName(aspect.otherPlanet);
                         const otherName = otherPlanetData?.name || aspect.otherPlanet || 'Unknown';
                         const orbValue = typeof aspect.orbValue === 'number' ? aspect.orbValue.toFixed(2) : null;
+                        const selfPos = resolvePosition(currentPlanet.name);
+                        const otherPos = resolvePosition(otherName);
+                        const canRender = Boolean(selfPos?.sign && otherPos?.sign);
+                        const isOpen = openAspectIdx === idx;
+                        const rowKey = `${aspect.aspectType}-${otherName}-${idx}`;
                         return (
-                          <div
-                            key={`${aspect.aspectType}-${otherName}-${idx}`}
-                            className={`planet-aspect-row ${getAspectColorClass(aspect.aspectType)}`}
-                          >
-                            <div className="planet-aspect-planet">
-                              <span className="planet-symbol">
-                                <PlanetIcon name={currentPlanet.name} size={16} />
-                              </span>
-                              <span className="planet-name">{currentPlanet.name}</span>
+                          <React.Fragment key={rowKey}>
+                            <div
+                              className={`planet-aspect-row ${getAspectColorClass(aspect.aspectType)}${isOpen ? ' planet-aspect-row--open' : ''}`}
+                              onClick={() => canRender && setOpenAspectIdx(isOpen ? null : idx)}
+                              role={canRender ? 'button' : undefined}
+                              tabIndex={canRender ? 0 : undefined}
+                              aria-expanded={canRender ? isOpen : undefined}
+                              onKeyDown={(e) => {
+                                if (!canRender) return;
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  setOpenAspectIdx(isOpen ? null : idx);
+                                }
+                              }}
+                              style={canRender ? { cursor: 'pointer' } : undefined}
+                            >
+                              <div className="planet-aspect-planet">
+                                <span className="planet-symbol">
+                                  <PlanetIcon name={currentPlanet.name} size={16} />
+                                </span>
+                                <span className="planet-name">{currentPlanet.name}</span>
+                              </div>
+                              <div className="planet-aspect-type">
+                                {orbLabel ? `${orbLabel} ` : ''}
+                                {formatAspectName(aspect.aspectType)}
+                              </div>
+                              <div className="planet-aspect-planet">
+                                <span className="planet-symbol">
+                                  <PlanetIcon name={otherName} size={16} />
+                                </span>
+                                <span className="planet-name">{otherName}</span>
+                              </div>
+                              <div className="planet-aspect-orb">
+                                {orbValue ? `${orbValue} Deg` : '—'}
+                                {canRender ? <span className="planet-aspect-chev">{isOpen ? '▴' : '▾'}</span> : null}
+                              </div>
                             </div>
-                            <div className="planet-aspect-type">
-                              {orbLabel ? `${orbLabel} ` : ''}
-                              {formatAspectName(aspect.aspectType)}
-                            </div>
-                            <div className="planet-aspect-planet">
-                              <span className="planet-symbol">
-                                <PlanetIcon name={otherName} size={16} />
-                              </span>
-                              <span className="planet-name">{otherName}</span>
-                            </div>
-                            <div className="planet-aspect-orb">
-                              {orbValue ? `${orbValue} Deg` : '—'}
-                            </div>
-                          </div>
+                            {isOpen && canRender ? (
+                              <div className="planet-aspect-mini">
+                                <AspectMiniChart
+                                  from={{
+                                    name: currentPlanet.name,
+                                    sign: selfPos.sign,
+                                    degree: selfPos.degreeInSign,
+                                    color: currentPlanet.name === 'Sun' ? 'gold' : 'lilac',
+                                  }}
+                                  to={{
+                                    name: otherName,
+                                    sign: otherPos.sign,
+                                    degree: otherPos.degreeInSign,
+                                    color: otherName === 'Sun' ? 'gold' : 'lilac',
+                                  }}
+                                  relation={formatAspectName(aspect.aspectType)}
+                                  kind={aspectKindFor(aspect.aspectType, currentPlanet.name, otherName)}
+                                  orb={typeof aspect.orbValue === 'number' ? aspect.orbValue : undefined}
+                                  ascendantDegree={ascendantDegree}
+                                />
+                              </div>
+                            ) : null}
+                          </React.Fragment>
                         );
                       })}
                     </div>

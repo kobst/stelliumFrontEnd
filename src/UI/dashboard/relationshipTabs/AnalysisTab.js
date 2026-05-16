@@ -6,6 +6,7 @@ import useEntitlementsStore from '../../../Utilities/entitlementsStore';
 import { CREDIT_COSTS } from '../../../Utilities/creditCosts';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import AskStelliumCta from '../chartTabs/AskStelliumCta';
+import AspectMiniChart, { aspectKindFor } from '../../shared/AspectMiniChart';
 import './RelationshipTabs.css';
 
 const CLUSTER_ICONS = {
@@ -40,6 +41,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
   const [showAllAspects, setShowAllAspects] = useState(false);
   const [showSourceFilters, setShowSourceFilters] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [openKeyFactor, setOpenKeyFactor] = useState(null);
   const pollingRef = useRef(null);
   const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
@@ -98,6 +100,27 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
   useEffect(() => {
     setShowAllAspects(false);
   }, [selectedCluster, aspectPanel]);
+
+  // Close any open key-factor mini chart when switching clusters
+  useEffect(() => {
+    setOpenKeyFactor(null);
+  }, [selectedCluster]);
+
+  // Resolve ascendant degrees so the mini chart can orient to match the actual chart.
+  // Synastry aspects rotate to the signed-in user's (Person A's) natal ASC.
+  // Composite aspects rotate to the composite chart's own ASC.
+  const userAAsc = (() => {
+    const houses = relationship?.userA_birthChart?.houses;
+    const h1 = houses?.find?.((h) => h.house === 1);
+    return typeof h1?.degree === 'number' ? h1.degree : 0;
+  })();
+  const compositeAsc = (() => {
+    const houses = relationship?.compositeChart?.houses;
+    const h1 = houses?.find?.((h) => h.house === 1);
+    return typeof h1?.degree === 'number' ? h1.degree : 0;
+  })();
+  const userAFirstName = relationship?.userA_firstName || relationship?.userA_name?.split?.(' ')?.[0] || null;
+  const userBFirstName = relationship?.userB_firstName || relationship?.userB_name?.split?.(' ')?.[0] || null;
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -398,18 +421,70 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
                   const starRating = contribution?.starRating || 0;
                   const contributionScore = contribution?.score || 0;
                   const isSupport = contributionScore > 0;
+                  const source = scoredItem?.source;
+                  const isHousePlacement = scoredItem?.type === 'housePlacement' || source === 'housePlacement';
+                  const planet1Sign = scoredItem?.planet1Sign;
+                  const planet2Sign = scoredItem?.planet2Sign;
+                  const canRenderMini = !isHousePlacement
+                    && Boolean(scoredItem?.planet1 && scoredItem?.planet2 && planet1Sign && planet2Sign);
+                  const isOpen = openKeyFactor === index;
+                  const fromColor = source === 'synastry' ? 'lilac' : 'lilac';
+                  const toColor = source === 'synastry' ? 'gold' : 'lilac';
+                  const fromPerson = source === 'synastry' && userAFirstName ? `${userAFirstName}'s` : undefined;
+                  const toPerson = source === 'synastry' && userBFirstName ? `${userBFirstName}'s` : undefined;
+                  const ascDeg = source === 'composite' ? compositeAsc : userAAsc;
                   return (
-                    <div key={index} className={`key-factor-item ${isSupport ? 'key-factor-item--support' : 'key-factor-item--challenge'}`}>
-                      <div className="key-factor-item__header">
-                        <span className="key-factor-item__description">{aspect.description}</span>
-                        {starRating > 0 && (
-                          <span className="key-factor-item__stars" title={`Score: ${contributionScore.toFixed(1)}`}>{'★'.repeat(starRating)}</span>
+                    <React.Fragment key={index}>
+                      <div
+                        className={`key-factor-item ${isSupport ? 'key-factor-item--support' : 'key-factor-item--challenge'}${isOpen ? ' key-factor-item--open' : ''}`}
+                        onClick={() => canRenderMini && setOpenKeyFactor(isOpen ? null : index)}
+                        role={canRenderMini ? 'button' : undefined}
+                        tabIndex={canRenderMini ? 0 : undefined}
+                        aria-expanded={canRenderMini ? isOpen : undefined}
+                        onKeyDown={(e) => {
+                          if (!canRenderMini) return;
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setOpenKeyFactor(isOpen ? null : index);
+                          }
+                        }}
+                        style={canRenderMini ? { cursor: 'pointer' } : undefined}
+                      >
+                        <div className="key-factor-item__header">
+                          <span className="key-factor-item__description">{aspect.description}</span>
+                          {starRating > 0 && (
+                            <span className="key-factor-item__stars" title={`Score: ${contributionScore.toFixed(1)}`}>{'★'.repeat(starRating)}</span>
+                          )}
+                        </div>
+                        {aspect.impact && (
+                          <span className="key-factor-item__impact">{aspect.impact}</span>
                         )}
                       </div>
-                      {aspect.impact && (
-                        <span className="key-factor-item__impact">{aspect.impact}</span>
-                      )}
-                    </div>
+                      {isOpen && canRenderMini ? (
+                        <div className="key-factor-item__mini">
+                          <AspectMiniChart
+                            from={{
+                              name: scoredItem.planet1,
+                              sign: planet1Sign,
+                              degree: typeof scoredItem.planet1Degree === 'number' ? scoredItem.planet1Degree : undefined,
+                              color: fromColor,
+                              person: fromPerson,
+                            }}
+                            to={{
+                              name: scoredItem.planet2,
+                              sign: planet2Sign,
+                              degree: typeof scoredItem.planet2Degree === 'number' ? scoredItem.planet2Degree : undefined,
+                              color: toColor,
+                              person: toPerson,
+                            }}
+                            relation={scoredItem.aspect}
+                            kind={aspectKindFor(scoredItem.aspect, scoredItem.planet1, scoredItem.planet2)}
+                            orb={typeof scoredItem.orb === 'number' ? scoredItem.orb : undefined}
+                            ascendantDegree={ascDeg}
+                          />
+                        </div>
+                      ) : null}
+                    </React.Fragment>
                   );
                 })}
               </div>

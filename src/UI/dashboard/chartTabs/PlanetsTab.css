@@ -354,6 +354,25 @@
   font-size: 0.85rem;
 }
 
+.planet-aspect-chev {
+  margin-left: 8px;
+  color: #e9c349;
+  font-size: 0.75rem;
+}
+
+.planet-aspect-row[role="button"]:focus-visible {
+  outline: 1px solid rgba(202, 190, 255, 0.5);
+  outline-offset: -1px;
+}
+
+.planet-aspect-row--open {
+  background: rgba(202, 190, 255, 0.05);
+}
+
+.planet-aspect-mini {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 /* Separator line */
 .planet-separator {
   width: 60px;

@@ -67,7 +67,7 @@ const BirthChartSummaryTable = memo(({planets, houses, aspects, transits = []}) 
           <h3 className="chart-box__title">ASPECTS</h3>
         </div>
         <div className="chart-box__content">
-          <AspectsTable aspectsArray={aspects} />
+          <AspectsTable aspectsArray={aspects} planets={planets} houses={houses} />
         </div>
       </div>
     </div>
