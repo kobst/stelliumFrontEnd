@@ -86,9 +86,25 @@
   background: rgba(139, 92, 246, 0.12);
 }
 
-.va-checkbox input {
+.va-checkbox input[type="checkbox"] {
+  width: auto;
+  height: auto;
+  padding: 0;
   margin: 0;
+  border: 0;
+  background: transparent;
   flex: 0 0 auto;
+  appearance: auto;
+}
+
+.va-checkbox-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.va-checkbox-disabled:hover {
+  background: rgba(0, 0, 0, 0.18);
+  border-color: rgba(139, 92, 246, 0.22);
 }
 
 .va-button {

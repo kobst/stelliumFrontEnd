@@ -217,3 +217,10 @@ export async function regenerateVideoAsset(assetId, format = null) {
     body: JSON.stringify(body),
   });
 }
+
+export async function fetchAvailableDomains(celebrityId) {
+  return apiFetch(`/admin/video-assets/celebrity/${celebrityId}/available-domains`, {
+    method: 'GET',
+    headers: await buildAuthHeaders(),
+  });
+}

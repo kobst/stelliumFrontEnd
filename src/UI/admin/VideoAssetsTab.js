@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  fetchAvailableDomains,
   fetchCelebritiesPaginated,
   fetchVideoAssetJob,
   fetchVideoAssets,
@@ -15,15 +16,6 @@ import './VideoAssetsTab.css';
 const POLL_INTERVAL_MS = 2500;
 const TERMINAL_STATUSES = new Set(['completed', 'failed']);
 const DOMAIN_DRILL_FORMAT = 'domain_drill';
-const DOMAIN_OPTIONS = [
-  { key: '', title: 'Default domain' },
-  { key: 'IDENTITY', title: 'Identity' },
-  { key: 'EMOTIONAL_FOUNDATIONS', title: 'Emotional Foundations' },
-  { key: 'PARTNERSHIPS', title: 'Partnerships' },
-  { key: 'CAREER', title: 'Career & Public Image' },
-  { key: 'SPIRITUAL', title: 'Spiritual' },
-  { key: 'COMMUNICATION', title: 'Communication' },
-];
 
 function formatLabel(format) {
   return format
@@ -361,6 +353,10 @@ function VideoAssetsTab() {
   const [jobError, setJobError] = useState(null);
   const [starting, setStarting] = useState(false);
 
+  const [availableDomains, setAvailableDomains] = useState([]);
+  const [domainsLoading, setDomainsLoading] = useState(false);
+  const [domainsError, setDomainsError] = useState(null);
+
   const [assets, setAssets] = useState([]);
   const [assetsLoading, setAssetsLoading] = useState(false);
   const [assetsError, setAssetsError] = useState(null);
@@ -371,17 +367,63 @@ function VideoAssetsTab() {
   const [assetLimit, setAssetLimit] = useState(50);
   const [assetOffset, setAssetOffset] = useState(0);
 
-  const reqAssetCount = useMemo(
-    () => selectedFormats.length * variantsPerFormat,
-    [selectedFormats, variantsPerFormat],
-  );
   const includesDomainDrill = selectedFormats.includes(DOMAIN_DRILL_FORMAT);
+  const hasDomains = availableDomains.length > 0;
+  const fanoutDomainDrill = includesDomainDrill && !selectedDomainKey;
+  const reqAssetCount = useMemo(() => {
+    const nonDrillCount = selectedFormats.filter((f) => f !== DOMAIN_DRILL_FORMAT).length * variantsPerFormat;
+    if (!includesDomainDrill) return nonDrillCount;
+    const drillCount = selectedDomainKey ? 1 : availableDomains.length;
+    return nonDrillCount + drillCount;
+  }, [selectedFormats, variantsPerFormat, includesDomainDrill, selectedDomainKey, availableDomains.length]);
 
   useEffect(() => {
     if (includesDomainDrill && variantsPerFormat !== 1) {
       setVariantsPerFormat(1);
     }
   }, [includesDomainDrill, variantsPerFormat]);
+
+  // Fetch available domains whenever the selected celebrity changes.
+  useEffect(() => {
+    if (!celebrity?._id) {
+      setAvailableDomains([]);
+      setDomainsError(null);
+      setDomainsLoading(false);
+      setSelectedDomainKey('');
+      return undefined;
+    }
+
+    let cancelled = false;
+    setDomainsLoading(true);
+    setDomainsError(null);
+    setSelectedDomainKey('');
+
+    fetchAvailableDomains(celebrity._id)
+      .then((res) => {
+        if (cancelled) return;
+        setAvailableDomains(Array.isArray(res?.domains) ? res.domains : []);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setAvailableDomains([]);
+        setDomainsError(err.message || 'Failed to load available domains');
+      })
+      .finally(() => {
+        if (!cancelled) setDomainsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [celebrity]);
+
+  // If the selected key is no longer available (celebrity changed), clear it.
+  useEffect(() => {
+    if (!selectedDomainKey) return;
+    if (!availableDomains.some((d) => d.key === selectedDomainKey)) {
+      setSelectedDomainKey('');
+    }
+  }, [availableDomains, selectedDomainKey]);
 
   const loadAssets = useCallback(async () => {
     setAssetsLoading(true);
@@ -441,9 +483,13 @@ function VideoAssetsTab() {
   }, [job, loadAssets]);
 
   const toggleFormat = (format) => {
-    setSelectedFormats((prev) =>
-      prev.includes(format) ? prev.filter((f) => f !== format) : [...prev, format],
-    );
+    setSelectedFormats((prev) => {
+      const next = prev.includes(format) ? prev.filter((f) => f !== format) : [...prev, format];
+      if (format === DOMAIN_DRILL_FORMAT && !next.includes(DOMAIN_DRILL_FORMAT)) {
+        setSelectedDomainKey('');
+      }
+      return next;
+    });
   };
 
   const handleStartJob = async () => {
@@ -455,6 +501,10 @@ function VideoAssetsTab() {
       setJobError('Select at least one format.');
       return;
     }
+    if (includesDomainDrill && !hasDomains) {
+      setJobError('No domains available for this celebrity. Domain Drill cannot be generated.');
+      return;
+    }
 
     setStarting(true);
     setJobError(null);
@@ -463,7 +513,7 @@ function VideoAssetsTab() {
         celebrityId: celebrity._id,
         formats: selectedFormats,
         variantsPerFormat,
-        domainKey: includesDomainDrill ? selectedDomainKey : null,
+        domainKey: includesDomainDrill && selectedDomainKey ? selectedDomainKey : null,
       });
       if (res?.job) {
         setJob(res.job);
@@ -522,16 +572,25 @@ function VideoAssetsTab() {
         <div className="va-row">
           <span className="va-label">Formats</span>
           <div className="va-checkbox-group">
-            {VIDEO_ASSET_FORMATS.map((f) => (
-              <label key={f} className="va-checkbox">
-                <input
-                  type="checkbox"
-                  checked={selectedFormats.includes(f)}
-                  onChange={() => toggleFormat(f)}
-                />
-                {formatLabel(f)}
-              </label>
-            ))}
+            {VIDEO_ASSET_FORMATS.map((f) => {
+              const isDomainDrill = f === DOMAIN_DRILL_FORMAT;
+              const disabled = isDomainDrill && celebrity && !domainsLoading && !hasDomains;
+              return (
+                <label
+                  key={f}
+                  className={`va-checkbox${disabled ? ' va-checkbox-disabled' : ''}`}
+                  title={disabled ? 'No domains available for this celebrity' : undefined}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedFormats.includes(f)}
+                    onChange={() => toggleFormat(f)}
+                    disabled={disabled}
+                  />
+                  {formatLabel(f)}
+                </label>
+              );
+            })}
           </div>
         </div>
 
@@ -542,14 +601,34 @@ function VideoAssetsTab() {
               className="va-select"
               value={selectedDomainKey}
               onChange={(e) => setSelectedDomainKey(e.target.value)}
+              disabled={!celebrity || domainsLoading || !hasDomains}
               style={{ minWidth: 260 }}
             >
-              {DOMAIN_OPTIONS.map((domain) => (
-                <option key={domain.key || 'default'} value={domain.key}>
+              <option value="">All available domains</option>
+              {availableDomains.map((domain) => (
+                <option key={domain.key} value={domain.key}>
                   {domain.title}
                 </option>
               ))}
             </select>
+            {!celebrity && (
+              <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem' }}>
+                Pick a celebrity to load domains.
+              </span>
+            )}
+            {celebrity && domainsLoading && (
+              <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem' }}>
+                Loading domains...
+              </span>
+            )}
+            {celebrity && !domainsLoading && !hasDomains && !domainsError && (
+              <span style={{ color: '#fbbf24', fontSize: '0.8rem' }}>
+                No domains available for this celebrity.
+              </span>
+            )}
+            {domainsError && (
+              <span style={{ color: '#ef4444', fontSize: '0.8rem' }}>{domainsError}</span>
+            )}
           </div>
         )}
 
@@ -568,6 +647,7 @@ function VideoAssetsTab() {
           </select>
           <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8rem' }}>
             = {reqAssetCount} asset{reqAssetCount === 1 ? '' : 's'} requested
+            {fanoutDomainDrill && hasDomains ? ` (Domain Drill: one per domain × ${availableDomains.length})` : ''}
           </span>
         </div>
 
