@@ -16,21 +16,6 @@ import {
 import { useAuth } from '../context/AuthContext';
 import './PublicWeeklyHoroscopesPage.css';
 
-const SIGN_DATES = {
-  aries: 'Mar 21 – Apr 19',
-  taurus: 'Apr 20 – May 20',
-  gemini: 'May 21 – Jun 20',
-  cancer: 'Jun 21 – Jul 22',
-  leo: 'Jul 23 – Aug 22',
-  virgo: 'Aug 23 – Sep 22',
-  libra: 'Sep 23 – Oct 22',
-  scorpio: 'Oct 23 – Nov 21',
-  sagittarius: 'Nov 22 – Dec 21',
-  capricorn: 'Dec 22 – Jan 19',
-  aquarius: 'Jan 20 – Feb 18',
-  pisces: 'Feb 19 – Mar 20'
-};
-
 const THEME_PILL_TONES = ['gold', '', 'cyan', '', 'gold', ''];
 
 const PLANET_GLYPH_TO_FILE = {
@@ -347,32 +332,6 @@ function PublicWeeklyHoroscopesPage() {
             >
               →
             </button>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── SIGN PICKER ────────────────────────────────────── */}
-      <section className="wh-sign-picker">
-        <div className="wh-wrap">
-          <div className="wh-sign-row">
-            {ZODIAC_SIGNS.map((sign) => (
-              <button
-                key={sign.value}
-                type="button"
-                className={`wh-sign-chip${selectedSign === sign.value ? ' active' : ''}`}
-                onClick={() => handleSelectSign(sign.value)}
-                aria-pressed={selectedSign === sign.value}
-              >
-                <img
-                  className="wh-sign-chip__icon"
-                  src={`/assets/signs/${sign.value}.svg`}
-                  alt=""
-                  aria-hidden="true"
-                />
-                <span className="wh-sign-chip__nm">{sign.label}</span>
-                <span className="wh-sign-chip__dates">{SIGN_DATES[sign.value]}</span>
-              </button>
-            ))}
           </div>
         </div>
       </section>
