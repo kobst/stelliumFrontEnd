@@ -260,14 +260,11 @@ function PublicWeeklyHoroscopesPage() {
     else navigate('/birthChartEntry');
   };
 
-  // Other signs preview: skip current + show 6 (3-col x 2)
-  const otherSigns = useMemo(() => {
-    const others = ZODIAC_SIGNS.filter((s) => s.value !== selectedSign);
-    const startIdx = ZODIAC_SIGNS.findIndex((s) => s.value === selectedSign) + 1;
-    const rotated = others
-      .map((_, i) => others[(startIdx + i) % others.length])
-      .filter(Boolean);
-    return rotated.slice(0, 6);
+  // Scroll to top on first mount and whenever the selected sign changes,
+  // so deep links like /horoscopes/weekly/scorpio always land at the reading
+  // instead of preserving the previous page's scroll position.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, [selectedSign]);
 
   return (
@@ -499,47 +496,6 @@ function PublicWeeklyHoroscopesPage() {
                 </div>
               </div>
             </aside>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── OTHER SIGNS PREVIEW ────────────────────────────── */}
-      <section className="wh-other-signs">
-        <div className="wh-halo lilac wh-other-signs__halo-c" />
-        <Stardust seed={3} density={70} />
-
-        <div className="wh-wrap">
-          <div className="wh-other-signs__head">
-            <div className="wh-eyebrow gold">Read another</div>
-            <h2>Same week, <em>different sky.</em></h2>
-            <p>A quick taste from each sign. Tap any to read the full forecast.</p>
-          </div>
-
-          <div className="wh-other-grid">
-            {otherSigns.map((sign) => (
-              <button
-                key={sign.value}
-                type="button"
-                className="wh-other-card"
-                onClick={() => handleSelectSign(sign.value)}
-              >
-                <div className="wh-other-card__head">
-                  <div className="wh-other-card__icon-wrap">
-                    <img
-                      className="wh-other-card__icon"
-                      src={`/assets/signs/${sign.value}.svg`}
-                      alt=""
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <div className="wh-other-card__nm">{sign.label}</div>
-                </div>
-                <p className="wh-other-card__preview">
-                  This week’s editorial forecast for {sign.label} — same sky, a different angle.
-                </p>
-                <span className="wh-other-card__more">Read {sign.label} →</span>
-              </button>
-            ))}
           </div>
         </div>
       </section>
