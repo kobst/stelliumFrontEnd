@@ -53,16 +53,29 @@
 /* Smooth scroll anchor offset */
 html { scroll-behavior: smooth; }
 
-/* Fade-in for IntersectionObserver */
+/* Fade-in for IntersectionObserver.
+   Content is fully visible by default — the hidden start-state is applied
+   ONLY once JS marks the page animation-ready (`.lp-anim-ready`) AND the
+   user hasn't requested reduced motion. This guarantees no section is ever
+   stuck as a blank band if JS is disabled, slow, or the observer misses. */
 .landing-page .fade-in {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
-}
-.landing-page .fade-in.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
+@media (prefers-reduced-motion: no-preference) {
+  .landing-page.lp-anim-ready .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  .landing-page.lp-anim-ready .fade-in.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Anchored sections clear the sticky nav when jumped to */
+.landing-page section[id] { scroll-margin-top: 84px; }
 
 /* ───────────────────────────────────────────────
    Typography primitives
@@ -242,7 +255,7 @@ html { scroll-behavior: smooth; }
    Hero
 ─────────────────────────────────────────────── */
 .lp-hero {
-  padding: 100px 0 120px;
+  padding: 72px 0 72px;
   position: relative;
   overflow: hidden;
 }
@@ -367,7 +380,7 @@ html { scroll-behavior: smooth; }
   text-align: center;
   margin: 0 auto;
   max-width: 800px;
-  padding: 0 0 64px;
+  padding: 0 0 40px;
   position: relative;
 }
 .lp-section-head .lp-eyebrow { margin-bottom: 18px; display: inline-block; }
@@ -395,7 +408,7 @@ html { scroll-behavior: smooth; }
    How it works
 ─────────────────────────────────────────────── */
 .lp-how {
-  padding: 120px 0;
+  padding: 64px 0;
   position: relative;
   overflow: hidden;
 }
@@ -462,7 +475,7 @@ html { scroll-behavior: smooth; }
    Features grid
 ─────────────────────────────────────────────── */
 .lp-features {
-  padding: 100px 0 140px;
+  padding: 56px 0 72px;
   position: relative;
   overflow: hidden;
 }
@@ -560,7 +573,7 @@ html { scroll-behavior: smooth; }
    Ask Stellium section wrapper (wraps existing component)
 ─────────────────────────────────────────────── */
 .lp-ask {
-  padding: 100px 0 120px;
+  padding: 56px 0 64px;
   position: relative;
   overflow: hidden;
 }
@@ -570,7 +583,7 @@ html { scroll-behavior: smooth; }
    Celebrity / discover rows
 ─────────────────────────────────────────────── */
 .lp-celebs {
-  padding: 110px 0 100px;
+  padding: 60px 0 56px;
   position: relative;
   overflow: hidden;
 }
@@ -799,7 +812,7 @@ html { scroll-behavior: smooth; }
    Sign picker grid
 ─────────────────────────────────────────────── */
 .lp-signs {
-  padding: 110px 0 130px;
+  padding: 64px 0 72px;
   position: relative;
   overflow: hidden;
 }
@@ -852,10 +865,87 @@ html { scroll-behavior: smooth; }
 }
 
 /* ───────────────────────────────────────────────
+   Quick horoscope picker (compact, high on page)
+─────────────────────────────────────────────── */
+.lp-quicksigns {
+  padding: 8px 0 48px;
+  position: relative;
+}
+.lp-quicksigns__inner {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  background: var(--lp-surface-low);
+  border-radius: 28px;
+  padding: 28px 32px;
+  box-shadow: inset 0 0 0 1px var(--lp-ghost);
+  flex-wrap: wrap;
+}
+.lp-quicksigns__copy { flex: 0 0 228px; }
+.lp-quicksigns__copy .lp-eyebrow { display: inline-block; margin-bottom: 10px; }
+.lp-quicksigns__copy h2 {
+  font-family: var(--lp-serif);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  margin: 0 0 8px;
+  color: var(--lp-text);
+}
+.lp-quicksigns__copy h2 .italic { font-style: italic; color: var(--lp-primary); }
+.lp-quicksigns__copy p {
+  font-family: var(--lp-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--lp-text-muted);
+  margin: 0;
+}
+.lp-quicksigns__grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  min-width: 280px;
+}
+.lp-quicksign {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 6px;
+  border-radius: 12px;
+  background: var(--lp-surface);
+  box-shadow: inset 0 0 0 1px var(--lp-ghost);
+  cursor: pointer;
+  border: 0;
+  font-family: inherit;
+  color: inherit;
+  transition: transform .15s ease, box-shadow .15s ease, background .2s ease;
+}
+.lp-quicksign:hover {
+  background: var(--lp-surface-mid);
+  transform: translateY(-2px);
+  box-shadow: inset 0 0 0 1px var(--lp-ghost-strong), 0 0 20px -8px rgba(202,190,255,0.3);
+}
+.lp-quicksign__icon {
+  width: 26px;
+  height: 26px;
+  display: block;
+  filter: brightness(0) saturate(100%) invert(82%) sepia(20%) saturate(640%) hue-rotate(212deg) brightness(101%) contrast(101%);
+}
+.lp-quicksign__nm {
+  font-family: var(--lp-sans);
+  font-size: 10.5px;
+  color: var(--lp-text-muted);
+  letter-spacing: 0.03em;
+  font-weight: 500;
+}
+
+/* ───────────────────────────────────────────────
    Pricing
 ─────────────────────────────────────────────── */
 .lp-pricing {
-  padding: 130px 0;
+  padding: 72px 0;
   position: relative;
   overflow: hidden;
 }
@@ -990,7 +1080,7 @@ html { scroll-behavior: smooth; }
 
 /* Compare table */
 .lp-compare {
-  margin-top: 64px;
+  margin-top: 44px;
   background: var(--lp-surface-low);
   border-radius: 28px;
   padding: 32px 36px 28px;
@@ -1047,7 +1137,7 @@ html { scroll-behavior: smooth; }
    Final CTA
 ─────────────────────────────────────────────── */
 .lp-final-cta {
-  padding: 100px 0 80px;
+  padding: 64px 0 56px;
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -1180,6 +1270,7 @@ html { scroll-behavior: smooth; }
   .lp-plan--featured { transform: none; }
   .lp-sign-grid { grid-template-columns: repeat(4, 1fr); }
   .lp-foot-grid { grid-template-columns: 1fr 1fr; }
+  .lp-quicksigns__copy { flex-basis: 100%; }
 }
 @media (max-width: 640px) {
   .lp-wrap, .lp-nav__inner { padding-left: 22px; padding-right: 22px; }
@@ -1188,6 +1279,7 @@ html { scroll-behavior: smooth; }
   .lp-final-cta h2 { font-size: 44px; }
   .lp-feature-grid { grid-template-columns: 1fr; }
   .lp-sign-grid { grid-template-columns: repeat(3, 1fr); }
+  .lp-quicksigns__grid { grid-template-columns: repeat(4, 1fr); }
   .lp-nav__links { gap: 14px; }
   .lp-nav__link:not(.lp-btn) { display: none; }
 }
