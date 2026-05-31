@@ -258,11 +258,11 @@ function PairCard({ relationship, gradients, onClick }) {
   };
 
   const stats = [
-    { label: 'HAR', score: findScore(['HARMONY', 'harmony']) ?? overallScore },
-    { label: 'PAS', score: findScore(['PASSION', 'passion', 'INTIMACY_AND_PASSION']) ?? overallScore },
-    { label: 'CON', score: findScore(['CONNECTION', 'connection', 'EMOTIONAL_SECURITY_CONNECTION', 'COMMUNICATION_AND_MENTAL_CONNECTION']) ?? overallScore },
-    { label: 'STA', score: findScore(['STABILITY', 'stability', 'PRACTICAL_GROWTH_SHARED_GOALS']) ?? overallScore },
-    { label: 'GRO', score: findScore(['GROWTH', 'growth', 'KARMIC_LESSONS_GROWTH']) ?? overallScore }
+    { label: 'HAR', score: findScore(['Harmony', 'HARMONY', 'harmony']) ?? overallScore },
+    { label: 'PAS', score: findScore(['Passion', 'PASSION', 'passion', 'INTIMACY_AND_PASSION']) ?? overallScore },
+    { label: 'CON', score: findScore(['Connection', 'CONNECTION', 'connection', 'EMOTIONAL_SECURITY_CONNECTION', 'COMMUNICATION_AND_MENTAL_CONNECTION']) ?? overallScore },
+    { label: 'STA', score: findScore(['Stability', 'STABILITY', 'stability', 'PRACTICAL_GROWTH_SHARED_GOALS']) ?? overallScore },
+    { label: 'GRO', score: findScore(['Growth', 'GROWTH', 'growth', 'KARMIC_LESSONS_GROWTH']) ?? overallScore }
   ];
   const maxStat = Math.max(...stats.map((s) => s.score));
 
