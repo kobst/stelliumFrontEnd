@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCheckout } from '../hooks/useCheckout';
 import { ZODIAC_SIGNS } from '../Utilities/zodiac';
 import { trackLandingCTAClicked } from '../Utilities/analytics';
-import { fetchCelebrities, getCelebrityRelationships } from '../Utilities/api';
+import { fetchCelebrities, getCelebrityRelationships, fetchRelationshipAnalysis } from '../Utilities/api';
 
 const SIGN_DATES = {
   aries: 'Mar 21 – Apr 19',
@@ -387,9 +387,24 @@ function LandingPage() {
           userB_profilePhotoUrl: r.userB_profilePhotoUrl || photoMap[r.userB_id] || null
         }));
         setRelationships(enriched);
+        setRelsLoading(false);
+
+        const analysisResults = await Promise.all(
+          enriched.map((rel) =>
+            fetchRelationshipAnalysis(rel._id)
+              .then((analysis) => ({ rel, analysis }))
+              .catch(() => ({ rel, analysis: null }))
+          )
+        );
+        if (cancelled) return;
+
+        const merged = analysisResults.map(({ rel, analysis }) => ({
+          ...rel,
+          ...(analysis || {})
+        }));
+        setRelationships(merged);
       } catch (err) {
         console.error('Error loading celebrity relationships:', err);
-      } finally {
         if (!cancelled) setRelsLoading(false);
       }
     })();
