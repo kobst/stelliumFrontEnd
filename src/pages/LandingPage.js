@@ -325,12 +325,31 @@ function LandingPage() {
   const [relsLoading, setRelsLoading] = useState(true);
 
   // Fade-in observer
+  const pageRef = useRef(null);
   const fadeRefs = useRef([]);
   const addFadeRef = useCallback((el) => {
     if (el && !fadeRefs.current.includes(el)) fadeRefs.current.push(el);
   }, []);
 
   useEffect(() => {
+    const els = fadeRefs.current;
+    const revealAll = () => els.forEach((el) => el.classList.add('is-visible'));
+
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Without animation support (reduced motion or no IntersectionObserver),
+    // show everything immediately — never leave a section hidden.
+    if (prefersReduced || typeof IntersectionObserver === 'undefined') {
+      revealAll();
+      return undefined;
+    }
+
+    // Opt into the hidden start-state only now that JS is driving the reveal.
+    if (pageRef.current) pageRef.current.classList.add('lp-anim-ready');
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -340,9 +359,12 @@ function LandingPage() {
           }
         });
       },
-      { threshold: 0.12 }
+      // Reveal slightly before a section scrolls into view so fast scrolling
+      // and slow connections never expose a blank navy band.
+      { threshold: 0, rootMargin: '0px 0px 12% 0px' }
     );
-    fadeRefs.current.forEach((el) => observer.observe(el));
+    els.forEach((el) => observer.observe(el));
+
     return () => observer.disconnect();
   }, []);
 
@@ -453,7 +475,7 @@ function LandingPage() {
   };
 
   return (
-    <div className="landing-page">
+    <div className="landing-page" ref={pageRef}>
       {/* ─── NAV ───────────────────────────────────────────── */}
       <nav className="lp-nav">
         <div className="lp-nav__inner">
@@ -464,8 +486,9 @@ function LandingPage() {
           <div className="lp-nav__links">
             <a className="lp-nav__link" href="#how">How it works</a>
             <a className="lp-nav__link" href="#features">Features</a>
-            <a className="lp-nav__link" href="#pricing">Pricing</a>
             <a className="lp-nav__link" href="#discover">Discover</a>
+            <a className="lp-nav__link" href="#horoscopes">Horoscopes</a>
+            <a className="lp-nav__link" href="#pricing">Pricing</a>
             {stelliumUser ? (
               <button type="button" className="lp-btn lp-btn--primary" onClick={dashboardCta}>
                 Go to Dashboard <span style={{ opacity: 0.65 }}>→</span>
@@ -502,8 +525,8 @@ function LandingPage() {
                 read <span className="accent">just for you.</span>
               </h1>
               <p className="lp-hero__lede">
-                Birth chart analysis, relationship reports, custom horoscopes — and{' '}
-                <span className="gold-inline">your own AI astrologer</span> to answer your most personal questions.
+                Stellium reads <span className="gold-inline">your actual birth chart</span> — not your sun sign —
+                for guidance that genuinely knows you.
               </p>
               <div className="lp-hero__cta">
                 <button type="button" className="lp-btn lp-btn--primary" onClick={handleGetStarted}>
@@ -555,6 +578,38 @@ function LandingPage() {
               <div className="lp-step__num">03<span className="lp-step__num-label">Ask anything</span></div>
               <h3>Conversational guidance that knows your chart.</h3>
               <p>Ask follow-ups about yourself, your relationship, or today’s transits. The chat remembers context and turns astro-speak into clear next steps.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── QUICK HOROSCOPE PICKER ────────────────────────── */}
+      <section className="lp-quicksigns" ref={addFadeRef}>
+        <div className="lp-wrap">
+          <div className="lp-quicksigns__inner">
+            <div className="lp-quicksigns__copy">
+              <div className="lp-eyebrow gold">Try it now — no signup</div>
+              <h2>Your week, in <span className="italic">60 seconds.</span></h2>
+              <p>Tap your sign for this week’s horoscope.</p>
+            </div>
+            <div className="lp-quicksigns__grid">
+              {ZODIAC_SIGNS.map((sign) => (
+                <button
+                  key={sign.value}
+                  type="button"
+                  className="lp-quicksign"
+                  onClick={() => handleSignPick(sign.value)}
+                  aria-label={`${sign.label} weekly horoscope`}
+                >
+                  <img
+                    src={`/assets/signs/${sign.value}.svg`}
+                    alt=""
+                    aria-hidden="true"
+                    className="lp-quicksign__icon"
+                  />
+                  <span className="lp-quicksign__nm">{sign.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -700,7 +755,7 @@ function LandingPage() {
       </section>
 
       {/* ─── SIGN PICKER ───────────────────────────────────── */}
-      <section className="lp-signs" ref={addFadeRef}>
+      <section className="lp-signs" id="horoscopes" ref={addFadeRef}>
         <div className="lp-halo lilac lp-signs__halo-c" />
         <Stardust seed={4} density={60} />
 
