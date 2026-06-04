@@ -145,6 +145,38 @@ export async function deleteRelationship(compositeChartId, ownerUserId = null) {
   return apiFetch(`/relationships/${compositeChartId}`, requestOptions);
 }
 
+export async function adminEnhancedChatForCelebrityBirthChart(userId, requestBody = {}) {
+  return apiFetch(`/admin/users/${userId}/birthchart/enhanced-chat`, {
+    method: HTTP_POST,
+    headers: await buildAuthHeaders(),
+    body: JSON.stringify(requestBody),
+  });
+}
+
+export async function adminFetchCelebrityBirthChartChatHistory(userId, limit = null) {
+  const query = limit !== null ? `?limit=${limit}` : '';
+  return apiFetch(`/admin/users/${userId}/birthchart/chat-history${query}`, {
+    method: 'GET',
+    headers: await buildAuthHeaders(),
+  });
+}
+
+export async function adminEnhancedChatForCelebrityRelationship(compositeChartId, query, scoredItems = []) {
+  return apiFetch(`/admin/relationships/${compositeChartId}/enhanced-chat`, {
+    method: HTTP_POST,
+    headers: await buildAuthHeaders(),
+    body: JSON.stringify({ query, scoredItems }),
+  });
+}
+
+export async function adminFetchCelebrityRelationshipChatHistory(compositeChartId, limit = null) {
+  const query = limit !== null ? `?limit=${limit}` : '';
+  return apiFetch(`/admin/relationships/${compositeChartId}/chat-history${query}`, {
+    method: 'GET',
+    headers: await buildAuthHeaders(),
+  });
+}
+
 // ---------- Video Assets (admin-only) ----------
 
 export const VIDEO_ASSET_FORMATS = [

@@ -788,6 +788,8 @@ function UserDashboard() {
           userAspects={userAspects}
           chatMessages={enhancedChatMessages}
           setChatMessages={setEnhancedChatMessages}
+          isCelebrity={isCelebrity}
+          birthChart={selectedUser?.birthChart}
         />
       )
     });

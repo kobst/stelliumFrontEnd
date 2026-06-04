@@ -246,10 +246,13 @@ function CompositeDashboard_v4({}) {
     const compositeChart = useStore(state => state.compositeChart)
     const [userA, setUserA] = useState(null);
     const [userB, setUserB] = useState(null);
+    const isCelebrityRelationship = Boolean(
+      (userA?.kind === 'celebrity' || userA?.isCelebrity === true) &&
+      (userB?.kind === 'celebrity' || userB?.isCelebrity === true)
+    );
     const useAdminRelationshipWorkflow = Boolean(
       compositeChart?.isCelebrityRelationship === true ||
-      ((userA?.kind === 'celebrity' || userA?.isCelebrity === true) &&
-       (userB?.kind === 'celebrity' || userB?.isCelebrity === true))
+      isCelebrityRelationship
     );
     const [userAVectorizationStatus, setUserAVectorizationStatus] = useState(false);
     const [userBVectorizationStatus, setUserBVectorizationStatus] = useState(false);
@@ -1648,6 +1651,7 @@ function CompositeDashboard_v4({}) {
           userBName={userB.firstName}
           chatMessages={relationshipEnhancedChatMessages}
           setChatMessages={setRelationshipEnhancedChatMessages}
+          isCelebrityRelationship={isCelebrityRelationship}
         />
       )
     });

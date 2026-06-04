@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { enhancedChatForUserBirthChart, fetchEnhancedChatHistory } from '../../Utilities/api';
+import {
+  adminEnhancedChatForCelebrityBirthChart,
+  adminFetchCelebrityBirthChartChatHistory
+} from '../../Utilities/adminApi';
+import AskStelliumPanel from '../askStellium/AskStelliumPanel';
 import './EnhancedChatBirthChart.css';
 
 // Helper functions for aspect/position formatting
@@ -73,7 +78,67 @@ const getOrdinal = (n) => {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
-const EnhancedChatBirthChart = ({ userId, userPlanets, userAspects, chatMessages, setChatMessages }) => {
+function AdminCelebrityBirthChartAsk({ userId, userPlanets, userAspects, birthChart }) {
+  const [askPanelOpen, setAskPanelOpen] = useState(false);
+  const panelBirthChart = birthChart || {
+    planets: userPlanets || [],
+    aspects: userAspects || []
+  };
+
+  return (
+    <div className="enhanced-chat-container">
+      <div className="chat-welcome" style={{ minHeight: 260 }}>
+        <div className="welcome-icon">✨</div>
+        <h3>Ask Stellium</h3>
+        <p>Ask questions about this celebrity birth chart using the current Stellium chat experience.</p>
+          <button
+            type="button"
+            className="submit-button"
+            onClick={() => setAskPanelOpen(true)}
+          >
+          Open Ask Stellium
+        </button>
+      </div>
+
+      <AskStelliumPanel
+        isOpen={askPanelOpen}
+        onClose={() => setAskPanelOpen(false)}
+        contentType="birthchart"
+        contentId={userId}
+        birthChart={panelBirthChart}
+        contextLabel="Admin celebrity birth chart"
+        placeholderText="Ask about this celebrity birth chart..."
+        suggestedQuestions={[
+          'What stands out most in this chart?',
+          'How does this chart describe their public image?',
+          'Which placements shape their creative style?'
+        ]}
+        fetchHistoryOverride={(id, limit) => adminFetchCelebrityBirthChartChatHistory(id, limit)}
+        sendMessageOverride={({ contentId, message, selectedElements }) => {
+          const requestBody = {};
+          if (message) {
+            requestBody.message = message;
+            requestBody.query = message;
+          }
+          if (selectedElements?.length) {
+            requestBody.selectedAspects = selectedElements.map(el => el.payload || el);
+          }
+          return adminEnhancedChatForCelebrityBirthChart(contentId, requestBody);
+        }}
+        hideCreditCost
+        usageLabel="Admin celebrity chat"
+      />
+    </div>
+  );
+}
+
+const LegacyEnhancedChatBirthChart = ({
+  userId,
+  userPlanets,
+  userAspects,
+  chatMessages,
+  setChatMessages
+}) => {
   const [selectedElements, setSelectedElements] = useState([]);
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -458,6 +523,37 @@ const EnhancedChatBirthChart = ({ userId, userPlanets, userAspects, chatMessages
         </div>
       </div>
     </div>
+  );
+};
+
+const EnhancedChatBirthChart = ({
+  userId,
+  userPlanets,
+  userAspects,
+  chatMessages,
+  setChatMessages,
+  isCelebrity = false,
+  birthChart = null
+}) => {
+  if (isCelebrity) {
+    return (
+      <AdminCelebrityBirthChartAsk
+        userId={userId}
+        userPlanets={userPlanets}
+        userAspects={userAspects}
+        birthChart={birthChart}
+      />
+    );
+  }
+
+  return (
+    <LegacyEnhancedChatBirthChart
+      userId={userId}
+      userPlanets={userPlanets}
+      userAspects={userAspects}
+      chatMessages={chatMessages}
+      setChatMessages={setChatMessages}
+    />
   );
 };
 

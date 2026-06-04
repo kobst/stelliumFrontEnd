@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { enhancedChatForRelationship, fetchRelationshipEnhancedChatHistory } from '../../Utilities/api';
+import {
+  adminEnhancedChatForCelebrityRelationship,
+  adminFetchCelebrityRelationshipChatHistory
+} from '../../Utilities/adminApi';
+import AskStelliumPanel from '../askStellium/AskStelliumPanel';
 import './RelationshipEnhancedChat.css';
 
 // Helper functions for relationship element formatting (kept for future expansion)
@@ -233,7 +238,57 @@ const getClusterBadges = (element) => {
     }));
 };
 
-const RelationshipEnhancedChat = ({ 
+function AdminCelebrityRelationshipAsk({
+  compositeChartId,
+  consolidatedScoredItems,
+  userAName,
+  userBName
+}) {
+  const [askPanelOpen, setAskPanelOpen] = useState(false);
+
+  return (
+    <div className="relationship-enhanced-chat-container">
+      <div className="chat-welcome" style={{ minHeight: 260 }}>
+        <div className="welcome-icon">✨</div>
+        <h3>Ask Stellium</h3>
+        <p>Ask questions about this celebrity relationship using the current Stellium chat experience.</p>
+          <button
+            type="button"
+            className="submit-button"
+            onClick={() => setAskPanelOpen(true)}
+          >
+          Open Ask Stellium
+        </button>
+      </div>
+
+      <AskStelliumPanel
+        isOpen={askPanelOpen}
+        onClose={() => setAskPanelOpen(false)}
+        contentType="relationship"
+        contentId={compositeChartId}
+        relationshipScoredItems={consolidatedScoredItems}
+        contextLabel={`Admin celebrity relationship: ${userAName} & ${userBName}`}
+        placeholderText="Ask about this celebrity relationship..."
+        suggestedQuestions={[
+          'What are the strongest dynamics in this relationship?',
+          'Where is the most creative chemistry?',
+          'What tension defines this pairing?'
+        ]}
+        fetchHistoryOverride={(id, limit) => adminFetchCelebrityRelationshipChatHistory(id, limit)}
+        sendMessageOverride={({ contentId, message, selectedElements }) => {
+          const scoredItems = selectedElements?.length
+            ? selectedElements.map(el => el.payload || el)
+            : [];
+          return adminEnhancedChatForCelebrityRelationship(contentId, message || '', scoredItems);
+        }}
+        hideCreditCost
+        usageLabel="Admin celebrity chat"
+      />
+    </div>
+  );
+}
+
+const LegacyRelationshipEnhancedChat = ({ 
   compositeChartId, 
   synastryAspects = [], 
   compositeChart = {},
@@ -241,7 +296,7 @@ const RelationshipEnhancedChat = ({
   userAName = 'Partner A',
   userBName = 'Partner B',
   chatMessages, 
-  setChatMessages 
+  setChatMessages
 }) => {
   const [selectedElements, setSelectedElements] = useState([]);
   const [query, setQuery] = useState('');
@@ -858,6 +913,42 @@ const RelationshipEnhancedChat = ({
         </div>
       </div>
     </div>
+  );
+};
+
+const RelationshipEnhancedChat = ({
+  compositeChartId,
+  synastryAspects = [],
+  compositeChart = {},
+  consolidatedScoredItems = [],
+  userAName = 'Partner A',
+  userBName = 'Partner B',
+  chatMessages,
+  setChatMessages,
+  isCelebrityRelationship = false
+}) => {
+  if (isCelebrityRelationship) {
+    return (
+      <AdminCelebrityRelationshipAsk
+        compositeChartId={compositeChartId}
+        consolidatedScoredItems={consolidatedScoredItems}
+        userAName={userAName}
+        userBName={userBName}
+      />
+    );
+  }
+
+  return (
+    <LegacyRelationshipEnhancedChat
+      compositeChartId={compositeChartId}
+      synastryAspects={synastryAspects}
+      compositeChart={compositeChart}
+      consolidatedScoredItems={consolidatedScoredItems}
+      userAName={userAName}
+      userBName={userBName}
+      chatMessages={chatMessages}
+      setChatMessages={setChatMessages}
+    />
   );
 };
 
