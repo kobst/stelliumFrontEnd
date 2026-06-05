@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchUser, fetchAnalysis } from '../Utilities/api';
+import { useAuth } from '../context/AuthContext';
+import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
 import ChartDetailLayout from '../UI/dashboard/chartDetail/ChartDetailLayout';
+import AskStelliumCta from '../UI/dashboard/chartTabs/AskStelliumCta';
 import ChartTab from '../UI/dashboard/chartTabs/ChartTab';
 import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
@@ -12,11 +15,13 @@ import './PublicCelebrityDashboard.css';
 function PublicCelebrityDashboard() {
   const { celebrityId } = useParams();
   const navigate = useNavigate();
+  const { isFullyAuthenticated } = useAuth();
   const [celebrity, setCelebrity] = useState(null);
   const [analysisData, setAnalysisData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('overview');
+  const [askOpen, setAskOpen] = useState(false);
 
   useEffect(() => {
     const loadCelebrityData = async () => {
@@ -54,6 +59,14 @@ function PublicCelebrityDashboard() {
     navigate('/celebrities');
   };
 
+  const handleAskStelliumClick = () => {
+    if (!isFullyAuthenticated) {
+      navigate('/login', { state: { from: `/celebrities/${celebrityId}` } });
+      return;
+    }
+    setAskOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="public-celebrity-dashboard">
@@ -84,21 +97,36 @@ function PublicCelebrityDashboard() {
   const modalities = analysisData?.modalities || birthChart.modalities;
   const quadrants = analysisData?.quadrants || birthChart.quadrants;
   const planetaryDominance = analysisData?.planetaryDominance || birthChart.planetaryDominance;
+  const renderWithAskStellium = (content) => (
+    <>
+      {content}
+      <div className="public-celebrity-dashboard__ask-inline">
+        <AskStelliumCta
+          hasFullAccess
+          onActivate={handleAskStelliumClick}
+        />
+      </div>
+    </>
+  );
 
   // Celebrities always have full analysis
   // Build sections array — all content is accessible for celebrities (no locking)
   const sections = [
     {
       id: 'overview',
-      content: <OverviewTab basicAnalysis={basicAnalysis} birthChart={birthChart} isCelebrity={true} />
+      content: renderWithAskStellium(
+        <OverviewTab basicAnalysis={basicAnalysis} birthChart={birthChart} isCelebrity={true} />
+      )
     },
     {
       id: 'chart',
-      content: <ChartTab birthChart={birthChart} isCelebrity={true} />
+      content: renderWithAskStellium(
+        <ChartTab birthChart={birthChart} isCelebrity={true} />
+      )
     },
     {
       id: 'dominance',
-      content: (
+      content: renderWithAskStellium(
         <DominancePatternsTab
           birthChart={birthChart}
           basicAnalysis={basicAnalysis}
@@ -113,7 +141,7 @@ function PublicCelebrityDashboard() {
     },
     {
       id: 'planets',
-      content: (
+      content: renderWithAskStellium(
         <PlanetsTab
           birthChart={birthChart}
           basicAnalysis={basicAnalysis}
@@ -124,7 +152,7 @@ function PublicCelebrityDashboard() {
     },
     {
       id: 'analysis',
-      content: (
+      content: renderWithAskStellium(
         <AnalysisTab
           broadCategoryAnalyses={broadCategoryAnalyses}
           analysisStatus={{ status: 'complete' }}
@@ -145,6 +173,21 @@ function PublicCelebrityDashboard() {
         activeSection={activeSection}
         onSectionChange={setActiveSection}
         hasAnalysis={true}
+      />
+
+      <AskStelliumPanel
+        isOpen={askOpen}
+        onClose={() => setAskOpen(false)}
+        contentType="birthchart"
+        contentId={celebrityId}
+        birthChart={birthChart}
+        contextLabel={`${celebrity.firstName || 'Celebrity'} ${celebrity.lastName || ''}`.trim()}
+        placeholderText="Ask about this celebrity birth chart..."
+        suggestedQuestions={[
+          'What stands out most in this chart?',
+          'How does this chart describe their public image?',
+          'Which placements shape their creative style?'
+        ]}
       />
     </div>
   );

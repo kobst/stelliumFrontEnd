@@ -8,6 +8,10 @@
   margin: 0 auto;
 }
 
+.public-celebrity-dashboard__ask-inline {
+  margin-top: 24px;
+}
+
 /* Loading/Error States */
 .dashboard-loading,
 .dashboard-error {
@@ -67,5 +71,9 @@
 @media (max-width: 767px) {
   .public-celebrity-dashboard {
     padding: var(--content-padding-mobile);
+  }
+
+  .public-celebrity-dashboard__ask-inline {
+    margin-top: 20px;
   }
 }
