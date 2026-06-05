@@ -8,6 +8,10 @@
   margin: 0 auto;
 }
 
+.public-celeb-relationship__ask-inline {
+  margin-top: 24px;
+}
+
 /* Loading/Error States */
 .public-celeb-relationship .dashboard-loading,
 .public-celeb-relationship .dashboard-error {
@@ -67,5 +71,9 @@
 @media (max-width: 767px) {
   .public-celeb-relationship {
     padding: var(--content-padding-mobile);
+  }
+
+  .public-celeb-relationship__ask-inline {
+    margin-top: 20px;
   }
 }

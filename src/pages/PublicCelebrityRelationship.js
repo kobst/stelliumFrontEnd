@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getCelebrityRelationships, fetchRelationshipAnalysis, fetchUser } from '../Utilities/api';
+import { useAuth } from '../context/AuthContext';
+import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
 import RelationshipDetailLayout from '../UI/dashboard/relationshipDetail/RelationshipDetailLayout';
+import AskStelliumCta from '../UI/dashboard/chartTabs/AskStelliumCta';
 import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
@@ -11,10 +14,12 @@ import './PublicCelebrityRelationship.css';
 function PublicCelebrityRelationship() {
   const { compositeId } = useParams();
   const navigate = useNavigate();
+  const { isFullyAuthenticated } = useAuth();
   const [relationship, setRelationship] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('scores');
+  const [askOpen, setAskOpen] = useState(false);
 
   useEffect(() => {
     const loadRelationshipData = async () => {
@@ -78,6 +83,14 @@ function PublicCelebrityRelationship() {
     navigate('/');
   };
 
+  const handleAskStelliumClick = () => {
+    if (!isFullyAuthenticated) {
+      navigate('/login', { state: { from: `/celebrity-relationships/${compositeId}` } });
+      return;
+    }
+    setAskOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="public-celeb-relationship">
@@ -101,11 +114,29 @@ function PublicCelebrityRelationship() {
   }
 
   const hasAnalysis = !!(relationship?.completeAnalysis && Object.keys(relationship.completeAnalysis).length > 0);
+  const relationshipScoredItems =
+    relationship?.scoredItems ||
+    relationship?.clusterAnalysis?.scoredItems ||
+    relationship?.clusterScoring?.scoredItems ||
+    [];
+  const userAName = relationship?.userA_name || relationship?.debug?.inputSummary?.userAName || 'Partner A';
+  const userBName = relationship?.userB_name || relationship?.debug?.inputSummary?.userBName || 'Partner B';
+  const renderWithAskStellium = (content) => (
+    <>
+      {content}
+      <div className="public-celeb-relationship__ask-inline">
+        <AskStelliumCta
+          hasFullAccess
+          onActivate={handleAskStelliumClick}
+        />
+      </div>
+    </>
+  );
 
   const sections = [
     {
       id: 'scores',
-      content: (
+      content: renderWithAskStellium(
         <ScoresTab
           relationship={relationship}
           hasAnalysis={hasAnalysis}
@@ -117,15 +148,19 @@ function PublicCelebrityRelationship() {
     },
     {
       id: 'overview',
-      content: <OverviewTab relationship={relationship} compositeId={compositeId} isCelebrity={true} />
+      content: renderWithAskStellium(
+        <OverviewTab relationship={relationship} compositeId={compositeId} isCelebrity={true} />
+      )
     },
     {
       id: 'charts',
-      content: <ChartsTab relationship={relationship} compositeId={compositeId} isCelebrity={true} />
+      content: renderWithAskStellium(
+        <ChartsTab relationship={relationship} compositeId={compositeId} isCelebrity={true} />
+      )
     },
     {
       id: 'analysis',
-      content: (
+      content: renderWithAskStellium(
         <AnalysisTab
           relationship={relationship}
           compositeId={compositeId}
@@ -145,6 +180,21 @@ function PublicCelebrityRelationship() {
         lockedSections={[]}
         activeSection={activeSection}
         onSectionChange={setActiveSection}
+      />
+
+      <AskStelliumPanel
+        isOpen={askOpen}
+        onClose={() => setAskOpen(false)}
+        contentType="relationship"
+        contentId={compositeId}
+        relationshipScoredItems={relationshipScoredItems}
+        contextLabel={`${userAName} & ${userBName}`}
+        placeholderText="Ask about this celebrity relationship..."
+        suggestedQuestions={[
+          'What are the strongest dynamics in this relationship?',
+          'Where is the most creative chemistry?',
+          'What tension defines this pairing?'
+        ]}
       />
     </div>
   );
