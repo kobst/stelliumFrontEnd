@@ -1,0 +1,37 @@
+.streaming-text-reveal {
+  width: 100%;
+  text-align: left;
+}
+
+.streaming-text-reveal p {
+  text-align: left;
+}
+
+.streaming-text-reveal__cursor {
+  display: inline-block;
+  width: 7px;
+  height: 17px;
+  margin-left: 2px;
+  background: #e9c349;
+  border-radius: 1px;
+  vertical-align: -2px;
+  animation: streaming-text-caret 1s steps(2) infinite;
+}
+
+@keyframes streaming-text-caret {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .streaming-text-reveal__cursor {
+    animation: none;
+    display: none;
+  }
+}
