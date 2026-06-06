@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
   enhancedChatForUserBirthChart,
@@ -13,6 +14,7 @@ import useStore from '../../Utilities/store';
 import { useAuth } from '../../context/AuthContext';
 import InsufficientCreditsModal from '../entitlements/InsufficientCreditsModal';
 import { trackChatMessageSent, trackCreditWallHit } from '../../Utilities/analytics';
+import StreamingTextReveal from './StreamingTextReveal';
 import './AskStelliumPanel.css';
 
 const HISTORY_CONFIG = {
@@ -107,6 +109,72 @@ const formatPositionData = (planet) => {
   };
 };
 
+const formatHouseData = (house) => {
+  const houseNumber = house.house || house.number || house.houseNumber;
+  const sign = house.sign || house.zodiacSign || house.signName || '';
+  const degree = house.degree ?? house.norm_degree ?? house.longitude;
+  return {
+    group: 'birthchart',
+    type: 'house',
+    code: `H-${houseNumber || 'unknown'}-${sign || 'sign'}`,
+    house: houseNumber || null,
+    sign,
+    degree,
+    label: houseNumber ? `${getOrdinal(houseNumber)} House${sign ? ` in ${sign}` : ''}` : (house.label || 'House placement'),
+    description: house.description || (houseNumber ? `${getOrdinal(houseNumber)} house${sign ? ` begins in ${sign}` : ''}` : 'House placement')
+  };
+};
+
+const normalizePatternLabel = (key) => {
+  return String(key || '')
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^./, char => char.toUpperCase());
+};
+
+const formatPatternData = (pattern, fallbackKey, index) => {
+  const label = typeof pattern === 'string'
+    ? pattern
+    : pattern?.label || pattern?.name || pattern?.title || pattern?.pattern || normalizePatternLabel(fallbackKey);
+  const description = typeof pattern === 'string'
+    ? pattern
+    : pattern?.description || pattern?.interpretation || pattern?.summary || label;
+  return {
+    group: 'birthchart',
+    type: 'pattern',
+    code: `PAT-${fallbackKey || 'pattern'}-${index}`,
+    label,
+    description,
+    payload: pattern
+  };
+};
+
+const flattenPatterns = (patterns) => {
+  if (!patterns) return [];
+  if (Array.isArray(patterns)) {
+    return patterns.map((pattern, index) => formatPatternData(pattern, 'pattern', index));
+  }
+  if (typeof patterns !== 'object') return [];
+
+  return Object.entries(patterns).flatMap(([key, value]) => {
+    if (!value) return [];
+    if (Array.isArray(value)) {
+      return value.map((pattern, index) => formatPatternData(pattern, key, index));
+    }
+    if (typeof value === 'object') {
+      const nested = Object.entries(value)
+        .filter(([, nestedValue]) => Array.isArray(nestedValue))
+        .flatMap(([nestedKey, nestedValue]) => nestedValue.map((pattern, index) => (
+          formatPatternData(pattern, `${key}-${nestedKey}`, index)
+        )));
+      if (nested.length > 0) return nested;
+    }
+    return [formatPatternData(value, key, 0)];
+  });
+};
+
 const formatTransitEvent = (transit) => ({
   type: transit.type,
   transitingPlanet: transit.transitingPlanet,
@@ -149,7 +217,9 @@ const getFilterOptions = (contentType) => {
     return [
       { value: 'all', label: 'All' },
       { value: 'positions', label: 'Positions' },
-      { value: 'aspects', label: 'Aspects' }
+      { value: 'houses', label: 'Houses' },
+      { value: 'aspects', label: 'Aspects' },
+      { value: 'patterns', label: 'Patterns' }
     ];
   }
   if (contentType === 'relationship') {
@@ -174,6 +244,12 @@ const getCategoryBadgeInfo = (contentType, element) => {
   if (contentType === 'birthchart' || contentType === 'analysis') {
     if (element.type === 'position') {
       return { label: 'Position', colorClass: 'badge--position' };
+    }
+    if (element.type === 'house') {
+      return { label: 'House', colorClass: 'badge--house' };
+    }
+    if (element.type === 'pattern') {
+      return { label: 'Pattern', colorClass: 'badge--pattern' };
     }
     return { label: 'Aspect', colorClass: 'badge--aspect' };
   }
@@ -233,10 +309,14 @@ function AskStelliumPanel({
   const restoreCredits = useEntitlementsStore(state => state.restoreCredits);
   const storedPlanets = useStore(state => state.userPlanets);
   const storedAspects = useStore(state => state.userAspects);
+  const storedHouses = useStore(state => state.userHouses);
+  const storedPatterns = useStore(state => state.userPatterns);
 
   const config = HISTORY_CONFIG[contentType];
   const planets = birthChart?.planets || storedPlanets || [];
   const aspects = birthChart?.aspects || storedAspects || [];
+  const houses = birthChart?.houses || storedHouses || [];
+  const patterns = birthChart?.patterns || storedPatterns || {};
 
   const resolvedPeriod = useMemo(() => {
     if (horoscopePeriod === 'today') return 'daily';
@@ -303,6 +383,24 @@ function AskStelliumPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const scrollToLatestMessage = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  const markMessageRevealComplete = useCallback((messageIndex) => {
+    setMessages(prev => prev.map((message, index) => (
+      index === messageIndex ? { ...message, animate: false } : message
+    )));
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setMessages(prev => prev.map(message => (
+        message.animate ? { ...message, animate: false } : message
+      )));
+    }
+  }, [isOpen]);
+
   // Focus textarea when panel opens
   useEffect(() => {
     if (isOpen) {
@@ -342,10 +440,15 @@ function AskStelliumPanel({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('ask-stellium-panel-open');
     } else {
       document.body.style.overflow = '';
+      document.body.classList.remove('ask-stellium-panel-open');
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+      document.body.classList.remove('ask-stellium-panel-open');
+    };
   }, [isOpen]);
 
   const positionsData = useMemo(() => {
@@ -363,13 +466,25 @@ function AskStelliumPanel({
     }).filter(Boolean);
   }, [aspects, planets]);
 
+  const housesData = useMemo(() => {
+    return houses.map(formatHouseData).filter(item => item.house || item.sign || item.label);
+  }, [houses]);
+
+  const patternsData = useMemo(() => {
+    return flattenPatterns(patterns).filter(item => item.label || item.description);
+  }, [patterns]);
+
   const filteredBirthchartElements = useMemo(() => {
     const positions = positionsData.map(p => ({ ...p, key: p.code, payload: p }));
+    const houseItems = housesData.map(h => ({ ...h, key: h.code, payload: h }));
     const aspectItems = aspectsData.map(a => ({ ...a, key: a.code, payload: a }));
+    const patternItems = patternsData.map(p => ({ ...p, key: p.code, payload: p }));
     if (birthchartFilter === 'positions') return positions;
+    if (birthchartFilter === 'houses') return houseItems;
     if (birthchartFilter === 'aspects') return aspectItems;
-    return [...positions, ...aspectItems];
-  }, [positionsData, aspectsData, birthchartFilter]);
+    if (birthchartFilter === 'patterns') return patternItems;
+    return [...positions, ...houseItems, ...aspectItems, ...patternItems];
+  }, [positionsData, housesData, aspectsData, patternsData, birthchartFilter]);
 
   const relationshipElements = useMemo(() => {
     if (!Array.isArray(relationshipScoredItems)) return [];
@@ -485,7 +600,7 @@ function AskStelliumPanel({
 
   const hasContextData = useMemo(() => {
     if (contentType === 'birthchart' || contentType === 'analysis') {
-      return positionsData.length > 0 || aspectsData.length > 0;
+      return positionsData.length > 0 || housesData.length > 0 || aspectsData.length > 0 || patternsData.length > 0;
     }
     if (contentType === 'relationship') {
       return relationshipElements.length > 0;
@@ -494,7 +609,7 @@ function AskStelliumPanel({
       return transitWindows && transitWindows.length > 0;
     }
     return false;
-  }, [contentType, positionsData, aspectsData, relationshipElements, transitWindows]);
+  }, [contentType, positionsData, housesData, aspectsData, patternsData, relationshipElements, transitWindows]);
 
   const getActiveFilter = useCallback(() => {
     if (contentType === 'birthchart' || contentType === 'analysis') return birthchartFilter;
@@ -522,16 +637,11 @@ function AskStelliumPanel({
     }
 
     if (selectedElements.length >= MAX_SELECTIONS) {
-      setSelectionError(`Select up to ${MAX_SELECTIONS} items.`);
+      setSelectionError(`Add up to ${MAX_SELECTIONS} chart elements to focus your question.`);
       return;
     }
 
     setSelectedElements(prev => [...prev, element]);
-
-    // Auto-close overlay when max selections reached
-    if (selectedElements.length + 1 >= MAX_SELECTIONS) {
-      setOverlayOpen(false);
-    }
   }, [isSelected, selectedElements.length]);
 
   const clearSelections = useCallback(() => {
@@ -614,6 +724,7 @@ function AskStelliumPanel({
         setMessages(prev => [...prev, {
           role: 'assistant',
           content: responseText,
+          animate: true,
           timestamp: new Date().toISOString(),
         }]);
         setSelectedElements([]);
@@ -669,6 +780,54 @@ function AskStelliumPanel({
     textareaRef.current?.focus();
   };
 
+  const primarySubjectName = useMemo(() => {
+    if (!contextLabel) return 'this chart';
+    return contextLabel
+      .replace(/^Admin\s+/i, '')
+      .replace(/^About\s+/i, '')
+      .replace(/\s+(birth chart|chart|horoscope|relationship)$/i, '')
+      .trim() || 'this chart';
+  }, [contextLabel]);
+
+  const generatedSuggestions = useMemo(() => {
+    if (selectedElements.length > 0) {
+      const first = selectedElements[0]?.label || selectedElements[0]?.description || 'this placement';
+      const second = selectedElements[1]?.label || selectedElements[1]?.description;
+      return [
+        `How should I understand ${first}?`,
+        second ? `How do ${first} and ${second} work together?` : `Where does ${first} show up most strongly?`,
+        `What is the growth edge in ${first}?`,
+        `How can I work with ${first} in daily life?`,
+        `What does ${first} reveal that I might overlook?`
+      ];
+    }
+
+    if (suggestedQuestions && suggestedQuestions.length > 0) {
+      return suggestedQuestions.slice(0, 5);
+    }
+
+    if (contentType === 'birthchart' || contentType === 'analysis') {
+      const mars = positionsData.find(item => item.planet === 'Mars') || positionsData[0];
+      const moon = positionsData.find(item => item.planet === 'Moon') || positionsData[1];
+      const sun = positionsData.find(item => item.planet === 'Sun') || positionsData[2];
+      return [
+        mars ? `What does ${primarySubjectName}'s ${mars.label}${mars.house ? ` in the ${getOrdinal(mars.house)} house` : ''} say about drive?` : `What is the strongest theme in ${primarySubjectName}'s chart?`,
+        moon ? `How does ${moon.label} shape emotional needs?` : `What does this chart reveal about emotional patterns?`,
+        sun ? `Where does ${sun.label} want to be expressed most clearly?` : `What does this chart say about identity?`,
+        'What relationship patterns stand out here?',
+        'What should I focus on for personal growth?'
+      ];
+    }
+
+    return [
+      'What should I pay attention to?',
+      'What is the strongest pattern here?',
+      'Where is the growth edge?',
+      'What is the practical takeaway?',
+      'What might I be missing?'
+    ];
+  }, [contentType, positionsData, primarySubjectName, selectedElements, suggestedQuestions]);
+
   if (!isOpen) return null;
 
   const canSend = !loading && (inputMessage.trim().length > 0 || selectedElements.length > 0);
@@ -676,8 +835,16 @@ function AskStelliumPanel({
   const filterOptions = getFilterOptions(contentType);
   const totalCount = selectableElements.length;
   const shownCount = filteredOverlayElements.length;
+  const selectionLimitReached = selectedElements.length >= MAX_SELECTIONS;
+  const contextActionLabel = selectedElements.length > 0 ? 'Edit' : 'Add context';
+  const welcomeTitle = (contentType === 'birthchart' || contentType === 'analysis')
+    ? `Ask anything about ${primarySubjectName}'s chart`
+    : 'Ask Stellium';
+  const panelSubtitle = (contentType === 'birthchart' || contentType === 'analysis')
+    ? `Ask anything about ${primarySubjectName}'s chart`
+    : (placeholderText || 'Ask questions and get personalized insights.');
 
-  return (
+  return createPortal((
     <div className="ask-panel-backdrop" onClick={onClose}>
       <div
         ref={panelRef}
@@ -688,9 +855,7 @@ function AskStelliumPanel({
         <div className="ask-panel__header">
           <div className="ask-panel__header-text">
             <div className="ask-panel__title">Ask Stellium</div>
-            {contextLabel && (
-              <div className="ask-panel__context">{contextLabel}</div>
-            )}
+            <div className="ask-panel__context">{panelSubtitle}</div>
           </div>
           <button className="ask-panel__close" onClick={onClose} aria-label="Close panel">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -703,30 +868,44 @@ function AskStelliumPanel({
         {hasContextData && (
           <div className="ask-panel__compact-context" ref={overlayRef}>
             <div className="ask-panel__compact-bar">
-              <button
-                className={`ask-panel__context-trigger ${overlayOpen ? 'ask-panel__context-trigger--open' : ''} ${selectedElements.length > 0 ? 'ask-panel__context-trigger--has-selection' : ''}`}
-                onClick={() => setOverlayOpen(!overlayOpen)}
-              >
-                Context{selectedElements.length > 0 && ` (${selectedElements.length})`}
-                <span className={`ask-panel__chevron ${overlayOpen ? 'ask-panel__chevron--open' : ''}`}>
-                  &#9662;
-                </span>
-              </button>
+              <div className="ask-panel__context-summary">
+                <button
+                  className={`ask-panel__context-trigger ${overlayOpen ? 'ask-panel__context-trigger--open' : ''} ${selectedElements.length > 0 ? 'ask-panel__context-trigger--has-selection' : ''}`}
+                  onClick={() => setOverlayOpen(!overlayOpen)}
+                >
+                  Context
+                </button>
+                <div className="ask-panel__summary-chips" aria-live="polite">
+                  {selectedElements.length > 0 ? selectedElements.map((element, idx) => (
+                    <span key={element.key || idx} className="ask-panel__summary-chip">
+                      {element.label || element.description || element.code}
+                    </span>
+                  )) : (
+                    <span className="ask-panel__summary-placeholder">Add up to {MAX_SELECTIONS} chart elements to focus your question</span>
+                  )}
+                </div>
+              </div>
               <div className="ask-panel__compact-right">
                 <span className="ask-panel__selection-count">
-                  {selectedElements.length}/{MAX_SELECTIONS}
+                  {selectedElements.length} of {MAX_SELECTIONS} selected
                 </span>
                 {selectedElements.length > 0 && (
                   <button className="ask-panel__selection-clear-inline" onClick={clearSelections}>
                     Clear
                   </button>
                 )}
+                <button className="ask-panel__context-action" onClick={() => setOverlayOpen(!overlayOpen)}>
+                  {overlayOpen ? 'Done' : contextActionLabel}
+                </button>
               </div>
             </div>
 
             {/* Overlay — floats over messages area */}
             {overlayOpen && (
               <div className="ask-panel__items-overlay">
+                <div className="ask-panel__overlay-help">
+                  Add up to {MAX_SELECTIONS} chart elements to focus your question.
+                </div>
                 <div className="ask-panel__overlay-header">
                   <div className="ask-panel__overlay-tabs">
                     {filterOptions.map(option => (
@@ -777,6 +956,8 @@ function AskStelliumPanel({
                       return filteredOverlayElements.map((element, index) => {
                         const badge = getCategoryBadgeInfo(contentType, element);
                         const key = element.key || element.code;
+                        const selected = isSelected(key);
+                        const disabledByLimit = selectionLimitReached && !selected;
                         const prevBadge = index > 0 ? getCategoryBadgeInfo(contentType, filteredOverlayElements[index - 1]) : null;
                         const sectionHeader = showDividers && (!prevBadge || prevBadge.label !== badge.label);
 
@@ -786,9 +967,13 @@ function AskStelliumPanel({
                               <div className="ask-panel__section-divider">{badge.label}</div>
                             )}
                             <button
-                              className={`ask-panel__item-row ${isSelected(key) ? 'ask-panel__item-row--selected' : ''}`}
+                              className={`ask-panel__item-row ${selected ? 'ask-panel__item-row--selected' : ''} ${disabledByLimit ? 'ask-panel__item-row--disabled' : ''}`}
                               onClick={() => handleToggleElement({ ...element, key })}
+                              disabled={disabledByLimit}
                             >
+                              <span className="ask-panel__item-check" aria-hidden="true">
+                                {selected ? '✓' : ''}
+                              </span>
                               <div className="ask-panel__item-label">
                                 {element.label}
                               </div>
@@ -830,12 +1015,12 @@ function AskStelliumPanel({
           ) : messages.length === 0 ? (
             <div className="ask-panel__welcome">
               <div className="ask-panel__welcome-icon">&#10024;</div>
-              <h3>Ask Stellium</h3>
+              <h3>{welcomeTitle}</h3>
               <p>{placeholderText || 'Ask questions and get personalized insights.'}</p>
-              {suggestedQuestions && suggestedQuestions.length > 0 && (
+              {generatedSuggestions.length > 0 && (
                 <div className="ask-panel__suggestions">
                   <p className="ask-panel__suggestions-label">Try asking:</p>
-                  {suggestedQuestions.map((q, i) => (
+                  {generatedSuggestions.map((q, i) => (
                     <span
                       key={i}
                       className="ask-panel__suggestion"
@@ -864,9 +1049,18 @@ function AskStelliumPanel({
                     </div>
                   )}
                   <div className="ask-panel__message-content">
-                    {msg.content.split('\n').map((paragraph, pIndex) => (
-                      paragraph.trim() && <p key={pIndex}>{paragraph}</p>
-                    ))}
+                    {msg.role === 'assistant' ? (
+                      <StreamingTextReveal
+                        text={msg.content}
+                        animate={Boolean(msg.animate)}
+                        onRevealProgress={scrollToLatestMessage}
+                        onRevealComplete={() => markMessageRevealComplete(index)}
+                      />
+                    ) : (
+                      msg.content.split('\n').map((paragraph, pIndex) => (
+                        paragraph.trim() && <p key={pIndex}>{paragraph}</p>
+                      ))
+                    )}
                   </div>
                 </div>
               ))}
@@ -901,11 +1095,8 @@ function AskStelliumPanel({
 
         {/* Input with inline chips */}
         <div className="ask-panel__credit-cost">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-          </svg>
-          <span>1 credit per message</span>
-          <span className="ask-panel__credit-cost-remaining">({credits.total} remaining)</span>
+          <span aria-hidden="true">✦</span>
+          <span>1 credit per message · {credits.total} remaining</span>
         </div>
         <div className="ask-panel__input">
           <div className="ask-panel__input-wrapper">
@@ -945,7 +1136,7 @@ function AskStelliumPanel({
         </div>
       </div>
     </div>
-  );
+  ), document.body);
 }
 
 export default AskStelliumPanel;
