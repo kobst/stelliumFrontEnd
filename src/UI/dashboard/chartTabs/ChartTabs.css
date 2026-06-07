@@ -1212,17 +1212,15 @@
 }
 
 .ask-stellium-trigger:disabled {
-  background: rgba(212, 165, 116, 0.06);
-  border-color: rgba(212, 165, 116, 0.16);
-  color: rgba(212, 165, 116, 0.55);
   cursor: not-allowed;
+  opacity: 0.72;
+  filter: none;
   transform: none;
   pointer-events: none;
 }
 
 .ask-stellium-trigger:disabled:hover {
-  background: rgba(212, 165, 116, 0.06);
-  border-color: rgba(212, 165, 116, 0.16);
+  filter: none;
   transform: none;
 }
 
