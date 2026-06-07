@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { enhancedChatForRelationship, fetchRelationshipEnhancedChatHistory } from '../../Utilities/api';
+import StreamingTextReveal from '../askStellium/StreamingTextReveal';
 import './RelationshipEnhancedChat.css';
 
 // Helper functions for relationship element formatting (kept for future expansion)
@@ -381,6 +382,7 @@ const RelationshipEnhancedChat = ({
           id: Date.now() + 1,
           type: 'assistant',
           content: response.answer,
+          animate: true,
           timestamp: new Date(),
           mode: response.mode,
           analysisId: response.analysisId
@@ -811,7 +813,25 @@ const RelationshipEnhancedChat = ({
                     </span>
                   </div>
                   <div className="message-content">
-                    {message.content}
+                    {message.type === 'assistant' ? (
+                      <StreamingTextReveal
+                        text={message.content}
+                        animate={Boolean(message.animate)}
+                        onRevealProgress={() => {
+                          messagesRef.current?.scrollTo({
+                            top: messagesRef.current.scrollHeight,
+                            behavior: 'smooth'
+                          });
+                        }}
+                        onRevealComplete={() => {
+                          setChatMessages(prev => prev.map(chatMessage => (
+                            chatMessage.id === message.id ? { ...chatMessage, animate: false } : chatMessage
+                          )));
+                        }}
+                      />
+                    ) : (
+                      message.content
+                    )}
                   </div>
                 </div>
               ))
