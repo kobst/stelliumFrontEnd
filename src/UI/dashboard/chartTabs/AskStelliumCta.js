@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-function AskStelliumCta({ hasFullAccess, onActivate }) {
+function AskStelliumCta({ hasFullAccess, onActivate, label = 'Ask Stellium about this chart' }) {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const dismissTimerRef = useRef(null);
 
@@ -50,7 +50,7 @@ function AskStelliumCta({ hasFullAccess, onActivate }) {
           onClick={hasFullAccess ? onActivate : undefined}
         >
           <span className="ask-stellium-trigger__icon">&#10024;</span>
-          Ask Stellium
+          {label}
           {!hasFullAccess && (
             <i className="ask-stellium-info-icon" aria-hidden="true">i</i>
           )}

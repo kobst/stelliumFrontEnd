@@ -64,7 +64,7 @@ function PublicCelebrityDashboard() {
       navigate('/login', { state: { from: `/celebrities/${celebrityId}` } });
       return;
     }
-    setAskOpen(true);
+    setAskOpen(prev => !prev);
   };
 
   if (loading) {

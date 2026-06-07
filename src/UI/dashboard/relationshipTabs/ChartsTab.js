@@ -189,7 +189,8 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskSt
         {!isCelebrity && (
           <AskStelliumCta
             hasFullAccess={canUseAskStellium}
-            onActivate={() => setChatOpen(true)}
+            onActivate={() => setChatOpen(prev => !prev)}
+            label="Ask Stellium about this relationship"
           />
         )}
       </div>

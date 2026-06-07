@@ -26,7 +26,7 @@ function ChartTab({ birthChart, chartId, isCelebrity = false, canUseAskStellium 
         <div style={{ marginTop: 24 }}>
           <AskStelliumCta
             hasFullAccess={canUseAskStellium}
-            onActivate={() => setChatOpen(true)}
+            onActivate={() => setChatOpen(prev => !prev)}
           />
         </div>
       )}

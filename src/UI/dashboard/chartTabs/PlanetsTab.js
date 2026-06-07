@@ -155,7 +155,7 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
             {!isCelebrity && (
               <AskStelliumCta
                 hasFullAccess={canUseAskStellium}
-                onActivate={() => setChatOpen(true)}
+                onActivate={() => setChatOpen(prev => !prev)}
               />
             )}
           </div>
@@ -176,7 +176,7 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
           {!isCelebrity && (
             <AskStelliumCta
               hasFullAccess={canUseAskStellium}
-              onActivate={() => setChatOpen(true)}
+              onActivate={() => setChatOpen(prev => !prev)}
             />
           )}
         </div>

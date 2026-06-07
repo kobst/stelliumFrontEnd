@@ -478,8 +478,8 @@ function HomePane({ userId, user, entitlements }) {
             <h1 className="md-horo-title">Horoscopes by Stellium</h1>
             <div className="md-horo-date">{todayLabel}</div>
           </div>
-          <button type="button" className="md-ask-btn" onClick={() => setAskOpen(true)}>
-            <span className="md-ask-btn__sparkle">✦</span> Ask Stellium
+          <button type="button" className="md-ask-btn" onClick={() => setAskOpen(prev => !prev)}>
+            <span className="md-ask-btn__sparkle">✦</span> Ask Stellium about this chart
           </button>
         </div>
 
