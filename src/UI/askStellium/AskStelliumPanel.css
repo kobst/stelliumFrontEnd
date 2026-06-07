@@ -304,6 +304,48 @@
   margin-bottom: 0;
 }
 
+/* Per-answer actions (re-stream / hide) */
+.ask-panel__msg-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.ask-panel__message--assistant:hover .ask-panel__msg-actions {
+  opacity: 1;
+}
+
+.ask-panel__msg-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--as-sans);
+  font-size: 11px;
+  color: var(--as-text-faint);
+  padding: 3px 9px;
+  border-radius: 999px;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.ask-panel__msg-action:hover {
+  color: var(--as-text);
+  background: rgba(202, 190, 255, 0.08);
+}
+
+.ask-panel__msg-action span {
+  font-size: 12px;
+}
+
+/* Touch devices have no hover — keep the actions visible */
+@media (hover: none) {
+  .ask-panel__msg-actions { opacity: 1; }
+}
+
 /* Typing indicator */
 .ask-panel__typing {
   display: flex;

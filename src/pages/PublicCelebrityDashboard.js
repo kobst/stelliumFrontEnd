@@ -180,6 +180,7 @@ function PublicCelebrityDashboard() {
         onClose={() => setAskOpen(false)}
         contentType="birthchart"
         contentId={celebrityId}
+        disableHistory
         birthChart={birthChart}
         contextLabel={`${celebrity.firstName || 'Celebrity'} ${celebrity.lastName || ''}`.trim()}
         placeholderText="Ask about this celebrity birth chart..."

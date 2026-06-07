@@ -267,6 +267,8 @@ const getCategoryBadgeInfo = (contentType, element) => {
   return { label: '', colorClass: '' };
 };
 
+const makeMessageId = () => `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
 function AskStelliumPanel({
   isOpen,
   onClose,
@@ -278,7 +280,8 @@ function AskStelliumPanel({
   birthChart,
   relationshipScoredItems,
   transitWindows = [],
-  horoscopePeriod
+  horoscopePeriod,
+  disableHistory = false
 }) {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -328,6 +331,7 @@ function AskStelliumPanel({
   // Load chat history when panel opens
   useEffect(() => {
     if (!isOpen || !contentId || !config) return;
+    if (disableHistory) return; // celebrity Ask Stellium: ephemeral, don't load prior history
     if (hasLoadedRef.current === contentId) return;
 
     const loadHistory = async () => {
@@ -358,7 +362,7 @@ function AskStelliumPanel({
     };
 
     loadHistory();
-  }, [isOpen, contentId, config]);
+  }, [isOpen, contentId, config, disableHistory]);
 
   // Reset state when contentId changes
   useEffect(() => {
@@ -387,10 +391,23 @@ function AskStelliumPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  const markMessageRevealComplete = useCallback((messageIndex) => {
-    setMessages(prev => prev.map((message, index) => (
-      index === messageIndex ? { ...message, animate: false } : message
+  const markMessageRevealComplete = useCallback((messageId) => {
+    setMessages(prev => prev.map(message => (
+      message.id === messageId ? { ...message, animate: false } : message
     )));
+  }, []);
+
+  // Replay the streaming reveal animation on an existing answer
+  const restreamMessage = useCallback((messageId) => {
+    setMessages(prev => prev.map(message => (
+      message.id === messageId ? { ...message, animate: true } : message
+    )));
+    setTimeout(scrollToLatestMessage, 0);
+  }, [scrollToLatestMessage]);
+
+  // Hide an answer from the current view (client-side only; not persisted)
+  const hideMessage = useCallback((messageId) => {
+    setMessages(prev => prev.filter(message => message.id !== messageId));
   }, []);
 
   useEffect(() => {
@@ -676,6 +693,7 @@ function AskStelliumPanel({
     setShowPaywall(false);
 
     setMessages(prev => [...prev, {
+      id: makeMessageId(),
       role: 'user',
       content: userMessage || 'Selected context',
       selectedElements: hasSelection ? selectedElements : null,
@@ -722,6 +740,7 @@ function AskStelliumPanel({
 
       if (responseText) {
         setMessages(prev => [...prev, {
+          id: makeMessageId(),
           role: 'assistant',
           content: responseText,
           animate: true,
@@ -1034,9 +1053,11 @@ function AskStelliumPanel({
             </div>
           ) : (
             <>
-              {messages.map((msg, index) => (
+              {messages.map((msg, index) => {
+                const messageId = msg.id || `idx-${index}`;
+                return (
                 <div
-                  key={index}
+                  key={messageId}
                   className={`ask-panel__message ${msg.role === 'user' ? 'ask-panel__message--user' : 'ask-panel__message--assistant'}`}
                 >
                   {msg.role === 'user' && msg.selectedElements && msg.selectedElements.length > 0 && (
@@ -1054,7 +1075,7 @@ function AskStelliumPanel({
                         text={msg.content}
                         animate={Boolean(msg.animate)}
                         onRevealProgress={scrollToLatestMessage}
-                        onRevealComplete={() => markMessageRevealComplete(index)}
+                        onRevealComplete={() => markMessageRevealComplete(messageId)}
                       />
                     ) : (
                       msg.content.split('\n').map((paragraph, pIndex) => (
@@ -1062,8 +1083,29 @@ function AskStelliumPanel({
                       ))
                     )}
                   </div>
+                  {msg.role === 'assistant' && !msg.animate && (
+                    <div className="ask-panel__msg-actions">
+                      <button
+                        type="button"
+                        className="ask-panel__msg-action"
+                        onClick={() => restreamMessage(messageId)}
+                        title="Replay the streaming animation"
+                      >
+                        <span aria-hidden="true">&#10227;</span> Re-stream
+                      </button>
+                      <button
+                        type="button"
+                        className="ask-panel__msg-action"
+                        onClick={() => hideMessage(messageId)}
+                        title="Hide this answer from view"
+                      >
+                        <span aria-hidden="true">&#10005;</span> Hide
+                      </button>
+                    </div>
+                  )}
                 </div>
-              ))}
+                );
+              })}
               {loading && (
                 <div className="ask-panel__message ask-panel__message--assistant">
                   <div className="ask-panel__message-content ask-panel__typing">

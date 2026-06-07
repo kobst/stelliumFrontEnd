@@ -187,6 +187,7 @@ function PublicCelebrityRelationship() {
         onClose={() => setAskOpen(false)}
         contentType="relationship"
         contentId={compositeId}
+        disableHistory
         relationshipScoredItems={relationshipScoredItems}
         contextLabel={`${userAName} & ${userBName}`}
         placeholderText="Ask about this celebrity relationship..."
