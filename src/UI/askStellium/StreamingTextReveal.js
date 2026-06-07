@@ -59,7 +59,7 @@ function StreamingTextReveal({
         }
         return next;
       });
-    }, 333);
+    }, 166);
 
     return () => window.clearInterval(intervalId);
   }, [normalizedText, shouldAnimate, tokens.length]);
