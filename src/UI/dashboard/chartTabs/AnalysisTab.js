@@ -572,7 +572,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
         {!isCelebrity && (
           <button
             className="ask-stellium-trigger"
-            onClick={() => setChatOpen(true)}
+            onClick={() => setChatOpen(prev => !prev)}
           >
             <span className="ask-stellium-trigger__icon">&#10024;</span>
             Ask Stellium

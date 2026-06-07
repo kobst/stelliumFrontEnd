@@ -243,7 +243,8 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
           {!isCelebrity && (
             <AskStelliumCta
               hasFullAccess={canUseAskStellium}
-              onActivate={() => setChatOpen(true)}
+              onActivate={() => setChatOpen(prev => !prev)}
+              label="Ask Stellium about this relationship"
             />
           )}
         </div>
@@ -267,7 +268,8 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
           {!isCelebrity && (
             <AskStelliumCta
               hasFullAccess={canUseAskStellium}
-              onActivate={() => setChatOpen(true)}
+              onActivate={() => setChatOpen(prev => !prev)}
+              label="Ask Stellium about this relationship"
             />
           )}
         </div>
@@ -372,7 +374,8 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
         {!isCelebrity && (
           <AskStelliumCta
             hasFullAccess={canUseAskStellium}
-            onActivate={() => setChatOpen(true)}
+            onActivate={() => setChatOpen(prev => !prev)}
+            label="Ask Stellium about this relationship"
           />
         )}
       </div>

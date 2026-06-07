@@ -713,7 +713,7 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
         {!isCelebrity && (
           <AskStelliumCta
             hasFullAccess={canUseAskStellium}
-            onActivate={() => setChatOpen(true)}
+            onActivate={() => setChatOpen(prev => !prev)}
           />
         )}
       </div>

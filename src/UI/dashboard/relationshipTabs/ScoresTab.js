@@ -321,7 +321,8 @@ function ScoresTab({
         <div style={{ marginTop: 18 }}>
           <AskStelliumCta
             hasFullAccess={canUseAskStellium}
-            onActivate={() => setChatOpen(true)}
+            onActivate={() => setChatOpen(prev => !prev)}
+            label="Ask Stellium about this relationship"
           />
         </div>
       )}

@@ -88,7 +88,7 @@ function PublicCelebrityRelationship() {
       navigate('/login', { state: { from: `/celebrity-relationships/${compositeId}` } });
       return;
     }
-    setAskOpen(true);
+    setAskOpen(prev => !prev);
   };
 
   if (loading) {
