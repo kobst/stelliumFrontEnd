@@ -225,7 +225,7 @@ function ScoresTab({
   return (
     <div className="scores-tab-redesign">
       <div className="rd-section-head">
-        <h2>{label || 'Compatibility Score'}</h2>
+        <h2>{label || 'Relationship Pattern'}</h2>
       </div>
 
       {blurb && (

@@ -55,7 +55,7 @@ function RelationshipQuickFacts({ relationship }) {
   const overall = clusterAnalysis?.overall;
   const clusters = clusterAnalysis?.clusters;
   const synastryAspects = relationship?.synastryAspects || [];
-  const { label, blurb, tier } = getRelationshipSummary(overall);
+  const { label, blurb, tier, dominantClusters } = getRelationshipSummary(overall);
 
   const aspectCounts = countAspectsByType(synastryAspects);
 
@@ -66,7 +66,7 @@ function RelationshipQuickFacts({ relationship }) {
   const userBSun = getSign(userBPlanets, 'Sun');
 
   // Get strongest and challenge clusters
-  const dominantCluster = overall?.dominantCluster;
+  const dominantCluster = dominantClusters?.[0] || overall?.dominantCluster;
   const challengeCluster = overall?.challengeCluster;
   const dominantScore = dominantCluster && clusters?.[dominantCluster]?.score;
   const challengeScore = challengeCluster && clusters?.[challengeCluster]?.score;
