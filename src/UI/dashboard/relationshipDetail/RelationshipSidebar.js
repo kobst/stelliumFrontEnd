@@ -14,7 +14,7 @@ const ORDERED_CLUSTERS = ['Harmony', 'Passion', 'Connection', 'Stability', 'Grow
 
 const SECTIONS = [
   { id: 'overview', label: 'Overview' },
-  { id: 'scores', label: 'Score' },
+  { id: 'scores', label: 'Pattern' },
   { id: 'charts', label: 'Charts' },
   { id: 'analysis', label: '360 Analysis' }
 ];
@@ -73,7 +73,7 @@ function RelationshipSidebar({
   const overall = clusterAnalysis?.overall;
   const clusters = clusterAnalysis?.clusters;
   const synastryAspects = relationship?.synastryAspects || [];
-  const { label, blurb } = getRelationshipSummary(overall);
+  const { label, blurb, dominantClusters } = getRelationshipSummary(overall);
   const aspectCounts = countAspectsByType(synastryAspects);
 
   const userAFirst = relationship?.userA_firstName || relationship?.userA_name?.split(' ')[0] || 'Person A';
@@ -89,7 +89,7 @@ function RelationshipSidebar({
   const userAPhoto = relationship?.userA_profilePhotoUrl || relationship?.userA_photoUrl;
   const userBPhoto = relationship?.userB_profilePhotoUrl || relationship?.userB_photoUrl;
 
-  const dominantCluster = overall?.dominantCluster;
+  const dominantCluster = dominantClusters?.[0] || overall?.dominantCluster;
   const challengeCluster = overall?.challengeCluster;
   const dominantScore = dominantCluster && clusters?.[dominantCluster]?.score;
   const challengeScore = challengeCluster && clusters?.[challengeCluster]?.score;

@@ -7,6 +7,7 @@ import { useCheckout } from '../hooks/useCheckout';
 import { ZODIAC_SIGNS } from '../Utilities/zodiac';
 import { trackLandingCTAClicked } from '../Utilities/analytics';
 import { fetchCelebrities, getCelebrityRelationships, fetchRelationshipAnalysis } from '../Utilities/api';
+import { getRelationshipSummary } from '../Utilities/relationshipSummary';
 
 const SIGN_DATES = {
   aries: 'Mar 21 – Apr 19',
@@ -243,7 +244,8 @@ function PairCard({ relationship, gradients, onClick }) {
     relationship?.clusterAnalysis ||
     {};
   const overallScore = Math.round(scoring?.overall?.score ?? relationship?.compatibilityScore ?? 0);
-  const archetype = archetypeForScore(overallScore);
+  const { label } = getRelationshipSummary(scoring?.overall);
+  const archetype = label || archetypeForScore(overallScore);
 
   const clusters = scoring?.clusters || scoring;
   const findScore = (keys) => {
