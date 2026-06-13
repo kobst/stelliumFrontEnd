@@ -873,6 +873,10 @@
   .bcd-reading__body p { font-size: 16.5px; }
   .bcd-wrap { padding: 0 28px; }
 }
+@media (max-width: 720px) {
+  /* Clear the fixed Ask Stellium bottom bar so the last content isn't hidden. */
+  .bcd-page { padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
+}
 @media (max-width: 640px) {
   .bcd-tab-header h1 { font-size: 26px; }
   .bcd-reading { padding: 22px 20px; border-radius: 22px; }

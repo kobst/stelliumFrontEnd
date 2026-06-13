@@ -1247,21 +1247,40 @@ body.ask-stellium-panel-open .ask-stellium-cta {
 }
 
 @media (max-width: 720px) {
+  /* Full-width sticky bottom bar with a fade/blur backdrop so the CTA reads as
+     intentional chrome instead of a pill floating over the tab list. */
   .ask-stellium-cta {
-    left: 20px;
-    right: 20px;
-    bottom: 18px;
+    display: flex;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 18px 18px calc(16px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(
+      180deg,
+      rgba(15, 15, 23, 0) 0%,
+      rgba(15, 15, 23, 0.82) 44%,
+      rgba(15, 15, 23, 0.97) 100%
+    );
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    /* Let taps fall through the transparent top of the gradient to content behind;
+       re-enable on the button wrapper below. */
+    pointer-events: none;
   }
 
-  .ask-stellium-wrapper,
+  .ask-stellium-wrapper {
+    width: 100%;
+    pointer-events: auto;
+  }
+
   .ask-stellium-trigger {
     width: 100%;
-  }
-
-  .ask-stellium-trigger {
     min-width: 0;
-    padding: 17px 22px;
-    font-size: 0.98rem;
+    padding: 16px 22px;
+    font-size: 1rem;
+    line-height: 1.25;
+    /* Allow long labels to wrap to a second line instead of overflowing the pill. */
+    white-space: normal;
   }
 }
 
@@ -1709,15 +1728,6 @@ body.ask-stellium-panel-open .ask-stellium-cta {
   .overview-section-header {
     gap: 12px;
     align-items: flex-start;
-  }
-
-  .ask-stellium-trigger {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-  }
-
-  .ask-stellium-cta {
-    max-width: 52%;
   }
 
   .key-placements-grid {
