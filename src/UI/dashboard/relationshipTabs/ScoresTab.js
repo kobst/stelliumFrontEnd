@@ -30,6 +30,47 @@ function scoreBand(score) {
   return 'orange';
 }
 
+function clampScore(score) {
+  if (typeof score !== 'number' || Number.isNaN(score)) return 0;
+  return Math.min(100, Math.max(0, score));
+}
+
+function RelationshipHeadline({ headline }) {
+  if (!headline) return null;
+
+  const strength = clampScore(headline.strengthScore);
+  const roundedStrength = Math.round(strength);
+  const flavorLabel = headline.flavorPresent && headline.flavorCluster
+    ? `${headline.flavorCluster}-Forward`
+    : '';
+
+  return (
+    <section className="rd-headline-card" aria-label="Relationship strength">
+      <div
+        className="rd-strength-ring"
+        style={{ '--rd-strength': `${strength}%` }}
+        aria-label={`Relationship strength ${roundedStrength}`}
+      >
+        <div className="rd-strength-ring__inner">
+          <span className="rd-strength-ring__value">{roundedStrength}</span>
+          <span className="rd-strength-ring__label">connection</span>
+        </div>
+      </div>
+
+      <div className="rd-headline-card__copy">
+        <div className="rd-headline-card__eyebrow">Relationship Strength</div>
+        {flavorLabel ? (
+          <div className="rd-headline-card__tag">{flavorLabel}</div>
+        ) : (
+          <div className="rd-headline-card__tag rd-headline-card__tag--quiet">
+            Broad across the five pillars
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function generateStardustCircles(count, seed) {
   const rng = (i, s) => {
     const x = Math.sin((i + s) * 9301 + 49297) * 233280;
@@ -173,7 +214,7 @@ function ScoresTab({
   const clusters = clusterAnalysis?.clusters;
   const overall = clusterAnalysis?.overall;
   const allScoredItems = clusterAnalysis?.scoredItems || [];
-  const { label, blurb } = getRelationshipSummary(overall);
+  const { label, blurb, headline } = getRelationshipSummary(overall);
 
   const scoreMap = useMemo(() => {
     const out = {};
@@ -225,10 +266,12 @@ function ScoresTab({
   return (
     <div className="scores-tab-redesign">
       <div className="rd-section-head">
-        <h2>{label || 'Relationship Pattern'}</h2>
+        <h2>{headline ? 'Relationship Strength' : label || 'Relationship Pattern'}</h2>
       </div>
 
-      {blurb && (
+      {headline && <RelationshipHeadline headline={headline} />}
+
+      {!headline && blurb && (
         <div className="rd-score-summary">
           <div className="rd-score-summary__label">Relationship Summary</div>
           <p>{blurb}</p>
@@ -244,6 +287,14 @@ function ScoresTab({
           <PentagonRadar scores={scoreMap} />
         </div>
       </div>
+
+      {headline && (label || blurb) && (
+        <div className="rd-score-summary rd-score-summary--detail">
+          <div className="rd-score-summary__label">Archetype Detail</div>
+          {label && <h3 className="rd-score-summary__title">{label}</h3>}
+          {blurb && <p>{blurb}</p>}
+        </div>
+      )}
 
       <div className="rd-bars-stack">
         {ORDERED_CLUSTERS.map((cluster) => {

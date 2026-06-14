@@ -3,9 +3,14 @@ export function getRelationshipSummary(overall) {
     overall?.summary && typeof overall.summary === 'object' ? overall.summary : null;
   const resolvedLabel = structuredSummary?.resolvedLabel || '';
   const rawLabel = structuredSummary?.label || '';
+  const headline =
+    structuredSummary?.headline && typeof structuredSummary.headline === 'object'
+      ? structuredSummary.headline
+      : null;
 
   return {
     summary: structuredSummary,
+    headline,
     label: resolvedLabel || rawLabel || overall?.profile || '',
     rawLabel,
     resolvedLabel,

@@ -449,6 +449,102 @@
 .rd-overview-reading p:last-child { margin-bottom: 0; }
 
 /* ─── SCORE ────────────────────────────────────── */
+.rd-headline-card {
+  display: grid;
+  grid-template-columns: minmax(132px, 168px) 1fr;
+  align-items: center;
+  gap: 26px;
+  background:
+    radial-gradient(circle at 28% 28%, rgba(202,190,255,0.16), transparent 42%),
+    var(--rd-surface-mid);
+  border-radius: 28px;
+  padding: 30px 34px;
+  box-shadow: inset 0 0 0 1px var(--rd-ghost), 0 24px 60px -34px rgba(202,190,255,0.28);
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.rd-headline-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 32px 24px 210px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--rd-gold), transparent);
+  opacity: 0.5;
+}
+.rd-strength-ring {
+  --rd-strength: 0%;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    conic-gradient(var(--rd-gold) var(--rd-strength), rgba(255,255,255,0.08) 0),
+    radial-gradient(circle, rgba(202,190,255,0.16), transparent 70%);
+  box-shadow: 0 0 42px -20px var(--rd-gold);
+}
+.rd-strength-ring__inner {
+  width: calc(100% - 18px);
+  height: calc(100% - 18px);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--rd-surface-low);
+  box-shadow: inset 0 0 0 1px var(--rd-ghost);
+}
+.rd-strength-ring__value {
+  font-family: var(--rd-serif);
+  font-size: clamp(42px, 8vw, 64px);
+  line-height: 0.92;
+  color: var(--rd-text);
+  font-variant-numeric: tabular-nums;
+}
+.rd-strength-ring__label {
+  font-family: var(--rd-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--rd-text-muted);
+}
+.rd-headline-card__copy {
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+.rd-headline-card__eyebrow {
+  font-family: var(--rd-sans);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--rd-gold);
+  margin-bottom: 12px;
+}
+.rd-headline-card__tag {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(202,190,255,0.12);
+  box-shadow: inset 0 0 0 1px rgba(202,190,255,0.22);
+  color: var(--rd-text);
+  font-family: var(--rd-serif);
+  font-size: clamp(22px, 4.5vw, 34px);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+.rd-headline-card__tag--quiet {
+  background: rgba(255,255,255,0.06);
+  box-shadow: inset 0 0 0 1px var(--rd-ghost);
+  color: var(--rd-text-muted);
+}
 .rd-score-summary {
   background: var(--rd-surface-mid);
   border-radius: 24px;
@@ -477,6 +573,18 @@
   margin: 0 auto;
   max-width: 76ch;
   text-wrap: pretty;
+}
+.rd-score-summary--detail {
+  margin-top: 0;
+}
+.rd-score-summary__title {
+  font-family: var(--rd-serif);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.15;
+  color: var(--rd-text);
+  margin: 0 0 12px;
+  text-wrap: balance;
 }
 
 /* Radar card */
@@ -939,6 +1047,8 @@
   .rd-sidebar { position: static; }
   .rd-overview-reading { padding: 12px 22px; }
   .rd-overview-reading p { font-size: 15.5px; }
+  .rd-headline-card { grid-template-columns: 140px 1fr; padding: 26px 24px; }
+  .rd-headline-card::after { left: 188px; right: 26px; }
   .rd-score-summary { padding: 24px 22px; }
   .rd-radar-card { padding: 24px 18px; }
   .rd-bar-card__summary { grid-template-columns: 110px 1fr 50px 16px; }
@@ -947,5 +1057,20 @@
 }
 @media (max-width: 640px) {
   .rd-wrap { padding: 0 18px; }
+  .rd-headline-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 18px;
+    padding: 24px 18px;
+  }
+  .rd-headline-card::after { display: none; }
+  .rd-strength-ring { width: min(168px, 58vw); }
+  .rd-headline-card__tag {
+    justify-content: center;
+    font-size: 24px;
+    border-radius: 22px;
+    white-space: normal;
+  }
   .rd-bar-card__summary { grid-template-columns: 90px 1fr 40px 14px; padding: 12px 14px 12px 12px; }
 }
