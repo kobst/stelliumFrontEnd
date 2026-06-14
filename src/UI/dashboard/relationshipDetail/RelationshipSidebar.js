@@ -14,7 +14,7 @@ const ORDERED_CLUSTERS = ['Harmony', 'Passion', 'Connection', 'Stability', 'Grow
 
 const SECTIONS = [
   { id: 'overview', label: 'Overview' },
-  { id: 'scores', label: 'Pattern' },
+  { id: 'scores', label: 'Scores' },
   { id: 'charts', label: 'Charts' },
   { id: 'analysis', label: '360 Analysis' }
 ];
@@ -73,7 +73,7 @@ function RelationshipSidebar({
   const overall = clusterAnalysis?.overall;
   const clusters = clusterAnalysis?.clusters;
   const synastryAspects = relationship?.synastryAspects || [];
-  const { label, blurb, dominantClusters } = getRelationshipSummary(overall);
+  const { label, blurb, dominantClusters, headline } = getRelationshipSummary(overall);
   const aspectCounts = countAspectsByType(synastryAspects);
 
   const userAFirst = relationship?.userA_firstName || relationship?.userA_name?.split(' ')[0] || 'Person A';
@@ -122,6 +122,18 @@ function RelationshipSidebar({
         </div>
 
         <div className="rd-pair-name">{userAFirst} &amp; {userBFirst}</div>
+        {headline && (
+          <div className="rd-pair-strength">
+            <div className="rd-pair-strength__label">Relationship Strength</div>
+            <div className="rd-pair-strength__main">
+              <span className="rd-pair-strength__score">{Math.round(headline.strengthScore)}</span>
+              <span className="rd-pair-strength__unit">connection</span>
+            </div>
+            {headline.flavorPresent && headline.flavorCluster && (
+              <div className="rd-pair-strength__tag">{headline.flavorCluster}-Forward</div>
+            )}
+          </div>
+        )}
         {label && <div className="rd-pair-arche">{label}</div>}
         {blurb && <p className="rd-pair-summary">{blurb}</p>}
 
