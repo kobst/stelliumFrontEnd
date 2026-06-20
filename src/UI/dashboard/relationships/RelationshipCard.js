@@ -1,7 +1,7 @@
 import React from 'react';
 import './RelationshipCard.css';
 import { formatCalendarDate } from '../../../Utilities/dateFormatting';
-import { getRelationshipSummary } from '../../../Utilities/relationshipSummary';
+import { getRelationshipCardSummary } from '../../../Utilities/relationshipSummary';
 
 // Zodiac sign names
 const SIGN_NAMES = {
@@ -47,7 +47,7 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
   const overall = relationship?.relationshipAnalysisStatus?.overall ||
                   relationship?.clusterScoring?.overall ||
                   relationship?.clusterAnalysis?.overall;
-  const { label, blurb } = getRelationshipSummary(overall);
+  const { cardHeadline, blurb, showArchetypeOnCard } = getRelationshipCardSummary(overall);
 
   // Get birth data for partner (userB)
   const userBPlanets = relationship?.userB_birthChart?.planets;
@@ -108,8 +108,10 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
             </svg>
           </button>
         </div>
-        {label && (
-          <p className="relationship-card__archetype">{label}</p>
+        {cardHeadline && (
+          <p className={showArchetypeOnCard ? 'relationship-card__archetype' : 'relationship-card__strength'}>
+            {cardHeadline}
+          </p>
         )}
         {dateSignLine && (
           <p className="relationship-card__date-sign">{dateSignLine}</p>

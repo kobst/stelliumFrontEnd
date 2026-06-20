@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCelebrityRelationships, fetchCelebrities, fetchRelationshipAnalysis } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
-import { getRelationshipSummary } from '../Utilities/relationshipSummary';
+import { getRelationshipCardSummary, relationshipStrengthWord } from '../Utilities/relationshipSummary';
 import './PublicCelebrityRelationships.css';
 
 const PORTRAIT_TONES = ['lilac', 'gold', 'cyan', 'rose', 'sage', 'plum'];
@@ -31,7 +31,11 @@ const ARCHETYPE_META = {
   'Quiet Balance':         { icon: '\u{1F4A7}', meta: 'Even tone · Reliable' },
   'Iron & Honey':          { icon: '\u{1F30A}', meta: 'Edge meets ease' },
   'Twin Signal':           { icon: '✦', meta: 'Mirrored minds' },
-  'Crossed Skies':         { icon: '❈', meta: 'Different weather · Different rhythms' }
+  'Deep Connection':       { icon: '✦', meta: 'Broadly powerful' },
+  'Strong Connection':     { icon: '✦', meta: 'Strong overall signal' },
+  'Steady Connection':     { icon: '✦', meta: 'Steady overall signal' },
+  'Developing Connection': { icon: '✦', meta: 'Emerging overall signal' },
+  'Quiet Connection':      { icon: '✦', meta: 'Subtle overall signal' }
 };
 const DEFAULT_META = { icon: '✨', meta: 'Cosmic chemistry' };
 
@@ -84,8 +88,10 @@ function getOverall(rel) {
 
 function getArchetype(rel) {
   const overall = getOverall(rel);
-  const { label, blurb } = getRelationshipSummary(overall);
-  return { label: label || 'Cosmic Pair', blurb: blurb || '' };
+  const { cardHeadline, blurb } = getRelationshipCardSummary(overall);
+  const scores = getClusterScores(rel);
+  const fallbackStrength = relationshipStrengthWord(scores.overall);
+  return { label: cardHeadline || fallbackStrength || 'Cosmic Pair', blurb: blurb || '' };
 }
 
 function getSunSign(rel, prefix) {

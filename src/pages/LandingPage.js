@@ -7,7 +7,7 @@ import { useCheckout } from '../hooks/useCheckout';
 import { ZODIAC_SIGNS } from '../Utilities/zodiac';
 import { trackLandingCTAClicked } from '../Utilities/analytics';
 import { fetchCelebrities, getCelebrityRelationships, fetchRelationshipAnalysis } from '../Utilities/api';
-import { getRelationshipSummary } from '../Utilities/relationshipSummary';
+import { getRelationshipCardSummary, relationshipStrengthWord } from '../Utilities/relationshipSummary';
 
 const SIGN_DATES = {
   aries: 'Mar 21 – Apr 19',
@@ -31,18 +31,6 @@ const PAIR_AV_GRADIENTS = [
   'linear-gradient(135deg, #b5708a, #6b3a4f)',
   'linear-gradient(135deg, #3da3aa, #1d4a52)'
 ];
-
-const CHEMISTRY_ARCHETYPES = [
-  { min: 85, label: 'Lightning in a Bottle' },
-  { min: 75, label: 'Live Wire' },
-  { min: 65, label: 'Slow Orbit' },
-  { min: 55, label: 'Quiet Balance' },
-  { min: 0,  label: 'Crossed Skies' }
-];
-
-function archetypeForScore(score) {
-  return CHEMISTRY_ARCHETYPES.find((a) => score >= a.min)?.label || CHEMISTRY_ARCHETYPES[CHEMISTRY_ARCHETYPES.length - 1].label;
-}
 
 function getInitial(name) {
   return (name?.charAt(0) || '?').toUpperCase();
@@ -244,8 +232,8 @@ function PairCard({ relationship, gradients, onClick }) {
     relationship?.clusterAnalysis ||
     {};
   const overallScore = Math.round(scoring?.overall?.score ?? relationship?.compatibilityScore ?? 0);
-  const { label } = getRelationshipSummary(scoring?.overall);
-  const archetype = label || archetypeForScore(overallScore);
+  const { cardHeadline } = getRelationshipCardSummary(scoring?.overall);
+  const archetype = cardHeadline || relationshipStrengthWord(overallScore) || 'Cosmic Connection';
 
   const clusters = scoring?.clusters || scoring;
   const findScore = (keys) => {
