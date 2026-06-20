@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 import { formatLocalDateParam } from '../Utilities/horoscopeDates';
-import { getRelationshipSummary } from '../Utilities/relationshipSummary';
+import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import AddChartModal from '../UI/dashboard/AddChartModal';
 import SettingsSection from '../UI/dashboard/SettingsSection';
@@ -825,7 +825,7 @@ function RelationshipsPane({ userId, onNavigate }) {
               rel?.relationshipAnalysisStatus?.clusterScoring?.overall ||
               rel?.clusterScoring?.overall ||
               rel?.clusterAnalysis?.overall;
-            const { label: archetype, blurb } = getRelationshipSummary(overall);
+            const { cardHeadline, blurb } = getRelationshipCardSummary(overall);
             const tone = PORTRAIT_TONES[i % PORTRAIT_TONES.length];
             return (
               <button
@@ -843,7 +843,7 @@ function RelationshipsPane({ userId, onNavigate }) {
                 </div>
                 <div className="md-rel-body">
                   <div className="md-rel-firstname">{partnerFirst}</div>
-                  {archetype && <div className="md-rel-arche">{archetype}</div>}
+                  {cardHeadline && <div className="md-rel-arche">{cardHeadline}</div>}
                   {date && <div className="md-rel-date">{date}</div>}
                   {blurb && <p className="md-rel-summary">{blurb}</p>}
                 </div>
