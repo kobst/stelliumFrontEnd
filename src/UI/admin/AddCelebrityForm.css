@@ -1,0 +1,21 @@
+/* Readability fixes for the admin "Add New Celebrity" form, which sits on a
+   dark background. Native pickers and the Google Places dropdown need explicit
+   dark-theme theming so their text stays legible. */
+
+/* Render native date/time/select controls (text, picker icons, and popups)
+   with a dark color scheme so they are visible on the dark form. */
+.add-celebrity-form input[type="date"],
+.add-celebrity-form input[type="time"],
+.add-celebrity-form select {
+  color-scheme: dark;
+}
+
+/* Google Places autocomplete prediction dropdown. The input itself has a white
+   background, so match the dropdown: a light surface with dark text keeps the
+   suggestions readable instead of low-contrast purple-on-dark. */
+.celebrity-location-autocomplete {
+  --gmp-mat-color-surface: #ffffff;
+  --gmp-mat-color-on-surface: #1a1a2e;
+  --gmp-mat-color-on-surface-variant: #555555;
+  --gmp-mat-color-primary: #5116b5;
+}
