@@ -8,6 +8,7 @@ import {
 import useSubjectCreation from '../../hooks/useSubjectCreation';
 import GooglePlaceAutocomplete from '../shared/GooglePlaceAutocomplete';
 import '../landingPage/UserSignUpForm.css';
+import './AddCelebrityForm.css';
 
 const AddCelebrityForm = ({ onCelebrityAdded }) => {
     const { createCelebrity, loading, error } = useSubjectCreation();
@@ -189,7 +190,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
     };    
     
     const inputStyle = {
-      color: '#5116b5',
+      color: '#d6c8ff',
       width: '140px',
       marginRight: '10px',
       backgroundColor: 'transparent',
@@ -227,7 +228,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
     };
 
     return (
-      <div className="email_form" style={{ marginTop: '30px', padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
+      <div className="email_form add-celebrity-form" style={{ marginTop: '30px', padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
         <form onSubmit={handleSubmit}>
         <h2 style={headerStyle}>Add New Celebrity</h2>
 
@@ -258,10 +259,12 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
             <GooglePlaceAutocomplete
                 key={locationInputKey}
                 onPlaceSelected={handlePlaceSelect}
+                className="celebrity-location-autocomplete"
                 style={{
                     ...inputStyle,
                     width: '290px',
-                    backgroundColor: 'white'
+                    backgroundColor: 'white',
+                    color: '#1a1a2e'
                 }}
                 placeholder="City, Country"
                 disabled={loading}
@@ -295,7 +298,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
                 ...inputStyle,
                 width: '120px',
                 backgroundColor: 'transparent',
-                color: '#5116b5',
+                color: '#d6c8ff',
                 border: '1px solid white',
                 padding: '5px',
                 borderRadius: '3px',
@@ -330,7 +333,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
                 ...inputStyle,
                 width: '140px',
                 backgroundColor: 'transparent',
-                color: '#5116b5',
+                color: '#d6c8ff',
                 border: '1px solid white',
                 padding: '5px',
                 borderRadius: '3px',
