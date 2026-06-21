@@ -284,7 +284,8 @@ function HomePane({ userId, user, entitlements }) {
   const [transits, setTransits] = useState([]);
   const [askOpen, setAskOpen] = useState(false);
 
-  // Daily horoscope is gated; allow others to load freely
+  // Daily is available to Free users for 1 credit and included with Plus.
+  // The backend remains authoritative for affordability and charging.
   const canAccessDaily = entitlements?.canAccessDaily !== false;
 
   // Fetch transit windows (covers the next two months)
@@ -327,16 +328,22 @@ function HomePane({ userId, user, entitlements }) {
         : await config.fetcher(userId);
       if (response?.success && response?.horoscope) {
         setHoroscopes((prev) => ({ ...prev, [periodId]: response.horoscope }));
+        if (periodId === 'daily' && response.creditsCharged > 0) {
+          entitlements?.refreshEntitlements?.();
+        }
       } else {
         throw new Error('No horoscope returned');
       }
     } catch (err) {
       console.error(`Error loading ${periodId} horoscope:`, err);
-      setHoroErrors((prev) => ({ ...prev, [periodId]: 'We couldn’t load this reading right now.' }));
+      const message = err?.status === 402
+        ? 'A daily horoscope costs 1 credit. Buy credits to unlock today’s reading.'
+        : 'We couldn’t load this reading right now.';
+      setHoroErrors((prev) => ({ ...prev, [periodId]: message }));
     } finally {
       setHoroLoading((prev) => ({ ...prev, [periodId]: false }));
     }
-  }, [userId, horoscopes, canAccessDaily]);
+  }, [userId, horoscopes, canAccessDaily, entitlements]);
 
   useEffect(() => {
     loadHoroscope(period);
@@ -391,7 +398,7 @@ function HomePane({ userId, user, entitlements }) {
         <div className="md-horo-body">
           {dailyLocked && (
             <div className="md-horo-empty">
-              Daily horoscopes are part of Plus. Upgrade in <em>Settings → Subscription</em> to read today’s sky.
+              Daily horoscopes cost 1 credit on Free and are included with Plus.
             </div>
           )}
           {!dailyLocked && currentLoading && (

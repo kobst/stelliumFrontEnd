@@ -33,6 +33,7 @@ const plans = [
     description: "Explore your chart and sample features.",
     features: [
       "Weekly & Monthly horoscopes",
+      "Daily horoscopes available for 1 credit",
       "Unlimited chart & relationship creation",
       "25 welcome credits on signup",
       "Buy credits anytime",
@@ -305,7 +306,7 @@ export default function PricingTable() {
           <tbody>
             <tr>
               <td style={{ padding: '8px 12px', fontSize: '14px' }}>Daily Horoscope</td>
-              <td style={{ textAlign: 'center', padding: '8px 12px', color: 'rgba(255,255,255,0.4)' }}>—</td>
+              <td style={{ textAlign: 'center', padding: '8px 12px', color: '#eab308' }}>1 credit</td>
               <td style={{ textAlign: 'center', padding: '8px 12px', color: '#22c55e' }}>✓</td>
             </tr>
             <tr>

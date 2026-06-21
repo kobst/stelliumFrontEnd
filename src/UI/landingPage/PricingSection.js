@@ -50,6 +50,7 @@ export default function PricingSection({ onStartPlus, onGetStarted }) {
 
           <ul className="features-list">
             <li>Weekly & Monthly horoscopes</li>
+            <li>Daily horoscopes available for 1 credit</li>
             <li>Unlimited chart & relationship creation</li>
             <li>25 welcome credits on signup</li>
             <li>Buy credits anytime</li>
@@ -104,7 +105,7 @@ export default function PricingSection({ onStartPlus, onGetStarted }) {
           <tbody>
             <tr>
               <td>Daily Horoscope</td>
-              <td>—</td>
+              <td>1 credit</td>
               <td className="check">✓</td>
             </tr>
             <tr>
