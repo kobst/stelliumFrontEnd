@@ -803,8 +803,8 @@ function LandingPage() {
               <div className="lp-plan__desc">Explore your chart and sample features.</div>
               <div className="lp-plan__price">$0<span className="lp-plan__per">/forever</span></div>
               <ul className="lp-plan__list">
-                <li><span className="lp-plan__check">✓</span> Monthly horoscopes included</li>
-                <li><span className="lp-plan__check">✓</span> Daily & weekly horoscopes available with credits</li>
+                <li><span className="lp-plan__check">✓</span> Weekly & monthly horoscopes included</li>
+                <li><span className="lp-plan__check">✓</span> Daily horoscopes available for 1 credit</li>
                 <li><span className="lp-plan__check">✓</span> Unlimited chart & relationship creation</li>
                 <li><span className="lp-plan__check">✓</span> <span className="lp-plan__credits-gold">25 welcome credits</span> on signup</li>
                 <li><span className="lp-plan__check">✓</span> Buy more credits anytime</li>
@@ -886,9 +886,9 @@ function LandingPage() {
                 </tr>
                 <tr>
                   <td className="row-label">Weekly horoscope</td>
-                  <td style={{ color: 'var(--lp-text-muted)' }}>2 credits / week</td>
                   <td><span className="yes">✓</span></td>
-                  <td className="credit">2</td>
+                  <td><span className="yes">✓</span></td>
+                  <td>—</td>
                 </tr>
                 <tr>
                   <td className="row-label">Monthly horoscope</td>

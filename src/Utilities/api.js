@@ -1603,7 +1603,12 @@ export const generateDailyHoroscope = async (userId, startDate) => {
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      const error = new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      error.status = response.status;
+      error.code = errorData.code;
+      error.details = errorData;
+      throw error;
     }
     
     const responseData = await response.json();

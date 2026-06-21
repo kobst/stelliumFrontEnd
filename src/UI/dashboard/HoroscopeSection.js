@@ -129,7 +129,8 @@ function HoroscopeSection({ userId, user, entitlements }) {
     // Skip if already loaded and not a retry
     if (!isRetry && horoscopeCache[period]) return;
 
-    // Check access for locked periods
+    // Daily availability is returned by the backend. Free-user payment is
+    // enforced by the daily generation endpoint.
     if (period === 'today' && !entitlements?.canAccessDaily) return;
 
     setLoadingStates(prev => ({ ...prev, [period]: true }));
@@ -267,7 +268,7 @@ function HoroscopeSection({ userId, user, entitlements }) {
                 'Personalized energy forecasts',
                 'Key themes for your day'
               ]}
-              ctaText="Available with Plus"
+              ctaText="1 credit on Free · Included with Plus"
             />
           }
         />
