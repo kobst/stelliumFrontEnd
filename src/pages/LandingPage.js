@@ -803,7 +803,8 @@ function LandingPage() {
               <div className="lp-plan__desc">Explore your chart and sample features.</div>
               <div className="lp-plan__price">$0<span className="lp-plan__per">/forever</span></div>
               <ul className="lp-plan__list">
-                <li><span className="lp-plan__check">✓</span> Weekly & monthly horoscopes</li>
+                <li><span className="lp-plan__check">✓</span> Monthly horoscopes included</li>
+                <li><span className="lp-plan__check">✓</span> Daily & weekly horoscopes available with credits</li>
                 <li><span className="lp-plan__check">✓</span> Unlimited chart & relationship creation</li>
                 <li><span className="lp-plan__check">✓</span> <span className="lp-plan__credits-gold">25 welcome credits</span> on signup</li>
                 <li><span className="lp-plan__check">✓</span> Buy more credits anytime</li>
@@ -879,15 +880,33 @@ function LandingPage() {
               <tbody>
                 <tr>
                   <td className="row-label">Daily horoscope</td>
-                  <td><span className="no">—</span></td>
+                  <td style={{ color: 'var(--lp-text-muted)' }}>1 credit / day</td>
+                  <td><span className="yes">✓</span></td>
+                  <td className="credit">1</td>
+                </tr>
+                <tr>
+                  <td className="row-label">Weekly horoscope</td>
+                  <td style={{ color: 'var(--lp-text-muted)' }}>2 credits / week</td>
+                  <td><span className="yes">✓</span></td>
+                  <td className="credit">2</td>
+                </tr>
+                <tr>
+                  <td className="row-label">Monthly horoscope</td>
+                  <td><span className="yes">✓</span></td>
                   <td><span className="yes">✓</span></td>
                   <td>—</td>
                 </tr>
                 <tr>
-                  <td className="row-label">Weekly & monthly horoscopes</td>
-                  <td><span className="yes">✓</span></td>
-                  <td><span className="yes">✓</span></td>
-                  <td>—</td>
+                  <td className="row-label">Guest chart + short overview</td>
+                  <td style={{ color: 'var(--lp-text-muted)' }}>Uses credits</td>
+                  <td className="plus">Included</td>
+                  <td className="credit">1</td>
+                </tr>
+                <tr>
+                  <td className="row-label">Relationship overview + scores</td>
+                  <td style={{ color: 'var(--lp-text-muted)' }}>Uses credits</td>
+                  <td className="plus">Included</td>
+                  <td className="credit">5</td>
                 </tr>
                 <tr>
                   <td className="row-label">Ask Stellium</td>
@@ -898,13 +917,13 @@ function LandingPage() {
                 <tr>
                   <td className="row-label">Natal report</td>
                   <td style={{ color: 'var(--lp-text-muted)' }}>Uses credits</td>
-                  <td className="plus">Included ×3</td>
+                  <td className="plus">Uses 3-report pool</td>
                   <td className="credit">75</td>
                 </tr>
                 <tr>
                   <td className="row-label">Relationship report</td>
                   <td style={{ color: 'var(--lp-text-muted)' }}>Uses credits</td>
-                  <td className="plus">Included ×3</td>
+                  <td className="plus">Uses same pool</td>
                   <td className="credit">60</td>
                 </tr>
                 <tr>
