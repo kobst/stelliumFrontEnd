@@ -3,7 +3,6 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getUserCompositeCharts, fetchRelationshipAnalysis, fetchUser, getRelationshipWorkflowStatus } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
-import { useCheckout } from '../hooks/useCheckout';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import DashboardLayout from '../UI/layout/DashboardLayout';
 import RelationshipDetailLayout from '../UI/dashboard/relationshipDetail/RelationshipDetailLayout';
@@ -11,7 +10,6 @@ import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
 import AnalysisTab from '../UI/dashboard/relationshipTabs/AnalysisTab';
-import LockedContent from '../UI/shared/LockedContent';
 import './RelationshipAnalysisPage.css';
 
 function RelationshipAnalysisPage() {
@@ -19,12 +17,6 @@ function RelationshipAnalysisPage() {
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
   const entitlements = useEntitlements(stelliumUser);
-
-  // Checkout hook for handling purchases
-  const checkout = useCheckout(stelliumUser, () => {
-    // Refresh entitlements after successful purchase
-    entitlements.refreshEntitlements();
-  });
 
   const [relationship, setRelationship] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -166,12 +158,6 @@ function RelationshipAnalysisPage() {
   const isAnalysisUnlocked = compositeId
     ? entitlements.isAnalysisUnlocked('RELATIONSHIP', compositeId)
     : false;
-  const isAnalysisRunning = analysisStatus?.status === 'in_progress';
-
-  // Check if user can access premium tabs:
-  // Either the relationship has been analyzed (purchased) OR user has Plus subscription
-  const canAccessPremiumTabs = isAnalysisComplete || isAnalysisUnlocked || isAnalysisRunning || entitlements.isPlus;
-
   useEffect(() => {
     if (!compositeId || isAnalysisComplete || !isAnalysisUnlocked) return;
     syncExistingWorkflowStatus();
@@ -242,7 +228,7 @@ function RelationshipAnalysisPage() {
     },
     {
       id: 'analysis',
-      content: canAccessPremiumTabs ? (
+      content: (
         <AnalysisTab
           relationship={relationship}
           compositeId={compositeId}
@@ -251,53 +237,12 @@ function RelationshipAnalysisPage() {
           userId={userId}
           initialAnalysisStatus={analysisStatus}
         />
-      ) : (
-        <LockedContent
-          title="360° Relationship Analysis"
-          description="Discover the deeper dynamics of your relationship with comprehensive astrological insights."
-          features={[
-            'Synastry aspect interpretations',
-            'Composite chart analysis',
-            'Relationship strengths & challenges',
-            'Growth opportunities as a couple'
-          ]}
-          ctaText="Unlock with Plus"
-          showPurchaseOption={true}
-          analysisType="RELATIONSHIP"
-          analysisId={compositeId}
-          purchasePrice={entitlements.relationshipPrice}
-          showUseQuotaOption={true}
-          quotaRemaining={entitlements.credits?.total || 0}
-          isPlus={entitlements.isPlus}
-          isLoading={checkout.isLoading}
-          onUpgradeClick={checkout.startSubscription}
-          onPurchase={(type, id) => checkout.purchaseAnalysis(type, id)}
-          onUseQuota={async (type, id) => {
-            const result = await entitlements.checkAndUseAnalysis(type, id);
-            if (result.success) {
-              const workflowResult = result.result;
-              setActiveSection('analysis');
-
-              if (workflowResult?.workflowStatus === 'started' || workflowResult?.workflowStatus === 'already_running') {
-                setAnalysisStatus({
-                  success: true,
-                  workflowId: workflowResult.workflowId || compositeId,
-                  status: 'in_progress',
-                });
-                startRelationshipStatusPolling(workflowResult.workflowId || compositeId);
-                return;
-              }
-
-              await syncExistingWorkflowStatus();
-            }
-          }}
-        />
       )
     }
   ];
 
   // Determine which sections are locked
-  const lockedSections = canAccessPremiumTabs ? [] : ['analysis'];
+  const lockedSections = [];
 
   return (
     <DashboardLayout user={stelliumUser} defaultSection="relationships">
@@ -310,7 +255,6 @@ function RelationshipAnalysisPage() {
             lockedSections={lockedSections}
             activeSection={activeSection}
             onSectionChange={setActiveSection}
-            credits={entitlements.credits}
           />
         </div>
       )}

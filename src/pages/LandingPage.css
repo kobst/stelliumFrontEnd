@@ -1068,7 +1068,89 @@ html { scroll-behavior: smooth; }
   font-family: var(--lp-serif);
   font-style: italic;
 }
+.lp-plan__faint { color: var(--lp-text-faint); }
 .lp-plan__btn { width: 100%; }
+
+/* Credit pack options */
+.lp-pack-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.lp-pack-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(233, 195, 73, 0.04);
+  box-shadow: inset 0 0 0 1px var(--lp-ghost);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.lp-pack-opt:hover { background: rgba(233, 195, 73, 0.07); }
+.lp-pack-opt--active {
+  background: linear-gradient(180deg, rgba(233, 195, 73, 0.14), rgba(233, 195, 73, 0.05));
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.4), 0 0 24px -10px rgba(233, 195, 73, 0.45);
+}
+.lp-pack-opt__amt {
+  font-family: var(--lp-serif);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--lp-text);
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.lp-pack-opt__credits {
+  font-family: var(--lp-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--lp-text-muted);
+  letter-spacing: 0.02em;
+}
+.lp-pack-opt__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lp-pack-opt__tag {
+  font-family: var(--lp-sans);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lp-gold);
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(233, 195, 73, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.28);
+}
+.lp-pack-opt__radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--lp-ghost-strong);
+  position: relative;
+  flex: 0 0 18px;
+}
+.lp-pack-opt--active .lp-pack-opt__radio {
+  box-shadow: inset 0 0 0 1.5px var(--lp-gold);
+}
+.lp-pack-opt--active .lp-pack-opt__radio::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--lp-gold);
+  box-shadow: 0 0 8px var(--lp-gold);
+}
 .lp-plan__footnote {
   font-family: var(--lp-serif);
   font-style: italic;
@@ -1132,6 +1214,14 @@ html { scroll-behavior: smooth; }
 }
 .lp-compare td.credit-lilac { color: var(--lp-primary); }
 .lp-compare tr:not(:last-child) td { border-bottom: 1px solid var(--lp-ghost); }
+.lp-compare__note {
+  text-align: center;
+  font-family: var(--lp-serif);
+  font-style: italic;
+  font-size: 13.5px;
+  color: var(--lp-text-faint);
+  margin-top: 18px;
+}
 
 /* ───────────────────────────────────────────────
    Final CTA

@@ -1,92 +1,64 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import React, { useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import useEntitlementsStore from '../../Utilities/entitlementsStore';
-import TopHeader from './TopHeader';
-import Sidebar from './Sidebar';
+import { useEntitlements } from '../../hooks/useEntitlements';
+import DashboardNav from '../dashboard/DashboardNav';
 import Toast from '../shared/Toast';
 import './DashboardLayout.css';
 
-function DashboardLayout({
-  children,
-  user,
-  defaultSection = 'horoscope',
-  showSidebar = true
-}) {
+// Detail pages identify their section with the legacy ids; map them to the
+// shared nav's tab ids so the right tab is highlighted.
+const SECTION_TO_TAB = {
+  horoscope: 'home',
+  'birth-charts': 'charts',
+  relationships: 'relationships'
+};
+
+function DashboardLayout({ children, user, defaultSection = 'horoscope' }) {
   const navigate = useNavigate();
-  const location = useLocation();
   const { userId } = useParams();
   const { signOut } = useAuth();
   const toast = useEntitlementsStore((state) => state.toast);
   const dismissToast = useEntitlementsStore((state) => state.dismissToast);
+  const credits = useEntitlementsStore((state) => state.credits);
+  const entitlements = useEntitlements(user);
 
-  const [currentSection, setCurrentSection] = useState(defaultSection);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const activeTab = SECTION_TO_TAB[defaultSection] || defaultSection;
 
-  // Update currentSection when defaultSection changes (e.g., when navigating from detail pages)
-  useEffect(() => {
-    setCurrentSection(defaultSection);
-  }, [defaultSection]);
-
-  const handleNavClick = useCallback((sectionId) => {
-    // Check if we're on a detail page (chart detail or relationship detail)
-    const isOnDetailPage = location.pathname.includes('/chart/') ||
-                           location.pathname.includes('/relationship/');
-
-    if (isOnDetailPage && userId) {
-      // Navigate back to dashboard with the selected section
+  // From a detail page, any nav target returns to the dashboard with the
+  // requested section (also handles 'settings' / 'settings:subscription').
+  const handleTabChange = useCallback((sectionId) => {
+    if (userId) {
       navigate(`/dashboard/${userId}`, { state: { section: sectionId } });
     }
+  }, [userId, navigate]);
 
-    setCurrentSection(sectionId);
-    // Close mobile sidebar
-    setSidebarOpen(false);
-  }, [location.pathname, userId, navigate]);
-
-  const handleMenuToggle = useCallback(() => {
-    setSidebarOpen(prev => !prev);
-  }, []);
-
-  const handleCloseSidebar = useCallback(() => {
-    setSidebarOpen(false);
-  }, []);
-
-  const handleLogout = useCallback(async () => {
+  const handleSignOut = useCallback(async () => {
     await signOut();
     navigate('/login');
   }, [signOut, navigate]);
 
-  // Render children with props if it's a function (render prop pattern)
   const renderContent = () => {
     if (typeof children === 'function') {
-      return children({ currentSection, setCurrentSection });
+      return children({ currentSection: defaultSection });
     }
     return children;
   };
 
   return (
     <div className="dashboard-layout dashboard-layout--no-sidebar">
-      <TopHeader
+      <DashboardNav
         user={user}
-        onMenuToggle={handleMenuToggle}
-        currentSection={currentSection}
-        onNavClick={handleNavClick}
-        onLogout={handleLogout}
+        entitlements={entitlements}
+        credits={credits}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onNavigateHome={() => navigate('/')}
+        onSignOut={handleSignOut}
       />
 
       <div className="dashboard-layout__body">
-        {/* Sidebar only for mobile drawer */}
-        {showSidebar && (
-          <Sidebar
-            user={user}
-            currentSection={currentSection}
-            onNavClick={handleNavClick}
-            isOpen={sidebarOpen}
-            onClose={handleCloseSidebar}
-            onLogout={handleLogout}
-          />
-        )}
-
         <main className="dashboard-layout__content dashboard-layout__content--full">
           {renderContent()}
         </main>

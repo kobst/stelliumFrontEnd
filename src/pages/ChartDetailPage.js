@@ -9,7 +9,7 @@ import {
 } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
-import { useCheckout } from '../hooks/useCheckout';
+import useEntitlementsStore from '../Utilities/entitlementsStore';
 import DashboardLayout from '../UI/layout/DashboardLayout';
 import ChartDetailLayout from '../UI/dashboard/chartDetail/ChartDetailLayout';
 import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
@@ -17,9 +17,8 @@ import ChartTab from '../UI/dashboard/chartTabs/ChartTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
-import LockedContent from '../UI/shared/LockedContent';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
-import { trackChartViewed, trackAnalysisStarted, trackAnalysisCompleted, trackCreditWallHit } from '../Utilities/analytics';
+import { trackChartViewed, trackAnalysisStarted, trackAnalysisCompleted } from '../Utilities/analytics';
 import './ChartDetailPage.css';
 
 function ChartDetailPage() {
@@ -27,12 +26,6 @@ function ChartDetailPage() {
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
   const entitlements = useEntitlements(stelliumUser);
-
-  // Checkout hook for handling purchases
-  const checkout = useCheckout(stelliumUser, () => {
-    // Refresh entitlements after successful purchase
-    entitlements.refreshEntitlements();
-  });
 
   // Chart data state
   const [chart, setChart] = useState(null);
@@ -188,6 +181,10 @@ function ChartDetailPage() {
     try {
       setAnalysisLoading(true);
       const response = await startFullAnalysis(chartId);
+      if (response?.billing) {
+        useEntitlementsStore.getState().applyReportBilling(response.billing);
+      }
+      useEntitlementsStore.getState().fetchEntitlements(userId);
       trackAnalysisStarted(chartId);
 
       if (response?.success && response?.workflowId) {
@@ -200,7 +197,7 @@ function ChartDetailPage() {
       console.error('Error starting analysis:', err);
       setAnalysisLoading(false);
     }
-  }, [chartId, startStatusPolling]);
+  }, [chartId, startStatusPolling, userId]);
 
   const handleBackClick = () => {
     navigate(`/dashboard/${userId}`);
@@ -227,8 +224,6 @@ function ChartDetailPage() {
     ? entitlements.isAnalysisUnlocked('BIRTH_CHART', chartId)
     : false;
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
-  const isAnalysisRunning = analysisStatus?.status === 'in_progress';
-  const canAccessPremiumTabs = isAnalysisComplete || isAnalysisUnlocked || isAnalysisRunning || entitlements.isPlus;
   const canUseAskStellium = isAnalysisComplete;
   const hasAnalysis = !!(basicAnalysis?.dominance || basicAnalysis?.planets);
 
@@ -327,7 +322,7 @@ function ChartDetailPage() {
     },
     {
       id: 'analysis',
-      content: canAccessPremiumTabs ? (
+      content: (
         <AnalysisTab
           broadCategoryAnalyses={broadCategoryAnalyses}
           analysisStatus={analysisStatus}
@@ -336,60 +331,12 @@ function ChartDetailPage() {
           birthChart={birthChart}
           userId={userId}
         />
-      ) : (
-        <LockedContent
-          title="360° Analysis"
-          description="Get a comprehensive analysis covering every life area through your birth chart."
-          features={[
-            'Personality & identity analysis',
-            'Career & life purpose insights',
-            'Relationship patterns',
-            '12 life area deep dives'
-          ]}
-          ctaText="Unlock with Plus"
-          showPurchaseOption={true}
-          analysisType="BIRTH_CHART"
-          analysisId={chartId}
-          purchasePrice={entitlements.birthChartPrice}
-          showUseQuotaOption={true}
-          quotaRemaining={entitlements.credits?.total || 0}
-          isPlus={entitlements.isPlus}
-          isLoading={checkout.isLoading}
-          onUpgradeClick={checkout.startSubscription}
-          onPurchase={(type, id) => checkout.purchaseAnalysis(type, id)}
-          onUseQuota={async (type, id) => {
-            const result = await entitlements.checkAndUseAnalysis(type, id);
-            if (result.success) {
-              const workflowResult = result.result;
-              setActiveSection('analysis');
-
-              if (workflowResult?.workflowStatus === 'started' || workflowResult?.workflowStatus === 'already_running') {
-                setAnalysisLoading(true);
-                setAnalysisStatus({
-                  success: true,
-                  workflowId: workflowResult.workflowId,
-                  status: 'in_progress',
-                });
-                if (workflowResult?.workflowId) {
-                  startStatusPolling(workflowResult.workflowId);
-                } else {
-                  syncExistingWorkflowStatus();
-                }
-                return;
-              }
-
-              await syncExistingWorkflowStatus();
-            }
-          }}
-        />
       )
     }
   ];
 
   // Determine which sections are locked
-  const lockedSections = canAccessPremiumTabs
-    ? []
-    : ['analysis'];
+  const lockedSections = [];
 
   return (
     <DashboardLayout user={stelliumUser} defaultSection="birth-charts">
@@ -410,7 +357,6 @@ function ChartDetailPage() {
             isGuest={isGuest}
             onPhotoUpdated={handlePhotoUpdated}
             hasAnalysis={hasAnalysis}
-            credits={entitlements.credits}
           />
         </div>
       )}

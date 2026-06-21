@@ -45,8 +45,16 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
   const pollingRef = useRef(null);
   const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
+  const fullReportQuota = useEntitlementsStore((state) => state.fullReportQuota);
+  const isPlus = useEntitlementsStore((state) =>
+    (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
+  );
   const isAnalysisUnlocked = useEntitlementsStore((state) => state.isAnalysisUnlocked);
-  const hasEnoughCredits = useEntitlementsStore((state) => state.hasEnoughCredits);
+  const canStartFullReport = useEntitlementsStore((state) => state.canStartFullReport);
+  const applyReportBilling = useEntitlementsStore((state) => state.applyReportBilling);
+  const fetchEntitlements = useEntitlementsStore((state) => state.fetchEntitlements);
+  const usesIncludedReport = isPlus && fullReportQuota.remaining > 0;
+  const availableOverageCredits = isPlus ? credits.pack : credits.total;
 
   const completeAnalysis = relationship?.completeAnalysis;
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
@@ -172,6 +180,8 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
       const response = await startRelationshipWorkflow(null, null, compositeId, true);
 
       if (response?.success && response?.workflowId) {
+        applyReportBilling(response.billing);
+        if (userId) fetchEntitlements(userId);
         setAnalysisStatus(response);
         startPolling(response.workflowId);
       }
@@ -187,7 +197,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
       proceedWithAnalysis();
       return;
     }
-    if (!hasEnoughCredits(CREDIT_COSTS.FULL_RELATIONSHIP)) {
+    if (!canStartFullReport('RELATIONSHIP')) {
       setShowInsufficientModal(true);
       return;
     }
@@ -294,13 +304,17 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
                   Starting Analysis...
                 </>
               ) : (
-                `Start 360° Analysis (${CREDIT_COSTS.FULL_RELATIONSHIP} credits)`
+                usesIncludedReport
+                  ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
+                  : `Start 360° Analysis (${CREDIT_COSTS.FULL_RELATIONSHIP} credits)`
               )}
             </button>
           ) : (
             <div className="locked-content__confirm">
               <p className="locked-content__confirm-text">
-                This will use {CREDIT_COSTS.FULL_RELATIONSHIP} credits. You'll have {credits.total - CREDIT_COSTS.FULL_RELATIONSHIP} remaining.
+                {usesIncludedReport
+                  ? `This uses 1 included report. You'll have ${fullReportQuota.remaining - 1} remaining this period.`
+                  : `This will use ${CREDIT_COSTS.FULL_RELATIONSHIP} credits. You'll have ${availableOverageCredits - CREDIT_COSTS.FULL_RELATIONSHIP} remaining.`}
               </p>
               <div className="locked-content__confirm-actions">
                 <button
@@ -319,14 +333,19 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
             </div>
           )}
 
-          <p className="prompt-credit-balance">You have {credits.total} credits</p>
+          <p className="prompt-credit-balance">
+            {isPlus
+              ? `${fullReportQuota.remaining} included reports · ${credits.pack} purchased credits`
+              : `You have ${credits.total} credits`}
+          </p>
         </div>
 
         <InsufficientCreditsModal
           isOpen={showInsufficientModal}
           onClose={() => setShowInsufficientModal(false)}
           creditsNeeded={CREDIT_COSTS.FULL_RELATIONSHIP}
-          creditsAvailable={credits.total}
+          creditsAvailable={availableOverageCredits}
+          reportType="RELATIONSHIP"
           onBuyCredits={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
           onSubscribe={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
         />

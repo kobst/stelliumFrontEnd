@@ -2,10 +2,10 @@ import create from 'zustand';
 import {
   getEntitlements,
   getUnlockedAnalyses,
-  useAnalysis as apiUseAnalysis,
   useQuestion as apiUseQuestion,
 } from './entitlementsApi';
 import { CREDIT_COSTS } from './creditCosts';
+import { canStartFullReport as canStartFullReportPolicy } from './subscriptionPolicy';
 
 // Default/initial state
 const initialState = {
@@ -22,6 +22,12 @@ const initialState = {
     pack: 0,         // purchased credits (never expire)
     monthlyLimit: 0, // tier's monthly allotment
     resetDate: null,
+  },
+
+  fullReportQuota: {
+    limit: 0,
+    remaining: 0,
+    resetsAt: null,
   },
 
   // Unlocked analyses
@@ -123,6 +129,14 @@ const useEntitlementsStore = create((set, get) => ({
             : null,
         },
 
+        fullReportQuota: {
+          limit: entitlementsData?.fullReportQuota?.limit || 0,
+          remaining: entitlementsData?.fullReportQuota?.remaining || 0,
+          resetsAt: entitlementsData?.fullReportQuota?.resetsAt
+            ? new Date(entitlementsData.fullReportQuota.resetsAt)
+            : null,
+        },
+
         horoscopeAccess: {
           daily: isPlus || entitlementsData?.horoscopeAccess?.daily || false,
           weekly: true, // Always available
@@ -162,55 +176,6 @@ const useEntitlementsStore = create((set, get) => ({
 
     // Then fetch fresh data
     return get().fetchEntitlements(userId);
-  },
-
-  /**
-   * Check if analysis is unlocked and optionally use quota to unlock
-   */
-  checkAndUseAnalysis: async (userId, entityType, entityId) => {
-    if (!userId) return { success: false, error: 'No user ID' };
-
-    const state = get();
-
-    // Check if already unlocked
-    const isUnlocked = state.isAnalysisUnlocked(entityType, entityId);
-    if (isUnlocked) {
-      return { success: true, alreadyUnlocked: true };
-    }
-
-    // Check if has enough credits for this analysis
-    const normalizedType = (entityType || '').toUpperCase();
-    const cost = normalizedType === 'BIRTH_CHART' ? CREDIT_COSTS.FULL_NATAL : CREDIT_COSTS.FULL_RELATIONSHIP;
-    if (state.credits.total < cost) {
-      return { success: false, error: 'Not enough credits' };
-    }
-
-    // Use quota via API
-    let creditsSnapshot = null;
-    try {
-      set({ isLoading: true });
-      creditsSnapshot = get().applyOptimisticCreditSpend(cost);
-      const result = await apiUseAnalysis(userId, entityType, entityId);
-
-      // Reconcile against backend state, but keep the optimistic deduction if refresh fails.
-      try {
-        await get().fetchEntitlements(userId);
-      } catch (refreshError) {
-        console.warn('Could not refresh entitlements after analysis unlock:', refreshError);
-        set({ isLoading: false });
-      }
-
-      const updatedCredits = get().credits.total;
-      get().showToast(`${cost} credits used. ${updatedCredits} remaining.`, 'success');
-
-      return { success: true, result };
-    } catch (error) {
-      if (creditsSnapshot) {
-        get().restoreCredits(creditsSnapshot);
-      }
-      set({ isLoading: false, error: error.message });
-      return { success: false, error: error.message };
-    }
   },
 
   /**
@@ -270,6 +235,24 @@ const useEntitlementsStore = create((set, get) => ({
     });
 
     return previousCredits;
+  },
+
+  /** Apply the authoritative billing result returned by a report workflow. */
+  applyReportBilling: (billing) => {
+    if (!billing) return;
+    set((state) => ({
+      fullReportQuota: {
+        ...state.fullReportQuota,
+        remaining: billing.quotaRemaining ?? state.fullReportQuota.remaining,
+      },
+      credits: {
+        ...state.credits,
+        pack: billing.packBalance ?? state.credits.pack,
+        total: state.plan === 'PLUS'
+          ? (billing.packBalance ?? state.credits.pack)
+          : state.credits.total,
+      },
+    }));
   },
 
   /**
@@ -341,6 +324,18 @@ const useEntitlementsStore = create((set, get) => ({
     return state.credits.total >= cost;
   },
 
+  /** Check pooled quota first, then the appropriate credit wallet. */
+  canStartFullReport: (entityType) => {
+    const state = get();
+    return canStartFullReportPolicy({
+      entityType,
+      isPlus: state.isPlusUser(),
+      quotaRemaining: state.fullReportQuota.remaining,
+      packCredits: state.credits.pack,
+      totalCredits: state.credits.total,
+    });
+  },
+
   /**
    * Get current credit balance
    */
@@ -368,7 +363,7 @@ const useEntitlementsStore = create((set, get) => ({
    */
   canCreateRelationship: () => {
     const state = get();
-    return state.credits.total >= CREDIT_COSTS.RELATIONSHIP_OVERVIEW;
+    return state.isPlusUser() || state.credits.total >= CREDIT_COSTS.RELATIONSHIP_OVERVIEW;
   },
 
   /**

@@ -3,10 +3,10 @@
   background: #0d0e1a;
 }
 
+/* Nav is now sticky/in-flow (not fixed), so no header offset is needed. */
 .dashboard-layout__body {
   display: flex;
-  padding-top: var(--header-height);
-  min-height: calc(100vh - var(--header-height));
+  min-height: 100vh;
 }
 
 .dashboard-layout__content {
@@ -16,8 +16,12 @@
   width: 100%;
 }
 
+/* Full-bleed: detail pages own their own width/padding (rd-wrap / cd-wrap),
+   matching the main dashboard's edge-to-edge celestial layout. */
 .dashboard-layout__content--full {
-  margin: 0 auto;
+  margin: 0;
+  padding: 0;
+  max-width: none;
 }
 
 /* No sidebar layout - hide sidebar on desktop */

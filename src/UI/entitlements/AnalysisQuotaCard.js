@@ -33,7 +33,7 @@ function AnalysisQuotaCard({
             <circle cx="12" cy="12" r="10" />
             <path d="M12 8v4l2 2" />
           </svg>
-          <span className="analysis-quota-card__title">Monthly Analyses</span>
+          <span className="analysis-quota-card__title">Included Reports</span>
         </div>
         <p className="analysis-quota-card__upgrade-text">
           Upgrade to Plus to get 3 analyses per month
@@ -65,22 +65,15 @@ function AnalysisQuotaCard({
           <circle cx="12" cy="12" r="10" />
           <path d="M12 8v4l2 2" />
         </svg>
-        <span className="analysis-quota-card__title">Monthly Analyses</span>
+          <span className="analysis-quota-card__title">Included Reports</span>
       </div>
 
       <div className={`analysis-quota-card__count ${isLow ? 'analysis-quota-card__count--low' : ''} ${isEmpty ? 'analysis-quota-card__count--empty' : ''}`}>
         <span className="analysis-quota-card__number">{remaining}</span>
-        <span className="analysis-quota-card__available">available</span>
+        <span className="analysis-quota-card__available">
+          {remaining === 1 ? 'report remaining' : 'reports remaining'}
+        </span>
       </div>
-
-      {!compact && (
-        <div className="analysis-quota-card__breakdown">
-          <div className="analysis-quota-card__breakdown-item">
-            <span className="analysis-quota-card__breakdown-label">This month:</span>
-            <span className="analysis-quota-card__breakdown-value">{remaining}</span>
-          </div>
-        </div>
-      )}
 
       {!compact && resetDate && (
         <div className="analysis-quota-card__reset">
@@ -90,7 +83,7 @@ function AnalysisQuotaCard({
 
       {!compact && (
         <p className="analysis-quota-card__note">
-          Use on birth charts or relationships.
+          Use on birth charts or relationships. Additional reports use purchased credits.
         </p>
       )}
     </div>

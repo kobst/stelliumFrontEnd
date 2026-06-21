@@ -9,10 +9,13 @@ function InsufficientCreditsModal({
   creditsAvailable = 0,
   onBuyCredits,
   onSubscribe,
+  reportType = null,
 }) {
   const plan = useEntitlementsStore((state) => state.plan);
-  const resetDate = useEntitlementsStore((state) => state.credits.resetDate);
+  const creditResetDate = useEntitlementsStore((state) => state.credits.resetDate);
+  const quotaResetDate = useEntitlementsStore((state) => state.fullReportQuota.resetsAt);
   const isPlusUser = plan === 'PLUS' || plan === 'PREMIUM';
+  const resetDate = isPlusUser && reportType ? quotaResetDate : creditResetDate;
 
   const handleKeyDown = useCallback(
     (e) => {
@@ -56,16 +59,20 @@ function InsufficientCreditsModal({
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
             </svg>
           </div>
-          <h2 className="insufficient-modal__title">Not Enough Credits</h2>
+          <h2 className="insufficient-modal__title">
+            {isPlusUser && reportType ? 'Included Reports Used' : 'Not Enough Credits'}
+          </h2>
           <p className="insufficient-modal__description">
-            You need {creditsNeeded} credit{creditsNeeded !== 1 ? 's' : ''} but only have {creditsAvailable}.
+            {isPlusUser && reportType
+              ? `Your included report quota is exhausted. This additional ${reportType === 'BIRTH_CHART' ? 'birth-chart' : 'relationship'} report needs ${creditsNeeded} purchased credits; you have ${creditsAvailable}.`
+              : `You need ${creditsNeeded} credit${creditsNeeded !== 1 ? 's' : ''} but only have ${creditsAvailable}.`}
           </p>
         </div>
 
         <div className="insufficient-modal__actions">
           {!isPlusUser && (
             <button className="insufficient-modal__btn insufficient-modal__btn--primary" onClick={onSubscribe}>
-              Upgrade to Plus (200 credits/mo)
+              Upgrade to Plus (3 reports/month)
             </button>
           )}
           <button
@@ -76,7 +83,7 @@ function InsufficientCreditsModal({
           </button>
           {isPlusUser && resetDate && (
             <p className="insufficient-modal__reset-info">
-              Monthly credits refill {formatResetDate(resetDate)}
+              Included reports reset {formatResetDate(resetDate)}
             </p>
           )}
         </div>

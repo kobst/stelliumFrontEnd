@@ -21,6 +21,9 @@ function BirthChartsSection({ userId, user }) {
   const fetchEntitlements = useEntitlementsStore((state) => state.fetchEntitlements);
   const applyOptimisticCreditSpend = useEntitlementsStore((state) => state.applyOptimisticCreditSpend);
   const restoreCredits = useEntitlementsStore((state) => state.restoreCredits);
+  const isPlus = useEntitlementsStore((state) =>
+    (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
+  );
 
   const [guestCharts, setGuestCharts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,7 +85,7 @@ function BirthChartsSection({ userId, user }) {
 
   const handleChartSubmit = async (guestData) => {
     const cost = CREDIT_COSTS.GUEST_CHART;
-    if (credits.total < cost) {
+    if (!isPlus && credits.total < cost) {
       setShowPaywall(true);
       return;
     }
@@ -94,7 +97,7 @@ function BirthChartsSection({ userId, user }) {
 
     let creditsSnapshot = null;
     try {
-      creditsSnapshot = applyOptimisticCreditSpend(cost);
+      if (!isPlus) creditsSnapshot = applyOptimisticCreditSpend(cost);
       const result = await createGuestSubject(apiData);
 
       if (result.success || result.userId || result.guestSubject) {

@@ -82,6 +82,12 @@ export function useEntitlements(user) {
         resetDate: store.credits.resetDate,
       },
 
+      fullReportQuota: {
+        limit: store.fullReportQuota.limit,
+        remaining: store.fullReportQuota.remaining,
+        resetsAt: store.fullReportQuota.resetsAt,
+      },
+
       // Horoscope access
       canAccessDaily: store.horoscopeAccess.daily || isPlus,
       canAccessWeeklyHoroscope: store.horoscopeAccess.weekly,
@@ -119,16 +125,6 @@ export function useEntitlements(user) {
     [user?._id, store.refreshAfterPurchase]
   );
 
-  const checkAndUseAnalysis = useCallback(
-    (entityType, entityId) => {
-      if (user?._id) {
-        return store.checkAndUseAnalysis(user._id, entityType, entityId);
-      }
-      return Promise.resolve({ success: false, error: 'No user' });
-    },
-    [user?._id, store.checkAndUseAnalysis]
-  );
-
   const useQuestion = useCallback(() => {
     if (user?._id) {
       return store.useQuestion(user._id);
@@ -149,12 +145,9 @@ export function useEntitlements(user) {
       if (store.isAnalysisUnlocked(entityType, entityId)) {
         return true;
       }
-      // Credits-based access check
-      const type = (entityType || '').toUpperCase();
-      const cost = type === 'RELATIONSHIP' ? 60 : 75; // default birth chart 75
-      return store.hasEnoughCredits(cost);
+      return store.canStartFullReport(entityType);
     },
-    [store.isAnalysisUnlocked, store.hasEnoughCredits]
+    [store.isAnalysisUnlocked, store.canStartFullReport]
   );
 
   // Combine legacy and new entitlements
@@ -169,7 +162,6 @@ export function useEntitlements(user) {
       // Actions
       refreshEntitlements,
       refreshAfterPurchase,
-      checkAndUseAnalysis,
       useQuestion,
       isAnalysisUnlocked,
       canAccess360Analysis,
@@ -182,7 +174,6 @@ export function useEntitlements(user) {
       storeEntitlements,
       refreshEntitlements,
       refreshAfterPurchase,
-      checkAndUseAnalysis,
       useQuestion,
       isAnalysisUnlocked,
       canAccess360Analysis,
