@@ -43,12 +43,9 @@ function RelationshipDetailLayout({
   sections,
   lockedSections = [],
   activeSection,
-  onSectionChange,
-  credits = null
+  onSectionChange
 }) {
   const currentSection = sections.find((s) => s.id === activeSection);
-  const totalCredits = credits?.total;
-  const showCredits = typeof totalCredits === 'number' && Number.isFinite(totalCredits);
 
   return (
     <div className="rd-page">
@@ -62,14 +59,6 @@ function RelationshipDetailLayout({
           <button type="button" className="rd-back-link" onClick={onBackClick}>
             <span className="rd-back-link__arrow">←</span> Back to Dashboard
           </button>
-          {showCredits && (
-            <span className="rd-credit-pill" title="Credits remaining">
-              <svg width="9" height="9" viewBox="0 0 11 11" aria-hidden="true">
-                <path d="M5.5 0.5 L10.5 5.5 L5.5 10.5 L0.5 5.5 Z" fill="#e9c349" />
-              </svg>
-              {totalCredits.toLocaleString()} {totalCredits === 1 ? 'credit' : 'credits'}
-            </span>
-          )}
         </div>
 
         <div className="rd-grid">

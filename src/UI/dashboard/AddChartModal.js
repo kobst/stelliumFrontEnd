@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { fetchTimeZone } from '../../Utilities/api';
 import { CREDIT_COSTS } from '../../Utilities/creditCosts';
+import useEntitlementsStore from '../../Utilities/entitlementsStore';
 import GooglePlaceAutocomplete from '../shared/GooglePlaceAutocomplete';
 import './AddChartModal.css';
 
 function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
+  const isPlus = useEntitlementsStore((state) =>
+    (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
+  );
   // Form state
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -162,7 +166,9 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
         <div className="add-chart-modal__header">
           <div className="add-chart-modal__header-text">
             <h2>Add Birth Chart</h2>
-            <p className="add-chart-modal__subtitle">Costs {CREDIT_COSTS.GUEST_CHART} credit</p>
+            <p className="add-chart-modal__subtitle">
+              {isPlus ? 'Included with Plus' : `Costs ${CREDIT_COSTS.GUEST_CHART} credit`}
+            </p>
           </div>
           <button
             className="add-chart-modal__close-btn"

@@ -306,6 +306,9 @@ function AskStelliumPanel({
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
   const hasEnoughCredits = useEntitlementsStore(state => state.hasEnoughCredits);
+  const isPlus = useEntitlementsStore(state =>
+    (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
+  );
   const credits = useEntitlementsStore(state => state.credits);
   const fetchEntitlements = useEntitlementsStore(state => state.fetchEntitlements);
   const applyOptimisticCreditSpend = useEntitlementsStore(state => state.applyOptimisticCreditSpend);
@@ -681,7 +684,7 @@ function AskStelliumPanel({
       return;
     }
 
-    if (!hasEnoughCredits(1)) {
+    if (!isPlus && !hasEnoughCredits(1)) {
       trackCreditWallHit('ask_stellium', { creditsNeeded: 1, creditsAvailable: 0 });
       setShowPaywall(true);
       return;
@@ -705,7 +708,7 @@ function AskStelliumPanel({
 
     let creditsSnapshot = null;
     try {
-      creditsSnapshot = applyOptimisticCreditSpend(1);
+      if (!isPlus) creditsSnapshot = applyOptimisticCreditSpend(1);
 
       let response;
       let responseText = '';
@@ -762,11 +765,14 @@ function AskStelliumPanel({
       console.error('Error sending message:', err);
       restoreCredits(creditsSnapshot);
 
-      if (err.status === 403 || err.message?.includes('403')) {
+      if (err.status === 429 || err.message?.includes('LIMIT_REACHED')) {
+        setError("You've reached today's Ask Stellium fair-use limit. Try again tomorrow.");
+      } else if (err.status === 402 || err.status === 403 || err.message?.includes('403')) {
         setShowPaywall(true);
+        setError(err.message || 'Failed to send message');
+      } else {
+        setError(err.message || 'Failed to send message');
       }
-
-      setError(err.message || 'Failed to send message');
       setMessages(prev => prev.slice(0, -1));
       setInputMessage(userMessage);
     } finally {
@@ -778,6 +784,7 @@ function AskStelliumPanel({
     config,
     contentId,
     contentType,
+    isPlus,
     hasEnoughCredits,
     applyOptimisticCreditSpend,
     restoreCredits,
@@ -1138,7 +1145,7 @@ function AskStelliumPanel({
         {/* Input with inline chips */}
         <div className="ask-panel__credit-cost">
           <span aria-hidden="true">✦</span>
-          <span>1 credit per message · {credits.total} remaining</span>
+          <span>{isPlus ? 'Included with Plus · fair use applies' : `1 credit per message · ${credits.total} remaining`}</span>
         </div>
         <div className="ask-panel__input">
           <div className="ask-panel__input-wrapper">

@@ -16,11 +16,10 @@ function UpgradeModal({
   purchaseOption = null, // { label, price, description }
   subscriptionPrice = 20,
   features = [
-    'Daily horoscopes (unlimited)',
-    'Your full 360° birth chart analysis (generated instantly)',
-    '3 analyses per month',
-    '50 "Ask Stellium" questions per month',
-    'Discounted à la carte prices',
+    '3 full natal or relationship reports per billing period',
+    'Ask Stellium included under a 50-question daily fair-use limit',
+    'Guest charts, relationship overviews, and horoscopes included',
+    'Purchased credits cover additional reports and never expire',
   ],
 }) {
   // Handle escape key

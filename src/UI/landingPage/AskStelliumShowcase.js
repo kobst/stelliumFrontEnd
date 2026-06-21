@@ -189,7 +189,7 @@ function AskStelliumShowcase() {
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                 </svg>
-                1 credit per message
+                Included with Plus · 1 credit on Free
               </div>
               <div className="ask-showcase__input-wrapper">
                 {hasContext && (

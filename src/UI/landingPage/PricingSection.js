@@ -36,8 +36,8 @@ export default function PricingSection({ onStartPlus, onGetStarted }) {
       <div className="pricing-header">
         <h2 className="section-title">Choose Your Plan</h2>
         <p className="pricing-subtitle">
-          All users use credits for in-depth analyses.<br />
-          Free and Plus determine how much guidance you get by default — and how many credits you receive each month.
+          Start with 25 welcome credits, subscribe for included monthly reports,<br />
+          or purchase additional credits whenever you need them.
         </p>
       </div>
 
@@ -51,7 +51,7 @@ export default function PricingSection({ onStartPlus, onGetStarted }) {
           <ul className="features-list">
             <li>Weekly & Monthly horoscopes</li>
             <li>Unlimited chart & relationship creation</li>
-            <li>10 credits per month</li>
+            <li>25 welcome credits on signup</li>
             <li>Buy credits anytime</li>
             <li>No credit card required</li>
           </ul>
@@ -63,13 +63,13 @@ export default function PricingSection({ onStartPlus, onGetStarted }) {
           <div className="popular-badge">Most Popular</div>
           <h3>Plus</h3>
           <div className="price">$20<span>/mo</span></div>
-          <p className="description">Daily guidance + monthly credits.</p>
+          <p className="description">Everyday guidance + included reports.</p>
 
           <ul className="features-list">
             <li>Daily, Weekly & Monthly horoscopes</li>
             <li>Everything in Free</li>
-            <li>200 credits per month</li>
-            <li>Best value for ongoing insight</li>
+            <li>3 full reports per billing period</li>
+            <li>Ask Stellium included under fair use</li>
           </ul>
 
           <button className="pricing-cta primary" onClick={handleStartPlus}>Start Plus</button>

@@ -223,9 +223,9 @@ const HelpCenter = () => {
             <ul>
               <li>Everything in Free</li>
               <li>3 birth chart/relationship analyses per month</li>
-              <li>50 "Ask Stellium" questions per month</li>
-              <li>Discounted à la carte prices</li>
-              <li>Welcome gift: free analysis of your own birth chart on first subscription</li>
+              <li>Ask Stellium included under a 50-question daily fair-use limit</li>
+              <li>Guest charts, relationship overviews, and horoscopes included</li>
+              <li>Purchased credits cover additional reports and never expire</li>
             </ul>
           </div>
 

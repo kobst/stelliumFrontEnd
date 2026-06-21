@@ -19,6 +19,9 @@ function CreateRelationshipPage() {
   const fetchEntitlements = useEntitlementsStore((state) => state.fetchEntitlements);
   const applyOptimisticCreditSpend = useEntitlementsStore((state) => state.applyOptimisticCreditSpend);
   const restoreCredits = useEntitlementsStore((state) => state.restoreCredits);
+  const isPlus = useEntitlementsStore((state) =>
+    (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
+  );
 
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -128,7 +131,7 @@ function CreateRelationshipPage() {
     if (!stelliumUser || !selectedPerson) return;
 
     const cost = CREDIT_COSTS.RELATIONSHIP_OVERVIEW;
-    if (credits.total < cost) {
+    if (!isPlus && credits.total < cost) {
       setShowPaywall(true);
       return;
     }
@@ -137,7 +140,7 @@ function CreateRelationshipPage() {
     try {
       setCreating(true);
       setError(null);
-      creditsSnapshot = applyOptimisticCreditSpend(cost);
+      if (!isPlus) creditsSnapshot = applyOptimisticCreditSpend(cost);
 
       const response = await createRelationshipDirect(
         stelliumUser._id,
@@ -354,7 +357,9 @@ function CreateRelationshipPage() {
                   'Select a Person'
                 )}
               </button>
-              <p className="create-credit-note">Costs {CREDIT_COSTS.RELATIONSHIP_OVERVIEW} credits</p>
+              <p className="create-credit-note">
+                {isPlus ? 'Included with Plus' : `Costs ${CREDIT_COSTS.RELATIONSHIP_OVERVIEW} credits`}
+              </p>
               {selectedPerson && (
                 <p className="create-preview">
                   {getPersonName(stelliumUser)} ♡ {getPersonName(selectedPerson)}

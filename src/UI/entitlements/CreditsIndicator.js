@@ -12,15 +12,20 @@ function CreditsIndicator({
   resetDate = null,
   compact = false,
   onBuyMore,
+  isPlus = false,
 }) {
+  // Plus no longer has a monthly credit allowance. Any legacy monthly balance
+  // returned by the API must not be presented as purchased/non-expiring credit.
+  const displayedTotal = isPlus ? pack : total;
+
   const formatResetDate = (date) => {
     if (!date) return '';
     const d = new Date(date);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const isLow = total > 0 && total <= 20;
-  const isEmpty = total === 0;
+  const isLow = displayedTotal > 0 && displayedTotal <= 20;
+  const isEmpty = displayedTotal === 0;
 
   return (
     <div className={`credits-indicator ${compact ? 'credits-indicator--compact' : ''}`}>
@@ -36,15 +41,15 @@ function CreditsIndicator({
         >
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
         </svg>
-        <span className="credits-indicator__label">Credits</span>
+        <span className="credits-indicator__label">{isPlus ? 'Purchased Credits' : 'Credits'}</span>
       </div>
 
       <div className={`credits-indicator__count ${isLow ? 'credits-indicator__count--low' : ''} ${isEmpty ? 'credits-indicator__count--empty' : ''}`}>
-        <span className="credits-indicator__number">{total}</span>
+        <span className="credits-indicator__number">{displayedTotal}</span>
         <span className="credits-indicator__remaining">remaining</span>
       </div>
 
-      {!compact && monthlyLimit > 0 && (
+      {!isPlus && !compact && monthlyLimit > 0 && (
         <div className="credits-indicator__progress" title="Monthly credit usage">
           <div className="credits-indicator__progress-bar">
             <div
@@ -69,7 +74,7 @@ function CreditsIndicator({
         </div>
       )}
 
-      {!compact && total > 0 && (
+      {!compact && total > 0 && !isPlus && (
         <div className="credits-indicator__breakdown">
           <span
             className="credits-indicator__breakdown-item"
@@ -88,7 +93,7 @@ function CreditsIndicator({
 
       {!compact && (
         <div className="credits-indicator__info">
-          {resetDate && monthly > 0 && (
+          {!isPlus && resetDate && monthly > 0 && (
             <div className="credits-indicator__reset">
               Monthly credits reset {formatResetDate(resetDate)}
             </div>
@@ -113,17 +118,19 @@ function CreditsIndicator({
             <span className="credits-indicator__hint-label">Relationship:</span>
             <span className="credits-indicator__hint-value">60 credits</span>
           </div>
-          <div className="credits-indicator__hint">
-            <span className="credits-indicator__hint-label">Ask Question:</span>
-            <span className="credits-indicator__hint-value">1 credit</span>
-          </div>
+          {!isPlus && (
+            <div className="credits-indicator__hint">
+              <span className="credits-indicator__hint-label">Ask Question:</span>
+              <span className="credits-indicator__hint-value">1 credit</span>
+            </div>
+          )}
         </div>
         </>
       )}
 
       {onBuyMore && (
         <button className="credits-indicator__buy-btn" onClick={onBuyMore}>
-          {isEmpty || isLow ? 'Upgrade Plan' : 'Buy Credits'}
+          {isPlus ? 'Buy Credits' : (isEmpty || isLow ? 'Upgrade Plan' : 'Buy Credits')}
         </button>
       )}
     </div>

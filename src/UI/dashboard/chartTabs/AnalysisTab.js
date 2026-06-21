@@ -424,8 +424,14 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
   const [showInsufficientModal, setShowInsufficientModal] = useState(false);
   const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
+  const fullReportQuota = useEntitlementsStore((state) => state.fullReportQuota);
+  const isPlus = useEntitlementsStore((state) =>
+    (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
+  );
   const isAnalysisUnlocked = useEntitlementsStore((state) => state.isAnalysisUnlocked);
-  const hasEnoughCredits = useEntitlementsStore((state) => state.hasEnoughCredits);
+  const canStartFullReport = useEntitlementsStore((state) => state.canStartFullReport);
+  const usesIncludedReport = isPlus && fullReportQuota.remaining > 0;
+  const availableOverageCredits = isPlus ? credits.pack : credits.total;
 
   const isAnalysisComplete = analysisStatus?.completed ||
     (broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
@@ -452,7 +458,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
       onStartAnalysis();
       return;
     }
-    if (!hasEnoughCredits(CREDIT_COSTS.FULL_NATAL)) {
+    if (!canStartFullReport('BIRTH_CHART')) {
       setShowInsufficientModal(true);
       return;
     }
@@ -476,12 +482,16 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
 
           {!showConfirm ? (
             <button className="start-analysis-button" onClick={handleStartClick}>
-              Start 360° Analysis ({CREDIT_COSTS.FULL_NATAL} credits)
+              {usesIncludedReport
+                ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
+                : `Start 360° Analysis (${CREDIT_COSTS.FULL_NATAL} credits)`}
             </button>
           ) : (
             <div className="locked-content__confirm">
               <p className="locked-content__confirm-text">
-                This will use {CREDIT_COSTS.FULL_NATAL} credits. You'll have {credits.total - CREDIT_COSTS.FULL_NATAL} remaining.
+                {usesIncludedReport
+                  ? `This uses 1 included report. You'll have ${fullReportQuota.remaining - 1} remaining this period.`
+                  : `This will use ${CREDIT_COSTS.FULL_NATAL} credits. You'll have ${availableOverageCredits - CREDIT_COSTS.FULL_NATAL} remaining.`}
               </p>
               <div className="locked-content__confirm-actions">
                 <button
@@ -500,14 +510,19 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
             </div>
           )}
 
-          <p className="prompt-credit-balance">You have {credits.total} credits</p>
+          <p className="prompt-credit-balance">
+            {isPlus
+              ? `${fullReportQuota.remaining} included reports · ${credits.pack} purchased credits`
+              : `You have ${credits.total} credits`}
+          </p>
         </div>
 
         <InsufficientCreditsModal
           isOpen={showInsufficientModal}
           onClose={() => setShowInsufficientModal(false)}
           creditsNeeded={CREDIT_COSTS.FULL_NATAL}
-          creditsAvailable={credits.total}
+          creditsAvailable={availableOverageCredits}
+          reportType="BIRTH_CHART"
           onBuyCredits={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
           onSubscribe={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
         />

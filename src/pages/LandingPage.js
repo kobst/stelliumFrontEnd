@@ -32,6 +32,11 @@ const PAIR_AV_GRADIENTS = [
   'linear-gradient(135deg, #3da3aa, #1d4a52)'
 ];
 
+const CREDIT_PACKS = [
+  { id: '100', price: '$10', credits: '100 credits' },
+  { id: '250', price: '$20', credits: '250 credits', tag: 'Best value' }
+];
+
 function getInitial(name) {
   return (name?.charAt(0) || '?').toUpperCase();
 }
@@ -309,6 +314,7 @@ function LandingPage() {
   const { stelliumUser } = useAuth();
   const checkout = useCheckout(stelliumUser);
 
+  const [selectedPack, setSelectedPack] = useState('250');
   const [celebrities, setCelebrities] = useState([]);
   const [celebsLoading, setCelebsLoading] = useState(true);
   const [relationships, setRelationships] = useState([]);
@@ -436,9 +442,9 @@ function LandingPage() {
   };
 
   const handleBuyCredits = () => {
-    trackLandingCTAClicked('buy_credits');
-    if (stelliumUser) checkout.purchaseCreditPack?.();
-    else navigate('/birthChartEntry?intent=creditPack');
+    trackLandingCTAClicked(`buy_credits_${selectedPack}`);
+    if (stelliumUser) checkout.purchaseCreditPack?.(selectedPack);
+    else navigate(`/birthChartEntry?intent=creditPack&pack=${selectedPack}`);
   };
 
   const handleSignPick = (sign) => {
@@ -523,7 +529,7 @@ function LandingPage() {
                   {dashboardLabel} →
                 </button>
                 <a className="lp-btn lp-btn--ghost" href="#how">See how it works</a>
-                <span className="lp-hero__cta-meta">No credit card · 10 free credits</span>
+                <span className="lp-hero__cta-meta">No credit card · 25 welcome credits</span>
               </div>
             </div>
 
@@ -787,8 +793,8 @@ function LandingPage() {
         <div className="lp-wrap">
           <div className="lp-section-head">
             <div className="lp-eyebrow gold">Choose your plan</div>
-            <h2>All users use credits for <span className="italic">in-depth</span> analyses.</h2>
-            <p>Free and Plus determine how much guidance you get by default — and how many credits arrive each month. Credit packs add more whenever you want them.</p>
+            <h2>Choose how deep you want to <span className="italic">go.</span></h2>
+            <p>Plus includes everyday guidance and three full reports each billing period. Credit packs cover extra reports and never expire.</p>
           </div>
 
           <div className="lp-plans">
@@ -799,8 +805,8 @@ function LandingPage() {
               <ul className="lp-plan__list">
                 <li><span className="lp-plan__check">✓</span> Weekly & monthly horoscopes</li>
                 <li><span className="lp-plan__check">✓</span> Unlimited chart & relationship creation</li>
-                <li><span className="lp-plan__check">✓</span> <span className="lp-plan__credits-gold">10 credits</span> per month</li>
-                <li><span className="lp-plan__check">✓</span> Buy credits anytime</li>
+                <li><span className="lp-plan__check">✓</span> <span className="lp-plan__credits-gold">25 welcome credits</span> on signup</li>
+                <li><span className="lp-plan__check">✓</span> Buy more credits anytime</li>
               </ul>
               <button type="button" className="lp-btn lp-btn--ghost lp-plan__btn" onClick={handleGetStarted}>
                 Get started free
@@ -810,14 +816,14 @@ function LandingPage() {
             <div className="lp-plan lp-plan--featured">
               <div className="lp-plan__badge">Most popular</div>
               <div className="lp-plan__name">Plus</div>
-              <div className="lp-plan__desc">Daily guidance + monthly credits for ongoing insight.</div>
+              <div className="lp-plan__desc">Everyday guidance plus three full reports per billing period.</div>
               <div className="lp-plan__price">$20<span className="lp-plan__per">/month</span></div>
               <ul className="lp-plan__list">
                 <li className="bold"><span className="lp-plan__check">✓</span> Everything in Free, plus —</li>
+                <li><span className="lp-plan__check">✓</span> <span className="lp-plan__credits-gold">3 full reports</span> per billing period <span className="lp-plan__faint">(natal or relationship)</span></li>
+                <li><span className="lp-plan__check">✓</span> Ask Stellium included — up to 50 / day</li>
                 <li><span className="lp-plan__check">✓</span> Daily horoscopes tuned to your chart</li>
-                <li><span className="lp-plan__check">✓</span> <span className="lp-plan__credits-gold">200 credits</span> per month</li>
-                <li><span className="lp-plan__check">✓</span> Credits roll over (up to 400)</li>
-                <li><span className="lp-plan__check">✓</span> Priority access to new features</li>
+                <li><span className="lp-plan__check">✓</span> Extra reports with credits after your quota</li>
               </ul>
               <button type="button" className="lp-btn lp-btn--primary lp-plan__btn" onClick={handleStartPlus}>
                 Start Plus
@@ -828,11 +834,29 @@ function LandingPage() {
             <div className="lp-plan">
               <div className="lp-plan__name">Credit Pack</div>
               <div className="lp-plan__desc">One-time credits. No subscription.</div>
-              <div className="lp-plan__price">$10<span className="lp-plan__per">→ 100 credits</span></div>
+              <div className="lp-pack-options" role="radiogroup" aria-label="Choose a credit pack">
+                {CREDIT_PACKS.map((pack) => (
+                  <button
+                    key={pack.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selectedPack === pack.id}
+                    className={`lp-pack-opt${selectedPack === pack.id ? ' lp-pack-opt--active' : ''}`}
+                    onClick={() => setSelectedPack(pack.id)}
+                  >
+                    <span className="lp-pack-opt__amt">
+                      {pack.price} <span className="lp-pack-opt__credits">{pack.credits}</span>
+                    </span>
+                    <span className="lp-pack-opt__right">
+                      {pack.tag && <span className="lp-pack-opt__tag">{pack.tag}</span>}
+                      <span className="lp-pack-opt__radio" />
+                    </span>
+                  </button>
+                ))}
+              </div>
               <ul className="lp-plan__list">
-                <li><span className="lp-plan__check">✓</span> 100 credits, one-time purchase</li>
-                <li><span className="lp-plan__check">✓</span> Never expire</li>
-                <li><span className="lp-plan__check">✓</span> Use for any analysis or question</li>
+                <li><span className="lp-plan__check">✓</span> Credits <span className="lp-plan__credits-gold">never expire</span></li>
+                <li><span className="lp-plan__check">✓</span> Buy extra reports or any credit action</li>
                 <li><span className="lp-plan__check">✓</span> Stack with Free or Plus</li>
               </ul>
               <button type="button" className="lp-btn lp-btn--gold lp-plan__btn" onClick={handleBuyCredits}>
@@ -849,7 +873,7 @@ function LandingPage() {
                   <th style={{ textAlign: 'left' }}>&nbsp;</th>
                   <th>Free</th>
                   <th className="plus">Plus</th>
-                  <th>One credit</th>
+                  <th>Credit cost</th>
                 </tr>
               </thead>
               <tbody>
@@ -866,28 +890,32 @@ function LandingPage() {
                   <td>—</td>
                 </tr>
                 <tr>
-                  <td className="row-label">Full birth-chart analysis</td>
-                  <td colSpan="2" style={{ color: 'var(--lp-text-muted)' }}>Uses credits</td>
-                  <td className="credit">75</td>
-                </tr>
-                <tr>
-                  <td className="row-label">Relationship analysis</td>
-                  <td colSpan="2" style={{ color: 'var(--lp-text-muted)' }}>Uses credits</td>
-                  <td className="credit">60</td>
-                </tr>
-                <tr>
-                  <td className="row-label">Ask Stellium (1 question)</td>
-                  <td colSpan="2" style={{ color: 'var(--lp-text-muted)' }}>Uses credits</td>
+                  <td className="row-label">Ask Stellium</td>
+                  <td style={{ color: 'var(--lp-text-muted)' }}>1 credit each</td>
+                  <td className="plus">50 / day</td>
                   <td className="credit">1</td>
                 </tr>
                 <tr>
-                  <td className="row-label">Credits per month</td>
-                  <td className="credit">10</td>
-                  <td className="credit credit-lilac">200</td>
+                  <td className="row-label">Natal report</td>
+                  <td style={{ color: 'var(--lp-text-muted)' }}>Uses credits</td>
+                  <td className="plus">Included ×3</td>
+                  <td className="credit">75</td>
+                </tr>
+                <tr>
+                  <td className="row-label">Relationship report</td>
+                  <td style={{ color: 'var(--lp-text-muted)' }}>Uses credits</td>
+                  <td className="plus">Included ×3</td>
+                  <td className="credit">60</td>
+                </tr>
+                <tr>
+                  <td className="row-label">Welcome credits</td>
+                  <td className="credit">25</td>
+                  <td>—</td>
                   <td>—</td>
                 </tr>
               </tbody>
             </table>
+            <div className="lp-compare__note">Plus reports are one pooled quota across natal and relationship. Unused reports don’t carry over — purchased credits do.</div>
           </div>
         </div>
       </section>

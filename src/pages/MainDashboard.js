@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useParams, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import {
   fetchUser,
@@ -19,6 +19,7 @@ import { formatLocalDateParam } from '../Utilities/horoscopeDates';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import AddChartModal from '../UI/dashboard/AddChartModal';
+import DashboardNav from '../UI/dashboard/DashboardNav';
 import SettingsSection from '../UI/dashboard/SettingsSection';
 import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
 import InsufficientCreditsModal from '../UI/entitlements/InsufficientCreditsModal';
@@ -54,17 +55,6 @@ function Stardust({ seed = 1, density = 70 }) {
   );
 }
 
-function WordmarkGlyph() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-      <circle cx="15" cy="6" r="2.2" fill="#cabeff" />
-      <ellipse cx="15" cy="6" rx="3.4" ry="0.9" stroke="#cabeff" strokeOpacity="0.55" strokeWidth="0.6" fill="none" transform="rotate(-18 15 6)" />
-      <circle cx="11" cy="12" r="3.2" fill="#cabeff" />
-      <circle cx="9" cy="17" r="1.1" fill="#cabeff" opacity="0.7" />
-      <path d="M3 19 Q11 22 19 19" stroke="#cabeff" strokeWidth="0.6" fill="none" opacity="0.6" />
-    </svg>
-  );
-}
 
 function getInitial(name) {
   return (name?.trim()?.charAt(0) || '?').toUpperCase();
@@ -231,122 +221,22 @@ function MainDashboard() {
 }
 
 function DashboardContent({ user, userId, entitlements, credits, activeTab, onTabChange, onSignOut, onNavigate }) {
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const userMenuRef = useRef(null);
-
-  useEffect(() => {
-    if (!userMenuOpen) return undefined;
-    const handler = (e) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
-        setUserMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [userMenuOpen]);
-
-  const userInitial = getInitial(user?.firstName);
-  const displayName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'You';
-  const isPlus = !!entitlements?.isPlus;
-  const totalCredits = credits?.total ?? entitlements?.credits?.total ?? 0;
-
   const handleSignOut = async () => {
-    setUserMenuOpen(false);
     await onSignOut();
     onNavigate('/login');
   };
 
   return (
     <div className="md-page">
-      <div className="md-accent-thread" />
-
-      <nav className="md-nav">
-        <div className="md-nav__inner">
-          <div className="md-nav__left">
-            <button type="button" className="md-wordmark" onClick={() => onNavigate('/')} aria-label="Stellium home">
-              <span className="md-wordmark__glyph"><WordmarkGlyph /></span>
-              <span className="md-wordmark__name">Stellium</span>
-            </button>
-          </div>
-
-          <div className="md-page-tabs" role="tablist">
-            <button
-              type="button"
-              className={`md-page-tab${activeTab === 'home' ? ' active' : ''}`}
-              onClick={() => onTabChange('home')}
-            >
-              Home
-            </button>
-            <button
-              type="button"
-              className={`md-page-tab${activeTab === 'charts' ? ' active' : ''}`}
-              onClick={() => onTabChange('charts')}
-            >
-              My Birth Chart
-            </button>
-            <button
-              type="button"
-              className={`md-page-tab${activeTab === 'relationships' ? ' active' : ''}`}
-              onClick={() => onTabChange('relationships')}
-            >
-              My Relationships
-            </button>
-          </div>
-
-          <div className="md-nav__right">
-            <button type="button" className="md-credit-pill" onClick={() => onTabChange('settings:subscription')} title="Manage credits">
-              <svg width="9" height="9" viewBox="0 0 11 11" aria-hidden="true">
-                <path d="M5.5 0.5 L10.5 5.5 L5.5 10.5 L0.5 5.5 Z" fill="#e9c349" />
-              </svg>
-              {totalCredits}
-            </button>
-
-            <div ref={userMenuRef} style={{ position: 'relative' }}>
-              <button
-                type="button"
-                className="md-user-cluster"
-                onClick={() => setUserMenuOpen((v) => !v)}
-                aria-haspopup="menu"
-                aria-expanded={userMenuOpen}
-              >
-                <span className="md-user-cluster__meta">
-                  <span className="md-user-cluster__nm">{displayName}</span>
-                  {isPlus && <span className="md-user-cluster__plus">PLUS</span>}
-                </span>
-                <span className="md-user-cluster__av">
-                  {user?.profilePhotoUrl ? (
-                    <img src={user.profilePhotoUrl} alt={displayName} />
-                  ) : (
-                    <span className="md-user-cluster__av-initial">{userInitial}</span>
-                  )}
-                </span>
-              </button>
-              {userMenuOpen && (
-                <div className="md-user-menu" role="menu">
-                  <button
-                    type="button"
-                    className="md-user-menu__item"
-                    onClick={() => { setUserMenuOpen(false); onTabChange('settings'); }}
-                  >
-                    Settings
-                  </button>
-                  <button
-                    type="button"
-                    className="md-user-menu__item"
-                    onClick={() => { setUserMenuOpen(false); onTabChange('settings:subscription'); }}
-                  >
-                    Subscription &amp; Credits
-                  </button>
-                  <div className="md-user-menu__divider" />
-                  <button type="button" className="md-user-menu__item" onClick={handleSignOut}>
-                    Sign out
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <DashboardNav
+        user={user}
+        entitlements={entitlements}
+        credits={credits}
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        onNavigateHome={() => onNavigate('/')}
+        onSignOut={handleSignOut}
+      />
 
       <section className="md-shell">
         <div className="md-halo lilac md-shell__halo-c" />
@@ -610,7 +500,7 @@ function ChartsPane({ userId, user, entitlements, onNavigate }) {
 
   const handleAddChartSubmit = async (guestData) => {
     const cost = CREDIT_COSTS.GUEST_CHART;
-    if ((credits?.total ?? 0) < cost) {
+    if (!entitlements?.isPlus && (credits?.total ?? 0) < cost) {
       setShowPaywall(true);
       return;
     }
@@ -618,7 +508,7 @@ function ChartsPane({ userId, user, entitlements, onNavigate }) {
     setCreating({ firstName: guestData.firstName, lastName: guestData.lastName });
     let snapshot = null;
     try {
-      snapshot = applyOptimisticCreditSpend(cost);
+      if (!entitlements?.isPlus) snapshot = applyOptimisticCreditSpend(cost);
       const result = await createGuestSubject(apiData);
       if (result.success || result.userId || result.guestSubject) {
         await loadCharts();

@@ -123,8 +123,7 @@ function ChartDetailLayout({
   onSectionChange,
   isGuest = false,
   onPhotoUpdated,
-  hasAnalysis = false,
-  credits = null
+  hasAnalysis = false
 }) {
   const currentSection = sections.find((s) => s.id === activeSection);
   const sectionLabel = SECTION_LABEL[activeSection] || '';
@@ -141,7 +140,7 @@ function ChartDetailLayout({
       <Stardust seed={5} density={70} />
 
       <div className="bcd-wrap">
-        <ChartDetailHeader onBackClick={onBackClick} credits={credits} />
+        <ChartDetailHeader onBackClick={onBackClick} />
 
         <div className="bcd-grid">
           <aside className="bcd-sidebar">

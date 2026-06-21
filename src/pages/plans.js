@@ -34,7 +34,7 @@ const plans = [
     features: [
       "Weekly & Monthly horoscopes",
       "Unlimited chart & relationship creation",
-      "10 credits per month",
+      "25 welcome credits on signup",
       "Buy credits anytime",
       "No credit card required",
     ],
@@ -46,11 +46,12 @@ const plans = [
     price: "20",
     suffix: "/mo",
     badge: "Most Popular",
-    description: "Daily guidance + monthly credits.",
+    description: "Everyday guidance + three full reports.",
     features: [
       "Daily, Weekly & Monthly horoscopes",
       "Everything in Free",
-      "200 credits per month",
+      "3 full natal or relationship reports per month",
+      "Ask Stellium and everyday features included under fair use",
       "Best value for ongoing insight",
     ],
     cta: "Start Plus",
@@ -124,8 +125,8 @@ export default function PricingTable() {
           margin: '0 auto 16px',
           lineHeight: '1.6'
         }}>
-          All users use credits for in-depth analyses.<br />
-          Free and Plus determine how much guidance you get by default — and how many credits you receive each month.
+          Plus includes everyday guidance and three full reports each billing period.<br />
+          Purchased credits cover additional reports and never expire.
         </p>
         {checkout.error && (
           <p style={{
@@ -338,7 +339,7 @@ export default function PricingTable() {
           marginBottom: '20px',
           textAlign: 'center'
         }}>
-          How Credits Work
+          Credit costs after included reports (and on Free)
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
