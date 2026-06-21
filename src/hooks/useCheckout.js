@@ -8,10 +8,7 @@ import {
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 import { trackCheckoutStarted, trackCheckoutCompleted } from '../Utilities/analytics';
 
-/**
- * Maps a landing-page credit-pack selection to its Stripe product type.
- * TODO(backend): CREDIT_PACK_250 must exist server-side before the $20 pack is purchasable.
- */
+/** Maps a credit-pack selection to its server-authorized product type. */
 const CREDIT_PACK_PRODUCTS = {
   '100': 'CREDIT_PACK',
   '250': 'CREDIT_PACK_250',
@@ -198,11 +195,6 @@ export function useCheckout(user, onSuccess) {
    * Purchase a credit pack.
    * @param {'100'|'250'} [packId='100'] - which pack to buy. '100' = $10 / 100 credits,
    *   '250' = $20 / 250 credits.
-   *
-   * TODO(backend): only the 100-credit CREDIT_PACK product is wired up server-side.
-   * The 250-credit pack (CREDIT_PACK_250) needs a Stripe product + checkout support
-   * before the $20 option is truly purchasable. Until then unknown pack ids fall back
-   * to the 100-credit pack so checkout never breaks.
    */
   const purchaseCreditPack = useCallback(async (packId = '100') => {
     if (!user?._id) {
