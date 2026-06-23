@@ -470,6 +470,22 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
     onStartAnalysis();
   };
 
+  // Celebrity charts are read-only: their analyses are generated via the admin dashboard and the
+  // backend rejects /analysis/start-full for celebrity subjects. Never show the start CTA — show a
+  // read-only note when no analysis exists yet. (Completed analyses fall through to the normal view.)
+  if (isCelebrity && !isAnalysisComplete && !isAnalysisInProgress) {
+    return (
+      <div className="chart-tab-content analysis-tab">
+        <div className="analysis-prompt">
+          <div className="prompt-icon">◎</div>
+          <h3>360° Analysis</h3>
+          <p>This is a featured celebrity chart. Its 360° Analysis is curated by the Stellium team.</p>
+          <p className="prompt-note">Check back soon — celebrity analyses are published when ready.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Render the start analysis prompt
   if (!isAnalysisComplete && !isAnalysisInProgress) {
     return (
