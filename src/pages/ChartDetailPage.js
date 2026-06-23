@@ -226,6 +226,12 @@ function ChartDetailPage() {
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
   const canUseAskStellium = isAnalysisComplete;
   const hasAnalysis = !!(basicAnalysis?.dominance || basicAnalysis?.planets);
+  // Celebrity charts are read-only for regular users: their full analyses are generated via the
+  // admin dashboard, and the backend rejects /analysis/start-full for celebrity subjects. Hide the
+  // start CTA so users aren't offered an action that will 403.
+  const isCelebrity = chart?.isCelebrity === true
+    || chart?.kind === 'celebrity'
+    || chart?.isReadOnly === true;
 
   useEffect(() => {
     if (!chartId || isAnalysisComplete || !isAnalysisUnlocked) return;
@@ -330,6 +336,7 @@ function ChartDetailPage() {
           chartId={chartId}
           birthChart={birthChart}
           userId={userId}
+          isCelebrity={isCelebrity}
         />
       )
     }
