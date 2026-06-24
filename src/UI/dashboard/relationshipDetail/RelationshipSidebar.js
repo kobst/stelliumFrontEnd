@@ -92,6 +92,8 @@ function RelationshipSidebar({
   const dominantCluster = dominantClusters?.[0] || overall?.dominantCluster;
   const challengeCluster = overall?.challengeCluster;
   const dominantScore = dominantCluster && clusters?.[dominantCluster]?.score;
+  const dominantClusterLabel =
+    typeof dominantScore === 'number' && dominantScore < 25 ? 'Most Active' : 'Strongest';
   const challengeScore = challengeCluster && clusters?.[challengeCluster]?.score;
 
   return (
@@ -139,7 +141,7 @@ function RelationshipSidebar({
 
         {dominantCluster && (
           <div className="rd-stat-block">
-            <div className="rd-stat-block__label">Strongest</div>
+            <div className="rd-stat-block__label">{dominantClusterLabel}</div>
             <div className="rd-stat-row">
               <div className="rd-stat-row__ic">{CLUSTER_ICONS[dominantCluster]}</div>
               <div className="rd-stat-row__nm">
