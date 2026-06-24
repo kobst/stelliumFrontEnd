@@ -30,7 +30,6 @@ const getQuadrantLabel = (quadrant) => {
 
 function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, isCelebrity = false, initialAnalysisStatus = null, canUseAskStellium = false }) {
   const [selectedCluster, setSelectedCluster] = useState('Harmony');
-  const [selectedAnalysisType, setSelectedAnalysisType] = useState('synastry');
   const [selectedPanel, setSelectedPanel] = useState('support');
   const [analysisStatus, setAnalysisStatus] = useState(null);
   const [isStarting, setIsStarting] = useState(false);
@@ -361,9 +360,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
 
   // Get the panel content based on selection
   const getPanelContent = () => {
-    const analysisData = selectedAnalysisType === 'synastry'
-      ? currentAnalysisData?.synastry
-      : currentAnalysisData?.composite;
+    const analysisData = currentAnalysisData?.synastry;
 
     if (!analysisData) return null;
 
@@ -524,20 +521,8 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
           )}
 
           {/* Analysis Section */}
-          {(currentAnalysisData?.synastry || currentAnalysisData?.composite) && (
+          {currentAnalysisData?.synastry && (
             <div className="analysis-panels-section">
-              {/* Analysis Type Dropdown */}
-              <div className="analysis-type-selector">
-                <select
-                  value={selectedAnalysisType}
-                  onChange={(e) => setSelectedAnalysisType(e.target.value)}
-                  className="analysis-type-dropdown"
-                >
-                  <option value="synastry">SYNASTRY ANALYSIS</option>
-                  <option value="composite">COMPOSITE ANALYSIS</option>
-                </select>
-              </div>
-
               {/* Two Column Layout: Navigation + Content */}
               <div className="analysis-panels-layout">
                 {/* Left Navigation */}
