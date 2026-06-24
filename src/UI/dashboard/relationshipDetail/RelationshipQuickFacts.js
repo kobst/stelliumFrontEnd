@@ -69,6 +69,8 @@ function RelationshipQuickFacts({ relationship }) {
   const dominantCluster = dominantClusters?.[0] || overall?.dominantCluster;
   const challengeCluster = overall?.challengeCluster;
   const dominantScore = dominantCluster && clusters?.[dominantCluster]?.score;
+  const dominantClusterLabel =
+    typeof dominantScore === 'number' && dominantScore < 25 ? 'Most Active' : 'Strongest';
   const challengeScore = challengeCluster && clusters?.[challengeCluster]?.score;
 
   return (
@@ -102,7 +104,7 @@ function RelationshipQuickFacts({ relationship }) {
       {/* Strongest Cluster */}
       {dominantCluster && (
         <div className="relationship-quick-facts__section">
-          <span className="relationship-quick-facts__label">Strongest</span>
+          <span className="relationship-quick-facts__label">{dominantClusterLabel}</span>
           <div className="relationship-quick-facts__cluster">
             <span className="cluster-icon">{CLUSTER_ICONS[dominantCluster] || ''}</span>
             <span className="cluster-name">{dominantCluster}</span>
