@@ -116,11 +116,45 @@ const LoginPage = () => {
   };
 
   if (loading) {
+    // During the auth check, render the login card at its real footprint so the
+    // form doesn't render late and shift the (vertically centered) layout — the
+    // header and signup benefits are static so we render them for real; only the
+    // interactive form area is skeletonized. Keeps CLS ~0 on first paint.
     return (
       <div className="login-page">
-        <div className="login-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading...</p>
+        <div className="login-container" aria-busy="true">
+          <div className="login-header">
+            <StelliumWordmark size="lg" />
+            <p className="login-subtitle">Create your account</p>
+          </div>
+
+          <div className="signup-benefits">
+            <p className="benefits-title">Start free — no credit card required</p>
+            <ul className="benefits-list">
+              <li>Your personalized birth chart analysis</li>
+              <li>Daily, weekly &amp; monthly horoscopes</li>
+              <li>Relationship compatibility reports</li>
+              <li>Chat with your AI astrologer</li>
+            </ul>
+          </div>
+
+          <div className="login-form-container" aria-hidden="true">
+            <span className="login-skel" style={{ height: 50 }} />
+            <div className="login-divider"><span>or</span></div>
+            <div className="login-form">
+              <span className="login-skel" style={{ height: 68 }} />
+              <span className="login-skel" style={{ height: 68 }} />
+              <span className="login-skel" style={{ height: 68 }} />
+              <span className="login-skel" style={{ height: 50, marginTop: 8 }} />
+            </div>
+            <div className="login-toggle">
+              <span className="login-skel" style={{ width: '60%', height: 14, margin: '0 auto' }} />
+            </div>
+          </div>
+
+          <div className="login-footer">
+            <span className="login-skel" style={{ width: 90, height: 14, margin: '0 auto' }} />
+          </div>
         </div>
       </div>
     );

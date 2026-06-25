@@ -842,3 +842,53 @@
   .cc-wrap, .cc-nav__inner { padding-left: 20px; padding-right: 20px; }
   .cc-nav__link:not(.cc-btn) { display: none; }
 }
+
+/* ─── Loading skeletons (CLS reservation) ────────
+   Reuse the real card/section classes so the loading state reserves the
+   exact layout footprint (the aspect-ratio "ports" do the heavy lifting),
+   preventing collapse-then-expand layout shift as data and images stream in. */
+@keyframes cc-skel-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.cc-skel {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(202,190,255,0.05) 25%,
+    rgba(202,190,255,0.13) 37%,
+    rgba(202,190,255,0.05) 63%
+  );
+  background-size: 200% 100%;
+  animation: cc-skel-shimmer 1.5s ease-in-out infinite;
+}
+.cc-skel--letter {
+  width: 40px;
+  height: 48px;
+  border-radius: 8px;
+}
+.cc-portrait--skel {
+  background: linear-gradient(
+    90deg,
+    rgba(202,190,255,0.04) 25%,
+    rgba(202,190,255,0.11) 37%,
+    rgba(202,190,255,0.04) 63%
+  );
+  background-size: 200% 100%;
+  animation: cc-skel-shimmer 1.5s ease-in-out infinite;
+}
+/* Skeleton cards are non-interactive placeholders */
+.cc-feat--skel,
+.cc-celeb-card--skel {
+  cursor: default;
+}
+.cc-feat--skel:hover,
+.cc-celeb-card--skel:hover {
+  transform: none;
+  box-shadow: inset 0 0 0 1px var(--cc-ghost);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cc-skel,
+  .cc-portrait--skel { animation: none; }
+}
