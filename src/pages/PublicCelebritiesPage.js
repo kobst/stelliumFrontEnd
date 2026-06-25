@@ -112,7 +112,17 @@ function PortraitInner({ celeb, large }) {
   const photo = getProfilePhoto(celeb);
   const name = getFullName(celeb);
   if (photo) {
-    return <img className="cc-portrait__img" src={photo} alt={name} loading="lazy" />;
+    return (
+      <img
+        className="cc-portrait__img"
+        src={photo}
+        alt={name}
+        width={455}
+        height={569}
+        loading="lazy"
+        decoding="async"
+      />
+    );
   }
   const seed = (celeb?._id || name).length;
   const vbY = large ? 350 : 280;
@@ -140,7 +150,7 @@ function SunPill({ sunSign }) {
   const iconPath = `/assets/signs/${normalized}.svg`;
   return (
     <span className="cc-portrait__top-pill">
-      <img src={iconPath} alt="" aria-hidden="true" />
+      <img src={iconPath} alt="" aria-hidden="true" width={14} height={14} decoding="async" />
       {label} Sun
     </span>
   );
@@ -202,6 +212,95 @@ function GridCelebCard({ celeb, tone, onClick }) {
         </div>
       </div>
     </button>
+  );
+}
+
+/* ─── Loading skeletons ───────────────────────────────────────────────
+   These mirror the real card/section structure (same wrapper classes and
+   aspect-ratio "ports") so they reserve the exact layout footprint during
+   load. That keeps the featured row, A–Z rail, and first grid rows from
+   collapse-then-expand — the main source of CLS on this page. */
+
+function SkelPortrait() {
+  return <div className="cc-portrait cc-portrait--skel" aria-hidden="true" />;
+}
+
+function FeatureCardSkeleton({ large }) {
+  return (
+    <div className={`cc-feat${large ? ' cc-feat--large' : ''} cc-feat--skel`} aria-hidden="true">
+      <div className="cc-feat__ports">
+        <SkelPortrait />
+      </div>
+      <div className="cc-feat__body">
+        <span className="cc-skel cc-skel--line" style={{ width: '38%', height: 11 }} />
+        <span className="cc-skel cc-skel--line" style={{ width: '70%', height: large ? 30 : 22, marginTop: 10 }} />
+        <span className="cc-skel cc-skel--line" style={{ width: '88%', height: 13, marginTop: 12 }} />
+      </div>
+    </div>
+  );
+}
+
+function GridCelebCardSkeleton() {
+  return (
+    <div className="cc-celeb-card cc-celeb-card--skel" aria-hidden="true">
+      <div className="cc-celeb-card__ports">
+        <SkelPortrait />
+      </div>
+      <div className="cc-celeb-card__body">
+        <span className="cc-skel cc-skel--line" style={{ width: '80%', height: 14 }} />
+        <span className="cc-skel cc-skel--line" style={{ width: '55%', height: 11, marginTop: 9 }} />
+      </div>
+    </div>
+  );
+}
+
+function FeaturedSkeleton() {
+  return (
+    <section className="cc-featured" aria-hidden="true">
+      <div className="cc-wrap">
+        <div className="cc-row-head">
+          <div>
+            <span className="cc-skel cc-skel--line" style={{ width: 140, height: 11 }} />
+            <span className="cc-skel cc-skel--line" style={{ width: 300, height: 30, marginTop: 12 }} />
+          </div>
+        </div>
+        <div className="cc-feature-grid">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <FeatureCardSkeleton key={i} large={i === 0} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RailSkeleton() {
+  return (
+    <div className="cc-wrap">
+      <nav className="cc-az-rail" aria-hidden="true">
+        {ALPHABET.map((letter) => (
+          <button key={letter} type="button" className="cc-az-rail__link disabled" disabled>
+            {letter}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+function AlphaGridSkeleton({ cards = 18 }) {
+  return (
+    <div className="cc-alpha-section" aria-hidden="true">
+      <div className="cc-alpha-head">
+        <span className="cc-skel cc-skel--letter" />
+        <span className="cc-skel cc-skel--line" style={{ width: 80, height: 11 }} />
+      </div>
+      <div className="cc-celeb-grid">
+        {Array.from({ length: cards }).map((_, i) => (
+          <GridCelebCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -405,7 +504,7 @@ function PublicCelebritiesPage() {
                   className={`cc-filter${signFilter === sign.value ? ' active' : ''}`}
                   onClick={() => handleSignFilter(sign.value)}
                 >
-                  <img className="cc-filter__glyph" src={`/assets/signs/${sign.value}.svg`} alt="" aria-hidden="true" />
+                  <img className="cc-filter__glyph" src={`/assets/signs/${sign.value}.svg`} alt="" aria-hidden="true" width={14} height={14} decoding="async" />
                   {sign.label}
                 </button>
               ))}
@@ -415,6 +514,7 @@ function PublicCelebritiesPage() {
       </section>
 
       {/* ─── FEATURED ──────────────────────────────────────── */}
+      {loading && <FeaturedSkeleton />}
       {!loading && featuredCelebs.length > 0 && (
         <section className="cc-featured">
           <div className="cc-halo lilac cc-featured__halo-l" />
@@ -446,6 +546,7 @@ function PublicCelebritiesPage() {
       )}
 
       {/* ─── A-Z RAIL ──────────────────────────────────────── */}
+      {loading && <RailSkeleton />}
       {!loading && alphaGroups.length > 0 && (
         <div className="cc-wrap">
           <nav className="cc-az-rail" aria-label="A to Z jumper">
@@ -470,7 +571,12 @@ function PublicCelebritiesPage() {
       {/* ─── ALPHA GRID ────────────────────────────────────── */}
       <section className="cc-alpha">
         <div className="cc-wrap">
-          {loading && <div className="cc-loading">Loading the database…</div>}
+          {loading && (
+            <>
+              <AlphaGridSkeleton />
+              <AlphaGridSkeleton />
+            </>
+          )}
           {!loading && error && <div className="cc-empty">{error}</div>}
           {!loading && !error && filtered.length === 0 && (
             <div className="cc-empty">No charts match this filter — try clearing your search or picking a different sign.</div>

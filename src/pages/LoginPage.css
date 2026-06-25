@@ -360,7 +360,7 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* Loading State */
+/* Loading State — kept for any remaining spinner usage */
 .login-loading {
   text-align: center;
   color: rgba(255, 255, 255, 0.7);
@@ -378,6 +378,30 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Auth-check skeleton — reserves the form's footprint so it doesn't render
+   late and shift the vertically-centered card (CLS). */
+.login-skel {
+  display: block;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    rgba(196, 181, 253, 0.06) 25%,
+    rgba(196, 181, 253, 0.14) 37%,
+    rgba(196, 181, 253, 0.06) 63%
+  );
+  background-size: 200% 100%;
+  animation: login-skel-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes login-skel-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-skel { animation: none; }
 }
 
 /* Mobile Responsive */
