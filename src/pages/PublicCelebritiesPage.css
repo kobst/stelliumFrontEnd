@@ -1,5 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Manrope:wght@400;500;600;700&display=swap');
 
+/* Metric-matched fallback for "Newsreader" (used by celebrity-card names and
+   other serif text on this page). The overrides force a local system serif to
+   occupy nearly identical vertical metrics + average glyph width as Newsreader,
+   so when font-display:swap replaces the fallback with Newsreader the line/box
+   height and line-wrapping do not change — eliminating the residual font-swap
+   CLS seen at the field P90 on /celebrities.
+
+   Values derived from Newsreader vs Times New Roman metrics (Capsize):
+     size-adjust  = (857/2000) / (832/2048)            = 105.48%
+     ascent-override  = (1470/2000) / size-adjust       = 69.68%
+     descent-override = (530/2000)  / size-adjust       = 25.12%
+     line-gap-override = 0 (Newsreader has no line gap)
+   Times New Roman is present on effectively all desktop/mobile platforms; if it
+   is ever missing the face has no usable src and the stack falls through. */
+@font-face {
+  font-family: "Newsreader Fallback";
+  src: local("Times New Roman");
+  size-adjust: 105.48%;
+  ascent-override: 69.68%;
+  descent-override: 25.12%;
+  line-gap-override: 0%;
+}
+
 /* ──────────────────────────────────────────────
    Celebrity Charts — Stellium "Celestial Etherealism"
    Self-contained: design tokens + page-specific styles.
@@ -29,7 +52,7 @@
   --cc-ghost:        rgba(202,190,255,0.10);
   --cc-ghost-strong: rgba(202,190,255,0.16);
 
-  --cc-serif: "Newsreader", "Cormorant Garamond", Georgia, serif;
+  --cc-serif: "Newsreader", "Newsreader Fallback", "Cormorant Garamond", Georgia, serif;
   --cc-sans:  "Manrope", system-ui, -apple-system, sans-serif;
   --cc-mono:  ui-monospace, "SF Mono", monospace;
 
@@ -669,6 +692,11 @@
 }
 .cc-celeb-card__body {
   padding: 14px 14px 16px;
+  /* Reserve the text-block height so a late web-font swap cannot change the
+     card's height. Matches the rendered footprint of a single-line name + meta;
+     longer (wrapped) names grow past this floor without clipping. Font sizes
+     here are constant across breakpoints, so one value holds everywhere. */
+  min-height: 80px;
 }
 .cc-celeb-card__name {
   font-family: var(--cc-serif);
@@ -678,11 +706,16 @@
   color: var(--cc-text);
   margin: 0 0 4px;
   line-height: 1.15;
+  /* Reserve one line (16px * 1.15) so the name box never collapses before the
+     serif font paints. */
+  min-height: 18.4px;
 }
 .cc-celeb-card__meta {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  /* Reserve the two meta lines (sign + date) to keep the body height stable. */
+  min-height: 27px;
 }
 .cc-celeb-card__sign {
   font-family: var(--cc-sans);

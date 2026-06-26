@@ -26,6 +26,25 @@
     <meta name="twitter:description" content="Birth chart analysis, relationship compatibility, daily horoscopes, and an AI astrologer that knows your chart." />
     <meta name="twitter:image" content="https://www.stellium.ai/og-image.png" />
 
+    <!-- Preconnect + preload the "Newsreader" web font used for celebrity-card
+         names on /celebrities. The font is loaded via @import (late-discovered)
+         and font-display:swap, so on slow connections cards paint in a fallback
+         and reflow when Newsreader swaps in. Preloading the woff2 in the HTML
+         head starts the fetch before the Google Fonts CSS resolves, so the font
+         is usually available by first paint and cannot shift the layout.
+         The latin Newsreader subset is a single variable (opsz/wght) woff2
+         shared by all normal weights. If Google bumps the font version this
+         exact URL will 404 (preload simply goes unused — no breakage; the
+         metric-matched fallback still prevents any swap-time CLS); refresh it
+         from the Google Fonts CSS if so. -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="https://fonts.gstatic.com/s/newsreader/v26/cY9AfjOCX1hbuyalUrK4397yjIJFJpc.woff2"
+    />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>Stellium — Personalized Astrology, Powered by AI</title>
   </head>
