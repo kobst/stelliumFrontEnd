@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { fetchCelebrities } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { ZODIAC_SIGNS } from '../Utilities/zodiac';
@@ -156,7 +156,7 @@ function SunPill({ sunSign }) {
   );
 }
 
-function FeatureCard({ celeb, tone, large, caption, onClick }) {
+function FeatureCard({ celeb, tone, large, caption }) {
   const sunSign = getPlanetSign(celeb, 'Sun');
   const moonSign = getPlanetSign(celeb, 'Moon');
   const ascSign = getAscendantSign(celeb);
@@ -164,10 +164,9 @@ function FeatureCard({ celeb, tone, large, caption, onClick }) {
   const dateStr = formatBirthDate(celeb);
 
   return (
-    <button
-      type="button"
+    <Link
       className={`cc-feat${large ? ' cc-feat--large' : ''}`}
-      onClick={onClick}
+      to={`/celebrities/${celeb._id}`}
     >
       <div className="cc-feat__ports">
         <div className={`cc-portrait ${tone}`}>
@@ -189,15 +188,15 @@ function FeatureCard({ celeb, tone, large, caption, onClick }) {
           </div>
         )}
       </div>
-    </button>
+    </Link>
   );
 }
 
-function GridCelebCard({ celeb, tone, onClick }) {
+function GridCelebCard({ celeb, tone }) {
   const sunSign = getPlanetSign(celeb, 'Sun');
   const dateStr = formatBirthDate(celeb);
   return (
-    <button type="button" className="cc-celeb-card" onClick={onClick}>
+    <Link className="cc-celeb-card" to={`/celebrities/${celeb._id}`}>
       <div className="cc-celeb-card__ports">
         <div className={`cc-portrait ${tone}`}>
           <PortraitInner celeb={celeb} />
@@ -211,7 +210,7 @@ function GridCelebCard({ celeb, tone, onClick }) {
           {dateStr && <span className="cc-celeb-card__date">{dateStr}</span>}
         </div>
       </div>
-    </button>
+    </Link>
   );
 }
 
@@ -398,18 +397,14 @@ function PublicCelebritiesPage() {
     return () => observer.disconnect();
   }, [alphaGroups]);
 
-  const handleCelebClick = (celeb) => {
-    navigate(`/celebrities/${celeb._id}`);
-  };
-
   const handleSignFilter = (sign) => {
     setSignFilter(sign);
   };
 
   const handleBackHome = () => navigate('/');
-  const handleSignIn = () => navigate('/login');
+  const handleSignIn = () => navigate('/login', { state: { mode: 'signin' } });
   const handleDashboard = () => navigate(`/dashboard/${stelliumUser._id}`);
-  const handleSignUp = () => navigate('/birthChartEntry');
+  const handleSignUp = () => navigate('/login');
 
   const handleJumpLetter = (letter) => {
     const node = alphaSectionRefs.current[letter];
@@ -560,7 +555,6 @@ function PublicCelebritiesPage() {
                   tone={PORTRAIT_TONES[i % PORTRAIT_TONES.length]}
                   large={i === 0}
                   caption={FEATURED_CAPTIONS[i % FEATURED_CAPTIONS.length]}
-                  onClick={() => handleCelebClick(celeb)}
                 />
               ))}
             </div>
@@ -622,7 +616,6 @@ function PublicCelebritiesPage() {
                     key={celeb._id}
                     celeb={celeb}
                     tone={PORTRAIT_TONES[(gi + ci) % PORTRAIT_TONES.length]}
-                    onClick={() => handleCelebClick(celeb)}
                   />
                 ))}
               </div>
@@ -650,8 +643,13 @@ function PublicCelebritiesPage() {
             </>
           ) : (
             <>
-              <h2>Sign up — see where your sky <span className="italic">meets theirs.</span></h2>
-              <p>Add yourself to compare synastry, composite, and aspect chemistry with anyone in the database.</p>
+              <h2>Sign up free — see where your sky <span className="italic">meets theirs.</span></h2>
+              <p>
+                Add yourself to compare synastry, composite, and aspect chemistry with anyone in
+                the database. Start free and get{' '}
+                <span style={{ color: 'var(--cc-gold)', fontStyle: 'italic' }}>25 credits</span> — no
+                credit card.
+              </p>
               <button type="button" className="cc-btn cc-btn--primary" onClick={handleSignUp}>
                 Create your free account →
               </button>
