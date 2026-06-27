@@ -336,6 +336,7 @@ function PublicCelebritiesPage() {
   const [signFilter, setSignFilter] = useState('all');
   const [activeLetter, setActiveLetter] = useState(null);
 
+  const searchInputRef = useRef(null);
   const alphaSectionRefs = useRef({});
   const setAlphaRef = useCallback((letter) => (el) => {
     if (el) alphaSectionRefs.current[letter] = el;
@@ -415,6 +416,26 @@ function PublicCelebritiesPage() {
     if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const focusSearchInput = useCallback(() => {
+    searchInputRef.current?.focus();
+  }, []);
+
+  const handleSearchPointerDown = useCallback(() => {
+    focusSearchInput();
+  }, [focusSearchInput]);
+
+  useEffect(() => {
+    const handleSearchShortcut = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        focusSearchInput();
+      }
+    };
+
+    document.addEventListener('keydown', handleSearchShortcut);
+    return () => document.removeEventListener('keydown', handleSearchShortcut);
+  }, [focusSearchInput]);
+
   const totalCharts = celebrities.length;
 
   return (
@@ -475,12 +496,14 @@ function PublicCelebritiesPage() {
           </p>
 
           <div className="cc-controls">
-            <label className="cc-search">
+            <label className="cc-search" htmlFor="celebrity-search" onPointerDown={handleSearchPointerDown}>
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="rgba(236,232,255,0.5)" strokeWidth="1.6">
                 <circle cx="8" cy="8" r="5.5" />
                 <line x1="12" y1="12" x2="16" y2="16" />
               </svg>
               <input
+                id="celebrity-search"
+                ref={searchInputRef}
                 placeholder="Search by name, sign, or placement…"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
