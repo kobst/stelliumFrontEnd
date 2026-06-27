@@ -120,3 +120,19 @@ export function trackPricingPageViewed(source = 'direct') {
 export function trackLandingCTAClicked(ctaName) {
   track('landing_cta_clicked', { cta: ctaName });
 }
+
+export function trackCelebritySearched({ query, resultCount, activeSignFilter }) {
+  const trimmedQuery = query.trim();
+
+  track('celebrity_searched', {
+    query: trimmedQuery,
+    query_normalized: trimmedQuery
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, ''),
+    query_length: trimmedQuery.length,
+    result_count: resultCount,
+    zero_results: resultCount === 0,
+    active_sign_filter: activeSignFilter,
+  });
+}

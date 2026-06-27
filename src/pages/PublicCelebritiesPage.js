@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { fetchCelebrities } from '../Utilities/api';
+import { trackCelebritySearched } from '../Utilities/analytics';
 import { useAuth } from '../context/AuthContext';
 import { ZODIAC_SIGNS } from '../Utilities/zodiac';
 import './PublicCelebritiesPage.css';
@@ -336,6 +337,9 @@ function PublicCelebritiesPage() {
   const [activeLetter, setActiveLetter] = useState(null);
 
   const searchInputRef = useRef(null);
+  const searchTimerRef = useRef(null);
+  const filteredRef = useRef([]);
+  const signFilterRef = useRef('all');
   const alphaSectionRefs = useRef({});
   const setAlphaRef = useCallback((letter) => (el) => {
     if (el) alphaSectionRefs.current[letter] = el;
@@ -375,6 +379,34 @@ function PublicCelebritiesPage() {
   const restCelebs = useMemo(() => filtered.slice(5), [filtered]);
   const alphaGroups = useMemo(() => buildAlphaGroups(restCelebs), [restCelebs]);
   const availableLetters = useMemo(() => new Set(alphaGroups.map(([letter]) => letter)), [alphaGroups]);
+
+  useEffect(() => {
+    filteredRef.current = filtered;
+    signFilterRef.current = signFilter;
+  }, [filtered, signFilter]);
+
+  useEffect(() => {
+    const query = searchTerm.trim();
+    clearTimeout(searchTimerRef.current);
+
+    if (query.length < 2) {
+      return undefined;
+    }
+
+    searchTimerRef.current = setTimeout(() => {
+      const activeSign = signFilterRef.current === 'all'
+        ? null
+        : SIGN_LABELS[signFilterRef.current] || signFilterRef.current;
+
+      trackCelebritySearched({
+        query,
+        resultCount: filteredRef.current.length,
+        activeSignFilter: activeSign,
+      });
+    }, 500);
+
+    return () => clearTimeout(searchTimerRef.current);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (!alphaGroups.length) {
