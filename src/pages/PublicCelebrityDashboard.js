@@ -19,7 +19,7 @@ import SignUpInterceptModal from '../UI/publicChart/SignUpInterceptModal';
 import '../UI/publicChart/PublicChartCta.css';
 import './PublicCelebrityDashboard.css';
 
-const SIGN_UP_ROUTE = '/birthChartEntry';
+const SIGN_UP_ROUTE = '/login';
 const SIGN_IN_ROUTE = '/login';
 
 function getPlanetSign(birthChart, name) {
@@ -95,7 +95,7 @@ function PublicCelebrityDashboard() {
   };
 
   const goToSignUp = () => navigate(SIGN_UP_ROUTE);
-  const goToSignIn = () => navigate(SIGN_IN_ROUTE, { state: { from: `/celebrities/${celebrityId}` } });
+  const goToSignIn = () => navigate(SIGN_IN_ROUTE, { state: { from: `/celebrities/${celebrityId}`, mode: 'signin' } });
   const openIntercept = () => setInterceptOpen(true);
 
   const handleAskStelliumClick = () => {

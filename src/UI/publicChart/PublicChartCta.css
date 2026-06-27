@@ -21,6 +21,8 @@
   --pcc-serif: "Newsreader", "Cormorant Garamond", Georgia, serif;
   --pcc-sans:  "Manrope", system-ui, -apple-system, sans-serif;
   --pcc-mono:  ui-monospace, "SF Mono", monospace;
+
+  text-align: left; /* override global `.App { text-align: center }` */
 }
 .pcc *,
 .pcc *::before,
