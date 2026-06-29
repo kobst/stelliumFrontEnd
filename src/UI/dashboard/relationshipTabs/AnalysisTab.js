@@ -475,9 +475,6 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
                             <span className="key-factor-item__stars" title={`Score: ${contributionScore.toFixed(1)}`}>{'★'.repeat(starRating)}</span>
                           )}
                         </div>
-                        {aspect.impact && (
-                          <span className="key-factor-item__impact">{aspect.impact}</span>
-                        )}
                       </div>
                       {isOpen && canRenderMini ? (
                         <div className="key-factor-item__mini">
