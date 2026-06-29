@@ -50,13 +50,10 @@ REACT_APP_PASSWORD=<optional development password>
 **Core Pages:**
 - `/signUp` - User registration with birth data collection
 - `/userDashboard` - Main analysis dashboard with tabbed interface
-- `/synastry` - Relationship compatibility analysis
-- `/compositeDashboard` - Composite chart analysis
-- `/prototype` - Development testing interface
+- `/dashboard/:userId/relationship/:compositeId` - Relationship analysis (synastry, composite, scores, 360)
 
 **Authentication:**
-- Simple password protection (`passwordProtection.js`) wraps all routes
-- Development mode uses `REACT_APP_PASSWORD` environment variable
+- `AuthContext` + `ProtectedRoute` guard authenticated routes
 - Session-based authentication with `sessionStorage`
 
 **API Integration:**
