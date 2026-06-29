@@ -1703,12 +1703,6 @@ body.ask-stellium-panel-open .ask-stellium-cta {
   flex-shrink: 0;
 }
 
-.key-factor-item__impact {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
-  font-style: italic;
-}
-
 .key-factor-item[role="button"]:hover {
   background: rgba(139, 92, 246, 0.16);
 }

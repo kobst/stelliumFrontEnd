@@ -958,13 +958,6 @@
   font-weight: 500;
   letter-spacing: 0.005em;
 }
-.rd-page .key-factor-item__impact {
-  font-family: var(--rd-serif);
-  font-style: italic;
-  font-size: 12.5px;
-  color: var(--rd-text-muted);
-  margin-top: 2px;
-}
 .rd-page .key-factor-item__stars {
   color: var(--rd-gold);
   font-size: 14px;
