@@ -26,8 +26,6 @@ import ChartDetailPage from './pages/ChartDetailPage';
 import RelationshipAnalysisPage from './pages/RelationshipAnalysisPage';
 import CreateRelationshipPage from './pages/CreateRelationshipPage';
 import UserSelectionPage from './pages/UserSelectionPage';
-import SynastryPage_v2 from './pages/synastryPage_v2';
-import CompositeDashboard_v4 from './pages/compositeDashboard_v4';
 import CelebsPage from './pages/CelebsPage';
 import GuestDashboard from './UI/prototype/GuestDashboard';
 
@@ -135,22 +133,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <UserSelectionPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/synastry"
-              element={
-                <ProtectedRoute>
-                  <SynastryPage_v2 />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/compositeDashboard"
-              element={
-                <ProtectedRoute>
-                  <CompositeDashboard_v4 />
                 </ProtectedRoute>
               }
             />

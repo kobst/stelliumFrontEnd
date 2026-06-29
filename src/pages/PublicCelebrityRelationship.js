@@ -7,6 +7,7 @@ import RelationshipDetailLayout from '../UI/dashboard/relationshipDetail/Relatio
 import AskStelliumCta from '../UI/dashboard/chartTabs/AskStelliumCta';
 import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
+import CompositeTab from '../UI/dashboard/relationshipTabs/CompositeTab';
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
 import AnalysisTab from '../UI/dashboard/relationshipTabs/AnalysisTab';
 import './PublicCelebrityRelationship.css';
@@ -150,6 +151,12 @@ function PublicCelebrityRelationship() {
       id: 'overview',
       content: renderWithAskStellium(
         <OverviewTab relationship={relationship} compositeId={compositeId} isCelebrity={true} />
+      )
+    },
+    {
+      id: 'composite',
+      content: renderWithAskStellium(
+        <CompositeTab relationship={relationship} compositeId={compositeId} isCelebrity={true} />
       )
     },
     {

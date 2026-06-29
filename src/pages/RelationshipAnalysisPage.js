@@ -8,6 +8,7 @@ import DashboardLayout from '../UI/layout/DashboardLayout';
 import RelationshipDetailLayout from '../UI/dashboard/relationshipDetail/RelationshipDetailLayout';
 import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
+import CompositeTab from '../UI/dashboard/relationshipTabs/CompositeTab';
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
 import AnalysisTab from '../UI/dashboard/relationshipTabs/AnalysisTab';
 import './RelationshipAnalysisPage.css';
@@ -221,6 +222,10 @@ function RelationshipAnalysisPage() {
     {
       id: 'overview',
       content: <OverviewTab relationship={relationship} compositeId={compositeId} canUseAskStellium={canUseAskStellium} />
+    },
+    {
+      id: 'composite',
+      content: <CompositeTab relationship={relationship} compositeId={compositeId} canUseAskStellium={canUseAskStellium} />
     },
     {
       id: 'charts',

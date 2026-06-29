@@ -15,6 +15,7 @@ const ORDERED_CLUSTERS = ['Harmony', 'Passion', 'Connection', 'Stability', 'Grow
 const SECTIONS = [
   { id: 'overview', label: 'Overview' },
   { id: 'scores', label: 'Scores' },
+  { id: 'composite', label: 'Composite' },
   { id: 'charts', label: 'Charts' },
   { id: 'analysis', label: '360 Analysis' }
 ];
