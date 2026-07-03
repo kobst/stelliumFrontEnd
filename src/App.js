@@ -28,6 +28,7 @@ import CreateRelationshipPage from './pages/CreateRelationshipPage';
 import UserSelectionPage from './pages/UserSelectionPage';
 import CelebsPage from './pages/CelebsPage';
 import GuestDashboard from './UI/prototype/GuestDashboard';
+import Chart3DPage from './pages/Chart3DPage';
 
 import './App.css';
 
@@ -50,6 +51,9 @@ function App() {
             <Route path="/celebrity-relationships/:compositeId" element={<PublicCelebrityRelationship />} />
             <Route path="/horoscopes/weekly" element={<PublicWeeklyHoroscopesPage />} />
             <Route path="/horoscopes/weekly/:sign" element={<PublicWeeklyHoroscopesPage />} />
+            {/* 3D chart scaffold (PR 1) — renders the logged-in chart when
+                store data exists, sample data otherwise */}
+            <Route path="/chart-3d" element={<Chart3DPage />} />
 
             {/* Onboarding routes - auth required, no profile required */}
             <Route
