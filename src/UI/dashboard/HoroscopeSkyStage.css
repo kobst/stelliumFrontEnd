@@ -276,3 +276,11 @@
   bottom: auto;
   top: calc(100% + 12px);
 }
+
+/* escape the global `* { max-width: 100% }` mobile fix, which capped
+   the popover at its button-sized parent and wrapped the chips */
+.horo-scrubber__lines-pop {
+  max-width: none;
+  width: max-content;
+  flex-wrap: nowrap;
+}

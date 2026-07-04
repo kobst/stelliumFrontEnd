@@ -50,6 +50,7 @@ function HoroscopeSkyStage({
   composing = false,
   onComposeIntent,
   onClearCustom,
+  onTimeSample,
 }) {
   // which transiting bodies draw aspect lines (markers always render)
   const [enabledBodies, setEnabledBodies] = useState(() => new Set(DEFAULT_ON));
@@ -84,6 +85,11 @@ function HoroscopeSkyStage({
 
   const { frames, range, playMs, playing, setPlaying, scrubTo } =
     useTransitFrames(birthChart?.planets, { fromMs, toMs, playSeconds });
+
+  // report the playhead so sky clicks resolve against *this moment*
+  React.useEffect(() => {
+    onTimeSample?.(playMs);
+  }, [playMs, onTimeSample]);
 
   // emphasis priority: hovered pill > Ask context selection > default
   const askTransiting = useMemo(() => {

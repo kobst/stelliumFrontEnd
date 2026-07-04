@@ -297,6 +297,8 @@ function HomePane({ userId, user, entitlements }) {
   const [customHoroscope, setCustomHoroscope] = useState(null);
   const [composing, setComposing] = useState(false);
   const handleComposeRef = React.useRef(null);
+  // the scrubber's current moment; sky clicks resolve against it
+  const playheadRef = React.useRef(Date.now());
 
   // clicking a body ON THE SKY adds the matching transit as Ask context:
   // a transiting planet pulls its tightest upcoming window; a natal
@@ -309,19 +311,34 @@ function HomePane({ userId, user, entitlements }) {
       sel.layer === 'transit' ? w.transitingPlanet === name : w.targetPlanet === name
     );
     if (!candidates.length) return;
+
+    // a click happens at the playhead's moment: transits active right
+    // then are what the user means; each becomes its own chip (no
+    // silent first-pick when several natal planets are aspected)
+    const at = playheadRef.current;
+    const activeNow = candidates.filter((w) => {
+      const start = Date.parse(w.start);
+      const end = Date.parse(w.end);
+      return Number.isFinite(start) && Number.isFinite(end) && start <= at && at <= end;
+    });
     const inPeriod = filterTransitsForPeriod(candidates, period);
-    const pick = (inPeriod.length ? inPeriod : candidates)[0];
-    const el = {
+    const picks = (activeNow.length ? activeNow : inPeriod.length ? inPeriod : candidates).slice(0, 3);
+
+    const els = picks.map((pick) => ({
       group: 'horoscope',
       type: 'transit',
       key: pick.id || `${pick.transitingPlanet}-${pick.aspect}-${pick.targetPlanet}-sky`,
       label: formatTransitTitle(pick),
       meta: pick.description || '',
       payload: formatTransitEvent(pick)
-    };
-    setAskElements((prev) =>
-      prev.some((x) => x.key === el.key) ? prev : [...prev, el]
-    );
+    }));
+    setAskElements((prev) => {
+      const merged = [...prev];
+      els.forEach((el) => {
+        if (!merged.some((x) => x.key === el.key)) merged.push(el);
+      });
+      return merged;
+    });
     setDockMode('ask');
   }, [transits, period]);
 
@@ -618,6 +635,7 @@ function HomePane({ userId, user, entitlements }) {
         panel={dockMode === 'ask' ? askPanel : readingPanel}
         period={period}
         onPeriodChange={setPeriod}
+        onTimeSample={(ms) => { playheadRef.current = ms; }}
         customActive={!!customHoroscope}
         composing={composing}
         onComposeIntent={handleComposeIntent}
