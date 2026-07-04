@@ -23,6 +23,8 @@ interface PlanetMarkerProps {
   sizeScale?: number
   /** animates the marker's scale to zero (e.g. synastry layer in helio mode) */
   hidden?: boolean
+  /** enlarges glyphs for small/top-down mounts */
+  glyphScale?: number
   /** active = hovered/selected; muted = another body is selected */
   state?: MarkerState
   onHover?: (placement: Placement | null) => void
@@ -35,6 +37,7 @@ export function PlanetMarker({
   radius,
   sizeScale = 1,
   hidden = false,
+  glyphScale = 1,
   state = 'normal',
   onHover,
   onSelect,
@@ -111,7 +114,7 @@ export function PlanetMarker({
         char={info.glyph}
         color={info.color}
         position={[0, info.size + 0.28, 0]}
-        scale={0.45}
+        scale={0.45 * glyphScale}
         opacity={state === 'muted' ? 0.45 : 1}
       />
       {placement.retrograde && (
@@ -119,7 +122,7 @@ export function PlanetMarker({
           char="℞"
           color="#ff8f8f"
           position={[0.24, info.size + 0.4, 0]}
-          scale={0.2}
+          scale={0.2 * glyphScale}
           opacity={state === 'muted' ? 0.4 : 0.9}
         />
       )}

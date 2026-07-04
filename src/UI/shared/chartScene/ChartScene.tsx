@@ -92,6 +92,9 @@ export function ChartScene({
   })
 
   // external emphasis (chapter being read); internal interaction wins
+  // small top-down mounts need bigger glyphs to stay legible
+  const glyphScale = topDown ? 1.6 : 1
+
   const highlightSet = useMemo(
     () => (highlightBodies?.length ? new Set(highlightBodies) : null),
     [highlightBodies],
@@ -137,7 +140,7 @@ export function ChartScene({
 
   return (
     <Canvas
-      camera={{ position: topDown ? [0, 14, 0.6] : [0, 7.5, 9], fov: 45 }}
+      camera={{ position: topDown ? [0, 12.2, 0.5] : [0, 7.5, 9], fov: 45 }}
       gl={{ antialias: true }}
       dpr={[1, 2]}
       onPointerMissed={() => select(null)}
@@ -148,7 +151,7 @@ export function ChartScene({
 
       <Stars radius={60} depth={40} count={3000} factor={3} saturation={0.4} fade speed={0.4} />
 
-      <ZodiacWheel dimmed={helioMode} />
+      <ZodiacWheel dimmed={helioMode} glyphScale={glyphScale} />
       <OrbitRings radii={orbitRadii} visible={helioMode} />
 
       {/* natal web hides entirely while the transit layer has the view */}
@@ -165,6 +168,7 @@ export function ChartScene({
           key={placement.body}
           placement={placement}
           radius={radius}
+          glyphScale={glyphScale}
           state={stateFor(placement.body, 'natal')}
           onHover={natalHandlers.onHover}
           onSelect={natalHandlers.onSelect}
@@ -202,6 +206,7 @@ export function ChartScene({
               key={`secondary-${p.body}`}
               placement={p}
               radius={SECONDARY_PLANET_RADIUS}
+              glyphScale={glyphScale}
               sizeScale={0.8}
               hidden={!synastryVisible}
               state={stateFor(p.body, 'secondary')}

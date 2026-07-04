@@ -39,6 +39,8 @@ function DegreeTicks() {
 }
 
 interface ZodiacWheelProps {
+  /** enlarges glyphs for small/top-down mounts */
+  glyphScale?: number
   /**
    * In heliocentric mode the band is still a valid ecliptic direction
    * dial, but it no longer shows sign *placements* — dim the glyphs to a
@@ -47,7 +49,7 @@ interface ZodiacWheelProps {
   dimmed?: boolean
 }
 
-export function ZodiacWheel({ dimmed = false }: ZodiacWheelProps) {
+export function ZodiacWheel({ dimmed = false, glyphScale = 1 }: ZodiacWheelProps) {
   const outerCircle = useMemo(() => circlePoints(WHEEL_OUTER_RADIUS), [])
   const innerCircle = useMemo(() => circlePoints(WHEEL_INNER_RADIUS), [])
 
@@ -98,14 +100,14 @@ export function ZodiacWheel({ dimmed = false }: ZodiacWheelProps) {
               char={sign.glyph}
               color={sign.color}
               position={[pos.x, pos.y, pos.z]}
-              scale={0.42}
+              scale={0.42 * glyphScale}
               opacity={dimmed ? 0 : 0.9}
             />
             <GlyphSprite
               char={sign.glyph}
               color={NEUTRAL_GLYPH_COLOR}
               position={[pos.x, pos.y, pos.z]}
-              scale={0.42}
+              scale={0.42 * glyphScale}
               opacity={dimmed ? 0.55 : 0}
             />
           </group>

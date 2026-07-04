@@ -65,6 +65,17 @@ function ChartReaderPage() {
   const [hoverNames, setHoverNames] = useState(null);
   const [planetsSelectionNames, setPlanetsSelectionNames] = useState(null);
 
+  // expand-in-place: the same scene instance, just given the viewport
+  const [skyExpanded, setSkyExpanded] = useState(false);
+  useEffect(() => {
+    if (!skyExpanded) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setSkyExpanded(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [skyExpanded]);
+
   // margin sky data
   const natal = useMemo(
     () => toChartScenePlacements(birthChart.planets),
@@ -240,8 +251,16 @@ function ChartReaderPage() {
 
         <aside className="chart-reader-sky">
           <div className="chart-reader-stick">
-            <div className="chart-reader-sky-card">
-              <div className="chart-reader-sky-head">The Sky · Natal</div>
+            <div className={`chart-reader-sky-card${skyExpanded ? ' chart-reader-sky-card--expanded' : ''}`}>
+              <div className="chart-reader-sky-head">
+                <span>The Sky · Natal</span>
+                <button
+                  className="chart-reader-sky-expand"
+                  onClick={() => setSkyExpanded((v) => !v)}
+                >
+                  {skyExpanded ? 'Collapse ⤡' : 'Expand ⤢'}
+                </button>
+              </div>
               <div className="chart-reader-sky-holder">
                 {natal.length > 0 && (
                   <ChartScene

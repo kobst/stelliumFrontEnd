@@ -14,9 +14,9 @@
 
 .chart-reader-grid {
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr) 380px;
+  grid-template-columns: 200px minmax(0, 1fr) clamp(380px, 34vw, 560px);
   gap: 28px;
-  max-width: 1400px;
+  max-width: 1640px;
   margin: 0 auto;
   align-items: stretch;
 }
@@ -113,14 +113,47 @@
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14), 0 30px 80px -40px rgba(0, 0, 0, 0.8);
 }
 .chart-reader-sky-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 12px 16px 0;
   font-size: 9.5px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(236, 232, 255, 0.38);
 }
+.chart-reader-sky-expand {
+  border: 0;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(236, 232, 255, 0.62);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.12);
+}
+.chart-reader-sky-expand:hover {
+  color: #ece8ff;
+}
 .chart-reader-sky-holder {
-  height: 360px;
+  height: clamp(420px, 58vh, 640px);
+}
+
+/* expand-in-place: same card, same scene instance, the whole viewport */
+.chart-reader-sky-card--expanded {
+  position: fixed;
+  inset: 20px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+}
+.chart-reader-sky-card--expanded .chart-reader-sky-holder {
+  flex: 1;
+  height: auto;
 }
 .chart-reader-sky-foot {
   padding: 10px 16px 14px;
