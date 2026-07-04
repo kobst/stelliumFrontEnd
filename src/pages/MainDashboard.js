@@ -303,35 +303,72 @@ function HomePane({ userId, user, entitlements }) {
   // clicking a body ON THE SKY adds the matching transit as Ask context:
   // a transiting planet pulls its tightest upcoming window; a natal
   // planet pulls the tightest transit hitting it
-  const handleSkyPick = useCallback((sel) => {
+  const handleSkyPick = useCallback((sel, activeAspects = []) => {
     if (!sel) return;
     const name = fromSceneBodyName(sel.body);
     if (!name) return;
-    const candidates = transits.filter((w) =>
-      sel.layer === 'transit' ? w.transitingPlanet === name : w.targetPlanet === name
-    );
-    if (!candidates.length) return;
-
-    // a click happens at the playhead's moment: transits active right
-    // then are what the user means; each becomes its own chip (no
-    // silent first-pick when several natal planets are aspected)
     const at = playheadRef.current;
-    const activeNow = candidates.filter((w) => {
-      const start = Date.parse(w.start);
-      const end = Date.parse(w.end);
-      return Number.isFinite(start) && Number.isFinite(end) && start <= at && at <= end;
-    });
-    const inPeriod = filterTransitsForPeriod(candidates, period);
-    const picks = (activeNow.length ? activeNow : inPeriod.length ? inPeriod : candidates).slice(0, 3);
+    let els = [];
 
-    const els = picks.map((pick) => ({
-      group: 'horoscope',
-      type: 'transit',
-      key: pick.id || `${pick.transitingPlanet}-${pick.aspect}-${pick.targetPlanet}-sky`,
-      label: formatTransitTitle(pick),
-      meta: pick.description || '',
-      payload: formatTransitEvent(pick)
-    }));
+    if (activeAspects.length) {
+      // the aspects actually drawn at the playhead — the sky is the
+      // source of truth; backend windows only enrich the payload
+      els = activeAspects.slice(0, 3).map((a) => {
+        const tName = fromSceneBodyName(a.bodyA) || a.bodyA;
+        const nName = fromSceneBodyName(a.bodyB) || a.bodyB;
+        const win = transits.find(
+          (w) =>
+            w.transitingPlanet === tName &&
+            (w.targetPlanet || w.natalPlanet) === nName &&
+            String(w.aspect || '').toLowerCase() === a.type
+        );
+        const payload = win
+          ? formatTransitEvent(win)
+          : {
+              type: a.type,
+              aspect: a.type,
+              transitingPlanet: tName,
+              targetPlanet: nName,
+              exact: new Date(at).toISOString(),
+              start: new Date(at).toISOString(),
+              end: new Date(at).toISOString(),
+              description: `Transiting ${tName} ${a.type} natal ${nName} (orb ${a.orb?.toFixed ? a.orb.toFixed(1) : a.orb}°)`
+            };
+        return {
+          group: 'horoscope',
+          type: 'transit',
+          key: `${tName}-${a.type}-${nName}-sky`,
+          label: `${tName} ${a.type} ${nName}`,
+          meta: payload.description || '',
+          payload
+        };
+      });
+    } else {
+      // nothing on screen for this body right now — fall back to its
+      // backend windows (active at playhead, then in-period, then any)
+      const candidates = transits.filter((w) =>
+        sel.layer === 'transit' ? w.transitingPlanet === name : (w.targetPlanet || w.natalPlanet) === name
+      );
+      if (!candidates.length) return;
+      const activeNow = candidates.filter((w) => {
+        const start = Date.parse(w.start);
+        const end = Date.parse(w.end);
+        return Number.isFinite(start) && Number.isFinite(end) && start <= at && at <= end;
+      });
+      const inPeriod = filterTransitsForPeriod(candidates, period);
+      els = (activeNow.length ? activeNow : inPeriod.length ? inPeriod : candidates)
+        .slice(0, 3)
+        .map((pick) => ({
+          group: 'horoscope',
+          type: 'transit',
+          key: pick.id || `${pick.transitingPlanet}-${pick.aspect}-${pick.targetPlanet}-sky`,
+          label: formatTransitTitle(pick),
+          meta: pick.description || '',
+          payload: formatTransitEvent(pick)
+        }));
+    }
+
+    if (!els.length) return;
     setAskElements((prev) => {
       const merged = [...prev];
       els.forEach((el) => {

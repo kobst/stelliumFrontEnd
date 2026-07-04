@@ -91,6 +91,32 @@ function HoroscopeSkyStage({
     onTimeSample?.(playMs);
   }, [playMs, onTimeSample]);
 
+  // a sky click means "this body, at this moment": resolve it against
+  // the SAME frame data that draws the lines, so the chips that arrive
+  // are exactly the aspects on screen
+  const handleSelectBody = React.useCallback(
+    (sel) => {
+      if (!sel) return;
+      let activeAspects = [];
+      if (frames?.length) {
+        let best = frames[0];
+        let bestD = Infinity;
+        for (const f of frames) {
+          const d = Math.abs(Date.parse(f.date) - playMs);
+          if (d < bestD) {
+            bestD = d;
+            best = f;
+          }
+        }
+        activeAspects = (best.aspects || []).filter((a) =>
+          sel.layer === 'transit' ? a.bodyA === sel.body : a.bodyB === sel.body
+        );
+      }
+      onSkyPick?.(sel, activeAspects);
+    },
+    [frames, playMs, onSkyPick]
+  );
+
   // emphasis priority: hovered pill > Ask context selection > default
   const askTransiting = useMemo(() => {
     const names = (askSelection || [])
@@ -238,7 +264,7 @@ function HoroscopeSkyStage({
           ? focusTransiting
           : [...enabledBodies],
         highlightBodies: focusTarget,
-        onSelectBody: onSkyPick,
+        onSelectBody: handleSelectBody,
       }}
       subnav={horizonBar}
       panel={panel}
