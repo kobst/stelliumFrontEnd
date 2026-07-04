@@ -22,7 +22,7 @@ import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import AddChartModal from '../UI/dashboard/AddChartModal';
 import DashboardNav from '../UI/dashboard/DashboardNav';
 import SettingsSection from '../UI/dashboard/SettingsSection';
-import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
+import AskStelliumPanel, { formatTransitEvent } from '../UI/askStellium/AskStelliumPanel';
 import InsufficientCreditsModal from '../UI/entitlements/InsufficientCreditsModal';
 import './MainDashboard.css';
 import './MainDashboardTheme.css';
@@ -283,9 +283,14 @@ function HomePane({ userId, user, entitlements }) {
   const [horoLoading, setHoroLoading] = useState({ daily: false, weekly: false, monthly: false });
   const [horoErrors, setHoroErrors] = useState({ daily: null, weekly: null, monthly: null });
   const [transits, setTransits] = useState([]);
-  const [askOpen, setAskOpen] = useState(false);
-  // hovered key-influence pill; isolates that transit in the sky ribbon
+  // the dock has two voices: the reading and the conversation
+  const [dockMode, setDockMode] = useState('reading');
+  // hovered key-influence pill; isolates that transit in the sky
   const [focusTransit, setFocusTransit] = useState(null);
+  // elements pushed from the stage into Ask (pill clicks), and the
+  // panel's live selection mirrored back to drive the sky
+  const [askElements, setAskElements] = useState([]);
+  const [askSelection, setAskSelection] = useState([]);
 
   // Daily is available to Free users for 1 credit and included with Plus.
   // The backend remains authoritative for affordability and charging.
@@ -411,6 +416,21 @@ function HomePane({ userId, user, entitlements }) {
                     key={i}
                     onMouseEnter={() => setFocusTransit(t)}
                     onMouseLeave={() => setFocusTransit(null)}
+                    onClick={() => {
+                      const el = {
+                        group: 'horoscope',
+                        type: 'transit',
+                        key: t.id || `${t.transitingPlanet}-${t.aspect}-${t.targetPlanet}-stage`,
+                        label: title,
+                        meta: t.description || '',
+                        payload: formatTransitEvent(t)
+                      };
+                      setAskElements((prev) =>
+                        prev.some((x) => x.key === el.key) ? prev : [...prev, el]
+                      );
+                      setDockMode('ask');
+                    }}
+                    title="Click to ask about this influence"
                   >
                     {title}
                     {dateLabel && (
@@ -427,9 +447,33 @@ function HomePane({ userId, user, entitlements }) {
         )}
       </div>
 
-      <button type="button" className="md-ask-btn md-ask-btn--stage" onClick={() => setAskOpen(prev => !prev)}>
-        <span className="md-ask-btn__sparkle">✦</span> Ask Stellium about this chart
+      <button type="button" className="md-ask-btn md-ask-btn--stage" onClick={() => setDockMode('ask')}>
+        <span className="md-ask-btn__sparkle">✦</span> Ask Stellium about this sky
       </button>
+    </div>
+  );
+
+  const askPanel = (
+    <div className="md-dock-ask">
+      <AskStelliumPanel
+        variant="dock"
+        isOpen
+        onClose={() => setDockMode('reading')}
+        contentType="horoscope"
+        contentId={userId}
+        birthChart={user?.birthChart}
+        transitWindows={transits}
+        horoscopePeriod={period}
+        externalElements={askElements}
+        onSelectionChange={setAskSelection}
+        contextLabel="About your horoscope"
+        placeholderText="Ask about this sky…"
+        suggestedQuestions={[
+          'What should I focus on today?',
+          'How will this transit affect me?',
+          'What energy should I watch for this week?'
+        ]}
+      />
     </div>
   );
 
@@ -438,24 +482,10 @@ function HomePane({ userId, user, entitlements }) {
       <HoroscopeSkyStage
         birthChart={user?.birthChart}
         focusTransit={focusTransit}
-        panel={readingPanel}
+        askSelection={askSelection}
+        panel={dockMode === 'ask' ? askPanel : readingPanel}
         period={period}
         onPeriodChange={setPeriod}
-      />
-
-      <AskStelliumPanel
-        isOpen={askOpen}
-        onClose={() => setAskOpen(false)}
-        contentType="horoscope"
-        contentId={userId}
-        birthChart={user?.birthChart}
-        contextLabel="About your horoscope"
-        placeholderText="Ask about your horoscope…"
-        suggestedQuestions={[
-          'What should I focus on today?',
-          'How will this transit affect me?',
-          'What energy should I watch for this week?'
-        ]}
       />
     </div>
   );

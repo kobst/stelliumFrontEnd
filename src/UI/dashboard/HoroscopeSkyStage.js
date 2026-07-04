@@ -34,7 +34,7 @@ const PERIOD_CHIPS = [
   { id: 'monthly', label: 'This Month' },
 ];
 
-function HoroscopeSkyStage({ birthChart, focusTransit, panel, period = 'weekly', onPeriodChange }) {
+function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, panel, period = 'weekly', onPeriodChange }) {
   const window_ = PERIOD_WINDOWS[period] || PERIOD_WINDOWS.weekly;
   // stable per period so the hook doesn't refetch every render
   const { fromMs, toMs, playSeconds } = useMemo(() => {
@@ -58,18 +58,32 @@ function HoroscopeSkyStage({ birthChart, focusTransit, panel, period = 'weekly',
   const { frames, range, playMs, playing, setPlaying, scrubTo } =
     useTransitFrames(birthChart?.planets, { fromMs, toMs, playSeconds });
 
+  // emphasis priority: hovered pill > Ask context selection > default
+  const askTransiting = useMemo(() => {
+    const names = (askSelection || [])
+      .map((el) => el.payload?.transitingPlanet)
+      .filter(Boolean);
+    return toSceneBodyNames(names);
+  }, [askSelection]);
+  const askTargets = useMemo(() => {
+    const names = (askSelection || [])
+      .map((el) => el.payload?.targetPlanet)
+      .filter(Boolean);
+    return toSceneBodyNames(names);
+  }, [askSelection]);
+
   const focusTransiting = focusTransit
     ? toSceneBodyNames([
         focusTransit.transitingPlanet ||
           focusTransit.transitingBody ||
           focusTransit.transit?.transitingPlanet,
       ])
-    : undefined;
+    : askTransiting;
   const focusTarget = focusTransit
     ? toSceneBodyNames([
         focusTransit.targetPlanet || focusTransit.target || focusTransit.natalPlanet,
       ])
-    : undefined;
+    : askTargets;
 
   if (!natal.length) return null;
 

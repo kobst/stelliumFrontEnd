@@ -175,7 +175,7 @@ const flattenPatterns = (patterns) => {
   });
 };
 
-const formatTransitEvent = (transit) => ({
+export const formatTransitEvent = (transit) => ({
   type: transit.type,
   transitingPlanet: transit.transitingPlanet,
   exact: transit.exact,
@@ -281,7 +281,10 @@ function AskStelliumPanel({
   relationshipScoredItems,
   transitWindows = [],
   horoscopePeriod,
-  disableHistory = false
+  disableHistory = false,
+  variant = 'overlay',
+  externalElements,
+  onSelectionChange
 }) {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -674,6 +677,26 @@ function AskStelliumPanel({
     setSelectionError(null);
   }, []);
 
+  // Stage bridge: elements pushed from outside (sky clicks, influence
+  // pills) merge into the selection; duplicates and overflow ignored.
+  useEffect(() => {
+    if (!externalElements?.length) return;
+    setSelectedElements(prev => {
+      const merged = [...prev];
+      externalElements.forEach((el) => {
+        if (el?.key && !merged.some(x => x.key === el.key) && merged.length < MAX_SELECTIONS) {
+          merged.push(el);
+        }
+      });
+      return merged.length === prev.length ? prev : merged;
+    });
+  }, [externalElements]);
+
+  // let the host mirror the selection back onto the sky
+  useEffect(() => {
+    onSelectionChange?.(selectedElements);
+  }, [selectedElements, onSelectionChange]);
+
   const handleSendMessage = useCallback(async () => {
     const trimmedMessage = inputMessage.trim();
     const hasSelection = selectedElements.length > 0;
@@ -870,11 +893,10 @@ function AskStelliumPanel({
     ? `Ask anything about ${primarySubjectName}'s chart`
     : (placeholderText || 'Ask questions and get personalized insights.');
 
-  return createPortal((
-    <div className="ask-panel-backdrop" onClick={onClose}>
+  const panelBody = (
       <div
         ref={panelRef}
-        className={`ask-panel ${isOpen ? 'ask-panel--open' : ''}`}
+        className={`ask-panel ${isOpen ? 'ask-panel--open' : ''}${variant === 'dock' ? ' ask-panel--dock' : ''}`}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -1184,6 +1206,15 @@ function AskStelliumPanel({
           </button>
         </div>
       </div>
+  );
+
+  if (variant === 'dock') {
+    return isOpen ? panelBody : null;
+  }
+
+  return createPortal((
+    <div className="ask-panel-backdrop" onClick={onClose}>
+      {panelBody}
     </div>
   ), document.body);
 }

@@ -1029,3 +1029,20 @@
     max-height: 200px;
   }
 }
+
+/* ── dock variant: lives inside the SkyStage reading panel instead of
+   its own portal overlay ── */
+.ask-panel--dock {
+  position: static;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  transform: none;
+}

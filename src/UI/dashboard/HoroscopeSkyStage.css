@@ -85,3 +85,12 @@
   width: 100%;
   justify-content: center;
 }
+
+/* Ask conversation filling the dock */
+.md-dock-ask {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: -26px -28px; /* reclaim the SkyStage panel padding */
+  height: calc(100% + 52px);
+}
