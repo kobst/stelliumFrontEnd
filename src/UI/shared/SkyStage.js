@@ -46,7 +46,17 @@ function SkyStage({ sceneProps, panel, panelHeader, footer, overlay }) {
       )}
 
       {overlay && <div className="sky-stage__overlay">{overlay}</div>}
-      {footer && <div className="sky-stage__footer">{footer}</div>}
+      {footer && (
+        <div
+          className="sky-stage__footer"
+          style={{
+            // center the timeline in the uncovered sky, clear of the panel
+            transform: `translateX(calc(-50% - ${coveredRightPx / 2}px))`,
+          }}
+        >
+          {footer}
+        </div>
+      )}
 
       {panel && (
         <>
