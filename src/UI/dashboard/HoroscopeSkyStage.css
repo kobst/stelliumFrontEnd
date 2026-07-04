@@ -145,3 +145,35 @@
   background: rgba(255, 255, 255, 0.06);
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.2);
 }
+
+/* dock voice switcher — always visible in both modes */
+.md-dock-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.1);
+}
+.md-dock-tab {
+  border: 0;
+  cursor: pointer;
+  padding: 7px 16px;
+  border-radius: 9px;
+  background: transparent;
+  color: rgba(236, 232, 255, 0.55);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.md-dock-tab:hover {
+  color: #ece8ff;
+}
+.md-dock-tab.active {
+  color: #ece8ff;
+  background: linear-gradient(180deg, rgba(202, 190, 255, 0.16), rgba(202, 190, 255, 0.06));
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.3);
+}
+.md-dock-ask__tabs {
+  padding: 26px 28px 0;
+}

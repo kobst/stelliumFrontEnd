@@ -435,8 +435,30 @@ function HomePane({ userId, user, entitlements }) {
   const customParagraphs = (customHoroscope?.horoscope?.interpretation || customHoroscope?.horoscope?.text || '')
     .split(/\n\s*\n|\n/).map((t) => t.trim()).filter(Boolean);
 
+  const dockTabs = (
+    <div className="md-dock-tabs" role="tablist">
+      <button
+        role="tab"
+        aria-selected={dockMode === 'reading'}
+        className={`md-dock-tab${dockMode === 'reading' ? ' active' : ''}`}
+        onClick={() => setDockMode('reading')}
+      >
+        Reading
+      </button>
+      <button
+        role="tab"
+        aria-selected={dockMode === 'ask'}
+        className={`md-dock-tab${dockMode === 'ask' ? ' active' : ''}`}
+        onClick={() => setDockMode('ask')}
+      >
+        ✦ Ask
+      </button>
+    </div>
+  );
+
   const readingPanel = customHoroscope ? (
     <div className="md-stage-panel">
+      {dockTabs}
       <div className="md-horo-head md-horo-head--stage">
         <div>
           <div className="md-custom-eyebrow">✦ Custom reading</div>
@@ -473,6 +495,7 @@ function HomePane({ userId, user, entitlements }) {
     </div>
   ) : (
     <div className="md-stage-panel">
+      {dockTabs}
       <div className="md-horo-head md-horo-head--stage">
         <div>
           <h1 className="md-horo-title">Horoscopes by Stellium</h1>
@@ -551,6 +574,7 @@ function HomePane({ userId, user, entitlements }) {
 
   const askPanel = (
     <div className="md-dock-ask">
+      <div className="md-dock-ask__tabs">{dockTabs}</div>
       {askSelection.length > 0 && (
         <button
           type="button"
