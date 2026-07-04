@@ -177,3 +177,35 @@
 .md-dock-ask__tabs {
   padding: 26px 28px 0;
 }
+
+/* Lines filter: one button on the timeline, chips in a popover */
+.horo-scrubber__lines {
+  position: relative;
+}
+.horo-scrubber__lines-btn {
+  border: 0;
+  cursor: pointer;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(236, 232, 255, 0.55);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.horo-scrubber__lines-btn:hover,
+.horo-scrubber__lines-btn.open {
+  color: #ece8ff;
+}
+.horo-scrubber__lines-pop {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  right: 0;
+  display: flex;
+  gap: 3px;
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(14, 14, 22, 0.92);
+  backdrop-filter: blur(14px);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14), 0 20px 60px -30px rgba(0, 0, 0, 0.8);
+}

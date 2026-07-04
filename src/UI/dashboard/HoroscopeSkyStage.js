@@ -37,9 +37,10 @@ const PERIOD_CHIPS = [
   { id: 'monthly', label: 'This Month' },
 ];
 
-function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, panel, period = 'weekly', onPeriodChange }) {
+function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, panel, panelHeader, period = 'weekly', onPeriodChange }) {
   // which transiting bodies draw aspect lines (markers always render)
   const [enabledBodies, setEnabledBodies] = useState(() => new Set(DEFAULT_ON));
+  const [linesOpen, setLinesOpen] = useState(false);
   const toggleBody = (body) =>
     setEnabledBodies((prev) => {
       const next = new Set(prev);
@@ -149,22 +150,32 @@ function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, 
             })}
           </span>
           <div className="horo-scrubber__sep" />
-          <div className="horo-scrubber__bodies">
-            {ALL_TRANSIT_BODIES.map((body) => {
-              const info = BODIES[body];
-              const on = enabledBodies.has(body);
-              return (
-                <button
-                  key={body}
-                  className={`horo-scrubber__body${on ? ' on' : ''}`}
-                  style={on ? { color: info?.color } : undefined}
-                  onClick={() => toggleBody(body)}
-                  title={`${body} aspect lines ${on ? 'on' : 'off'}`}
-                >
-                  {(info?.glyph || body) + '\uFE0E'}
-                </button>
-              );
-            })}
+          <div className="horo-scrubber__lines">
+            <button
+              className={`horo-scrubber__lines-btn${linesOpen ? ' open' : ''}`}
+              onClick={() => setLinesOpen((v) => !v)}
+            >
+              Lines ({enabledBodies.size}) ▾
+            </button>
+            {linesOpen && (
+              <div className="horo-scrubber__lines-pop">
+                {ALL_TRANSIT_BODIES.map((body) => {
+                  const info = BODIES[body];
+                  const on = enabledBodies.has(body);
+                  return (
+                    <button
+                      key={body}
+                      className={`horo-scrubber__body${on ? ' on' : ''}`}
+                      style={on ? { color: info?.color } : undefined}
+                      onClick={() => toggleBody(body)}
+                      title={`${body} aspect lines ${on ? 'on' : 'off'}`}
+                    >
+                      {(info?.glyph || body) + '\uFE0E'}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </>
       )}
@@ -187,6 +198,7 @@ function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, 
         onSelectBody: onSkyPick,
       }}
       panel={panel}
+      panelHeader={panelHeader}
       footer={scrubber}
     />
   );

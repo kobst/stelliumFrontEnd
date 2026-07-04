@@ -458,7 +458,6 @@ function HomePane({ userId, user, entitlements }) {
 
   const readingPanel = customHoroscope ? (
     <div className="md-stage-panel">
-      {dockTabs}
       <div className="md-horo-head md-horo-head--stage">
         <div>
           <div className="md-custom-eyebrow">✦ Custom reading</div>
@@ -495,7 +494,6 @@ function HomePane({ userId, user, entitlements }) {
     </div>
   ) : (
     <div className="md-stage-panel">
-      {dockTabs}
       <div className="md-horo-head md-horo-head--stage">
         <div>
           <h1 className="md-horo-title">Horoscopes by Stellium</h1>
@@ -574,7 +572,6 @@ function HomePane({ userId, user, entitlements }) {
 
   const askPanel = (
     <div className="md-dock-ask">
-      <div className="md-dock-ask__tabs">{dockTabs}</div>
       {askSelection.length > 0 && (
         <button
           type="button"
@@ -614,6 +611,7 @@ function HomePane({ userId, user, entitlements }) {
         focusTransit={focusTransit}
         askSelection={askSelection}
         onSkyPick={handleSkyPick}
+        panelHeader={dockTabs}
         panel={dockMode === 'ask' ? askPanel : readingPanel}
         period={period}
         onPeriodChange={setPeriod}

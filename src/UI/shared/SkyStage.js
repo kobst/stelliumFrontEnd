@@ -14,7 +14,7 @@ import './SkyStage.css';
  *     overlay={<SelectionDetail ... />}  // bottom-left overlay
  *   />
  */
-function SkyStage({ sceneProps, panel, footer, overlay }) {
+function SkyStage({ sceneProps, panel, panelHeader, footer, overlay }) {
   const [panelOpen, setPanelOpen] = useState(true);
   const [interacted, setInteracted] = useState(false);
 
@@ -50,15 +50,27 @@ function SkyStage({ sceneProps, panel, footer, overlay }) {
 
       {panel && (
         <>
-          <button
-            className={`sky-stage__panel-toggle${panelOpen ? '' : ' sky-stage__panel-toggle--closed'}`}
-            onClick={() => setPanelOpen((v) => !v)}
-          >
-            {panelOpen ? 'Hide reading ⤍' : '⤌ Reading'}
-          </button>
+          {!panelOpen && (
+            <button
+              className="sky-stage__panel-toggle sky-stage__panel-toggle--closed"
+              onClick={() => setPanelOpen(true)}
+            >
+              ⤌ Reading
+            </button>
+          )}
           <aside
             className={`sky-stage__panel${panelOpen ? '' : ' sky-stage__panel--hidden'}`}
           >
+            <div className="sky-stage__panel-chrome">
+              <div>{panelHeader}</div>
+              <button
+                className="sky-stage__panel-collapse"
+                onClick={() => setPanelOpen(false)}
+                title="Hide panel"
+              >
+                ⤍
+              </button>
+            </div>
             {panel}
           </aside>
         </>
