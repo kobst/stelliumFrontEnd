@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 import { formatLocalDateParam } from '../Utilities/horoscopeDates';
-import HoroscopeSkyRibbon from '../UI/dashboard/HoroscopeSkyRibbon';
+import HoroscopeSkyStage from '../UI/dashboard/HoroscopeSkyStage';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import AddChartModal from '../UI/dashboard/AddChartModal';
@@ -370,85 +370,89 @@ function HomePane({ userId, user, entitlements }) {
 
   const dailyLocked = period === 'daily' && !canAccessDaily;
 
-  return (
-    <div className="md-home-layout">
-      <article className="md-horo-card">
-        <div className="md-horo-head">
-          <div>
-            <h1 className="md-horo-title">Horoscopes by Stellium</h1>
-            <div className="md-horo-date">{todayLabel}</div>
-          </div>
-          <button type="button" className="md-ask-btn" onClick={() => setAskOpen(prev => !prev)}>
-            <span className="md-ask-btn__sparkle">✦</span> Ask Stellium about this chart
+  const readingPanel = (
+    <div className="md-stage-panel">
+      <div className="md-horo-head md-horo-head--stage">
+        <div>
+          <h1 className="md-horo-title">Horoscopes by Stellium</h1>
+          <div className="md-horo-date">{todayLabel}</div>
+        </div>
+      </div>
+
+      <div className="md-horo-period" role="tablist">
+        {PERIOD_OPTIONS.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            role="tab"
+            aria-selected={period === p.id}
+            className={`md-period-tab${period === p.id ? ' active' : ''}`}
+            onClick={() => setPeriod(p.id)}
+          >
+            {p.label}
           </button>
-        </div>
+        ))}
+      </div>
 
-        <div className="md-horo-period" role="tablist">
-          {PERIOD_OPTIONS.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              role="tab"
-              aria-selected={period === p.id}
-              className={`md-period-tab${period === p.id ? ' active' : ''}`}
-              onClick={() => setPeriod(p.id)}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-
-        <HoroscopeSkyRibbon
-          birthChart={user?.birthChart}
-          focusTransit={focusTransit}
-        />
-
-        <div className="md-horo-body">
-          {dailyLocked && (
-            <div className="md-horo-empty">
-              Daily horoscopes cost 1 credit on Free and are included with Plus.
+      <div className="md-horo-body">
+        {dailyLocked && (
+          <div className="md-horo-empty">
+            Daily horoscopes cost 1 credit on Free and are included with Plus.
+          </div>
+        )}
+        {!dailyLocked && currentLoading && (
+          <div className="md-horo-empty">Reading the sky for {period === 'daily' ? 'today' : `this ${period.replace('ly', '')}`}…</div>
+        )}
+        {!dailyLocked && !currentLoading && currentError && (
+          <div className="md-horo-error">{currentError}</div>
+        )}
+        {!dailyLocked && !currentLoading && !currentError && currentHoroscope && paragraphs.map((p, i) => (
+          <p key={i}>{p}</p>
+        ))}
+        {!dailyLocked && !currentLoading && !currentError && currentHoroscope && filteredTransits.length > 0 && (
+          <>
+            <div className="md-horo-divider" />
+            <div className="md-key-influences-label">Key Planetary Influences</div>
+            <div className="md-influences-grid">
+              {filteredTransits.map((t, i) => {
+                const title = formatTransitTitle(t);
+                const dateLabel = formatTransitDate(t);
+                if (!title) return null;
+                return (
+                  <span
+                    className="md-influence-pill"
+                    key={i}
+                    onMouseEnter={() => setFocusTransit(t)}
+                    onMouseLeave={() => setFocusTransit(null)}
+                  >
+                    {title}
+                    {dateLabel && (
+                      <>
+                        <span className="md-influence-pill__sep">·</span>
+                        <span className="md-influence-pill__date">{dateLabel}</span>
+                      </>
+                    )}
+                  </span>
+                );
+              })}
             </div>
-          )}
-          {!dailyLocked && currentLoading && (
-            <div className="md-horo-empty">Reading the sky for {period === 'daily' ? 'today' : `this ${period.replace('ly', '')}`}…</div>
-          )}
-          {!dailyLocked && !currentLoading && currentError && (
-            <div className="md-horo-error">{currentError}</div>
-          )}
-          {!dailyLocked && !currentLoading && !currentError && currentHoroscope && paragraphs.map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
-          {!dailyLocked && !currentLoading && !currentError && currentHoroscope && filteredTransits.length > 0 && (
-            <>
-              <div className="md-horo-divider" />
-              <div className="md-key-influences-label">Key Planetary Influences</div>
-              <div className="md-influences-grid">
-                {filteredTransits.map((t, i) => {
-                  const title = formatTransitTitle(t);
-                  const dateLabel = formatTransitDate(t);
-                  if (!title) return null;
-                  return (
-                    <span
-                      className="md-influence-pill"
-                      key={i}
-                      onMouseEnter={() => setFocusTransit(t)}
-                      onMouseLeave={() => setFocusTransit(null)}
-                    >
-                      {title}
-                      {dateLabel && (
-                        <>
-                          <span className="md-influence-pill__sep">·</span>
-                          <span className="md-influence-pill__date">{dateLabel}</span>
-                        </>
-                      )}
-                    </span>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </div>
-      </article>
+          </>
+        )}
+      </div>
+
+      <button type="button" className="md-ask-btn md-ask-btn--stage" onClick={() => setAskOpen(prev => !prev)}>
+        <span className="md-ask-btn__sparkle">✦</span> Ask Stellium about this chart
+      </button>
+    </div>
+  );
+
+  return (
+    <div className="md-home-layout md-home-layout--stage">
+      <HoroscopeSkyStage
+        birthChart={user?.birthChart}
+        focusTransit={focusTransit}
+        panel={readingPanel}
+      />
 
       <AskStelliumPanel
         isOpen={askOpen}

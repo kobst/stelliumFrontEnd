@@ -1,0 +1,92 @@
+.sky-stage {
+  position: relative;
+  height: calc(100dvh - 76px); /* below the sticky dashboard nav */
+  overflow: hidden;
+  background: #030308;
+}
+
+.sky-stage__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── docked reading panel ── */
+.sky-stage__panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  bottom: 20px;
+  width: min(500px, 44vw);
+  overflow-y: auto;
+  padding: 26px 28px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(18, 18, 28, 0.88), rgba(12, 12, 20, 0.92));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.12), 0 30px 80px -40px rgba(0, 0, 0, 0.9);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.sky-stage__panel--hidden {
+  transform: translateX(calc(100% + 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+.sky-stage__panel::-webkit-scrollbar {
+  width: 8px;
+}
+.sky-stage__panel::-webkit-scrollbar-thumb {
+  background: rgba(202, 190, 255, 0.14);
+  border-radius: 8px;
+}
+
+.sky-stage__panel-toggle {
+  position: absolute;
+  top: 28px;
+  right: calc(min(500px, 44vw) + 32px);
+  z-index: 5;
+  border: 0;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(16, 16, 26, 0.7);
+  backdrop-filter: blur(10px);
+  color: rgba(236, 232, 255, 0.62);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14);
+  transition: right 0.3s ease, color 0.15s ease;
+}
+.sky-stage__panel-toggle:hover {
+  color: #ece8ff;
+}
+.sky-stage__panel-toggle--closed {
+  right: 20px;
+}
+
+/* ── bottom-center footer (scrubber) ── */
+.sky-stage__footer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+}
+
+/* ── bottom-left overlay (selection detail) ── */
+.sky-stage__overlay {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  z-index: 4;
+  width: 320px;
+}
+
+@media (max-width: 900px) {
+  .sky-stage__panel {
+    width: calc(100vw - 40px);
+  }
+  .sky-stage__panel-toggle {
+    right: auto;
+    left: 20px;
+  }
+}
