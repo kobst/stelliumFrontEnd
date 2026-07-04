@@ -29,6 +29,7 @@ import UserSelectionPage from './pages/UserSelectionPage';
 import CelebsPage from './pages/CelebsPage';
 import GuestDashboard from './UI/prototype/GuestDashboard';
 import Chart3DPage from './pages/Chart3DPage';
+import ChartReaderPage from './pages/ChartReaderPage';
 
 import './App.css';
 
@@ -113,6 +114,16 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ChartDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* 3D reader layout (PR 2) — same data, chaptered read with
+                the chart as a scroll-following margin */}
+            <Route
+              path="/dashboard/:userId/chart/:chartId/reader"
+              element={
+                <ProtectedRoute>
+                  <ChartReaderPage />
                 </ProtectedRoute>
               }
             />

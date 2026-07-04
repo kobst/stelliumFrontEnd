@@ -57,6 +57,14 @@ export interface BodySelection {
 export interface ChartSceneProps {
   /** view geometry; defaults to "wheel" */
   mode?: ChartMode
+  /**
+   * externally driven emphasis (e.g. the chapter being read): named
+   * natal bodies glow, everything else recedes. Internal hover/selection
+   * takes precedence while active.
+   */
+  highlightBodies?: string[]
+  /** frame the wheel straight-down (margin/preview mounts) */
+  topDown?: boolean
   /** pointer enters/leaves a planet marker (null on leave) */
   onHoverBody?: (hover: BodySelection | null) => void
   /** planet selected/deselected (click marker / click empty space) */

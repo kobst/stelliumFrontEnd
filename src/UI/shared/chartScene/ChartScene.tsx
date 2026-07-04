@@ -40,6 +40,8 @@ export function ChartScene({
   transitAspectBodies,
   heliocentric,
   mode = 'wheel',
+  highlightBodies,
+  topDown = false,
   onHoverBody,
   onSelectBody,
 }: ChartSceneProps) {
@@ -89,11 +91,20 @@ export function ChartScene({
       select({ body: p.body, layer, longitude: p.longitude, retrograde: p.retrograde }),
   })
 
+  // external emphasis (chapter being read); internal interaction wins
+  const highlightSet = useMemo(
+    () => (highlightBodies?.length ? new Set(highlightBodies) : null),
+    [highlightBodies],
+  )
+
   const stateFor = (body: string, layer: SelectionLayer): MarkerState => {
     const matches = (s: BodySelection | null) =>
       !!s && s.body === body && s.layer === layer
     if (matches(selection) || matches(hovered)) return 'active'
     if (selection) return 'muted'
+    if (highlightSet && layer === 'natal') {
+      return highlightSet.has(body) ? 'active' : 'muted'
+    }
     return 'normal'
   }
 
@@ -126,7 +137,7 @@ export function ChartScene({
 
   return (
     <Canvas
-      camera={{ position: [0, 7.5, 9], fov: 45 }}
+      camera={{ position: topDown ? [0, 14, 0.6] : [0, 7.5, 9], fov: 45 }}
       gl={{ antialias: true }}
       dpr={[1, 2]}
       onPointerMissed={() => select(null)}
@@ -146,6 +157,7 @@ export function ChartScene({
         natal={{ placements: planets, radius: NATAL_PLANET_RADIUS }}
         visible={!helioMode && !transitFrames?.length}
         focus={selection}
+        highlightBodies={highlightBodies}
       />
 
       {markers.map(({ placement, radius }) => (

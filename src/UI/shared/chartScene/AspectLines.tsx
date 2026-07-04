@@ -34,6 +34,10 @@ interface AspectLineProps {
   focusMode: boolean
   /** this line touches the selected body */
   involved: boolean
+  /** external highlight set exists (chapter emphasis) */
+  highlightMode: boolean
+  /** both endpoints are in the external highlight set */
+  highlighted: boolean
 }
 
 function AspectLine({
@@ -44,6 +48,8 @@ function AspectLine({
   emphasized,
   focusMode,
   involved,
+  highlightMode,
+  highlighted,
 }: AspectLineProps) {
   const lineRef = useRef<Line2>(null)
 
@@ -55,7 +61,11 @@ function AspectLine({
       ? involved
         ? Math.min(0.95, baseOpacity + 0.3)
         : 0.04
-      : baseOpacity
+      : highlightMode
+        ? highlighted
+          ? Math.min(0.95, baseOpacity + 0.3)
+          : 0.05
+        : baseOpacity
 
   const points = useMemo(
     () => [
@@ -101,6 +111,8 @@ interface AspectLinesProps {
   emphasized?: boolean
   /** selected body; lines touching it boost, the rest fade back */
   focus?: BodySelection | null
+  /** external emphasis set; lines between highlighted bodies boost */
+  highlightBodies?: string[]
 }
 
 /**
@@ -117,7 +129,13 @@ export function AspectLines({
   visible,
   emphasized = false,
   focus = null,
+  highlightBodies,
 }: AspectLinesProps) {
+  const highlightSet = useMemo(
+    () => (highlightBodies?.length ? new Set(highlightBodies) : null),
+    [highlightBodies],
+  )
+
   const byLayer = useMemo(() => {
     const index = (layer?: LayerDef) =>
       new Map((layer?.placements ?? []).map((p) => [p.body, p]))
@@ -145,6 +163,10 @@ export function AspectLines({
           !!focus &&
           ((focus.layer === layerA && focus.body === aspect.bodyA) ||
             (focus.layer === layerB && focus.body === aspect.bodyB))
+        const highlighted =
+          !!highlightSet &&
+          highlightSet.has(aspect.bodyA) &&
+          highlightSet.has(aspect.bodyB)
         const key = `${layerA}:${aspect.bodyA}-${aspect.type}-${layerB}:${aspect.bodyB}`
         return (
           <AspectLine
@@ -156,6 +178,8 @@ export function AspectLines({
             emphasized={emphasized}
             focusMode={!!focus}
             involved={involved}
+            highlightMode={!!highlightSet}
+            highlighted={highlighted}
           />
         )
       })}
