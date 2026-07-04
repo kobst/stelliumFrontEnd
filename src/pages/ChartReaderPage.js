@@ -65,6 +65,12 @@ function ChartReaderPage() {
   const [hoverNames, setHoverNames] = useState(null);
   const [planetsSelectionNames, setPlanetsSelectionNames] = useState(null);
 
+  // hover/selection reported by the scene; tooltip pins to the cursor
+  // position captured at hover time
+  const mousePos = useRef({ x: 0, y: 0 });
+  const [hoverInfo, setHoverInfo] = useState(null);
+  const [selectedBody, setSelectedBody] = useState(null);
+
   // expand-in-place: the same scene instance, just given the viewport
   const [skyExpanded, setSkyExpanded] = useState(false);
   useEffect(() => {
@@ -89,6 +95,36 @@ function ChartReaderPage() {
     () => toChartSceneAspects(birthChart.aspects),
     [birthChart.aspects]
   );
+
+  // scene body name ("sun") → backend planet record (sign/house/degree)
+  const sceneBodyLookup = useMemo(() => {
+    const map = {};
+    (birthChart.planets || []).forEach((p) => {
+      const scene = toSceneBodyNames([p.name])?.[0];
+      if (scene) map[scene] = p;
+    });
+    return map;
+  }, [birthChart.planets]);
+
+  const selectedInfo = useMemo(() => {
+    if (!selectedBody) return null;
+    const planet = sceneBodyLookup[selectedBody.body];
+    if (!planet) return null;
+    const aspects = (birthChart.aspects || [])
+      .filter(
+        (a) =>
+          a.aspectedPlanet === planet.name || a.aspectingPlanet === planet.name
+      )
+      .map((a) => ({
+        other:
+          a.aspectedPlanet === planet.name ? a.aspectingPlanet : a.aspectedPlanet,
+        type: a.aspectType,
+        orb: typeof a.orb === 'number' ? a.orb : Number(a.orb),
+      }))
+      .sort((x, y) => (x.orb ?? 99) - (y.orb ?? 99))
+      .slice(0, 4);
+    return { planet, aspects };
+  }, [selectedBody, sceneBodyLookup, birthChart.aspects]);
 
   const highlightBodies = useMemo(() => {
     if (hoverNames) return toSceneBodyNames(hoverNames);
@@ -204,8 +240,35 @@ function ChartReaderPage() {
     ),
   };
 
+  const hoveredPlanet = hoverInfo ? sceneBodyLookup[hoverInfo.body] : null;
+
   return (
-    <div className={`chart-reader-page${skyExpanded ? ' chart-reader-page--sky-open' : ''}`}>
+    <div
+      className={`chart-reader-page${skyExpanded ? ' chart-reader-page--sky-open' : ''}`}
+      onMouseMove={(e) => {
+        mousePos.current = { x: e.clientX, y: e.clientY };
+      }}
+    >
+      {hoverInfo && (
+        <div
+          className="chart-reader-tooltip"
+          style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 10 }}
+        >
+          {hoveredPlanet ? (
+            <>
+              {hoveredPlanet.name}
+              <span className="dim">
+                {' '}
+                · {hoveredPlanet.sign}
+                {typeof hoveredPlanet.norm_degree === 'number' &&
+                  ` ${hoveredPlanet.norm_degree.toFixed(1)}°`}
+              </span>
+            </>
+          ) : (
+            hoverInfo.body
+          )}
+        </div>
+      )}
       <div className="chart-reader-grid">
         <aside className="chart-reader-toc">
           <div className="chart-reader-stick">
@@ -272,10 +335,50 @@ function ChartReaderPage() {
                     natalAspects={natalAspects}
                     highlightBodies={highlightBodies}
                     topDown
+                    onHoverBody={(h) =>
+                      setHoverInfo(
+                        h
+                          ? { body: h.body, x: mousePos.current.x, y: mousePos.current.y }
+                          : null
+                      )
+                    }
+                    onSelectBody={setSelectedBody}
                   />
                 )}
               </div>
-              <div className="chart-reader-sky-foot">Reading: {activeLabel}</div>
+              {selectedInfo ? (
+                <div className="chart-reader-sky-detail">
+                  <div className="chart-reader-sky-detail-head">
+                    <span className="nm">
+                      {selectedInfo.planet.name}
+                      {selectedInfo.planet.is_retro === 'true' && (
+                        <span className="retro">℞</span>
+                      )}
+                    </span>
+                    <span className="pos">
+                      {selectedInfo.planet.sign}
+                      {typeof selectedInfo.planet.norm_degree === 'number' &&
+                        ` · ${selectedInfo.planet.norm_degree.toFixed(1)}°`}
+                      {selectedInfo.planet.house
+                        ? ` · House ${selectedInfo.planet.house}`
+                        : ''}
+                    </span>
+                  </div>
+                  {selectedInfo.aspects.map((a, i) => (
+                    <div key={i} className="chart-reader-sky-detail-asp">
+                      <span>
+                        {a.type?.toLowerCase()} {a.other}
+                      </span>
+                      {Number.isFinite(a.orb) && <span className="orb">{a.orb.toFixed(1)}°</span>}
+                    </div>
+                  ))}
+                  <div className="chart-reader-sky-detail-hint">
+                    click empty space to dismiss
+                  </div>
+                </div>
+              ) : (
+                <div className="chart-reader-sky-foot">Reading: {activeLabel}</div>
+              )}
             </div>
           </div>
         </aside>
