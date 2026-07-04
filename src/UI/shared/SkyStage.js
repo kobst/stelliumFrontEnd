@@ -18,6 +18,14 @@ function SkyStage({ sceneProps, panel, footer, overlay }) {
   const [panelOpen, setPanelOpen] = useState(true);
   const [interacted, setInteracted] = useState(false);
 
+  // the stage owns the viewport; nothing behind it should scroll
+  React.useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   // the scene recenters itself in the space the panel leaves open, so
   // the whole chart and the whole text are visible at the same time
   const coveredRightPx =

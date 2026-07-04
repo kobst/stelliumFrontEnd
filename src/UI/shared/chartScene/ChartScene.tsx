@@ -51,6 +51,28 @@ function ViewOffset({ coveredRightPx }: { coveredRightPx: number }) {
   return null
 }
 
+// direction of the default orbit camera [0, 7.5, 9], normalized
+const ORBIT_DIR = { y: 0.6402, z: 0.7682 }
+
+/**
+ * Fits `fitRadius` world units into the *uncovered* part of the canvas
+ * along the default orbit direction. Reapplies on resize and panel
+ * toggles; the user's own orbiting takes over between refits.
+ */
+function OrbitFit({ fitRadius, coveredRightPx }: { fitRadius: number; coveredRightPx: number }) {
+  const camera = useThree((s) => s.camera)
+  const size = useThree((s) => s.size)
+  useEffect(() => {
+    const halfV = Math.tan((45 * Math.PI) / 360)
+    const effWidth = Math.max(200, size.width - coveredRightPx)
+    const effAspect = effWidth / Math.max(1, size.height)
+    const dist = fitRadius / (halfV * Math.min(1, effAspect))
+    camera.position.set(0, ORBIT_DIR.y * dist, ORBIT_DIR.z * dist)
+    camera.lookAt(0, 0, 0)
+  }, [camera, size, fitRadius, coveredRightPx])
+  return null
+}
+
 /**
  * Straight-down framing that adapts to the container: refits the camera
  * whenever the canvas resizes (margin card and expanded takeover both
@@ -89,6 +111,7 @@ export function ChartScene({
   highlightBodies,
   topDown = false,
   coveredRightPx = 0,
+  fitRadius,
   onHoverBody,
   onSelectBody,
 }: ChartSceneProps) {
@@ -193,6 +216,7 @@ export function ChartScene({
       onPointerMissed={() => select(null)}
     >
       {topDown && <TopDownFit />}
+      {!topDown && fitRadius ? <OrbitFit fitRadius={fitRadius} coveredRightPx={coveredRightPx} /> : null}
       <ViewOffset coveredRightPx={coveredRightPx} />
       <color attach="background" args={['#030308']} />
       <ambientLight intensity={0.4} />

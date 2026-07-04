@@ -1,6 +1,12 @@
 .sky-stage {
-  position: relative;
-  height: calc(100dvh - 76px); /* below the sticky dashboard nav */
+  /* full-bleed below the sticky nav — escapes any centered content
+     container the page wraps panes in */
+  position: fixed;
+  top: 76px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10; /* below the nav (60) */
   overflow: hidden;
   background: #030308;
 }

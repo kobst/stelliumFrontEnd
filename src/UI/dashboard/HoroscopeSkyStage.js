@@ -79,6 +79,8 @@ function HoroscopeSkyStage({ birthChart, focusTransit, panel }) {
       sceneProps={{
         natal,
         natalAspects,
+        // fit the whole system (wheel + transit ring) beside the panel
+        fitRadius: 6.4,
         transitFrames: frames || undefined,
         transitDate: frames ? new Date(playMs).toISOString() : undefined,
         transitAspectBodies: focusTransiting?.length

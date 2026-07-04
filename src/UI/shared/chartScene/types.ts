@@ -70,6 +70,11 @@ export interface ChartSceneProps {
    * recenters in the remaining space (animated)
    */
   coveredRightPx?: number
+  /**
+   * orbit-camera mounts: fit this world radius into the uncovered area
+   * on mount/resize/panel-toggle (e.g. 6.4 = wheel + transit ring)
+   */
+  fitRadius?: number
   /** pointer enters/leaves a planet marker (null on leave) */
   onHoverBody?: (hover: BodySelection | null) => void
   /** planet selected/deselected (click marker / click empty space) */
