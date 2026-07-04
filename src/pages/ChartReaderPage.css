@@ -161,6 +161,28 @@
 .chart-reader-sky-card--expanded .chart-reader-sky-holder {
   flex: 1;
   height: auto;
+  /* flex items refuse to shrink below content by default, which pushed
+     the detail footer past the card edge */
+  min-height: 0;
+}
+
+/* in the takeover, selection details float as a compact overlay
+   instead of a full-width footer */
+.chart-reader-sky-card--expanded .chart-reader-sky-detail {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  width: 320px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(14, 14, 22, 0.88);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.16), 0 20px 60px -20px rgba(0, 0, 0, 0.8);
+}
+.chart-reader-sky-card--expanded .chart-reader-sky-foot {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
 }
 .chart-reader-sky-foot {
   padding: 10px 16px 14px;
