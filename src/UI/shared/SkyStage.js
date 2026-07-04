@@ -16,12 +16,26 @@ import './SkyStage.css';
  */
 function SkyStage({ sceneProps, panel, footer, overlay }) {
   const [panelOpen, setPanelOpen] = useState(true);
+  const [interacted, setInteracted] = useState(false);
+
+  // the scene recenters itself in the space the panel leaves open, so
+  // the whole chart and the whole text are visible at the same time
+  const coveredRightPx =
+    panel && panelOpen
+      ? Math.min(500, (typeof window !== 'undefined' ? window.innerWidth : 1200) * 0.44) + 40
+      : 0;
 
   return (
-    <div className="sky-stage">
+    <div className="sky-stage" onPointerDown={() => setInteracted(true)}>
       <div className="sky-stage__canvas">
-        <ChartScene {...sceneProps} />
+        <ChartScene {...sceneProps} coveredRightPx={coveredRightPx} />
       </div>
+
+      {!interacted && !overlay && (
+        <div className="sky-stage__hint">
+          drag to orbit · scroll to zoom · click a planet
+        </div>
+      )}
 
       {overlay && <div className="sky-stage__overlay">{overlay}</div>}
       {footer && <div className="sky-stage__footer">{footer}</div>}

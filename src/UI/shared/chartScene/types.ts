@@ -65,6 +65,11 @@ export interface ChartSceneProps {
   highlightBodies?: string[]
   /** frame the wheel straight-down (margin/preview mounts) */
   topDown?: boolean
+  /**
+   * pixels of the canvas covered by docked UI on the right; the scene
+   * recenters in the remaining space (animated)
+   */
+  coveredRightPx?: number
   /** pointer enters/leaves a planet marker (null on leave) */
   onHoverBody?: (hover: BodySelection | null) => void
   /** planet selected/deselected (click marker / click empty space) */

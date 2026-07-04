@@ -72,6 +72,20 @@
   z-index: 4;
 }
 
+/* ── first-visit interaction hint ── */
+.sky-stage__hint {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 3;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(236, 232, 255, 0.35);
+  pointer-events: none;
+}
+
 /* ── bottom-left overlay (selection detail) ── */
 .sky-stage__overlay {
   position: absolute;

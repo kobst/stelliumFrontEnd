@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { ZodiacWheel } from './ZodiacWheel'
@@ -8,6 +8,7 @@ import { AspectLines } from './AspectLines'
 import { TransitLayer } from './TransitLayer'
 import { AngleMarker, PlanetMarker } from './PlanetMarker'
 import type { MarkerState } from './PlanetMarker'
+import { dampFactor } from './utils'
 import {
   ANGLES,
   HELIO_ORBIT_RADII,
@@ -23,6 +24,32 @@ import type {
 
 // stable singleton so the synastry OrbitRings geometry never rebuilds
 const secondaryRingRadii = [SECONDARY_PLANET_RADIUS]
+
+/**
+ * Shifts the projection center left by half the covered width, so the
+ * chart frames itself in the space docked UI leaves open. Damped, so
+ * panel toggles glide instead of snapping.
+ */
+function ViewOffset({ coveredRightPx }: { coveredRightPx: number }) {
+  const camera = useThree((s) => s.camera)
+  const size = useThree((s) => s.size)
+  const current = useRef(0)
+  useFrame((_, delta) => {
+    const target = coveredRightPx / 2
+    current.current += (target - current.current) * dampFactor(delta)
+    if (target === 0 && Math.abs(current.current) < 0.5) {
+      current.current = 0
+      camera.clearViewOffset()
+      return
+    }
+    camera.setViewOffset(size.width, size.height, current.current, 0, size.width, size.height)
+  })
+  useEffect(() => {
+    const cam = camera
+    return () => cam.clearViewOffset()
+  }, [camera])
+  return null
+}
 
 /**
  * Straight-down framing that adapts to the container: refits the camera
@@ -61,6 +88,7 @@ export function ChartScene({
   mode = 'wheel',
   highlightBodies,
   topDown = false,
+  coveredRightPx = 0,
   onHoverBody,
   onSelectBody,
 }: ChartSceneProps) {
@@ -165,6 +193,7 @@ export function ChartScene({
       onPointerMissed={() => select(null)}
     >
       {topDown && <TopDownFit />}
+      <ViewOffset coveredRightPx={coveredRightPx} />
       <color attach="background" args={['#030308']} />
       <ambientLight intensity={0.4} />
       <pointLight position={[0, 6, 0]} intensity={20} color="#8888ff" />
