@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import SkyStage from '../shared/SkyStage';
+import { BODIES } from '../shared/chartScene/constants';
 import useTransitFrames from '../../hooks/useTransitFrames';
 import {
   toChartScenePlacements,
@@ -8,11 +9,13 @@ import {
 } from '../../Utilities/chartSceneAdapter';
 import './HoroscopeSkyStage.css';
 
-// lunar aspect lines churn too fast to read; the moon marker still moves
-const DEFAULT_ASPECT_BODIES = [
-  'sun', 'mercury', 'venus', 'mars', 'jupiter',
+const ALL_TRANSIT_BODIES = [
+  'sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter',
   'saturn', 'uranus', 'neptune', 'pluto',
 ];
+// lunar aspect lines churn too fast to read by default; the chip on the
+// timeline turns them back on
+const DEFAULT_ON = ALL_TRANSIT_BODIES.filter((b) => b !== 'moon');
 
 // the sky's window IS the reading's window: the horizon and playback
 // pace follow the selected period
@@ -35,6 +38,16 @@ const PERIOD_CHIPS = [
 ];
 
 function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, panel, period = 'weekly', onPeriodChange }) {
+  // which transiting bodies draw aspect lines (markers always render)
+  const [enabledBodies, setEnabledBodies] = useState(() => new Set(DEFAULT_ON));
+  const toggleBody = (body) =>
+    setEnabledBodies((prev) => {
+      const next = new Set(prev);
+      if (next.has(body)) next.delete(body);
+      else next.add(body);
+      return next;
+    });
+
   const window_ = PERIOD_WINDOWS[period] || PERIOD_WINDOWS.weekly;
   // stable per period so the hook doesn't refetch every render
   const { fromMs, toMs, playSeconds } = useMemo(() => {
@@ -135,6 +148,24 @@ function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, 
               day: 'numeric',
             })}
           </span>
+          <div className="horo-scrubber__sep" />
+          <div className="horo-scrubber__bodies">
+            {ALL_TRANSIT_BODIES.map((body) => {
+              const info = BODIES[body];
+              const on = enabledBodies.has(body);
+              return (
+                <button
+                  key={body}
+                  className={`horo-scrubber__body${on ? ' on' : ''}`}
+                  style={on ? { color: info?.color } : undefined}
+                  onClick={() => toggleBody(body)}
+                  title={`${body} aspect lines ${on ? 'on' : 'off'}`}
+                >
+                  {(info?.glyph || body) + '\uFE0E'}
+                </button>
+              );
+            })}
+          </div>
         </>
       )}
     </div>
@@ -151,7 +182,7 @@ function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, 
         transitDate: frames ? new Date(playMs).toISOString() : undefined,
         transitAspectBodies: focusTransiting?.length
           ? focusTransiting
-          : DEFAULT_ASPECT_BODIES,
+          : [...enabledBodies],
         highlightBodies: focusTarget,
         onSelectBody: onSkyPick,
       }}
