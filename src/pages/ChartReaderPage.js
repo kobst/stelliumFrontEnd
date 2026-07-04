@@ -205,7 +205,7 @@ function ChartReaderPage() {
   };
 
   return (
-    <div className="chart-reader-page">
+    <div className={`chart-reader-page${skyExpanded ? ' chart-reader-page--sky-open' : ''}`}>
       <div className="chart-reader-grid">
         <aside className="chart-reader-toc">
           <div className="chart-reader-stick">

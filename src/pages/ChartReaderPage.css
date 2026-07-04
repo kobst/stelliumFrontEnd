@@ -143,8 +143,12 @@
 }
 
 /* expand-in-place: same card, same scene instance, the whole viewport.
-   z-index clears the Ask panel (1050/1051); solid backdrop under the
-   gradient so nothing reads through. */
+   The sticky wrapper creates its own stacking context, so the card's
+   z-index alone can't escape it — the wrapper itself must rise while
+   expanded. 1100 clears the Ask panel (1050/1051). */
+.chart-reader-page--sky-open .chart-reader-sky .chart-reader-stick {
+  z-index: 1100;
+}
 .chart-reader-sky-card--expanded {
   position: fixed;
   inset: 20px;
