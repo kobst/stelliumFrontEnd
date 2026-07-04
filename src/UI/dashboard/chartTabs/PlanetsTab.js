@@ -23,7 +23,7 @@ const splitIntoParagraphs = (text) => {
   ));
 };
 
-function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseAskStellium = false }) {
+function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseAskStellium = false, onEmphasizeBodies, onHoverBodies }) {
   const planets = useMemo(() => {
     const rawPlanets = birthChart?.planets?.filter(p => !excludedPlanets.includes(p.name)) || [];
     // Sort planets by the canonical order
@@ -57,6 +57,13 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
   // Close any open mini chart when switching planets
   useEffect(() => {
     setOpenAspectIdx(null);
+  }, [selectedPlanet]);
+
+  // Reader-margin emphasis: the picked planet stays lit in the 3D sky.
+  // No-op in the classic tabbed page (props absent).
+  useEffect(() => {
+    onEmphasizeBodies?.(selectedPlanet ? [selectedPlanet] : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPlanet]);
 
   const getPlanetInterpretation = (planetName) => {
@@ -259,6 +266,8 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
                           <React.Fragment key={rowKey}>
                             <div
                               className={`planet-aspect-row ${getAspectColorClass(aspect.aspectType)}${isOpen ? ' planet-aspect-row--open' : ''}`}
+                              onMouseEnter={() => onHoverBodies?.([currentPlanet.name, otherName])}
+                              onMouseLeave={() => onHoverBodies?.(null)}
                               onClick={() => canRender && setOpenAspectIdx(isOpen ? null : idx)}
                               role={canRender ? 'button' : undefined}
                               tabIndex={canRender ? 0 : undefined}

@@ -7,6 +7,7 @@ import { ChartScene } from '../UI/shared/chartScene';
 import {
   toChartScenePlacements,
   toChartSceneAspects,
+  toSceneBodyNames,
 } from '../Utilities/chartSceneAdapter';
 import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
@@ -58,6 +59,12 @@ function ChartReaderPage() {
   const [activeChapter, setActiveChapter] = useState('overview');
   const chapterRefs = useRef({});
 
+  // emphasis channels from the section components (backend body names):
+  // transient hover (chips, aspect rows) wins over the Planets picker's
+  // persistent selection, which wins over the chapter default
+  const [hoverNames, setHoverNames] = useState(null);
+  const [planetsSelectionNames, setPlanetsSelectionNames] = useState(null);
+
   // margin sky data
   const natal = useMemo(
     () => toChartScenePlacements(birthChart.planets),
@@ -69,9 +76,13 @@ function ChartReaderPage() {
   );
 
   const highlightBodies = useMemo(() => {
+    if (hoverNames) return toSceneBodyNames(hoverNames);
+    if (activeChapter === 'planets' && planetsSelectionNames) {
+      return toSceneBodyNames(planetsSelectionNames);
+    }
     const chapter = CHAPTERS.find((c) => c.id === activeChapter);
     return chapter?.bodies || undefined;
-  }, [activeChapter]);
+  }, [hoverNames, planetsSelectionNames, activeChapter]);
 
   // the chart follows the scroll
   useEffect(() => {
@@ -148,6 +159,7 @@ function ChartReaderPage() {
         creditsRemaining={entitlements.credits?.total}
         chartId={chartId}
         canUseAskStellium={canUseAskStellium}
+        onHoverBodies={setHoverNames}
       />
     ),
     planets: (
@@ -160,6 +172,8 @@ function ChartReaderPage() {
         creditsRemaining={entitlements.credits?.total}
         chartId={chartId}
         canUseAskStellium={canUseAskStellium}
+        onEmphasizeBodies={setPlanetsSelectionNames}
+        onHoverBodies={setHoverNames}
       />
     ),
     analysis: (

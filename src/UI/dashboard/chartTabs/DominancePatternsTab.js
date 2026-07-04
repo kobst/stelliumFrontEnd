@@ -42,9 +42,14 @@ const quadrantColors = {
   'NorthEast': '#34d399'
 };
 
-function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity, canUseAskStellium = false }) {
+function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity, canUseAskStellium = false, onHoverBodies }) {
   const [activeTab, setActiveTab] = useState('elements');
   const [chatOpen, setChatOpen] = useState(false);
+
+  // Reader-margin emphasis: hovering a planet group lights those bodies
+  // in the 3D sky. No-op in the classic tabbed page (prop absent).
+  const emphasize = (names) => onHoverBodies?.(names && names.length ? names : null);
+  const clearEmphasis = () => onHoverBodies?.(null);
 
   const patterns = birthChart?.patterns?.patterns || birthChart?.patterns || [];
   const planets = birthChart?.planets || [];
@@ -95,7 +100,12 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
         </div>
         <div className="elements-bar__legend">
           {data.map((item, i) => (
-            <div key={i} className="elements-bar__legend-item">
+            <div
+              key={i}
+              className="elements-bar__legend-item"
+              onMouseEnter={() => emphasize(item.planets)}
+              onMouseLeave={clearEmphasis}
+            >
               <div className="elements-bar__legend-row">
                 <ElementIcon element={item.name} />
                 <span className="elements-bar__dot" style={{ backgroundColor: elementColors[item.name] }} />
@@ -136,7 +146,12 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
           const color = modalityColors[item.name] || '#8b5cf6';
 
           return (
-            <div key={i} className={`modality-gauge${isDominant ? ' modality-gauge--dominant' : ''}`}>
+            <div
+              key={i}
+              className={`modality-gauge${isDominant ? ' modality-gauge--dominant' : ''}`}
+              onMouseEnter={() => emphasize(item.planets)}
+              onMouseLeave={clearEmphasis}
+            >
               <svg viewBox="0 0 120 65" className="modality-gauge__svg">
                 <path
                   d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
@@ -215,6 +230,8 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
                 key={key}
                 className="quadrant-grid__cell"
                 style={{ backgroundColor: hexToRgba(color, alpha) }}
+                onMouseEnter={() => emphasize(item.planets)}
+                onMouseLeave={clearEmphasis}
               >
                 <span className="quadrant-grid__name">{label}</span>
                 <span className="quadrant-grid__pct">{pct.toFixed(1)}%</span>
@@ -246,7 +263,12 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
         <h3 className="bar-chart-title">{title}</h3>
         <div className="bar-chart-content">
           {sortedData.map((item, index) => (
-            <div key={index} className="bar-chart-item">
+            <div
+              key={index}
+              className="bar-chart-item"
+              onMouseEnter={() => emphasize([item.name])}
+              onMouseLeave={clearEmphasis}
+            >
               <div className="bar-chart-label">{item.name}</div>
               <div className="bar-chart-bar-wrapper">
                 <div
@@ -451,6 +473,7 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
             key: `stellium-${pattern.id || index}`,
             type: 'stellium',
             label: 'Stellium',
+            bodies: stelliumPlanets.map(p => p.name),
             description: pattern.description,
             component: (
               <SimplifiedPatternWheel
@@ -481,6 +504,7 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
             key: `tSquare-${pattern.id || index}`,
             type: 'tSquare',
             label: 'T-Square',
+            bodies: tSquarePlanets.map(p => p.name),
             description: pattern.description,
             component: (
               <SimplifiedPatternWheel
@@ -507,6 +531,7 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
             key: `yod-${pattern.id || index}`,
             type: 'yod',
             label: 'Yod',
+            bodies: yodPlanets.map(p => p.name),
             description: pattern.description,
             component: (
               <SimplifiedPatternWheel
@@ -531,6 +556,7 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
             key: `grandTrine-${pattern.id || index}`,
             type: 'grandTrine',
             label: 'Grand Trine',
+            bodies: grandTrinePlanets.map(p => p.name),
             description: pattern.description,
             component: (
               <SimplifiedPatternWheel
@@ -555,6 +581,7 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
             key: `grandCross-${pattern.id || index}`,
             type: 'grandCross',
             label: 'Grand Cross',
+            bodies: grandCrossPlanets.map(p => p.name),
             description: pattern.description,
             component: (
               <SimplifiedPatternWheel
@@ -642,7 +669,12 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
         {patternVisuals.length > 0 && (
           <div className="patterns-wheel-grid">
             {patternVisuals.map((pattern) => (
-              <div key={pattern.key} className="pattern-wheel-item">
+              <div
+                key={pattern.key}
+                className="pattern-wheel-item"
+                onMouseEnter={() => emphasize(pattern.bodies)}
+                onMouseLeave={clearEmphasis}
+              >
                 <h4 className="pattern-wheel-label">{pattern.label}</h4>
                 <div className="pattern-wheel-visual">
                   {pattern.component}

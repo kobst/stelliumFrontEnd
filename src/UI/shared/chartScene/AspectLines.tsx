@@ -163,10 +163,13 @@ export function AspectLines({
           !!focus &&
           ((focus.layer === layerA && focus.body === aspect.bodyA) ||
             (focus.layer === layerB && focus.body === aspect.bodyB))
+        // group emphasis boosts lines *within* the group; a single-body
+        // emphasis boosts that body's whole web
         const highlighted =
           !!highlightSet &&
-          highlightSet.has(aspect.bodyA) &&
-          highlightSet.has(aspect.bodyB)
+          (highlightSet.size === 1
+            ? highlightSet.has(aspect.bodyA) || highlightSet.has(aspect.bodyB)
+            : highlightSet.has(aspect.bodyA) && highlightSet.has(aspect.bodyB))
         const key = `${layerA}:${aspect.bodyA}-${aspect.type}-${layerB}:${aspect.bodyB}`
         return (
           <AspectLine

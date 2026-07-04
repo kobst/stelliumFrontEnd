@@ -28,6 +28,13 @@ const SUPPORTED_ASPECT_TYPES = new Set([
   'opposition',
 ]);
 
+/** backend body names ("Sun", "Ascendant"…) → scene names; unmapped dropped */
+export function toSceneBodyNames(names) {
+  if (!names || !names.length) return undefined;
+  const mapped = names.map((n) => BODY_NAME_MAP[n]).filter(Boolean);
+  return mapped.length ? mapped : undefined;
+}
+
 /** birthChart.planets → Placement[] ({ body, longitude, retrograde }) */
 export function toChartScenePlacements(planets = []) {
   return planets
