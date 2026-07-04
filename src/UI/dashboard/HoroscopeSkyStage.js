@@ -131,18 +131,26 @@ function HoroscopeSkyStage({
     return toSceneBodyNames(names);
   }, [askSelection]);
 
-  const focusTransiting = focusTransit
+  // hover isolates (transient); otherwise the Lines filter is the base
+  // and the Ask selection's bodies are ADDED to it, never replacing it
+  const hoverTransiting = focusTransit
     ? toSceneBodyNames([
         focusTransit.transitingPlanet ||
           focusTransit.transitingBody ||
           focusTransit.transit?.transitingPlanet,
       ])
-    : askTransiting;
+    : undefined;
   const focusTarget = focusTransit
     ? toSceneBodyNames([
         focusTransit.targetPlanet || focusTransit.target || focusTransit.natalPlanet,
       ])
     : askTargets;
+
+  const baseBodies = useMemo(() => {
+    const set = new Set(enabledBodies);
+    (askTransiting || []).forEach((b) => set.add(b));
+    return [...set];
+  }, [enabledBodies, askTransiting]);
 
   if (!natal.length) return null;
 
@@ -260,9 +268,9 @@ function HoroscopeSkyStage({
         fitRadius: 6.4,
         transitFrames: frames || undefined,
         transitDate: frames ? new Date(playMs).toISOString() : undefined,
-        transitAspectBodies: focusTransiting?.length
-          ? focusTransiting
-          : [...enabledBodies],
+        transitAspectBodies: hoverTransiting?.length
+          ? hoverTransiting
+          : baseBodies,
         highlightBodies: focusTarget,
         onSelectBody: handleSelectBody,
       }}
