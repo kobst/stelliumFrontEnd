@@ -5,15 +5,18 @@
 
 /* ===== GLOBAL FIXES ===== */
 
-/* Fix horizontal overflow from 100vw (scrollbar issue) */
+/* Fix horizontal overflow from 100vw (scrollbar issue).
+   `clip` instead of `hidden`: same visual clipping, but it doesn't turn
+   html/body into scroll containers — which silently disables
+   position: sticky for every descendant on the page. */
 html {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Ensure all containers respect viewport */
