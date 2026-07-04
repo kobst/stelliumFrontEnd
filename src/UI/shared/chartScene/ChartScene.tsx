@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import { ZodiacWheel } from './ZodiacWheel'
@@ -23,6 +23,25 @@ import type {
 
 // stable singleton so the synastry OrbitRings geometry never rebuilds
 const secondaryRingRadii = [SECONDARY_PLANET_RADIUS]
+
+/**
+ * Straight-down framing that adapts to the container: refits the camera
+ * whenever the canvas resizes (margin card and expanded takeover both
+ * frame correctly). Keeps ~0.6 units of vertical breathing room and
+ * never crops the wheel horizontally.
+ */
+function TopDownFit() {
+  const camera = useThree((s) => s.camera)
+  const size = useThree((s) => s.size)
+  useEffect(() => {
+    const halfV = Math.tan((45 * Math.PI) / 360)
+    const aspect = size.width / Math.max(1, size.height)
+    const dist = Math.max(5.6, 5.1 / aspect) / halfV
+    camera.position.set(0, dist, dist * 0.04)
+    camera.lookAt(0, 0, 0)
+  }, [camera, size])
+  return null
+}
 
 /**
  * Self-contained 3D chart renderer. Chart layers are derived from which
@@ -145,6 +164,7 @@ export function ChartScene({
       dpr={[1, 2]}
       onPointerMissed={() => select(null)}
     >
+      {topDown && <TopDownFit />}
       <color attach="background" args={['#030308']} />
       <ambientLight intensity={0.4} />
       <pointLight position={[0, 6, 0]} intensity={20} color="#8888ff" />

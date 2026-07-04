@@ -73,7 +73,11 @@ function ChartReaderPage() {
       if (e.key === 'Escape') setSkyExpanded(false);
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
   }, [skyExpanded]);
 
   // margin sky data

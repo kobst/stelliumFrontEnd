@@ -142,14 +142,17 @@
   height: clamp(420px, 58vh, 640px);
 }
 
-/* expand-in-place: same card, same scene instance, the whole viewport */
+/* expand-in-place: same card, same scene instance, the whole viewport.
+   z-index clears the Ask panel (1050/1051); solid backdrop under the
+   gradient so nothing reads through. */
 .chart-reader-sky-card--expanded {
   position: fixed;
   inset: 20px;
-  z-index: 90;
+  z-index: 1100;
   display: flex;
   flex-direction: column;
   border-radius: 22px;
+  background-color: #0b0b12;
 }
 .chart-reader-sky-card--expanded .chart-reader-sky-holder {
   flex: 1;
