@@ -357,6 +357,14 @@ function ChartDetailPage() {
           <ChartDetailLayout
             chart={chart}
             onBackClick={handleBackClick}
+            topBarRight={
+              <button
+                className="bcd-reader-link"
+                onClick={() => navigate(`/dashboard/${userId}/chart/${chartId}/reader`)}
+              >
+                ✦ Reader view <span className="bcd-reader-link-beta">beta</span>
+              </button>
+            }
             sections={sections}
             lockedSections={lockedSections}
             activeSection={activeSection}
