@@ -8,7 +8,7 @@ import { toTransitFrames } from '../Utilities/chartSceneAdapter';
  * auto-plays on load, scrubbing pauses, loops at the end.
  * Degrades to { frames: null } if the endpoint is unavailable.
  */
-export default function useTransitFrames(natalPlanets, { backDays = 1, forwardDays = 8, playSeconds = 60 } = {}) {
+export default function useTransitFrames(natalPlanets, { fromMs, toMs, playSeconds = 60 } = {}) {
   const [frames, setFrames] = useState(null);
   const [range, setRange] = useState(null);
   const [playing, setPlaying] = useState(true);
@@ -17,20 +17,22 @@ export default function useTransitFrames(natalPlanets, { backDays = 1, forwardDa
 
   useEffect(() => {
     let cancelled = false;
-    if (!natalPlanets?.length) return undefined;
+    if (!natalPlanets?.length || !fromMs || !toMs) return undefined;
     (async () => {
       try {
-        const from = new Date(Date.now() - backDays * 86400000);
-        const to = new Date(Date.now() + forwardDays * 86400000);
-        const docs = await getTransitFrames(from.toISOString(), to.toISOString());
+        const docs = await getTransitFrames(
+          new Date(fromMs).toISOString(),
+          new Date(toMs).toISOString()
+        );
         if (cancelled) return;
         const mapped = toTransitFrames(docs, natalPlanets);
         if (mapped.length >= 2) {
+          const start = Date.parse(mapped[0].date);
           setFrames(mapped);
-          setRange({
-            start: Date.parse(mapped[0].date),
-            end: Date.parse(mapped[mapped.length - 1].date),
-          });
+          setRange({ start, end: Date.parse(mapped[mapped.length - 1].date) });
+          // new window: restart the sweep from its beginning
+          setPlayMs(start);
+          setPlaying(true);
         }
       } catch (err) {
         console.warn('Transit frames unavailable:', err?.message);
@@ -39,7 +41,7 @@ export default function useTransitFrames(natalPlanets, { backDays = 1, forwardDa
     return () => {
       cancelled = true;
     };
-  }, [natalPlanets, backDays, forwardDays]);
+  }, [natalPlanets, fromMs, toMs]);
 
   useEffect(() => {
     if (!frames || !playing || !range) return undefined;

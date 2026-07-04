@@ -14,13 +14,32 @@ const DEFAULT_ASPECT_BODIES = [
   'saturn', 'uranus', 'neptune', 'pluto',
 ];
 
+// the sky's window IS the reading's window: the horizon and playback
+// pace follow the selected period
+const PERIOD_WINDOWS = {
+  daily: { days: 1, playSeconds: 20 },
+  weekly: { days: 7, playSeconds: 60 },
+  monthly: { days: 30, playSeconds: 120 },
+};
+
 /**
  * The horoscope as a stage: the user's natal wheel full-screen with the
- * period's real transits playing over it, the reading docked beside it,
- * and a scrubber to drag the week under your thumb. Degrades to the
- * natal sky if the frames endpoint is unavailable.
+ * selected period's real transits playing over it, the reading docked
+ * beside it, and a scrubber to drag the horizon under your thumb.
+ * Degrades to the natal sky if the frames endpoint is unavailable.
  */
-function HoroscopeSkyStage({ birthChart, focusTransit, panel }) {
+function HoroscopeSkyStage({ birthChart, focusTransit, panel, period = 'weekly' }) {
+  const window_ = PERIOD_WINDOWS[period] || PERIOD_WINDOWS.weekly;
+  // stable per period so the hook doesn't refetch every render
+  const { fromMs, toMs, playSeconds } = useMemo(() => {
+    const now = Date.now();
+    return {
+      fromMs: now - 6 * 3600000, // small back-buffer so "now" is in range
+      toMs: now + window_.days * 86400000,
+      playSeconds: window_.playSeconds,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period]);
   const natal = useMemo(
     () => toChartScenePlacements(birthChart?.planets),
     [birthChart?.planets]
@@ -31,7 +50,7 @@ function HoroscopeSkyStage({ birthChart, focusTransit, panel }) {
   );
 
   const { frames, range, playMs, playing, setPlaying, scrubTo } =
-    useTransitFrames(birthChart?.planets);
+    useTransitFrames(birthChart?.planets, { fromMs, toMs, playSeconds });
 
   const focusTransiting = focusTransit
     ? toSceneBodyNames([

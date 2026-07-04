@@ -452,6 +452,7 @@ function HomePane({ userId, user, entitlements }) {
         birthChart={user?.birthChart}
         focusTransit={focusTransit}
         panel={readingPanel}
+        period={period}
       />
 
       <AskStelliumPanel
