@@ -379,21 +379,8 @@ function HomePane({ userId, user, entitlements }) {
         </div>
       </div>
 
-      <div className="md-horo-period" role="tablist">
-        {PERIOD_OPTIONS.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            role="tab"
-            aria-selected={period === p.id}
-            className={`md-period-tab${period === p.id ? ' active' : ''}`}
-            onClick={() => setPeriod(p.id)}
-          >
-            {p.label}
-          </button>
-        ))}
-      </div>
-
+      {/* the period toggle lives on the stage's timeline — one control
+          that visibly retunes both the sky's horizon and this reading */}
       <div className="md-horo-body">
         {dailyLocked && (
           <div className="md-horo-empty">
@@ -453,6 +440,7 @@ function HomePane({ userId, user, entitlements }) {
         focusTransit={focusTransit}
         panel={readingPanel}
         period={period}
+        onPeriodChange={setPeriod}
       />
 
       <AskStelliumPanel

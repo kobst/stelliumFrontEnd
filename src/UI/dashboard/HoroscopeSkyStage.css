@@ -9,6 +9,43 @@
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14), 0 20px 60px -30px rgba(0, 0, 0, 0.8);
 }
 
+.horo-scrubber__periods {
+  display: flex;
+  gap: 4px;
+}
+.horo-scrubber__period {
+  border: 0;
+  cursor: pointer;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(236, 232, 255, 0.55);
+  font-size: 12px;
+  font-weight: 600;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.horo-scrubber__period:hover {
+  color: #ece8ff;
+}
+.horo-scrubber__period.active {
+  color: #ece8ff;
+  background: linear-gradient(180deg, rgba(202, 190, 255, 0.18), rgba(202, 190, 255, 0.07));
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.32);
+}
+
+.horo-scrubber__sep {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(202, 190, 255, 0.14);
+}
+
+.horo-scrubber__bound {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  color: rgba(236, 232, 255, 0.42);
+  white-space: nowrap;
+}
+
 .horo-scrubber__play {
   width: 32px;
   height: 32px;

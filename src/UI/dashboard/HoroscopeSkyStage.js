@@ -28,7 +28,13 @@ const PERIOD_WINDOWS = {
  * beside it, and a scrubber to drag the horizon under your thumb.
  * Degrades to the natal sky if the frames endpoint is unavailable.
  */
-function HoroscopeSkyStage({ birthChart, focusTransit, panel, period = 'weekly' }) {
+const PERIOD_CHIPS = [
+  { id: 'daily', label: 'Today' },
+  { id: 'weekly', label: 'This Week' },
+  { id: 'monthly', label: 'This Month' },
+];
+
+function HoroscopeSkyStage({ birthChart, focusTransit, panel, period = 'weekly', onPeriodChange }) {
   const window_ = PERIOD_WINDOWS[period] || PERIOD_WINDOWS.weekly;
   // stable per period so the hook doesn't refetch every render
   const { fromMs, toMs, playSeconds } = useMemo(() => {
@@ -67,29 +73,56 @@ function HoroscopeSkyStage({ birthChart, focusTransit, panel, period = 'weekly' 
 
   if (!natal.length) return null;
 
-  const scrubber = frames && range && (
+  const fmtShort = (ms) =>
+    new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+  // the timeline owns the horizon: picking a period here retunes both
+  // the sky's window and which reading the panel shows
+  const scrubber = (
     <div className="horo-scrubber">
-      <button
-        className="horo-scrubber__play"
-        onClick={() => setPlaying(!playing)}
-        aria-label={playing ? 'Pause' : 'Play'}
-      >
-        {playing ? '❚❚' : '▶'}
-      </button>
-      <input
-        type="range"
-        min={range.start}
-        max={range.end}
-        value={Math.round(playMs)}
-        onChange={(e) => scrubTo(Number(e.target.value))}
-      />
-      <span className="horo-scrubber__date">
-        {new Date(playMs).toLocaleDateString('en-US', {
-          weekday: 'short',
-          month: 'short',
-          day: 'numeric',
-        })}
-      </span>
+      {onPeriodChange && (
+        <div className="horo-scrubber__periods" role="tablist">
+          {PERIOD_CHIPS.map((p) => (
+            <button
+              key={p.id}
+              role="tab"
+              aria-selected={period === p.id}
+              className={`horo-scrubber__period${period === p.id ? ' active' : ''}`}
+              onClick={() => onPeriodChange(p.id)}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      )}
+      {frames && range && (
+        <>
+          <div className="horo-scrubber__sep" />
+          <button
+            className="horo-scrubber__play"
+            onClick={() => setPlaying(!playing)}
+            aria-label={playing ? 'Pause' : 'Play'}
+          >
+            {playing ? '❚❚' : '▶'}
+          </button>
+          <span className="horo-scrubber__bound">{fmtShort(range.start)}</span>
+          <input
+            type="range"
+            min={range.start}
+            max={range.end}
+            value={Math.round(playMs)}
+            onChange={(e) => scrubTo(Number(e.target.value))}
+          />
+          <span className="horo-scrubber__bound">{fmtShort(range.end)}</span>
+          <span className="horo-scrubber__date">
+            {new Date(playMs).toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+            })}
+          </span>
+        </>
+      )}
     </div>
   );
 
