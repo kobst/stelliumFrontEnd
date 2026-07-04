@@ -103,4 +103,9 @@ export interface ChartSceneProps {
    * every body). Omit for all. Lines fade when a body is filtered.
    */
   transitAspectBodies?: string[]
+  /**
+   * linear orb→opacity ramp for transit lines (focused/filtered views)
+   * instead of the squared de-clutter ramp used for the full sky
+   */
+  transitLineBoost?: boolean
 }

@@ -271,6 +271,9 @@ function HoroscopeSkyStage({
         transitAspectBodies: hoverTransiting?.length
           ? hoverTransiting
           : baseBodies,
+        // narrowed or hover-isolated views get the linear ramp so
+        // wide-orb lines of slow movers still show
+        transitLineBoost: !!hoverTransiting?.length || baseBodies.length <= 4,
         highlightBodies: focusTarget,
         onSelectBody: handleSelectBody,
       }}

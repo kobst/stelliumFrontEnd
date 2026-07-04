@@ -120,6 +120,8 @@ interface TransitLayerProps {
   visible: boolean
   /** bodies whose aspect lines render; undefined = all */
   aspectBodies?: string[]
+  /** linear ramp (focused views) instead of the squared de-clutter ramp */
+  lineBoost?: boolean
   /** selected body anywhere in the scene */
   focus?: BodySelection | null
   markerStateFor?: (body: string) => MarkerState
@@ -139,6 +141,7 @@ export function TransitLayer({
   natalPlacements,
   visible,
   aspectBodies,
+  lineBoost = false,
   focus = null,
   markerStateFor,
   onHoverBody,
@@ -194,9 +197,9 @@ export function TransitLayer({
         if (orb === null) return null
         const maxOrb = ASPECT_MAX_ORB[track.aspect.type]
         const strength = Math.min(1, Math.max(0, 1 - orb / maxOrb))
-        // squared ramp: exact aspects blaze, wide-orb ones recede —
-        // keeps the busy moments readable
-        const weight = strength * strength
+        // squared ramp de-clutters the full sky; focused views use the
+        // honest linear ramp so anything in orb is actually visible
+        const weight = lineBoost ? strength : strength * strength
         const transitLon = transitLonByBody.get(track.aspect.bodyA)
         const natal = natalByBody.get(track.aspect.bodyB)
         if (transitLon === undefined || !natal) return null

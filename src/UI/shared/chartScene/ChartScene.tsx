@@ -106,6 +106,7 @@ export function ChartScene({
   transitFrames,
   transitDate,
   transitAspectBodies,
+  transitLineBoost = false,
   heliocentric,
   mode = 'wheel',
   highlightBodies,
@@ -259,6 +260,7 @@ export function ChartScene({
           natalPlacements={planets}
           visible={!helioMode}
           aspectBodies={transitAspectBodies}
+          lineBoost={transitLineBoost}
           focus={selection}
           markerStateFor={(body) => stateFor(body, 'transit')}
           onHoverBody={transitHandlers.onHover}
