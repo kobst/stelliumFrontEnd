@@ -34,7 +34,7 @@ const PERIOD_CHIPS = [
   { id: 'monthly', label: 'This Month' },
 ];
 
-function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, panel, period = 'weekly', onPeriodChange }) {
+function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, panel, period = 'weekly', onPeriodChange }) {
   const window_ = PERIOD_WINDOWS[period] || PERIOD_WINDOWS.weekly;
   // stable per period so the hook doesn't refetch every render
   const { fromMs, toMs, playSeconds } = useMemo(() => {
@@ -153,6 +153,7 @@ function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, panel, peri
           ? focusTransiting
           : DEFAULT_ASPECT_BODIES,
         highlightBodies: focusTarget,
+        onSelectBody: onSkyPick,
       }}
       panel={panel}
       footer={scrubber}

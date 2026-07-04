@@ -5,6 +5,7 @@ import {
   getUserSubjects,
   getUserCompositeCharts,
   getTransitWindows,
+  generateCustomHoroscope,
   generateDailyHoroscope,
   generateWeeklyHoroscope,
   generateMonthlyHoroscope,
@@ -17,6 +18,7 @@ import { useEntitlements } from '../hooks/useEntitlements';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 import { formatLocalDateParam } from '../Utilities/horoscopeDates';
 import HoroscopeSkyStage from '../UI/dashboard/HoroscopeSkyStage';
+import { fromSceneBodyName } from '../Utilities/chartSceneAdapter';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import AddChartModal from '../UI/dashboard/AddChartModal';
@@ -291,6 +293,56 @@ function HomePane({ userId, user, entitlements }) {
   // panel's live selection mirrored back to drive the sky
   const [askElements, setAskElements] = useState([]);
   const [askSelection, setAskSelection] = useState([]);
+  // Phase 3: a reading composed from the user's selected transits
+  const [customHoroscope, setCustomHoroscope] = useState(null);
+  const [composing, setComposing] = useState(false);
+
+  // clicking a body ON THE SKY adds the matching transit as Ask context:
+  // a transiting planet pulls its tightest upcoming window; a natal
+  // planet pulls the tightest transit hitting it
+  const handleSkyPick = useCallback((sel) => {
+    if (!sel) return;
+    const name = fromSceneBodyName(sel.body);
+    if (!name) return;
+    const candidates = transits.filter((w) =>
+      sel.layer === 'transit' ? w.transitingPlanet === name : w.targetPlanet === name
+    );
+    if (!candidates.length) return;
+    const inPeriod = filterTransitsForPeriod(candidates, period);
+    const pick = (inPeriod.length ? inPeriod : candidates)[0];
+    const el = {
+      group: 'horoscope',
+      type: 'transit',
+      key: pick.id || `${pick.transitingPlanet}-${pick.aspect}-${pick.targetPlanet}-sky`,
+      label: formatTransitTitle(pick),
+      meta: pick.description || '',
+      payload: formatTransitEvent(pick)
+    };
+    setAskElements((prev) =>
+      prev.some((x) => x.key === el.key) ? prev : [...prev, el]
+    );
+    setDockMode('ask');
+  }, [transits, period]);
+
+  const handleCompose = useCallback(async () => {
+    const selected = askSelection.map((el) => el.payload || el).filter(Boolean);
+    if (!selected.length || composing) return;
+    try {
+      setComposing(true);
+      const response = await generateCustomHoroscope(userId, {
+        selectedTransits: selected,
+        period
+      });
+      if (response?.success && response?.horoscope) {
+        setCustomHoroscope({ horoscope: response.horoscope, elements: askSelection });
+        setDockMode('reading');
+      }
+    } catch (err) {
+      console.error('Error composing custom reading:', err);
+    } finally {
+      setComposing(false);
+    }
+  }, [askSelection, composing, userId, period]);
 
   // Daily is available to Free users for 1 credit and included with Plus.
   // The backend remains authoritative for affordability and charging.
@@ -375,7 +427,51 @@ function HomePane({ userId, user, entitlements }) {
 
   const dailyLocked = period === 'daily' && !canAccessDaily;
 
-  const readingPanel = (
+  // a new horizon supersedes a composed reading
+  useEffect(() => {
+    setCustomHoroscope(null);
+  }, [period]);
+
+  const customParagraphs = (customHoroscope?.horoscope?.interpretation || customHoroscope?.horoscope?.text || '')
+    .split(/\n\s*\n|\n/).map((t) => t.trim()).filter(Boolean);
+
+  const readingPanel = customHoroscope ? (
+    <div className="md-stage-panel">
+      <div className="md-horo-head md-horo-head--stage">
+        <div>
+          <div className="md-custom-eyebrow">✦ Custom reading</div>
+          <h1 className="md-horo-title">Your chosen influences</h1>
+          <div className="md-horo-date">{todayLabel}</div>
+        </div>
+      </div>
+      <div className="md-horo-body">
+        {customParagraphs.map((t, i) => (
+          <p key={i}>{t}</p>
+        ))}
+        <div className="md-horo-divider" />
+        <div className="md-key-influences-label">Composed from</div>
+        <div className="md-influences-grid">
+          {(customHoroscope.elements || []).map((el, i) => (
+            <span
+              className="md-influence-pill"
+              key={i}
+              onMouseEnter={() => setFocusTransit(el.payload)}
+              onMouseLeave={() => setFocusTransit(null)}
+            >
+              {el.label}
+            </span>
+          ))}
+        </div>
+      </div>
+      <button
+        type="button"
+        className="md-ask-btn md-ask-btn--stage"
+        onClick={() => setCustomHoroscope(null)}
+      >
+        ← Back to your {period} reading
+      </button>
+    </div>
+  ) : (
     <div className="md-stage-panel">
       <div className="md-horo-head md-horo-head--stage">
         <div>
@@ -455,6 +551,16 @@ function HomePane({ userId, user, entitlements }) {
 
   const askPanel = (
     <div className="md-dock-ask">
+      {askSelection.length > 0 && (
+        <button
+          type="button"
+          className="md-compose-btn"
+          onClick={handleCompose}
+          disabled={composing}
+        >
+          {composing ? 'Composing…' : `✦ Compose a reading from ${askSelection.length} influence${askSelection.length > 1 ? 's' : ''}`}
+        </button>
+      )}
       <AskStelliumPanel
         variant="dock"
         isOpen
@@ -483,6 +589,7 @@ function HomePane({ userId, user, entitlements }) {
         birthChart={user?.birthChart}
         focusTransit={focusTransit}
         askSelection={askSelection}
+        onSkyPick={handleSkyPick}
         panel={dockMode === 'ask' ? askPanel : readingPanel}
         period={period}
         onPeriodChange={setPeriod}

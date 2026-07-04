@@ -93,6 +93,15 @@ export function toTransitFrames(frameDocs = [], natalPlanets = []) {
     .filter(Boolean);
 }
 
+
+/** scene body name ("sun") → backend name ("Sun"); null if unmapped */
+export function fromSceneBodyName(sceneName) {
+  for (const [backend, scene] of Object.entries(BODY_NAME_MAP)) {
+    if (scene === sceneName) return backend;
+  }
+  return null;
+}
+
 /** backend body names ("Sun", "Ascendant"…) → scene names; unmapped dropped */
 export function toSceneBodyNames(names) {
   if (!names || !names.length) return undefined;
