@@ -296,6 +296,7 @@ function HomePane({ userId, user, entitlements }) {
   // Phase 3: a reading composed from the user's selected transits
   const [customHoroscope, setCustomHoroscope] = useState(null);
   const [composing, setComposing] = useState(false);
+  const handleComposeRef = React.useRef(null);
 
   // clicking a body ON THE SKY adds the matching transit as Ask context:
   // a transiting planet pulls its tightest upcoming window; a natal
@@ -324,6 +325,14 @@ function HomePane({ userId, user, entitlements }) {
     setDockMode('ask');
   }, [transits, period]);
 
+  const handleComposeIntent = useCallback(() => {
+    if (askSelection.length > 0) {
+      handleComposeRef.current?.();
+    } else {
+      setDockMode('ask');
+    }
+  }, [askSelection.length]);
+
   const handleCompose = useCallback(async () => {
     const selected = askSelection.map((el) => el.payload || el).filter(Boolean);
     if (!selected.length || composing) return;
@@ -343,6 +352,10 @@ function HomePane({ userId, user, entitlements }) {
       setComposing(false);
     }
   }, [askSelection, composing, userId, period]);
+
+  useEffect(() => {
+    handleComposeRef.current = handleCompose;
+  }, [handleCompose]);
 
   // Daily is available to Free users for 1 credit and included with Plus.
   // The backend remains authoritative for affordability and charging.
@@ -572,16 +585,6 @@ function HomePane({ userId, user, entitlements }) {
 
   const askPanel = (
     <div className="md-dock-ask">
-      {askSelection.length > 0 && (
-        <button
-          type="button"
-          className="md-compose-btn"
-          onClick={handleCompose}
-          disabled={composing}
-        >
-          {composing ? 'Composing…' : `✦ Compose a reading from ${askSelection.length} influence${askSelection.length > 1 ? 's' : ''}`}
-        </button>
-      )}
       <AskStelliumPanel
         variant="dock"
         isOpen
@@ -615,6 +618,10 @@ function HomePane({ userId, user, entitlements }) {
         panel={dockMode === 'ask' ? askPanel : readingPanel}
         period={period}
         onPeriodChange={setPeriod}
+        customActive={!!customHoroscope}
+        composing={composing}
+        onComposeIntent={handleComposeIntent}
+        onClearCustom={() => setCustomHoroscope(null)}
       />
     </div>
   );

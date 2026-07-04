@@ -209,3 +209,70 @@
   backdrop-filter: blur(14px);
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14), 0 20px 60px -30px rgba(0, 0, 0, 0.8);
 }
+
+/* ── horizon bar internals ── */
+.horizon-tabs {
+  display: flex;
+  gap: 4px;
+}
+.horizon-tab {
+  border: 0;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(236, 232, 255, 0.55);
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.horizon-tab:hover {
+  color: #ece8ff;
+}
+.horizon-tab.active {
+  color: #ece8ff;
+  background: linear-gradient(180deg, rgba(202, 190, 255, 0.18), rgba(202, 190, 255, 0.07));
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.32);
+}
+.horizon-tab__custom {
+  color: #e9c349;
+}
+.horizon-range {
+  font-family: ui-monospace, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  color: rgba(236, 232, 255, 0.6);
+  white-space: nowrap;
+}
+.horizon-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.horizon-compose {
+  border: 0;
+  cursor: pointer;
+  padding: 8px 15px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(233, 195, 73, 0.16), rgba(233, 195, 73, 0.06));
+  color: #e9c349;
+  font-size: 12.5px;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.3);
+  white-space: nowrap;
+}
+.horizon-compose:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.horizon-compose.active {
+  background: rgba(233, 195, 73, 0.22);
+}
+
+/* lines popover opens downward when anchored in the top bar */
+.horo-scrubber__lines-pop--below {
+  bottom: auto;
+  top: calc(100% + 12px);
+}

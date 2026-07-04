@@ -133,3 +133,26 @@
 .sky-stage__panel-collapse:hover {
   color: #ece8ff;
 }
+
+/* ── horizon sub-nav: the page's one frame, spanning sky and dock ── */
+.sky-stage__subnav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 20px;
+  background: linear-gradient(180deg, rgba(10, 10, 16, 0.88), rgba(10, 10, 16, 0.55));
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(202, 190, 255, 0.09);
+}
+.sky-stage--with-subnav .sky-stage__panel {
+  top: 72px;
+}
+.sky-stage--with-subnav .sky-stage__panel-toggle--closed {
+  top: 82px;
+}

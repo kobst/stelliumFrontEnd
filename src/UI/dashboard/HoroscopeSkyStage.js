@@ -37,7 +37,20 @@ const PERIOD_CHIPS = [
   { id: 'monthly', label: 'This Month' },
 ];
 
-function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, panel, panelHeader, period = 'weekly', onPeriodChange }) {
+function HoroscopeSkyStage({
+  birthChart,
+  focusTransit,
+  askSelection,
+  onSkyPick,
+  panel,
+  panelHeader,
+  period = 'weekly',
+  onPeriodChange,
+  customActive = false,
+  composing = false,
+  onComposeIntent,
+  onClearCustom,
+}) {
   // which transiting bodies draw aspect lines (markers always render)
   const [enabledBodies, setEnabledBodies] = useState(() => new Set(DEFAULT_ON));
   const [linesOpen, setLinesOpen] = useState(false);
@@ -104,28 +117,80 @@ function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, 
   const fmtShort = (ms) =>
     new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-  // the timeline owns the horizon: picking a period here retunes both
-  // the sky's window and which reading the panel shows
-  const scrubber = (
-    <div className="horo-scrubber">
-      {onPeriodChange && (
-        <div className="horo-scrubber__periods" role="tablist">
-          {PERIOD_CHIPS.map((p) => (
+  // the horizon bar is the page's one frame: it governs the sky's
+  // window, the reading in the dock, the scrubber bounds, and where a
+  // custom reading lives
+  const horizonBar = (
+    <>
+      <div className="horizon-tabs" role="tablist">
+        {PERIOD_CHIPS.map((p) => {
+          const active = period === p.id;
+          return (
             <button
               key={p.id}
               role="tab"
-              aria-selected={period === p.id}
-              className={`horo-scrubber__period${period === p.id ? ' active' : ''}`}
-              onClick={() => onPeriodChange(p.id)}
+              aria-selected={active}
+              className={`horizon-tab${active ? ' active' : ''}`}
+              onClick={() => {
+                if (active && customActive) onClearCustom?.();
+                else onPeriodChange?.(p.id);
+              }}
+              title={active && customActive ? 'Back to the standard reading' : undefined}
             >
               {p.label}
+              {active && customActive ? <span className="horizon-tab__custom">✦</span> : null}
             </button>
-          ))}
+          );
+        })}
+      </div>
+      <div className="horizon-range">
+        {range ? `${fmtShort(range.start)} – ${fmtShort(range.end)}` : ''}
+      </div>
+      <div className="horizon-actions">
+        <button
+          className={`horizon-compose${customActive ? ' active' : ''}`}
+          onClick={onComposeIntent}
+          disabled={composing}
+          title="Pick influences on the sky, then compose a reading from them"
+        >
+          {composing ? 'Composing…' : customActive ? '✦ Custom reading' : '✦ Compose custom'}
+        </button>
+        <div className="horo-scrubber__lines">
+          <button
+            className={`horo-scrubber__lines-btn${linesOpen ? ' open' : ''}`}
+            onClick={() => setLinesOpen((v) => !v)}
+          >
+            Lines ({enabledBodies.size}) ▾
+          </button>
+          {linesOpen && (
+            <div className="horo-scrubber__lines-pop horo-scrubber__lines-pop--below">
+              {ALL_TRANSIT_BODIES.map((body) => {
+                const info = BODIES[body];
+                const on = enabledBodies.has(body);
+                return (
+                  <button
+                    key={body}
+                    className={`horo-scrubber__body${on ? ' on' : ''}`}
+                    style={on ? { color: info?.color } : undefined}
+                    onClick={() => toggleBody(body)}
+                    title={`${body} aspect lines ${on ? 'on' : 'off'}`}
+                  >
+                    {(info?.glyph || body) + '\uFE0E'}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </div>
+    </>
+  );
+
+  // the scrubber is pure playback within the horizon
+  const scrubber = (
+    <div className="horo-scrubber">
       {frames && range && (
         <>
-          <div className="horo-scrubber__sep" />
           <button
             className="horo-scrubber__play"
             onClick={() => setPlaying(!playing)}
@@ -149,34 +214,6 @@ function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, 
               day: 'numeric',
             })}
           </span>
-          <div className="horo-scrubber__sep" />
-          <div className="horo-scrubber__lines">
-            <button
-              className={`horo-scrubber__lines-btn${linesOpen ? ' open' : ''}`}
-              onClick={() => setLinesOpen((v) => !v)}
-            >
-              Lines ({enabledBodies.size}) ▾
-            </button>
-            {linesOpen && (
-              <div className="horo-scrubber__lines-pop">
-                {ALL_TRANSIT_BODIES.map((body) => {
-                  const info = BODIES[body];
-                  const on = enabledBodies.has(body);
-                  return (
-                    <button
-                      key={body}
-                      className={`horo-scrubber__body${on ? ' on' : ''}`}
-                      style={on ? { color: info?.color } : undefined}
-                      onClick={() => toggleBody(body)}
-                      title={`${body} aspect lines ${on ? 'on' : 'off'}`}
-                    >
-                      {(info?.glyph || body) + '\uFE0E'}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
         </>
       )}
     </div>
@@ -197,6 +234,7 @@ function HoroscopeSkyStage({ birthChart, focusTransit, askSelection, onSkyPick, 
         highlightBodies: focusTarget,
         onSelectBody: onSkyPick,
       }}
+      subnav={horizonBar}
       panel={panel}
       panelHeader={panelHeader}
       footer={scrubber}
