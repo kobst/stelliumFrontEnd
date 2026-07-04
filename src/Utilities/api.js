@@ -1494,6 +1494,24 @@ export const createRelationshipWithFullAnalysis = async (userIdA, userIdB) => {
   }
 };
 
+// Raw transit ephemeris snapshots for the 3D chart's animated sky layer
+export const getTransitFrames = async (from, to) => {
+  try {
+    const response = await authenticatedFetch(`${SERVER_URL}/getTransitFrames`, {
+      method: HTTP_POST,
+      body: JSON.stringify({ from, to })
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data?.frames || [];
+  } catch (error) {
+    console.error(ERROR_API_CALL, error);
+    throw error;
+  }
+};
+
 // Horoscope API Functions
 
 export const generateWeeklyHoroscope = async (userId, startDate) => {

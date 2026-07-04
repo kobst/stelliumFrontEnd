@@ -28,6 +28,71 @@ const SUPPORTED_ASPECT_TYPES = new Set([
   'opposition',
 ]);
 
+// Transit orbs run tighter than natal ones (matches backend practice).
+const TRANSIT_ASPECTS = [
+  { type: 'conjunction', angle: 0, maxOrb: 6 },
+  { type: 'sextile', angle: 60, maxOrb: 3 },
+  { type: 'square', angle: 90, maxOrb: 5 },
+  { type: 'trine', angle: 120, maxOrb: 5 },
+  { type: 'opposition', angle: 180, maxOrb: 6 },
+];
+
+/**
+ * /getTransitFrames snapshots + natal planets → TransitFrame[] for the
+ * 3D scene. Per-frame transit→natal aspect matching happens here (plain
+ * arithmetic on supplied longitudes, same as utils/patternHelpers) so
+ * the scene component stays calculation-free.
+ */
+export function toTransitFrames(frameDocs = [], natalPlanets = []) {
+  const natal = (natalPlanets || [])
+    .map((p) => ({ body: BODY_NAME_MAP[p.name], lon: Number(p.full_degree) }))
+    .filter(
+      (n) => n.body && n.body !== 'asc' && n.body !== 'mc' && Number.isFinite(n.lon)
+    );
+
+  return frameDocs
+    .map((doc) => {
+      const placements = (doc.planets || [])
+        .map((t) => {
+          const body = BODY_NAME_MAP[t.name];
+          const longitude = Number(t.lon);
+          if (!body || !Number.isFinite(longitude)) return null;
+          return { body, longitude, retrograde: Number(t.speed) < 0 };
+        })
+        .filter(Boolean);
+
+      const aspects = [];
+      placements.forEach((t) => {
+        natal.forEach((n) => {
+          let sep = Math.abs(t.longitude - n.lon) % 360;
+          if (sep > 180) sep = 360 - sep;
+          let best = null;
+          for (const a of TRANSIT_ASPECTS) {
+            const orb = Math.abs(sep - a.angle);
+            if (orb <= a.maxOrb && (!best || orb < best.orb)) {
+              best = { type: a.type, orb };
+            }
+          }
+          if (best) {
+            aspects.push({
+              bodyA: t.body,
+              bodyB: n.body,
+              type: best.type,
+              orb: best.orb,
+              layerA: 'secondary',
+              layerB: 'natal',
+            });
+          }
+        });
+      });
+
+      const date = new Date(doc.date);
+      if (Number.isNaN(date.getTime()) || placements.length === 0) return null;
+      return { date: date.toISOString(), placements, aspects };
+    })
+    .filter(Boolean);
+}
+
 /** backend body names ("Sun", "Ascendant"…) → scene names; unmapped dropped */
 export function toSceneBodyNames(names) {
   if (!names || !names.length) return undefined;

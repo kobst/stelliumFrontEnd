@@ -16,6 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 import { formatLocalDateParam } from '../Utilities/horoscopeDates';
+import HoroscopeSkyRibbon from '../UI/dashboard/HoroscopeSkyRibbon';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import AddChartModal from '../UI/dashboard/AddChartModal';
@@ -283,6 +284,8 @@ function HomePane({ userId, user, entitlements }) {
   const [horoErrors, setHoroErrors] = useState({ daily: null, weekly: null, monthly: null });
   const [transits, setTransits] = useState([]);
   const [askOpen, setAskOpen] = useState(false);
+  // hovered key-influence pill; isolates that transit in the sky ribbon
+  const [focusTransit, setFocusTransit] = useState(null);
 
   // Daily is available to Free users for 1 credit and included with Plus.
   // The backend remains authoritative for affordability and charging.
@@ -395,6 +398,11 @@ function HomePane({ userId, user, entitlements }) {
           ))}
         </div>
 
+        <HoroscopeSkyRibbon
+          birthChart={user?.birthChart}
+          focusTransit={focusTransit}
+        />
+
         <div className="md-horo-body">
           {dailyLocked && (
             <div className="md-horo-empty">
@@ -420,7 +428,12 @@ function HomePane({ userId, user, entitlements }) {
                   const dateLabel = formatTransitDate(t);
                   if (!title) return null;
                   return (
-                    <span className="md-influence-pill" key={i}>
+                    <span
+                      className="md-influence-pill"
+                      key={i}
+                      onMouseEnter={() => setFocusTransit(t)}
+                      onMouseLeave={() => setFocusTransit(null)}
+                    >
                       {title}
                       {dateLabel && (
                         <>
