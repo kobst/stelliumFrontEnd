@@ -54,7 +54,6 @@ function HoroscopeSkyStage({
 }) {
   // which transiting bodies draw aspect lines (markers always render)
   const [enabledBodies, setEnabledBodies] = useState(() => new Set(DEFAULT_ON));
-  const [linesOpen, setLinesOpen] = useState(false);
   const toggleBody = (body) =>
     setEnabledBodies((prev) => {
       const next = new Set(prev);
@@ -195,35 +194,39 @@ function HoroscopeSkyStage({
         >
           {composing ? 'Composing…' : customActive ? '✦ Custom reading' : '✦ Compose custom'}
         </button>
-        <div className="horo-scrubber__lines">
-          <button
-            className={`horo-scrubber__lines-btn${linesOpen ? ' open' : ''}`}
-            onClick={() => setLinesOpen((v) => !v)}
-          >
-            Lines ({enabledBodies.size}) ▾
-          </button>
-          {linesOpen && (
-            <div className="horo-scrubber__lines-pop horo-scrubber__lines-pop--below">
-              {ALL_TRANSIT_BODIES.map((body) => {
-                const info = BODIES[body];
-                const on = enabledBodies.has(body);
-                return (
-                  <button
-                    key={body}
-                    className={`horo-scrubber__body${on ? ' on' : ''}`}
-                    style={on ? { color: info?.color } : undefined}
-                    onClick={() => toggleBody(body)}
-                    title={`${body} aspect lines ${on ? 'on' : 'off'}`}
-                  >
-                    {(info?.glyph || body) + '\uFE0E'}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
       </div>
     </>
+  );
+
+  // always-visible transit filter strip, top-left of the scene
+  const allOn = enabledBodies.size === ALL_TRANSIT_BODIES.length;
+  const bodyStrip = (
+    <div className="transit-strip">
+      <span className="transit-strip__label">Transits</span>
+      <button
+        className={`transit-strip__all${allOn ? ' on' : ''}`}
+        onClick={() =>
+          setEnabledBodies(allOn ? new Set() : new Set(ALL_TRANSIT_BODIES))
+        }
+      >
+        {allOn ? 'None' : 'All'}
+      </button>
+      {ALL_TRANSIT_BODIES.map((body) => {
+        const info = BODIES[body];
+        const on = enabledBodies.has(body);
+        return (
+          <button
+            key={body}
+            className={`horo-scrubber__body${on ? ' on' : ''}`}
+            style={on ? { color: info?.color } : undefined}
+            onClick={() => toggleBody(body)}
+            title={`${body} aspect lines ${on ? 'on' : 'off'}`}
+          >
+            {(info?.glyph || body) + '\uFE0E'}
+          </button>
+        );
+      })}
+    </div>
   );
 
   // the scrubber is pure playback within the horizon
@@ -278,6 +281,7 @@ function HoroscopeSkyStage({
         onSelectBody: handleSelectBody,
       }}
       subnav={horizonBar}
+      topLeft={bodyStrip}
       panel={panel}
       panelHeader={panelHeader}
       footer={scrubber}

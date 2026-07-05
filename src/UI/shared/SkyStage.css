@@ -156,3 +156,14 @@
 .sky-stage--with-subnav .sky-stage__panel-toggle--closed {
   top: 82px;
 }
+
+/* ── top-left strip (e.g. transit body filter) ── */
+.sky-stage__topleft {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  z-index: 5;
+}
+.sky-stage--with-subnav .sky-stage__topleft {
+  top: 68px;
+}

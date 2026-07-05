@@ -14,7 +14,7 @@ import './SkyStage.css';
  *     overlay={<SelectionDetail ... />}  // bottom-left overlay
  *   />
  */
-function SkyStage({ sceneProps, subnav, panel, panelHeader, footer, overlay }) {
+function SkyStage({ sceneProps, subnav, topLeft, panel, panelHeader, footer, overlay }) {
   const [panelOpen, setPanelOpen] = useState(true);
   const [interacted, setInteracted] = useState(false);
 
@@ -43,6 +43,7 @@ function SkyStage({ sceneProps, subnav, panel, panelHeader, footer, overlay }) {
       </div>
 
       {subnav && <div className="sky-stage__subnav">{subnav}</div>}
+      {topLeft && <div className="sky-stage__topleft">{topLeft}</div>}
 
       {!interacted && !overlay && (
         <div className="sky-stage__hint">
