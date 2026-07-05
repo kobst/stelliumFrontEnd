@@ -75,6 +75,8 @@ export interface ChartSceneProps {
    * on mount/resize/panel-toggle (e.g. 6.4 = wheel + transit ring)
    */
   fitRadius?: number
+  /** bump to re-run the OrbitFit framing (a "recenter" control) */
+  fitNonce?: number
   /** pointer enters/leaves a planet marker (null on leave) */
   onHoverBody?: (hover: BodySelection | null) => void
   /** planet selected/deselected (click marker / click empty space) */

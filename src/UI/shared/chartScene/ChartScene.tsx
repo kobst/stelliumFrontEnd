@@ -59,7 +59,7 @@ const ORBIT_DIR = { y: 0.6402, z: 0.7682 }
  * along the default orbit direction. Reapplies on resize and panel
  * toggles; the user's own orbiting takes over between refits.
  */
-function OrbitFit({ fitRadius, coveredRightPx }: { fitRadius: number; coveredRightPx: number }) {
+function OrbitFit({ fitRadius, coveredRightPx, fitNonce = 0 }: { fitRadius: number; coveredRightPx: number; fitNonce?: number }) {
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
   useEffect(() => {
@@ -69,7 +69,7 @@ function OrbitFit({ fitRadius, coveredRightPx }: { fitRadius: number; coveredRig
     const dist = fitRadius / (halfV * Math.min(1, effAspect))
     camera.position.set(0, ORBIT_DIR.y * dist, ORBIT_DIR.z * dist)
     camera.lookAt(0, 0, 0)
-  }, [camera, size, fitRadius, coveredRightPx])
+  }, [camera, size, fitRadius, coveredRightPx, fitNonce])
   return null
 }
 
@@ -113,6 +113,7 @@ export function ChartScene({
   topDown = false,
   coveredRightPx = 0,
   fitRadius,
+  fitNonce = 0,
   onHoverBody,
   onSelectBody,
 }: ChartSceneProps) {
@@ -171,6 +172,11 @@ export function ChartScene({
     [highlightBodies],
   )
 
+  const transitFilterSet = useMemo(
+    () => (transitAspectBodies ? new Set(transitAspectBodies) : null),
+    [transitAspectBodies],
+  )
+
   const stateFor = (body: string, layer: SelectionLayer): MarkerState => {
     const matches = (s: BodySelection | null) =>
       !!s && s.body === body && s.layer === layer
@@ -217,7 +223,7 @@ export function ChartScene({
       onPointerMissed={() => select(null)}
     >
       {topDown && <TopDownFit />}
-      {!topDown && fitRadius ? <OrbitFit fitRadius={fitRadius} coveredRightPx={coveredRightPx} /> : null}
+      {!topDown && fitRadius ? <OrbitFit fitRadius={fitRadius} coveredRightPx={coveredRightPx} fitNonce={fitNonce} /> : null}
       <ViewOffset coveredRightPx={coveredRightPx} />
       <color attach="background" args={['#030308']} />
       <ambientLight intensity={0.4} />
@@ -262,7 +268,11 @@ export function ChartScene({
           aspectBodies={transitAspectBodies}
           lineBoost={transitLineBoost}
           focus={selection}
-          markerStateFor={(body) => stateFor(body, 'transit')}
+          markerStateFor={(body) => {
+            const base = stateFor(body, 'transit')
+            if (base !== 'normal') return base
+            return transitFilterSet && !transitFilterSet.has(body) ? 'muted' : 'normal'
+          }}
           onHoverBody={transitHandlers.onHover}
           onSelectBody={transitHandlers.onSelect}
         />

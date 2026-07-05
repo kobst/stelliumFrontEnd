@@ -1046,3 +1046,9 @@
   flex-direction: column;
   transform: none;
 }
+
+/* dock: the SkyStage panel already provides tabs + chrome; the panel's
+   own header would be a second "Ask Stellium" masthead — hide it */
+.ask-panel--dock .ask-panel__header {
+  display: none;
+}

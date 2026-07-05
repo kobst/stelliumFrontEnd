@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import SkyStage from '../shared/SkyStage';
 import { BODIES } from '../shared/chartScene/constants';
 import useTransitFrames from '../../hooks/useTransitFrames';
@@ -13,66 +13,50 @@ const ALL_TRANSIT_BODIES = [
   'sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter',
   'saturn', 'uranus', 'neptune', 'pluto',
 ];
-// lunar aspect lines churn too fast to read by default; the chip on the
-// timeline turns them back on
-const DEFAULT_ON = ALL_TRANSIT_BODIES.filter((b) => b !== 'moon');
 
-// the sky's window IS the reading's window: the horizon and playback
-// pace follow the selected period
+const FULL_SPAN_DAYS = 30;
+
+// window size + playback pace per period; the timeline itself is
+// always the full month
 const PERIOD_WINDOWS = {
   daily: { days: 1, playSeconds: 20 },
   weekly: { days: 7, playSeconds: 60 },
   monthly: { days: 30, playSeconds: 120 },
 };
 
-/**
- * The horoscope as a stage: the user's natal wheel full-screen with the
- * selected period's real transits playing over it, the reading docked
- * beside it, and a scrubber to drag the horizon under your thumb.
- * Degrades to the natal sky if the frames endpoint is unavailable.
- */
 const PERIOD_CHIPS = [
   { id: 'daily', label: 'Today' },
   { id: 'weekly', label: 'This Week' },
   { id: 'monthly', label: 'This Month' },
 ];
 
+const fmtTick = (ms) =>
+  new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const fmtBarDate = (ms) =>
+  new Date(ms).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+/**
+ * The horoscope as a stage. One time instrument (bottom bar): period
+ * tabs + a fixed month-long timeline where the period highlights a
+ * window, playback loops inside it. Aspect lines default to the
+ * reading's transits; the chip strip (with labels) can widen to All or
+ * narrow to a custom set — filtered planets dim in the scene too.
+ */
 function HoroscopeSkyStage({
   birthChart,
   focusTransit,
+  pinnedTransit,
   askSelection,
+  readingTransits, // backend transiting-planet names cited by the reading
   onSkyPick,
   panel,
   panelHeader,
   period = 'weekly',
   onPeriodChange,
-  customActive = false,
-  composing = false,
-  onComposeIntent,
-  onClearCustom,
   onTimeSample,
 }) {
-  // which transiting bodies draw aspect lines (markers always render)
-  const [enabledBodies, setEnabledBodies] = useState(() => new Set(DEFAULT_ON));
-  const toggleBody = (body) =>
-    setEnabledBodies((prev) => {
-      const next = new Set(prev);
-      if (next.has(body)) next.delete(body);
-      else next.add(body);
-      return next;
-    });
-
   const window_ = PERIOD_WINDOWS[period] || PERIOD_WINDOWS.weekly;
-  // stable per period so the hook doesn't refetch every render
-  const { fromMs, toMs, playSeconds } = useMemo(() => {
-    const now = Date.now();
-    return {
-      fromMs: now - 6 * 3600000, // small back-buffer so "now" is in range
-      toMs: now + window_.days * 86400000,
-      playSeconds: window_.playSeconds,
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [period]);
+
   const natal = useMemo(
     () => toChartScenePlacements(birthChart?.planets),
     [birthChart?.planets]
@@ -82,56 +66,56 @@ function HoroscopeSkyStage({
     [birthChart?.aspects]
   );
 
-  const { frames, range, playMs, playing, setPlaying, scrubTo } =
-    useTransitFrames(birthChart?.planets, { fromMs, toMs, playSeconds });
+  const { frames, range, window: playWindow, playMs, playing, setPlaying, scrubTo } =
+    useTransitFrames(birthChart?.planets, {
+      windowDays: window_.days,
+      playSeconds: window_.playSeconds,
+    });
 
-  // report the playhead so sky clicks resolve against *this moment*
-  React.useEffect(() => {
+  useEffect(() => {
     onTimeSample?.(playMs);
   }, [playMs, onTimeSample]);
 
-  // a sky click means "this body, at this moment": resolve it against
-  // the SAME frame data that draws the lines, so the chips that arrive
-  // are exactly the aspects on screen
-  const handleSelectBody = React.useCallback(
-    (sel) => {
-      if (!sel) return;
-      let activeAspects = [];
-      if (frames?.length) {
-        let best = frames[0];
-        let bestD = Infinity;
-        for (const f of frames) {
-          const d = Math.abs(Date.parse(f.date) - playMs);
-          if (d < bestD) {
-            bestD = d;
-            best = f;
-          }
-        }
-        activeAspects = (best.aspects || []).filter((a) =>
-          sel.layer === 'transit' ? a.bodyA === sel.body : a.bodyB === sel.body
-        );
-      }
-      onSkyPick?.(sel, activeAspects);
-    },
-    [frames, playMs, onSkyPick]
+  // ── chips: 'reading' (default) | 'all' | 'custom' ─────────────────
+  const readingSceneBodies = useMemo(
+    () => toSceneBodyNames(readingTransits) || [],
+    [readingTransits]
   );
+  const [chipMode, setChipMode] = useState('reading');
+  const [customBodies, setCustomBodies] = useState(() => new Set());
 
-  // emphasis priority: hovered pill > Ask context selection > default
-  const askTransiting = useMemo(() => {
-    const names = (askSelection || [])
-      .map((el) => el.payload?.transitingPlanet)
-      .filter(Boolean);
-    return toSceneBodyNames(names);
-  }, [askSelection]);
-  const askTargets = useMemo(() => {
-    const names = (askSelection || [])
-      .map((el) => el.payload?.targetPlanet)
-      .filter(Boolean);
-    return toSceneBodyNames(names);
-  }, [askSelection]);
+  // the reading changed (period switch / regeneration): return to its set
+  useEffect(() => {
+    setChipMode('reading');
+  }, [readingSceneBodies]);
 
-  // hover isolates (transient); otherwise the Lines filter is the base
-  // and the Ask selection's bodies are ADDED to it, never replacing it
+  const activeBodies = useMemo(() => {
+    if (chipMode === 'all') return new Set(ALL_TRANSIT_BODIES);
+    if (chipMode === 'custom') return customBodies;
+    return new Set(
+      readingSceneBodies.length
+        ? readingSceneBodies
+        : ALL_TRANSIT_BODIES.filter((b) => b !== 'moon')
+    );
+  }, [chipMode, customBodies, readingSceneBodies]);
+
+  const toggleBody = (body) => {
+    const next = new Set(activeBodies);
+    if (next.has(body)) next.delete(body);
+    else next.add(body);
+    setCustomBodies(next);
+    setChipMode('custom');
+  };
+
+  // ── emphasis: pinned influence > hover > ask selection > chips ────
+  const pinScene = useMemo(() => {
+    if (!pinnedTransit) return null;
+    return {
+      transiting: toSceneBodyNames([pinnedTransit.transitingPlanet]),
+      target: toSceneBodyNames([pinnedTransit.targetPlanet || pinnedTransit.natalPlanet]),
+    };
+  }, [pinnedTransit]);
+
   const hoverTransiting = focusTransit
     ? toSceneBodyNames([
         focusTransit.transitingPlanet ||
@@ -139,152 +123,207 @@ function HoroscopeSkyStage({
           focusTransit.transit?.transitingPlanet,
       ])
     : undefined;
-  const focusTarget = focusTransit
+  const hoverTarget = focusTransit
     ? toSceneBodyNames([
         focusTransit.targetPlanet || focusTransit.target || focusTransit.natalPlanet,
       ])
-    : askTargets;
+    : undefined;
 
-  const baseBodies = useMemo(() => {
-    const set = new Set(enabledBodies);
-    (askTransiting || []).forEach((b) => set.add(b));
-    return [...set];
-  }, [enabledBodies, askTransiting]);
+  const askTargets = useMemo(() => {
+    const names = (askSelection || [])
+      .map((el) => el.payload?.targetPlanet)
+      .filter(Boolean);
+    return toSceneBodyNames(names);
+  }, [askSelection]);
 
-  if (!natal.length) return null;
+  const transitAspectBodies =
+    pinScene?.transiting || hoverTransiting || [...activeBodies];
+  const highlightBodies = pinScene?.target || hoverTarget || askTargets;
+  const focused =
+    !!pinScene || !!hoverTransiting?.length || activeBodies.size <= 4;
 
-  const fmtShort = (ms) =>
-    new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  // pinning an influence scrubs the timeline to its day
+  useEffect(() => {
+    if (!pinnedTransit || !playWindow) return;
+    const value =
+      pinnedTransit.exact || pinnedTransit.exactDate || pinnedTransit.peakDate || pinnedTransit.date;
+    const ms = value ? Date.parse(value) : NaN;
+    if (Number.isFinite(ms)) scrubTo(ms);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pinnedTransit]);
 
-  // the horizon bar is the page's one frame: it governs the sky's
-  // window, the reading in the dock, the scrubber bounds, and where a
-  // custom reading lives
-  const horizonBar = (
-    <>
-      <div className="horizon-tabs" role="tablist">
-        {PERIOD_CHIPS.map((p) => {
-          const active = period === p.id;
-          return (
-            <button
-              key={p.id}
-              role="tab"
-              aria-selected={active}
-              className={`horizon-tab${active ? ' active' : ''}`}
-              onClick={() => {
-                if (active && customActive) onClearCustom?.();
-                else onPeriodChange?.(p.id);
-              }}
-              title={active && customActive ? 'Back to the standard reading' : undefined}
-            >
-              {p.label}
-              {active && customActive ? <span className="horizon-tab__custom">✦</span> : null}
-            </button>
-          );
-        })}
+  // ⌖ recenter re-runs the camera fit
+  const [fitNonce, setFitNonce] = useState(0);
+
+  // ── the one time instrument ────────────────────────────────────────
+  const timelineRef = useRef(null);
+  const draggingRef = useRef(false);
+
+  const msFromEvent = (e) => {
+    const el = timelineRef.current;
+    if (!el || !range) return null;
+    const r = el.getBoundingClientRect();
+    const frac = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    return range.start + frac * (range.end - range.start);
+  };
+
+  const timebar = range && playWindow && (
+    <div className="timebar">
+      <div className="timebar__periods" role="tablist">
+        {PERIOD_CHIPS.map((p) => (
+          <button
+            key={p.id}
+            role="tab"
+            aria-selected={period === p.id}
+            className={`timebar__period${period === p.id ? ' active' : ''}`}
+            onClick={() => onPeriodChange?.(p.id)}
+          >
+            {p.label}
+          </button>
+        ))}
       </div>
-      <div className="horizon-range">
-        {range ? `${fmtShort(range.start)} – ${fmtShort(range.end)}` : ''}
+      <button
+        className="timebar__play"
+        onClick={() => setPlaying(!playing)}
+        aria-label={playing ? 'Pause' : 'Play'}
+      >
+        {playing ? '❚❚' : '▶'}
+      </button>
+      <div
+        className="timebar__track"
+        ref={timelineRef}
+        onPointerDown={(e) => {
+          draggingRef.current = true;
+          e.currentTarget.setPointerCapture(e.pointerId);
+          const ms = msFromEvent(e);
+          if (ms !== null) scrubTo(ms);
+        }}
+        onPointerMove={(e) => {
+          if (!draggingRef.current) return;
+          const ms = msFromEvent(e);
+          if (ms !== null) scrubTo(ms);
+        }}
+        onPointerUp={() => {
+          draggingRef.current = false;
+        }}
+      >
+        <div
+          className="timebar__window"
+          style={{
+            width: `${((playWindow.end - playWindow.start) / (range.end - range.start)) * 100}%`,
+          }}
+        />
+        <div
+          className="timebar__playhead"
+          style={{
+            left: `${((playMs - range.start) / (range.end - range.start)) * 100}%`,
+          }}
+        />
+        <div className="timebar__ticks">
+          {[0, 7, 14, 21, FULL_SPAN_DAYS].map((d) => (
+            <span key={d} style={{ left: `${(d / FULL_SPAN_DAYS) * 100}%` }}>
+              {fmtTick(range.start + d * 86400000)}
+            </span>
+          ))}
+        </div>
       </div>
-      <div className="horizon-actions">
-        <button
-          className={`horizon-compose${customActive ? ' active' : ''}`}
-          onClick={onComposeIntent}
-          disabled={composing}
-          title="Pick influences on the sky, then compose a reading from them"
-        >
-          {composing ? 'Composing…' : customActive ? '✦ Custom reading' : '✦ Compose custom'}
-        </button>
-      </div>
-    </>
+      <span className="timebar__date">{fmtBarDate(playMs)}</span>
+      <button
+        className="timebar__now"
+        title="Jump the playhead back to the present moment"
+        onClick={() => scrubTo(Date.now())}
+      >
+        Now
+      </button>
+      <button
+        className="timebar__recenter"
+        title="Recenter the sky"
+        onClick={() => setFitNonce((n) => n + 1)}
+      >
+        ⌖
+      </button>
+    </div>
   );
 
-  // always-visible transit filter strip, top-left of the scene
-  const allOn = enabledBodies.size === ALL_TRANSIT_BODIES.length;
+  // ── transit chips (labeled; default = the reading's transits) ─────
+  const allOn = chipMode === 'all';
   const bodyStrip = (
     <div className="transit-strip">
       <span className="transit-strip__label">Transits</span>
       <button
         className={`transit-strip__all${allOn ? ' on' : ''}`}
-        onClick={() =>
-          setEnabledBodies(allOn ? new Set() : new Set(ALL_TRANSIT_BODIES))
-        }
+        onClick={() => setChipMode(allOn ? 'reading' : 'all')}
       >
-        {allOn ? 'None' : 'All'}
+        All
       </button>
       {ALL_TRANSIT_BODIES.map((body) => {
         const info = BODIES[body];
-        const on = enabledBodies.has(body);
+        const on = activeBodies.has(body);
         return (
           <button
             key={body}
-            className={`horo-scrubber__body${on ? ' on' : ''}`}
-            style={on ? { color: info?.color } : undefined}
+            className={`transit-chip${on ? ' on' : ''}`}
+            style={on && info?.color ? { '--pc': info.color } : undefined}
             onClick={() => toggleBody(body)}
             title={`${body} aspect lines ${on ? 'on' : 'off'}`}
           >
-            {(info?.glyph || body) + '\uFE0E'}
+            <span className="transit-chip__g">{(info?.glyph || body) + '︎'}</span>
+            <span className="transit-chip__n">
+              {body.charAt(0).toUpperCase() + body.slice(1)}
+            </span>
           </button>
         );
       })}
+      <span className="transit-strip__hint">
+        {chipMode === 'reading'
+          ? 'Showing the reading’s transits'
+          : chipMode === 'all'
+            ? 'Showing every transit'
+            : 'Custom selection'}
+      </span>
     </div>
   );
 
-  // the scrubber is pure playback within the horizon
-  const scrubber = (
-    <div className="horo-scrubber">
-      {frames && range && (
-        <>
-          <button
-            className="horo-scrubber__play"
-            onClick={() => setPlaying(!playing)}
-            aria-label={playing ? 'Pause' : 'Play'}
-          >
-            {playing ? '❚❚' : '▶'}
-          </button>
-          <span className="horo-scrubber__bound">{fmtShort(range.start)}</span>
-          <input
-            type="range"
-            min={range.start}
-            max={range.end}
-            value={Math.round(playMs)}
-            onChange={(e) => scrubTo(Number(e.target.value))}
-          />
-          <span className="horo-scrubber__bound">{fmtShort(range.end)}</span>
-          <span className="horo-scrubber__date">
-            {new Date(playMs).toLocaleDateString('en-US', {
-              weekday: 'short',
-              month: 'short',
-              day: 'numeric',
-            })}
-          </span>
-        </>
-      )}
-    </div>
-  );
+  if (!natal.length) return null;
 
   return (
     <SkyStage
       sceneProps={{
         natal,
         natalAspects,
-        // fit the whole system (wheel + transit ring) beside the panel
         fitRadius: 6.4,
+        fitNonce,
         transitFrames: frames || undefined,
         transitDate: frames ? new Date(playMs).toISOString() : undefined,
-        transitAspectBodies: hoverTransiting?.length
-          ? hoverTransiting
-          : baseBodies,
-        // narrowed or hover-isolated views get the linear ramp so
-        // wide-orb lines of slow movers still show
-        transitLineBoost: !!hoverTransiting?.length || baseBodies.length <= 4,
-        highlightBodies: focusTarget,
-        onSelectBody: handleSelectBody,
+        transitAspectBodies,
+        transitLineBoost: focused,
+        highlightBodies,
+        onSelectBody: onSkyPick
+          ? (sel) => {
+              if (!sel || !frames?.length) {
+                onSkyPick(sel, []);
+                return;
+              }
+              let best = frames[0];
+              let bestD = Infinity;
+              for (const f of frames) {
+                const d = Math.abs(Date.parse(f.date) - playMs);
+                if (d < bestD) {
+                  bestD = d;
+                  best = f;
+                }
+              }
+              const active = (best.aspects || []).filter((a) =>
+                sel.layer === 'transit' ? a.bodyA === sel.body : a.bodyB === sel.body
+              );
+              onSkyPick(sel, active);
+            }
+          : undefined,
       }}
-      subnav={horizonBar}
       topLeft={bodyStrip}
       panel={panel}
       panelHeader={panelHeader}
-      footer={scrubber}
+      footer={timebar}
     />
   );
 }
