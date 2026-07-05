@@ -10,9 +10,14 @@ import {
   toSceneBodyNames,
   fromSceneBodyName,
 } from '../Utilities/chartSceneAdapter';
-import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
-import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
+import {
+  ElementsLens,
+  ModalitiesLens,
+  QuadrantsLens,
+  InfluenceLens,
+  ShapesLens,
+} from '../UI/journey/PatternLenses';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
 import AskStelliumPanel, { formatPositionData } from '../UI/askStellium/AskStelliumPanel';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
@@ -67,6 +72,7 @@ function ChartReaderPage() {
   } = useChartData(userId, chartId);
 
   const [activeAct, setActiveAct] = useState('hero');
+  const [liveStep, setLiveStep] = useState('hero');
 
   // emphasis channels (backend names): hover from the section graphics
   // wins over the Planets picker's persistent selection
@@ -133,10 +139,13 @@ function ChartReaderPage() {
         const d = Math.abs((r.top + r.bottom) / 2 - mid);
         if (d < bestDist) {
           bestDist = d;
-          best = id;
+          best = { id, el };
         }
       });
-      if (best) setActiveAct(best);
+      if (best) {
+        setLiveStep(best.id);
+        setActiveAct(best.el.dataset.act || best.id);
+      }
     };
     const onScroll = () => {
       if (!ticking) {
@@ -162,8 +171,10 @@ function ChartReaderPage() {
   }, []);
 
   const scrollToAct = (id) => {
-    const el = stepRefs.current[id];
     const container = scrollRef.current;
+    const el =
+      stepRefs.current[id] ||
+      Object.values(stepRefs.current).find((e) => e && e.dataset.act === id);
     if (el && container) {
       container.scrollTo({ top: el.offsetTop - 90, behavior: 'smooth' });
     }
@@ -207,8 +218,9 @@ function ChartReaderPage() {
     .join(' · ');
 
   const hoveredPlanet = hoverInfo ? sceneBodyLookup[hoverInfo.body] : null;
-  const setStepRef = (id) => (el) => {
+  const setStepRef = (id, act) => (el) => {
     stepRefs.current[id] = el;
+    if (el) el.dataset.act = act || id;
   };
 
   return (
@@ -301,7 +313,7 @@ function ChartReaderPage() {
       >
         <div className="journey-body">
           <section
-            className={`journey-step journey-step--hero${activeAct === 'hero' ? ' live' : ''}`}
+            className={`journey-step journey-step--hero${liveStep === 'hero' ? ' live' : ''}`}
             ref={setStepRef('hero')}
           >
             <div className="journey-chapter">The 360 Reading</div>
@@ -311,21 +323,22 @@ function ChartReaderPage() {
           </section>
 
           <section
-            className={`journey-step journey-step--wide${activeAct === 'overview' ? ' live' : ''}`}
+            className={`journey-step journey-step--wide${liveStep === 'overview' ? ' live' : ''}`}
             ref={setStepRef('overview')}
           >
             <div className="journey-chapter">I · Overview</div>
-            <OverviewTab
-              basicAnalysis={basicAnalysis}
-              chartId={chartId}
-              birthChart={birthChart}
-              canUseAskStellium={false}
-            />
+            {(basicAnalysis?.overview || '')
+              .split(/\n\s*\n|\n/)
+              .map((t) => t.trim())
+              .filter(Boolean)
+              .map((t, i) => (
+                <p key={i}>{t}</p>
+              ))}
             <p className="journey-lede">Those are the claims. Now, the evidence.</p>
           </section>
 
           <section
-            className={`journey-step journey-step--wide${activeAct === 'patterns' ? ' live' : ''}`}
+            className={`journey-step journey-step--wide${liveStep === 'patterns' ? ' live' : ''}`}
             ref={setStepRef('patterns')}
           >
             <div className="journey-chapter">II · Patterns</div>
@@ -333,25 +346,72 @@ function ChartReaderPage() {
               The weather system of the chart — five lenses on the same sky, each drawing
               its own picture.
             </p>
-            <DominancePatternsTab
-              birthChart={birthChart}
-              basicAnalysis={basicAnalysis}
-              elements={elements}
-              modalities={modalities}
-              quadrants={quadrants}
-              planetaryDominance={planetaryDominance}
-              hasAnalysis={hasAnalysis}
-              onNavigateToAnalysis={() => scrollToAct('analysis')}
-              creditCost={CREDIT_COSTS.FULL_NATAL}
-              creditsRemaining={entitlements.credits?.total}
-              chartId={chartId}
-              canUseAskStellium={false}
+          </section>
+
+          <section
+            className={`journey-step journey-step--wide${liveStep === 'lens-elements' ? ' live' : ''}`}
+            ref={setStepRef('lens-elements', 'patterns')}
+          >
+            <div className="journey-subchapter">Elements</div>
+            <ElementsLens
+              data={elements?.elements}
+              interpretation={basicAnalysis?.dominance?.elements?.interpretation}
               onHoverBodies={setHoverNames}
             />
           </section>
 
           <section
-            className={`journey-step journey-step--panel${activeAct === 'planets' ? ' live' : ''}`}
+            className={`journey-step journey-step--wide${liveStep === 'lens-modalities' ? ' live' : ''}`}
+            ref={setStepRef('lens-modalities', 'patterns')}
+          >
+            <div className="journey-subchapter">Modalities</div>
+            <ModalitiesLens
+              data={modalities?.modalities}
+              interpretation={basicAnalysis?.dominance?.modalities?.interpretation}
+              onHoverBodies={setHoverNames}
+            />
+          </section>
+
+          <section
+            className={`journey-step journey-step--wide${liveStep === 'lens-quadrants' ? ' live' : ''}`}
+            ref={setStepRef('lens-quadrants', 'patterns')}
+          >
+            <div className="journey-subchapter">Quadrants</div>
+            <QuadrantsLens
+              data={quadrants?.quadrants}
+              interpretation={basicAnalysis?.dominance?.quadrants?.interpretation}
+              onHoverBodies={setHoverNames}
+            />
+          </section>
+
+          <section
+            className={`journey-step journey-step--wide${liveStep === 'lens-influence' ? ' live' : ''}`}
+            ref={setStepRef('lens-influence', 'patterns')}
+          >
+            <div className="journey-subchapter">Planetary Influence</div>
+            <InfluenceLens
+              data={planetaryDominance?.planets}
+              interpretation={basicAnalysis?.dominance?.planetary?.interpretation}
+              onHoverBodies={setHoverNames}
+            />
+          </section>
+
+          <section
+            className={`journey-step journey-step--wide${liveStep === 'lens-shapes' ? ' live' : ''}`}
+            ref={setStepRef('lens-shapes', 'patterns')}
+          >
+            <div className="journey-subchapter">Chart Shapes</div>
+            <ShapesLens
+              patterns={birthChart?.patterns?.patterns || birthChart?.patterns || []}
+              planets={birthChart?.planets || []}
+              aspects={birthChart?.aspects || []}
+              interpretation={basicAnalysis?.dominance?.pattern?.interpretation}
+              onHoverBodies={setHoverNames}
+            />
+          </section>
+
+          <section
+            className={`journey-step journey-step--panel${liveStep === 'planets' ? ' live' : ''}`}
             ref={setStepRef('planets')}
           >
             <div className="journey-chapter">III · Chart &amp; Planets</div>
@@ -376,7 +436,7 @@ function ChartReaderPage() {
           </section>
 
           <section
-            className={`journey-step journey-step--panel${activeAct === 'analysis' ? ' live' : ''}`}
+            className={`journey-step journey-step--panel${liveStep === 'analysis' ? ' live' : ''}`}
             ref={setStepRef('analysis')}
           >
             <div className="journey-chapter">IV · 360 Analysis</div>
@@ -396,7 +456,7 @@ function ChartReaderPage() {
           </section>
 
           <section
-            className={`journey-step journey-step--panel journey-step--close${activeAct === 'ask' ? ' live' : ''}`}
+            className={`journey-step journey-step--panel journey-step--close${liveStep === 'ask' ? ' live' : ''}`}
             ref={setStepRef('ask')}
           >
             <div className="journey-chapter">V · Ask Stellium</div>

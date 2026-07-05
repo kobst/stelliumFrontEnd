@@ -1,0 +1,240 @@
+/* journey-native pattern lens graphics — no cards, no inner tabs;
+   graphics breathe on the dark stage, text runs full-width below */
+
+.lens-text {
+  margin-top: 22px;
+}
+.lens-text p {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: rgba(236, 232, 255, 0.72);
+  margin: 0 0 14px;
+  text-align: left;
+  text-wrap: pretty;
+}
+.lens-empty {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  color: rgba(236, 232, 255, 0.45);
+}
+
+/* elements */
+.lens-ebar {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  gap: 2px;
+  margin: 4px 0 12px;
+}
+.lens-erow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-top: 1px solid rgba(202, 190, 255, 0.08);
+  font-size: 13px;
+  color: rgba(236, 232, 255, 0.7);
+  border-radius: 7px;
+}
+.lens-erow:hover {
+  background: rgba(202, 190, 255, 0.05);
+  color: #ece8ff;
+}
+.lens-erow .sw {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.lens-erow .en {
+  min-width: 76px;
+  color: #ece8ff;
+  font-weight: 600;
+}
+.lens-erow .eps {
+  font-size: 15px;
+  letter-spacing: 0.24em;
+}
+.lens-erow .pc {
+  margin-left: auto;
+  font-family: ui-monospace, monospace;
+  font-size: 11.5px;
+  color: #ece8ff;
+}
+
+/* modalities */
+.lens-gauges {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+.lens-gauge {
+  flex: 1;
+  text-align: center;
+  padding: 14px 6px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.09);
+}
+.lens-gauge:hover {
+  background: rgba(202, 190, 255, 0.05);
+}
+.lens-gauge svg {
+  width: 72px;
+  height: 45px;
+}
+.lens-gauge .gv {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: #ece8ff;
+  margin-top: -22px;
+}
+.lens-gauge .gn {
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 12px;
+}
+.lens-gauge .gp {
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  color: rgba(236, 232, 255, 0.7);
+  margin-top: 6px;
+  min-height: 18px;
+}
+
+/* quadrants */
+.lens-quadgrid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin: 18px 18px 10px;
+}
+.lens-quadgrid .ax {
+  position: absolute;
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  color: rgba(236, 232, 255, 0.4);
+}
+.lens-quadgrid .ax.s { top: -15px; left: 50%; transform: translateX(-50%); }
+.lens-quadgrid .ax.n { bottom: -15px; left: 50%; transform: translateX(-50%); }
+.lens-quadgrid .ax.e { left: -13px; top: 50%; transform: translateY(-50%); }
+.lens-quadgrid .ax.w { right: -13px; top: 50%; transform: translateY(-50%); }
+.lens-quadgrid .qd {
+  padding: 13px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--qc) 26%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--qc) 45%, transparent);
+  min-height: 88px;
+}
+.lens-quadgrid .qd:hover {
+  background: color-mix(in srgb, var(--qc) 36%, transparent);
+}
+.lens-quadgrid .qn {
+  font-size: 11.5px;
+  color: rgba(236, 232, 255, 0.7);
+}
+.lens-quadgrid .qv {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  color: #ece8ff;
+  margin: 2px 0 8px;
+}
+.lens-quadgrid .qp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.lens-quadgrid .qp span {
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(10, 10, 17, 0.4);
+  color: rgba(236, 232, 255, 0.75);
+}
+.lens-quadgrid .qp em,
+.lens-irow em,
+.lens-shcard em {
+  font-style: normal;
+}
+
+/* planetary influence */
+.lens-irow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 6px;
+  font-size: 12.5px;
+  color: rgba(236, 232, 255, 0.7);
+  border-radius: 6px;
+}
+.lens-irow:hover {
+  background: rgba(202, 190, 255, 0.05);
+  color: #ece8ff;
+}
+.lens-irow .in {
+  min-width: 104px;
+}
+.lens-irow .ib {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.lens-irow .ib span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  opacity: 0.85;
+}
+.lens-irow .iv {
+  font-family: ui-monospace, monospace;
+  font-size: 10.5px;
+  min-width: 48px;
+  text-align: right;
+}
+
+/* chart shapes */
+.lens-shapes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+.lens-shcard {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 4px 16px;
+  align-items: center;
+  padding: 13px 15px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.09);
+}
+.lens-shcard:hover {
+  background: rgba(202, 190, 255, 0.05);
+}
+.lens-wheelmini {
+  grid-row: 1 / 3;
+  width: 92px;
+  height: 92px;
+}
+.lens-shcard .nm {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  color: #ece8ff;
+  align-self: end;
+}
+.lens-shcard p {
+  font-size: 12.5px;
+  color: rgba(236, 232, 255, 0.65);
+  margin: 0;
+  align-self: start;
+  line-height: 1.55;
+}
+.lens-shcard .mem {
+  color: #ece8ff;
+}
