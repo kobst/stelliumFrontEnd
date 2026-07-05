@@ -369,13 +369,9 @@ function HomePane({ userId, user, entitlements }) {
     }
 
     if (!els.length) return;
-    setAskElements((prev) => {
-      const merged = [...prev];
-      els.forEach((el) => {
-        if (!merged.some((x) => x.key === el.key)) merged.push(el);
-      });
-      return merged;
-    });
+    // push only this click's chips — the panel owns the accumulated
+    // selection (re-pushing history resurrected cleared chips)
+    setAskElements(els);
     setDockMode('ask');
   }, [transits, period]);
 
@@ -609,9 +605,7 @@ function HomePane({ userId, user, entitlements }) {
                         meta: t.description || '',
                         payload: formatTransitEvent(t)
                       };
-                      setAskElements((prev) =>
-                        prev.some((x) => x.key === el.key) ? prev : [...prev, el]
-                      );
+                      setAskElements([el]);
                       setDockMode('ask');
                     }}
                     title="Click to ask about this influence"
