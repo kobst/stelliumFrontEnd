@@ -23,7 +23,7 @@ const splitIntoParagraphs = (text) => {
   ));
 };
 
-function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseAskStellium = false, onEmphasizeBodies, onHoverBodies }) {
+function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseAskStellium = false, onEmphasizeBodies, onHoverBodies, externalPlanet }) {
   const planets = useMemo(() => {
     const rawPlanets = birthChart?.planets?.filter(p => !excludedPlanets.includes(p.name)) || [];
     // Sort planets by the canonical order
@@ -46,6 +46,14 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
     const h1 = houses.find((h) => h.house === 1);
     return typeof h1?.degree === 'number' ? h1.degree : 0;
   }, [houses]);
+
+  // the host can drive selection (e.g. clicking a planet in the 3D sky)
+  useEffect(() => {
+    if (externalPlanet?.name && planets.find((p) => p.name === externalPlanet.name)) {
+      setSelectedPlanet(externalPlanet.name);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalPlanet]);
 
   // Update selectedPlanet when planets load or change
   useEffect(() => {

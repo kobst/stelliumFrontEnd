@@ -1,9 +1,9 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import useChartData from '../hooks/useChartData';
-import SkyStage from '../UI/shared/SkyStage';
+import { ChartScene } from '../UI/shared/chartScene';
 import {
   toChartScenePlacements,
   toChartSceneAspects,
@@ -19,20 +19,28 @@ import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import './ChartReaderPage.css';
 
 /**
- * The birth chart as a stage — same structure the horoscope settled on:
- * a chapter bar on top (the page's master variable), the natal sky
- * full-bleed, the reading docked beside it (Reading | Ask voices), and
- * planet selection detail as a bottom-left overlay. No scrubber: a
- * birth chart has no time axis.
+ * The birth chart reading as one continuous scroll — a journey. The sky
+ * is a fixed backdrop with three postures keyed to the act being read:
+ *   hidden  — Acts I–II (Overview, Patterns): prose and the lenses' own
+ *             graphics hold the stage; the chart hasn't arrived yet
+ *   full    — Act III (Chart & Planets): the reveal; the sky isolates
+ *             the selected planet; clicking the ephemeris or the picker
+ *             both drive the analysis panel
+ *   recede  — Act IV (360 Analysis): the sky dims and steps aside for
+ *             the long-form reading
+ * Scroll IS the selection state: a scroll-spy watches which step is
+ * centered and drives the scene to match. Ask is a floating entry that
+ * opens the standard overlay drawer; tapping a planet in the sky adds
+ * it as context.
  */
 
-// Which natal bodies each chapter emphasizes by default. Patterns and
-// Planets drive their own emphasis through hover/selection callbacks.
-const CHAPTERS = [
-  { id: 'overview', label: 'Overview', bodies: ['sun', 'moon'] },
-  { id: 'patterns', label: 'Patterns', bodies: null },
-  { id: 'planets', label: 'Planets', bodies: null },
-  { id: 'analysis', label: '360 Analysis', bodies: null },
+const ACTS = [
+  { id: 'hero', rail: null, mode: 'hidden' },
+  { id: 'overview', rail: 'Overview', mode: 'hidden' },
+  { id: 'patterns', rail: 'Patterns', mode: 'hidden' },
+  { id: 'planets', rail: 'Chart & Planets', mode: 'full' },
+  { id: 'analysis', rail: '360 Analysis', mode: 'recede' },
+  { id: 'ask', rail: 'Ask Stellium', mode: 'recede' },
 ];
 
 function ChartReaderPage() {
@@ -58,23 +66,25 @@ function ChartReaderPage() {
     handleStartAnalysis,
   } = useChartData(userId, chartId);
 
-  const [activeChapter, setActiveChapter] = useState('overview');
-  const [dockMode, setDockMode] = useState('reading');
+  const [activeAct, setActiveAct] = useState('hero');
 
-  // emphasis channels (backend body names): transient hover wins over
-  // the Planets picker's persistent selection, which wins over the Ask
-  // selection, which wins over the chapter default
+  // emphasis channels (backend names): hover from the section graphics
+  // wins over the Planets picker's persistent selection
   const [hoverNames, setHoverNames] = useState(null);
   const [planetsSelectionNames, setPlanetsSelectionNames] = useState(null);
 
-  // Ask bridge: one-shot pushes in, live selection mirrored out
-  const [askElements, setAskElements] = useState([]);
-  const [askSelection, setAskSelection] = useState([]);
+  // sky click → drives the planet analysis (Act III) and Ask context
+  const [externalPlanet, setExternalPlanet] = useState(null);
 
-  // hover tooltip pinned to the cursor; click selection detail overlay
+  // Ask drawer (standard overlay variant) + context bridge
+  const [askOpen, setAskOpen] = useState(false);
+  const [askElements, setAskElements] = useState([]);
+
+  const [fitNonce, setFitNonce] = useState(0);
+
+  // hover tooltip pinned to the cursor
   const mousePos = useRef({ x: 0, y: 0 });
   const [hoverInfo, setHoverInfo] = useState(null);
-  const [selectedBody, setSelectedBody] = useState(null);
 
   const natal = useMemo(
     () => toChartScenePlacements(birthChart.planets),
@@ -85,7 +95,6 @@ function ChartReaderPage() {
     [birthChart.aspects]
   );
 
-  // scene body name ("sun") → backend planet record (sign/house/degree)
   const sceneBodyLookup = useMemo(() => {
     const map = {};
     (birthChart.planets || []).forEach((p) => {
@@ -95,46 +104,88 @@ function ChartReaderPage() {
     return map;
   }, [birthChart.planets]);
 
-  const selectedInfo = useMemo(() => {
-    if (!selectedBody) return null;
-    const planet = sceneBodyLookup[selectedBody.body];
-    if (!planet) return null;
-    const aspects = (birthChart.aspects || [])
-      .filter(
-        (a) =>
-          a.aspectedPlanet === planet.name || a.aspectingPlanet === planet.name
-      )
-      .map((a) => ({
-        other:
-          a.aspectedPlanet === planet.name ? a.aspectingPlanet : a.aspectedPlanet,
-        type: a.aspectType,
-        orb: typeof a.orb === 'number' ? a.orb : Number(a.orb),
-      }))
-      .sort((x, y) => (x.orb ?? 99) - (y.orb ?? 99))
-      .slice(0, 4);
-    return { planet, aspects };
-  }, [selectedBody, sceneBodyLookup, birthChart.aspects]);
-
-  const askHighlightNames = useMemo(() => {
-    const names = (askSelection || [])
-      .map((el) => el.payload?.planet || el.planet)
-      .filter(Boolean);
-    return names.length ? names : null;
-  }, [askSelection]);
+  const act = ACTS.find((a) => a.id === activeAct) || ACTS[0];
+  const sceneMode = act.mode;
 
   const highlightBodies = useMemo(() => {
     if (hoverNames) return toSceneBodyNames(hoverNames);
-    if (activeChapter === 'planets' && planetsSelectionNames) {
+    if (activeAct === 'planets' && planetsSelectionNames) {
       return toSceneBodyNames(planetsSelectionNames);
     }
-    if (askHighlightNames) return toSceneBodyNames(askHighlightNames);
-    const chapter = CHAPTERS.find((c) => c.id === activeChapter);
-    return chapter?.bodies || undefined;
-  }, [hoverNames, planetsSelectionNames, askHighlightNames, activeChapter]);
+    return undefined;
+  }, [hoverNames, planetsSelectionNames, activeAct]);
+
+  // ── scroll spy: the step nearest the viewport's center is live ────
+  const scrollRef = useRef(null);
+  const stepRefs = useRef({});
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container || loading) return undefined;
+    let ticking = false;
+    const spy = () => {
+      ticking = false;
+      const mid = container.clientHeight / 2;
+      let best = null;
+      let bestDist = Infinity;
+      Object.entries(stepRefs.current).forEach(([id, el]) => {
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const d = Math.abs((r.top + r.bottom) / 2 - mid);
+        if (d < bestDist) {
+          bestDist = d;
+          best = id;
+        }
+      });
+      if (best) setActiveAct(best);
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(spy);
+      }
+    };
+    container.addEventListener('scroll', onScroll);
+    spy();
+    return () => container.removeEventListener('scroll', onScroll);
+  }, [loading]);
+
+  // the wheel always scrolls the story: over the sky (outside the
+  // scroll column) it forwards to the journey instead of zooming
+  useEffect(() => {
+    const onWheel = (e) => {
+      const scroller = scrollRef.current;
+      if (!scroller || scroller.contains(e.target)) return;
+      scroller.scrollTop += e.deltaY;
+    };
+    document.addEventListener('wheel', onWheel, { passive: true });
+    return () => document.removeEventListener('wheel', onWheel);
+  }, []);
+
+  const scrollToAct = (id) => {
+    const el = stepRefs.current[id];
+    const container = scrollRef.current;
+    if (el && container) {
+      container.scrollTo({ top: el.offsetTop - 90, behavior: 'smooth' });
+    }
+  };
 
   const isCelebrity =
     chart?.isCelebrity === true || chart?.kind === 'celebrity' || chart?.isReadOnly === true;
   const canUseAskStellium = isAnalysisComplete;
+
+  const handleSkyPick = (sel) => {
+    if (!sel) return;
+    const name = fromSceneBodyName(sel.body);
+    const planet = name && (birthChart.planets || []).find((p) => p.name === name);
+    if (!planet) return;
+    // the sky and the picker are two views of one selection
+    setExternalPlanet({ name, nonce: Date.now() });
+    if (activeAct !== 'planets' && activeAct !== 'analysis') scrollToAct('planets');
+    if (canUseAskStellium) {
+      const data = formatPositionData(planet);
+      setAskElements([{ ...data, key: data.code, payload: data }]);
+    }
+  };
 
   if (stelliumUser && userId !== stelliumUser._id) {
     return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
@@ -151,192 +202,43 @@ function ChartReaderPage() {
   const subjectName = chart?.firstName
     ? `${chart.firstName} ${chart.lastName || ''}`.trim()
     : 'Birth Chart';
-
-  const chapterContent = {
-    overview: (
-      <OverviewTab
-        basicAnalysis={basicAnalysis}
-        chartId={chartId}
-        birthChart={birthChart}
-        canUseAskStellium={false}
-      />
-    ),
-    patterns: (
-      <DominancePatternsTab
-        birthChart={birthChart}
-        basicAnalysis={basicAnalysis}
-        elements={elements}
-        modalities={modalities}
-        quadrants={quadrants}
-        planetaryDominance={planetaryDominance}
-        hasAnalysis={hasAnalysis}
-        onNavigateToAnalysis={() => setActiveChapter('analysis')}
-        creditCost={CREDIT_COSTS.FULL_NATAL}
-        creditsRemaining={entitlements.credits?.total}
-        chartId={chartId}
-        canUseAskStellium={false}
-        onHoverBodies={setHoverNames}
-      />
-    ),
-    planets: (
-      <PlanetsTab
-        birthChart={birthChart}
-        basicAnalysis={basicAnalysis}
-        hasAnalysis={hasAnalysis}
-        onNavigateToAnalysis={() => setActiveChapter('analysis')}
-        creditCost={CREDIT_COSTS.FULL_NATAL}
-        creditsRemaining={entitlements.credits?.total}
-        chartId={chartId}
-        canUseAskStellium={false}
-        onEmphasizeBodies={setPlanetsSelectionNames}
-        onHoverBodies={setHoverNames}
-      />
-    ),
-    analysis: (
-      <AnalysisTab
-        broadCategoryAnalyses={broadCategoryAnalyses}
-        analysisStatus={analysisStatus}
-        onStartAnalysis={handleStartAnalysis}
-        chartId={chartId}
-        birthChart={birthChart}
-        userId={userId}
-        isCelebrity={isCelebrity}
-      />
-    ),
-  };
-
-  // ── chapter bar (the page's master variable) ─────────────────────
-  const chapterBar = (
-    <>
-      <div className="reader-bar__left">
-        <button
-          className="reader-bar__back"
-          onClick={() => navigate(`/dashboard/${userId}/chart/${chartId}`)}
-        >
-          ← Classic view
-        </button>
-        <span className="reader-bar__subject">
-          {subjectName} <span className="dim">· The 360 Reading</span>
-        </span>
-      </div>
-      <div className="horizon-tabs" role="tablist">
-        {CHAPTERS.map((c) => (
-          <button
-            key={c.id}
-            role="tab"
-            aria-selected={activeChapter === c.id}
-            className={`horizon-tab${activeChapter === c.id ? ' active' : ''}`}
-            onClick={() => {
-              setActiveChapter(c.id);
-              setDockMode('reading');
-            }}
-          >
-            {c.label}
-          </button>
-        ))}
-      </div>
-      <div className="reader-bar__right" />
-    </>
-  );
-
-  // ── dock voices ───────────────────────────────────────────────────
-  const dockTabs = (
-    <div className="md-dock-tabs" role="tablist">
-      <button
-        role="tab"
-        aria-selected={dockMode === 'reading'}
-        className={`md-dock-tab${dockMode === 'reading' ? ' active' : ''}`}
-        onClick={() => setDockMode('reading')}
-      >
-        Reading
-      </button>
-      {canUseAskStellium && (
-        <button
-          role="tab"
-          aria-selected={dockMode === 'ask'}
-          className={`md-dock-tab${dockMode === 'ask' ? ' active' : ''}`}
-          onClick={() => setDockMode('ask')}
-        >
-          ✦ Ask
-        </button>
-      )}
-    </div>
-  );
-
-  const askPanel = (
-    <div className="reader-dock-ask">
-      <AskStelliumPanel
-        variant="dock"
-        isOpen
-        onClose={() => setDockMode('reading')}
-        contentType="birthchart"
-        contentId={chartId}
-        birthChart={birthChart}
-        externalElements={askElements}
-        onSelectionChange={setAskSelection}
-        contextLabel="About your birth chart"
-        placeholderText="Ask about this chart…"
-        suggestedQuestions={[
-          'What are my greatest strengths?',
-          'How does my Moon sign affect my emotions?',
-          'What does my chart say about my career?',
-        ]}
-      />
-    </div>
-  );
-
-  const readingPanel = (
-    <div className="reader-panel">{chapterContent[activeChapter]}</div>
-  );
-
-  // ── selection detail overlay (bottom-left) ────────────────────────
-  const detailOverlay = selectedInfo && (
-    <div className="reader-detail-card">
-      <div className="chart-reader-sky-detail-head">
-        <span className="nm">
-          {selectedInfo.planet.name}
-          {selectedInfo.planet.is_retro === 'true' && <span className="retro">℞</span>}
-        </span>
-        <span className="pos">
-          {selectedInfo.planet.sign}
-          {typeof selectedInfo.planet.norm_degree === 'number' &&
-            ` · ${selectedInfo.planet.norm_degree.toFixed(1)}°`}
-          {selectedInfo.planet.house ? ` · House ${selectedInfo.planet.house}` : ''}
-        </span>
-      </div>
-      {selectedInfo.aspects.map((a, i) => (
-        <div key={i} className="chart-reader-sky-detail-asp">
-          <span>
-            {a.type?.toLowerCase()} {a.other}
-          </span>
-          {Number.isFinite(a.orb) && <span className="orb">{a.orb.toFixed(1)}°</span>}
-        </div>
-      ))}
-      {canUseAskStellium && (
-        <button
-          className="reader-detail-ask"
-          onClick={() => {
-            const data = formatPositionData(selectedInfo.planet);
-            setAskElements([{ ...data, key: data.code, payload: data }]);
-            setDockMode('ask');
-          }}
-        >
-          ✦ Ask about this placement
-        </button>
-      )}
-      <div className="chart-reader-sky-detail-hint">click empty space to dismiss</div>
-    </div>
-  );
+  const birthMeta = [chart?.dateOfBirth, chart?.placeOfBirth]
+    .filter(Boolean)
+    .join(' · ');
 
   const hoveredPlanet = hoverInfo ? sceneBodyLookup[hoverInfo.body] : null;
+  const setStepRef = (id) => (el) => {
+    stepRefs.current[id] = el;
+  };
 
   return (
     <div
-      className="chart-reader-page chart-reader-page--stage"
+      className="journey-page"
       onMouseMove={(e) => {
         mousePos.current = { x: e.clientX, y: e.clientY };
       }}
     >
+      {/* the fixed sky, in the posture the current act asks for */}
+      <div className={`journey-scene journey-scene--${sceneMode}`}>
+        {natal.length > 0 && (
+          <ChartScene
+            natal={natal}
+            natalAspects={natalAspects}
+            fitRadius={5.9}
+            fitNonce={fitNonce}
+            disableZoom
+            coveredRightPx={sceneMode === 'full' ? Math.min(560, window.innerWidth * 0.46) : 0}
+            highlightBodies={highlightBodies}
+            onHoverBody={(h) =>
+              setHoverInfo(
+                h ? { body: h.body, x: mousePos.current.x, y: mousePos.current.y } : null
+              )
+            }
+            onSelectBody={handleSkyPick}
+          />
+        )}
+      </div>
+
       {hoverInfo && (
         <div
           className="chart-reader-tooltip"
@@ -358,25 +260,180 @@ function ChartReaderPage() {
         </div>
       )}
 
-      {natal.length > 0 && (
-        <SkyStage
-          sceneProps={{
-            natal,
-            natalAspects,
-            fitRadius: 5.9,
-            highlightBodies,
-            onHoverBody: (h) =>
-              setHoverInfo(
-                h ? { body: h.body, x: mousePos.current.x, y: mousePos.current.y } : null
-              ),
-            onSelectBody: setSelectedBody,
-          }}
-          subnav={chapterBar}
-          panelHeader={dockTabs}
-          panel={dockMode === 'ask' ? askPanel : readingPanel}
-          overlay={detailOverlay}
-        />
+      <div className="journey-topbar">
+        <button
+          className="reader-bar__back"
+          onClick={() => navigate(`/dashboard/${userId}/chart/${chartId}`)}
+        >
+          ← Classic view
+        </button>
+        <span className="journey-brand">Stellium</span>
+      </div>
+
+      {/* progress rail — a journey map, not tabs */}
+      <nav className="journey-rail">
+        {ACTS.filter((a) => a.rail).map((a) => (
+          <button
+            key={a.id}
+            className={activeAct === a.id || (activeAct === 'hero' && a.id === 'overview') ? 'on' : ''}
+            onClick={() => scrollToAct(a.id)}
+          >
+            <span className="dot" />
+            <span className="nm">{a.rail}</span>
+          </button>
+        ))}
+      </nav>
+
+      {sceneMode !== 'hidden' && (
+        <button
+          className="journey-recenter"
+          title="Recenter the sky"
+          onClick={() => setFitNonce((n) => n + 1)}
+        >
+          ⌖ Recenter
+        </button>
       )}
+
+      {/* the journey column */}
+      <div
+        className={`journey-scroll${sceneMode === 'hidden' ? '' : ' journey-scroll--passthrough'}`}
+        ref={scrollRef}
+      >
+        <div className="journey-body">
+          <section
+            className={`journey-step journey-step--hero${activeAct === 'hero' ? ' live' : ''}`}
+            ref={setStepRef('hero')}
+          >
+            <div className="journey-chapter">The 360 Reading</div>
+            <h1>{subjectName}</h1>
+            {birthMeta && <div className="journey-meta">{birthMeta}</div>}
+            <p className="journey-lede">Scroll. The sky arrives when it&rsquo;s needed.</p>
+          </section>
+
+          <section
+            className={`journey-step journey-step--wide${activeAct === 'overview' ? ' live' : ''}`}
+            ref={setStepRef('overview')}
+          >
+            <div className="journey-chapter">I · Overview</div>
+            <OverviewTab
+              basicAnalysis={basicAnalysis}
+              chartId={chartId}
+              birthChart={birthChart}
+              canUseAskStellium={false}
+            />
+            <p className="journey-lede">Those are the claims. Now, the evidence.</p>
+          </section>
+
+          <section
+            className={`journey-step journey-step--wide${activeAct === 'patterns' ? ' live' : ''}`}
+            ref={setStepRef('patterns')}
+          >
+            <div className="journey-chapter">II · Patterns</div>
+            <p className="journey-lede">
+              The weather system of the chart — five lenses on the same sky, each drawing
+              its own picture.
+            </p>
+            <DominancePatternsTab
+              birthChart={birthChart}
+              basicAnalysis={basicAnalysis}
+              elements={elements}
+              modalities={modalities}
+              quadrants={quadrants}
+              planetaryDominance={planetaryDominance}
+              hasAnalysis={hasAnalysis}
+              onNavigateToAnalysis={() => scrollToAct('analysis')}
+              creditCost={CREDIT_COSTS.FULL_NATAL}
+              creditsRemaining={entitlements.credits?.total}
+              chartId={chartId}
+              canUseAskStellium={false}
+              onHoverBodies={setHoverNames}
+            />
+          </section>
+
+          <section
+            className={`journey-step journey-step--panel${activeAct === 'planets' ? ' live' : ''}`}
+            ref={setStepRef('planets')}
+          >
+            <div className="journey-chapter">III · Chart &amp; Planets</div>
+            <p className="journey-lede">
+              Here is the sky the reading has been describing — and from here it stays.
+              Pick a body (or click one in the sky): the chart isolates it, and the lines
+              you see are exactly its aspects.
+            </p>
+            <PlanetsTab
+              birthChart={birthChart}
+              basicAnalysis={basicAnalysis}
+              hasAnalysis={hasAnalysis}
+              onNavigateToAnalysis={() => scrollToAct('analysis')}
+              creditCost={CREDIT_COSTS.FULL_NATAL}
+              creditsRemaining={entitlements.credits?.total}
+              chartId={chartId}
+              canUseAskStellium={false}
+              onEmphasizeBodies={setPlanetsSelectionNames}
+              onHoverBodies={setHoverNames}
+              externalPlanet={externalPlanet}
+            />
+          </section>
+
+          <section
+            className={`journey-step journey-step--panel${activeAct === 'analysis' ? ' live' : ''}`}
+            ref={setStepRef('analysis')}
+          >
+            <div className="journey-chapter">IV · 360 Analysis</div>
+            <p className="journey-lede">
+              The long reading, life-area by life-area. The sky steps back — the text
+              carries it from here.
+            </p>
+            <AnalysisTab
+              broadCategoryAnalyses={broadCategoryAnalyses}
+              analysisStatus={analysisStatus}
+              onStartAnalysis={handleStartAnalysis}
+              chartId={chartId}
+              birthChart={birthChart}
+              userId={userId}
+              isCelebrity={isCelebrity}
+            />
+          </section>
+
+          <section
+            className={`journey-step journey-step--panel journey-step--close${activeAct === 'ask' ? ' live' : ''}`}
+            ref={setStepRef('ask')}
+          >
+            <div className="journey-chapter">V · Ask Stellium</div>
+            <p>
+              The reading ends; the chart doesn&rsquo;t. Anything above can be questioned —
+              tap a planet in the sky, then ask.
+            </p>
+            {canUseAskStellium && (
+              <button className="journey-open-ask" onClick={() => setAskOpen(true)}>
+                ✦ Ask Stellium about this chart
+              </button>
+            )}
+          </section>
+        </div>
+      </div>
+
+      {canUseAskStellium && (
+        <button className="journey-ask-fab" onClick={() => setAskOpen(true)}>
+          <span className="sp">✦</span> Ask
+        </button>
+      )}
+
+      <AskStelliumPanel
+        isOpen={askOpen}
+        onClose={() => setAskOpen(false)}
+        contentType="birthchart"
+        contentId={chartId}
+        birthChart={birthChart}
+        externalElements={askElements}
+        contextLabel="About your birth chart"
+        placeholderText="Ask about this chart…"
+        suggestedQuestions={[
+          'What are my greatest strengths?',
+          'How does my Moon sign affect my emotions?',
+          'What does my chart say about my career?',
+        ]}
+      />
     </div>
   );
 }

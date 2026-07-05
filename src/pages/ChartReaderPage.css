@@ -341,3 +341,273 @@
   font-weight: 700;
   box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.3);
 }
+
+/* ═══ the journey (scroll narrative over a fixed sky) ═══ */
+.journey-page {
+  position: fixed;
+  inset: 0;
+  background: #06060d;
+  overflow: hidden;
+}
+.journey-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background:
+    radial-gradient(120% 90% at 38% 10%, rgba(60, 40, 120, 0.22), transparent 55%),
+    linear-gradient(90deg, transparent 52%, rgba(6, 6, 13, 0.55) 72%, rgba(6, 6, 13, 0.85) 100%);
+}
+
+/* the sky's three postures */
+.journey-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.journey-scene--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.journey-scene--recede {
+  opacity: 0.35;
+  transform: scale(0.92) translateX(-7%);
+}
+
+.journey-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  pointer-events: none;
+}
+.journey-topbar > * {
+  pointer-events: auto;
+}
+.journey-brand {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  color: rgba(236, 232, 255, 0.6);
+}
+
+/* progress rail */
+.journey-rail {
+  position: fixed;
+  z-index: 30;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.journey-rail button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 7px 6px;
+  color: rgba(236, 232, 255, 0.4);
+  font-size: 11.5px;
+  font-weight: 600;
+  text-align: left;
+}
+.journey-rail .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.journey-rail .nm {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.journey-rail:hover .nm {
+  opacity: 1;
+  transform: none;
+}
+.journey-rail button.on {
+  color: #e9c349;
+}
+.journey-rail button.on .dot {
+  background: #e9c349;
+  box-shadow: 0 0 10px -1px #e9c349;
+}
+.journey-rail button.on .nm {
+  opacity: 1;
+  transform: none;
+}
+
+.journey-recenter {
+  position: fixed;
+  z-index: 30;
+  left: 24px;
+  bottom: 20px;
+  border: 0;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: rgba(16, 16, 26, 0.6);
+  color: #cabeff;
+  font-size: 11.5px;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.12);
+}
+.journey-recenter:hover {
+  background: rgba(202, 190, 255, 0.08);
+}
+
+/* the scrolling column */
+.journey-scroll {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  z-index: 20;
+  scrollbar-width: none;
+}
+.journey-scroll::-webkit-scrollbar {
+  display: none;
+}
+/* when the sky is on stage, empty space belongs to it: text scrolls,
+   sky orbits */
+.journey-scroll--passthrough {
+  pointer-events: none;
+}
+.journey-scroll--passthrough .journey-step {
+  pointer-events: auto;
+}
+.journey-body {
+  width: 100%;
+  padding: 13vh 0 30vh;
+}
+
+.journey-step {
+  width: min(700px, 84vw);
+  margin: 0 auto;
+  padding: 7vh 8px;
+  opacity: 0.34;
+  transition: opacity 0.35s ease;
+}
+.journey-step.live {
+  opacity: 1;
+}
+.journey-step--hero {
+  min-height: 46vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  opacity: 1;
+}
+.journey-step--hero h1 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 500;
+  font-size: 56px;
+  line-height: 1.05;
+  margin: 0 0 10px;
+  color: #ece8ff;
+}
+.journey-step--wide {
+  width: min(760px, 86vw);
+}
+/* Acts with the sky on stage: the column moves to the right side */
+.journey-step--panel {
+  width: min(520px, 44vw);
+  margin-left: auto;
+  margin-right: 5vw;
+  min-height: 55vh;
+}
+.journey-step--close {
+  min-height: 30vh;
+}
+
+.journey-chapter {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #e9c349;
+  margin-bottom: 14px;
+}
+.journey-meta {
+  font-family: ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: rgba(236, 232, 255, 0.4);
+}
+.journey-lede {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: rgba(236, 232, 255, 0.45);
+  margin: 12px 0 18px;
+}
+.journey-step p {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: rgba(236, 232, 255, 0.72);
+  text-align: left;
+}
+
+.journey-open-ask {
+  border: 0;
+  cursor: pointer;
+  margin-top: 10px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(233, 195, 73, 0.18), rgba(233, 195, 73, 0.07));
+  color: #ece8ff;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.35);
+}
+.journey-open-ask:hover {
+  box-shadow: inset 0 0 0 1px #e9c349, 0 0 22px -8px #e9c349;
+}
+
+.journey-ask-fab {
+  position: fixed;
+  z-index: 45;
+  right: 24px;
+  bottom: 20px;
+  border: 0;
+  cursor: pointer;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(14, 14, 22, 0.85);
+  backdrop-filter: blur(12px);
+  color: #ece8ff;
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.35), 0 16px 40px -18px rgba(0, 0, 0, 0.8);
+}
+.journey-ask-fab .sp {
+  color: #e9c349;
+}
+.journey-ask-fab:hover {
+  box-shadow: inset 0 0 0 1px #e9c349, 0 0 24px -8px #e9c349;
+}
+
+@media (max-width: 900px) {
+  .journey-step--panel {
+    width: min(700px, 86vw);
+    margin: 0 auto;
+  }
+  .journey-rail .nm {
+    display: none;
+  }
+}

@@ -77,6 +77,8 @@ export interface ChartSceneProps {
   fitRadius?: number
   /** bump to re-run the OrbitFit framing (a "recenter" control) */
   fitNonce?: number
+  /** scroll-narrative mounts: the wheel belongs to the page, not the camera */
+  disableZoom?: boolean
   /** pointer enters/leaves a planet marker (null on leave) */
   onHoverBody?: (hover: BodySelection | null) => void
   /** planet selected/deselected (click marker / click empty space) */

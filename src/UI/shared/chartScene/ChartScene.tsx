@@ -114,6 +114,7 @@ export function ChartScene({
   coveredRightPx = 0,
   fitRadius,
   fitNonce = 0,
+  disableZoom = false,
   onHoverBody,
   onSelectBody,
 }: ChartSceneProps) {
@@ -325,6 +326,7 @@ export function ChartScene({
 
       <OrbitControls
         enablePan={false}
+        enableZoom={!disableZoom}
         minDistance={4}
         maxDistance={25}
         maxPolarAngle={Math.PI * 0.85}
