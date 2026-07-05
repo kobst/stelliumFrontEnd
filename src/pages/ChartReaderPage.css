@@ -263,3 +263,81 @@
     position: static;
   }
 }
+
+/* ── stage mode (SkyStage conversion) ── */
+.chart-reader-page--stage {
+  padding: 0;
+  min-height: 0;
+}
+
+.reader-bar__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.reader-bar__back {
+  border: 0;
+  cursor: pointer;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(236, 232, 255, 0.6);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14);
+  white-space: nowrap;
+}
+.reader-bar__back:hover {
+  color: #ece8ff;
+}
+.reader-bar__subject {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ece8ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.reader-bar__subject .dim {
+  color: rgba(236, 232, 255, 0.45);
+  font-weight: 500;
+}
+.reader-bar__right {
+  width: 120px; /* balances the left cluster so tabs stay centered */
+}
+
+/* the chapter content components were built for a light page column;
+   in the dock they inherit the panel's dark glass */
+.reader-panel {
+  min-height: 0;
+}
+
+.reader-dock-ask {
+  display: flex;
+  flex-direction: column;
+  margin: -26px -28px;
+  height: calc(100% + 52px);
+}
+
+.reader-detail-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(14, 14, 22, 0.85);
+  backdrop-filter: blur(14px);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.16), 0 20px 60px -30px rgba(0, 0, 0, 0.8);
+}
+
+.reader-detail-ask {
+  border: 0;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(233, 195, 73, 0.16), rgba(233, 195, 73, 0.06));
+  color: #e9c349;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.3);
+}

@@ -1,31 +1,33 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import useChartData from '../hooks/useChartData';
-import { ChartScene } from '../UI/shared/chartScene';
+import SkyStage from '../UI/shared/SkyStage';
 import {
   toChartScenePlacements,
   toChartSceneAspects,
   toSceneBodyNames,
+  fromSceneBodyName,
 } from '../Utilities/chartSceneAdapter';
 import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
+import AskStelliumPanel, { formatPositionData } from '../UI/askStellium/AskStelliumPanel';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import './ChartReaderPage.css';
 
 /**
- * Reader layout for the birth chart (PR 2a): the analysis sections
- * composed as chapters of one continuous read, with the 3D chart as a
- * sticky margin that follows the scroll. The classic tabbed page at
- * /dashboard/:userId/chart/:chartId is untouched.
+ * The birth chart as a stage — same structure the horoscope settled on:
+ * a chapter bar on top (the page's master variable), the natal sky
+ * full-bleed, the reading docked beside it (Reading | Ask voices), and
+ * planet selection detail as a bottom-left overlay. No scrubber: a
+ * birth chart has no time axis.
  */
 
-// Which natal bodies each chapter emphasizes in the margin sky.
-// Chapters without a natural set leave the sky neutral for now; the
-// per-section hover grammar lands in the next PR.
+// Which natal bodies each chapter emphasizes by default. Patterns and
+// Planets drive their own emphasis through hover/selection callbacks.
 const CHAPTERS = [
   { id: 'overview', label: 'Overview', bodies: ['sun', 'moon'] },
   { id: 'patterns', label: 'Patterns', bodies: null },
@@ -57,36 +59,23 @@ function ChartReaderPage() {
   } = useChartData(userId, chartId);
 
   const [activeChapter, setActiveChapter] = useState('overview');
-  const chapterRefs = useRef({});
+  const [dockMode, setDockMode] = useState('reading');
 
-  // emphasis channels from the section components (backend body names):
-  // transient hover (chips, aspect rows) wins over the Planets picker's
-  // persistent selection, which wins over the chapter default
+  // emphasis channels (backend body names): transient hover wins over
+  // the Planets picker's persistent selection, which wins over the Ask
+  // selection, which wins over the chapter default
   const [hoverNames, setHoverNames] = useState(null);
   const [planetsSelectionNames, setPlanetsSelectionNames] = useState(null);
 
-  // hover/selection reported by the scene; tooltip pins to the cursor
-  // position captured at hover time
+  // Ask bridge: one-shot pushes in, live selection mirrored out
+  const [askElements, setAskElements] = useState([]);
+  const [askSelection, setAskSelection] = useState([]);
+
+  // hover tooltip pinned to the cursor; click selection detail overlay
   const mousePos = useRef({ x: 0, y: 0 });
   const [hoverInfo, setHoverInfo] = useState(null);
   const [selectedBody, setSelectedBody] = useState(null);
 
-  // expand-in-place: the same scene instance, just given the viewport
-  const [skyExpanded, setSkyExpanded] = useState(false);
-  useEffect(() => {
-    if (!skyExpanded) return undefined;
-    const onKey = (e) => {
-      if (e.key === 'Escape') setSkyExpanded(false);
-    };
-    window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
-    };
-  }, [skyExpanded]);
-
-  // margin sky data
   const natal = useMemo(
     () => toChartScenePlacements(birthChart.planets),
     [birthChart.planets]
@@ -126,40 +115,22 @@ function ChartReaderPage() {
     return { planet, aspects };
   }, [selectedBody, sceneBodyLookup, birthChart.aspects]);
 
+  const askHighlightNames = useMemo(() => {
+    const names = (askSelection || [])
+      .map((el) => el.payload?.planet || el.planet)
+      .filter(Boolean);
+    return names.length ? names : null;
+  }, [askSelection]);
+
   const highlightBodies = useMemo(() => {
     if (hoverNames) return toSceneBodyNames(hoverNames);
     if (activeChapter === 'planets' && planetsSelectionNames) {
       return toSceneBodyNames(planetsSelectionNames);
     }
+    if (askHighlightNames) return toSceneBodyNames(askHighlightNames);
     const chapter = CHAPTERS.find((c) => c.id === activeChapter);
     return chapter?.bodies || undefined;
-  }, [hoverNames, planetsSelectionNames, activeChapter]);
-
-  // the chart follows the scroll
-  useEffect(() => {
-    const sections = Object.values(chapterRefs.current).filter(Boolean);
-    if (!sections.length) return undefined;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) {
-          setActiveChapter(visible.target.dataset.chapter);
-        }
-      },
-      { rootMargin: '-20% 0px -55% 0px', threshold: [0, 0.2, 0.5] }
-    );
-
-    sections.forEach((s) => observer.observe(s));
-    return () => observer.disconnect();
-    // re-observe once content is actually rendered
-  }, [loading]);
-
-  const scrollToChapter = (id) => {
-    chapterRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  }, [hoverNames, planetsSelectionNames, askHighlightNames, activeChapter]);
 
   const isCelebrity =
     chart?.isCelebrity === true || chart?.kind === 'celebrity' || chart?.isReadOnly === true;
@@ -169,23 +140,17 @@ function ChartReaderPage() {
     return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
   }
 
-  if (loading) {
+  if (loading || error) {
     return (
       <div className="chart-reader-page">
-        <div className="chart-reader-loading">Loading chart…</div>
+        <div className="chart-reader-loading">{error || 'Loading chart…'}</div>
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="chart-reader-page">
-        <div className="chart-reader-loading">{error}</div>
-      </div>
-    );
-  }
-
-  const activeLabel = CHAPTERS.find((c) => c.id === activeChapter)?.label;
+  const subjectName = chart?.firstName
+    ? `${chart.firstName} ${chart.lastName || ''}`.trim()
+    : 'Birth Chart';
 
   const chapterContent = {
     overview: (
@@ -193,7 +158,7 @@ function ChartReaderPage() {
         basicAnalysis={basicAnalysis}
         chartId={chartId}
         birthChart={birthChart}
-        canUseAskStellium={canUseAskStellium}
+        canUseAskStellium={false}
       />
     ),
     patterns: (
@@ -205,11 +170,11 @@ function ChartReaderPage() {
         quadrants={quadrants}
         planetaryDominance={planetaryDominance}
         hasAnalysis={hasAnalysis}
-        onNavigateToAnalysis={() => scrollToChapter('analysis')}
+        onNavigateToAnalysis={() => setActiveChapter('analysis')}
         creditCost={CREDIT_COSTS.FULL_NATAL}
         creditsRemaining={entitlements.credits?.total}
         chartId={chartId}
-        canUseAskStellium={canUseAskStellium}
+        canUseAskStellium={false}
         onHoverBodies={setHoverNames}
       />
     ),
@@ -218,11 +183,11 @@ function ChartReaderPage() {
         birthChart={birthChart}
         basicAnalysis={basicAnalysis}
         hasAnalysis={hasAnalysis}
-        onNavigateToAnalysis={() => scrollToChapter('analysis')}
+        onNavigateToAnalysis={() => setActiveChapter('analysis')}
         creditCost={CREDIT_COSTS.FULL_NATAL}
         creditsRemaining={entitlements.credits?.total}
         chartId={chartId}
-        canUseAskStellium={canUseAskStellium}
+        canUseAskStellium={false}
         onEmphasizeBodies={setPlanetsSelectionNames}
         onHoverBodies={setHoverNames}
       />
@@ -240,11 +205,134 @@ function ChartReaderPage() {
     ),
   };
 
+  // ── chapter bar (the page's master variable) ─────────────────────
+  const chapterBar = (
+    <>
+      <div className="reader-bar__left">
+        <button
+          className="reader-bar__back"
+          onClick={() => navigate(`/dashboard/${userId}/chart/${chartId}`)}
+        >
+          ← Classic view
+        </button>
+        <span className="reader-bar__subject">
+          {subjectName} <span className="dim">· The 360 Reading</span>
+        </span>
+      </div>
+      <div className="horizon-tabs" role="tablist">
+        {CHAPTERS.map((c) => (
+          <button
+            key={c.id}
+            role="tab"
+            aria-selected={activeChapter === c.id}
+            className={`horizon-tab${activeChapter === c.id ? ' active' : ''}`}
+            onClick={() => {
+              setActiveChapter(c.id);
+              setDockMode('reading');
+            }}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+      <div className="reader-bar__right" />
+    </>
+  );
+
+  // ── dock voices ───────────────────────────────────────────────────
+  const dockTabs = (
+    <div className="md-dock-tabs" role="tablist">
+      <button
+        role="tab"
+        aria-selected={dockMode === 'reading'}
+        className={`md-dock-tab${dockMode === 'reading' ? ' active' : ''}`}
+        onClick={() => setDockMode('reading')}
+      >
+        Reading
+      </button>
+      {canUseAskStellium && (
+        <button
+          role="tab"
+          aria-selected={dockMode === 'ask'}
+          className={`md-dock-tab${dockMode === 'ask' ? ' active' : ''}`}
+          onClick={() => setDockMode('ask')}
+        >
+          ✦ Ask
+        </button>
+      )}
+    </div>
+  );
+
+  const askPanel = (
+    <div className="reader-dock-ask">
+      <AskStelliumPanel
+        variant="dock"
+        isOpen
+        onClose={() => setDockMode('reading')}
+        contentType="birthchart"
+        contentId={chartId}
+        birthChart={birthChart}
+        externalElements={askElements}
+        onSelectionChange={setAskSelection}
+        contextLabel="About your birth chart"
+        placeholderText="Ask about this chart…"
+        suggestedQuestions={[
+          'What are my greatest strengths?',
+          'How does my Moon sign affect my emotions?',
+          'What does my chart say about my career?',
+        ]}
+      />
+    </div>
+  );
+
+  const readingPanel = (
+    <div className="reader-panel">{chapterContent[activeChapter]}</div>
+  );
+
+  // ── selection detail overlay (bottom-left) ────────────────────────
+  const detailOverlay = selectedInfo && (
+    <div className="reader-detail-card">
+      <div className="chart-reader-sky-detail-head">
+        <span className="nm">
+          {selectedInfo.planet.name}
+          {selectedInfo.planet.is_retro === 'true' && <span className="retro">℞</span>}
+        </span>
+        <span className="pos">
+          {selectedInfo.planet.sign}
+          {typeof selectedInfo.planet.norm_degree === 'number' &&
+            ` · ${selectedInfo.planet.norm_degree.toFixed(1)}°`}
+          {selectedInfo.planet.house ? ` · House ${selectedInfo.planet.house}` : ''}
+        </span>
+      </div>
+      {selectedInfo.aspects.map((a, i) => (
+        <div key={i} className="chart-reader-sky-detail-asp">
+          <span>
+            {a.type?.toLowerCase()} {a.other}
+          </span>
+          {Number.isFinite(a.orb) && <span className="orb">{a.orb.toFixed(1)}°</span>}
+        </div>
+      ))}
+      {canUseAskStellium && (
+        <button
+          className="reader-detail-ask"
+          onClick={() => {
+            const data = formatPositionData(selectedInfo.planet);
+            setAskElements([{ ...data, key: data.code, payload: data }]);
+            setDockMode('ask');
+          }}
+        >
+          ✦ Ask about this placement
+        </button>
+      )}
+      <div className="chart-reader-sky-detail-hint">click empty space to dismiss</div>
+    </div>
+  );
+
   const hoveredPlanet = hoverInfo ? sceneBodyLookup[hoverInfo.body] : null;
 
   return (
     <div
-      className={`chart-reader-page${skyExpanded ? ' chart-reader-page--sky-open' : ''}`}
+      className="chart-reader-page chart-reader-page--stage"
       onMouseMove={(e) => {
         mousePos.current = { x: e.clientX, y: e.clientY };
       }}
@@ -269,120 +357,26 @@ function ChartReaderPage() {
           )}
         </div>
       )}
-      <div className="chart-reader-grid">
-        <aside className="chart-reader-toc">
-          <div className="chart-reader-stick">
-            <button
-              className="chart-reader-back"
-              onClick={() => navigate(`/dashboard/${userId}/chart/${chartId}`)}
-            >
-              ← Classic view
-            </button>
-            <div className="chart-reader-subject">
-              <div className="chart-reader-subject-name">
-                {chart?.firstName
-                  ? `${chart.firstName} ${chart.lastName || ''}`.trim()
-                  : 'Birth Chart'}
-              </div>
-              <div className="chart-reader-subject-meta">The 360 Reading</div>
-            </div>
-            <nav className="chart-reader-chapters">
-              {CHAPTERS.map((c, i) => (
-                <button
-                  key={c.id}
-                  className={activeChapter === c.id ? 'on' : ''}
-                  onClick={() => scrollToChapter(c.id)}
-                >
-                  {c.label}
-                  <span className="num">{['I', 'II', 'III', 'IV'][i]}</span>
-                </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
 
-        <main className="chart-reader-book">
-          {CHAPTERS.map((c) => (
-            <section
-              key={c.id}
-              data-chapter={c.id}
-              className="chart-reader-chapter"
-              ref={(el) => {
-                chapterRefs.current[c.id] = el;
-              }}
-            >
-              {chapterContent[c.id]}
-            </section>
-          ))}
-        </main>
-
-        <aside className="chart-reader-sky">
-          <div className="chart-reader-stick">
-            <div className={`chart-reader-sky-card${skyExpanded ? ' chart-reader-sky-card--expanded' : ''}`}>
-              <div className="chart-reader-sky-head">
-                <span>The Sky · Natal</span>
-                <button
-                  className="chart-reader-sky-expand"
-                  onClick={() => setSkyExpanded((v) => !v)}
-                >
-                  {skyExpanded ? 'Collapse ⤡' : 'Expand ⤢'}
-                </button>
-              </div>
-              <div className="chart-reader-sky-holder">
-                {natal.length > 0 && (
-                  <ChartScene
-                    natal={natal}
-                    natalAspects={natalAspects}
-                    highlightBodies={highlightBodies}
-                    topDown
-                    onHoverBody={(h) =>
-                      setHoverInfo(
-                        h
-                          ? { body: h.body, x: mousePos.current.x, y: mousePos.current.y }
-                          : null
-                      )
-                    }
-                    onSelectBody={setSelectedBody}
-                  />
-                )}
-              </div>
-              {selectedInfo ? (
-                <div className="chart-reader-sky-detail">
-                  <div className="chart-reader-sky-detail-head">
-                    <span className="nm">
-                      {selectedInfo.planet.name}
-                      {selectedInfo.planet.is_retro === 'true' && (
-                        <span className="retro">℞</span>
-                      )}
-                    </span>
-                    <span className="pos">
-                      {selectedInfo.planet.sign}
-                      {typeof selectedInfo.planet.norm_degree === 'number' &&
-                        ` · ${selectedInfo.planet.norm_degree.toFixed(1)}°`}
-                      {selectedInfo.planet.house
-                        ? ` · House ${selectedInfo.planet.house}`
-                        : ''}
-                    </span>
-                  </div>
-                  {selectedInfo.aspects.map((a, i) => (
-                    <div key={i} className="chart-reader-sky-detail-asp">
-                      <span>
-                        {a.type?.toLowerCase()} {a.other}
-                      </span>
-                      {Number.isFinite(a.orb) && <span className="orb">{a.orb.toFixed(1)}°</span>}
-                    </div>
-                  ))}
-                  <div className="chart-reader-sky-detail-hint">
-                    click empty space to dismiss
-                  </div>
-                </div>
-              ) : (
-                <div className="chart-reader-sky-foot">Reading: {activeLabel}</div>
-              )}
-            </div>
-          </div>
-        </aside>
-      </div>
+      {natal.length > 0 && (
+        <SkyStage
+          sceneProps={{
+            natal,
+            natalAspects,
+            fitRadius: 5.9,
+            highlightBodies,
+            onHoverBody: (h) =>
+              setHoverInfo(
+                h ? { body: h.body, x: mousePos.current.x, y: mousePos.current.y } : null
+              ),
+            onSelectBody: setSelectedBody,
+          }}
+          subnav={chapterBar}
+          panelHeader={dockTabs}
+          panel={dockMode === 'ask' ? askPanel : readingPanel}
+          overlay={detailOverlay}
+        />
+      )}
     </div>
   );
 }

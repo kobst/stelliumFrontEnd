@@ -90,7 +90,7 @@ const formatAspectData = (aspect, planet1Data, planet2Data) => {
   };
 };
 
-const formatPositionData = (planet) => {
+export const formatPositionData = (planet) => {
   const planetCode = planetToCode[planet.name] || planet.name.substring(0, 2);
   const signCode = signToCode[planet.sign] || planet.sign.substring(0, 2);
   const houseNumber = planet.house ? String(planet.house).padStart(2, '0') : '00';
