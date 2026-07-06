@@ -657,3 +657,14 @@
   background: rgba(202, 190, 255, 0.12);
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.4);
 }
+
+/* 'above' posture: the sky rises to the top, small and dim — reference
+   material above the full-width reading, not a backdrop behind it */
+.journey-scene--above {
+  opacity: 0.35;
+  transform: scale(0.48) translateY(-46%);
+}
+/* give the risen sky a moment of room before the text begins */
+.journey-step--after-sky {
+  padding-top: 26vh;
+}

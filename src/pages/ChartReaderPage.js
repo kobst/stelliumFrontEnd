@@ -48,8 +48,8 @@ const ACTS = [
   // out on the big wheel (rail-wise still "Patterns")
   { id: 'shapes', rail: null, railAs: 'patterns', mode: 'full' },
   { id: 'planets', rail: 'Chart & Planets', mode: 'full' },
-  { id: 'analysis', rail: '360 Analysis', mode: 'recede' },
-  { id: 'ask', rail: 'Ask Stellium', mode: 'recede' },
+  { id: 'analysis', rail: '360 Analysis', mode: 'above' },
+  { id: 'ask', rail: 'Ask Stellium', mode: 'above' },
 ];
 
 function ChartReaderPage() {
@@ -470,13 +470,13 @@ function ChartReaderPage() {
           </section>
 
           <section
-            className={`journey-step journey-step--panel${liveStep === 'analysis' ? ' live' : ''}`}
+            className={`journey-step journey-step--wide journey-step--after-sky${liveStep === 'analysis' ? ' live' : ''}`}
             ref={setStepRef('analysis')}
           >
             <div className="journey-chapter">IV · 360 Analysis</div>
             <p className="journey-lede">
-              The long reading, life-area by life-area. The sky steps back — the text
-              carries it from here.
+              The long reading, life-area by life-area. The sky rises out of the way —
+              scroll back up whenever you need it.
             </p>
             <AnalysisTab
               broadCategoryAnalyses={broadCategoryAnalyses}
@@ -490,7 +490,7 @@ function ChartReaderPage() {
           </section>
 
           <section
-            className={`journey-step journey-step--panel journey-step--close${liveStep === 'ask' ? ' live' : ''}`}
+            className={`journey-step journey-step--wide journey-step--close${liveStep === 'ask' ? ' live' : ''}`}
             ref={setStepRef('ask')}
           >
             <div className="journey-chapter">V · Ask Stellium</div>
