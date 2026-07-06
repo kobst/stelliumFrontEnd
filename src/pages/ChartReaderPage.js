@@ -17,6 +17,7 @@ import {
   QuadrantsLens,
   InfluenceLens,
   ShapesLens,
+  extractShapeCards,
 } from '../UI/journey/PatternLenses';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
 import AskStelliumPanel, { formatPositionData } from '../UI/askStellium/AskStelliumPanel';
@@ -43,6 +44,9 @@ const ACTS = [
   { id: 'hero', rail: null, mode: 'hidden' },
   { id: 'overview', rail: 'Overview', mode: 'hidden' },
   { id: 'patterns', rail: 'Patterns', mode: 'hidden' },
+  // chart shapes: the sky arrives a chapter early to point the figures
+  // out on the big wheel (rail-wise still "Patterns")
+  { id: 'shapes', rail: null, railAs: 'patterns', mode: 'full' },
   { id: 'planets', rail: 'Chart & Planets', mode: 'full' },
   { id: 'analysis', rail: '360 Analysis', mode: 'recede' },
   { id: 'ask', rail: 'Ask Stellium', mode: 'recede' },
@@ -82,6 +86,9 @@ function ChartReaderPage() {
   // sky click → drives the planet analysis (Act III) and Ask context
   const [externalPlanet, setExternalPlanet] = useState(null);
 
+  // Chart Shapes: which pattern the big wheel is pointing out
+  const [selectedShape, setSelectedShape] = useState(null);
+
   // Ask drawer (standard overlay variant) + context bridge
   const [askOpen, setAskOpen] = useState(false);
   const [askElements, setAskElements] = useState([]);
@@ -113,13 +120,26 @@ function ChartReaderPage() {
   const act = ACTS.find((a) => a.id === activeAct) || ACTS[0];
   const sceneMode = act.mode;
 
+  const shapeCards = useMemo(
+    () =>
+      extractShapeCards(
+        birthChart?.patterns?.patterns || birthChart?.patterns || [],
+        birthChart?.planets || []
+      ),
+    [birthChart?.patterns, birthChart?.planets]
+  );
+
   const highlightBodies = useMemo(() => {
     if (hoverNames) return toSceneBodyNames(hoverNames);
+    if (activeAct === 'shapes') {
+      const focus = selectedShape || shapeCards[0];
+      return focus ? toSceneBodyNames(focus.members) : undefined;
+    }
     if (activeAct === 'planets' && planetsSelectionNames) {
       return toSceneBodyNames(planetsSelectionNames);
     }
     return undefined;
-  }, [hoverNames, planetsSelectionNames, activeAct]);
+  }, [hoverNames, planetsSelectionNames, activeAct, selectedShape, shapeCards]);
 
   // ── scroll spy: the step nearest the viewport's center is live ────
   const scrollRef = useRef(null);
@@ -287,7 +307,13 @@ function ChartReaderPage() {
         {ACTS.filter((a) => a.rail).map((a) => (
           <button
             key={a.id}
-            className={activeAct === a.id || (activeAct === 'hero' && a.id === 'overview') ? 'on' : ''}
+            className={
+              activeAct === a.id ||
+              (activeAct === 'hero' && a.id === 'overview') ||
+              (activeAct === 'shapes' && a.id === 'patterns')
+                ? 'on'
+                : ''
+            }
             onClick={() => scrollToAct(a.id)}
           >
             <span className="dot" />
@@ -397,16 +423,24 @@ function ChartReaderPage() {
           </section>
 
           <section
-            className={`journey-step journey-step--wide${liveStep === 'lens-shapes' ? ' live' : ''}`}
-            ref={setStepRef('lens-shapes', 'patterns')}
+            className={`journey-step journey-step--panel${liveStep === 'lens-shapes' ? ' live' : ''}`}
+            ref={setStepRef('lens-shapes', 'shapes')}
           >
             <div className="journey-subchapter">Chart Shapes</div>
+            <p className="journey-lede">
+              The figures your sky draws when you step back — each card points its
+              pattern out on the big wheel. Hover to trace one; click to hold it.
+            </p>
             <ShapesLens
-              patterns={birthChart?.patterns?.patterns || birthChart?.patterns || []}
+              cards={shapeCards}
               planets={birthChart?.planets || []}
               aspects={birthChart?.aspects || []}
               interpretation={basicAnalysis?.dominance?.pattern?.interpretation}
               onHoverBodies={setHoverNames}
+              selectedKey={(selectedShape || shapeCards[0])?.key}
+              onSelectCard={(c) =>
+                setSelectedShape((prev) => (prev?.key === c.key ? null : c))
+              }
             />
           </section>
 

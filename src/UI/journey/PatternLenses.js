@@ -278,9 +278,10 @@ function WheelMini({ planets, members, aspects }) {
   );
 }
 
-export function ShapesLens({ patterns = [], planets = [], aspects = [], interpretation, onHoverBodies }) {
+/** raw backend patterns → [{ key, label, members, description }] */
+export function extractShapeCards(patterns = [], planets = []) {
   const known = new Set(planets.map((p) => p.name));
-  const cards = (Array.isArray(patterns) ? patterns : [])
+  return (Array.isArray(patterns) ? patterns : [])
     .map((pat, i) => {
       const members = new Set();
       collectPlanetNames(pat, known, members);
@@ -299,7 +300,17 @@ export function ShapesLens({ patterns = [], planets = [], aspects = [], interpre
     })
     .filter(Boolean)
     .slice(0, 6);
+}
 
+export function ShapesLens({
+  cards = [],
+  planets = [],
+  aspects = [],
+  interpretation,
+  onHoverBodies,
+  selectedKey,
+  onSelectCard,
+}) {
   if (!cards.length && !interpretation) {
     return <p className="lens-empty">No major chart patterns detected — the sky spreads its weight evenly.</p>;
   }
@@ -308,7 +319,12 @@ export function ShapesLens({ patterns = [], planets = [], aspects = [], interpre
     <>
       <div className="lens-shapes">
         {cards.map((c) => (
-          <div className="lens-shcard" key={c.key} {...hoverProps(onHoverBodies, c.members)}>
+          <div
+            className={`lens-shcard${selectedKey === c.key ? ' on' : ''}${onSelectCard ? ' lens-shcard--pick' : ''}`}
+            key={c.key}
+            onClick={() => onSelectCard?.(c)}
+            {...hoverProps(onHoverBodies, c.members)}
+          >
             <WheelMini planets={planets} members={c.members} aspects={aspects} />
             <div className="nm">{c.label}</div>
             <p>
