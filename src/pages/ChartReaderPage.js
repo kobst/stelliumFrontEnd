@@ -20,6 +20,7 @@ import {
   extractShapeCards,
 } from '../UI/journey/PatternLenses';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
+import { DomainReading, domainReadings } from '../UI/journey/AnalysisFlow';
 import AskStelliumPanel, { formatPositionData } from '../UI/askStellium/AskStelliumPanel';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import './ChartReaderPage.css';
@@ -119,6 +120,11 @@ function ChartReaderPage() {
 
   const act = ACTS.find((a) => a.id === activeAct) || ACTS[0];
   const sceneMode = act.mode;
+
+  const analysisChapters = useMemo(
+    () => domainReadings(broadCategoryAnalyses),
+    [broadCategoryAnalyses]
+  );
 
   const shapeCards = useMemo(
     () =>
@@ -478,16 +484,28 @@ function ChartReaderPage() {
               The long reading, life-area by life-area. The sky rises out of the way —
               scroll back up whenever you need it.
             </p>
-            <AnalysisTab
-              broadCategoryAnalyses={broadCategoryAnalyses}
-              analysisStatus={analysisStatus}
-              onStartAnalysis={handleStartAnalysis}
-              chartId={chartId}
-              birthChart={birthChart}
-              userId={userId}
-              isCelebrity={isCelebrity}
-            />
+            {analysisChapters.length === 0 && (
+              <AnalysisTab
+                broadCategoryAnalyses={broadCategoryAnalyses}
+                analysisStatus={analysisStatus}
+                onStartAnalysis={handleStartAnalysis}
+                chartId={chartId}
+                birthChart={birthChart}
+                userId={userId}
+                isCelebrity={isCelebrity}
+              />
+            )}
           </section>
+
+          {analysisChapters.map(({ domain, data }) => (
+            <section
+              key={domain.id}
+              className={`journey-step journey-step--wide${liveStep === `domain-${domain.id}` ? ' live' : ''}`}
+              ref={setStepRef(`domain-${domain.id}`, 'analysis')}
+            >
+              <DomainReading domain={domain} data={data} />
+            </section>
+          ))}
 
           <section
             className={`journey-step journey-step--wide journey-step--close${liveStep === 'ask' ? ' live' : ''}`}

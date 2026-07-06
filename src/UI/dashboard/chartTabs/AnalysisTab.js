@@ -67,14 +67,14 @@ const houseLabel = (h) => {
   return h === 1 ? '1st' : h === 2 ? '2nd' : h === 3 ? '3rd' : `${h}th`;
 };
 
-const formatAspectDetail = (decoded) => {
+export const formatAspectDetail = (decoded) => {
   if (!decoded?.p1 || !decoded?.p2 || !decoded?.aspect) return decoded?.pretty || '';
   const p1 = `${decoded.p1.planet} in ${decoded.p1.sign} (${houseLabel(decoded.p1.house)})`;
   const p2 = `${decoded.p2.planet} in ${decoded.p2.sign} (${houseLabel(decoded.p2.house)})`;
   return `${p1} ${decoded.aspect} ${p2}`;
 };
 
-const renderAspectPhrase = (decoded) => {
+export const renderAspectPhrase = (decoded) => {
   if (!decoded?.p1 || !decoded?.p2 || !decoded?.aspect) {
     return decoded?.pretty || '';
   }
@@ -92,7 +92,7 @@ const renderAspectPhrase = (decoded) => {
 // ============ MAIN DECODER FUNCTION ============
 
 // Returns structured data for rendering
-const decodeAstroCode = (code) => {
+export const decodeAstroCode = (code) => {
   if (!code || typeof code !== 'string') return { type: 'unknown', raw: code, pretty: code };
 
   try {
@@ -256,7 +256,7 @@ const renderKeyElement = (decoded, idx) => {
 };
 
 // Format subtopic name from key
-const formatSubtopicName = (key) => {
+export const formatSubtopicName = (key) => {
   return key
     .replace(/_/g, ' ')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -265,7 +265,7 @@ const formatSubtopicName = (key) => {
 
 // ============ DOMAIN CONFIGURATION ============
 
-const LIFE_DOMAINS = [
+export const LIFE_DOMAINS = [
   { id: 'UNCONSCIOUS_SPIRITUALITY', label: 'Spiritual' },
   { id: 'EMOTIONAL_FOUNDATIONS_HOME', label: 'Emotional Foundation' },
   { id: 'COMMUNICATION_BELIEFS', label: 'Communication' },
