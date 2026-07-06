@@ -9,10 +9,12 @@ import './PlanetsTab.css';
 const excludedPlanets = ['South Node', 'Part of Fortune'];
 
 // Canonical order for planet tabs
+// Ascendant first, then Sun/Moon, then the planets by distance from
+// the Sun, then the remaining points
 const planetOrder = [
-  'Moon', 'Mercury', 'Venus', 'Sun', 'Mars',
+  'Ascendant', 'Sun', 'Moon', 'Mercury', 'Venus', 'Mars',
   'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto',
-  'Ascendant', 'Midheaven', 'Node', 'North Node', 'Chiron'
+  'Midheaven', 'Node', 'North Node', 'Chiron'
 ];
 
 // Helper function to split interpretation text into paragraphs
