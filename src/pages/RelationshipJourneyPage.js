@@ -546,33 +546,34 @@ function RelationshipJourneyPage() {
             ];
             return (
               <div className="journey-domain-group" key={pl.key}>
-                <div className="journey-domain-sticky">
-                  <span>{pl.key}</span>
+                {/* score + key factors ride the sticky header, not the column */}
+                <div
+                  className="journey-domain-sticky rj-pillar-sticky"
+                  style={{ '--tc': pl.tone }}
+                >
+                  <div className="rj-pillar-sticky__row">
+                    <span className="pe">{pl.emoji}</span>
+                    <span>{pl.key}</span>
+                    <span className="pv">{pl.score}%</span>
+                  </div>
+                  {pl.factors.length > 0 && (
+                    <div className="rj-pillar-sticky__factors">
+                      {pl.factors.map((f, i) => (
+                        <span className="rj-fpill" key={i} {...factorHover(f)}>
+                          {f.description || f.reason || f.label}
+                          <em className={f.clusterScore < 0 ? 'neg' : ''}>
+                            {f.clusterScore > 0 ? '+' : ''}
+                            {Math.round(f.clusterScore)}
+                          </em>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <section
                   className={`journey-step journey-step--panel${liveStep === `pillar-${pl.key}` ? ' live' : ''}`}
                   ref={setStepRef(`pillar-${pl.key}`, 'pillars', { a: focusNames, b: focusNames })}
                 >
-                  <div className="rj-pillar" style={{ '--tc': pl.tone }}>
-                    <div className="ph">
-                      <span className="pe">{pl.emoji}</span>
-                      <span className="pn">{pl.key}</span>
-                      <span className="pv">{pl.score}%</span>
-                    </div>
-                    <div className="pbar">
-                      <span style={{ width: `${pl.score}%` }} />
-                    </div>
-                    {pl.factors.length > 0 && <div className="fk">Key factors</div>}
-                    {pl.factors.map((f, i) => (
-                      <div className="rj-factor" key={i} {...factorHover(f)}>
-                        <span className="fx">{f.description || f.reason || f.label}</span>
-                        <span className={`fs${f.clusterScore < 0 ? ' neg' : ''}`}>
-                          {f.clusterScore > 0 ? '+' : ''}
-                          {Math.round(f.clusterScore)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
                   {pl.panels?.support && (
                     <div className="rj-panelblock rj-panelblock--support">
                       <div className="pk">Support Patterns</div>
