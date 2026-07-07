@@ -163,3 +163,25 @@
   color: #ece8ff;
   margin-top: 2px;
 }
+
+/* the cluster's analysis, all three voices in one view */
+.rj-panelblock {
+  margin-top: 20px;
+  padding-left: 14px;
+  border-left: 2px solid rgba(202, 190, 255, 0.15);
+}
+.rj-panelblock .pk {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.rj-panelblock--support { border-left-color: rgba(93, 214, 160, 0.45); }
+.rj-panelblock--support .pk { color: #5dd6a0; }
+.rj-panelblock--challenge { border-left-color: rgba(224, 90, 109, 0.45); }
+.rj-panelblock--challenge .pk { color: #e05a6d; }
+.rj-panelblock--synthesis { border-left-color: rgba(233, 195, 73, 0.45); }
+.rj-panelblock--synthesis .pk { color: #e9c349; }
+.rj-panelblock--synthesis p { font-style: italic; }

@@ -173,7 +173,9 @@ function RelationshipJourneyPage() {
     [relationship]
   );
   const completeAnalysis = relationship?.completeAnalysis;
-  const clusterText = useCallback(
+  // per-cluster analysis arrives as three panels:
+  // completeAnalysis[cluster].synastry.{supportPanel,challengePanel,synthesisPanel}
+  const clusterPanels = useCallback(
     (key) => {
       if (!completeAnalysis) return null;
       const hit = Object.entries(completeAnalysis).find(([k]) =>
@@ -181,11 +183,18 @@ function RelationshipJourneyPage() {
       );
       const v = hit?.[1];
       if (!v) return null;
-      if (typeof v === 'string') return v;
-      return v.analysis || v.interpretation || v.overview || null;
+      if (typeof v === 'string') return { synthesis: v };
+      const syn = v.synastry || v;
+      const panels = {
+        support: syn.supportPanel || null,
+        challenge: syn.challengePanel || null,
+        synthesis: syn.synthesisPanel || v.analysis || v.interpretation || null,
+      };
+      return panels.support || panels.challenge || panels.synthesis ? panels : null;
     },
     [completeAnalysis]
   );
+
 
   const pillarData = useMemo(() => {
     if (!clusters) return [];
@@ -200,9 +209,9 @@ function RelationshipJourneyPage() {
         .filter(Boolean)
         .sort((x, y) => Math.abs(y.clusterScore) - Math.abs(x.clusterScore))
         .slice(0, 4);
-      return { ...c, score, factors, text: clusterText(c.key) };
+      return { ...c, score, factors, panels: clusterPanels(c.key) };
     });
-  }, [clusters, scoredItems, clusterText]);
+  }, [clusters, scoredItems, clusterPanels]);
 
   const synastryTop = useMemo(() => {
     const rows = (relationship?.synastryAspects || [])
@@ -427,7 +436,7 @@ function RelationshipJourneyPage() {
             ref={setStepRef('overview')}
           >
             <div className="journey-chapter">I · Overview</div>
-            {(relationship?.initialOverview || clusterText('overview') || '')
+            {(relationship?.initialOverview || clusterPanels('overview')?.synthesis || '')
               .split(/\n\s*\n|\n/)
               .map((t) => t.trim())
               .filter(Boolean)
@@ -564,13 +573,30 @@ function RelationshipJourneyPage() {
                       </div>
                     ))}
                   </div>
-                  {pl.text &&
-                    pl.text
-                      .split(/\n\s*\n|\n/)
-                      .map((t) => t.trim())
-                      .filter(Boolean)
-                      .slice(0, 4)
-                      .map((t, i) => <p key={i}>{t}</p>)}
+                  {pl.panels?.support && (
+                    <div className="rj-panelblock rj-panelblock--support">
+                      <div className="pk">Support Patterns</div>
+                      {pl.panels.support.split(/\n\s*\n|\n/).map((t) => t.trim()).filter(Boolean).map((t, i) => (
+                        <p key={i}>{t}</p>
+                      ))}
+                    </div>
+                  )}
+                  {pl.panels?.challenge && (
+                    <div className="rj-panelblock rj-panelblock--challenge">
+                      <div className="pk">Growth Challenges</div>
+                      {pl.panels.challenge.split(/\n\s*\n|\n/).map((t) => t.trim()).filter(Boolean).map((t, i) => (
+                        <p key={i}>{t}</p>
+                      ))}
+                    </div>
+                  )}
+                  {pl.panels?.synthesis && (
+                    <div className="rj-panelblock rj-panelblock--synthesis">
+                      <div className="pk">Synthesis</div>
+                      {pl.panels.synthesis.split(/\n\s*\n|\n/).map((t) => t.trim()).filter(Boolean).map((t, i) => (
+                        <p key={i}>{t}</p>
+                      ))}
+                    </div>
+                  )}
                 </section>
               </div>
             );
@@ -623,7 +649,7 @@ function RelationshipJourneyPage() {
                 );
               })}
             </div>
-            {(clusterText('composite') || '')
+            {(clusterPanels('composite')?.synthesis || '')
               .split(/\n\s*\n|\n/)
               .map((t) => t.trim())
               .filter(Boolean)
