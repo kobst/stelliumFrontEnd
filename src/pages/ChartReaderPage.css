@@ -680,28 +680,37 @@
   min-height: 24vh;
 }
 
-/* sticky chapter header: the life-area frames its subsections while
-   they scroll beneath it */
+/* sticky chapter header: a centered banner framing the life-area;
+   a scrim fades the outgoing text before it reaches the label */
 .journey-domain-sticky {
   position: sticky;
-  top: 14px;
+  top: 0;
   z-index: 8;
-  width: min(560px, 46vw);
-  margin-left: 5vw;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 0 30px;
   pointer-events: none;
+  background: linear-gradient(180deg, rgba(6, 6, 13, 0.95) 0%, rgba(6, 6, 13, 0.8) 55%, transparent 100%);
+}
+.journey-domain-sticky::before,
+.journey-domain-sticky::after {
+  content: '';
+  width: min(90px, 7vw);
+  height: 1px;
+  background: rgba(233, 195, 73, 0.35);
 }
 .journey-domain-sticky span {
-  display: inline-block;
   font-family: ui-monospace, monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.26em;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
   color: #e9c349;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(10, 10, 17, 0.75);
-  backdrop-filter: blur(10px);
-  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.22);
+  text-shadow: 0 0 24px rgba(233, 195, 73, 0.35);
+  white-space: nowrap;
 }
 /* the reading clears the pinned label as steps scroll under it */
 .journey-domain-group .journey-step--left {
