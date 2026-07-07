@@ -57,6 +57,17 @@ const CLUSTERS = [
 
 const firstName = (full) => String(full || '').trim().split(/\s+/)[0] || 'Partner';
 
+const PLACEMENT_ORDER = [
+  'Ascendant', 'Sun', 'Moon', 'Mercury', 'Venus', 'Mars',
+  'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Midheaven', 'Node',
+];
+const orderedPlacements = (planets) =>
+  [...(planets || [])].sort((x, y) => {
+    const ix = PLACEMENT_ORDER.indexOf(x.name);
+    const iy = PLACEMENT_ORDER.indexOf(y.name);
+    return (ix === -1 ? 99 : ix) - (iy === -1 ? 99 : iy);
+  });
+
 function RelationshipJourneyPage() {
   const { userId, compositeId } = useParams();
   const navigate = useNavigate();
@@ -433,18 +444,16 @@ function RelationshipJourneyPage() {
           >
             <div className="rj-pname rj-pname--a">{aName}</div>
             <p>
-              This is {aName}&rsquo;s sky — the outer wheel, with its own aspect web. The
-              placements below are the ones the relationship leans on hardest.
+              This is {aName}&rsquo;s sky, whole — every placement below sits on the wheel
+              to the left. Hover a row to find it.
             </p>
-            {(aPlanets || [])
-              .filter((p) => ['Sun', 'Moon', 'Venus'].includes(p.name))
-              .map((p) => (
-                <div className="arow" key={p.name} {...hoverRow([p.name], [])}>
-                  <span className="at">{p.name}</span>
-                  <span className="an">{p.sign}</span>
-                  <span className="orb">{p.house ? `House ${p.house}` : ''}</span>
-                </div>
-              ))}
+            {orderedPlacements(aPlanets).map((p) => (
+              <div className="arow" key={p.name} {...hoverRow([p.name], [])}>
+                <span className="at">{p.name}</span>
+                <span className="an">{p.sign}</span>
+                <span className="orb">{p.house ? `House ${p.house}` : ''}</span>
+              </div>
+            ))}
           </section>
 
           <section
@@ -453,18 +462,16 @@ function RelationshipJourneyPage() {
           >
             <div className="rj-pname rj-pname--b">{bName}</div>
             <p>
-              {bName}&rsquo;s planets wait at the center of the wheel. Keep scrolling and
-              they rise into place around {aName}&rsquo;s.
+              And this is {bName}&rsquo;s — her wheel turns beside {aName}&rsquo;s, complete
+              in itself. Keep scrolling, and the two skies merge.
             </p>
-            {(bPlanets || [])
-              .filter((p) => ['Sun', 'Moon', 'Venus'].includes(p.name))
-              .map((p) => (
-                <div className="arow" key={p.name} {...hoverRow([], [p.name])}>
-                  <span className="at">{p.name}</span>
-                  <span className="an">{p.sign}</span>
-                  <span className="orb">{p.house ? `House ${p.house}` : ''}</span>
-                </div>
-              ))}
+            {orderedPlacements(bPlanets).map((p) => (
+              <div className="arow" key={p.name} {...hoverRow([], [p.name])}>
+                <span className="at">{p.name}</span>
+                <span className="an">{p.sign}</span>
+                <span className="orb">{p.house ? `House ${p.house}` : ''}</span>
+              </div>
+            ))}
           </section>
 
           {/* merge track: scroll drives the blend */}
