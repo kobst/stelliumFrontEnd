@@ -64,7 +64,7 @@ function OrbitFit({ fitRadius, coveredRightPx, fitNonce = 0 }: { fitRadius: numb
   const size = useThree((s) => s.size)
   useEffect(() => {
     const halfV = Math.tan((45 * Math.PI) / 360)
-    const effWidth = Math.max(200, size.width - coveredRightPx)
+    const effWidth = Math.max(200, size.width - Math.abs(coveredRightPx))
     const effAspect = effWidth / Math.max(1, size.height)
     const dist = fitRadius / (halfV * Math.min(1, effAspect))
     camera.position.set(0, ORBIT_DIR.y * dist, ORBIT_DIR.z * dist)

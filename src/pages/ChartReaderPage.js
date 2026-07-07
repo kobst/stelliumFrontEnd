@@ -20,7 +20,7 @@ import {
   extractShapeCards,
 } from '../UI/journey/PatternLenses';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
-import { DomainReading, domainReadings } from '../UI/journey/AnalysisFlow';
+import { AnalysisStepBody, flattenAnalysis } from '../UI/journey/AnalysisFlow';
 import AskStelliumPanel, { formatPositionData } from '../UI/askStellium/AskStelliumPanel';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import './ChartReaderPage.css';
@@ -49,7 +49,7 @@ const ACTS = [
   // out on the big wheel (rail-wise still "Patterns")
   { id: 'shapes', rail: null, railAs: 'patterns', mode: 'full' },
   { id: 'planets', rail: 'Chart & Planets', mode: 'full' },
-  { id: 'analysis', rail: '360 Analysis', mode: 'above' },
+  { id: 'analysis', rail: '360 Analysis', mode: 'mirror' },
   { id: 'ask', rail: 'Ask Stellium', mode: 'above' },
 ];
 
@@ -121,10 +121,34 @@ function ChartReaderPage() {
   const act = ACTS.find((a) => a.id === activeAct) || ACTS[0];
   const sceneMode = act.mode;
 
-  const analysisChapters = useMemo(
-    () => domainReadings(broadCategoryAnalyses),
-    [broadCategoryAnalyses]
+  const knownNames = useMemo(
+    () => (birthChart?.planets || []).map((p) => p.name),
+    [birthChart?.planets]
   );
+  const analysisSteps = useMemo(
+    () => flattenAnalysis(broadCategoryAnalyses, knownNames),
+    [broadCategoryAnalyses, knownNames]
+  );
+  const analysisGroups = useMemo(() => {
+    const groups = [];
+    analysisSteps.forEach((st) => {
+      let g = groups[groups.length - 1];
+      if (!g || g.domain.id !== st.domain.id) {
+        g = { domain: st.domain, steps: [] };
+        groups.push(g);
+      }
+      g.steps.push(st);
+    });
+    return groups;
+  }, [analysisSteps]);
+
+  const analysisFocusById = useMemo(() => {
+    const map = {};
+    analysisSteps.forEach((st) => {
+      map[st.id] = st.focus;
+    });
+    return map;
+  }, [analysisSteps]);
 
   const shapeCards = useMemo(
     () =>
@@ -137,6 +161,10 @@ function ChartReaderPage() {
 
   const highlightBodies = useMemo(() => {
     if (hoverNames) return toSceneBodyNames(hoverNames);
+    if (activeAct === 'analysis') {
+      const focus = analysisFocusById[liveStep];
+      return focus?.length ? toSceneBodyNames(focus) : undefined;
+    }
     if (activeAct === 'shapes') {
       const focus = selectedShape || shapeCards[0];
       return focus ? toSceneBodyNames(focus.members) : undefined;
@@ -145,7 +173,7 @@ function ChartReaderPage() {
       return toSceneBodyNames(planetsSelectionNames);
     }
     return undefined;
-  }, [hoverNames, planetsSelectionNames, activeAct, selectedShape, shapeCards]);
+  }, [hoverNames, planetsSelectionNames, activeAct, selectedShape, shapeCards, analysisFocusById, liveStep]);
 
   // ── scroll spy: the step nearest the viewport's center is live ────
   const scrollRef = useRef(null);
@@ -265,7 +293,13 @@ function ChartReaderPage() {
             fitRadius={5.9}
             fitNonce={fitNonce}
             disableZoom
-            coveredRightPx={sceneMode === 'full' ? Math.min(560, window.innerWidth * 0.46) : 0}
+            coveredRightPx={
+              sceneMode === 'full'
+                ? Math.min(560, window.innerWidth * 0.46)
+                : sceneMode === 'mirror'
+                  ? -Math.min(560, window.innerWidth * 0.46)
+                  : 0
+            }
             highlightBodies={highlightBodies}
             onHoverBody={(h) =>
               setHoverInfo(
@@ -476,15 +510,15 @@ function ChartReaderPage() {
           </section>
 
           <section
-            className={`journey-step journey-step--wide journey-step--after-sky${liveStep === 'analysis' ? ' live' : ''}`}
+            className={`journey-step journey-step--left${liveStep === 'analysis' ? ' live' : ''}`}
             ref={setStepRef('analysis')}
           >
             <div className="journey-chapter">IV · 360 Analysis</div>
             <p className="journey-lede">
-              The long reading, life-area by life-area. The sky rises out of the way —
-              scroll back up whenever you need it.
+              The long reading, life-area by life-area. The sky crosses to your right
+              and follows along — each theme lights the placements it speaks of.
             </p>
-            {analysisChapters.length === 0 && (
+            {analysisSteps.length === 0 && (
               <AnalysisTab
                 broadCategoryAnalyses={broadCategoryAnalyses}
                 analysisStatus={analysisStatus}
@@ -497,14 +531,21 @@ function ChartReaderPage() {
             )}
           </section>
 
-          {analysisChapters.map(({ domain, data }) => (
-            <section
-              key={domain.id}
-              className={`journey-step journey-step--wide${liveStep === `domain-${domain.id}` ? ' live' : ''}`}
-              ref={setStepRef(`domain-${domain.id}`, 'analysis')}
-            >
-              <DomainReading domain={domain} data={data} />
-            </section>
+          {analysisGroups.map((g) => (
+            <div className="journey-domain-group" key={g.domain.id}>
+              <div className="journey-domain-sticky">
+                <span>{g.domain.label}</span>
+              </div>
+              {g.steps.map((st) => (
+                <section
+                  key={st.id}
+                  className={`journey-step journey-step--left${st.kind === 'synthesis' ? ' journey-step--syn' : ''}${liveStep === st.id ? ' live' : ''}`}
+                  ref={setStepRef(st.id, 'analysis')}
+                >
+                  <AnalysisStepBody step={st} onHoverBodies={setHoverNames} />
+                </section>
+              ))}
+            </div>
           ))}
 
           <section

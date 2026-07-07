@@ -668,3 +668,42 @@
 .journey-step--after-sky {
   padding-top: 26vh;
 }
+
+/* mirror act: reading on the left, the sky follows on the right */
+.journey-step--left {
+  width: min(560px, 46vw);
+  margin-right: auto;
+  margin-left: 5vw;
+  min-height: 40vh;
+}
+.journey-step--syn {
+  min-height: 24vh;
+}
+
+/* sticky chapter header: the life-area frames its subsections while
+   they scroll beneath it */
+.journey-domain-sticky {
+  position: sticky;
+  top: 14px;
+  z-index: 8;
+  width: min(560px, 46vw);
+  margin-left: 5vw;
+  pointer-events: none;
+}
+.journey-domain-sticky span {
+  display: inline-block;
+  font-family: ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #e9c349;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(10, 10, 17, 0.75);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.22);
+}
+/* the reading clears the pinned label as steps scroll under it */
+.journey-domain-group .journey-step--left {
+  padding-top: 5vh;
+}
