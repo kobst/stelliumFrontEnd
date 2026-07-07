@@ -41,6 +41,15 @@ import './ChartReaderPage.css';
  * it as context.
  */
 
+const ACT_TITLES = {
+  overview: 'I · Overview',
+  patterns: 'II · Patterns',
+  shapes: 'II · Patterns',
+  planets: 'III · Chart & Planets',
+  analysis: 'IV · 360 Analysis',
+  ask: 'V · Ask Stellium',
+};
+
 const ACTS = [
   { id: 'hero', rail: null, mode: 'hidden' },
   { id: 'overview', rail: 'Overview', mode: 'hidden' },
@@ -339,8 +348,19 @@ function ChartReaderPage() {
         >
           ← Classic view
         </button>
+        <div className="journey-identity">
+          <span className="journey-identity__name">{subjectName}</span>
+          {birthMeta && <span className="journey-identity__meta">{birthMeta}</span>}
+        </div>
         <span className="journey-brand">Stellium</span>
       </div>
+
+      {/* the current act, pinned — you always know where you are */}
+      {activeAct !== 'hero' && (
+        <div className="journey-actbar" key={ACT_TITLES[activeAct]}>
+          <span>{ACT_TITLES[activeAct]}</span>
+        </div>
+      )}
 
       {/* progress rail — a journey map, not tabs */}
       <nav className="journey-rail">
