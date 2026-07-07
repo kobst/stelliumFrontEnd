@@ -214,7 +214,7 @@ function RelationshipJourneyPage() {
       }))
       .filter((r) => r.nameA && r.nameB && Number.isFinite(r.orb))
       .sort((x, y) => x.orb - y.orb);
-    return rows.slice(0, 8);
+    return rows;
   }, [relationship?.synastryAspects]);
 
   // ── emphasis: hover > centered step's focus ────────────────────────
@@ -500,9 +500,9 @@ function RelationshipJourneyPage() {
           >
             <div className="journey-chapter">III · Synastry</div>
             <p>
-              {relationship?.synastryAspects?.length || 0} cross-aspects between{' '}
-              {aName}&rsquo;s planets and {bName}&rsquo;s. The tightest threads — hover to
-              isolate each in the sky:
+              All {relationship?.synastryAspects?.length || 0} cross-aspects between{' '}
+              {aName}&rsquo;s planets and {bName}&rsquo;s, tightest first — hover any row
+              to isolate that thread in the sky:
             </p>
             {synastryTop.map((r, i) => (
               <div className="arow" key={i} {...hoverRow([r.nameA], [r.nameB])}>
