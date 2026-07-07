@@ -24,6 +24,7 @@ import type {
 
 // stable singleton so the synastry OrbitRings geometry never rebuilds
 const secondaryRingRadii = [SECONDARY_PLANET_RADIUS]
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 
 /**
  * Shifts the projection center left by half the covered width, so the
@@ -110,6 +111,8 @@ export function ChartScene({
   heliocentric,
   mode = 'wheel',
   highlightBodies,
+  highlightSecondaryBodies,
+  secondaryBlend = 1,
   topDown = false,
   coveredRightPx = 0,
   fitRadius,
@@ -178,6 +181,11 @@ export function ChartScene({
     [transitAspectBodies],
   )
 
+  const secondaryHighlightSet = useMemo(
+    () => (highlightSecondaryBodies?.length ? new Set(highlightSecondaryBodies) : null),
+    [highlightSecondaryBodies],
+  )
+
   const stateFor = (body: string, layer: SelectionLayer): MarkerState => {
     const matches = (s: BodySelection | null) =>
       !!s && s.body === body && s.layer === layer
@@ -186,6 +194,12 @@ export function ChartScene({
     if (highlightSet && layer === 'natal') {
       return highlightSet.has(body) ? 'active' : 'muted'
     }
+    if (secondaryHighlightSet && layer === 'secondary') {
+      return secondaryHighlightSet.has(body) ? 'active' : 'muted'
+    }
+    // when only the other layer is emphasized, this one recedes
+    if (layer === 'natal' && secondaryHighlightSet && !highlightSet) return 'muted'
+    if (layer === 'secondary' && highlightSet && !secondaryHighlightSet) return 'muted'
     return 'normal'
   }
 
@@ -285,16 +299,16 @@ export function ChartScene({
         <>
           <OrbitRings
             radii={secondaryRingRadii}
-            visible={synastryVisible}
+            visible={synastryVisible && clamp01(secondaryBlend) > 0.96}
           />
           {secondaryPlanets.map((p) => (
             <PlanetMarker
               key={`secondary-${p.body}`}
               placement={p}
-              radius={SECONDARY_PLANET_RADIUS}
+              radius={SECONDARY_PLANET_RADIUS * clamp01(secondaryBlend)}
               glyphScale={glyphScale}
               sizeScale={0.8}
-              hidden={!synastryVisible}
+              hidden={!synastryVisible || clamp01(secondaryBlend) < 0.04}
               state={stateFor(p.body, 'secondary')}
               onHover={secondaryHandlers.onHover}
               onSelect={secondaryHandlers.onSelect}
@@ -305,12 +319,16 @@ export function ChartScene({
             natal={{ placements: planets, radius: NATAL_PLANET_RADIUS }}
             secondary={{
               placements: secondaryPlanets,
-              radius: SECONDARY_PLANET_RADIUS,
+              radius: SECONDARY_PLANET_RADIUS * clamp01(secondaryBlend),
             }}
             defaultLayers={['natal', 'secondary']}
-            visible={synastryVisible}
+            visible={synastryVisible && clamp01(secondaryBlend) > 0.65}
             emphasized
             focus={selection}
+            highlightBodies={highlightBodies || highlightSecondaryBodies ? [
+              ...(highlightBodies ?? []),
+              ...(highlightSecondaryBodies ?? []),
+            ] : undefined}
           />
         </>
       )}

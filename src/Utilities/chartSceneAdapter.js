@@ -94,6 +94,29 @@ export function toTransitFrames(frameDocs = [], natalPlanets = []) {
 }
 
 
+
+/**
+ * relationship.synastryAspects → cross-chart Aspect[] for the scene.
+ * planet1/aspectedPlanet side = user A (natal layer, outer ring);
+ * planet2/aspectingPlanet side = user B (secondary layer, inner ring).
+ */
+export function toSynastrySceneAspects(synastryAspects = []) {
+  return (synastryAspects || [])
+    .map((a) => {
+      const nameA = a.transitingPlanet || a.aspectedPlanet || a.planet1;
+      const nameB = a.aspectingPlanet || a.planet2;
+      const bodyA = BODY_NAME_MAP[nameA];
+      const bodyB = BODY_NAME_MAP[nameB];
+      const type = String(a.aspectType || '').toLowerCase();
+      const orb = Number(a.orb);
+      if (!bodyA || !bodyB || !SUPPORTED_ASPECT_TYPES.has(type) || !Number.isFinite(orb)) {
+        return null;
+      }
+      return { bodyA, bodyB, type, orb, layerA: 'natal', layerB: 'secondary' };
+    })
+    .filter(Boolean);
+}
+
 /** scene body name ("sun") → backend name ("Sun"); null if unmapped */
 export function fromSceneBodyName(sceneName) {
   for (const [backend, scene] of Object.entries(BODY_NAME_MAP)) {

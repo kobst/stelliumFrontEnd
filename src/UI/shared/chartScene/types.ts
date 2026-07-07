@@ -63,6 +63,14 @@ export interface ChartSceneProps {
    * takes precedence while active.
    */
   highlightBodies?: string[]
+  /** emphasis for the secondary (partner) ring, same semantics */
+  highlightSecondaryBodies?: string[]
+  /**
+   * 0..1: the secondary ring's arrival — 0 gathers the partner's
+   * planets at the center (hidden), 1 seats them on the synastry ring.
+   * Markers glide via their own damping; cross lines appear late.
+   */
+  secondaryBlend?: number
   /** frame the wheel straight-down (margin/preview mounts) */
   topDown?: boolean
   /**

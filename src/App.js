@@ -30,6 +30,7 @@ import CelebsPage from './pages/CelebsPage';
 import GuestDashboard from './UI/prototype/GuestDashboard';
 import Chart3DPage from './pages/Chart3DPage';
 import ChartReaderPage from './pages/ChartReaderPage';
+import RelationshipJourneyPage from './pages/RelationshipJourneyPage';
 
 import './App.css';
 
@@ -124,6 +125,16 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ChartReaderPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* relationship journey — two skies merge into synastry,
+                then collapse to the composite */}
+            <Route
+              path="/dashboard/:userId/relationship/:compositeId/journey"
+              element={
+                <ProtectedRoute>
+                  <RelationshipJourneyPage />
                 </ProtectedRoute>
               }
             />

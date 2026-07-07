@@ -1,0 +1,165 @@
+/* relationship journey — extends the journey grammar (ChartReaderPage.css) */
+
+.rj-amp {
+  color: #e9c349;
+  font-style: italic;
+}
+
+.rj-pname {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+.rj-pname--a { color: #cabeff; }
+.rj-pname--b { color: #ff9d6a; }
+
+/* aspect / placement rows */
+.journey-page .arow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-top: 1px solid rgba(202, 190, 255, 0.08);
+  font-size: 12.5px;
+  color: rgba(236, 232, 255, 0.7);
+  border-radius: 7px;
+  cursor: default;
+}
+.journey-page .arow:hover {
+  background: rgba(233, 195, 73, 0.06);
+  color: #ece8ff;
+}
+.journey-page .arow .at {
+  min-width: 92px;
+  text-transform: capitalize;
+}
+.journey-page .arow .an {
+  color: #ece8ff;
+  font-weight: 600;
+}
+.journey-page .arow .orb {
+  margin-left: auto;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  color: rgba(236, 232, 255, 0.45);
+}
+
+/* continuous-track caption steps */
+.rj-track {
+  min-height: 30vh;
+}
+.rj-capstep {
+  min-height: 66vh;
+  display: flex;
+  align-items: center;
+}
+.rj-cap {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.7;
+  color: rgba(236, 232, 255, 0.75);
+  text-wrap: pretty;
+}
+
+/* pillars */
+.rj-pillar {
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--tc) 8%, transparent), rgba(255, 255, 255, 0.02));
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14);
+  margin-bottom: 18px;
+}
+.rj-pillar .ph {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.rj-pillar .pe { font-size: 17px; }
+.rj-pillar .pn {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 23px;
+  color: #ece8ff;
+}
+.rj-pillar .pv {
+  margin-left: auto;
+  font-family: ui-monospace, monospace;
+  font-size: 15px;
+  color: var(--tc);
+}
+.rj-pillar .pbar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+  margin: 10px 0 13px;
+}
+.rj-pillar .pbar span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--tc);
+  opacity: 0.8;
+}
+.rj-pillar .fk {
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(236, 232, 255, 0.45);
+  margin: 12px 0 4px;
+}
+.rj-factor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-top: 1px solid rgba(202, 190, 255, 0.08);
+  border-radius: 7px;
+  cursor: default;
+  font-size: 12.5px;
+  color: rgba(236, 232, 255, 0.7);
+}
+.rj-factor:hover {
+  background: rgba(233, 195, 73, 0.06);
+  color: #ece8ff;
+}
+.rj-factor .fx { flex: 1; }
+.rj-factor .fs {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: #5dd6a0;
+}
+.rj-factor .fs.neg { color: #e05a6d; }
+
+/* composite chips */
+.rj-chips {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.rj-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.1);
+  cursor: default;
+}
+.rj-chip:hover { background: rgba(233, 195, 73, 0.05); }
+.rj-chip .k {
+  font-family: ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(236, 232, 255, 0.45);
+}
+.rj-chip .v {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14.5px;
+  color: #ece8ff;
+  margin-top: 2px;
+}

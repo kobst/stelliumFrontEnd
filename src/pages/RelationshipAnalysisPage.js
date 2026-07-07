@@ -253,6 +253,13 @@ function RelationshipAnalysisPage() {
     <DashboardLayout user={stelliumUser} defaultSection="relationships">
       {() => (
         <div className="relationship-analysis-page">
+          <button
+            className="rj-entry"
+            onClick={() => navigate(`/dashboard/${userId}/relationship/${compositeId}/journey`)}
+            title="Read this relationship as a journey over the 3D sky"
+          >
+            ✦ Journey view
+          </button>
           <RelationshipDetailLayout
             relationship={relationship}
             onBackClick={handleBackClick}
