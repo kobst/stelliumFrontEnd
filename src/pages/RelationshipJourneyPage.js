@@ -110,7 +110,7 @@ function RelationshipJourneyPage() {
   const [activeAct, setActiveAct] = useState('hero');
   const [liveStep, setLiveStep] = useState('hero');
   const [mergeBlend, setMergeBlend] = useState(0);
-  const [compositeOn, setCompositeOn] = useState(false);
+  const [compBlend, setCompBlend] = useState(0);
   const [hoverAB, setHoverAB] = useState(null); // {a:[], b:[]} from rows
   const [askOpen, setAskOpen] = useState(false);
   const [fitNonce, setFitNonce] = useState(0);
@@ -129,10 +129,6 @@ function RelationshipJourneyPage() {
   const bPlanets = relationship?.userB_birthChart?.planets;
   const aPlacements = useMemo(() => toChartScenePlacements(aPlanets), [aPlanets]);
   const bPlacements = useMemo(() => toChartScenePlacements(bPlanets), [bPlanets]);
-  const aAspects = useMemo(
-    () => toChartSceneAspects(relationship?.userA_birthChart?.aspects),
-    [relationship?.userA_birthChart?.aspects]
-  );
   const synAspects = useMemo(
     () => toSynastrySceneAspects(relationship?.synastryAspects),
     [relationship?.synastryAspects]
@@ -235,7 +231,7 @@ function RelationshipJourneyPage() {
     const spy = () => {
       ticking = false;
       setMergeBlend(trackP(mergeTrackRef.current));
-      setCompositeOn(trackP(compTrackRef.current) > 0.5);
+      setCompBlend(trackP(compTrackRef.current));
       const mid = container.clientHeight / 2;
       let best = null;
       let bestDist = Infinity;
@@ -316,18 +312,26 @@ function RelationshipJourneyPage() {
   const hasScene = aPlacements.length > 0 && bPlacements.length > 0;
   const overallLabel = Number.isFinite(overall) ? `${Math.round(overall)}% overall` : null;
 
-  const sceneProps = compositeOn
-    ? {
-        natal: compositePlacements.length ? compositePlacements : aPlacements,
-        natalAspects: compositeAspects,
-      }
-    : {
-        natal: aPlacements,
-        natalAspects: mergeBlend < 0.5 ? aAspects : [],
-        secondary: bPlacements,
-        secondaryAspects: synAspects,
-        secondaryBlend: mergeBlend,
-      };
+  // camera widens to hold both separated wheels, tightens as they merge
+  const fitRadius = 10.8 - (10.8 - 5.9) * mergeBlend;
+
+  const sceneProps = {
+    natal: [],
+    natalAspects: [],
+    relationship: {
+      a: aPlacements,
+      b: bPlacements,
+      nameA: aName,
+      nameB: bName,
+      blend: mergeBlend,
+      comp: compBlend,
+      compositePlacements,
+      compositeAspects,
+      synastryAspects: synAspects,
+      highlightA: compBlend > 0.5 ? highlightBodies : highlightBodies,
+      highlightB: compBlend > 0.5 ? undefined : highlightSecondaryBodies,
+    },
+  };
 
   return (
     <div className="journey-page">
@@ -335,12 +339,10 @@ function RelationshipJourneyPage() {
         {hasScene && (
           <ChartScene
             {...sceneProps}
-            fitRadius={5.9}
+            fitRadius={fitRadius}
             fitNonce={fitNonce}
             disableZoom
             coveredRightPx={sceneMode === 'full' ? Math.min(560, window.innerWidth * 0.46) : 0}
-            highlightBodies={highlightBodies}
-            highlightSecondaryBodies={compositeOn ? undefined : highlightSecondaryBodies}
           />
         )}
       </div>

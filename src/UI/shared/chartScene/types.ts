@@ -71,6 +71,28 @@ export interface ChartSceneProps {
    * Markers glide via their own damping; cross lines appear late.
    */
   secondaryBlend?: number
+  /**
+   * relationship mode: the two-wheel choreography (side-by-side wheels
+   * → concentric synastry → composite collapse). Replaces the natal /
+   * secondary layers entirely while present.
+   */
+  relationship?: {
+    a: Placement[]
+    b: Placement[]
+    nameA: string
+    nameB: string
+    colorA?: string
+    colorB?: string
+    blend: number
+    comp: number
+    compositePlacements?: Placement[]
+    compositeAspects?: Aspect[]
+    synastryAspects?: Aspect[]
+    highlightA?: string[]
+    highlightB?: string[]
+    onHoverBody?: (p: Placement | null, side: 'a' | 'b') => void
+    onSelectBody?: (p: Placement, side: 'a' | 'b') => void
+  }
   /** frame the wheel straight-down (margin/preview mounts) */
   topDown?: boolean
   /**

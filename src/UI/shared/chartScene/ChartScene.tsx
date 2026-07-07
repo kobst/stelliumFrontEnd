@@ -7,6 +7,7 @@ import { OrbitRings } from './OrbitRings'
 import { AspectLines } from './AspectLines'
 import { TransitLayer } from './TransitLayer'
 import { AngleMarker, PlanetMarker } from './PlanetMarker'
+import { RelationshipLayer } from './RelationshipLayer'
 import type { MarkerState } from './PlanetMarker'
 import { dampFactor } from './utils'
 import {
@@ -113,6 +114,7 @@ export function ChartScene({
   highlightBodies,
   highlightSecondaryBodies,
   secondaryBlend = 1,
+  relationship,
   topDown = false,
   coveredRightPx = 0,
   fitRadius,
@@ -246,19 +248,19 @@ export function ChartScene({
 
       <Stars radius={60} depth={40} count={3000} factor={3} saturation={0.4} fade speed={0.4} />
 
-      <ZodiacWheel dimmed={helioMode} glyphScale={glyphScale} />
+      <ZodiacWheel dimmed={helioMode || (relationship ? relationship.blend < 0.7 : false)} glyphScale={glyphScale} />
       <OrbitRings radii={orbitRadii} visible={helioMode} />
 
       {/* natal web hides entirely while the transit layer has the view */}
       <AspectLines
         aspects={natalAspects}
         natal={{ placements: planets, radius: NATAL_PLANET_RADIUS }}
-        visible={!helioMode && !transitFrames?.length}
+        visible={!helioMode && !transitFrames?.length && !relationship}
         focus={selection}
         highlightBodies={highlightBodies}
       />
 
-      {markers.map(({ placement, radius }) => (
+      {!relationship && markers.map(({ placement, radius }) => (
         <PlanetMarker
           key={placement.body}
           placement={placement}
@@ -269,7 +271,7 @@ export function ChartScene({
           onSelect={natalHandlers.onSelect}
         />
       ))}
-      {!helioMode &&
+      {!helioMode && !relationship &&
         angles.map((p) => <AngleMarker key={p.body} placement={p} />)}
 
       {/* transit layer: moving sky over the fixed natal wheel (Phase 4);
@@ -329,6 +331,38 @@ export function ChartScene({
               ...(highlightBodies ?? []),
               ...(highlightSecondaryBodies ?? []),
             ] : undefined}
+          />
+        </>
+      )}
+
+      {relationship && (
+        <>
+          <RelationshipLayer {...relationship} />
+          {/* synastry cross lines: alive once merged, gone in composite */}
+          <AspectLines
+            aspects={relationship.synastryAspects ?? []}
+            natal={{ placements: relationship.a, radius: NATAL_PLANET_RADIUS }}
+            secondary={{ placements: relationship.b, radius: SECONDARY_PLANET_RADIUS }}
+            defaultLayers={['natal', 'secondary']}
+            visible={relationship.blend > 0.75 && relationship.comp < 0.35}
+            emphasized
+            focus={selection}
+            highlightBodies={
+              relationship.highlightA || relationship.highlightB
+                ? [...(relationship.highlightA ?? []), ...(relationship.highlightB ?? [])]
+                : undefined
+            }
+          />
+          {/* composite web: the relationship's own aspects */}
+          <AspectLines
+            aspects={relationship.compositeAspects ?? []}
+            natal={{
+              placements: relationship.compositePlacements ?? [],
+              radius: NATAL_PLANET_RADIUS,
+            }}
+            visible={relationship.comp > 0.6}
+            focus={selection}
+            highlightBodies={relationship.highlightA}
           />
         </>
       )}
