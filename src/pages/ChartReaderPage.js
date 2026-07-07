@@ -434,59 +434,78 @@ function ChartReaderPage() {
             </p>
           </section>
 
-          <section
-            className={`journey-step journey-step--wide${liveStep === 'lens-elements' ? ' live' : ''}`}
-            ref={setStepRef('lens-elements', 'patterns')}
-          >
-            <div className="journey-subchapter">Elements</div>
+          <div className="journey-domain-group">
+            <div className="journey-domain-sticky">
+              <span>Elements</span>
+            </div>
+            <section
+              className={`journey-step journey-step--wide${liveStep === 'lens-elements' ? ' live' : ''}`}
+              ref={setStepRef('lens-elements', 'patterns')}
+            >
             <ElementsLens
               data={elements?.elements}
               interpretation={basicAnalysis?.dominance?.elements?.interpretation}
               onHoverBodies={setHoverNames}
             />
-          </section>
+            </section>
+          </div>
 
-          <section
-            className={`journey-step journey-step--wide${liveStep === 'lens-modalities' ? ' live' : ''}`}
-            ref={setStepRef('lens-modalities', 'patterns')}
-          >
-            <div className="journey-subchapter">Modalities</div>
+          <div className="journey-domain-group">
+            <div className="journey-domain-sticky">
+              <span>Modalities</span>
+            </div>
+            <section
+              className={`journey-step journey-step--wide${liveStep === 'lens-modalities' ? ' live' : ''}`}
+              ref={setStepRef('lens-modalities', 'patterns')}
+            >
             <ModalitiesLens
               data={modalities?.modalities}
               interpretation={basicAnalysis?.dominance?.modalities?.interpretation}
               onHoverBodies={setHoverNames}
             />
-          </section>
+            </section>
+          </div>
 
-          <section
-            className={`journey-step journey-step--wide${liveStep === 'lens-quadrants' ? ' live' : ''}`}
-            ref={setStepRef('lens-quadrants', 'patterns')}
-          >
-            <div className="journey-subchapter">Quadrants</div>
+          <div className="journey-domain-group">
+            <div className="journey-domain-sticky">
+              <span>Quadrants</span>
+            </div>
+            <section
+              className={`journey-step journey-step--wide${liveStep === 'lens-quadrants' ? ' live' : ''}`}
+              ref={setStepRef('lens-quadrants', 'patterns')}
+            >
             <QuadrantsLens
               data={quadrants?.quadrants}
               interpretation={basicAnalysis?.dominance?.quadrants?.interpretation}
               onHoverBodies={setHoverNames}
             />
-          </section>
+            </section>
+          </div>
 
-          <section
-            className={`journey-step journey-step--wide${liveStep === 'lens-influence' ? ' live' : ''}`}
-            ref={setStepRef('lens-influence', 'patterns')}
-          >
-            <div className="journey-subchapter">Planetary Influence</div>
+          <div className="journey-domain-group">
+            <div className="journey-domain-sticky">
+              <span>Planetary Influence</span>
+            </div>
+            <section
+              className={`journey-step journey-step--wide${liveStep === 'lens-influence' ? ' live' : ''}`}
+              ref={setStepRef('lens-influence', 'patterns')}
+            >
             <InfluenceLens
               data={planetaryDominance?.planets}
               interpretation={basicAnalysis?.dominance?.planetary?.interpretation}
               onHoverBodies={setHoverNames}
             />
-          </section>
+            </section>
+          </div>
 
+          <div className="journey-domain-group">
+            <div className="journey-domain-sticky">
+              <span>Chart Shapes</span>
+            </div>
           <section
             className={`journey-step journey-step--panel${liveStep === 'lens-shapes' ? ' live' : ''}`}
             ref={setStepRef('lens-shapes', 'shapes')}
           >
-            <div className="journey-subchapter">Chart Shapes</div>
             <p className="journey-lede">
               The figures your sky draws when you step back — each card points its
               pattern out on the big wheel. Hover to trace one; click to hold it.
@@ -503,6 +522,7 @@ function ChartReaderPage() {
               }
             />
           </section>
+          </div>
 
           <section
             className={`journey-step journey-step--panel${liveStep === 'planets' ? ' live' : ''}`}

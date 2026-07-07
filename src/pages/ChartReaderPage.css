@@ -799,3 +799,9 @@
 .journey-domain-group .journey-step--left {
   padding-top: 5vh;
 }
+
+/* grouped wide steps clear the pinned labels too */
+.journey-domain-group .journey-step--wide,
+.journey-domain-group .journey-step--panel {
+  padding-top: 4vh;
+}
