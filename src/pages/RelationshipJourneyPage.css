@@ -186,10 +186,23 @@
 .rj-panelblock--synthesis .pk { color: #e9c349; }
 .rj-panelblock--synthesis p { font-style: italic; }
 
-/* pillar sticky header: identity + score + factors in one band */
+/* pillar sticky header: identity + score + factors in one band.
+   Self-contained: the reader page's journey-domain-sticky base is gone
+   (its labels moved into the fixed header), so the sticky behavior
+   this band still wants lives here. */
 .rj-pillar-sticky {
+  position: sticky;
+  top: 100px;
+  z-index: 8;
+  width: 100%;
+  display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 10px;
+  padding: 20px 0 30px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(6, 6, 13, 0.95) 0%, rgba(6, 6, 13, 0.8) 55%, transparent 100%);
 }
 .rj-pillar-sticky::before,
 .rj-pillar-sticky::after {

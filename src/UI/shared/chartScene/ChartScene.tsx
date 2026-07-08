@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { Bloom, EffectComposer } from '@react-three/postprocessing'
@@ -9,7 +9,7 @@ import { TransitLayer } from './TransitLayer'
 import { AngleMarker, PlanetMarker } from './PlanetMarker'
 import { RelationshipLayer } from './RelationshipLayer'
 import type { MarkerState } from './PlanetMarker'
-import { dampFactor } from './utils'
+import { dampFactor, spreadPlacements } from './utils'
 import {
   ANGLES,
   HELIO_ORBIT_RADII,
@@ -57,6 +57,18 @@ function ViewOffset({ coveredRightPx }: { coveredRightPx: number }) {
 const ORBIT_DIR = { y: 0.6402, z: 0.7682 }
 
 /**
+ * Applies pause/resume through the store: setFrameloop restarts the
+ * render loop on resume, which the Canvas frameloop prop alone doesn't.
+ */
+function FrameloopSync({ paused }: { paused: boolean }) {
+  const setFrameloop = useThree((s) => s.setFrameloop)
+  useEffect(() => {
+    setFrameloop(paused ? 'never' : 'always')
+  }, [paused, setFrameloop])
+  return null
+}
+
+/**
  * Fits `fitRadius` world units into the *uncovered* part of the canvas
  * along the default orbit direction. Reapplies on resize and panel
  * toggles; the user's own orbiting takes over between refits.
@@ -99,8 +111,9 @@ function TopDownFit() {
  * props are present: natal only = birth chart; + secondary = synastry
  * (Phase 3); + transitFrames = transit animation (Phase 4). The `mode`
  * prop picks the geometry: geocentric wheel or heliocentric orbits.
+ * Memoized: hosts re-render on scroll state, the canvas shouldn't.
  */
-export function ChartScene({
+function ChartSceneImpl({
   natal,
   natalAspects,
   secondary,
@@ -115,16 +128,27 @@ export function ChartScene({
   highlightSecondaryBodies,
   secondaryBlend = 1,
   relationship,
+  selectedBody,
   topDown = false,
   coveredRightPx = 0,
   fitRadius,
   fitNonce = 0,
   disableZoom = false,
+  paused = false,
   onHoverBody,
   onSelectBody,
 }: ChartSceneProps) {
-  const planets = natal.filter((p) => !(p.body in ANGLES))
-  const angles = natal.filter((p) => p.body in ANGLES)
+  const planets = useMemo(() => natal.filter((p) => !(p.body in ANGLES)), [natal])
+  const angles = useMemo(() => natal.filter((p) => p.body in ANGLES), [natal])
+
+  // stelliums fan out for display so markers stay distinct and
+  // clickable; lines/transits resolve against the same displayed
+  // positions so everything stays attached
+  const displayPlanets = useMemo(() => spreadPlacements(planets, 5), [planets])
+  const lineEndpoints = useMemo(
+    () => [...displayPlanets, ...angles],
+    [displayPlanets, angles],
+  )
 
   // synastry partner layer — inner ring; angles don't render there
   const secondaryPlanets = (secondary ?? []).filter((p) => !(p.body in ANGLES))
@@ -135,22 +159,31 @@ export function ChartScene({
   const synastryVisible = secondaryPlanets.length > 0 && !helioMode
 
   // ── hover / selection ──────────────────────────────────────────────
-  const [selection, setSelection] = useState<BodySelection | null>(null)
+  // controlled when `selectedBody` is present (including null): clicks
+  // only report through onSelectBody and the host passes the state back
+  const controlled = selectedBody !== undefined
+  const [internalSelection, setInternalSelection] = useState<BodySelection | null>(null)
+  const selection = controlled ? (selectedBody ?? null) : internalSelection
   const [hovered, setHovered] = useState<BodySelection | null>(null)
 
   const select = useCallback(
     (next: BodySelection | null) => {
       // clicking the selected body again deselects
-      setSelection((prev) => {
-        const resolved =
-          next && prev && prev.body === next.body && prev.layer === next.layer
-            ? null
-            : next
+      const toggle = (prev: BodySelection | null) =>
+        next && prev && prev.body === next.body && prev.layer === next.layer
+          ? null
+          : next
+      if (controlled) {
+        onSelectBody?.(toggle(selectedBody ?? null))
+        return
+      }
+      setInternalSelection((prev) => {
+        const resolved = toggle(prev)
         onSelectBody?.(resolved)
         return resolved
       })
     },
-    [onSelectBody],
+    [controlled, selectedBody, onSelectBody],
   )
 
   const hover = useCallback(
@@ -221,7 +254,7 @@ export function ChartScene({
         })),
         ...(sun ? [{ placement: sun, radius: 0 }] : []),
       ]
-    : planets.map((p) => ({ placement: p, radius: NATAL_PLANET_RADIUS }))
+    : displayPlanets.map((p) => ({ placement: p, radius: NATAL_PLANET_RADIUS }))
 
   // stable identity so OrbitRings doesn't rebuild geometry on mode toggles
   const orbitRadii = useMemo(
@@ -237,8 +270,10 @@ export function ChartScene({
       camera={{ position: topDown ? [0, 12.2, 0.5] : [0, 7.5, 9], fov: 45 }}
       gl={{ antialias: true }}
       dpr={[1, 2]}
+      frameloop={paused ? 'never' : 'always'}
       onPointerMissed={() => select(null)}
     >
+      <FrameloopSync paused={paused} />
       {topDown && <TopDownFit />}
       {!topDown && fitRadius ? <OrbitFit fitRadius={fitRadius} coveredRightPx={coveredRightPx} fitNonce={fitNonce} /> : null}
       <ViewOffset coveredRightPx={coveredRightPx} />
@@ -251,10 +286,12 @@ export function ChartScene({
       <ZodiacWheel dimmed={helioMode || (relationship ? relationship.blend < 0.7 : false)} glyphScale={glyphScale} />
       <OrbitRings radii={orbitRadii} visible={helioMode} />
 
-      {/* natal web hides entirely while the transit layer has the view */}
+      {/* natal web hides entirely while the transit layer has the view.
+          Angles are included as endpoints: aspects to asc/mc are real
+          data and draw toward the angle's axis on the planet ring. */}
       <AspectLines
         aspects={natalAspects}
-        natal={{ placements: planets, radius: NATAL_PLANET_RADIUS }}
+        natal={{ placements: lineEndpoints, radius: NATAL_PLANET_RADIUS }}
         visible={!helioMode && !transitFrames?.length && !relationship}
         focus={selection}
         highlightBodies={highlightBodies}
@@ -280,7 +317,7 @@ export function ChartScene({
         <TransitLayer
           frames={transitFrames}
           date={transitDate}
-          natalPlacements={planets}
+          natalPlacements={displayPlanets}
           visible={!helioMode}
           aspectBodies={transitAspectBodies}
           lineBoost={transitLineBoost}
@@ -318,7 +355,7 @@ export function ChartScene({
           ))}
           <AspectLines
             aspects={secondaryAspects ?? []}
-            natal={{ placements: planets, radius: NATAL_PLANET_RADIUS }}
+            natal={{ placements: displayPlanets, radius: NATAL_PLANET_RADIUS }}
             secondary={{
               placements: secondaryPlanets,
               radius: SECONDARY_PLANET_RADIUS * clamp01(secondaryBlend),
@@ -387,3 +424,5 @@ export function ChartScene({
     </Canvas>
   )
 }
+
+export const ChartScene = memo(ChartSceneImpl)

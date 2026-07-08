@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BODIES } from '../shared/chartScene/constants';
 import { toSceneBodyNames } from '../../Utilities/chartSceneAdapter';
 import './PatternLenses.css';
 
 // ── journey-native graphics for the Patterns act ──────────────────────
-// Each lens is its own scroll step: a graphic composed for the moment,
-// with the reading running full-width beneath it. No inner tabs — the
-// scroll is the tab bar.
+// Each lens is its own scroll step, in one of three layout patterns:
+//   hero   — big centered visual, one-line takeaway above, narrative
+//            full-width below (Elements, Modalities)
+//   capped — visual beside text; the visual sets the section height and
+//            longer text tucks behind a Read-more (Quadrants)
+//   split  — side-by-side, top-aligned (Planetary Influence)
+// The scroll is the tab bar; the reading never outruns its picture.
 
 const ELEMENT_COLORS = {
   fire: '#ff7a59',
@@ -58,43 +62,102 @@ const hoverProps = (onHoverBodies, names) => ({
   onMouseLeave: () => onHoverBodies?.(null),
 });
 
+/** one-line hook above a hero visual: "Fire & Water dominant — 33% each" */
+function takeawayLine(items, verb = 'dominant') {
+  const sorted = [...items].sort((a, b) => (b.percentage || 0) - (a.percentage || 0));
+  const [a, b] = sorted;
+  if (!a) return null;
+  const pa = Math.round(a.percentage || 0);
+  const pb = b ? Math.round(b.percentage || 0) : -1;
+  if (b && Math.abs(pa - pb) <= 2) {
+    return `${spaceOut(a.name)} & ${spaceOut(b.name)} ${verb} — ${pa}% each`;
+  }
+  return `${spaceOut(a.name)} ${verb} — ${pa}%`;
+}
+
+/**
+ * Pattern-B text column: capped to the visual's height, with a
+ * Read-more that only appears when the narrative actually overflows.
+ */
+function CappedText({ text }) {
+  const [expanded, setExpanded] = useState(false);
+  const [overflowing, setOverflowing] = useState(false);
+  const ref = useRef(null);
+  // the cap is on by default (CSS max-height); measure against it so the
+  // fade + Read-more only render when the narrative actually overflows.
+  // ResizeObserver re-measures on any size change (fonts, viewport,
+  // late-arriving styles) — a single mount-time check can race the CSS.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const measure = () => setOverflowing(el.scrollHeight > el.clientHeight + 8);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [text]);
+  if (!text) return null;
+  return (
+    <div
+      ref={ref}
+      className={`lens-capped__text${expanded ? ' open' : ''}${overflowing && !expanded ? ' fade' : ''}`}
+    >
+      <Interpretation text={text} />
+      {(overflowing || expanded) && (
+        <button className="lens-more" onClick={() => setExpanded((v) => !v)}>
+          {expanded ? 'Show less' : 'Read more'}
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ── 1 · Elements ──────────────────────────────────────────────────────
 export function ElementsLens({ data = [], interpretation, onHoverBodies }) {
   const items = [...data].sort((a, b) => (b.percentage || 0) - (a.percentage || 0));
   return (
-    <>
-      <div className="lens-ebar">
-        {items.map((it, i) => (
-          <span
-            key={i}
-            style={{ flex: it.percentage || 0.001, background: ELEMENT_COLORS[keyOf(it.name)] || '#666' }}
-          />
-        ))}
-      </div>
-      {items.map((it, i) => (
-        <div className="lens-erow" key={i} {...hoverProps(onHoverBodies, it.planets)}>
-          <span className="sw" style={{ background: ELEMENT_COLORS[keyOf(it.name)] || '#666' }} />
-          <span className="en">{spaceOut(it.name)}</span>
-          <span className="eps">
-            {(it.planets || []).map((p, j) => (
-              <span key={j} style={{ color: colorOf(p) }} title={p}>
-                {glyphOf(p)}
-              </span>
-            ))}
-          </span>
-          <span className="pc">{(it.percentage || 0).toFixed(0)}%</span>
+    <div className="lens-hero">
+      <p className="lens-take">{takeawayLine(items, 'dominant')}</p>
+      <div className="lens-hero__visual">
+        <div className="lens-ebar lens-ebar--hero">
+          {items.map((it, i) => (
+            <span
+              key={i}
+              style={{ flex: it.percentage || 0.001, background: ELEMENT_COLORS[keyOf(it.name)] || '#666' }}
+            />
+          ))}
         </div>
-      ))}
+        <div className="lens-etiles">
+          {items.map((it, i) => (
+            <div className="lens-etile" key={i} {...hoverProps(onHoverBodies, it.planets)}>
+              <div className="eh">
+                <span className="sw" style={{ background: ELEMENT_COLORS[keyOf(it.name)] || '#666' }} />
+                <span className="en">{spaceOut(it.name)}</span>
+              </div>
+              <div className="pc">{(it.percentage || 0).toFixed(0)}%</div>
+              <div className="eps">
+                {(it.planets || []).map((p, j) => (
+                  <span key={j} style={{ color: colorOf(p) }} title={p}>
+                    {glyphOf(p)}
+                  </span>
+                ))}
+                {!(it.planets || []).length && '—'}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
       <Interpretation text={interpretation} />
-    </>
+    </div>
   );
 }
 
 // ── 2 · Modalities ────────────────────────────────────────────────────
 export function ModalitiesLens({ data = [], interpretation, onHoverBodies }) {
   return (
-    <>
-      <div className="lens-gauges">
+    <div className="lens-hero">
+      <p className="lens-take">{takeawayLine(data, 'leads')}</p>
+      <div className="lens-gauges lens-gauges--hero">
         {data.map((it, i) => {
           const pct = (it.percentage || 0) / 100;
           const color = MODALITY_COLORS[keyOf(it.name)] || '#cabeff';
@@ -134,7 +197,7 @@ export function ModalitiesLens({ data = [], interpretation, onHoverBodies }) {
         })}
       </div>
       <Interpretation text={interpretation} />
-    </>
+    </div>
   );
 }
 
@@ -146,8 +209,8 @@ export function QuadrantsLens({ data = [], interpretation, onHoverBodies }) {
     byKey[keyOf(it.name)] = it;
   });
   return (
-    <>
-      <div className="lens-quadgrid">
+    <div className="lens-capped">
+      <div className="lens-quadgrid lens-capped__viz">
         <span className="ax s">S</span>
         <span className="ax n">N</span>
         <span className="ax e">E</span>
@@ -174,8 +237,8 @@ export function QuadrantsLens({ data = [], interpretation, onHoverBodies }) {
           );
         })}
       </div>
-      <Interpretation text={interpretation} />
-    </>
+      <CappedText text={interpretation} />
+    </div>
   );
 }
 
@@ -184,22 +247,24 @@ export function InfluenceLens({ data = [], interpretation, onHoverBodies }) {
   const items = [...data].sort((a, b) => (b.percentage || 0) - (a.percentage || 0));
   const max = Math.max(...items.map((d) => d.percentage || 0), 1);
   return (
-    <>
-      {items.map((it, i) => (
-        <div className="lens-irow" key={i} {...hoverProps(onHoverBodies, [it.name])}>
-          <span className="in">
-            <em style={{ color: colorOf(it.name) }}>{glyphOf(it.name)}</em> {it.name}
-          </span>
-          <span className="ib">
-            <span
-              style={{ width: `${((it.percentage || 0) / max) * 100}%`, background: colorOf(it.name) }}
-            />
-          </span>
-          <span className="iv">{(it.percentage || 0).toFixed(1)}%</span>
-        </div>
-      ))}
+    <div className="lens-split lens-split--top">
+      <div className="lens-split__viz">
+        {items.map((it, i) => (
+          <div className="lens-irow" key={i} {...hoverProps(onHoverBodies, [it.name])}>
+            <span className="in">
+              <em style={{ color: colorOf(it.name) }}>{glyphOf(it.name)}</em> {it.name}
+            </span>
+            <span className="ib">
+              <span
+                style={{ width: `${((it.percentage || 0) / max) * 100}%`, background: colorOf(it.name) }}
+              />
+            </span>
+            <span className="iv">{(it.percentage || 0).toFixed(1)}%</span>
+          </div>
+        ))}
+      </div>
       <Interpretation text={interpretation} />
-    </>
+    </div>
   );
 }
 
@@ -308,23 +373,18 @@ export function ShapesLens({
   aspects = [],
   interpretation,
   onHoverBodies,
-  selectedKey,
-  onSelectCard,
 }) {
   if (!cards.length && !interpretation) {
     return <p className="lens-empty">No major chart patterns detected — the sky spreads its weight evenly.</p>;
   }
 
+  // hero pattern, like the other lenses: the cards ARE the visual —
+  // each mini-wheel draws its figure at display scale, narrative below
   return (
-    <>
-      <div className="lens-shapes">
+    <div className="lens-hero">
+      <div className="lens-shapes lens-shapes--hero">
         {cards.map((c) => (
-          <div
-            className={`lens-shcard${selectedKey === c.key ? ' on' : ''}${onSelectCard ? ' lens-shcard--pick' : ''}`}
-            key={c.key}
-            onClick={() => onSelectCard?.(c)}
-            {...hoverProps(onHoverBodies, c.members)}
-          >
+          <div className="lens-shcard" key={c.key} {...hoverProps(onHoverBodies, c.members)}>
             <WheelMini planets={planets} members={c.members} aspects={aspects} />
             <div className="nm">{c.label}</div>
             <p>
@@ -342,6 +402,6 @@ export function ShapesLens({
         ))}
       </div>
       <Interpretation text={interpretation} />
-    </>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
@@ -44,19 +44,25 @@ import './ChartReaderPage.css';
 const ACT_TITLES = {
   overview: 'I · Overview',
   patterns: 'II · Patterns',
-  shapes: 'II · Patterns',
   planets: 'III · Chart & Planets',
   analysis: 'IV · 360 Analysis',
   ask: 'V · Ask Stellium',
+};
+
+// in-flow section labels never render in the scroll: the current
+// group's label populates the fixed header (journey-domainbar) instead
+const LENS_LABELS = {
+  'lens-elements': 'Elements',
+  'lens-modalities': 'Modalities',
+  'lens-quadrants': 'Quadrants',
+  'lens-influence': 'Planetary Influence',
+  'lens-shapes': 'Chart Shapes',
 };
 
 const ACTS = [
   { id: 'hero', rail: null, mode: 'hidden' },
   { id: 'overview', rail: 'Overview', mode: 'hidden' },
   { id: 'patterns', rail: 'Patterns', mode: 'hidden' },
-  // chart shapes: the sky arrives a chapter early to point the figures
-  // out on the big wheel (rail-wise still "Patterns")
-  { id: 'shapes', rail: null, railAs: 'patterns', mode: 'full' },
   { id: 'planets', rail: 'Chart & Planets', mode: 'full' },
   { id: 'analysis', rail: '360 Analysis', mode: 'mirror' },
   { id: 'ask', rail: 'Ask Stellium', mode: 'above' },
@@ -96,8 +102,10 @@ function ChartReaderPage() {
   // sky click → drives the planet analysis (Act III) and Ask context
   const [externalPlanet, setExternalPlanet] = useState(null);
 
-  // Chart Shapes: which pattern the big wheel is pointing out
-  const [selectedShape, setSelectedShape] = useState(null);
+  // the sky's selection is controlled here so the picker and the sky
+  // stay two views of one state (a scene-internal selection could
+  // otherwise go stale and freeze the aspect lines on an old pick)
+  const [skySelection, setSkySelection] = useState(null);
 
   // Ask drawer (standard overlay variant) + context bridge
   const [askOpen, setAskOpen] = useState(false);
@@ -159,6 +167,12 @@ function ChartReaderPage() {
     return map;
   }, [analysisSteps]);
 
+  const liveDomainLabel = useMemo(() => {
+    if (LENS_LABELS[liveStep]) return LENS_LABELS[liveStep];
+    const g = analysisGroups.find((grp) => grp.steps.some((st) => st.id === liveStep));
+    return g ? g.domain.label : null;
+  }, [liveStep, analysisGroups]);
+
   const shapeCards = useMemo(
     () =>
       extractShapeCards(
@@ -174,15 +188,11 @@ function ChartReaderPage() {
       const focus = analysisFocusById[liveStep];
       return focus?.length ? toSceneBodyNames(focus) : undefined;
     }
-    if (activeAct === 'shapes') {
-      const focus = selectedShape || shapeCards[0];
-      return focus ? toSceneBodyNames(focus.members) : undefined;
-    }
     if (activeAct === 'planets' && planetsSelectionNames) {
       return toSceneBodyNames(planetsSelectionNames);
     }
     return undefined;
-  }, [hoverNames, planetsSelectionNames, activeAct, selectedShape, shapeCards, analysisFocusById, liveStep]);
+  }, [hoverNames, planetsSelectionNames, activeAct, analysisFocusById, liveStep]);
 
   // ── scroll spy: the step nearest the viewport's center is live ────
   const scrollRef = useRef(null);
@@ -199,7 +209,13 @@ function ChartReaderPage() {
       Object.entries(stepRefs.current).forEach(([id, el]) => {
         if (!el) return;
         const r = el.getBoundingClientRect();
-        const d = Math.abs((r.top + r.bottom) / 2 - mid);
+        // distance to the step's BOUNDS, not its center: a tall step
+        // (e.g. Chart & Planets) is live the whole time the viewport
+        // center is inside it, instead of losing to a short neighbor
+        const d =
+          mid >= r.top && mid <= r.bottom
+            ? 0
+            : Math.min(Math.abs(r.top - mid), Math.abs(r.bottom - mid));
         if (d < bestDist) {
           bestDist = d;
           best = { id, el };
@@ -221,6 +237,13 @@ function ChartReaderPage() {
     return () => container.removeEventListener('scroll', onScroll);
   }, [loading]);
 
+  // scrolling on releases a manual sky pick so each act's own emphasis
+  // grammar (shape tracing, analysis steps) leads again; inside the
+  // planets act the pick rides along — it IS that act's grammar
+  useEffect(() => {
+    if (activeAct !== 'planets') setSkySelection(null);
+  }, [activeAct, liveStep]);
+
   // the wheel always scrolls the story: over the sky (outside the
   // scroll column) it forwards to the journey instead of zooming
   useEffect(() => {
@@ -233,7 +256,7 @@ function ChartReaderPage() {
     return () => document.removeEventListener('wheel', onWheel);
   }, []);
 
-  const scrollToAct = (id) => {
+  const scrollToAct = useCallback((id) => {
     const container = scrollRef.current;
     const el =
       stepRefs.current[id] ||
@@ -241,25 +264,37 @@ function ChartReaderPage() {
     if (el && container) {
       container.scrollTo({ top: el.offsetTop - 90, behavior: 'smooth' });
     }
-  };
+  }, []);
 
   const isCelebrity =
     chart?.isCelebrity === true || chart?.kind === 'celebrity' || chart?.isReadOnly === true;
   const canUseAskStellium = isAnalysisComplete;
 
-  const handleSkyPick = (sel) => {
-    if (!sel) return;
-    const name = fromSceneBodyName(sel.body);
-    const planet = name && (birthChart.planets || []).find((p) => p.name === name);
-    if (!planet) return;
-    // the sky and the picker are two views of one selection
-    setExternalPlanet({ name, nonce: Date.now() });
-    if (activeAct !== 'planets' && activeAct !== 'analysis') scrollToAct('planets');
-    if (canUseAskStellium) {
-      const data = formatPositionData(planet);
-      setAskElements([{ ...data, key: data.code, payload: data }]);
-    }
-  };
+  // stable identities keep the memoized ChartScene from re-rendering on
+  // every scroll-spy state change
+  const handleSkySelect = useCallback(
+    (sel) => {
+      setSkySelection(sel);
+      if (!sel) return;
+      const name = fromSceneBodyName(sel.body);
+      const planet = name && (birthChart.planets || []).find((p) => p.name === name);
+      if (!planet) return;
+      // the sky and the picker are two views of one selection
+      setExternalPlanet({ name, nonce: Date.now() });
+      if (activeAct !== 'planets' && activeAct !== 'analysis') scrollToAct('planets');
+      if (canUseAskStellium) {
+        const data = formatPositionData(planet);
+        setAskElements([{ ...data, key: data.code, payload: data }]);
+      }
+    },
+    [birthChart.planets, activeAct, canUseAskStellium, scrollToAct]
+  );
+
+  const handleSkyHover = useCallback((h) => {
+    setHoverInfo(
+      h ? { body: h.body, x: mousePos.current.x, y: mousePos.current.y } : null
+    );
+  }, []);
 
   if (stelliumUser && userId !== stelliumUser._id) {
     return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
@@ -310,12 +345,10 @@ function ChartReaderPage() {
                   : 0
             }
             highlightBodies={highlightBodies}
-            onHoverBody={(h) =>
-              setHoverInfo(
-                h ? { body: h.body, x: mousePos.current.x, y: mousePos.current.y } : null
-              )
-            }
-            onSelectBody={handleSkyPick}
+            selectedBody={skySelection}
+            paused={sceneMode === 'hidden'}
+            onHoverBody={handleSkyHover}
+            onSelectBody={handleSkySelect}
           />
         )}
       </div>
@@ -362,23 +395,50 @@ function ChartReaderPage() {
         </div>
       )}
 
+      {/* the live section's label populates in beneath the act — labels
+          never scroll through the view */}
+      {activeAct !== 'hero' && liveDomainLabel && (
+        <div className="journey-domainbar" key={liveDomainLabel}>
+          <span>{liveDomainLabel}</span>
+        </div>
+      )}
+
       {/* progress rail — a journey map, not tabs */}
       <nav className="journey-rail">
         {ACTS.filter((a) => a.rail).map((a) => (
-          <button
-            key={a.id}
-            className={
-              activeAct === a.id ||
-              (activeAct === 'hero' && a.id === 'overview') ||
-              (activeAct === 'shapes' && a.id === 'patterns')
-                ? 'on'
-                : ''
-            }
-            onClick={() => scrollToAct(a.id)}
-          >
-            <span className="dot" />
-            <span className="nm">{a.rail}</span>
-          </button>
+          <React.Fragment key={a.id}>
+            <button
+              className={
+                activeAct === a.id || (activeAct === 'hero' && a.id === 'overview')
+                  ? 'on'
+                  : ''
+              }
+              onClick={() => scrollToAct(a.id)}
+            >
+              <span className="dot" />
+              <span className="nm">{a.rail}</span>
+            </button>
+            {/* inside the 360, the rail opens into its life areas — the
+                long reading is jumpable, not just scrollable */}
+            {a.id === 'analysis' &&
+              activeAct === 'analysis' &&
+              analysisGroups.length > 0 && (
+                <div className="journey-rail__subs">
+                  {analysisGroups.map((g) => (
+                    <button
+                      key={g.domain.id}
+                      className={
+                        g.steps.some((st) => st.id === liveStep) ? 'sub on' : 'sub'
+                      }
+                      onClick={() => scrollToAct(g.steps[0].id)}
+                    >
+                      <span className="dot" />
+                      <span className="nm">{g.domain.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+          </React.Fragment>
         ))}
       </nav>
 
@@ -435,11 +495,8 @@ function ChartReaderPage() {
           </section>
 
           <div className="journey-domain-group">
-            <div className="journey-domain-sticky">
-              <span>Elements</span>
-            </div>
             <section
-              className={`journey-step journey-step--wide${liveStep === 'lens-elements' ? ' live' : ''}`}
+              className={`journey-step journey-step--lens${liveStep === 'lens-elements' ? ' live' : ''}`}
               ref={setStepRef('lens-elements', 'patterns')}
             >
             <ElementsLens
@@ -451,11 +508,8 @@ function ChartReaderPage() {
           </div>
 
           <div className="journey-domain-group">
-            <div className="journey-domain-sticky">
-              <span>Modalities</span>
-            </div>
             <section
-              className={`journey-step journey-step--wide${liveStep === 'lens-modalities' ? ' live' : ''}`}
+              className={`journey-step journey-step--lens${liveStep === 'lens-modalities' ? ' live' : ''}`}
               ref={setStepRef('lens-modalities', 'patterns')}
             >
             <ModalitiesLens
@@ -467,11 +521,8 @@ function ChartReaderPage() {
           </div>
 
           <div className="journey-domain-group">
-            <div className="journey-domain-sticky">
-              <span>Quadrants</span>
-            </div>
             <section
-              className={`journey-step journey-step--wide${liveStep === 'lens-quadrants' ? ' live' : ''}`}
+              className={`journey-step journey-step--lens${liveStep === 'lens-quadrants' ? ' live' : ''}`}
               ref={setStepRef('lens-quadrants', 'patterns')}
             >
             <QuadrantsLens
@@ -483,11 +534,8 @@ function ChartReaderPage() {
           </div>
 
           <div className="journey-domain-group">
-            <div className="journey-domain-sticky">
-              <span>Planetary Influence</span>
-            </div>
             <section
-              className={`journey-step journey-step--wide${liveStep === 'lens-influence' ? ' live' : ''}`}
+              className={`journey-step journey-step--lens${liveStep === 'lens-influence' ? ' live' : ''}`}
               ref={setStepRef('lens-influence', 'patterns')}
             >
             <InfluenceLens
@@ -499,16 +547,13 @@ function ChartReaderPage() {
           </div>
 
           <div className="journey-domain-group">
-            <div className="journey-domain-sticky">
-              <span>Chart Shapes</span>
-            </div>
           <section
-            className={`journey-step journey-step--panel${liveStep === 'lens-shapes' ? ' live' : ''}`}
-            ref={setStepRef('lens-shapes', 'shapes')}
+            className={`journey-step journey-step--lens${liveStep === 'lens-shapes' ? ' live' : ''}`}
+            ref={setStepRef('lens-shapes', 'patterns')}
           >
             <p className="journey-lede">
-              The figures your sky draws when you step back — each card points its
-              pattern out on the big wheel. Hover to trace one; click to hold it.
+              The figures your sky draws when you step back — each one traced in
+              miniature, its members lit and their actual aspects drawn.
             </p>
             <ShapesLens
               cards={shapeCards}
@@ -516,10 +561,6 @@ function ChartReaderPage() {
               aspects={birthChart?.aspects || []}
               interpretation={basicAnalysis?.dominance?.pattern?.interpretation}
               onHoverBodies={setHoverNames}
-              selectedKey={(selectedShape || shapeCards[0])?.key}
-              onSelectCard={(c) =>
-                setSelectedShape((prev) => (prev?.key === c.key ? null : c))
-              }
             />
           </section>
           </div>
@@ -531,8 +572,9 @@ function ChartReaderPage() {
             <div className="journey-chapter">III · Chart &amp; Planets</div>
             <p className="journey-lede">
               Here is the sky the reading has been describing — and from here it stays.
-              Pick a body (or click one in the sky): the chart isolates it, and the lines
-              you see are exactly its aspects.
+              Pick a body (or click one in the sky): the chart isolates it and lights the
+              major aspects it makes; the table below lists every aspect, including the
+              subtler ones the wheel leaves undrawn.
             </p>
             <PlanetsTab
               birthChart={birthChart}
@@ -545,6 +587,12 @@ function ChartReaderPage() {
               canUseAskStellium={false}
               onEmphasizeBodies={setPlanetsSelectionNames}
               onHoverBodies={setHoverNames}
+              onUserSelectPlanet={(name) => {
+                const scene = toSceneBodyNames([name])?.[0];
+                setSkySelection(
+                  scene ? { body: scene, layer: 'natal', longitude: 0 } : null
+                );
+              }}
               externalPlanet={externalPlanet}
             />
           </section>
@@ -573,9 +621,6 @@ function ChartReaderPage() {
 
           {analysisGroups.map((g) => (
             <div className="journey-domain-group" key={g.domain.id}>
-              <div className="journey-domain-sticky">
-                <span>{g.domain.label}</span>
-              </div>
               {g.steps.map((st) => (
                 <section
                   key={st.id}

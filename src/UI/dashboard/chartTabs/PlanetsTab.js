@@ -25,7 +25,7 @@ const splitIntoParagraphs = (text) => {
   ));
 };
 
-function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseAskStellium = false, onEmphasizeBodies, onHoverBodies, externalPlanet }) {
+function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseAskStellium = false, onEmphasizeBodies, onHoverBodies, onUserSelectPlanet, externalPlanet }) {
   const planets = useMemo(() => {
     const rawPlanets = birthChart?.planets?.filter(p => !excludedPlanets.includes(p.name)) || [];
     // Sort planets by the canonical order
@@ -204,7 +204,12 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
             <button
               key={planet.name}
               className={`planets-tab-btn ${selectedPlanet === planet.name ? 'planets-tab-btn--active' : ''}`}
-              onClick={() => setSelectedPlanet(planet.name)}
+              onClick={() => {
+                setSelectedPlanet(planet.name);
+                // deliberate pick (vs. the mount-time default) — hosts
+                // may mirror it into the 3D sky
+                onUserSelectPlanet?.(planet.name);
+              }}
             >
               {planet.name}
             </button>

@@ -359,6 +359,25 @@
     radial-gradient(120% 90% at 38% 10%, rgba(60, 40, 120, 0.22), transparent 55%),
     linear-gradient(90deg, transparent 52%, rgba(6, 6, 13, 0.55) 72%, rgba(6, 6, 13, 0.85) 100%);
 }
+/* top scrim: scrolling text dissolves before it reaches the pinned
+   identity/act chrome instead of colliding with it */
+.journey-page::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 152px;
+  pointer-events: none;
+  z-index: 24;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 6, 13, 0.94) 0%,
+    rgba(6, 6, 13, 0.82) 45%,
+    rgba(6, 6, 13, 0.4) 75%,
+    transparent 100%
+  );
+}
 
 /* the sky's three postures */
 .journey-scene {
@@ -488,6 +507,12 @@
   transform: translateX(-4px);
   transition: all 0.2s ease;
   white-space: nowrap;
+  /* pill backdrop: the label stays legible over the reading column
+     (the 360 act puts prose directly beneath the rail) */
+  padding: 3px 9px;
+  border-radius: 7px;
+  background: rgba(10, 10, 17, 0.78);
+  backdrop-filter: blur(8px);
 }
 .journey-rail:hover .nm {
   opacity: 1;
@@ -501,6 +526,34 @@
   box-shadow: 0 0 10px -1px #e9c349;
 }
 .journey-rail button.on .nm {
+  opacity: 1;
+  transform: none;
+}
+
+/* 360 life-area sub-entries, indented under the act dot */
+.journey-rail__subs {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-left: 14px;
+}
+.journey-rail__subs button {
+  padding: 4px 6px;
+  font-size: 10.5px;
+  font-weight: 500;
+}
+.journey-rail__subs .dot {
+  width: 5px;
+  height: 5px;
+}
+.journey-rail__subs button.on {
+  color: #e9c349;
+}
+.journey-rail__subs button.on .dot {
+  background: #e9c349;
+  box-shadow: 0 0 8px -1px #e9c349;
+}
+.journey-rail__subs button.on .nm {
   opacity: 1;
   transform: none;
 }
@@ -519,6 +572,14 @@
   font-size: 11.5px;
   font-weight: 600;
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.12);
+}
+/* mirrored acts (360) read on the left — the control crosses to the
+   sky's side so it never covers chip rows in the reading column
+   (raised clear of the Ask fab, which owns the corner) */
+.journey-scene--mirror ~ .journey-recenter {
+  left: auto;
+  right: 24px;
+  bottom: 76px;
 }
 .journey-recenter:hover {
   background: rgba(202, 190, 255, 0.08);
@@ -576,6 +637,10 @@
 }
 .journey-step--wide {
   width: min(760px, 86vw);
+}
+/* pattern lenses: a split stage (graphic beside reading) needs the room */
+.journey-step--lens {
+  width: min(1180px, 92vw);
 }
 /* Acts with the sky on stage: the column moves to the right side */
 .journey-step--panel {
@@ -752,48 +817,54 @@
   padding-top: 26vh;
 }
 
-/* mirror act: reading on the left, the sky follows on the right */
+/* mirror act: reading on the left, the sky follows on the right.
+   The left margin reserves the rail's gutter — its labels (and the
+   360 sub-entries) must never sit on top of the prose */
 .journey-step--left {
   width: min(560px, 46vw);
   margin-right: auto;
-  margin-left: 5vw;
+  margin-left: clamp(200px, 14vw, 260px);
   min-height: 40vh;
 }
 .journey-step--syn {
   min-height: 24vh;
 }
 
-/* sticky chapter header: a centered banner framing the life-area;
-   a scrim fades the outgoing text before it reaches the label */
-.journey-domain-sticky {
-  position: sticky;
-  top: 100px;
-  z-index: 8;
-  width: 100%;
+/* section label in the fixed chrome: nothing scrolls through the view —
+   the live group's name populates in beneath the act banner */
+.journey-domainbar {
+  position: fixed;
+  top: 96px;
+  left: 0;
+  right: 0;
+  z-index: 33;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 18px;
-  padding: 20px 0 30px;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(6, 6, 13, 0.95) 0%, rgba(6, 6, 13, 0.8) 55%, transparent 100%);
+  animation: actbar-in 0.4s ease;
 }
-.journey-domain-sticky::before,
-.journey-domain-sticky::after {
+.journey-domainbar::before,
+.journey-domainbar::after {
   content: '';
   width: min(90px, 7vw);
   height: 1px;
   background: rgba(233, 195, 73, 0.35);
 }
-.journey-domain-sticky > span {
+.journey-domainbar span {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 21px;
+  font-size: 19px;
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #e9c349;
   text-shadow: 0 0 24px rgba(233, 195, 73, 0.35);
   white-space: nowrap;
+  padding: 5px 16px;
+  border-radius: 999px;
+  background: rgba(10, 10, 17, 0.78);
+  backdrop-filter: blur(10px);
 }
 /* the reading clears the pinned label as steps scroll under it */
 .journey-domain-group .journey-step--left {

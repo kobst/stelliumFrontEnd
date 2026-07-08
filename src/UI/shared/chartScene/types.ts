@@ -109,10 +109,24 @@ export interface ChartSceneProps {
   fitNonce?: number
   /** scroll-narrative mounts: the wheel belongs to the page, not the camera */
   disableZoom?: boolean
+  /**
+   * stop the render loop entirely (frameloop "never") — for mounts that
+   * hide the scene with CSS while it stays mounted; a hidden WebGL
+   * canvas otherwise keeps burning GPU/CPU every frame
+   */
+  paused?: boolean
   /** pointer enters/leaves a planet marker (null on leave) */
   onHoverBody?: (hover: BodySelection | null) => void
   /** planet selected/deselected (click marker / click empty space) */
   onSelectBody?: (selection: BodySelection | null) => void
+  /**
+   * controlled selection: when present (including null), the host owns
+   * the selected body — clicks only report through onSelectBody and the
+   * scene renders whatever the host passes back. Omit for the default
+   * uncontrolled behavior (the scene keeps its own selection state).
+   * `longitude` is not used for focus matching; pass 0 if unknown.
+   */
+  selectedBody?: BodySelection | null
   natal: Placement[]
   /**
    * heliocentric ecliptic longitudes: "mercury"…"pluto" plus "earth";

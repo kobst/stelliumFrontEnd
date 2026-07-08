@@ -1,5 +1,24 @@
-/* journey-native pattern lens graphics — no cards, no inner tabs;
-   graphics breathe on the dark stage, text runs full-width below */
+/* journey-native pattern lens graphics — no cards, no inner tabs.
+   Each lens is a split stage: the graphic holds one side, the reading
+   the other — the same illustration-beside-text motif as the chart. */
+
+.lens-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+.lens-split .lens-text {
+  margin-top: 0;
+}
+@media (max-width: 980px) {
+  .lens-split {
+    grid-template-columns: 1fr;
+  }
+  .lens-split .lens-text {
+    margin-top: 22px;
+  }
+}
 
 .lens-text {
   margin-top: 22px;
@@ -28,42 +47,6 @@
   gap: 2px;
   margin: 4px 0 12px;
 }
-.lens-erow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 8px;
-  border-top: 1px solid rgba(202, 190, 255, 0.08);
-  font-size: 13px;
-  color: rgba(236, 232, 255, 0.7);
-  border-radius: 7px;
-}
-.lens-erow:hover {
-  background: rgba(202, 190, 255, 0.05);
-  color: #ece8ff;
-}
-.lens-erow .sw {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-.lens-erow .en {
-  min-width: 76px;
-  color: #ece8ff;
-  font-weight: 600;
-}
-.lens-erow .eps {
-  font-size: 15px;
-  letter-spacing: 0.24em;
-}
-.lens-erow .pc {
-  margin-left: auto;
-  font-family: ui-monospace, monospace;
-  font-size: 11.5px;
-  color: #ece8ff;
-}
-
 /* modalities */
 .lens-gauges {
   display: flex;
@@ -239,10 +222,274 @@
   color: #ece8ff;
 }
 
-.lens-shcard--pick {
-  cursor: pointer;
+/* ── Pattern A · hero: takeaway → big visual → narrative below ────── */
+.lens-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
-.lens-shcard.on {
-  background: rgba(233, 195, 73, 0.07);
-  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.35);
+.lens-take {
+  margin: 0;
+  text-align: center;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 19px;
+  color: rgba(233, 195, 73, 0.85);
+}
+.lens-hero .lens-text {
+  margin-top: 0;
+  columns: 2;
+  column-gap: 48px;
+}
+.lens-hero .lens-text p {
+  break-inside: avoid;
+}
+
+/* elements hero: thick distribution bar over a four-way tile row */
+.lens-ebar--hero {
+  height: 26px;
+  border-radius: 13px;
+  gap: 3px;
+  margin: 0 0 16px;
+}
+.lens-etiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.lens-etile {
+  padding: 22px 16px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.09);
+  text-align: center;
+}
+.lens-etile:hover {
+  background: rgba(202, 190, 255, 0.05);
+}
+.lens-etile .eh {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+.lens-etile .sw {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+.lens-etile .en {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ece8ff;
+}
+.lens-etile .pc {
+  font-family: Georgia, serif;
+  font-size: 40px;
+  color: #ece8ff;
+  margin: 8px 0 10px;
+}
+.lens-etile .eps {
+  font-size: 20px;
+  letter-spacing: 0.22em;
+  color: rgba(236, 232, 255, 0.7);
+  min-height: 26px;
+}
+
+/* modalities hero: three big gauges across the stage, never stacked */
+.lens-gauges--hero {
+  gap: 18px;
+  margin-top: 0;
+}
+.lens-gauges--hero .lens-gauge {
+  min-width: 0;
+  padding: 30px 14px 24px;
+}
+.lens-gauges--hero .lens-gauge svg {
+  width: min(220px, 76%);
+  height: auto;
+  aspect-ratio: 64 / 40;
+}
+.lens-gauges--hero .gv {
+  font-size: clamp(17px, 2vw, 26px);
+  margin-top: clamp(-64px, -4.6vw, -40px);
+}
+.lens-gauges--hero .gn {
+  font-size: 18px;
+  margin-top: 24px;
+}
+.lens-gauges--hero .gp {
+  font-size: 20px;
+  margin-top: 8px;
+}
+
+/* ── Pattern B · capped: the visual sets the section height ───────── */
+.lens-capped {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+.lens-capped__text {
+  position: relative;
+  max-height: 500px;
+  overflow: hidden;
+  padding-bottom: 44px;
+}
+.lens-capped__text.open {
+  max-height: none;
+}
+.lens-capped__text .lens-text {
+  margin-top: 0;
+}
+.lens-capped__text.fade::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 110px;
+  background: linear-gradient(180deg, transparent, #06060d 78%);
+  pointer-events: none;
+}
+.lens-more {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  z-index: 1;
+  border: 0;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(202, 190, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.18);
+  color: #cabeff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.lens-more:hover {
+  background: rgba(202, 190, 255, 0.14);
+}
+
+/* quadrants: the compass grid fills its side as a near-square */
+.lens-quadgrid.lens-capped__viz {
+  margin: 20px 26px 16px;
+  gap: 8px;
+}
+.lens-quadgrid.lens-capped__viz .qd {
+  min-height: 0;
+  aspect-ratio: 1 / 0.85;
+  padding: 22px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.lens-quadgrid.lens-capped__viz .qn {
+  font-size: 15px;
+}
+.lens-quadgrid.lens-capped__viz .qv {
+  font-size: 42px;
+  margin: 4px 0 12px;
+}
+.lens-quadgrid.lens-capped__viz .qp {
+  justify-content: center;
+  gap: 6px;
+}
+.lens-quadgrid.lens-capped__viz .qp span {
+  font-size: 12.5px;
+  padding: 3px 9px;
+}
+.lens-quadgrid.lens-capped__viz .ax {
+  font-size: 11px;
+}
+
+/* ── Pattern C · split polish: top-aligned, generous bars ──────────── */
+.lens-split--top {
+  align-items: start;
+}
+.lens-split--top .lens-text p:first-child {
+  margin-top: 2px;
+}
+.lens-split__viz .lens-irow {
+  font-size: 15.5px;
+  padding: 13px 12px;
+}
+.lens-split__viz .lens-irow .in {
+  min-width: 132px;
+}
+.lens-split__viz .lens-irow .ib {
+  height: 13px;
+  border-radius: 6.5px;
+}
+.lens-split__viz .lens-irow .iv {
+  font-size: 13px;
+  min-width: 56px;
+}
+
+/* ── responsive: single column, visual on top ──────────────────────── */
+@media (max-width: 980px) {
+  .lens-capped {
+    grid-template-columns: 1fr;
+  }
+  .lens-capped__text {
+    max-height: none;
+    padding-bottom: 0;
+  }
+  .lens-capped__text.fade::after,
+  .lens-capped .lens-more {
+    display: none;
+  }
+  .lens-hero .lens-text {
+    columns: 1;
+  }
+  .lens-etiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lens-gauges--hero {
+    gap: 10px;
+  }
+  .lens-gauges--hero .lens-gauge {
+    padding: 18px 8px 14px;
+  }
+  .lens-gauges--hero .gn {
+    font-size: 14px;
+    margin-top: 12px;
+  }
+  .lens-gauges--hero .gp {
+    font-size: 15px;
+  }
+  .lens-gauges--hero .gv {
+    font-size: clamp(12px, 2.4vw, 15px);
+    margin-top: clamp(-46px, -7vw, -22px);
+  }
+}
+
+/* hero variant: the cards are the section's visual — display scale */
+.lens-shapes--hero {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 0;
+}
+.lens-shapes--hero .lens-shcard {
+  flex: 1 1 min(100%, 480px);
+  grid-template-columns: 170px 1fr;
+  gap: 8px 26px;
+  padding: 26px 28px;
+  border-radius: 18px;
+}
+.lens-shapes--hero .lens-wheelmini {
+  width: 170px;
+  height: 170px;
+}
+.lens-shapes--hero .nm {
+  font-size: 23px;
+}
+.lens-shapes--hero p {
+  font-size: 14px;
+  line-height: 1.65;
 }

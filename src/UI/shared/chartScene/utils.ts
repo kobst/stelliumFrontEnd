@@ -65,6 +65,59 @@ export function frameSpan(
   return { index: lo, frac: (timeMs - times[lo]) / (times[hi] - times[lo]) }
 }
 
+/**
+ * De-clutter clustered placements (a stellium) for display: bodies
+ * closer together than `minSepDeg` fan out evenly around their
+ * cluster's center, preserving zodiacal order. Returns new placements
+ * with adjusted longitudes — display-only; callers keep the true
+ * longitudes for anything semantic.
+ */
+export function spreadPlacements<T extends { longitude: number }>(
+  placements: T[],
+  minSepDeg = 5,
+): T[] {
+  if (placements.length < 2) return placements
+  const norm = (d: number) => ((d % 360) + 360) % 360
+  const sorted = placements
+    .map((p, i) => ({ p, i, lon: norm(p.longitude) }))
+    .sort((a, b) => a.lon - b.lon)
+
+  // group consecutive bodies with gaps under minSep (wrap-aware)
+  const clusters: (typeof sorted)[] = [[sorted[0]]]
+  for (let k = 1; k < sorted.length; k++) {
+    const prev = sorted[k - 1]
+    if (sorted[k].lon - prev.lon < minSepDeg) {
+      clusters[clusters.length - 1].push(sorted[k])
+    } else {
+      clusters.push([sorted[k]])
+    }
+  }
+  // wrap-around: last cluster may continue into the first
+  if (clusters.length > 1) {
+    const first = clusters[0]
+    const last = clusters[clusters.length - 1]
+    const wrapGap = first[0].lon + 360 - last[last.length - 1].lon
+    if (wrapGap < minSepDeg) {
+      clusters.pop()
+      clusters[0] = [...last, ...first]
+    }
+  }
+
+  const out = placements.slice()
+  clusters.forEach((cluster) => {
+    if (cluster.length < 2) return
+    // circular mean of the cluster, unwrapped relative to its first member
+    const base = cluster[0].lon
+    const unwrapped = cluster.map((m) => base + norm(m.lon - base))
+    const center = unwrapped.reduce((s, v) => s + v, 0) / cluster.length
+    cluster.forEach((m, idx) => {
+      const display = center + (idx - (cluster.length - 1) / 2) * minSepDeg
+      out[m.i] = { ...m.p, longitude: norm(display) }
+    })
+  })
+  return out
+}
+
 /** Points approximating a circle of `radius` on the ecliptic plane. */
 export function circlePoints(radius: number, segments = 128): THREE.Vector3[] {
   const pts: THREE.Vector3[] = []
