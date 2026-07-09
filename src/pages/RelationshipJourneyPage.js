@@ -13,6 +13,7 @@ import {
   toSceneBodyNames,
 } from '../Utilities/chartSceneAdapter';
 import { mentionsIn } from '../UI/journey/AnalysisFlow';
+import useJourneyScroll from '../UI/journey/useJourneyScroll';
 import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
 import './ChartReaderPage.css';
 import './RelationshipJourneyPage.css';
@@ -118,19 +119,45 @@ function RelationshipJourneyPage() {
   }, [userId, compositeId]);
 
   // ── scroll state ───────────────────────────────────────────────────
-  const [activeAct, setActiveAct] = useState('hero');
-  const [liveStep, setLiveStep] = useState('hero');
   const [mergeBlend, setMergeBlend] = useState(0);
   const [compBlend, setCompBlend] = useState(0);
-  const [hoverAB, setHoverAB] = useState(null); // {a:[], b:[]} from rows
+  const [hoverAB, setHoverAB] = useState(null); // {a:[], b:[]} — transient preview
+  const [pinnedAB, setPinnedAB] = useState(null); // {key, a:[], b:[]} — click to pin
   const [askOpen, setAskOpen] = useState(false);
   const [fitNonce, setFitNonce] = useState(0);
+  // synastry starts calm: the tightest threads only, reveal on demand
+  const [showAllLines, setShowAllLines] = useState(false);
 
-  const scrollRef = useRef(null);
-  const stepRefs = useRef({});
   const stepFocus = useRef({});
   const mergeTrackRef = useRef(null);
   const compTrackRef = useRef(null);
+
+  // continuous choreography tracks, sampled on every spy tick
+  const trackP = (el, container) => {
+    if (!el) return 0;
+    const vh = container.clientHeight;
+    const r = el.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (vh * 0.62 - r.top) / Math.max(1, r.height - vh * 0.25)));
+  };
+  const onFrame = useCallback((container) => {
+    setMergeBlend(trackP(mergeTrackRef.current, container));
+    setCompBlend(trackP(compTrackRef.current, container));
+  }, []);
+
+  const {
+    scrollRef,
+    liveStep,
+    activeAct,
+    jumping,
+    scrollToAct,
+    setStepRef: setStepRefBase,
+  } = useJourneyScroll({ ready: !loading, onFrame });
+
+  // scrolling to a new step releases a pinned thread — the step's own
+  // emphasis grammar leads again (same rule as the reader's sky pick)
+  useEffect(() => {
+    setPinnedAB(null);
+  }, [liveStep]);
 
   const aName = firstName(relationship?.userA_name);
   const bName = firstName(relationship?.userB_name);
@@ -213,6 +240,22 @@ function RelationshipJourneyPage() {
     });
   }, [clusters, scoredItems, clusterPanels]);
 
+  // the composite chart's own aspects, tightest first — the closing act
+  // lists the relationship's sky as fully as Synastry lists the cross-talk
+  const compositeRows = useMemo(
+    () =>
+      (relationship?.compositeChart?.aspects || [])
+        .map((a) => ({
+          nameA: a.aspectingPlanet || a.planet1,
+          nameB: a.aspectedPlanet || a.planet2,
+          type: a.aspectType,
+          orb: Number(a.orb),
+        }))
+        .filter((r) => r.nameA && r.nameB && Number.isFinite(r.orb))
+        .sort((x, y) => x.orb - y.orb),
+    [relationship?.compositeChart?.aspects]
+  );
+
   const synastryTop = useMemo(() => {
     const rows = (relationship?.synastryAspects || [])
       .map((a) => ({
@@ -226,8 +269,8 @@ function RelationshipJourneyPage() {
     return rows;
   }, [relationship?.synastryAspects]);
 
-  // ── emphasis: hover > centered step's focus ────────────────────────
-  const focus = hoverAB || stepFocus.current[liveStep] || null;
+  // ── emphasis: hover preview > pinned thread > centered step's focus ─
+  const focus = hoverAB || pinnedAB || stepFocus.current[liveStep] || null;
   const highlightBodies = useMemo(
     () => (focus?.a?.length ? toSceneBodyNames(focus.a) : undefined),
     [focus]
@@ -237,86 +280,51 @@ function RelationshipJourneyPage() {
     [focus]
   );
 
-  // ── scroll spy + continuous tracks ─────────────────────────────────
-  useEffect(() => {
-    const container = scrollRef.current;
-    if (!container || loading) return undefined;
-    let ticking = false;
-    const trackP = (el) => {
-      if (!el) return 0;
-      const vh = container.clientHeight;
-      const r = el.getBoundingClientRect();
-      return Math.max(0, Math.min(1, (vh * 0.62 - r.top) / Math.max(1, r.height - vh * 0.25)));
-    };
-    const spy = () => {
-      ticking = false;
-      setMergeBlend(trackP(mergeTrackRef.current));
-      setCompBlend(trackP(compTrackRef.current));
-      const mid = container.clientHeight / 2;
-      let best = null;
-      let bestDist = Infinity;
-      Object.entries(stepRefs.current).forEach(([id, el]) => {
-        if (!el) return;
-        const r = el.getBoundingClientRect();
-        const d = Math.abs((r.top + r.bottom) / 2 - mid);
-        if (d < bestDist) {
-          bestDist = d;
-          best = { id, el };
+  // the sky draws only the tightest threads by default; a hovered or
+  // pinned row (or factor pill) pulls its aspect into view even when
+  // it's filtered out
+  const sceneSynAspects = useMemo(() => {
+    if (showAllLines || synAspects.length <= 10) return synAspects;
+    const shown = new Set(
+      [...synAspects].sort((x, y) => x.orb - y.orb).slice(0, 10)
+    );
+    const iso = hoverAB || pinnedAB;
+    if (iso?.a?.length || iso?.b?.length) {
+      const a = new Set(toSceneBodyNames(iso.a) || []);
+      const b = new Set(toSceneBodyNames(iso.b) || []);
+      synAspects.forEach((x) => {
+        if ((a.has(x.bodyA) && b.has(x.bodyB)) || (a.has(x.bodyB) && b.has(x.bodyA))) {
+          shown.add(x);
         }
       });
-      if (best) {
-        setLiveStep(best.id);
-        setActiveAct(best.el.dataset.act || best.id);
-      }
-    };
-    const onScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(spy);
-      }
-    };
-    container.addEventListener('scroll', onScroll);
-    spy();
-    return () => container.removeEventListener('scroll', onScroll);
-  }, [loading]);
-
-  // the wheel always scrolls the story
-  useEffect(() => {
-    const onWheel = (e) => {
-      const scroller = scrollRef.current;
-      if (!scroller || scroller.contains(e.target)) return;
-      scroller.scrollTop += e.deltaY;
-    };
-    document.addEventListener('wheel', onWheel, { passive: true });
-    return () => document.removeEventListener('wheel', onWheel);
-  }, []);
-
-  const scrollToAct = (id) => {
-    const container = scrollRef.current;
-    const el =
-      stepRefs.current[id] ||
-      Object.values(stepRefs.current).find((e) => e && e.dataset.act === id);
-    if (el && container) {
-      container.scrollTo({ top: el.offsetTop - 90, behavior: 'smooth' });
     }
-  };
+    return synAspects.filter((x) => shown.has(x));
+  }, [synAspects, showAllLines, hoverAB, pinnedAB]);
 
-  const setStepRef = (id, act, focusAB) => (el) => {
-    stepRefs.current[id] = el;
-    if (el) el.dataset.act = act || id;
+  const setStepRef = (id, act, focusAB) => {
     if (focusAB) stepFocus.current[id] = focusAB;
+    return setStepRefBase(id, act);
   };
 
-  const hoverRow = (a, b) => ({
+  // one interaction grammar, shared with the reader: hover previews a
+  // thread transiently, click pins it (click again — or scroll on — to
+  // release)
+  const isoRow = (key, a, b) => ({
     onMouseEnter: () => setHoverAB({ a: a || [], b: b || [] }),
     onMouseLeave: () => setHoverAB(null),
+    onClick: () =>
+      setPinnedAB((prev) =>
+        prev?.key === key ? null : { key, a: a || [], b: b || [] }
+      ),
   });
+  const isoClass = (key, base) =>
+    pinnedAB?.key === key ? `${base} on` : base;
 
   // factor prose names both partners' planets; light them on both rings
-  const factorHover = (item) => {
+  const factorIso = (key, item) => {
     const text = item.description || item.reason || item.label || '';
     const names = mentionsIn(text, knownNames);
-    return hoverRow(names, names);
+    return isoRow(key, names, names);
   };
 
   if (loading || error) {
@@ -347,7 +355,7 @@ function RelationshipJourneyPage() {
       comp: compBlend,
       compositePlacements,
       compositeAspects,
-      synastryAspects: synAspects,
+      synastryAspects: sceneSynAspects,
       highlightA: compBlend > 0.5 ? highlightBodies : highlightBodies,
       highlightB: compBlend > 0.5 ? undefined : highlightSecondaryBodies,
     },
@@ -355,13 +363,16 @@ function RelationshipJourneyPage() {
 
   return (
     <div className="journey-page">
-      <div className={`journey-scene journey-scene--${sceneMode}`}>
+      <div
+        className={`journey-scene journey-scene--${sceneMode}${jumping ? ' journey-scene--jumping' : ''}`}
+      >
         {hasScene && (
           <ChartScene
             {...sceneProps}
             fitRadius={fitRadius}
             fitNonce={fitNonce}
             disableZoom
+            paused={sceneMode === 'hidden'}
             coveredRightPx={sceneMode === 'full' ? Math.min(560, window.innerWidth * 0.46) : 0}
           />
         )}
@@ -457,7 +468,7 @@ function RelationshipJourneyPage() {
               to the left. Hover a row to find it.
             </p>
             {orderedPlacements(aPlanets).map((p) => (
-              <div className="arow" key={p.name} {...hoverRow([p.name], [])}>
+              <div className={isoClass(`a-${p.name}`, 'arow')} key={p.name} {...isoRow(`a-${p.name}`, [p.name], [])}>
                 <span className="at">{p.name}</span>
                 <span className="an">{p.sign}</span>
                 <span className="orb">{p.house ? `House ${p.house}` : ''}</span>
@@ -475,7 +486,7 @@ function RelationshipJourneyPage() {
               in itself. Keep scrolling, and the two skies merge.
             </p>
             {orderedPlacements(bPlanets).map((p) => (
-              <div className="arow" key={p.name} {...hoverRow([], [p.name])}>
+              <div className={isoClass(`b-${p.name}`, 'arow')} key={p.name} {...isoRow(`b-${p.name}`, [], [p.name])}>
                 <span className="at">{p.name}</span>
                 <span className="an">{p.sign}</span>
                 <span className="orb">{p.house ? `House ${p.house}` : ''}</span>
@@ -513,8 +524,18 @@ function RelationshipJourneyPage() {
               {aName}&rsquo;s planets and {bName}&rsquo;s, tightest first — hover any row
               to isolate that thread in the sky:
             </p>
+            {synAspects.length > 10 && (
+              <button
+                className="rj-linetoggle"
+                onClick={() => setShowAllLines((v) => !v)}
+              >
+                {showAllLines
+                  ? `Showing all ${synAspects.length} lines · show the tightest 10`
+                  : `Sky shows the 10 tightest · draw all ${synAspects.length}`}
+              </button>
+            )}
             {synastryTop.map((r, i) => (
-              <div className="arow" key={i} {...hoverRow([r.nameA], [r.nameB])}>
+              <div className={isoClass(`syn-${i}`, 'arow')} key={i} {...isoRow(`syn-${i}`, [r.nameA], [r.nameB])}>
                 <span className="at">{String(r.type || '').toLowerCase()}</span>
                 <span className="an">
                   {aName}&rsquo;s {r.nameA} → {bName}&rsquo;s {r.nameB}
@@ -559,7 +580,7 @@ function RelationshipJourneyPage() {
                   {pl.factors.length > 0 && (
                     <div className="rj-pillar-sticky__factors">
                       {pl.factors.map((f, i) => (
-                        <span className="rj-fpill" key={i} {...factorHover(f)}>
+                        <span className={isoClass(`f-${pl.key}-${i}`, 'rj-fpill')} key={i} {...factorIso(`f-${pl.key}-${i}`, f)}>
                           {f.description || f.reason || f.label}
                           <em className={f.clusterScore < 0 ? 'neg' : ''}>
                             {f.clusterScore > 0 ? '+' : ''}
@@ -632,23 +653,17 @@ function RelationshipJourneyPage() {
           >
             <div className="journey-chapter">V · Composite</div>
             <div className="rj-chips">
-              {['Sun', 'Moon', 'Ascendant'].map((n) => {
-                const p = (relationship?.compositeChart?.planets || []).find(
-                  (x) => x.name === n
-                );
-                if (!p) return null;
-                return (
-                  <div className="rj-chip" key={n} {...hoverRow([n], [])}>
-                    <div>
-                      <div className="k">Composite {n}</div>
-                      <div className="v">
-                        {p.sign}
-                        {typeof p.norm_degree === 'number' && ` · ${Math.round(p.norm_degree)}°`}
-                      </div>
+              {orderedPlacements(relationship?.compositeChart?.planets).map((p) => (
+                <div className={isoClass(`c-${p.name}`, 'rj-chip')} key={p.name} {...isoRow(`c-${p.name}`, [p.name], [])}>
+                  <div>
+                    <div className="k">Composite {p.name}</div>
+                    <div className="v">
+                      {p.sign}
+                      {typeof p.norm_degree === 'number' && ` · ${Math.round(p.norm_degree)}°`}
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
             {(clusterPanels('composite')?.synthesis || '')
               .split(/\n\s*\n|\n/)
@@ -658,6 +673,23 @@ function RelationshipJourneyPage() {
               .map((t, i) => (
                 <p key={i}>{t}</p>
               ))}
+            {compositeRows.length > 0 && (
+              <>
+                <p>
+                  The relationship&rsquo;s own {compositeRows.length} aspects, tightest
+                  first — hover any row to isolate that line:
+                </p>
+                {compositeRows.map((r, i) => (
+                  <div className={isoClass(`ca-${i}`, 'arow')} key={i} {...isoRow(`ca-${i}`, [r.nameA, r.nameB], [])}>
+                    <span className="at">{String(r.type || '').toLowerCase()}</span>
+                    <span className="an">
+                      {r.nameA} → {r.nameB}
+                    </span>
+                    <span className="orb">{r.orb.toFixed(1)}°</span>
+                  </div>
+                ))}
+              </>
+            )}
           </section>
 
           {/* ── VI · Ask ── */}

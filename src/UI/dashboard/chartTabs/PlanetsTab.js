@@ -210,6 +210,10 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
                 // may mirror it into the 3D sky
                 onUserSelectPlanet?.(planet.name);
               }}
+              // shared journey grammar: hover previews in the sky,
+              // click pins (no-ops on the classic page)
+              onMouseEnter={() => onHoverBodies?.([planet.name])}
+              onMouseLeave={() => onHoverBodies?.(null)}
             >
               {planet.name}
             </button>

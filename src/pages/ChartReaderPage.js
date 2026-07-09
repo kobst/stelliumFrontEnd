@@ -21,6 +21,7 @@ import {
 } from '../UI/journey/PatternLenses';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
 import { AnalysisStepBody, flattenAnalysis } from '../UI/journey/AnalysisFlow';
+import useJourneyScroll from '../UI/journey/useJourneyScroll';
 import AskStelliumPanel, { formatPositionData } from '../UI/askStellium/AskStelliumPanel';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import './ChartReaderPage.css';
@@ -91,8 +92,8 @@ function ChartReaderPage() {
     handleStartAnalysis,
   } = useChartData(userId, chartId);
 
-  const [activeAct, setActiveAct] = useState('hero');
-  const [liveStep, setLiveStep] = useState('hero');
+  const { scrollRef, liveStep, activeAct, jumping, scrollToAct, setStepRef } =
+    useJourneyScroll({ ready: !loading });
 
   // emphasis channels (backend names): hover from the section graphics
   // wins over the Planets picker's persistent selection
@@ -194,77 +195,12 @@ function ChartReaderPage() {
     return undefined;
   }, [hoverNames, planetsSelectionNames, activeAct, analysisFocusById, liveStep]);
 
-  // ── scroll spy: the step nearest the viewport's center is live ────
-  const scrollRef = useRef(null);
-  const stepRefs = useRef({});
-  useEffect(() => {
-    const container = scrollRef.current;
-    if (!container || loading) return undefined;
-    let ticking = false;
-    const spy = () => {
-      ticking = false;
-      const mid = container.clientHeight / 2;
-      let best = null;
-      let bestDist = Infinity;
-      Object.entries(stepRefs.current).forEach(([id, el]) => {
-        if (!el) return;
-        const r = el.getBoundingClientRect();
-        // distance to the step's BOUNDS, not its center: a tall step
-        // (e.g. Chart & Planets) is live the whole time the viewport
-        // center is inside it, instead of losing to a short neighbor
-        const d =
-          mid >= r.top && mid <= r.bottom
-            ? 0
-            : Math.min(Math.abs(r.top - mid), Math.abs(r.bottom - mid));
-        if (d < bestDist) {
-          bestDist = d;
-          best = { id, el };
-        }
-      });
-      if (best) {
-        setLiveStep(best.id);
-        setActiveAct(best.el.dataset.act || best.id);
-      }
-    };
-    const onScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(spy);
-      }
-    };
-    container.addEventListener('scroll', onScroll);
-    spy();
-    return () => container.removeEventListener('scroll', onScroll);
-  }, [loading]);
-
   // scrolling on releases a manual sky pick so each act's own emphasis
   // grammar (shape tracing, analysis steps) leads again; inside the
   // planets act the pick rides along — it IS that act's grammar
   useEffect(() => {
     if (activeAct !== 'planets') setSkySelection(null);
   }, [activeAct, liveStep]);
-
-  // the wheel always scrolls the story: over the sky (outside the
-  // scroll column) it forwards to the journey instead of zooming
-  useEffect(() => {
-    const onWheel = (e) => {
-      const scroller = scrollRef.current;
-      if (!scroller || scroller.contains(e.target)) return;
-      scroller.scrollTop += e.deltaY;
-    };
-    document.addEventListener('wheel', onWheel, { passive: true });
-    return () => document.removeEventListener('wheel', onWheel);
-  }, []);
-
-  const scrollToAct = useCallback((id) => {
-    const container = scrollRef.current;
-    const el =
-      stepRefs.current[id] ||
-      Object.values(stepRefs.current).find((e) => e && e.dataset.act === id);
-    if (el && container) {
-      container.scrollTo({ top: el.offsetTop - 90, behavior: 'smooth' });
-    }
-  }, []);
 
   const isCelebrity =
     chart?.isCelebrity === true || chart?.kind === 'celebrity' || chart?.isReadOnly === true;
@@ -316,10 +252,6 @@ function ChartReaderPage() {
     .join(' · ');
 
   const hoveredPlanet = hoverInfo ? sceneBodyLookup[hoverInfo.body] : null;
-  const setStepRef = (id, act) => (el) => {
-    stepRefs.current[id] = el;
-    if (el) el.dataset.act = act || id;
-  };
 
   return (
     <div
@@ -329,7 +261,9 @@ function ChartReaderPage() {
       }}
     >
       {/* the fixed sky, in the posture the current act asks for */}
-      <div className={`journey-scene journey-scene--${sceneMode}`}>
+      <div
+        className={`journey-scene journey-scene--${sceneMode}${jumping ? ' journey-scene--jumping' : ''}`}
+      >
         {natal.length > 0 && (
           <ChartScene
             natal={natal}

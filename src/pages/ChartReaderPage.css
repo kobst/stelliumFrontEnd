@@ -394,6 +394,12 @@
   opacity: 0.35;
   transform: scale(0.92) translateX(-7%);
 }
+/* nav-dot jumps: the scene fades while the smooth scroll sweeps the
+   choreography underneath, so mid-transition frames are never seen */
+.journey-scene--jumping {
+  opacity: 0.06;
+  transition: opacity 0.3s ease;
+}
 
 .journey-topbar {
   position: fixed;
@@ -613,7 +619,9 @@
   width: min(700px, 84vw);
   margin: 0 auto;
   padding: 7vh 8px;
-  opacity: 0.34;
+  /* dimmed but present: much lower reads as empty black space on the
+     dark stage during transitions */
+  opacity: 0.5;
   transition: opacity 0.35s ease;
 }
 .journey-step.live {
@@ -647,7 +655,9 @@
   width: min(520px, 44vw);
   margin-left: auto;
   margin-right: 5vw;
-  min-height: 55vh;
+  /* don't force tall sections: short content + forced height reads as
+     a large empty region below the text */
+  min-height: 42vh;
 }
 .journey-step--close {
   min-height: 30vh;
