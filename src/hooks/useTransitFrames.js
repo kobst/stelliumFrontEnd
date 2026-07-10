@@ -13,7 +13,7 @@ const FULL_SPAN_DAYS = 30;
 export default function useTransitFrames(natalPlanets, { windowDays = 7, playSeconds = 60 } = {}) {
   const [frames, setFrames] = useState(null);
   const [range, setRange] = useState(null); // the full month-long track
-  const [playing, setPlaying] = useState(true);
+  const [playing, setPlaying] = useState(false);
   const [playMs, setPlayMs] = useState(() => Date.now());
   const rafRef = useRef(0);
 
@@ -30,9 +30,9 @@ export default function useTransitFrames(natalPlanets, { windowDays = 7, playSec
         if (mapped.length >= 2) {
           const start = Date.parse(mapped[0].date);
           setFrames(mapped);
-          setRange({ start, end: Date.parse(mapped[mapped.length - 1].date) });
-          setPlayMs(start);
-          setPlaying(true);
+          const end = Date.parse(mapped[mapped.length - 1].date);
+          setRange({ start, end });
+          setPlayMs(Math.min(end, Math.max(start, Date.now())));
         }
       } catch (err) {
         console.warn('Transit frames unavailable:', err?.message);
@@ -52,13 +52,12 @@ export default function useTransitFrames(natalPlanets, { windowDays = 7, playSec
     };
   }, [range, windowDays]);
 
-  // a new window restarts the sweep from its beginning
+  // Keep the playhead inside a new period without changing the user's
+  // explicit play/pause choice.
   useEffect(() => {
     if (!window_) return;
-    setPlayMs(window_.start);
-    setPlaying(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [windowDays, range]);
+    setPlayMs((current) => Math.min(window_.end, Math.max(window_.start, current)));
+  }, [window_]);
 
   useEffect(() => {
     if (!frames || !playing || !window_) return undefined;

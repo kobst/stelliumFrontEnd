@@ -17,6 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 import { formatLocalDateParam } from '../Utilities/horoscopeDates';
+import { formatTransitTitle, groupTransitInfluences } from '../Utilities/horoscopeTransits';
 import HoroscopeSkyStage from '../UI/dashboard/HoroscopeSkyStage';
 import { fromSceneBodyName } from '../Utilities/chartSceneAdapter';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
@@ -73,28 +74,6 @@ function formatBirthDate(value) {
 
 function getSunSign(chart) {
   return chart?.birthChart?.planets?.find((p) => p?.name === 'Sun')?.sign || null;
-}
-
-function formatTransitTitle(transit) {
-  if (!transit) return '';
-  const tp = transit.transitingPlanet || transit.transitingBody || transit.transit?.transitingPlanet;
-  const aspect = transit.aspect || transit.transit?.aspect;
-  const target = transit.targetPlanet || transit.target || transit.natalPlanet;
-  if (transit.title) return transit.title;
-  return [tp, aspect, target].filter(Boolean).join(' ');
-}
-
-function formatTransitDate(transit) {
-  const value =
-    transit?.exact ||
-    transit?.exactDate ||
-    transit?.peakDate ||
-    transit?.date ||
-    transit?.startDate;
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  return `${date.toLocaleString('default', { month: 'short', timeZone: 'UTC' })} ${date.getUTCDate()}`;
 }
 
 function periodBounds(period) {
@@ -339,7 +318,7 @@ function HomePane({ userId, user, entitlements }) {
           group: 'horoscope',
           type: 'transit',
           key: `${tName}-${a.type}-${nName}-sky`,
-          label: `${tName} ${a.type} ${nName}`,
+          label: `Transiting ${tName} ${a.type} Natal ${nName}`,
           meta: payload.description || '',
           payload
         };
@@ -471,6 +450,10 @@ function HomePane({ userId, user, entitlements }) {
   const currentError = horoErrors[period];
 
   const filteredTransits = useMemo(() => filterTransitsForPeriod(transits, period), [transits, period]);
+  const groupedInfluences = useMemo(
+    () => groupTransitInfluences(filteredTransits),
+    [filteredTransits]
+  );
 
   const paragraphs = useMemo(() => {
     const text = currentHoroscope?.interpretation || currentHoroscope?.text || '';
@@ -595,14 +578,12 @@ function HomePane({ userId, user, entitlements }) {
             <div className="md-horo-divider" />
             <div className="md-key-influences-label">Key Planetary Influences</div>
             <div className="md-influences-grid">
-              {filteredTransits.map((t, i) => {
-                const title = formatTransitTitle(t);
-                const dateLabel = formatTransitDate(t);
+              {groupedInfluences.map(({ key, transit: t, title, dateLabel }) => {
                 if (!title) return null;
                 return (
                   <span
                     className={'md-influence-pill' + (pinnedTransit === t ? ' md-influence-pill--pinned' : '')}
-                    key={i}
+                    key={key}
                     onMouseEnter={() => setFocusTransit(t)}
                     onMouseLeave={() => setFocusTransit(null)}
                     onClick={() => setPinnedTransit((prev) => (prev === t ? null : t))}

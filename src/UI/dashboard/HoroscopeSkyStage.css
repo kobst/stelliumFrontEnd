@@ -84,6 +84,18 @@
   margin-top: 18px;
   width: 100%;
   justify-content: center;
+  flex: 0 0 auto;
+}
+.md-stage-panel {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
+.md-stage-panel .md-horo-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 6px;
 }
 
 /* Ask conversation filling the dock */
@@ -295,6 +307,7 @@
   background: rgba(14, 14, 22, 0.78);
   backdrop-filter: blur(14px);
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14), 0 20px 60px -30px rgba(0, 0, 0, 0.8);
+  box-sizing: border-box;
 }
 .transit-strip__label {
   font-size: 10px;
@@ -304,7 +317,7 @@
   color: rgba(236, 232, 255, 0.45);
   margin-right: 6px;
 }
-.transit-strip__all {
+.transit-strip__mode {
   border: 0;
   cursor: pointer;
   padding: 5px 11px;
@@ -316,8 +329,13 @@
   font-weight: 700;
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14);
 }
-.transit-strip__all:hover {
+.transit-strip__mode:hover,
+.transit-strip__mode.on {
   color: #ece8ff;
+}
+.transit-strip__mode.on {
+  background: rgba(233, 195, 73, 0.13);
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.34);
 }
 
 /* ═══ mock alignment: one time instrument ═══ */
@@ -330,6 +348,7 @@
   background: rgba(14, 14, 22, 0.85);
   backdrop-filter: blur(16px);
   box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(202, 190, 255, 0.16);
+  box-sizing: border-box;
 }
 .timebar__periods {
   display: flex;
@@ -465,7 +484,7 @@
   font-size: 11.5px;
   font-weight: 600;
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.1);
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 .transit-chip__g {
   font-size: 13px;
@@ -474,16 +493,7 @@
   line-height: 1;
 }
 .transit-chip__n {
-  max-width: 0;
-  overflow: hidden;
   white-space: nowrap;
-  opacity: 0;
-  transition: max-width 0.2s ease, opacity 0.2s ease;
-}
-.transit-chip:hover .transit-chip__n,
-.transit-chip.on .transit-chip__n {
-  max-width: 70px;
-  opacity: 1;
 }
 .transit-chip.on {
   color: #ece8ff;
@@ -501,7 +511,101 @@
 }
 .transit-strip {
   flex-wrap: wrap;
-  max-width: min(62vw, 900px);
+  max-width: min(72vw, 1040px);
+}
+
+/* Chart help is available without occupying the primary control row. */
+.chart-legend {
+  position: relative;
+  margin-left: 4px;
+}
+.chart-legend summary {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  list-style: none;
+  color: rgba(236, 232, 255, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.2);
+}
+.chart-legend summary::-webkit-details-marker { display: none; }
+.chart-legend__popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 300px;
+  padding: 14px;
+  border-radius: 8px;
+  background: rgba(14, 14, 22, 0.96);
+  color: #ece8ff;
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.18), 0 18px 48px rgba(0, 0, 0, 0.45);
+}
+.chart-legend__popover strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+.chart-legend__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  font-size: 11px;
+}
+.chart-legend__grid span { display: flex; align-items: center; gap: 7px; }
+.chart-legend__grid b { min-width: 18px; font-size: 14px; }
+
+/* Hover gives a quick read; click pins the same inspector and exposes Ask. */
+.sky-inspector {
+  width: min(340px, calc(100vw - 40px));
+  padding: 14px;
+  border-radius: 8px;
+  background: rgba(14, 14, 22, 0.9);
+  color: #ece8ff;
+  backdrop-filter: blur(14px);
+  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.16), 0 18px 48px rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
+}
+.sky-stage:has(.sky-inspector) .sky-stage__overlay {
+  bottom: 100px;
+}
+.sky-inspector--selected {
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.42), 0 18px 48px rgba(0, 0, 0, 0.42);
+}
+.sky-inspector__identity { display: flex; align-items: center; gap: 11px; }
+.sky-inspector__glyph { width: 32px; font-size: 24px; text-align: center; }
+.sky-inspector__name { font-size: 14px; font-weight: 700; }
+.sky-inspector__position { margin-top: 3px; font-size: 11px; color: rgba(236, 232, 255, 0.58); }
+.sky-inspector__close {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(236, 232, 255, 0.7);
+  font-size: 18px;
+}
+.sky-inspector__aspects {
+  display: grid;
+  gap: 5px;
+  margin: 11px 0 0 43px;
+  color: rgba(236, 232, 255, 0.68);
+  font-size: 10.5px;
+}
+.sky-inspector__ask {
+  margin: 12px 0 0 43px;
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 11px;
+  cursor: pointer;
+  background: rgba(233, 195, 73, 0.12);
+  color: #e9c349;
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.3);
+  font-size: 11.5px;
+  font-weight: 700;
 }
 
 /* ═══ reading declares its period ═══ */
@@ -537,4 +641,59 @@
   background: rgba(233, 195, 73, 0.14);
   box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.45);
   color: #e9c349;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timebar__window,
+  .transit-chip,
+  .md-horo-body--fade { transition: none; animation: none; }
+}
+
+@media (max-width: 900px) {
+  .sky-stage__topleft {
+    left: 10px;
+    right: 10px;
+  }
+  .transit-strip {
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    border-radius: 8px;
+  }
+  .transit-strip__label,
+  .transit-strip__hint { display: none; }
+  .transit-chip { flex: 0 0 auto; }
+  .timebar {
+    width: calc(100vw - 20px);
+    display: grid;
+    grid-template-columns: auto minmax(110px, 1fr) auto auto auto;
+    gap: 8px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+  }
+  .timebar__periods {
+    grid-column: 1 / -1;
+    justify-content: center;
+    padding-right: 0;
+    border-right: 0;
+  }
+  .timebar__track { width: auto; }
+  .timebar__ticks { display: none; }
+  .timebar__recenter { display: none; }
+  .sky-inspector { width: min(320px, calc(100vw - 20px)); }
+}
+
+@media (max-width: 600px) {
+  .transit-chip { width: 32px; height: 32px; justify-content: center; padding: 0; }
+  .transit-chip__n { display: none; }
+  .chart-legend__popover { position: fixed; top: 168px; right: 10px; width: min(300px, calc(100vw - 20px)); }
+  .timebar { grid-template-columns: auto minmax(90px, 1fr) auto auto; }
+  .timebar__now { display: none; }
+  .timebar__date { min-width: 90px; }
+  .timebar__period { padding: 7px 10px; }
+  .sky-inspector__aspects { display: none; }
+  .sky-stage:has(.sky-inspector) .sky-stage__overlay {
+    bottom: calc(46vh + 145px);
+  }
 }

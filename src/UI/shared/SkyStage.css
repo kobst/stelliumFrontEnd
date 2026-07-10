@@ -23,7 +23,10 @@
   right: 20px;
   bottom: 20px;
   width: min(500px, 44vw);
-  overflow-y: auto;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   padding: 26px 28px;
   border-radius: 20px;
   background: linear-gradient(180deg, rgba(18, 18, 28, 0.88), rgba(12, 12, 20, 0.92));
@@ -103,11 +106,47 @@
 
 @media (max-width: 900px) {
   .sky-stage__panel {
-    width: calc(100vw - 40px);
+    top: auto;
+    right: 10px;
+    bottom: 10px;
+    width: calc(100vw - 20px);
+    height: 48vh;
+    padding: 18px 20px;
+    border-radius: 16px;
   }
   .sky-stage__panel-toggle {
     right: auto;
     left: 20px;
+  }
+  .sky-stage__panel-toggle--closed {
+    top: 72px;
+    right: 10px;
+    left: auto;
+  }
+  .sky-stage__topleft {
+    max-width: calc(100vw - 20px);
+  }
+  .sky-stage__footer {
+    bottom: calc(48vh + 20px);
+  }
+  .sky-stage__overlay {
+    bottom: calc(48vh + 20px);
+  }
+}
+
+@media (max-width: 600px) {
+  .sky-stage {
+    top: 118px;
+  }
+  .sky-stage__panel {
+    height: 46vh;
+  }
+  .sky-stage__footer,
+  .sky-stage__overlay {
+    bottom: calc(46vh + 20px);
+  }
+  .sky-stage__panel-toggle--closed {
+    top: 82px;
   }
 }
 
@@ -118,6 +157,7 @@
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 14px;
+  flex: 0 0 auto;
 }
 .sky-stage__panel-collapse {
   border: 0;

@@ -110,6 +110,16 @@ export function PlanetMarker({
           toneMapped={false}
         />
       </mesh>
+      <mesh visible={state === 'active'}>
+        <ringGeometry args={[info.size * 1.55, info.size * 1.78, 32]} />
+        <meshBasicMaterial
+          color={info.color}
+          transparent
+          opacity={0.82}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
       <GlyphSprite
         char={info.glyph}
         color={info.color}

@@ -29,7 +29,7 @@ function SkyStage({ sceneProps, subnav, topLeft, panel, panelHeader, footer, ove
   // the scene recenters itself in the space the panel leaves open, so
   // the whole chart and the whole text are visible at the same time
   const coveredRightPx =
-    panel && panelOpen
+    panel && panelOpen && (typeof window === 'undefined' || window.innerWidth > 900)
       ? Math.min(500, (typeof window !== 'undefined' ? window.innerWidth : 1200) * 0.44) + 40
       : 0;
 

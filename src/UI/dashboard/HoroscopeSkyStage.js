@@ -3,6 +3,7 @@ import SkyStage from '../shared/SkyStage';
 import { BODIES } from '../shared/chartScene/constants';
 import useTransitFrames from '../../hooks/useTransitFrames';
 import {
+  fromSceneBodyName,
   toChartScenePlacements,
   toChartSceneAspects,
   toSceneBodyNames,
@@ -34,6 +35,30 @@ const fmtTick = (ms) =>
   new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 const fmtBarDate = (ms) =>
   new Date(ms).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+const SIGN_NAMES = [
+  'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+  'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
+];
+
+const capitalize = (value = '') => value.charAt(0).toUpperCase() + value.slice(1);
+const bodyName = (body) => ({ asc: 'Ascendant', mc: 'Midheaven' }[body] || capitalize(body));
+const ordinal = (value) => {
+  const number = Number(value);
+  const mod100 = number % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${number}th`;
+  return `${number}${{ 1: 'st', 2: 'nd', 3: 'rd' }[number % 10] || 'th'}`;
+};
+
+const formatPosition = (longitude) => {
+  const normalized = ((Number(longitude) % 360) + 360) % 360;
+  const signIndex = Math.floor(normalized / 30);
+  const degree = normalized - signIndex * 30;
+  const totalMinutes = Math.round(degree * 60);
+  const whole = Math.floor(totalMinutes / 60) % 30;
+  const minutes = totalMinutes % 60;
+  return `${whole}°${String(minutes).padStart(2, '0')}′ ${SIGN_NAMES[signIndex]}`;
+};
 
 /**
  * The horoscope as a stage. One time instrument (bottom bar): period
@@ -83,6 +108,9 @@ function HoroscopeSkyStage({
   );
   const [chipMode, setChipMode] = useState('reading');
   const [customBodies, setCustomBodies] = useState(() => new Set());
+  const [selectedBody, setSelectedBody] = useState(null);
+  const [selectedAspects, setSelectedAspects] = useState([]);
+  const [hoveredBody, setHoveredBody] = useState(null);
 
   // the reading changed (period switch / regeneration): return to its set
   useEffect(() => {
@@ -167,6 +195,76 @@ function HoroscopeSkyStage({
     return range.start + frac * (range.end - range.start);
   };
 
+  const aspectsForSelection = (sel) => {
+    if (!sel || !frames?.length) return [];
+    let best = frames[0];
+    let bestD = Infinity;
+    for (const frame of frames) {
+      const distance = Math.abs(Date.parse(frame.date) - playMs);
+      if (distance < bestD) {
+        bestD = distance;
+        best = frame;
+      }
+    }
+    return (best.aspects || []).filter((aspect) =>
+      sel.layer === 'transit' ? aspect.bodyA === sel.body : aspect.bodyB === sel.body
+    );
+  };
+
+  const inspectBody = (sel) => {
+    setSelectedBody(sel);
+    if (!sel) {
+      setSelectedAspects([]);
+      return;
+    }
+    setSelectedAspects(aspectsForSelection(sel));
+  };
+
+  const detailBody = selectedBody || hoveredBody;
+  const natalPlanet = detailBody?.layer === 'natal'
+    ? birthChart?.planets?.find(
+        (planet) => planet?.name === fromSceneBodyName(detailBody.body)
+      )
+    : null;
+  const detailLayer = detailBody?.layer === 'transit' ? 'Transiting' : 'Natal';
+  const detailInfo = detailBody ? BODIES[detailBody.body] : null;
+  const detailAspects = selectedBody ? selectedAspects : aspectsForSelection(hoveredBody);
+  const detailOverlay = detailBody && (
+    <div className={`sky-inspector${selectedBody ? ' sky-inspector--selected' : ''}`} role="status">
+      <div className="sky-inspector__identity">
+        <span className="sky-inspector__glyph" style={{ color: detailInfo?.color }} aria-hidden="true">
+          {(detailInfo?.glyph || detailBody.body) + '︎'}
+        </span>
+        <div>
+          <div className="sky-inspector__name">{detailLayer} {bodyName(detailBody.body)}</div>
+          <div className="sky-inspector__position">
+            {formatPosition(detailBody.longitude)}
+            {natalPlanet?.house ? ` · ${ordinal(natalPlanet.house)} House` : ''}
+            {detailBody.retrograde ? ' · Retrograde' : ''}
+          </div>
+        </div>
+        {selectedBody && (
+          <button className="sky-inspector__close" onClick={() => inspectBody(null)} aria-label="Clear selected planet">×</button>
+        )}
+      </div>
+      {detailAspects.length > 0 && (
+        <div className="sky-inspector__aspects">
+          {detailAspects.slice(0, 3).map((aspect) => (
+            <span key={`${aspect.bodyA}-${aspect.type}-${aspect.bodyB}`}>
+              Transiting {capitalize(aspect.bodyA)} {aspect.type} Natal {capitalize(aspect.bodyB)}
+              {Number.isFinite(aspect.orb) ? ` · ${aspect.orb.toFixed(1)}° orb` : ''}
+            </span>
+          ))}
+        </div>
+      )}
+      {selectedBody && onSkyPick && (
+        <button className="sky-inspector__ask" onClick={() => onSkyPick(selectedBody, selectedAspects)}>
+          ✦ Ask about this
+        </button>
+      )}
+    </div>
+  );
+
   const timebar = range && playWindow && (
     <div className="timebar">
       <div className="timebar__periods" role="tablist">
@@ -186,6 +284,8 @@ function HoroscopeSkyStage({
         className="timebar__play"
         onClick={() => setPlaying(!playing)}
         aria-label={playing ? 'Pause' : 'Play'}
+        aria-pressed={playing}
+        title={playing ? 'Pause timeline' : 'Play timeline'}
       >
         {playing ? '❚❚' : '▶'}
       </button>
@@ -247,12 +347,21 @@ function HoroscopeSkyStage({
 
   // ── transit chips (labeled; default = the reading's transits) ─────
   const allOn = chipMode === 'all';
+  const readingOn = chipMode === 'reading';
   const bodyStrip = (
     <div className="transit-strip">
       <span className="transit-strip__label">Transits</span>
       <button
-        className={`transit-strip__all${allOn ? ' on' : ''}`}
-        onClick={() => setChipMode(allOn ? 'reading' : 'all')}
+        className={`transit-strip__mode${readingOn ? ' on' : ''}`}
+        onClick={() => setChipMode('reading')}
+        aria-pressed={readingOn}
+      >
+        Reading
+      </button>
+      <button
+        className={`transit-strip__mode${allOn ? ' on' : ''}`}
+        onClick={() => setChipMode('all')}
+        aria-pressed={allOn}
       >
         All
       </button>
@@ -265,7 +374,9 @@ function HoroscopeSkyStage({
             className={`transit-chip${on ? ' on' : ''}`}
             style={on && info?.color ? { '--pc': info.color } : undefined}
             onClick={() => toggleBody(body)}
-            title={`${body} aspect lines ${on ? 'on' : 'off'}`}
+            title={`${capitalize(body)} aspect lines ${on ? 'on' : 'off'}`}
+            aria-label={`${capitalize(body)} aspect lines`}
+            aria-pressed={on}
           >
             <span className="transit-chip__g">{(info?.glyph || body) + '︎'}</span>
             <span className="transit-chip__n">
@@ -275,12 +386,21 @@ function HoroscopeSkyStage({
         );
       })}
       <span className="transit-strip__hint">
-        {chipMode === 'reading'
-          ? 'Showing the reading’s transits'
-          : chipMode === 'all'
-            ? 'Showing every transit'
-            : 'Custom selection'}
+        {chipMode === 'custom' ? 'Custom' : ''}
       </span>
+      <details className="chart-legend">
+        <summary aria-label="Open chart legend">?</summary>
+        <div className="chart-legend__popover">
+          <strong>Chart symbols</strong>
+          <div className="chart-legend__grid">
+            {Object.entries(BODIES).filter(([body]) => body !== 'earth').map(([body, info]) => (
+              <span key={body}><b style={{ color: info.color }}>{info.glyph + '︎'}</b>{capitalize(body)}</span>
+            ))}
+            <span><b>AC</b>Ascendant</span>
+            <span><b>MC</b>Midheaven</span>
+          </div>
+        </div>
+      </details>
     </div>
   );
 
@@ -298,32 +418,15 @@ function HoroscopeSkyStage({
         transitAspectBodies,
         transitLineBoost: focused,
         highlightBodies,
-        onSelectBody: onSkyPick
-          ? (sel) => {
-              if (!sel || !frames?.length) {
-                onSkyPick(sel, []);
-                return;
-              }
-              let best = frames[0];
-              let bestD = Infinity;
-              for (const f of frames) {
-                const d = Math.abs(Date.parse(f.date) - playMs);
-                if (d < bestD) {
-                  bestD = d;
-                  best = f;
-                }
-              }
-              const active = (best.aspects || []).filter((a) =>
-                sel.layer === 'transit' ? a.bodyA === sel.body : a.bodyB === sel.body
-              );
-              onSkyPick(sel, active);
-            }
-          : undefined,
+        selectedBody,
+        onHoverBody: setHoveredBody,
+        onSelectBody: inspectBody,
       }}
       topLeft={bodyStrip}
       panel={panel}
       panelHeader={panelHeader}
       footer={timebar}
+      overlay={detailOverlay}
     />
   );
 }
