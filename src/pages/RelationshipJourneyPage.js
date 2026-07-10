@@ -13,6 +13,7 @@ import {
   toSceneBodyNames,
 } from '../Utilities/chartSceneAdapter';
 import { mentionsIn } from '../UI/journey/AnalysisFlow';
+import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 import useJourneyScroll from '../UI/journey/useJourneyScroll';
 import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
 import './ChartReaderPage.css';
@@ -89,13 +90,13 @@ function RelationshipJourneyPage() {
           return;
         }
         let analysis = null;
-        let chartA = null;
-        let chartB = null;
+        let subjectA = null;
+        let subjectB = null;
         try {
-          [analysis, chartA, chartB] = await Promise.all([
+          [analysis, subjectA, subjectB] = await Promise.all([
             fetchRelationshipAnalysis(compositeId).catch(() => null),
-            found.userA_id ? fetchUser(found.userA_id).then((u) => u?.birthChart).catch(() => null) : null,
-            found.userB_id ? fetchUser(found.userB_id).then((u) => u?.birthChart).catch(() => null) : null,
+            found.userA_id ? fetchUser(found.userA_id).catch(() => null) : null,
+            found.userB_id ? fetchUser(found.userB_id).catch(() => null) : null,
           ]);
         } catch (e) {
           // analysis optional; charts fall back to the composite doc
@@ -104,8 +105,12 @@ function RelationshipJourneyPage() {
         setRelationship({
           ...found,
           ...(analysis || {}),
-          ...(chartA && { userA_birthChart: chartA }),
-          ...(chartB && { userB_birthChart: chartB }),
+          ...(subjectA?.birthChart && { userA_birthChart: subjectA.birthChart }),
+          ...(subjectB?.birthChart && { userB_birthChart: subjectB.birthChart }),
+          // celebrity subjects carry a short romantic profile blurb
+          // (relationship-app data, but the subject doc is shared)
+          userA_romanticBlurb: subjectA?.relationshipAppProfile?.romanticProfileBlurb || null,
+          userB_romanticBlurb: subjectB?.relationshipAppProfile?.romanticProfileBlurb || null,
         });
       } catch (e) {
         if (!cancelled) setError('Failed to load relationship data');
@@ -191,6 +196,9 @@ function RelationshipJourneyPage() {
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
   const clusters = clusterAnalysis?.clusters;
   const overall = clusterAnalysis?.overall;
+  // the relationship's archetype (label + short blurb) rides the same
+  // analysis document the journey already loads
+  const archetype = useMemo(() => getRelationshipCardSummary(overall), [overall]);
   const scoredItems = useMemo(
     () =>
       relationship?.scoredItems ||
@@ -338,7 +346,11 @@ function RelationshipJourneyPage() {
   const act = ACTS.find((x) => x.id === activeAct) || ACTS[0];
   const sceneMode = act.mode;
   const hasScene = aPlacements.length > 0 && bPlacements.length > 0;
-  const overallLabel = Number.isFinite(overall) ? `${Math.round(overall)}% overall` : null;
+  // legacy records store a bare number; scored records an object
+  const overallScore = Number.isFinite(overall) ? overall : archetype.score;
+  const overallLabel = Number.isFinite(overallScore)
+    ? `${Math.round(overallScore)}% overall`
+    : null;
 
   // camera widens to hold both separated wheels, tightens as they merge
   const fitRadius = 10.8 - (10.8 - 5.9) * mergeBlend;
@@ -447,6 +459,13 @@ function RelationshipJourneyPage() {
             ref={setStepRef('overview')}
           >
             <div className="journey-chapter">I · Overview</div>
+            {archetype.cardHeadline && (
+              <div className="rj-arch">
+                {archetype.cardHeadline}
+                {archetype.tier && <span className="rj-arch__tier">{archetype.tier}</span>}
+              </div>
+            )}
+            {archetype.blurb && <p className="rj-arch__blurb">{archetype.blurb}</p>}
             {(relationship?.initialOverview || clusterPanels('overview')?.synthesis || '')
               .split(/\n\s*\n|\n/)
               .map((t) => t.trim())
@@ -463,6 +482,9 @@ function RelationshipJourneyPage() {
             ref={setStepRef('sky-a', 'skies')}
           >
             <div className="rj-pname rj-pname--a">{aName}</div>
+            {relationship?.userA_romanticBlurb && (
+              <p className="rj-pblurb">{relationship.userA_romanticBlurb}</p>
+            )}
             <p>
               This is {aName}&rsquo;s sky, whole — every placement below sits on the wheel
               to the left. Hover a row to find it.
@@ -481,6 +503,9 @@ function RelationshipJourneyPage() {
             ref={setStepRef('sky-b', 'skies')}
           >
             <div className="rj-pname rj-pname--b">{bName}</div>
+            {relationship?.userB_romanticBlurb && (
+              <p className="rj-pblurb">{relationship.userB_romanticBlurb}</p>
+            )}
             <p>
               And this is {bName}&rsquo;s — her wheel turns beside {aName}&rsquo;s, complete
               in itself. Keep scrolling, and the two skies merge.

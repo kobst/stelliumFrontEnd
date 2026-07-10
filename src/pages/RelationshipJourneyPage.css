@@ -13,6 +13,48 @@
 .rj-pname--a { color: #cabeff; }
 .rj-pname--b { color: #ff9ec4; }
 
+/* per-partner romantic blurb (celebrity subjects carry one) */
+.rj-pblurb {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 16.5px;
+  line-height: 1.7;
+  color: rgba(236, 232, 255, 0.78);
+  border-left: 2px solid rgba(233, 195, 73, 0.35);
+  padding-left: 14px;
+  margin: 4px 0 18px;
+  text-wrap: pretty;
+}
+
+/* the relationship's archetype: label + short blurb, opening the read */
+.rj-arch {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 26px;
+  color: #e9c349;
+  text-shadow: 0 0 24px rgba(233, 195, 73, 0.3);
+  margin-bottom: 6px;
+}
+.rj-arch__tier {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(236, 232, 255, 0.5);
+}
+.rj-arch__blurb {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.7;
+  color: rgba(236, 232, 255, 0.82);
+  margin: 0 0 18px;
+  text-wrap: pretty;
+}
+
 /* aspect / placement rows */
 .journey-page .arow {
   display: flex;
