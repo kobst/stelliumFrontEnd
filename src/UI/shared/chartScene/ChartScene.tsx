@@ -317,7 +317,11 @@ function ChartSceneImpl({
 
       <Stars radius={60} depth={40} count={3000} factor={3} saturation={0.4} fade speed={0.4} />
 
-      <ZodiacWheel dimmed={helioMode || (relationship ? relationship.blend < 0.7 : false)} glyphScale={glyphScale} />
+      <ZodiacWheel
+        dimmed={helioMode}
+        glyphScale={glyphScale}
+        visible={!relationship || relationship.blend > 0.5}
+      />
       <OrbitRings radii={orbitRadii} visible={helioMode} />
 
       {/* natal web hides entirely while the transit layer has the view.
@@ -433,6 +437,7 @@ function ChartSceneImpl({
                 ? [...(relationship.highlightA ?? []), ...(relationship.highlightB ?? [])]
                 : undefined
             }
+            onSelectAspect={onSelectAspect}
           />
           {/* composite web: the relationship's own aspects */}
           <AspectLines
@@ -444,6 +449,7 @@ function ChartSceneImpl({
             visible={relationship.comp > 0.6}
             focus={selection}
             highlightBodies={relationship.highlightA}
+            onSelectAspect={onSelectAspect}
           />
         </>
       )}

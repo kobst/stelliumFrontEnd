@@ -1,464 +1,396 @@
-/* relationship journey — extends the journey grammar (ChartReaderPage.css) */
-
-.rj-amp {
+.relationship-reader .rj-amp {
   color: #e9c349;
   font-style: italic;
 }
 
-.rj-pname {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 30px;
-  margin-bottom: 8px;
-}
-.rj-pname--a { color: #cabeff; }
-.rj-pname--b { color: #ff9ec4; }
-
-/* per-partner romantic blurb (celebrity subjects carry one) */
-.rj-pblurb {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-size: 16.5px;
-  line-height: 1.7;
-  color: rgba(236, 232, 255, 0.78);
-  border-left: 2px solid rgba(233, 195, 73, 0.35);
-  padding-left: 14px;
-  margin: 4px 0 18px;
-  text-wrap: pretty;
+.relationship-reader-nav {
+  gap: clamp(4px, 1.6vw, 28px);
 }
 
-/* the relationship's archetype: label + short blurb, opening the read */
-.rj-arch {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 26px;
-  color: #e9c349;
-  text-shadow: 0 0 24px rgba(233, 195, 73, 0.3);
-  margin-bottom: 6px;
+.relationship-reader-nav button {
+  min-width: 112px;
 }
-.rj-arch__tier {
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(236, 232, 255, 0.5);
+
+.relationship-reader-chart {
+  background: rgba(3, 3, 8, 0.45);
 }
-.rj-arch__blurb {
-  font-family: Georgia, 'Times New Roman', serif;
+
+.relationship-reader .birth-journey-split--overview {
+  align-items: start;
+}
+
+.relationship-reader-lede {
+  color: rgba(236, 232, 255, 0.82) !important;
   font-style: italic;
-  font-size: 18px;
-  line-height: 1.7;
-  color: rgba(236, 232, 255, 0.82);
-  margin: 0 0 18px;
-  text-wrap: pretty;
 }
-.rj-score-note {
-  max-width: 620px;
-  padding: 10px 12px;
+
+.relationship-reader-note {
+  padding: 12px 14px;
   border-left: 2px solid rgba(233, 195, 73, 0.45);
   background: rgba(233, 195, 73, 0.05);
+  color: rgba(236, 232, 255, 0.66) !important;
   font-family: ui-sans-serif, system-ui, sans-serif !important;
   font-size: 13px !important;
   line-height: 1.55 !important;
-  color: rgba(236, 232, 255, 0.74) !important;
-}
-.journey-page--relationship .journey-step:not(.live) {
-  opacity: 0.34;
-}
-.journey-page--relationship
-  .journey-step:not(.journey-step--hero)
-  > .journey-chapter {
-  display: none;
 }
 
-/* aspect / placement rows */
-.journey-page .arow {
-  width: 100%;
-  border-right: 0;
-  border-bottom: 0;
-  border-left: 0;
-  background: transparent;
-  font-family: inherit;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 6px;
-  border-top: 1px solid rgba(202, 190, 255, 0.08);
-  font-size: 12.5px;
-  color: rgba(236, 232, 255, 0.7);
-  border-radius: 7px;
-  cursor: default;
-}
-.journey-page .arow:hover {
-  background: rgba(233, 195, 73, 0.06);
-  color: #ece8ff;
-}
-.journey-page .arow .at {
-  min-width: 92px;
-  text-transform: capitalize;
-}
-.journey-page .arow .an {
-  color: #ece8ff;
-  font-weight: 600;
-}
-.journey-page .arow .orb {
-  margin-left: auto;
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  color: rgba(236, 232, 255, 0.45);
+.relationship-reader-copy {
+  min-width: 0;
+  max-width: none;
 }
 
-/* continuous-track caption steps */
-.rj-track {
-  min-height: 20vh;
-}
-.rj-capstep {
-  min-height: 42vh;
-  display: flex;
-  align-items: center;
-}
-.rj-cap {
+.relationship-reader-copy h2,
+.relationship-composite-aspects h2 {
+  margin: 0 0 12px;
+  color: #ece8ff;
   font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  font-size: 19px;
-  line-height: 1.7;
-  color: rgba(236, 232, 255, 0.75);
-  text-wrap: pretty;
-}
-
-/* pillars */
-.rj-pillar {
-  padding: 18px 18px 16px;
-  border-radius: 18px;
-  background: linear-gradient(150deg, color-mix(in srgb, var(--tc) 8%, transparent), rgba(255, 255, 255, 0.02));
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14);
-  margin-bottom: 18px;
-}
-.rj-pillar .ph {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-}
-.rj-pillar .pe { font-size: 17px; }
-.rj-pillar .pn {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 23px;
-  color: #ece8ff;
-}
-.rj-pillar .pv {
-  margin-left: auto;
-  font-family: ui-monospace, monospace;
-  font-size: 15px;
-  color: var(--tc);
-}
-.rj-pillar .pbar {
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.07);
-  overflow: hidden;
-  margin: 10px 0 13px;
-}
-.rj-pillar .pbar span {
-  display: block;
-  height: 100%;
-  border-radius: 3px;
-  background: var(--tc);
-  opacity: 0.8;
-}
-.rj-pillar .fk {
-  font-family: ui-monospace, monospace;
-  font-size: 9px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(236, 232, 255, 0.45);
-  margin: 12px 0 4px;
-}
-.rj-factor {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  border-top: 1px solid rgba(202, 190, 255, 0.08);
-  border-radius: 7px;
-  cursor: default;
-  font-size: 12.5px;
-  color: rgba(236, 232, 255, 0.7);
-}
-.rj-factor:hover {
-  background: rgba(233, 195, 73, 0.06);
-  color: #ece8ff;
-}
-.rj-factor .fx { flex: 1; }
-.rj-factor .fs {
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  color: #5dd6a0;
-}
-.rj-factor .fs.neg { color: #e05a6d; }
-
-/* composite chips */
-.rj-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.rj-chip {
-  flex: 1 1 30%;
-  min-width: 150px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 12px;
-  border: 0;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.025);
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.1);
-  cursor: default;
-  color: inherit;
-  text-align: left;
-}
-.rj-chip:hover { background: rgba(233, 195, 73, 0.05); }
-.rj-chip .k {
-  font-family: ui-monospace, monospace;
-  font-size: 8.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(236, 232, 255, 0.45);
-}
-.rj-chip .v {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 14.5px;
-  color: #ece8ff;
-  margin-top: 2px;
-}
-
-/* the cluster's analysis, all three voices in one view */
-.rj-panelblock {
-  margin-top: 20px;
-  padding-left: 14px;
-  border-left: 2px solid rgba(202, 190, 255, 0.15);
-}
-.rj-panelblock .pk {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-.rj-panelblock--support { border-left-color: rgba(93, 214, 160, 0.45); }
-.rj-panelblock--support .pk { color: #5dd6a0; }
-.rj-panelblock--challenge { border-left-color: rgba(224, 90, 109, 0.45); }
-.rj-panelblock--challenge .pk { color: #e05a6d; }
-.rj-panelblock--synthesis { border-left-color: rgba(233, 195, 73, 0.45); }
-.rj-panelblock--synthesis .pk { color: #e9c349; }
-.rj-panelblock--synthesis p { font-style: italic; }
-
-/* pillar sticky header: identity + score + factors in one band.
-   Self-contained: the reader page's journey-domain-sticky base is gone
-   (its labels moved into the fixed header), so the sticky behavior
-   this band still wants lives here. Aligned over the reading column —
-   the wheel keeps its half of the stage, chips never cross its lines. */
-.rj-pillar-sticky {
-  position: sticky;
-  top: 100px;
-  z-index: 8;
-  width: min(520px, 44vw);
-  margin-left: auto;
-  margin-right: 5vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  padding: 20px 0 30px;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(6, 6, 13, 0.95) 0%, rgba(6, 6, 13, 0.8) 55%, transparent 100%);
-}
-.rj-pillar-sticky::before,
-.rj-pillar-sticky::after {
-  display: none;
-}
-.rj-pillar-sticky__row {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-}
-/* the pillar name carries the chapter display style itself */
-.rj-pillar-sticky__row > span:nth-child(2) {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #e9c349;
-  text-shadow: 0 0 24px rgba(233, 195, 73, 0.35);
 }
-.rj-pillar-sticky__row .pe {
-  font-size: 16px;
+
+.relationship-reader-direct {
+  align-items: start;
 }
-.rj-pillar-sticky__row .pv {
-  font-family: ui-monospace, monospace;
-  font-size: 16px;
-  color: var(--tc);
+
+.relationship-placement-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
 }
-.rj-pillar-sticky__factors {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  max-width: 100%;
-  pointer-events: auto;
-}
-.rj-fpill {
-  display: inline-flex;
+
+.relationship-placement-list button {
+  min-width: 0;
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 22px minmax(70px, 0.8fr) minmax(70px, 1fr) auto;
   align-items: center;
   gap: 8px;
-  font-size: 11.5px;
-  padding: 5px 12px;
+  padding: 8px 10px;
   border: 0;
-  border-radius: 999px;
-  color: rgba(236, 232, 255, 0.75);
-  background: rgba(14, 14, 22, 0.72);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 35%, transparent);
-  cursor: default;
+  border-right: 1px solid rgba(202, 190, 255, 0.08);
+  border-bottom: 1px solid rgba(202, 190, 255, 0.08);
+  background: transparent;
+  color: rgba(236, 232, 255, 0.68);
+  cursor: pointer;
+  text-align: left;
+}
+
+.relationship-placement-list button:hover,
+.relationship-placement-list button.on {
+  background: rgba(233, 195, 73, 0.06);
+  color: #ece8ff;
+}
+
+.relationship-placement-list button.on {
+  box-shadow: inset 2px 0 #e9c349;
+}
+
+.relationship-placement-list strong,
+.relationship-placement-list span,
+.relationship-placement-list small {
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
-.rj-fpill:hover {
-  color: #ece8ff;
-  box-shadow: inset 0 0 0 1px var(--tc);
+
+.relationship-placement-list strong {
+  font-size: 12px;
 }
-.rj-fpill em {
-  font-style: normal;
+
+.relationship-placement-list span {
+  color: rgba(236, 232, 255, 0.58);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+}
+
+.relationship-placement-list small {
+  color: rgba(236, 232, 255, 0.4);
   font-family: ui-monospace, monospace;
-  font-size: 10.5px;
-  color: #5dd6a0;
-}
-.rj-fpill em.neg {
-  color: #e05a6d;
+  font-size: 8px;
 }
 
-/* pinned threads (click) share the hover treatment, held */
-.journey-page .arow,
-.rj-fpill,
-.rj-chip {
+.relationship-line-toggle {
+  min-height: 36px;
+  margin: 0 0 16px;
+  padding: 0 12px;
+  border: 1px solid rgba(202, 190, 255, 0.2);
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(236, 232, 255, 0.68);
   cursor: pointer;
-}
-.journey-page .arow.on {
-  background: rgba(233, 195, 73, 0.09);
-  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.4);
-  color: #ece8ff;
-}
-.rj-fpill.on {
-  color: #ece8ff;
-  box-shadow: inset 0 0 0 1px var(--tc);
-  background: rgba(14, 14, 22, 0.95);
-}
-.rj-chip.on {
-  background: rgba(233, 195, 73, 0.07);
-  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.4);
+  font-size: 11px;
+  font-weight: 650;
 }
 
-/* synastry line-density toggle */
-.rj-linetoggle {
-  display: inline-block;
-  margin: 2px 0 14px;
+.relationship-line-toggle:hover,
+.relationship-line-toggle[aria-pressed='true'] {
+  border-color: rgba(233, 195, 73, 0.5);
+  color: #e9c349;
+}
+
+.relationship-aspect-list {
+  max-height: 560px;
+  overflow-y: auto;
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
+  scrollbar-width: thin;
+}
+
+.relationship-aspect-list button {
+  width: 100%;
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: 72px minmax(110px, 1fr) 18px minmax(110px, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 7px;
   border: 0;
+  border-bottom: 1px solid rgba(202, 190, 255, 0.09);
+  background: transparent;
+  color: rgba(236, 232, 255, 0.68);
   cursor: pointer;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: rgba(202, 190, 255, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.18);
-  color: #cabeff;
+  text-align: left;
+}
+
+.relationship-aspect-list button:hover,
+.relationship-aspect-list button.on {
+  background: rgba(233, 195, 73, 0.055);
+  color: #ece8ff;
+}
+
+.relationship-aspect-list button.on {
+  box-shadow: inset 2px 0 #e9c349;
+}
+
+.relationship-aspect-list__type {
+  color: #e9c349;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.relationship-aspect-list strong {
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.relationship-aspect-list small {
+  color: rgba(236, 232, 255, 0.42);
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+}
+
+.detail-navigator--relationship-analysis .detail-navigator__tabs button {
+  min-height: 62px;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-navigator--relationship-analysis .detail-navigator__tabs button small {
+  color: rgba(233, 195, 73, 0.7);
+  font-family: ui-monospace, monospace;
+  font-size: 8px;
+}
+
+.relationship-dimension-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.relationship-dimension-heading strong {
+  color: var(--relationship-tone);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.relationship-factor-list {
+  margin: 22px 0 8px;
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.relationship-factor-list button {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 8px 7px;
+  border: 0;
+  border-bottom: 1px solid rgba(202, 190, 255, 0.09);
+  background: transparent;
+  color: rgba(236, 232, 255, 0.68);
+  cursor: pointer;
+  text-align: left;
+}
+
+.relationship-factor-list button:hover,
+.relationship-factor-list button.on {
+  background: color-mix(in srgb, var(--relationship-tone) 6%, transparent);
+  color: #ece8ff;
+}
+
+.relationship-factor-list button.on {
+  box-shadow: inset 2px 0 var(--relationship-tone);
+}
+
+.relationship-factor-list span {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.relationship-factor-list strong {
+  flex: 0 0 auto;
+  color: #65cfa1;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+}
+
+.relationship-factor-list strong.negative {
+  color: #e56f72;
+}
+
+.relationship-reading-block {
+  margin-top: 28px;
+  padding: 20px 0 0 16px;
+  border-top: 1px solid rgba(202, 190, 255, 0.1);
+  border-left: 2px solid rgba(202, 190, 255, 0.2);
+}
+
+.relationship-reading-block--support {
+  border-left-color: rgba(101, 207, 161, 0.55);
+}
+
+.relationship-reading-block--challenge {
+  border-left-color: rgba(229, 111, 114, 0.55);
+}
+
+.relationship-reading-block--synthesis {
+  border-left-color: rgba(233, 195, 73, 0.55);
+}
+
+.relationship-reading-block h2 {
+  color: rgba(236, 232, 255, 0.68);
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.detail-navigator--relationship-composite .detail-navigator__tabs button {
+  min-width: 92px;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.relationship-composite-aspects {
+  margin-top: 30px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.relationship-composite-aspects button {
+  width: 100%;
+  min-height: 50px;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px;
+  border: 0;
+  border-bottom: 1px solid rgba(202, 190, 255, 0.09);
+  background: transparent;
+  color: rgba(236, 232, 255, 0.68);
+  cursor: pointer;
+  text-align: left;
+}
+
+.relationship-composite-aspects button:hover,
+.relationship-composite-aspects button.on {
+  background: rgba(233, 195, 73, 0.055);
+  color: #ece8ff;
+}
+
+.relationship-composite-aspects button.on {
+  box-shadow: inset 2px 0 #e9c349;
+}
+
+.relationship-composite-aspects strong {
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-}
-.rj-linetoggle:hover {
-  background: rgba(202, 190, 255, 0.14);
 }
 
-/* the pillar band collapses with the column on narrow viewports */
-@media (max-width: 900px) {
-  .journey-page--relationship::before {
-    background: linear-gradient(
-      180deg,
-      transparent 0,
-      transparent calc(38svh + 70px),
-      rgba(6, 6, 13, 0.92) calc(38svh + 90px),
-      #06060d calc(38svh + 130px)
-    );
+.relationship-composite-aspects small {
+  color: rgba(236, 232, 255, 0.42);
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+}
+
+@media (max-width: 1100px) {
+  .relationship-reader-nav button {
+    min-width: 100px;
   }
-  .journey-page--relationship .journey-scene {
-    top: 70px;
-    bottom: auto;
-    height: 38svh;
+  .relationship-reader-nav button strong {
+    font-size: 9px;
   }
-  .journey-page--relationship .journey-scene--recede {
-    transform: scale(0.9);
+  .relationship-placement-list {
+    grid-template-columns: 1fr;
   }
-  .journey-page--relationship .rj-stage-step {
-    padding-top: calc(38svh + 28px);
+}
+
+@media (max-width: 820px) {
+  .relationship-reader-nav button {
+    min-width: 108px;
+    flex-basis: 108px;
   }
-  .journey-page--relationship .journey-recenter {
-    top: calc(38svh + 20px);
-    right: 12px;
-    bottom: auto;
-    left: auto;
+  .relationship-reader .birth-journey-split--workspace,
+  .relationship-reader .birth-journey-split--analysis-detail {
+    display: flex;
+    flex-direction: column;
   }
-  .journey-page--relationship .journey-ask-fab {
+  .relationship-reader .birth-journey-chart {
+    order: 1;
+  }
+  .relationship-reader-copy {
+    order: 2;
+    width: 100%;
+  }
+  .relationship-aspect-list {
+    max-height: none;
+  }
+  .relationship-aspect-list button {
+    grid-template-columns: 64px minmax(92px, 1fr) 14px minmax(92px, 1fr) auto;
+  }
+  .relationship-reader .birth-ask-workspace .birth-journey-chart {
+    order: initial;
+  }
+}
+
+@media (max-width: 520px) {
+  .relationship-reader .birth-journey-identity strong {
+    max-width: 56vw;
+    font-size: 15px;
+  }
+  .relationship-placement-list button {
+    grid-template-columns: 22px minmax(70px, 0.9fr) minmax(70px, 1fr);
+  }
+  .relationship-placement-list small {
     display: none;
   }
-  .rj-pillar-sticky {
-    top: 106px;
-    width: min(700px, calc(100vw - 32px));
-    margin: 0 auto;
-    padding: 12px 0 18px;
+  .relationship-aspect-list button {
+    grid-template-columns: 62px minmax(0, 1fr) auto;
+    gap: 6px;
   }
-  .rj-pillar-sticky__factors {
-    max-height: 70px;
-    overflow-y: auto;
+  .relationship-aspect-list button > span[aria-hidden='true'],
+  .relationship-aspect-list button strong:nth-of-type(2) {
+    display: none;
   }
-  .rj-capstep {
-    min-height: 40svh;
-  }
-  .rj-track {
-    min-height: 0;
-  }
-  .rj-arch {
-    flex-wrap: wrap;
-    font-size: 23px;
-  }
-  .rj-chips {
-    gap: 8px;
-  }
-  .rj-chip {
-    min-width: 130px;
-  }
-}
-
-@media (max-width: 600px) {
-  .journey-page .arow {
+  .relationship-factor-list button {
     align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  .journey-page .arow .at {
-    min-width: 76px;
-  }
-  .journey-page .arow .an {
-    flex: 1;
-    min-width: 150px;
-  }
-  .rj-pillar-sticky__row > span:nth-child(2) {
-    font-size: 17px;
-  }
-  .rj-fpill {
-    max-width: 100%;
-    white-space: normal;
-    text-align: left;
   }
 }

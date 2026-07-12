@@ -47,14 +47,15 @@ interface ZodiacWheelProps {
    * neutral tint so it reads as a reference frame.
    */
   dimmed?: boolean
+  visible?: boolean
 }
 
-export function ZodiacWheel({ dimmed = false, glyphScale = 1 }: ZodiacWheelProps) {
+export function ZodiacWheel({ dimmed = false, glyphScale = 1, visible = true }: ZodiacWheelProps) {
   const outerCircle = useMemo(() => circlePoints(WHEEL_OUTER_RADIUS), [])
   const innerCircle = useMemo(() => circlePoints(WHEEL_INNER_RADIUS), [])
 
   return (
-    <group>
+    <group visible={visible}>
       {/* translucent band on the ecliptic plane */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[WHEEL_INNER_RADIUS, WHEEL_OUTER_RADIUS, 96]} />

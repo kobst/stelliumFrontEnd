@@ -1,83 +1,158 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
-  getUserCompositeCharts,
   fetchRelationshipAnalysis,
   fetchUser,
+  getUserCompositeCharts,
 } from '../Utilities/api';
 import { ChartScene } from '../UI/shared/chartScene';
 import {
-  toChartScenePlacements,
-  toChartSceneAspects,
-  toSynastrySceneAspects,
-  toSceneBodyNames,
   fromSceneBodyName,
+  toChartSceneAspects,
+  toChartScenePlacements,
+  toSceneBodyNames,
+  toSynastrySceneAspects,
 } from '../Utilities/chartSceneAdapter';
 import { mentionsIn } from '../UI/journey/AnalysisFlow';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
-import useJourneyScroll from '../UI/journey/useJourneyScroll';
 import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
+import ChapterHeader from '../UI/journey/ChapterHeader';
+import DetailNavigator from '../UI/journey/DetailNavigator';
+import { PlanetIcon } from '../UI/shared/AstroIcon';
 import './ChartReaderPage.css';
+import './BirthChartJourneyPage.css';
 import './RelationshipJourneyPage.css';
 
-/**
- * The relationship reading as one continuous scroll — same journey
- * grammar as the birth chart, plus the two signature transformations:
- *   merge track     — scroll drives the partner's planets from the
- *                     center out onto the synastry ring (secondaryBlend)
- *   composite morph — crossing the composite track swaps the wheel to
- *                     the composite chart; markers glide to midpoints
- * Acts: hero → I Overview → II Two Skies → (merge) → III Synastry →
- * IV 360 Analysis (five pillars) → (composite) → V Composite → VI Ask.
- */
-
-const ACT_TITLES = {
-  overview: 'I · Overview',
-  skies: 'II · Two Skies',
-  synastry: 'III · Synastry',
-  pillars: 'IV · 360 Analysis',
-  composite: 'V · Composite',
-  ask: 'VI · Ask Stellium',
-};
-
-const ACTS = [
-  { id: 'hero', rail: null, mode: 'hidden' },
-  { id: 'overview', rail: 'Overview', mode: 'hidden' },
-  { id: 'skies', rail: 'Two Skies', mode: 'full' },
-  { id: 'synastry', rail: 'Synastry', mode: 'full' },
-  { id: 'pillars', rail: '360 Analysis', mode: 'full' },
-  { id: 'composite', rail: 'Composite', mode: 'full' },
-  { id: 'ask', rail: 'Ask Stellium', mode: 'recede' },
+const CHAPTERS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'skies', label: 'Two Skies' },
+  { id: 'synastry', label: 'Synastry' },
+  { id: 'analysis', label: '360 Analysis' },
+  { id: 'composite', label: 'Composite' },
+  { id: 'ask', label: 'Ask Stellium' },
 ];
 
 const CLUSTERS = [
-  { key: 'Harmony', emoji: '💕', tone: '#ff8aae' },
-  { key: 'Passion', emoji: '🔥', tone: '#ff9d6a' },
-  { key: 'Connection', emoji: '🧠', tone: '#ffa6a6' },
-  { key: 'Stability', emoji: '💎', tone: '#7ec9e0' },
-  { key: 'Growth', emoji: '🌱', tone: '#5dd6a0' },
+  { key: 'Harmony', tone: '#ff8aae' },
+  { key: 'Passion', tone: '#ff9d6a' },
+  { key: 'Connection', tone: '#7ec9e0' },
+  { key: 'Stability', tone: '#65cfa1' },
+  { key: 'Growth', tone: '#b48ae8' },
 ];
-
-const firstName = (full) => String(full || '').trim().split(/\s+/)[0] || 'Partner';
 
 const PLACEMENT_ORDER = [
   'Ascendant', 'Sun', 'Moon', 'Mercury', 'Venus', 'Mars',
   'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Midheaven', 'Node',
 ];
+
+const firstName = (value) => String(value || '').trim().split(/\s+/)[0] || 'Partner';
+
+const paragraphs = (value) =>
+  String(value || '')
+    .split(/\n\s*\n|\n/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
 const orderedPlacements = (planets) =>
-  [...(planets || [])].sort((x, y) => {
-    const ix = PLACEMENT_ORDER.indexOf(x.name);
-    const iy = PLACEMENT_ORDER.indexOf(y.name);
-    return (ix === -1 ? 99 : ix) - (iy === -1 ? 99 : iy);
+  [...(planets || [])].sort((a, b) => {
+    const ai = PLACEMENT_ORDER.indexOf(a.name);
+    const bi = PLACEMENT_ORDER.indexOf(b.name);
+    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
   });
+
+const chapterFromHash = () => {
+  const hash = window.location.hash.replace('#', '');
+  return CHAPTERS.some((chapter) => chapter.id === hash) ? hash : 'overview';
+};
+
+function RelationshipChart({
+  relationship,
+  fitNonce,
+  blend,
+  comp = 0,
+  highlightA,
+  highlightB,
+  onHoverBody,
+  onSelectBody,
+  onSelectAspect,
+  compact = false,
+  showRecenter = true,
+  onRecenter,
+}) {
+  const pairFitRadius = window.innerWidth > 820 ? 11.4 : 11;
+  return (
+    <div className={`birth-journey-chart relationship-reader-chart${compact ? ' birth-journey-chart--compact' : ''}`}>
+      <div className="birth-journey-chart__scene">
+        <ChartScene
+          natal={[]}
+          natalAspects={[]}
+          fitRadius={blend < 0.5 ? pairFitRadius : 6.2}
+          fitNonce={fitNonce}
+          disableZoom
+          selectedBody={null}
+          onSelectAspect={onSelectAspect}
+          relationship={{
+            ...relationship,
+            blend,
+            comp,
+            highlightA,
+            highlightB,
+            onHoverBody,
+            onSelectBody,
+          }}
+        />
+      </div>
+      {showRecenter && (
+        <button
+          type="button"
+          className="birth-journey-chart__recenter"
+          title="Recenter the relationship chart"
+          onClick={onRecenter}
+        >
+          <span aria-hidden="true">⌖</span>
+          <span>Recenter</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
+function RelationshipFooter({ activeChapter, onNavigate }) {
+  const index = CHAPTERS.findIndex((chapter) => chapter.id === activeChapter);
+  const previous = CHAPTERS[index - 1];
+  const next = CHAPTERS[index + 1];
+  return (
+    <footer className="birth-journey-footer">
+      {previous ? (
+        <button type="button" className="birth-journey-footer__back" onClick={() => onNavigate(previous.id)}>
+          ← {previous.label}
+        </button>
+      ) : <span />}
+      {next && (
+        <button type="button" className="birth-journey-footer__next" onClick={() => onNavigate(next.id)}>
+          Continue to {next.label} →
+        </button>
+      )}
+    </footer>
+  );
+}
 
 function RelationshipJourneyPage() {
   const { userId, compositeId } = useParams();
   const navigate = useNavigate();
-
   const [relationship, setRelationship] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeChapter, setActiveChapter] = useState(chapterFromHash);
+  const [activePartner, setActivePartner] = useState('a');
+  const [activePillar, setActivePillar] = useState('Harmony');
+  const [activeCompositeBody, setActiveCompositeBody] = useState(null);
+  const [hoverAB, setHoverAB] = useState(null);
+  const [pinnedAB, setPinnedAB] = useState(null);
+  const [showAllLines, setShowAllLines] = useState(false);
+  const [fitNonce, setFitNonce] = useState(0);
+  const [askSelection, setAskSelection] = useState([]);
+  const [askExternalToggle, setAskExternalToggle] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -85,35 +160,26 @@ function RelationshipJourneyPage() {
       try {
         setLoading(true);
         const composites = await getUserCompositeCharts(userId);
-        const found = composites?.find((c) => c._id === compositeId);
+        const found = composites?.find((item) => item._id === compositeId);
         if (!found) {
           if (!cancelled) setError('Relationship not found');
           return;
         }
-        let analysis = null;
-        let subjectA = null;
-        let subjectB = null;
-        try {
-          [analysis, subjectA, subjectB] = await Promise.all([
-            fetchRelationshipAnalysis(compositeId).catch(() => null),
-            found.userA_id ? fetchUser(found.userA_id).catch(() => null) : null,
-            found.userB_id ? fetchUser(found.userB_id).catch(() => null) : null,
-          ]);
-        } catch (e) {
-          // analysis optional; charts fall back to the composite doc
-        }
+        const [analysis, subjectA, subjectB] = await Promise.all([
+          fetchRelationshipAnalysis(compositeId).catch(() => null),
+          found.userA_id ? fetchUser(found.userA_id).catch(() => null) : null,
+          found.userB_id ? fetchUser(found.userB_id).catch(() => null) : null,
+        ]);
         if (cancelled) return;
         setRelationship({
           ...found,
           ...(analysis || {}),
           ...(subjectA?.birthChart && { userA_birthChart: subjectA.birthChart }),
           ...(subjectB?.birthChart && { userB_birthChart: subjectB.birthChart }),
-          // celebrity subjects carry a short romantic profile blurb
-          // (relationship-app data, but the subject doc is shared)
           userA_romanticBlurb: subjectA?.relationshipAppProfile?.romanticProfileBlurb || null,
           userB_romanticBlurb: subjectB?.relationshipAppProfile?.romanticProfileBlurb || null,
         });
-      } catch (e) {
+      } catch (fetchError) {
         if (!cancelled) setError('Failed to load relationship data');
       } finally {
         if (!cancelled) setLoading(false);
@@ -122,229 +188,287 @@ function RelationshipJourneyPage() {
     return () => {
       cancelled = true;
     };
-  }, [userId, compositeId]);
-
-  // ── scroll state ───────────────────────────────────────────────────
-  const [mergeBlend, setMergeBlend] = useState(0);
-  const [compBlend, setCompBlend] = useState(0);
-  const [hoverAB, setHoverAB] = useState(null); // {a:[], b:[]} — transient preview
-  const [pinnedAB, setPinnedAB] = useState(null); // {key, a:[], b:[]} — click to pin
-  const [askOpen, setAskOpen] = useState(false);
-  const [fitNonce, setFitNonce] = useState(0);
-  // synastry starts calm: the tightest threads only, reveal on demand
-  const [showAllLines, setShowAllLines] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(
-    () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false
-  );
+  }, [compositeId, userId]);
 
   useEffect(() => {
-    const query = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-    if (!query) return undefined;
-    const handleChange = (event) => setReduceMotion(event.matches);
-    query.addEventListener?.('change', handleChange);
-    return () => query.removeEventListener?.('change', handleChange);
+    const handleHashChange = () => setActiveChapter(chapterFromHash());
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const stepFocus = useRef({});
-  const mergeTrackRef = useRef(null);
-  const compTrackRef = useRef(null);
-
-  // continuous choreography tracks, sampled on every spy tick
-  const trackP = (el, container) => {
-    if (!el) return 0;
-    const vh = container.clientHeight;
-    const r = el.getBoundingClientRect();
-    return Math.max(0, Math.min(1, (vh * 0.62 - r.top) / Math.max(1, r.height - vh * 0.25)));
-  };
-  const onFrame = useCallback((container) => {
-    const mergeProgress = trackP(mergeTrackRef.current, container);
-    const compProgress = trackP(compTrackRef.current, container);
-    setMergeBlend(reduceMotion ? Number(mergeProgress >= 0.5) : mergeProgress);
-    setCompBlend(reduceMotion ? Number(compProgress >= 0.5) : compProgress);
-  }, [reduceMotion]);
-
-  const {
-    scrollRef,
-    liveStep,
-    activeAct,
-    jumping,
-    scrollToAct,
-    setStepRef: setStepRefBase,
-  } = useJourneyScroll({ ready: !loading, onFrame });
+  useEffect(() => {
+    window.requestAnimationFrame(() => {
+      document.querySelector(`[data-chapter="${activeChapter}"]`)?.scrollIntoView({
+        block: 'nearest',
+        inline: 'center',
+        behavior: 'auto',
+      });
+    });
+  }, [activeChapter]);
 
   const aName = firstName(relationship?.userA_name);
   const bName = firstName(relationship?.userB_name);
-
-  // ── chart data ─────────────────────────────────────────────────────
-  const aPlanets = relationship?.userA_birthChart?.planets;
-  const bPlanets = relationship?.userB_birthChart?.planets;
+  const aPlanets = useMemo(
+    () => relationship?.userA_birthChart?.planets || [],
+    [relationship?.userA_birthChart?.planets]
+  );
+  const bPlanets = useMemo(
+    () => relationship?.userB_birthChart?.planets || [],
+    [relationship?.userB_birthChart?.planets]
+  );
+  const compositePlanets = useMemo(
+    () => relationship?.compositeChart?.planets || [],
+    [relationship?.compositeChart?.planets]
+  );
   const aPlacements = useMemo(() => toChartScenePlacements(aPlanets), [aPlanets]);
   const bPlacements = useMemo(() => toChartScenePlacements(bPlanets), [bPlanets]);
-  const synAspects = useMemo(
+  const synastryAspects = useMemo(
     () => toSynastrySceneAspects(relationship?.synastryAspects),
     [relationship?.synastryAspects]
   );
   const compositePlacements = useMemo(
-    () => toChartScenePlacements(relationship?.compositeChart?.planets),
-    [relationship?.compositeChart?.planets]
+    () => toChartScenePlacements(compositePlanets),
+    [compositePlanets]
   );
   const compositeAspects = useMemo(
     () => toChartSceneAspects(relationship?.compositeChart?.aspects),
     [relationship?.compositeChart?.aspects]
   );
+  const knownNames = useMemo(
+    () => [...new Set([...aPlanets, ...bPlanets].map((planet) => planet.name))],
+    [aPlanets, bPlanets]
+  );
 
-  const knownNames = useMemo(() => {
-    const names = new Set();
-    (aPlanets || []).forEach((p) => names.add(p.name));
-    (bPlanets || []).forEach((p) => names.add(p.name));
-    return [...names];
-  }, [aPlanets, bPlanets]);
-
-  // ── analysis data ──────────────────────────────────────────────────
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
   const clusters = clusterAnalysis?.clusters;
   const overall = clusterAnalysis?.overall;
-  // the relationship's archetype (label + short blurb) rides the same
-  // analysis document the journey already loads
   const archetype = useMemo(() => getRelationshipCardSummary(overall), [overall]);
   const scoredItems = useMemo(
-    () =>
-      relationship?.scoredItems ||
-      relationship?.clusterAnalysis?.scoredItems ||
-      relationship?.clusterScoring?.scoredItems ||
-      [],
+    () => relationship?.scoredItems || relationship?.clusterAnalysis?.scoredItems || relationship?.clusterScoring?.scoredItems || [],
     [relationship]
   );
   const completeAnalysis = relationship?.completeAnalysis;
-  // per-cluster analysis arrives as three panels:
-  // completeAnalysis[cluster].synastry.{supportPanel,challengePanel,synthesisPanel}
-  const clusterPanels = useCallback(
-    (key) => {
-      if (!completeAnalysis) return null;
-      const hit = Object.entries(completeAnalysis).find(([k]) =>
-        k.toLowerCase().includes(key.toLowerCase())
-      );
-      const v = hit?.[1];
-      if (!v) return null;
-      if (typeof v === 'string') return { synthesis: v };
-      const syn = v.synastry || v;
-      const panels = {
-        support: syn.supportPanel || null,
-        challenge: syn.challengePanel || null,
-        synthesis: syn.synthesisPanel || v.analysis || v.interpretation || null,
-      };
-      return panels.support || panels.challenge || panels.synthesis ? panels : null;
-    },
-    [completeAnalysis]
-  );
 
-
-  const pillarData = useMemo(() => {
-    if (!clusters) return [];
-    return CLUSTERS.map((c) => {
-      const score = Math.round(clusters?.[c.key]?.score || 0);
-      const factors = scoredItems
-        .map((item) => {
-          const contribution = item.clusterContributions?.find((x) => x.cluster === c.key);
-          if (!contribution || contribution.score === 0) return null;
-          return { ...item, clusterScore: contribution.score };
-        })
-        .filter(Boolean)
-        .sort((x, y) => Math.abs(y.clusterScore) - Math.abs(x.clusterScore))
-        .slice(0, 4);
-      return { ...c, score, factors, panels: clusterPanels(c.key) };
-    });
-  }, [clusters, scoredItems, clusterPanels]);
-
-  // the composite chart's own aspects, tightest first — the closing act
-  // lists the relationship's sky as fully as Synastry lists the cross-talk
-  const compositeRows = useMemo(
-    () =>
-      (relationship?.compositeChart?.aspects || [])
-        .map((a) => ({
-          nameA: a.aspectingPlanet || a.planet1,
-          nameB: a.aspectedPlanet || a.planet2,
-          type: a.aspectType,
-          orb: Number(a.orb),
-        }))
-        .filter((r) => r.nameA && r.nameB && Number.isFinite(r.orb))
-        .sort((x, y) => x.orb - y.orb),
-    [relationship?.compositeChart?.aspects]
-  );
-
-  const synastryTop = useMemo(
-    () =>
-      [...synAspects]
-        .sort((x, y) => x.orb - y.orb)
-        .map((aspect) => ({
-          nameA: fromSceneBodyName(aspect.bodyA),
-          nameB: fromSceneBodyName(aspect.bodyB),
-          type: aspect.type,
-          orb: aspect.orb,
-        })),
-    [synAspects]
-  );
-
-  // ── emphasis: hover preview > pinned thread > centered step's focus ─
-  const focus = hoverAB || pinnedAB || stepFocus.current[liveStep] || null;
-  const highlightBodies = useMemo(
-    () => (focus?.a?.length ? toSceneBodyNames(focus.a) : undefined),
-    [focus]
-  );
-  const highlightSecondaryBodies = useMemo(
-    () => (focus?.b?.length ? toSceneBodyNames(focus.b) : undefined),
-    [focus]
-  );
-
-  // the sky draws only the tightest threads by default; a hovered or
-  // pinned row (or factor pill) pulls its aspect into view even when
-  // it's filtered out
-  const sceneSynAspects = useMemo(() => {
-    if (showAllLines || synAspects.length <= 10) return synAspects;
-    const shown = new Set(
-      [...synAspects].sort((x, y) => x.orb - y.orb).slice(0, 10)
+  const clusterPanels = useCallback((key) => {
+    if (!completeAnalysis) return null;
+    const entry = Object.entries(completeAnalysis).find(([name]) =>
+      name.toLowerCase().includes(key.toLowerCase())
     );
-    const iso = hoverAB || pinnedAB;
-    if (iso?.a?.length || iso?.b?.length) {
-      const a = new Set(toSceneBodyNames(iso.a) || []);
-      const b = new Set(toSceneBodyNames(iso.b) || []);
-      synAspects.forEach((x) => {
-        if ((a.has(x.bodyA) && b.has(x.bodyB)) || (a.has(x.bodyB) && b.has(x.bodyA))) {
-          shown.add(x);
-        }
+    const value = entry?.[1];
+    if (!value) return null;
+    if (typeof value === 'string') return { synthesis: value };
+    const source = value.synastry || value;
+    const panels = {
+      support: source.supportPanel || null,
+      challenge: source.challengePanel || null,
+      synthesis: source.synthesisPanel || value.analysis || value.interpretation || null,
+    };
+    return panels.support || panels.challenge || panels.synthesis ? panels : null;
+  }, [completeAnalysis]);
+
+  const pillarData = useMemo(() => CLUSTERS.map((cluster) => {
+    const score = Math.round(clusters?.[cluster.key]?.score || 0);
+    const factors = scoredItems
+      .map((item) => {
+        const contribution = item.clusterContributions?.find((entry) => entry.cluster === cluster.key);
+        return contribution?.score ? { ...item, clusterScore: contribution.score } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => Math.abs(b.clusterScore) - Math.abs(a.clusterScore))
+      .slice(0, 5);
+    return { ...cluster, score, factors, panels: clusterPanels(cluster.key) };
+  }), [clusterPanels, clusters, scoredItems]);
+
+  const synastryRows = useMemo(() => [...synastryAspects]
+    .sort((a, b) => a.orb - b.orb)
+    .map((aspect) => ({
+      ...aspect,
+      nameA: fromSceneBodyName(aspect.bodyA),
+      nameB: fromSceneBodyName(aspect.bodyB),
+    })), [synastryAspects]);
+
+  const compositeRows = useMemo(() => (relationship?.compositeChart?.aspects || [])
+    .map((aspect) => ({
+      nameA: aspect.aspectingPlanet || aspect.planet1,
+      nameB: aspect.aspectedPlanet || aspect.planet2,
+      type: aspect.aspectType,
+      orb: Number(aspect.orb),
+    }))
+    .filter((aspect) => aspect.nameA && aspect.nameB && Number.isFinite(aspect.orb))
+    .sort((a, b) => a.orb - b.orb), [relationship?.compositeChart?.aspects]);
+
+  const partnerItems = useMemo(() => [
+    { id: 'a', title: aName, payload: { name: aName, planets: aPlanets, blurb: relationship?.userA_romanticBlurb, side: 'a' } },
+    { id: 'b', title: bName, payload: { name: bName, planets: bPlanets, blurb: relationship?.userB_romanticBlurb, side: 'b' } },
+  ], [aName, aPlanets, bName, bPlanets, relationship]);
+
+  const pillarItems = useMemo(() => pillarData.map((pillar) => ({
+    id: pillar.key,
+    title: pillar.key,
+    payload: pillar,
+  })), [pillarData]);
+
+  const compositeItems = useMemo(() => orderedPlacements(compositePlanets).map((planet) => ({
+    id: planet.name,
+    title: planet.name,
+    payload: planet,
+  })), [compositePlanets]);
+
+  useEffect(() => {
+    if (!activeCompositeBody && compositeItems[0]) setActiveCompositeBody(compositeItems[0].id);
+  }, [activeCompositeBody, compositeItems]);
+
+  const goToChapter = useCallback((chapterId) => {
+    setActiveChapter(chapterId);
+    setHoverAB(null);
+    setPinnedAB(null);
+    window.history.replaceState(null, '', `#${chapterId}`);
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+    window.requestAnimationFrame(() => {
+      document.querySelector(`[data-chapter="${chapterId}"]`)?.scrollIntoView({
+        block: 'nearest',
+        inline: 'center',
+        behavior: reduced ? 'auto' : 'smooth',
       });
-    }
-    return synAspects.filter((x) => shown.has(x));
-  }, [synAspects, showAllLines, hoverAB, pinnedAB]);
+    });
+  }, []);
 
-  const setStepRef = (id, act, focusAB) => {
-    if (focusAB) stepFocus.current[id] = focusAB;
-    return setStepRefBase(id, act);
-  };
+  const pinFocus = useCallback((key, a = [], b = []) => {
+    setPinnedAB((current) => current?.key === key ? null : { key, a, b });
+  }, []);
 
-  // one interaction grammar, shared with the reader: hover previews a
-  // thread transiently, click pins it (click again — or scroll on — to
-  // release). Focus mirrors hover so the same preview works by keyboard.
-  const isoRow = (key, a, b) => ({
-    onMouseEnter: () => setHoverAB({ a: a || [], b: b || [] }),
+  const focusProps = (key, a = [], b = []) => ({
+    onMouseEnter: () => setHoverAB({ a, b }),
     onMouseLeave: () => setHoverAB(null),
-    onFocus: () => setHoverAB({ a: a || [], b: b || [] }),
+    onFocus: () => setHoverAB({ a, b }),
     onBlur: () => setHoverAB(null),
-    onClick: () =>
-      setPinnedAB((prev) =>
-        prev?.key === key ? null : { key, a: a || [], b: b || [] }
-      ),
+    onClick: () => pinFocus(key, a, b),
     'aria-pressed': pinnedAB?.key === key,
   });
-  const isoClass = (key, base) =>
-    pinnedAB?.key === key ? `${base} on` : base;
 
-  // factor prose names both partners' planets; light them on both rings
-  const factorIso = (key, item) => {
-    const text = item.description || item.reason || item.label || '';
-    const names = mentionsIn(text, knownNames);
-    return isoRow(key, names, names);
+  const activePillarData = pillarData.find((pillar) => pillar.key === activePillar);
+  const chapterFocus = useMemo(() => {
+    if (activeChapter === 'skies') {
+      const names = (activePartner === 'a' ? aPlanets : bPlanets).map((planet) => planet.name);
+      return activePartner === 'a' ? { a: names, b: [] } : { a: [], b: names };
+    }
+    if (activeChapter === 'analysis' && activePillarData) {
+      const names = [...new Set(activePillarData.factors.flatMap((item) =>
+        mentionsIn(item.description || item.reason || item.label || '', knownNames)
+      ))];
+      return { a: names, b: names };
+    }
+    if (activeChapter === 'composite' && activeCompositeBody) {
+      return { a: [activeCompositeBody], b: [] };
+    }
+    return null;
+  }, [aPlanets, activeChapter, activeCompositeBody, activePartner, activePillarData, bPlanets, knownNames]);
+
+  const askFocus = useMemo(() => {
+    const result = { a: [], b: [] };
+    askSelection.forEach((element) => {
+      const payload = element.payload || element;
+      if (payload.chartFocus) {
+        result.a.push(...(payload.chartFocus.a || []));
+        result.b.push(...(payload.chartFocus.b || []));
+        return;
+      }
+      const names = mentionsIn(
+        `${element.label || ''} ${payload.description || payload.reason || ''}`,
+        knownNames
+      );
+      result.a.push(...names);
+      result.b.push(...names);
+    });
+    return { a: [...new Set(result.a)], b: [...new Set(result.b)] };
+  }, [askSelection, knownNames]);
+
+  const focus = useMemo(
+    () => hoverAB || pinnedAB || (activeChapter === 'ask' ? askFocus : chapterFocus) || {},
+    [activeChapter, askFocus, chapterFocus, hoverAB, pinnedAB]
+  );
+  const highlightA = focus.a?.length ? toSceneBodyNames(focus.a) : undefined;
+  const highlightB = focus.b?.length ? toSceneBodyNames(focus.b) : undefined;
+  const sceneBlend = activeChapter === 'overview' || activeChapter === 'skies' ? 0 : 1;
+  const sceneComp = activeChapter === 'composite' ? 1 : 0;
+  const visibleSynastryAspects = useMemo(() => {
+    if (showAllLines || synastryAspects.length <= 10) return synastryAspects;
+    const top = new Set([...synastryAspects].sort((a, b) => a.orb - b.orb).slice(0, 10));
+    if (focus.a?.length || focus.b?.length) {
+      const namesA = new Set(toSceneBodyNames(focus.a || []) || []);
+      const namesB = new Set(toSceneBodyNames(focus.b || []) || []);
+      synastryAspects.forEach((aspect) => {
+        if (namesA.has(aspect.bodyA) && namesB.has(aspect.bodyB)) top.add(aspect);
+      });
+    }
+    return synastryAspects.filter((aspect) => top.has(aspect));
+  }, [focus, showAllLines, synastryAspects]);
+
+  const baseScene = {
+    a: aPlacements,
+    b: bPlacements,
+    nameA: aName,
+    nameB: bName,
+    compositePlacements,
+    compositeAspects,
+    synastryAspects: visibleSynastryAspects,
   };
+
+  const handleSceneBody = useCallback((placement, side) => {
+    const name = fromSceneBodyName(placement.body);
+    if (!name) return;
+    pinFocus(`chart-${side}-${name}`, side === 'a' ? [name] : [], side === 'b' ? [name] : []);
+  }, [pinFocus]);
+
+  const toggleAskContext = useCallback((element) => {
+    setAskExternalToggle({ element, nonce: `${Date.now()}-${Math.random()}` });
+  }, []);
+
+  const handleAskBody = useCallback((placement, side) => {
+    const name = fromSceneBodyName(placement.body);
+    if (!name) return;
+    const owner = side === 'a' ? aName : bName;
+    const sourcePlanet = (side === 'a' ? aPlanets : bPlanets).find((planet) => planet.name === name);
+    const payload = {
+      source: 'synastryHousePlacement',
+      type: 'relationship-placement',
+      description: `${owner}'s ${name}${sourcePlanet?.sign ? ` in ${sourcePlanet.sign}` : ''}`,
+      owner,
+      planet: name,
+      chartFocus: side === 'a' ? { a: [name], b: [] } : { a: [], b: [name] },
+    };
+    toggleAskContext({
+      group: 'relationship',
+      type: payload.type,
+      key: `ask-${side}-${placement.body}`,
+      label: payload.description,
+      meta: payload.source,
+      payload,
+    });
+  }, [aName, aPlanets, bName, bPlanets, toggleAskContext]);
+
+  const handleAskAspect = useCallback((aspect) => {
+    const nameA = fromSceneBodyName(aspect.bodyA);
+    const nameB = fromSceneBodyName(aspect.bodyB);
+    if (!nameA || !nameB) return;
+    const payload = {
+      source: 'synastry',
+      type: 'relationship-aspect',
+      description: `${aName}'s ${nameA} ${aspect.type} ${bName}'s ${nameB}`,
+      aspectType: aspect.type,
+      orb: aspect.orb,
+      chartFocus: { a: [nameA], b: [nameB] },
+    };
+    toggleAskContext({
+      group: 'relationship',
+      type: payload.type,
+      key: `ask-aspect-${aspect.bodyA}-${aspect.type}-${aspect.bodyB}`,
+      label: payload.description,
+      meta: payload.source,
+      payload,
+    });
+  }, [aName, bName, toggleAskContext]);
 
   if (loading || error) {
     return (
@@ -354,432 +478,353 @@ function RelationshipJourneyPage() {
     );
   }
 
-  const act = ACTS.find((x) => x.id === activeAct) || ACTS[0];
-  const sceneMode = act.mode;
-  const hasScene = aPlacements.length > 0 && bPlacements.length > 0;
-  // legacy records store a bare number; scored records an object
   const overallScore = Number.isFinite(overall) ? overall : archetype.score;
-  const overallLabel = Number.isFinite(overallScore)
-    ? `Pattern index · ${Math.round(overallScore)}%`
-    : null;
-
-  // camera widens to hold both separated wheels, tightens as they merge
-  const separatedFitRadius = window.innerWidth > 900 ? 16 : 13.8;
-  const fitRadius = separatedFitRadius - (separatedFitRadius - 5.9) * mergeBlend;
-
-  const sceneProps = {
-    natal: [],
-    natalAspects: [],
-    relationship: {
-      a: aPlacements,
-      b: bPlacements,
-      nameA: aName,
-      nameB: bName,
-      blend: mergeBlend,
-      comp: compBlend,
-      compositePlacements,
-      compositeAspects,
-      synastryAspects: sceneSynAspects,
-      highlightA: compBlend > 0.5 ? highlightBodies : highlightBodies,
-      highlightB: compBlend > 0.5 ? undefined : highlightSecondaryBodies,
-    },
-  };
+  const overallLabel = Number.isFinite(overallScore) ? `Pattern index · ${Math.round(overallScore)}%` : null;
+  const chart = (
+    <RelationshipChart
+      relationship={baseScene}
+      fitNonce={fitNonce}
+      blend={sceneBlend}
+      comp={sceneComp}
+      highlightA={highlightA}
+      highlightB={highlightB}
+      onHoverBody={(placement, side) => {
+        if (!placement) setHoverAB(null);
+        else {
+          const name = fromSceneBodyName(placement.body);
+          setHoverAB(side === 'a' ? { a: [name], b: [] } : { a: [], b: [name] });
+        }
+      }}
+      onSelectBody={handleSceneBody}
+      onRecenter={() => setFitNonce((value) => value + 1)}
+    />
+  );
+  const compactChart = (
+    <RelationshipChart
+      relationship={baseScene}
+      fitNonce={fitNonce}
+      blend={0}
+      compact
+      showRecenter={false}
+    />
+  );
+  const askChart = (
+    <RelationshipChart
+      relationship={baseScene}
+      fitNonce={fitNonce}
+      blend={1}
+      highlightA={askFocus.a.length ? toSceneBodyNames(askFocus.a) : undefined}
+      highlightB={askFocus.b.length ? toSceneBodyNames(askFocus.b) : undefined}
+      onSelectBody={handleAskBody}
+      onSelectAspect={handleAskAspect}
+      onRecenter={() => setFitNonce((value) => value + 1)}
+    />
+  );
 
   return (
-    <div className="journey-page journey-page--relationship">
-      <div
-        className={`journey-scene journey-scene--${sceneMode}${jumping ? ' journey-scene--jumping' : ''}`}
-      >
-        {hasScene && (
-          <ChartScene
-            {...sceneProps}
-            fitRadius={fitRadius}
-            fitNonce={fitNonce}
-            disableZoom
-            paused={sceneMode === 'hidden'}
-            coveredRightPx={
-              sceneMode === 'full' && window.innerWidth > 900
-                ? Math.min(300, window.innerWidth * 0.28)
-                : 0
-            }
-          />
-        )}
-      </div>
-
-      <div className="journey-topbar">
-        <button
-          className="reader-bar__back"
-          onClick={() => navigate(`/dashboard/${userId}/relationship/${compositeId}`)}
-        >
-          ← Classic view
-        </button>
-        <div className="journey-identity">
-          <span className="journey-identity__name">
-            {aName} <span className="rj-amp">&amp;</span> {bName}
-          </span>
-          {overallLabel && <span className="journey-identity__meta">{overallLabel}</span>}
-        </div>
-        <span className="journey-brand">Stellium</span>
-      </div>
-
-      {activeAct !== 'hero' && (
-        <div className="journey-actbar" key={ACT_TITLES[activeAct]}>
-          <span>{ACT_TITLES[activeAct]}</span>
-        </div>
-      )}
-
-      <nav className="journey-rail" aria-label="Relationship reading chapters">
-        {ACTS.filter((a) => a.rail).map((a) => (
+    <div className="birth-journey relationship-reader" style={{ '--birth-nebula': 'url(/NewNebulae.png)' }}>
+      <header className="birth-journey-header">
+        <div className="birth-journey-header__main">
           <button
-            key={a.id}
-            className={
-              activeAct === a.id || (activeAct === 'hero' && a.id === 'overview') ? 'on' : ''
-            }
-            aria-current={activeAct === a.id ? 'step' : undefined}
-            aria-label={`Go to ${a.rail}`}
-            onClick={() => scrollToAct(a.id)}
+            type="button"
+            className="birth-journey-brand"
+            onClick={() => navigate(`/dashboard/${userId}/relationship/${compositeId}`)}
+            title="Return to classic relationship view"
           >
-            <span className="dot" aria-hidden="true" />
-            <span className="nm">{a.rail}</span>
+            <span aria-hidden="true">☼</span> Stellium
           </button>
-        ))}
-      </nav>
-
-      {sceneMode !== 'hidden' && (
-        <button
-          className="journey-recenter"
-          title="Recenter the sky"
-          onClick={() => setFitNonce((n) => n + 1)}
-        >
-          <span aria-hidden="true">⌖</span>
-          <span className="journey-recenter__label">Recenter</span>
-        </button>
-      )}
-
-      <div
-        className={`journey-scroll${sceneMode === 'hidden' ? '' : ' journey-scroll--passthrough'}`}
-        ref={scrollRef}
-      >
-        <div className="journey-body">
-          <section
-            className={`journey-step journey-step--hero${liveStep === 'hero' ? ' live' : ''}`}
-            ref={setStepRef('hero')}
-          >
-            <div className="journey-chapter">The Relationship Reading</div>
-            <h1>
-              {aName} <span className="rj-amp">&amp;</span> {bName}
-            </h1>
-            {overallLabel && <div className="journey-meta">{overallLabel}</div>}
-            <p className="journey-lede">Two charts. Scroll, and watch them meet.</p>
-          </section>
-
-          <section
-            className={`journey-step journey-step--wide${liveStep === 'overview' ? ' live' : ''}`}
-            ref={setStepRef('overview')}
-          >
-            <div className="journey-chapter">I · Overview</div>
-            {archetype.cardHeadline && (
-              <div className="rj-arch">
-                {archetype.cardHeadline}
-                {archetype.tier && <span className="rj-arch__tier">{archetype.tier}</span>}
-              </div>
-            )}
-            {archetype.blurb && <p className="rj-arch__blurb">{archetype.blurb}</p>}
-            {overallLabel && (
-              <p className="rj-score-note">
-                The pattern index summarizes the themes found in this analysis. It is context,
-                not a verdict on the relationship.
-              </p>
-            )}
-            {(relationship?.initialOverview || clusterPanels('overview')?.synthesis || '')
-              .split(/\n\s*\n|\n/)
-              .map((t) => t.trim())
-              .filter(Boolean)
-              .map((t, i) => (
-                <p key={i}>{t}</p>
-              ))}
-            <p className="journey-lede">Those are the claims. First, meet the two skies.</p>
-          </section>
-
-          {/* ── II · Two Skies ── */}
-          <section
-            className={`journey-step journey-step--panel rj-stage-step${liveStep === 'sky-a' ? ' live' : ''}`}
-            ref={setStepRef('sky-a', 'skies')}
-          >
-            <div className="rj-pname rj-pname--a">{aName}</div>
-            {relationship?.userA_romanticBlurb && (
-              <p className="rj-pblurb">{relationship.userA_romanticBlurb}</p>
-            )}
-            <p>
-              This is {aName}&rsquo;s sky, whole — every placement below sits on the wheel
-              in the chart. Select a placement to find it.
-            </p>
-            {orderedPlacements(aPlanets).map((p) => (
-              <button type="button" className={isoClass(`a-${p.name}`, 'arow')} key={p.name} {...isoRow(`a-${p.name}`, [p.name], [])}>
-                <span className="at">{p.name}</span>
-                <span className="an">{p.sign}</span>
-                <span className="orb">{p.house ? `House ${p.house}` : ''}</span>
-              </button>
-            ))}
-          </section>
-
-          <section
-            className={`journey-step journey-step--panel${liveStep === 'sky-b' ? ' live' : ''}`}
-            ref={setStepRef('sky-b', 'skies')}
-          >
-            <div className="rj-pname rj-pname--b">{bName}</div>
-            {relationship?.userB_romanticBlurb && (
-              <p className="rj-pblurb">{relationship.userB_romanticBlurb}</p>
-            )}
-            <p>
-              And this is {bName}&rsquo;s — this wheel turns beside {aName}&rsquo;s, complete
-              in itself. Keep scrolling, and the two skies merge.
-            </p>
-            {orderedPlacements(bPlanets).map((p) => (
-              <button type="button" className={isoClass(`b-${p.name}`, 'arow')} key={p.name} {...isoRow(`b-${p.name}`, [], [p.name])}>
-                <span className="at">{p.name}</span>
-                <span className="an">{p.sign}</span>
-                <span className="orb">{p.house ? `House ${p.house}` : ''}</span>
-              </button>
-            ))}
-          </section>
-
-          {/* merge track: scroll drives the blend */}
-          <div className="rj-track" ref={mergeTrackRef}>
-            <section
-              className={`journey-step journey-step--panel rj-capstep${liveStep === 'cap-merge-1' ? ' live' : ''}`}
-              ref={setStepRef('cap-merge-1', 'skies')}
-            >
-              <p className="rj-cap">Now bring them together.</p>
-            </section>
-            <section
-              className={`journey-step journey-step--panel rj-capstep${liveStep === 'cap-merge-2' ? ' live' : ''}`}
-              ref={setStepRef('cap-merge-2', 'synastry')}
-            >
-              <p className="rj-cap">
-                {bName}&rsquo;s sky settles into the inner ring. Every line you see is a
-                conversation between one of {aName}&rsquo;s planets and one of {bName}&rsquo;s.
-              </p>
-            </section>
+          <div className="birth-journey-identity">
+            <strong>{aName} <span className="rj-amp">&amp;</span> {bName}</strong>
+            {overallLabel && <span>{overallLabel}</span>}
           </div>
+          <button type="button" className="birth-journey-ask" onClick={() => goToChapter('ask')}>
+            <span aria-hidden="true">✦</span> Ask Stellium
+          </button>
+        </div>
+        <nav className="birth-journey-nav relationship-reader-nav" aria-label="Relationship reading chapters">
+          {CHAPTERS.map((chapter, index) => (
+            <button
+              type="button"
+              key={chapter.id}
+              className={activeChapter === chapter.id ? 'on' : ''}
+              aria-current={activeChapter === chapter.id ? 'step' : undefined}
+              data-chapter={chapter.id}
+              onClick={() => goToChapter(chapter.id)}
+            >
+              <span>{index + 1}</span>
+              <strong>{chapter.label}</strong>
+            </button>
+          ))}
+        </nav>
+      </header>
 
-          {/* ── III · Synastry ── */}
-          <section
-            className={`journey-step journey-step--panel rj-stage-step${liveStep === 'synastry' ? ' live' : ''}`}
-            ref={setStepRef('synastry', 'synastry')}
-          >
-            <div className="journey-chapter">III · Synastry</div>
-            <p>
-              {synAspects.length} chart-supported cross-aspects between {aName}&rsquo;s planets
-              and {bName}&rsquo;s, tightest first. Select a row to isolate and pin that thread:
-            </p>
-            {synAspects.length > 10 && (
-              <button
-                className="rj-linetoggle"
-                type="button"
-                aria-pressed={showAllLines}
-                onClick={() => setShowAllLines((v) => !v)}
-              >
-                {showAllLines
-                  ? `Showing all ${synAspects.length} lines · show the tightest 10`
-                  : `Sky shows the 10 tightest · draw all ${synAspects.length}`}
-              </button>
-            )}
-            {synastryTop.map((r, i) => (
-              <button type="button" className={isoClass(`syn-${i}`, 'arow')} key={i} {...isoRow(`syn-${i}`, [r.nameA], [r.nameB])}>
-                <span className="at">{String(r.type || '').toLowerCase()}</span>
-                <span className="an">
-                  {aName}&rsquo;s {r.nameA} → {bName}&rsquo;s {r.nameB}
-                </span>
-                <span className="orb">{r.orb.toFixed(1)}°</span>
-              </button>
-            ))}
-          </section>
+      <main className="birth-journey-main">
+        {activeChapter === 'overview' && (
+          <article className="birth-journey-chapter">
+            <ChapterHeader label="Overview" />
+            <div className="birth-journey-split birth-journey-split--overview">
+              <section className="birth-journey-copy">
+                <h1>{archetype.cardHeadline || `${aName} and ${bName}`}</h1>
+                {archetype.blurb && <p className="relationship-reader-lede">{archetype.blurb}</p>}
+                {paragraphs(relationship?.initialOverview || clusterPanels('overview')?.synthesis)
+                  .slice(0, 4)
+                  .map((text, index) => <p key={index}>{text}</p>)}
+                {overallLabel && (
+                  <p className="relationship-reader-note">
+                    The pattern index summarizes detected themes. It is context, not a verdict on the relationship.
+                  </p>
+                )}
+                <button type="button" className="birth-journey-primary" onClick={() => goToChapter('skies')}>
+                  Meet the two skies →
+                </button>
+              </section>
+              {compactChart}
+            </div>
+          </article>
+        )}
 
-          {/* ── IV · 360 Analysis: five pillars ── */}
-          <section
-            className={`journey-step journey-step--panel rj-stage-step${liveStep === 'pillars' ? ' live' : ''}`}
-            ref={setStepRef('pillars', 'pillars')}
-          >
-            <div className="journey-chapter">IV · 360 Analysis</div>
-            <p className="journey-lede">
-              Five dimensions of the same sky. Each score is an argument — its key factors
-              light up the exact lines that make it. Scores describe the strength of the
-              detected patterns, not compatibility grades.
-            </p>
-          </section>
-
-          {pillarData.map((pl) => {
-            const focusNames = [
-              ...new Set(
-                pl.factors.flatMap((f) =>
-                  mentionsIn(f.description || f.reason || f.label || '', knownNames)
-                )
-              ),
-            ];
-            return (
-              <div className="journey-domain-group" key={pl.key}>
-                {/* score + key factors ride the sticky header, not the column */}
-                <div
-                  className="journey-domain-sticky rj-pillar-sticky"
-                  style={{ '--tc': pl.tone }}
-                >
-                  <div className="rj-pillar-sticky__row">
-                    <span className="pe">{pl.emoji}</span>
-                    <span>{pl.key}</span>
-                    <span className="pv">{pl.score}%</span>
-                  </div>
-                  {pl.factors.length > 0 && (
-                    <div className="rj-pillar-sticky__factors">
-                      {pl.factors.map((f, i) => (
-                        <button type="button" className={isoClass(`f-${pl.key}-${i}`, 'rj-fpill')} key={i} {...factorIso(`f-${pl.key}-${i}`, f)}>
-                          {f.description || f.reason || f.label}
-                          <em className={f.clusterScore < 0 ? 'neg' : ''}>
-                            {f.clusterScore > 0 ? '+' : ''}
-                            {Math.round(f.clusterScore)}
-                          </em>
+        {activeChapter === 'skies' && (
+          <article className="birth-journey-chapter">
+            <DetailNavigator
+              items={partnerItems}
+              activeId={activePartner}
+              groupLabel="Partner charts"
+              chapterLabel="Two Skies"
+              chapterHelper="Read each chart before bringing them together"
+              onActiveChange={(id) => {
+                setActivePartner(id);
+                setHoverAB(null);
+                setPinnedAB(null);
+              }}
+              renderItem={({ payload: partner }) => (
+                <div className="birth-journey-split birth-journey-split--workspace">
+                  {chart}
+                  <section className="birth-journey-copy relationship-reader-copy">
+                    <h1 data-detail-heading tabIndex="-1">{partner.name}&rsquo;s sky</h1>
+                    {partner.blurb && <p className="relationship-reader-lede">{partner.blurb}</p>}
+                    <p>Select a placement to locate it on the chart and hold its emphasis.</p>
+                    <div className="relationship-placement-list">
+                      {orderedPlacements(partner.planets).map((planet) => (
+                        <button
+                          type="button"
+                          key={planet.name}
+                          className={pinnedAB?.key === `${partner.side}-${planet.name}` ? 'on' : ''}
+                          {...focusProps(
+                            `${partner.side}-${planet.name}`,
+                            partner.side === 'a' ? [planet.name] : [],
+                            partner.side === 'b' ? [planet.name] : []
+                          )}
+                        >
+                          <PlanetIcon name={planet.name} size={17} />
+                          <strong>{planet.name}</strong>
+                          <span>{planet.sign}</span>
+                          <small>{planet.house ? `House ${planet.house}` : ''}</small>
                         </button>
                       ))}
                     </div>
-                  )}
+                  </section>
                 </div>
-                <section
-                  className={`journey-step journey-step--panel${liveStep === `pillar-${pl.key}` ? ' live' : ''}`}
-                  ref={setStepRef(`pillar-${pl.key}`, 'pillars', { a: focusNames, b: focusNames })}
-                >
-                  {pl.panels?.support && (
-                    <div className="rj-panelblock rj-panelblock--support">
-                      <div className="pk">Support Patterns</div>
-                      {pl.panels.support.split(/\n\s*\n|\n/).map((t) => t.trim()).filter(Boolean).map((t, i) => (
-                        <p key={i}>{t}</p>
-                      ))}
-                    </div>
-                  )}
-                  {pl.panels?.challenge && (
-                    <div className="rj-panelblock rj-panelblock--challenge">
-                      <div className="pk">Growth Challenges</div>
-                      {pl.panels.challenge.split(/\n\s*\n|\n/).map((t) => t.trim()).filter(Boolean).map((t, i) => (
-                        <p key={i}>{t}</p>
-                      ))}
-                    </div>
-                  )}
-                  {pl.panels?.synthesis && (
-                    <div className="rj-panelblock rj-panelblock--synthesis">
-                      <div className="pk">Synthesis</div>
-                      {pl.panels.synthesis.split(/\n\s*\n|\n/).map((t) => t.trim()).filter(Boolean).map((t, i) => (
-                        <p key={i}>{t}</p>
-                      ))}
-                    </div>
-                  )}
-                </section>
-              </div>
-            );
-          })}
+              )}
+            />
+          </article>
+        )}
 
-          {/* composite track: pairs collapse to midpoints */}
-          <div className="rj-track" ref={compTrackRef}>
-            <section
-              className={`journey-step journey-step--panel rj-capstep${liveStep === 'cap-comp-1' ? ' live' : ''}`}
-              ref={setStepRef('cap-comp-1', 'pillars')}
-            >
-              <p className="rj-cap">
-                One more transformation. Every pair of planets — {aName}&rsquo;s Sun and{' '}
-                {bName}&rsquo;s Sun, their Moons, and every other pair — collapses to its midpoint…
-              </p>
-            </section>
-            <section
-              className={`journey-step journey-step--panel rj-capstep${liveStep === 'cap-comp-2' ? ' live' : ''}`}
-              ref={setStepRef('cap-comp-2', 'composite')}
-            >
-              <p className="rj-cap">
-                …and what remains is the composite chart: not {aName}&rsquo;s sky, not{' '}
-                {bName}&rsquo;s, but the relationship&rsquo;s own.
-              </p>
+        {activeChapter === 'synastry' && (
+          <article className="birth-journey-chapter">
+            <ChapterHeader label="Synastry" rightSlot={`${synastryRows.length} cross-chart aspects`} />
+            <div className="birth-journey-split birth-journey-split--workspace relationship-reader-direct">
+              {chart}
+              <section className="birth-journey-copy relationship-reader-copy">
+                <h1>Where the two charts meet.</h1>
+                <p>
+                  These are the strongest conversations between {aName}&rsquo;s chart and {bName}&rsquo;s. Hover to preview a thread; click to keep it isolated.
+                </p>
+                {synastryAspects.length > 10 && (
+                  <button
+                    type="button"
+                    className="relationship-line-toggle"
+                    aria-pressed={showAllLines}
+                    onClick={() => setShowAllLines((value) => !value)}
+                  >
+                    {showAllLines ? 'Show the 10 tightest lines' : `Draw all ${synastryAspects.length} lines`}
+                  </button>
+                )}
+                <div className="relationship-aspect-list">
+                  {synastryRows.map((aspect, index) => (
+                    <button
+                      type="button"
+                      key={`${aspect.bodyA}-${aspect.type}-${aspect.bodyB}-${index}`}
+                      className={pinnedAB?.key === `syn-${index}` ? 'on' : ''}
+                      {...focusProps(`syn-${index}`, [aspect.nameA], [aspect.nameB])}
+                    >
+                      <span className="relationship-aspect-list__type">{aspect.type}</span>
+                      <strong>{aName}&rsquo;s {aspect.nameA}</strong>
+                      <span aria-hidden="true">→</span>
+                      <strong>{bName}&rsquo;s {aspect.nameB}</strong>
+                      <small>{Number(aspect.orb).toFixed(1)}°</small>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            </div>
+          </article>
+        )}
+
+        {activeChapter === 'analysis' && pillarItems.length > 0 && (
+          <article className="birth-journey-chapter">
+            <DetailNavigator
+              items={pillarItems}
+              activeId={activePillar}
+              groupLabel="Relationship dimensions"
+              chapterLabel="360 Analysis"
+              chapterHelper="Five dimensions of the same relationship"
+              className="detail-navigator--relationship-analysis"
+              onActiveChange={(id) => {
+                setActivePillar(id);
+                setHoverAB(null);
+                setPinnedAB(null);
+              }}
+              renderLabel={(item, selected) => (
+                <>
+                  <span>{item.title}</span>
+                  {selected && <small>{item.payload.score}%</small>}
+                </>
+              )}
+              renderItem={({ payload: pillar }) => (
+                <div className="birth-journey-split birth-journey-split--analysis-detail">
+                  {chart}
+                  <section className="birth-journey-copy relationship-reader-copy" style={{ '--relationship-tone': pillar.tone }}>
+                    <div className="relationship-dimension-heading">
+                      <h1 data-detail-heading tabIndex="-1">{pillar.key}</h1>
+                      <strong>{pillar.score}%</strong>
+                    </div>
+                    <p>Key factors light the placements and threads that support this dimension.</p>
+                    <div className="relationship-factor-list">
+                      {pillar.factors.map((factor, index) => {
+                        const names = mentionsIn(factor.description || factor.reason || factor.label || '', knownNames);
+                        return (
+                          <button
+                            type="button"
+                            key={index}
+                            className={pinnedAB?.key === `factor-${pillar.key}-${index}` ? 'on' : ''}
+                            {...focusProps(`factor-${pillar.key}-${index}`, names, names)}
+                          >
+                            <span>{factor.description || factor.reason || factor.label}</span>
+                            <strong className={factor.clusterScore < 0 ? 'negative' : ''}>
+                              {factor.clusterScore > 0 ? '+' : ''}{Math.round(factor.clusterScore)}
+                            </strong>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {[
+                      ['Support patterns', pillar.panels?.support, 'support'],
+                      ['Growth challenges', pillar.panels?.challenge, 'challenge'],
+                      ['Synthesis', pillar.panels?.synthesis, 'synthesis'],
+                    ].map(([label, content, kind]) => content && (
+                      <section key={kind} className={`relationship-reading-block relationship-reading-block--${kind}`}>
+                        <h2>{label}</h2>
+                        {paragraphs(content).map((text, index) => <p key={index}>{text}</p>)}
+                      </section>
+                    ))}
+                  </section>
+                </div>
+              )}
+            />
+          </article>
+        )}
+
+        {activeChapter === 'composite' && compositeItems.length > 0 && (
+          <article className="birth-journey-chapter">
+            <DetailNavigator
+              items={compositeItems}
+              activeId={activeCompositeBody || compositeItems[0].id}
+              groupLabel="Composite placements"
+              chapterLabel="Composite"
+              chapterHelper="The relationship's chart, one placement at a time"
+              className="detail-navigator--relationship-composite"
+              onActiveChange={(id) => {
+                setActiveCompositeBody(id);
+                setHoverAB(null);
+                setPinnedAB(null);
+              }}
+              renderLabel={(item) => (
+                <>
+                  <PlanetIcon name={item.title} size={17} />
+                  <span>{item.title}</span>
+                </>
+              )}
+              renderItem={({ payload: planet }) => {
+                const bodyAspects = compositeRows.filter((aspect) =>
+                  aspect.nameA === planet.name || aspect.nameB === planet.name
+                );
+                return (
+                  <div className="birth-journey-split birth-journey-split--workspace">
+                    {chart}
+                    <section className="birth-journey-copy relationship-reader-copy">
+                      <h1 data-detail-heading tabIndex="-1">Composite {planet.name} in {planet.sign}</h1>
+                      <p>
+                        This placement belongs to the relationship itself: the midpoint created by both charts working as one system.
+                      </p>
+                      {paragraphs(clusterPanels('composite')?.synthesis).slice(0, 3).map((text, index) => (
+                        <p key={index}>{text}</p>
+                      ))}
+                      {bodyAspects.length > 0 && (
+                        <section className="relationship-composite-aspects">
+                          <h2>Connected aspects</h2>
+                          {bodyAspects.map((aspect, index) => {
+                            const other = aspect.nameA === planet.name ? aspect.nameB : aspect.nameA;
+                            return (
+                              <button
+                                type="button"
+                                key={`${other}-${aspect.type}-${index}`}
+                                className={pinnedAB?.key === `composite-${planet.name}-${index}` ? 'on' : ''}
+                                {...focusProps(`composite-${planet.name}-${index}`, [planet.name, other], [])}
+                              >
+                                <PlanetIcon name={other} size={16} />
+                                <strong>{planet.name} {String(aspect.type).toLowerCase()} {other}</strong>
+                                <small>{aspect.orb.toFixed(1)}°</small>
+                              </button>
+                            );
+                          })}
+                        </section>
+                      )}
+                    </section>
+                  </div>
+                );
+              }}
+            />
+          </article>
+        )}
+
+        <article className="birth-journey-chapter birth-journey-askpage" hidden={activeChapter !== 'ask'}>
+          <ChapterHeader label="Ask Stellium" />
+          <div className="birth-ask-workspace">
+            {activeChapter === 'ask' && askChart}
+            <section className="birth-ask-chat" aria-label="Ask Stellium conversation">
+              <AskStelliumPanel
+                variant="dock"
+                isOpen={activeChapter === 'ask'}
+                onClose={() => goToChapter('composite')}
+                contentType="relationship"
+                contentId={compositeId}
+                relationshipScoredItems={scoredItems}
+                externalToggle={askExternalToggle}
+                onSelectionChange={setAskSelection}
+                contextLabel="About this relationship"
+                placeholderText="Ask about this relationship…"
+                suggestedQuestions={[
+                  'What are our relationship strengths?',
+                  'How can we improve our communication?',
+                  'What challenges should we be aware of?',
+                ]}
+              />
             </section>
           </div>
+        </article>
 
-          {/* ── V · Composite ── */}
-          <section
-            className={`journey-step journey-step--panel rj-stage-step${liveStep === 'composite' ? ' live' : ''}`}
-            ref={setStepRef('composite', 'composite')}
-          >
-            <div className="journey-chapter">V · Composite</div>
-            <div className="rj-chips">
-              {orderedPlacements(relationship?.compositeChart?.planets).map((p) => (
-                <button type="button" className={isoClass(`c-${p.name}`, 'rj-chip')} key={p.name} {...isoRow(`c-${p.name}`, [p.name], [])}>
-                  <div>
-                    <div className="k">Composite {p.name}</div>
-                    <div className="v">
-                      {p.sign}
-                      {typeof p.norm_degree === 'number' && ` · ${Math.round(p.norm_degree)}°`}
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-            {(clusterPanels('composite')?.synthesis || '')
-              .split(/\n\s*\n|\n/)
-              .map((t) => t.trim())
-              .filter(Boolean)
-              .slice(0, 5)
-              .map((t, i) => (
-                <p key={i}>{t}</p>
-              ))}
-            {compositeRows.length > 0 && (
-              <>
-                <p>
-                  The relationship&rsquo;s own {compositeRows.length} aspects, tightest
-                  first. Select a row to isolate and pin that line:
-                </p>
-                {compositeRows.map((r, i) => (
-                  <button type="button" className={isoClass(`ca-${i}`, 'arow')} key={i} {...isoRow(`ca-${i}`, [r.nameA, r.nameB], [])}>
-                    <span className="at">{String(r.type || '').toLowerCase()}</span>
-                    <span className="an">
-                      {r.nameA} → {r.nameB}
-                    </span>
-                    <span className="orb">{r.orb.toFixed(1)}°</span>
-                  </button>
-                ))}
-              </>
-            )}
-          </section>
-
-          {/* ── VI · Ask ── */}
-          <section
-            className={`journey-step journey-step--panel journey-step--syn${liveStep === 'ask' ? ' live' : ''}`}
-            ref={setStepRef('ask', 'ask')}
-          >
-            <div className="journey-chapter">VI · Ask Stellium</div>
-            <p>
-              The reading ends; the sky doesn&rsquo;t. Anything above — {aName}&rsquo;s,
-              {bName}&rsquo;s, or the relationship&rsquo;s own — can be questioned.
-            </p>
-            <button className="journey-open-ask" onClick={() => setAskOpen(true)}>
-              ✦ Ask Stellium about this relationship
-            </button>
-          </section>
-        </div>
-      </div>
-
-      <button className="journey-ask-fab" onClick={() => setAskOpen(true)} aria-label="Ask Stellium">
-        <span className="sp" aria-hidden="true">✦</span>
-        <span className="journey-ask-fab__label">Ask</span>
-      </button>
-
-      <AskStelliumPanel
-        isOpen={askOpen}
-        onClose={() => setAskOpen(false)}
-        contentType="relationship"
-        contentId={compositeId}
-        relationshipScoredItems={scoredItems}
-        contextLabel="About your relationship"
-        placeholderText="Ask about this relationship…"
-        suggestedQuestions={[
-          'What are our relationship strengths?',
-          'How can we improve our communication?',
-          'What challenges should we be aware of?',
-        ]}
-      />
+        <RelationshipFooter activeChapter={activeChapter} onNavigate={goToChapter} />
+      </main>
     </div>
   );
 }
