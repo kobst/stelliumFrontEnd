@@ -10,7 +10,10 @@ const FULL_SPAN_DAYS = 30;
  * on it — playback loops inside the window, scrubbing is clamped to it.
  * Degrades to { frames: null } if the endpoint is unavailable.
  */
-export default function useTransitFrames(natalPlanets, { windowDays = 7, playSeconds = 60 } = {}) {
+export default function useTransitFrames(
+  natalPlanets,
+  { windowDays = 7, playSeconds = 60, startDate = null } = {}
+) {
   const [frames, setFrames] = useState(null);
   const [range, setRange] = useState(null); // the full month-long track
   const [playing, setPlaying] = useState(false);
@@ -22,7 +25,12 @@ export default function useTransitFrames(natalPlanets, { windowDays = 7, playSec
     if (!natalPlanets?.length) return undefined;
     (async () => {
       try {
-        const from = new Date(Date.now() - 6 * 3600000); // back-buffer so "now" is in range
+        const requestedStart = startDate
+          ? Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(startDate) ? `${startDate}T00:00:00` : startDate)
+          : NaN;
+        const from = new Date(
+          Number.isFinite(requestedStart) ? requestedStart : Date.now() - 6 * 3600000
+        );
         const to = new Date(Date.now() + FULL_SPAN_DAYS * 86400000);
         const docs = await getTransitFrames(from.toISOString(), to.toISOString());
         if (cancelled) return;
@@ -41,7 +49,7 @@ export default function useTransitFrames(natalPlanets, { windowDays = 7, playSec
     return () => {
       cancelled = true;
     };
-  }, [natalPlanets]);
+  }, [natalPlanets, startDate]);
 
   // the period's window on the month-long track
   const window_ = useMemo(() => {

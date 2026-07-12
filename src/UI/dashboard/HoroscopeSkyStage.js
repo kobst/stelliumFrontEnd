@@ -15,8 +15,6 @@ const ALL_TRANSIT_BODIES = [
   'saturn', 'uranus', 'neptune', 'pluto',
 ];
 
-const FULL_SPAN_DAYS = 30;
-
 // window size + playback pace per period; the timeline itself is
 // always the full month
 const PERIOD_WINDOWS = {
@@ -25,14 +23,10 @@ const PERIOD_WINDOWS = {
   monthly: { days: 30, playSeconds: 120 },
 };
 
-const PERIOD_CHIPS = [
-  { id: 'daily', label: 'Today' },
-  { id: 'weekly', label: 'This Week' },
-  { id: 'monthly', label: 'This Month' },
-];
-
 const fmtTick = (ms) =>
   new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const fmtHour = (ms) =>
+  new Date(ms).toLocaleTimeString('en-US', { hour: 'numeric' });
 const fmtBarDate = (ms) =>
   new Date(ms).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
@@ -76,8 +70,10 @@ function HoroscopeSkyStage({
   onSkyPick,
   panel,
   panelHeader,
+  subnav,
   period = 'weekly',
-  onPeriodChange,
+  scopeStart,
+  askMode = false,
   onTimeSample,
 }) {
   const window_ = PERIOD_WINDOWS[period] || PERIOD_WINDOWS.weekly;
@@ -95,11 +91,16 @@ function HoroscopeSkyStage({
     useTransitFrames(birthChart?.planets, {
       windowDays: window_.days,
       playSeconds: window_.playSeconds,
+      startDate: scopeStart,
     });
 
   useEffect(() => {
     onTimeSample?.(playMs);
   }, [playMs, onTimeSample]);
+
+  useEffect(() => {
+    if (askMode) setPlaying(false);
+  }, [askMode, setPlaying]);
 
   // ── chips: 'reading' (default) | 'all' | 'custom' ─────────────────
   const readingSceneBodies = useMemo(
@@ -157,18 +158,19 @@ function HoroscopeSkyStage({
       ])
     : undefined;
 
-  const askTargets = useMemo(() => {
-    const names = (askSelection || [])
-      .map((el) => el.payload?.targetPlanet)
-      .filter(Boolean);
-    return toSceneBodyNames(names);
+  const askFocus = useMemo(() => {
+    const selected = askSelection || [];
+    return {
+      transiting: toSceneBodyNames(selected.map((el) => el.payload?.transitingPlanet).filter(Boolean)),
+      target: toSceneBodyNames(selected.map((el) => el.payload?.targetPlanet).filter(Boolean)),
+    };
   }, [askSelection]);
 
   const transitAspectBodies =
-    pinScene?.transiting || hoverTransiting || [...activeBodies];
-  const highlightBodies = pinScene?.target || hoverTarget || askTargets;
+    pinScene?.transiting || hoverTransiting || (askFocus.transiting?.length ? askFocus.transiting : [...activeBodies]);
+  const highlightBodies = pinScene?.target || hoverTarget || askFocus.target;
   const focused =
-    !!pinScene || !!hoverTransiting?.length || activeBodies.size <= 4;
+    !!pinScene || !!hoverTransiting?.length || !!askFocus.transiting?.length || activeBodies.size <= 4;
 
   // pinning an influence scrubs the timeline to its day
   useEffect(() => {
@@ -189,10 +191,10 @@ function HoroscopeSkyStage({
 
   const msFromEvent = (e) => {
     const el = timelineRef.current;
-    if (!el || !range) return null;
+    if (!el || !playWindow) return null;
     const r = el.getBoundingClientRect();
     const frac = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-    return range.start + frac * (range.end - range.start);
+    return playWindow.start + frac * (playWindow.end - playWindow.start);
   };
 
   const aspectsForSelection = (sel) => {
@@ -217,7 +219,17 @@ function HoroscopeSkyStage({
       setSelectedAspects([]);
       return;
     }
-    setSelectedAspects(aspectsForSelection(sel));
+    const aspects = aspectsForSelection(sel);
+    setSelectedAspects(aspects);
+    if (askMode && onSkyPick) onSkyPick(sel, aspects);
+  };
+
+  const inspectAspect = (aspect) => {
+    if (!aspect || !onSkyPick) return;
+    onSkyPick(
+      { body: aspect.bodyA, layer: 'transit', longitude: 0 },
+      [aspect]
+    );
   };
 
   const detailBody = selectedBody || hoveredBody;
@@ -265,21 +277,14 @@ function HoroscopeSkyStage({
     </div>
   );
 
-  const timebar = range && playWindow && (
+  const tickFractions = period === 'daily'
+    ? [0, 0.25, 0.5, 0.75, 1]
+    : period === 'weekly'
+      ? [0, 2 / 7, 4 / 7, 6 / 7, 1]
+      : [0, 7 / 30, 14 / 30, 21 / 30, 1];
+
+  const timebar = range && playWindow && !askMode && (
     <div className="timebar">
-      <div className="timebar__periods" role="tablist">
-        {PERIOD_CHIPS.map((p) => (
-          <button
-            key={p.id}
-            role="tab"
-            aria-selected={period === p.id}
-            className={`timebar__period${period === p.id ? ' active' : ''}`}
-            onClick={() => onPeriodChange?.(p.id)}
-          >
-            {p.label}
-          </button>
-        ))}
-      </div>
       <button
         className="timebar__play"
         onClick={() => setPlaying(!playing)}
@@ -308,21 +313,17 @@ function HoroscopeSkyStage({
         }}
       >
         <div
-          className="timebar__window"
-          style={{
-            width: `${((playWindow.end - playWindow.start) / (range.end - range.start)) * 100}%`,
-          }}
-        />
-        <div
           className="timebar__playhead"
           style={{
-            left: `${((playMs - range.start) / (range.end - range.start)) * 100}%`,
+            left: `${((playMs - playWindow.start) / (playWindow.end - playWindow.start)) * 100}%`,
           }}
         />
         <div className="timebar__ticks">
-          {[0, 7, 14, 21, FULL_SPAN_DAYS].map((d) => (
-            <span key={d} style={{ left: `${(d / FULL_SPAN_DAYS) * 100}%` }}>
-              {fmtTick(range.start + d * 86400000)}
+          {tickFractions.map((fraction) => (
+            <span key={fraction} style={{ left: `${fraction * 100}%` }}>
+              {period === 'daily'
+                ? fmtHour(playWindow.start + fraction * (playWindow.end - playWindow.start) - (fraction === 1 ? 1 : 0))
+                : fmtTick(playWindow.start + fraction * (playWindow.end - playWindow.start) - (fraction === 1 ? 1 : 0))}
             </span>
           ))}
         </div>
@@ -343,6 +344,17 @@ function HoroscopeSkyStage({
         ⌖
       </button>
     </div>
+  );
+
+  const askControls = askMode && (
+    <button
+      type="button"
+      className="ask-sky-recenter"
+      title="Recenter the sky"
+      onClick={() => setFitNonce((n) => n + 1)}
+    >
+      <span aria-hidden="true">⌖</span> Recenter
+    </button>
   );
 
   // ── transit chips (labeled; default = the reading's transits) ─────
@@ -408,6 +420,7 @@ function HoroscopeSkyStage({
 
   return (
     <SkyStage
+      className="sky-stage--horoscope"
       sceneProps={{
         natal,
         natalAspects,
@@ -421,11 +434,13 @@ function HoroscopeSkyStage({
         selectedBody,
         onHoverBody: setHoveredBody,
         onSelectBody: inspectBody,
+        onSelectAspect: inspectAspect,
       }}
+      subnav={subnav}
       topLeft={bodyStrip}
       panel={panel}
       panelHeader={panelHeader}
-      footer={timebar}
+      footer={timebar || askControls}
       overlay={detailOverlay}
     />
   );

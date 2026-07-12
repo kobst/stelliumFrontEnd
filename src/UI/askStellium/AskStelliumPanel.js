@@ -283,6 +283,7 @@ function AskStelliumPanel({
   horoscopePeriod,
   disableHistory = false,
   variant = 'overlay',
+  autoFocus = variant === 'overlay',
   externalElements,
   externalToggle,
   onSelectionChange
@@ -429,10 +430,10 @@ function AskStelliumPanel({
 
   // Focus textarea when panel opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && autoFocus) {
       setTimeout(() => textareaRef.current?.focus(), 300);
     }
-  }, [isOpen]);
+  }, [autoFocus, isOpen]);
 
   // Escape key handler
   useEffect(() => {

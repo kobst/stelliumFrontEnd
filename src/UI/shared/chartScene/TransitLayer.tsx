@@ -81,6 +81,7 @@ interface TransitAspectLineProps {
   to: THREE.Vector3
   targetOpacity: number
   lineWidth: number
+  onSelect?: (aspect: Aspect) => void
 }
 
 function TransitAspectLine({
@@ -89,6 +90,7 @@ function TransitAspectLine({
   to,
   targetOpacity,
   lineWidth,
+  onSelect,
 }: TransitAspectLineProps) {
   const lineRef = useRef<Line2>(null)
   const initialOpacity = useRef(0) // always fades in from nothing
@@ -108,6 +110,10 @@ function TransitAspectLine({
       opacity={initialOpacity.current}
       depthWrite={false}
       blending={THREE.AdditiveBlending}
+      onClick={onSelect ? (event) => {
+        event.stopPropagation()
+        onSelect(aspect)
+      } : undefined}
     />
   )
 }
@@ -127,6 +133,7 @@ interface TransitLayerProps {
   markerStateFor?: (body: string) => MarkerState
   onHoverBody?: (placement: Placement | null) => void
   onSelectBody?: (placement: Placement) => void
+  onSelectAspect?: (aspect: Aspect) => void
 }
 
 /**
@@ -146,6 +153,7 @@ export function TransitLayer({
   markerStateFor,
   onHoverBody,
   onSelectBody,
+  onSelectAspect,
 }: TransitLayerProps) {
   const enabledBodies = useMemo(
     () => (aspectBodies ? new Set(aspectBodies) : null),
@@ -225,6 +233,7 @@ export function TransitLayer({
             to={longitudeToPosition(natal.longitude, NATAL_PLANET_RADIUS)}
             targetOpacity={targetOpacity}
             lineWidth={1 + weight * 2.5}
+            onSelect={onSelectAspect}
           />
         )
       })}

@@ -258,14 +258,34 @@ const PERIOD_OPTIONS = [
   { id: 'monthly', label: 'Monthly', storeKey: 'month',  fetcher: generateMonthlyHoroscope, supportsDate: false }
 ];
 
+const HOME_HORIZONS = [
+  { id: 'today', label: 'Today', period: 'daily' },
+  { id: 'week', label: 'This Week', period: 'weekly' },
+  { id: 'month', label: 'This Month', period: 'monthly' },
+  { id: 'ask', label: 'Ask Stellium', ask: true },
+];
+
+const PERIOD_TO_HORIZON = {
+  daily: 'today',
+  weekly: 'week',
+  monthly: 'month',
+};
+
+const initialHomeHorizon = () => {
+  const hash = window.location.hash.replace('#', '');
+  return HOME_HORIZONS.some((item) => item.id === hash) ? hash : 'today';
+};
+
 function HomePane({ userId, user, entitlements }) {
-  const [period, setPeriod] = useState('daily');
+  const [horizon, setHorizon] = useState(initialHomeHorizon);
+  const [period, setPeriod] = useState(() => {
+    const initial = HOME_HORIZONS.find((item) => item.id === initialHomeHorizon());
+    return initial?.period || 'daily';
+  });
   const [horoscopes, setHoroscopes] = useState({ daily: null, weekly: null, monthly: null });
   const [horoLoading, setHoroLoading] = useState({ daily: false, weekly: false, monthly: false });
   const [horoErrors, setHoroErrors] = useState({ daily: null, weekly: null, monthly: null });
   const [transits, setTransits] = useState([]);
-  // the dock has two voices: the reading and the conversation
-  const [dockMode, setDockMode] = useState('reading');
   // hovered key-influence pill; isolates that transit in the sky
   const [focusTransit, setFocusTransit] = useState(null);
   // clicked (pinned) influence: stays isolated and scrubs to its day
@@ -280,6 +300,45 @@ function HomePane({ userId, user, entitlements }) {
   // the scrubber's current moment; sky clicks resolve against it
   const playheadRef = React.useRef(Date.now());
 
+  const goToHorizon = useCallback((horizonId) => {
+    const next = HOME_HORIZONS.find((item) => item.id === horizonId) || HOME_HORIZONS[0];
+    setHorizon(next.id);
+    if (next.period) setPeriod(next.period);
+    window.history.replaceState(null, '', `#${next.id}`);
+    window.requestAnimationFrame(() => {
+      document.querySelector(`[data-horizon="${next.id}"]`)?.scrollIntoView({
+        block: 'nearest',
+        inline: 'center',
+        behavior: 'auto',
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    window.requestAnimationFrame(() => {
+      document.querySelector('.sky-stage--horoscope')?.scrollTo({ top: 0, behavior: 'auto' });
+      document.querySelector(`[data-horizon="${horizon}"]`)?.scrollIntoView({
+        block: 'nearest',
+        inline: 'center',
+        behavior: 'auto',
+      });
+    });
+  }, [horizon]);
+
+  useEffect(() => {
+    if (!HOME_HORIZONS.some((item) => item.id === window.location.hash.replace('#', ''))) {
+      window.history.replaceState(null, '', '#today');
+    }
+    const handleHashChange = () => {
+      const next = initialHomeHorizon();
+      const config = HOME_HORIZONS.find((item) => item.id === next);
+      setHorizon(next);
+      if (config?.period) setPeriod(config.period);
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   // clicking a body ON THE SKY adds the matching transit as Ask context:
   // a transiting planet pulls its tightest upcoming window; a natal
   // planet pulls the tightest transit hitting it
@@ -293,36 +352,39 @@ function HomePane({ userId, user, entitlements }) {
     if (activeAspects.length) {
       // the aspects actually drawn at the playhead — the sky is the
       // source of truth; backend windows only enrich the payload
-      els = activeAspects.slice(0, 3).map((a) => {
-        const tName = fromSceneBodyName(a.bodyA) || a.bodyA;
-        const nName = fromSceneBodyName(a.bodyB) || a.bodyB;
-        const win = transits.find(
-          (w) =>
-            w.transitingPlanet === tName &&
-            (w.targetPlanet || w.natalPlanet) === nName &&
-            String(w.aspect || '').toLowerCase() === a.type
-        );
-        const payload = win
-          ? formatTransitEvent(win)
-          : {
-              type: a.type,
-              aspect: a.type,
-              transitingPlanet: tName,
-              targetPlanet: nName,
-              exact: new Date(at).toISOString(),
-              start: new Date(at).toISOString(),
-              end: new Date(at).toISOString(),
-              description: `Transiting ${tName} ${a.type} natal ${nName} (orb ${a.orb?.toFixed ? a.orb.toFixed(1) : a.orb}°)`
-            };
-        return {
-          group: 'horoscope',
-          type: 'transit',
-          key: `${tName}-${a.type}-${nName}-sky`,
-          label: `Transiting ${tName} ${a.type} Natal ${nName}`,
-          meta: payload.description || '',
-          payload
-        };
-      });
+      els = [...activeAspects]
+        .sort((a, b) => Number(a.orb) - Number(b.orb))
+        .slice(0, 1)
+        .map((a) => {
+          const tName = fromSceneBodyName(a.bodyA) || a.bodyA;
+          const nName = fromSceneBodyName(a.bodyB) || a.bodyB;
+          const win = transits.find(
+            (w) =>
+              w.transitingPlanet === tName &&
+              (w.targetPlanet || w.natalPlanet) === nName &&
+              String(w.aspect || '').toLowerCase() === a.type
+          );
+          const payload = win
+            ? formatTransitEvent(win)
+            : {
+                type: a.type,
+                aspect: a.type,
+                transitingPlanet: tName,
+                targetPlanet: nName,
+                exact: new Date(at).toISOString(),
+                start: new Date(at).toISOString(),
+                end: new Date(at).toISOString(),
+                description: `Transiting ${tName} ${a.type} natal ${nName} (orb ${a.orb?.toFixed ? a.orb.toFixed(1) : a.orb}°)`
+              };
+          return {
+            group: 'horoscope',
+            type: 'transit',
+            key: `${tName}-${a.type}-${nName}-sky`,
+            label: `Transiting ${tName} ${a.type} Natal ${nName}`,
+            meta: payload.description || '',
+            payload
+          };
+        });
     } else {
       // nothing on screen for this body right now — fall back to its
       // backend windows (active at playhead, then in-period, then any)
@@ -337,7 +399,7 @@ function HomePane({ userId, user, entitlements }) {
       });
       const inPeriod = filterTransitsForPeriod(candidates, period);
       els = (activeNow.length ? activeNow : inPeriod.length ? inPeriod : candidates)
-        .slice(0, 3)
+        .slice(0, 1)
         .map((pick) => ({
           group: 'horoscope',
           type: 'transit',
@@ -352,8 +414,8 @@ function HomePane({ userId, user, entitlements }) {
     // push only this click's chips — the panel owns the accumulated
     // selection (re-pushing history resurrected cleared chips)
     setAskElements(els);
-    setDockMode('ask');
-  }, [transits, period]);
+    goToHorizon('ask');
+  }, [goToHorizon, transits, period]);
 
   const handleCompose = useCallback(async () => {
     const selected = askSelection.map((el) => el.payload || el).filter(Boolean);
@@ -366,14 +428,14 @@ function HomePane({ userId, user, entitlements }) {
       });
       if (response?.success && response?.horoscope) {
         setCustomHoroscope({ horoscope: response.horoscope, elements: askSelection });
-        setDockMode('reading');
+        goToHorizon(PERIOD_TO_HORIZON[period] || 'today');
       }
     } catch (err) {
       console.error('Error composing custom reading:', err);
     } finally {
       setComposing(false);
     }
-  }, [askSelection, composing, userId, period]);
+  }, [askSelection, composing, goToHorizon, userId, period]);
 
   // Daily is available to Free users for 1 credit and included with Plus.
   // The backend remains authoritative for affordability and charging.
@@ -476,37 +538,25 @@ function HomePane({ userId, user, entitlements }) {
 
   const periodHeadLabel = period === 'daily' ? 'Today' : period === 'weekly' ? 'This Week' : 'This Month';
   const periodDateLabel = useMemo(() => {
-    const fmt = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const fmt = (d) => d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      timeZone: 'UTC',
+    });
     const now = new Date();
-    if (period === 'daily') return fmt(now);
+    const start = currentHoroscope?.startDate ? new Date(currentHoroscope.startDate) : now;
+    const configuredEnd = currentHoroscope?.endDate ? new Date(currentHoroscope.endDate) : null;
+    if (period === 'daily') return fmt(Number.isNaN(start.getTime()) ? now : start);
+    if (configuredEnd && !Number.isNaN(configuredEnd.getTime()) && !Number.isNaN(start.getTime())) {
+      return `${fmt(start)} — ${fmt(configuredEnd)}`;
+    }
     const end = new Date(now);
     end.setDate(end.getDate() + (period === 'weekly' ? 7 : 30));
     return `${fmt(now)} — ${fmt(end)}`;
-  }, [period]);
+  }, [currentHoroscope, period]);
 
   const customParagraphs = (customHoroscope?.horoscope?.interpretation || customHoroscope?.horoscope?.text || '')
     .split(/\n\s*\n|\n/).map((t) => t.trim()).filter(Boolean);
-
-  const dockTabs = (
-    <div className="md-dock-tabs" role="tablist">
-      <button
-        role="tab"
-        aria-selected={dockMode === 'reading'}
-        className={`md-dock-tab${dockMode === 'reading' ? ' active' : ''}`}
-        onClick={() => setDockMode('reading')}
-      >
-        Reading
-      </button>
-      <button
-        role="tab"
-        aria-selected={dockMode === 'ask'}
-        className={`md-dock-tab${dockMode === 'ask' ? ' active' : ''}`}
-        onClick={() => setDockMode('ask')}
-      >
-        ✦ Ask
-      </button>
-    </div>
-  );
 
   const readingPanel = customHoroscope ? (
     <div className="md-stage-panel">
@@ -556,8 +606,6 @@ function HomePane({ userId, user, entitlements }) {
         </div>
       </div>
 
-      {/* the period toggle lives on the stage's timeline — one control
-          that visibly retunes both the sky's horizon and this reading */}
       <div className="md-horo-body md-horo-body--fade" key={period + String(currentLoading)}>
         {dailyLocked && (
           <div className="md-horo-empty">
@@ -604,9 +652,6 @@ function HomePane({ userId, user, entitlements }) {
         )}
       </div>
 
-      <button type="button" className="md-ask-btn md-ask-btn--stage" onClick={() => setDockMode('ask')}>
-        <span className="md-ask-btn__sparkle">✦</span> Ask Stellium about this sky
-      </button>
     </div>
   );
 
@@ -624,13 +669,13 @@ function HomePane({ userId, user, entitlements }) {
       )}
       <AskStelliumPanel
         variant="dock"
-        isOpen
-        onClose={() => setDockMode('reading')}
+        isOpen={horizon === 'ask'}
+        onClose={() => goToHorizon(PERIOD_TO_HORIZON[period] || 'today')}
         contentType="horoscope"
         contentId={userId}
         birthChart={user?.birthChart}
         transitWindows={transits}
-        horoscopePeriod={period}
+        horoscopePeriod={PERIOD_TO_HORIZON[period]}
         externalElements={askElements}
         onSelectionChange={setAskSelection}
         contextLabel="About your horoscope"
@@ -644,6 +689,35 @@ function HomePane({ userId, user, entitlements }) {
     </div>
   );
 
+  const horizonNav = (
+    <nav className="md-horizon-nav" aria-label="Horoscope horizons">
+      {HOME_HORIZONS.map((item) => (
+        <button
+          type="button"
+          key={item.id}
+          className={horizon === item.id ? 'on' : ''}
+          aria-current={horizon === item.id ? 'page' : undefined}
+          data-horizon={item.id}
+          onClick={() => goToHorizon(item.id)}
+        >
+          {item.ask && <span aria-hidden="true">✦</span>}
+          <strong>{item.label}</strong>
+        </button>
+      ))}
+    </nav>
+  );
+
+  const stagePanel = (
+    <>
+      <div className="md-panel-view" hidden={horizon === 'ask'}>
+        {readingPanel}
+      </div>
+      <div className="md-panel-view" hidden={horizon !== 'ask'}>
+        {askPanel}
+      </div>
+    </>
+  );
+
   return (
     <div className="md-home-layout md-home-layout--stage">
       <HoroscopeSkyStage
@@ -653,10 +727,11 @@ function HomePane({ userId, user, entitlements }) {
         askSelection={askSelection}
         readingTransits={readingTransits}
         onSkyPick={handleSkyPick}
-        panelHeader={dockTabs}
-        panel={dockMode === 'ask' ? askPanel : readingPanel}
+        subnav={horizonNav}
+        panel={stagePanel}
         period={period}
-        onPeriodChange={setPeriod}
+        scopeStart={currentHoroscope?.startDate}
+        askMode={horizon === 'ask'}
         onTimeSample={(ms) => { playheadRef.current = ms; }}
       />
     </div>

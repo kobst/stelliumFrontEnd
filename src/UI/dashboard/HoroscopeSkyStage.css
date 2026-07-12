@@ -1,78 +1,3 @@
-.horo-scrubber {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: rgba(14, 14, 22, 0.8);
-  backdrop-filter: blur(14px);
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14), 0 20px 60px -30px rgba(0, 0, 0, 0.8);
-}
-
-.horo-scrubber__periods {
-  display: flex;
-  gap: 4px;
-}
-.horo-scrubber__period {
-  border: 0;
-  cursor: pointer;
-  padding: 7px 13px;
-  border-radius: 999px;
-  background: transparent;
-  color: rgba(236, 232, 255, 0.55);
-  font-size: 12px;
-  font-weight: 600;
-  transition: color 0.15s ease, background 0.15s ease;
-}
-.horo-scrubber__period:hover {
-  color: #ece8ff;
-}
-.horo-scrubber__period.active {
-  color: #ece8ff;
-  background: linear-gradient(180deg, rgba(202, 190, 255, 0.18), rgba(202, 190, 255, 0.07));
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.32);
-}
-
-.horo-scrubber__sep {
-  width: 1px;
-  align-self: stretch;
-  background: rgba(202, 190, 255, 0.14);
-}
-
-.horo-scrubber__bound {
-  font-family: ui-monospace, monospace;
-  font-size: 10px;
-  color: rgba(236, 232, 255, 0.42);
-  white-space: nowrap;
-}
-
-.horo-scrubber__play {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border: 0;
-  border-radius: 50%;
-  cursor: pointer;
-  background: linear-gradient(180deg, #d8cdff, #b8a8f0);
-  color: #1a1230;
-  font-size: 11px;
-  display: grid;
-  place-items: center;
-}
-
-.horo-scrubber input[type='range'] {
-  width: 240px;
-  accent-color: #cabeff;
-}
-
-.horo-scrubber__date {
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  color: #ece8ff;
-  min-width: 96px;
-  text-align: center;
-}
-
 /* stage-mode tweaks for the reading panel content */
 .md-home-layout--stage {
   padding: 0;
@@ -91,6 +16,17 @@
   flex: 1;
   min-height: 0;
   flex-direction: column;
+}
+.md-panel-view {
+  min-height: 0;
+  display: flex;
+  flex: 1;
+}
+.md-panel-view[hidden] {
+  display: none;
+}
+.md-panel-view > * {
+  width: 100%;
 }
 .md-stage-panel .md-horo-body {
   min-height: 0;
@@ -131,170 +67,6 @@
   text-transform: uppercase;
   color: #e9c349;
   margin-bottom: 6px;
-}
-
-/* per-body aspect-line filter on the timeline */
-.horo-scrubber__bodies {
-  display: flex;
-  gap: 3px;
-}
-.horo-scrubber__body {
-  width: 26px;
-  height: 26px;
-  border: 0;
-  cursor: pointer;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  font-size: 14px;
-  line-height: 1;
-  background: transparent;
-  color: rgba(236, 232, 255, 0.28);
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.08);
-  transition: color 0.15s ease, background 0.15s ease;
-}
-.horo-scrubber__body.on {
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.2);
-}
-
-/* dock voice switcher — always visible in both modes */
-.md-dock-tabs {
-  display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  margin-bottom: 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.1);
-}
-.md-dock-tab {
-  border: 0;
-  cursor: pointer;
-  padding: 7px 16px;
-  border-radius: 9px;
-  background: transparent;
-  color: rgba(236, 232, 255, 0.55);
-  font-size: 12.5px;
-  font-weight: 600;
-}
-.md-dock-tab:hover {
-  color: #ece8ff;
-}
-.md-dock-tab.active {
-  color: #ece8ff;
-  background: linear-gradient(180deg, rgba(202, 190, 255, 0.16), rgba(202, 190, 255, 0.06));
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.3);
-}
-.md-dock-ask__tabs {
-  padding: 26px 28px 0;
-}
-
-/* Lines filter: one button on the timeline, chips in a popover */
-.horo-scrubber__lines {
-  position: relative;
-}
-.horo-scrubber__lines-btn {
-  border: 0;
-  cursor: pointer;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: transparent;
-  color: rgba(236, 232, 255, 0.55);
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.horo-scrubber__lines-btn:hover,
-.horo-scrubber__lines-btn.open {
-  color: #ece8ff;
-}
-.horo-scrubber__lines-pop {
-  position: absolute;
-  bottom: calc(100% + 14px);
-  right: 0;
-  display: flex;
-  gap: 3px;
-  padding: 8px;
-  border-radius: 12px;
-  background: rgba(14, 14, 22, 0.92);
-  backdrop-filter: blur(14px);
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.14), 0 20px 60px -30px rgba(0, 0, 0, 0.8);
-}
-
-/* ── horizon bar internals ── */
-.horizon-tabs {
-  display: flex;
-  gap: 4px;
-}
-.horizon-tab {
-  border: 0;
-  cursor: pointer;
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: transparent;
-  color: rgba(236, 232, 255, 0.55);
-  font-size: 13px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.horizon-tab:hover {
-  color: #ece8ff;
-}
-.horizon-tab.active {
-  color: #ece8ff;
-  background: linear-gradient(180deg, rgba(202, 190, 255, 0.18), rgba(202, 190, 255, 0.07));
-  box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.32);
-}
-.horizon-tab__custom {
-  color: #e9c349;
-}
-.horizon-range {
-  font-family: ui-monospace, monospace;
-  font-size: 11.5px;
-  letter-spacing: 0.05em;
-  color: rgba(236, 232, 255, 0.6);
-  white-space: nowrap;
-}
-.horizon-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.horizon-compose {
-  border: 0;
-  cursor: pointer;
-  padding: 8px 15px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(233, 195, 73, 0.16), rgba(233, 195, 73, 0.06));
-  color: #e9c349;
-  font-size: 12.5px;
-  font-weight: 700;
-  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.3);
-  white-space: nowrap;
-}
-.horizon-compose:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-.horizon-compose.active {
-  background: rgba(233, 195, 73, 0.22);
-}
-
-/* lines popover opens downward when anchored in the top bar */
-.horo-scrubber__lines-pop--below {
-  bottom: auto;
-  top: calc(100% + 12px);
-}
-
-/* escape the global `* { max-width: 100% }` mobile fix, which capped
-   the popover at its button-sized parent and wrapped the chips */
-.horo-scrubber__lines-pop {
-  max-width: none;
-  width: max-content;
-  flex-wrap: nowrap;
 }
 
 /* transit filter strip — always visible on the scene */
@@ -350,30 +122,6 @@
   box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(202, 190, 255, 0.16);
   box-sizing: border-box;
 }
-.timebar__periods {
-  display: flex;
-  gap: 4px;
-  padding-right: 12px;
-  border-right: 1px solid rgba(202, 190, 255, 0.1);
-}
-.timebar__period {
-  border: 0;
-  cursor: pointer;
-  padding: 8px 13px;
-  border-radius: 9px;
-  background: transparent;
-  color: rgba(236, 232, 255, 0.55);
-  font-size: 12px;
-  font-weight: 600;
-}
-.timebar__period:hover {
-  color: #ece8ff;
-}
-.timebar__period.active {
-  background: rgba(233, 195, 73, 0.14);
-  color: #ece8ff;
-  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.35);
-}
 .timebar__play {
   width: 34px;
   height: 34px;
@@ -388,10 +136,10 @@
   place-items: center;
   box-shadow: 0 0 22px -6px rgba(202, 190, 255, 0.7);
 }
-/* month-long track: the period highlights a WINDOW on it */
+/* The primary horizon sets the visible range; this track only scrubs it. */
 .timebar__track {
   position: relative;
-  width: 280px;
+  width: 340px;
   height: 34px;
   cursor: pointer;
   touch-action: none;
@@ -405,17 +153,6 @@
   height: 4px;
   border-radius: 2px;
   background: rgba(255, 255, 255, 0.08);
-}
-.timebar__window {
-  position: absolute;
-  top: 12px;
-  height: 10px;
-  left: 0;
-  border-radius: 5px;
-  background: rgba(233, 195, 73, 0.16);
-  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.35);
-  transition: width 0.25s ease;
-  pointer-events: none;
 }
 .timebar__playhead {
   position: absolute;
@@ -469,6 +206,83 @@
   background: rgba(202, 190, 255, 0.08);
 }
 
+.ask-sky-recenter {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid rgba(202, 190, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(14, 14, 22, 0.78);
+  color: rgba(236, 232, 255, 0.74);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 650;
+  backdrop-filter: blur(12px);
+}
+
+.ask-sky-recenter span {
+  margin-right: 5px;
+  color: #e9c349;
+}
+
+/* One primary Home navigation controls the reading scope and Ask surface. */
+.md-horizon-nav {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(14px, 4vw, 64px);
+}
+
+.md-horizon-nav button {
+  position: relative;
+  min-width: 132px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: rgba(236, 232, 255, 0.48);
+  cursor: pointer;
+}
+
+.md-horizon-nav button::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -10px;
+  left: 0;
+  height: 2px;
+  background: transparent;
+}
+
+.md-horizon-nav button:hover {
+  color: rgba(236, 232, 255, 0.82);
+}
+
+.md-horizon-nav button.on {
+  color: #e9c349;
+}
+
+.md-horizon-nav button.on::after {
+  background: #e9c349;
+}
+
+.md-horizon-nav button strong {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sky-stage__subnav:has(.md-horizon-nav) {
+  min-height: 58px;
+  padding: 0 20px;
+}
+
 /* ═══ labeled transit chips ═══ */
 .transit-chip {
   border: 0;
@@ -512,6 +326,10 @@
 .transit-strip {
   flex-wrap: wrap;
   max-width: min(72vw, 1040px);
+}
+
+.sky-stage--horoscope .transit-strip {
+  max-width: calc(100vw - min(520px, 38vw) - 60px);
 }
 
 /* Chart help is available without occupying the primary control row. */
@@ -644,12 +462,22 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .timebar__window,
   .transit-chip,
   .md-horo-body--fade { transition: none; animation: none; }
 }
 
 @media (max-width: 900px) {
+  .md-horizon-nav {
+    justify-content: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .md-horizon-nav::-webkit-scrollbar { display: none; }
+  .md-horizon-nav button {
+    min-width: 118px;
+    flex: 0 0 118px;
+  }
   .sky-stage__topleft {
     left: 10px;
     right: 10px;
@@ -660,6 +488,9 @@
     flex-wrap: nowrap;
     overflow-x: auto;
     border-radius: 8px;
+  }
+  .sky-stage--horoscope .transit-strip {
+    max-width: 100%;
   }
   .transit-strip__label,
   .transit-strip__hint { display: none; }
@@ -672,26 +503,42 @@
     padding: 8px 10px;
     box-sizing: border-box;
   }
-  .timebar__periods {
-    grid-column: 1 / -1;
-    justify-content: center;
-    padding-right: 0;
-    border-right: 0;
-  }
   .timebar__track { width: auto; }
   .timebar__ticks { display: none; }
-  .timebar__recenter { display: none; }
   .sky-inspector { width: min(320px, calc(100vw - 20px)); }
+  .sky-stage--horoscope .md-stage-panel .md-horo-body {
+    overflow: visible;
+  }
+  .sky-stage--horoscope .md-dock-ask {
+    height: 640px;
+    margin: -18px -20px;
+  }
+  .sky-stage--horoscope .sky-stage__panel:has(.md-dock-ask) {
+    min-height: 660px;
+  }
 }
 
 @media (max-width: 600px) {
+  .md-horizon-nav button {
+    min-width: 74px;
+    flex-basis: 74px;
+    padding-right: 5px;
+    padding-left: 5px;
+  }
+  .md-horizon-nav button:last-child {
+    min-width: 112px;
+    flex-basis: 112px;
+  }
+  .md-horizon-nav button strong {
+    font-size: 9px;
+  }
   .transit-chip { width: 32px; height: 32px; justify-content: center; padding: 0; }
   .transit-chip__n { display: none; }
   .chart-legend__popover { position: fixed; top: 168px; right: 10px; width: min(300px, calc(100vw - 20px)); }
-  .timebar { grid-template-columns: auto minmax(90px, 1fr) auto auto; }
-  .timebar__now { display: none; }
-  .timebar__date { min-width: 90px; }
-  .timebar__period { padding: 7px 10px; }
+  .timebar { grid-template-columns: auto minmax(64px, 1fr) auto auto auto; }
+  .timebar__date { min-width: 76px; }
+  .timebar__now,
+  .timebar__recenter { padding-right: 9px; padding-left: 9px; }
   .sky-inspector__aspects { display: none; }
   .sky-stage:has(.sky-inspector) .sky-stage__overlay {
     bottom: calc(46vh + 145px);

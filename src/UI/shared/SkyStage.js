@@ -14,7 +14,7 @@ import './SkyStage.css';
  *     overlay={<SelectionDetail ... />}  // bottom-left overlay
  *   />
  */
-function SkyStage({ sceneProps, subnav, topLeft, panel, panelHeader, footer, overlay }) {
+function SkyStage({ sceneProps, subnav, topLeft, panel, panelHeader, footer, overlay, className = '' }) {
   const [panelOpen, setPanelOpen] = useState(true);
   const [interacted, setInteracted] = useState(false);
 
@@ -28,14 +28,18 @@ function SkyStage({ sceneProps, subnav, topLeft, panel, panelHeader, footer, ove
 
   // the scene recenters itself in the space the panel leaves open, so
   // the whole chart and the whole text are visible at the same time
+  const horoscopeLayout = className.split(/\s+/).includes('sky-stage--horoscope');
   const coveredRightPx =
     panel && panelOpen && (typeof window === 'undefined' || window.innerWidth > 900)
-      ? Math.min(500, (typeof window !== 'undefined' ? window.innerWidth : 1200) * 0.44) + 40
+      ? Math.min(
+          horoscopeLayout ? 520 : 500,
+          (typeof window !== 'undefined' ? window.innerWidth : 1200) * (horoscopeLayout ? 0.38 : 0.44)
+        ) + 40
       : 0;
 
   return (
     <div
-      className={`sky-stage${subnav ? ' sky-stage--with-subnav' : ''}`}
+      className={`sky-stage${subnav ? ' sky-stage--with-subnav' : ''}${className ? ` ${className}` : ''}`}
       onPointerDown={() => setInteracted(true)}
     >
       <div className="sky-stage__canvas">

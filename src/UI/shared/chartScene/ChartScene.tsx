@@ -377,6 +377,7 @@ function ChartSceneImpl({
           }}
           onHoverBody={transitHandlers.onHover}
           onSelectBody={transitHandlers.onSelect}
+          onSelectAspect={onSelectAspect}
         />
       )}
 
