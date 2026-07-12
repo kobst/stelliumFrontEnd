@@ -13,6 +13,7 @@
   flex-wrap: wrap;
 }
 .aflow-pill {
+  border: 0;
   font-size: 11px;
   padding: 4px 11px;
   border-radius: 999px;
@@ -20,6 +21,12 @@
   background: rgba(233, 195, 73, 0.07);
   box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.3);
   white-space: nowrap;
+  cursor: pointer;
+}
+.aflow-pill[aria-pressed="true"] {
+  color: #f6df89;
+  background: rgba(233, 195, 73, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.72);
 }
 
 .aflow-overview {
@@ -73,7 +80,8 @@
   gap: 6px;
   margin: -2px 0 12px;
 }
-.aflow-cast span {
+.aflow-cast button {
+  border: 0;
   font-size: 11px;
   font-weight: 600;
   padding: 3px 10px;
@@ -81,9 +89,10 @@
   color: rgba(236, 232, 255, 0.65);
   background: rgba(202, 190, 255, 0.06);
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.16);
-  cursor: default;
+  cursor: pointer;
 }
-.aflow-cast span:hover {
+.aflow-cast button:hover,
+.aflow-cast button[aria-pressed="true"] {
   color: #ece8ff;
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.4);
 }

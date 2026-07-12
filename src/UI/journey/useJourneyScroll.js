@@ -104,6 +104,12 @@ export default function useJourneyScroll({ ready, onFrame } = {}) {
     setLiveStep(stepId);
     setActiveAct(el.dataset.act || stepId);
     if (Math.abs(container.scrollTop - top) < 6) return; // already there
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) {
+      container.scrollTo({ top, behavior: 'auto' });
+      setJumping(false);
+      return;
+    }
     jumpRef.current = { top, until: performance.now() + 1600 };
     setJumping(true);
     container.scrollTo({ top, behavior: 'smooth' });

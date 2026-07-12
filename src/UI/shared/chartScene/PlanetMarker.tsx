@@ -14,7 +14,7 @@ const scaleVec = new THREE.Vector3()
 const BASE_EMISSIVE = 2.2
 
 /** hover/selection visual treatment */
-export type MarkerState = 'normal' | 'active' | 'muted'
+export type MarkerState = 'normal' | 'active' | 'related' | 'muted' | 'suppressed'
 
 interface PlanetMarkerProps {
   placement: Placement
@@ -51,10 +51,29 @@ export function PlanetMarker({
     () => longitudeToPosition(placement.longitude, radius),
     [placement.longitude, radius],
   )
-  const stateScale = state === 'active' ? 1.3 : state === 'muted' ? 0.85 : 1
+  const stateScale =
+    state === 'active'
+      ? 1.3
+      : state === 'related'
+        ? 0.92
+        : state === 'suppressed'
+          ? 0.58
+          : state === 'muted'
+            ? 0.85
+            : 1
   const scaleTarget = hidden ? 0 : sizeScale * stateScale
   const emissiveTarget =
-    state === 'active' ? 3.4 : state === 'muted' ? 1.1 : BASE_EMISSIVE
+    state === 'active'
+      ? 3.4
+      : state === 'related'
+        ? 1.5
+        : state === 'suppressed'
+          ? 0.2
+          : state === 'muted'
+            ? 1.1
+            : BASE_EMISSIVE
+  const opacityTarget =
+    state === 'suppressed' ? 0.07 : state === 'related' ? 0.62 : 1
 
   // mount position/scale stay fixed; the lerp below owns them afterwards,
   // so reactive props would snap on every mode change
@@ -68,7 +87,10 @@ export function PlanetMarker({
     group.position.lerp(target, f)
     group.scale.lerp(scaleVec.set(scaleTarget, scaleTarget, scaleTarget), f)
     const mat = materialRef.current
-    if (mat) mat.emissiveIntensity += (emissiveTarget - mat.emissiveIntensity) * f
+    if (mat) {
+      mat.emissiveIntensity += (emissiveTarget - mat.emissiveIntensity) * f
+      mat.opacity += (opacityTarget - mat.opacity) * f
+    }
   })
 
   const info = BODIES[placement.body]
@@ -107,6 +129,8 @@ export function PlanetMarker({
           color={info.color}
           emissive={info.color}
           emissiveIntensity={BASE_EMISSIVE}
+          transparent
+          opacity={1}
           toneMapped={false}
         />
       </mesh>
@@ -125,7 +149,15 @@ export function PlanetMarker({
         color={info.color}
         position={[0, info.size + 0.28, 0]}
         scale={0.45 * glyphScale}
-        opacity={state === 'muted' ? 0.45 : 1}
+        opacity={
+          state === 'suppressed'
+            ? 0.06
+            : state === 'related'
+              ? 0.58
+              : state === 'muted'
+                ? 0.45
+                : 1
+        }
       />
       {placement.retrograde && (
         <GlyphSprite
@@ -133,21 +165,57 @@ export function PlanetMarker({
           color="#ff8f8f"
           position={[0.24, info.size + 0.4, 0]}
           scale={0.2 * glyphScale}
-          opacity={state === 'muted' ? 0.4 : 0.9}
+          opacity={
+            state === 'suppressed'
+              ? 0.04
+              : state === 'related'
+                ? 0.5
+                : state === 'muted'
+                  ? 0.4
+                  : 0.9
+          }
         />
       )}
     </group>
   )
 }
 
-/** Ascendant / MC rendered as a radial line + label instead of a sphere. */
-export function AngleMarker({ placement }: { placement: Placement }) {
+/** Ascendant / MC rendered as a radial line + interactive label. */
+export function AngleMarker({
+  placement,
+  state = 'normal',
+  onHover,
+  onSelect,
+}: {
+  placement: Placement
+  state?: MarkerState
+  onHover?: (placement: Placement | null) => void
+  onSelect?: (placement: Placement) => void
+}) {
   const info = ANGLES[placement.body]
   if (!info) return null
 
   const inner = longitudeToPosition(placement.longitude, 0.4)
   const outer = longitudeToPosition(placement.longitude, WHEEL_INNER_RADIUS)
   const labelPos = longitudeToPosition(placement.longitude, WHEEL_INNER_RADIUS - 0.35, 0.15)
+  const opacity =
+    state === 'active'
+      ? 1
+      : state === 'related'
+        ? 0.62
+        : state === 'suppressed'
+          ? 0.06
+          : state === 'muted'
+            ? 0.3
+            : 0.85
+  const labelScale =
+    state === 'active'
+      ? 0.5
+      : state === 'related'
+        ? 0.35
+        : state === 'suppressed'
+          ? 0.2
+          : 0.32
 
   return (
     <group>
@@ -156,7 +224,7 @@ export function AngleMarker({ placement }: { placement: Placement }) {
         color={info.color}
         lineWidth={1}
         transparent
-        opacity={0.5}
+        opacity={state === 'active' ? 0.95 : opacity * 0.55}
         dashed
         dashSize={0.15}
         gapSize={0.1}
@@ -165,9 +233,33 @@ export function AngleMarker({ placement }: { placement: Placement }) {
         char={info.label}
         color={info.color}
         position={[labelPos.x, labelPos.y, labelPos.z]}
-        scale={0.32}
-        opacity={0.85}
+        scale={labelScale}
+        opacity={opacity}
       />
+      {state === 'active' && (
+        <GlyphSprite
+          char="◯"
+          color="#e9c349"
+          position={[labelPos.x, labelPos.y + 0.01, labelPos.z]}
+          scale={0.82}
+          opacity={0.9}
+        />
+      )}
+      <mesh
+        position={labelPos}
+        onPointerOver={(event) => {
+          event.stopPropagation()
+          onHover?.(placement)
+        }}
+        onPointerOut={() => onHover?.(null)}
+        onClick={(event) => {
+          event.stopPropagation()
+          onSelect?.(placement)
+        }}
+      >
+        <sphereGeometry args={[0.48, 12, 12]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
     </group>
   )
 }

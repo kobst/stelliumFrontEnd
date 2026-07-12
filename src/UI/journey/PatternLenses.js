@@ -57,9 +57,15 @@ function Interpretation({ text }) {
   );
 }
 
-const hoverProps = (onHoverBodies, names) => ({
+const interactionProps = (onHoverBodies, onPinBodies, names, pinnedBodies) => ({
   onMouseEnter: () => onHoverBodies?.(names?.length ? names : null),
   onMouseLeave: () => onHoverBodies?.(null),
+  onFocus: () => onHoverBodies?.(names?.length ? names : null),
+  onBlur: () => onHoverBodies?.(null),
+  onClick: () => onPinBodies?.(names),
+  'aria-pressed':
+    pinnedBodies?.length === names?.length &&
+    pinnedBodies.every((name, index) => name === names[index]),
 });
 
 /** one-line hook above a hero visual: "Fire & Water dominant — 33% each" */
@@ -113,7 +119,7 @@ function CappedText({ text }) {
 }
 
 // ── 1 · Elements ──────────────────────────────────────────────────────
-export function ElementsLens({ data = [], interpretation, onHoverBodies }) {
+export function ElementsLens({ data = [], interpretation, onHoverBodies, onPinBodies, pinnedBodies }) {
   const items = [...data].sort((a, b) => (b.percentage || 0) - (a.percentage || 0));
   return (
     <div className="lens-hero">
@@ -129,7 +135,7 @@ export function ElementsLens({ data = [], interpretation, onHoverBodies }) {
         </div>
         <div className="lens-etiles">
           {items.map((it, i) => (
-            <div className="lens-etile" key={i} {...hoverProps(onHoverBodies, it.planets)}>
+            <button type="button" className="lens-etile" key={i} {...interactionProps(onHoverBodies, onPinBodies, it.planets, pinnedBodies)}>
               <div className="eh">
                 <span className="sw" style={{ background: ELEMENT_COLORS[keyOf(it.name)] || '#666' }} />
                 <span className="en">{spaceOut(it.name)}</span>
@@ -143,7 +149,7 @@ export function ElementsLens({ data = [], interpretation, onHoverBodies }) {
                 ))}
                 {!(it.planets || []).length && '—'}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -153,7 +159,7 @@ export function ElementsLens({ data = [], interpretation, onHoverBodies }) {
 }
 
 // ── 2 · Modalities ────────────────────────────────────────────────────
-export function ModalitiesLens({ data = [], interpretation, onHoverBodies }) {
+export function ModalitiesLens({ data = [], interpretation, onHoverBodies, onPinBodies, pinnedBodies }) {
   return (
     <div className="lens-hero">
       <p className="lens-take">{takeawayLine(data, 'leads')}</p>
@@ -162,7 +168,7 @@ export function ModalitiesLens({ data = [], interpretation, onHoverBodies }) {
           const pct = (it.percentage || 0) / 100;
           const color = MODALITY_COLORS[keyOf(it.name)] || '#cabeff';
           return (
-            <div className="lens-gauge" key={i} {...hoverProps(onHoverBodies, it.planets)}>
+            <button type="button" className="lens-gauge" key={i} {...interactionProps(onHoverBodies, onPinBodies, it.planets, pinnedBodies)}>
               <svg viewBox="0 0 64 40">
                 <path
                   d="M 6 34 A 26 26 0 0 1 58 34"
@@ -192,7 +198,7 @@ export function ModalitiesLens({ data = [], interpretation, onHoverBodies }) {
                 ))}
                 {!(it.planets || []).length && '—'}
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -203,7 +209,7 @@ export function ModalitiesLens({ data = [], interpretation, onHoverBodies }) {
 
 // ── 3 · Quadrants ─────────────────────────────────────────────────────
 const QUADRANT_ORDER = ['southeast', 'southwest', 'northeast', 'northwest'];
-export function QuadrantsLens({ data = [], interpretation, onHoverBodies }) {
+export function QuadrantsLens({ data = [], interpretation, onHoverBodies, onPinBodies, pinnedBodies }) {
   const byKey = {};
   data.forEach((it) => {
     byKey[keyOf(it.name)] = it;
@@ -218,11 +224,12 @@ export function QuadrantsLens({ data = [], interpretation, onHoverBodies }) {
         {QUADRANT_ORDER.map((k) => {
           const it = byKey[k] || { name: k, percentage: 0, planets: [] };
           return (
-            <div
+            <button
+              type="button"
               className="qd"
               key={k}
               style={{ '--qc': QUADRANT_COLORS[k] }}
-              {...hoverProps(onHoverBodies, it.planets)}
+              {...interactionProps(onHoverBodies, onPinBodies, it.planets, pinnedBodies)}
             >
               <div className="qn">{spaceOut(it.name)}</div>
               <div className="qv">{(it.percentage || 0).toFixed(0)}%</div>
@@ -233,7 +240,7 @@ export function QuadrantsLens({ data = [], interpretation, onHoverBodies }) {
                   </span>
                 ))}
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -243,14 +250,14 @@ export function QuadrantsLens({ data = [], interpretation, onHoverBodies }) {
 }
 
 // ── 4 · Planetary Influence ───────────────────────────────────────────
-export function InfluenceLens({ data = [], interpretation, onHoverBodies }) {
+export function InfluenceLens({ data = [], interpretation, onHoverBodies, onPinBodies, pinnedBodies }) {
   const items = [...data].sort((a, b) => (b.percentage || 0) - (a.percentage || 0));
   const max = Math.max(...items.map((d) => d.percentage || 0), 1);
   return (
     <div className="lens-split lens-split--top">
       <div className="lens-split__viz">
         {items.map((it, i) => (
-          <div className="lens-irow" key={i} {...hoverProps(onHoverBodies, [it.name])}>
+          <button type="button" className="lens-irow" key={i} {...interactionProps(onHoverBodies, onPinBodies, [it.name], pinnedBodies)}>
             <span className="in">
               <em style={{ color: colorOf(it.name) }}>{glyphOf(it.name)}</em> {it.name}
             </span>
@@ -260,7 +267,7 @@ export function InfluenceLens({ data = [], interpretation, onHoverBodies }) {
               />
             </span>
             <span className="iv">{(it.percentage || 0).toFixed(1)}%</span>
-          </div>
+          </button>
         ))}
       </div>
       <Interpretation text={interpretation} />
@@ -281,7 +288,7 @@ const collectPlanetNames = (node, known, out) => {
   });
 };
 
-function WheelMini({ planets, members, aspects }) {
+export function PatternWheelMini({ planets, members, aspects }) {
   const C = 50;
   const R = 38;
   const xy = (lon) => [
@@ -344,6 +351,23 @@ function WheelMini({ planets, members, aspects }) {
 }
 
 /** raw backend patterns → [{ key, label, members, description }] */
+const shapeMeaning = (type) => {
+  const normalized = String(type || '').toLowerCase().replace(/\s+/g, '_');
+  if (normalized === 'stellium') {
+    return 'This concentration combines several planetary functions into one dominant area of expression.';
+  }
+  if (normalized === 't_square') {
+    return 'This dynamic circuit turns sustained tension into motivation, adaptation, and focused growth.';
+  }
+  if (normalized === 'grand_trine') {
+    return 'This flowing circuit links natural strengths that work together with unusual ease.';
+  }
+  if (normalized === 'yod') {
+    return 'This focused configuration repeatedly redirects attention toward a specific developmental task.';
+  }
+  return 'These placements operate as one connected system, each changing how the others can express themselves.';
+};
+
 export function extractShapeCards(patterns = [], planets = []) {
   const known = new Set(planets.map((p) => p.name));
   return (Array.isArray(patterns) ? patterns : [])
@@ -360,7 +384,7 @@ export function extractShapeCards(patterns = [], planets = []) {
         key: pat.id || `${pat.type}-${i}`,
         label,
         members: [...members],
-        description: pat.description || '',
+        description: pat.description || shapeMeaning(pat.type || pat.name),
       };
     })
     .filter(Boolean)
@@ -373,6 +397,8 @@ export function ShapesLens({
   aspects = [],
   interpretation,
   onHoverBodies,
+  onPinBodies,
+  pinnedBodies,
 }) {
   if (!cards.length && !interpretation) {
     return <p className="lens-empty">No major chart patterns detected — the sky spreads its weight evenly.</p>;
@@ -384,8 +410,13 @@ export function ShapesLens({
     <div className="lens-hero">
       <div className="lens-shapes lens-shapes--hero">
         {cards.map((c) => (
-          <div className="lens-shcard" key={c.key} {...hoverProps(onHoverBodies, c.members)}>
-            <WheelMini planets={planets} members={c.members} aspects={aspects} />
+          <button
+            type="button"
+            className="lens-shcard"
+            key={c.key}
+            {...interactionProps(onHoverBodies, onPinBodies, c.members, pinnedBodies)}
+          >
+            <PatternWheelMini planets={planets} members={c.members} aspects={aspects} />
             <div className="nm">{c.label}</div>
             <p>
               <span className="mem">
@@ -398,10 +429,18 @@ export function ShapesLens({
               </span>
               {c.description ? ` — ${c.description}` : ''}
             </p>
-          </div>
+          </button>
         ))}
       </div>
-      <Interpretation text={interpretation} />
+      <section className="lens-shape-analysis">
+        <h3>How these shapes work together</h3>
+        <Interpretation
+          text={
+            interpretation ||
+            'These detected shapes describe where several placements repeatedly act as one system. Read each figure alongside its member planets: the geometry shows the recurring circuit, while the placements show how that circuit is expressed.'
+          }
+        />
+      </section>
     </div>
   );
 }

@@ -61,7 +61,7 @@ const findPlanetData = (planetName, planets) => {
   return planets.find(p => p.name === planetName) || null;
 };
 
-const formatAspectData = (aspect, planet1Data, planet2Data) => {
+export const formatAspectData = (aspect, planet1Data, planet2Data) => {
   const aspectType = (aspect.aspectType || 'aspect').toLowerCase();
   const planet1Code = planetToCode[aspect.aspectedPlanet] || aspect.aspectedPlanet.substring(0, 2);
   const planet2Code = planetToCode[aspect.aspectingPlanet] || aspect.aspectingPlanet.substring(0, 2);
@@ -284,6 +284,7 @@ function AskStelliumPanel({
   disableHistory = false,
   variant = 'overlay',
   externalElements,
+  externalToggle,
   onSelectionChange
 }) {
   const [messages, setMessages] = useState([]);
@@ -305,6 +306,8 @@ function AskStelliumPanel({
   const textareaRef = useRef(null);
   const hasLoadedRef = useRef(null);
   const overlayRef = useRef(null);
+  const externalToggleRef = useRef(null);
+  const isOverlayVariant = variant === 'overlay';
 
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
@@ -438,14 +441,14 @@ function AskStelliumPanel({
       if (e.key === 'Escape') {
         if (overlayOpen) {
           setOverlayOpen(false);
-        } else {
+        } else if (isOverlayVariant) {
           onClose();
         }
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, overlayOpen]);
+  }, [isOpen, isOverlayVariant, onClose, overlayOpen]);
 
   // Close overlay on outside click
   useEffect(() => {
@@ -461,7 +464,7 @@ function AskStelliumPanel({
 
   // Prevent body scroll when panel is open
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && isOverlayVariant) {
       document.body.style.overflow = 'hidden';
       document.body.classList.add('ask-stellium-panel-open');
     } else {
@@ -472,7 +475,7 @@ function AskStelliumPanel({
       document.body.style.overflow = '';
       document.body.classList.remove('ask-stellium-panel-open');
     };
-  }, [isOpen]);
+  }, [isOpen, isOverlayVariant]);
 
   const positionsData = useMemo(() => {
     return planets
@@ -692,6 +695,12 @@ function AskStelliumPanel({
     });
   }, [externalElements]);
 
+  useEffect(() => {
+    if (!externalToggle?.element || externalToggleRef.current === externalToggle.nonce) return;
+    externalToggleRef.current = externalToggle.nonce;
+    handleToggleElement(externalToggle.element);
+  }, [externalToggle, handleToggleElement]);
+
   // let the host mirror the selection back onto the sky
   useEffect(() => {
     onSelectionChange?.(selectedElements);
@@ -886,11 +895,14 @@ function AskStelliumPanel({
   const shownCount = filteredOverlayElements.length;
   const selectionLimitReached = selectedElements.length >= MAX_SELECTIONS;
   const contextActionLabel = selectedElements.length > 0 ? 'Edit' : 'Add context';
+  const chartOwner = /^(your|this)$/i.test(primarySubjectName)
+    ? 'your chart'
+    : `${primarySubjectName}'s chart`;
   const welcomeTitle = (contentType === 'birthchart' || contentType === 'analysis')
-    ? `Ask anything about ${primarySubjectName}'s chart`
+    ? `Ask anything about ${chartOwner}`
     : 'Ask Stellium';
   const panelSubtitle = (contentType === 'birthchart' || contentType === 'analysis')
-    ? `Ask anything about ${primarySubjectName}'s chart`
+    ? `Ask anything about ${chartOwner}`
     : (placeholderText || 'Ask questions and get personalized insights.');
 
   const panelBody = (
@@ -947,6 +959,12 @@ function AskStelliumPanel({
                 </button>
               </div>
             </div>
+
+            {selectionError && !overlayOpen && (
+              <div className="ask-panel__compact-error" role="status">
+                {selectionError}
+              </div>
+            )}
 
             {/* Overlay — floats over messages area */}
             {overlayOpen && (

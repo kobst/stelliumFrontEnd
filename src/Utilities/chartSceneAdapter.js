@@ -14,10 +14,12 @@ const BODY_NAME_MAP = {
   Uranus: 'uranus',
   Neptune: 'neptune',
   Pluto: 'pluto',
+  Node: 'node',
+  'North Node': 'node',
+  'True Node': 'node',
   Ascendant: 'asc',
   Midheaven: 'mc',
-  // Node / Chiron / South Node have no marker in the 3D scene (yet) and
-  // are intentionally dropped here.
+  // Chiron / South Node have no marker in the 3D scene yet.
 };
 
 const SUPPORTED_ASPECT_TYPES = new Set([

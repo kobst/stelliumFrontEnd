@@ -689,6 +689,12 @@
   padding: 6px 16px 0;
 }
 
+.ask-panel__compact-error {
+  padding: 0 14px 10px;
+  color: #ff9b9b;
+  font-size: 0.75rem;
+}
+
 /* Scrollable item list */
 .ask-panel__overlay-items-wrap {
   position: relative;

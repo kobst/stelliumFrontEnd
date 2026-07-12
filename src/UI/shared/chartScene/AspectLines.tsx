@@ -38,6 +38,7 @@ interface AspectLineProps {
   highlightMode: boolean
   /** both endpoints are in the external highlight set */
   highlighted: boolean
+  onSelect?: (aspect: Aspect) => void
 }
 
 function AspectLine({
@@ -50,6 +51,7 @@ function AspectLine({
   involved,
   highlightMode,
   highlighted,
+  onSelect,
 }: AspectLineProps) {
   const lineRef = useRef<Line2>(null)
 
@@ -92,6 +94,10 @@ function AspectLine({
       opacity={initialOpacity.current}
       depthWrite={false}
       blending={emphasized ? THREE.AdditiveBlending : THREE.NormalBlending}
+      onClick={onSelect ? (event) => {
+        event.stopPropagation()
+        onSelect(aspect)
+      } : undefined}
     />
   )
 }
@@ -113,6 +119,9 @@ interface AspectLinesProps {
   focus?: BodySelection | null
   /** external emphasis set; lines between highlighted bodies boost */
   highlightBodies?: string[]
+  /** only render aspects touching one body, or connecting a supplied pair */
+  isolateBodies?: string[]
+  onSelectAspect?: (aspect: Aspect) => void
 }
 
 /**
@@ -130,10 +139,17 @@ export function AspectLines({
   emphasized = false,
   focus = null,
   highlightBodies,
+  isolateBodies,
+  onSelectAspect,
 }: AspectLinesProps) {
   const highlightSet = useMemo(
     () => (highlightBodies?.length ? new Set(highlightBodies) : null),
     [highlightBodies],
+  )
+
+  const isolateSet = useMemo(
+    () => (isolateBodies?.length ? new Set(isolateBodies) : null),
+    [isolateBodies],
   )
 
   const byLayer = useMemo(() => {
@@ -154,6 +170,14 @@ export function AspectLines({
   return (
     <group>
       {aspects.map((aspect) => {
+        if (
+          isolateSet &&
+          (isolateSet.size === 1
+            ? !isolateSet.has(aspect.bodyA) && !isolateSet.has(aspect.bodyB)
+            : !isolateSet.has(aspect.bodyA) || !isolateSet.has(aspect.bodyB))
+        ) {
+          return null
+        }
         const layerA = aspect.layerA ?? defaultLayers[0]
         const layerB = aspect.layerB ?? defaultLayers[1]
         const from = resolve(aspect.bodyA, layerA)
@@ -183,6 +207,7 @@ export function AspectLines({
             involved={involved}
             highlightMode={!!highlightSet}
             highlighted={highlighted}
+            onSelect={onSelectAspect}
           />
         )
       })}

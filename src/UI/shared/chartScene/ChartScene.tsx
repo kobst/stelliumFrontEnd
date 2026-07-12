@@ -125,6 +125,8 @@ function ChartSceneImpl({
   heliocentric,
   mode = 'wheel',
   highlightBodies,
+  relatedBodies,
+  isolateSelection = false,
   highlightSecondaryBodies,
   secondaryBlend = 1,
   relationship,
@@ -137,6 +139,7 @@ function ChartSceneImpl({
   paused = false,
   onHoverBody,
   onSelectBody,
+  onSelectAspect,
 }: ChartSceneProps) {
   const planets = useMemo(() => natal.filter((p) => !(p.body in ANGLES)), [natal])
   const angles = useMemo(() => natal.filter((p) => p.body in ANGLES), [natal])
@@ -211,6 +214,30 @@ function ChartSceneImpl({
     [highlightBodies],
   )
 
+  const relatedSet = useMemo(
+    () => (relatedBodies?.length ? new Set(relatedBodies) : null),
+    [relatedBodies],
+  )
+
+  const isolatedAspectBodies = useMemo(() => {
+    if (!isolateSelection || !selection) return undefined
+    if (
+      hovered &&
+      hovered.layer === selection.layer &&
+      hovered.body !== selection.body
+    ) {
+      return [selection.body, hovered.body]
+    }
+    if (
+      highlightBodies?.length &&
+      highlightBodies.length > 1 &&
+      highlightBodies.includes(selection.body)
+    ) {
+      return highlightBodies
+    }
+    return [selection.body]
+  }, [highlightBodies, hovered, isolateSelection, selection])
+
   const transitFilterSet = useMemo(
     () => (transitAspectBodies ? new Set(transitAspectBodies) : null),
     [transitAspectBodies],
@@ -225,7 +252,14 @@ function ChartSceneImpl({
     const matches = (s: BodySelection | null) =>
       !!s && s.body === body && s.layer === layer
     if (matches(selection) || matches(hovered)) return 'active'
-    if (selection) return 'muted'
+    if (selection) {
+      if (isolateSelection && layer === selection.layer) {
+        if (highlightSet?.has(body)) return 'active'
+        if (relatedSet?.has(body)) return 'related'
+        return 'suppressed'
+      }
+      return 'muted'
+    }
     if (highlightSet && layer === 'natal') {
       return highlightSet.has(body) ? 'active' : 'muted'
     }
@@ -295,6 +329,8 @@ function ChartSceneImpl({
         visible={!helioMode && !transitFrames?.length && !relationship}
         focus={selection}
         highlightBodies={highlightBodies}
+        isolateBodies={isolatedAspectBodies}
+        onSelectAspect={onSelectAspect}
       />
 
       {!relationship && markers.map(({ placement, radius }) => (
@@ -309,7 +345,15 @@ function ChartSceneImpl({
         />
       ))}
       {!helioMode && !relationship &&
-        angles.map((p) => <AngleMarker key={p.body} placement={p} />)}
+        angles.map((p) => (
+          <AngleMarker
+            key={p.body}
+            placement={p}
+            state={stateFor(p.body, 'natal')}
+            onHover={natalHandlers.onHover}
+            onSelect={natalHandlers.onSelect}
+          />
+        ))}
 
       {/* transit layer: moving sky over the fixed natal wheel (Phase 4);
           geocentric, so it hides in heliocentric mode */}

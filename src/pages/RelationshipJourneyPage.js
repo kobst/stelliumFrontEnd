@@ -11,6 +11,7 @@ import {
   toChartSceneAspects,
   toSynastrySceneAspects,
   toSceneBodyNames,
+  fromSceneBodyName,
 } from '../Utilities/chartSceneAdapter';
 import { mentionsIn } from '../UI/journey/AnalysisFlow';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
@@ -132,6 +133,17 @@ function RelationshipJourneyPage() {
   const [fitNonce, setFitNonce] = useState(0);
   // synastry starts calm: the tightest threads only, reveal on demand
   const [showAllLines, setShowAllLines] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(
+    () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false
+  );
+
+  useEffect(() => {
+    const query = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    if (!query) return undefined;
+    const handleChange = (event) => setReduceMotion(event.matches);
+    query.addEventListener?.('change', handleChange);
+    return () => query.removeEventListener?.('change', handleChange);
+  }, []);
 
   const stepFocus = useRef({});
   const mergeTrackRef = useRef(null);
@@ -145,9 +157,11 @@ function RelationshipJourneyPage() {
     return Math.max(0, Math.min(1, (vh * 0.62 - r.top) / Math.max(1, r.height - vh * 0.25)));
   };
   const onFrame = useCallback((container) => {
-    setMergeBlend(trackP(mergeTrackRef.current, container));
-    setCompBlend(trackP(compTrackRef.current, container));
-  }, []);
+    const mergeProgress = trackP(mergeTrackRef.current, container);
+    const compProgress = trackP(compTrackRef.current, container);
+    setMergeBlend(reduceMotion ? Number(mergeProgress >= 0.5) : mergeProgress);
+    setCompBlend(reduceMotion ? Number(compProgress >= 0.5) : compProgress);
+  }, [reduceMotion]);
 
   const {
     scrollRef,
@@ -157,12 +171,6 @@ function RelationshipJourneyPage() {
     scrollToAct,
     setStepRef: setStepRefBase,
   } = useJourneyScroll({ ready: !loading, onFrame });
-
-  // scrolling to a new step releases a pinned thread — the step's own
-  // emphasis grammar leads again (same rule as the reader's sky pick)
-  useEffect(() => {
-    setPinnedAB(null);
-  }, [liveStep]);
 
   const aName = firstName(relationship?.userA_name);
   const bName = firstName(relationship?.userB_name);
@@ -264,18 +272,18 @@ function RelationshipJourneyPage() {
     [relationship?.compositeChart?.aspects]
   );
 
-  const synastryTop = useMemo(() => {
-    const rows = (relationship?.synastryAspects || [])
-      .map((a) => ({
-        nameA: a.transitingPlanet || a.aspectedPlanet || a.planet1,
-        nameB: a.aspectingPlanet || a.planet2,
-        type: a.aspectType,
-        orb: Number(a.orb),
-      }))
-      .filter((r) => r.nameA && r.nameB && Number.isFinite(r.orb))
-      .sort((x, y) => x.orb - y.orb);
-    return rows;
-  }, [relationship?.synastryAspects]);
+  const synastryTop = useMemo(
+    () =>
+      [...synAspects]
+        .sort((x, y) => x.orb - y.orb)
+        .map((aspect) => ({
+          nameA: fromSceneBodyName(aspect.bodyA),
+          nameB: fromSceneBodyName(aspect.bodyB),
+          type: aspect.type,
+          orb: aspect.orb,
+        })),
+    [synAspects]
+  );
 
   // ── emphasis: hover preview > pinned thread > centered step's focus ─
   const focus = hoverAB || pinnedAB || stepFocus.current[liveStep] || null;
@@ -316,14 +324,17 @@ function RelationshipJourneyPage() {
 
   // one interaction grammar, shared with the reader: hover previews a
   // thread transiently, click pins it (click again — or scroll on — to
-  // release)
+  // release). Focus mirrors hover so the same preview works by keyboard.
   const isoRow = (key, a, b) => ({
     onMouseEnter: () => setHoverAB({ a: a || [], b: b || [] }),
     onMouseLeave: () => setHoverAB(null),
+    onFocus: () => setHoverAB({ a: a || [], b: b || [] }),
+    onBlur: () => setHoverAB(null),
     onClick: () =>
       setPinnedAB((prev) =>
         prev?.key === key ? null : { key, a: a || [], b: b || [] }
       ),
+    'aria-pressed': pinnedAB?.key === key,
   });
   const isoClass = (key, base) =>
     pinnedAB?.key === key ? `${base} on` : base;
@@ -349,11 +360,12 @@ function RelationshipJourneyPage() {
   // legacy records store a bare number; scored records an object
   const overallScore = Number.isFinite(overall) ? overall : archetype.score;
   const overallLabel = Number.isFinite(overallScore)
-    ? `${Math.round(overallScore)}% overall`
+    ? `Pattern index · ${Math.round(overallScore)}%`
     : null;
 
   // camera widens to hold both separated wheels, tightens as they merge
-  const fitRadius = 10.8 - (10.8 - 5.9) * mergeBlend;
+  const separatedFitRadius = window.innerWidth > 900 ? 16 : 13.8;
+  const fitRadius = separatedFitRadius - (separatedFitRadius - 5.9) * mergeBlend;
 
   const sceneProps = {
     natal: [],
@@ -374,7 +386,7 @@ function RelationshipJourneyPage() {
   };
 
   return (
-    <div className="journey-page">
+    <div className="journey-page journey-page--relationship">
       <div
         className={`journey-scene journey-scene--${sceneMode}${jumping ? ' journey-scene--jumping' : ''}`}
       >
@@ -385,7 +397,11 @@ function RelationshipJourneyPage() {
             fitNonce={fitNonce}
             disableZoom
             paused={sceneMode === 'hidden'}
-            coveredRightPx={sceneMode === 'full' ? Math.min(560, window.innerWidth * 0.46) : 0}
+            coveredRightPx={
+              sceneMode === 'full' && window.innerWidth > 900
+                ? Math.min(300, window.innerWidth * 0.28)
+                : 0
+            }
           />
         )}
       </div>
@@ -412,16 +428,18 @@ function RelationshipJourneyPage() {
         </div>
       )}
 
-      <nav className="journey-rail">
+      <nav className="journey-rail" aria-label="Relationship reading chapters">
         {ACTS.filter((a) => a.rail).map((a) => (
           <button
             key={a.id}
             className={
               activeAct === a.id || (activeAct === 'hero' && a.id === 'overview') ? 'on' : ''
             }
+            aria-current={activeAct === a.id ? 'step' : undefined}
+            aria-label={`Go to ${a.rail}`}
             onClick={() => scrollToAct(a.id)}
           >
-            <span className="dot" />
+            <span className="dot" aria-hidden="true" />
             <span className="nm">{a.rail}</span>
           </button>
         ))}
@@ -433,7 +451,8 @@ function RelationshipJourneyPage() {
           title="Recenter the sky"
           onClick={() => setFitNonce((n) => n + 1)}
         >
-          ⌖ Recenter
+          <span aria-hidden="true">⌖</span>
+          <span className="journey-recenter__label">Recenter</span>
         </button>
       )}
 
@@ -466,6 +485,12 @@ function RelationshipJourneyPage() {
               </div>
             )}
             {archetype.blurb && <p className="rj-arch__blurb">{archetype.blurb}</p>}
+            {overallLabel && (
+              <p className="rj-score-note">
+                The pattern index summarizes the themes found in this analysis. It is context,
+                not a verdict on the relationship.
+              </p>
+            )}
             {(relationship?.initialOverview || clusterPanels('overview')?.synthesis || '')
               .split(/\n\s*\n|\n/)
               .map((t) => t.trim())
@@ -478,7 +503,7 @@ function RelationshipJourneyPage() {
 
           {/* ── II · Two Skies ── */}
           <section
-            className={`journey-step journey-step--panel${liveStep === 'sky-a' ? ' live' : ''}`}
+            className={`journey-step journey-step--panel rj-stage-step${liveStep === 'sky-a' ? ' live' : ''}`}
             ref={setStepRef('sky-a', 'skies')}
           >
             <div className="rj-pname rj-pname--a">{aName}</div>
@@ -487,14 +512,14 @@ function RelationshipJourneyPage() {
             )}
             <p>
               This is {aName}&rsquo;s sky, whole — every placement below sits on the wheel
-              to the left. Hover a row to find it.
+              in the chart. Select a placement to find it.
             </p>
             {orderedPlacements(aPlanets).map((p) => (
-              <div className={isoClass(`a-${p.name}`, 'arow')} key={p.name} {...isoRow(`a-${p.name}`, [p.name], [])}>
+              <button type="button" className={isoClass(`a-${p.name}`, 'arow')} key={p.name} {...isoRow(`a-${p.name}`, [p.name], [])}>
                 <span className="at">{p.name}</span>
                 <span className="an">{p.sign}</span>
                 <span className="orb">{p.house ? `House ${p.house}` : ''}</span>
-              </div>
+              </button>
             ))}
           </section>
 
@@ -507,15 +532,15 @@ function RelationshipJourneyPage() {
               <p className="rj-pblurb">{relationship.userB_romanticBlurb}</p>
             )}
             <p>
-              And this is {bName}&rsquo;s — her wheel turns beside {aName}&rsquo;s, complete
+              And this is {bName}&rsquo;s — this wheel turns beside {aName}&rsquo;s, complete
               in itself. Keep scrolling, and the two skies merge.
             </p>
             {orderedPlacements(bPlanets).map((p) => (
-              <div className={isoClass(`b-${p.name}`, 'arow')} key={p.name} {...isoRow(`b-${p.name}`, [], [p.name])}>
+              <button type="button" className={isoClass(`b-${p.name}`, 'arow')} key={p.name} {...isoRow(`b-${p.name}`, [], [p.name])}>
                 <span className="at">{p.name}</span>
                 <span className="an">{p.sign}</span>
                 <span className="orb">{p.house ? `House ${p.house}` : ''}</span>
-              </div>
+              </button>
             ))}
           </section>
 
@@ -540,18 +565,19 @@ function RelationshipJourneyPage() {
 
           {/* ── III · Synastry ── */}
           <section
-            className={`journey-step journey-step--panel${liveStep === 'synastry' ? ' live' : ''}`}
+            className={`journey-step journey-step--panel rj-stage-step${liveStep === 'synastry' ? ' live' : ''}`}
             ref={setStepRef('synastry', 'synastry')}
           >
             <div className="journey-chapter">III · Synastry</div>
             <p>
-              All {relationship?.synastryAspects?.length || 0} cross-aspects between{' '}
-              {aName}&rsquo;s planets and {bName}&rsquo;s, tightest first — hover any row
-              to isolate that thread in the sky:
+              {synAspects.length} chart-supported cross-aspects between {aName}&rsquo;s planets
+              and {bName}&rsquo;s, tightest first. Select a row to isolate and pin that thread:
             </p>
             {synAspects.length > 10 && (
               <button
                 className="rj-linetoggle"
+                type="button"
+                aria-pressed={showAllLines}
                 onClick={() => setShowAllLines((v) => !v)}
               >
                 {showAllLines
@@ -560,25 +586,26 @@ function RelationshipJourneyPage() {
               </button>
             )}
             {synastryTop.map((r, i) => (
-              <div className={isoClass(`syn-${i}`, 'arow')} key={i} {...isoRow(`syn-${i}`, [r.nameA], [r.nameB])}>
+              <button type="button" className={isoClass(`syn-${i}`, 'arow')} key={i} {...isoRow(`syn-${i}`, [r.nameA], [r.nameB])}>
                 <span className="at">{String(r.type || '').toLowerCase()}</span>
                 <span className="an">
                   {aName}&rsquo;s {r.nameA} → {bName}&rsquo;s {r.nameB}
                 </span>
                 <span className="orb">{r.orb.toFixed(1)}°</span>
-              </div>
+              </button>
             ))}
           </section>
 
           {/* ── IV · 360 Analysis: five pillars ── */}
           <section
-            className={`journey-step journey-step--panel${liveStep === 'pillars' ? ' live' : ''}`}
+            className={`journey-step journey-step--panel rj-stage-step${liveStep === 'pillars' ? ' live' : ''}`}
             ref={setStepRef('pillars', 'pillars')}
           >
             <div className="journey-chapter">IV · 360 Analysis</div>
             <p className="journey-lede">
               Five dimensions of the same sky. Each score is an argument — its key factors
-              light up the exact lines that make it.
+              light up the exact lines that make it. Scores describe the strength of the
+              detected patterns, not compatibility grades.
             </p>
           </section>
 
@@ -605,13 +632,13 @@ function RelationshipJourneyPage() {
                   {pl.factors.length > 0 && (
                     <div className="rj-pillar-sticky__factors">
                       {pl.factors.map((f, i) => (
-                        <span className={isoClass(`f-${pl.key}-${i}`, 'rj-fpill')} key={i} {...factorIso(`f-${pl.key}-${i}`, f)}>
+                        <button type="button" className={isoClass(`f-${pl.key}-${i}`, 'rj-fpill')} key={i} {...factorIso(`f-${pl.key}-${i}`, f)}>
                           {f.description || f.reason || f.label}
                           <em className={f.clusterScore < 0 ? 'neg' : ''}>
                             {f.clusterScore > 0 ? '+' : ''}
                             {Math.round(f.clusterScore)}
                           </em>
-                        </span>
+                        </button>
                       ))}
                     </div>
                   )}
@@ -657,7 +684,7 @@ function RelationshipJourneyPage() {
             >
               <p className="rj-cap">
                 One more transformation. Every pair of planets — {aName}&rsquo;s Sun and{' '}
-                {bName}&rsquo;s, his Moon and hers — collapses to its midpoint…
+                {bName}&rsquo;s Sun, their Moons, and every other pair — collapses to its midpoint…
               </p>
             </section>
             <section
@@ -673,13 +700,13 @@ function RelationshipJourneyPage() {
 
           {/* ── V · Composite ── */}
           <section
-            className={`journey-step journey-step--panel${liveStep === 'composite' ? ' live' : ''}`}
+            className={`journey-step journey-step--panel rj-stage-step${liveStep === 'composite' ? ' live' : ''}`}
             ref={setStepRef('composite', 'composite')}
           >
             <div className="journey-chapter">V · Composite</div>
             <div className="rj-chips">
               {orderedPlacements(relationship?.compositeChart?.planets).map((p) => (
-                <div className={isoClass(`c-${p.name}`, 'rj-chip')} key={p.name} {...isoRow(`c-${p.name}`, [p.name], [])}>
+                <button type="button" className={isoClass(`c-${p.name}`, 'rj-chip')} key={p.name} {...isoRow(`c-${p.name}`, [p.name], [])}>
                   <div>
                     <div className="k">Composite {p.name}</div>
                     <div className="v">
@@ -687,7 +714,7 @@ function RelationshipJourneyPage() {
                       {typeof p.norm_degree === 'number' && ` · ${Math.round(p.norm_degree)}°`}
                     </div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
             {(clusterPanels('composite')?.synthesis || '')
@@ -702,16 +729,16 @@ function RelationshipJourneyPage() {
               <>
                 <p>
                   The relationship&rsquo;s own {compositeRows.length} aspects, tightest
-                  first — hover any row to isolate that line:
+                  first. Select a row to isolate and pin that line:
                 </p>
                 {compositeRows.map((r, i) => (
-                  <div className={isoClass(`ca-${i}`, 'arow')} key={i} {...isoRow(`ca-${i}`, [r.nameA, r.nameB], [])}>
+                  <button type="button" className={isoClass(`ca-${i}`, 'arow')} key={i} {...isoRow(`ca-${i}`, [r.nameA, r.nameB], [])}>
                     <span className="at">{String(r.type || '').toLowerCase()}</span>
                     <span className="an">
                       {r.nameA} → {r.nameB}
                     </span>
                     <span className="orb">{r.orb.toFixed(1)}°</span>
-                  </div>
+                  </button>
                 ))}
               </>
             )}
@@ -724,8 +751,8 @@ function RelationshipJourneyPage() {
           >
             <div className="journey-chapter">VI · Ask Stellium</div>
             <p>
-              The reading ends; the sky doesn&rsquo;t. Anything above — his, hers, or the
-              relationship&rsquo;s own — can be questioned.
+              The reading ends; the sky doesn&rsquo;t. Anything above — {aName}&rsquo;s,
+              {bName}&rsquo;s, or the relationship&rsquo;s own — can be questioned.
             </p>
             <button className="journey-open-ask" onClick={() => setAskOpen(true)}>
               ✦ Ask Stellium about this relationship
@@ -734,8 +761,9 @@ function RelationshipJourneyPage() {
         </div>
       </div>
 
-      <button className="journey-ask-fab" onClick={() => setAskOpen(true)}>
-        <span className="sp">✦</span> Ask
+      <button className="journey-ask-fab" onClick={() => setAskOpen(true)} aria-label="Ask Stellium">
+        <span className="sp" aria-hidden="true">✦</span>
+        <span className="journey-ask-fab__label">Ask</span>
       </button>
 
       <AskStelliumPanel

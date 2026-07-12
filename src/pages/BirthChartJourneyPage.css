@@ -1,0 +1,1319 @@
+.birth-journey {
+  min-height: 100vh;
+  background: #06060d;
+  color: #ece8ff;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.birth-journey::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--birth-nebula);
+  background-position: left center;
+  background-size: cover;
+  opacity: 0.08;
+}
+
+.birth-journey > * {
+  position: relative;
+  z-index: 1;
+}
+
+.birth-journey button {
+  font-family: inherit;
+}
+
+.birth-journey button:focus-visible {
+  outline: 2px solid #e9c349;
+  outline-offset: 3px;
+}
+
+.birth-journey-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(6, 6, 13, 0.96);
+  border-bottom: 1px solid rgba(233, 195, 73, 0.16);
+}
+
+.birth-journey-header__main {
+  min-height: 66px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 8px clamp(20px, 3vw, 48px);
+  border-bottom: 1px solid rgba(202, 190, 255, 0.1);
+}
+
+.birth-journey-brand {
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  color: #e9c349;
+  cursor: pointer;
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-size: 25px;
+}
+
+.birth-journey-brand span {
+  margin-right: 7px;
+  font-size: 20px;
+}
+
+.birth-journey-identity {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.birth-journey-identity strong {
+  max-width: 50vw;
+  overflow: hidden;
+  color: #ece8ff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.birth-journey-identity span {
+  max-width: 48vw;
+  overflow: hidden;
+  color: rgba(236, 232, 255, 0.56);
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.birth-journey-ask {
+  justify-self: end;
+  min-height: 38px;
+  padding: 0 15px;
+  border: 1px solid rgba(233, 195, 73, 0.45);
+  border-radius: 8px;
+  background: transparent;
+  color: #ece8ff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.birth-journey-ask span {
+  color: #e9c349;
+}
+
+.birth-journey-ask:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.birth-journey-nav {
+  min-height: 58px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(8px, 2.4vw, 42px);
+  padding: 0 clamp(16px, 4vw, 64px);
+}
+
+.birth-journey-nav button {
+  position: relative;
+  min-width: 128px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: rgba(236, 232, 255, 0.48);
+  cursor: pointer;
+}
+
+.birth-journey-nav button::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: transparent;
+}
+
+.birth-journey-nav button > span {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 24px;
+  border: 1px solid rgba(236, 232, 255, 0.22);
+  border-radius: 50%;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+}
+
+.birth-journey-nav button strong {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.birth-journey-nav button:hover {
+  color: rgba(236, 232, 255, 0.82);
+}
+
+.birth-journey-nav button.on {
+  color: #e9c349;
+}
+
+.birth-journey-nav button.on::after {
+  background: #e9c349;
+}
+
+.birth-journey-nav button.on > span {
+  border-color: #e9c349;
+  color: #e9c349;
+}
+
+.birth-journey-main {
+  width: min(1380px, 100%);
+  min-height: calc(100vh - 125px);
+  margin: 0 auto;
+  padding: 0 clamp(20px, 3vw, 48px) 42px;
+}
+
+.birth-journey-chapter {
+  padding-top: clamp(34px, 5vh, 68px);
+  text-align: left;
+}
+
+.birth-journey-chapter > .chapter-header {
+  margin-bottom: 26px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.birth-journey-split {
+  display: grid;
+  grid-template-columns: minmax(380px, 0.82fr) minmax(540px, 1.18fr);
+  gap: clamp(44px, 6vw, 92px);
+  align-items: center;
+}
+
+.birth-journey-split--workspace {
+  grid-template-columns: minmax(500px, 1.08fr) minmax(430px, 0.92fr);
+  align-items: start;
+}
+
+.birth-journey-split--analysis-detail {
+  align-items: start;
+}
+
+.birth-journey-copy {
+  max-width: 650px;
+  text-align: left;
+}
+
+.birth-journey-copy--tool {
+  max-width: none;
+}
+
+.birth-journey-eyebrow {
+  margin-bottom: 14px;
+  color: #e9c349;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.birth-journey-copy h1,
+.birth-journey-askpage h1 {
+  margin: 0 0 18px;
+  color: #f0ecff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(38px, 4vw, 58px);
+  font-weight: 500;
+  line-height: 1.06;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.birth-journey-copy p,
+.birth-journey-askpage p {
+  max-width: 68ch;
+  margin: 0 0 20px;
+  color: rgba(236, 232, 255, 0.8);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  line-height: 1.72;
+  text-align: left;
+}
+
+.birth-journey-primary {
+  min-height: 44px;
+  margin-top: 10px;
+  padding: 0 18px;
+  border: 1px solid rgba(233, 195, 73, 0.62);
+  border-radius: 8px;
+  background: rgba(233, 195, 73, 0.12);
+  color: #f4edcf;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.birth-journey-primary:hover {
+  background: rgba(233, 195, 73, 0.18);
+}
+
+.birth-journey-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.birth-journey-chart {
+  position: sticky;
+  top: 154px;
+  min-width: 0;
+  height: min(650px, calc(100vh - 176px));
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-left: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.birth-journey-chart__scene {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+}
+
+.birth-journey-chart__scene canvas {
+  cursor: crosshair;
+}
+
+.birth-journey-chart--compact {
+  height: min(430px, calc(100vh - 210px));
+  min-height: 360px;
+}
+
+.birth-journey-chart__selection {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(135px, 0.7fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 18px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(233, 195, 73, 0.22);
+  border-bottom: 1px solid rgba(202, 190, 255, 0.12);
+  background: rgba(8, 8, 16, 0.98);
+}
+
+.birth-journey-chart__selection--expanded {
+  width: 100%;
+}
+
+.birth-journey-chart__selection-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.birth-journey-chart__selection-head > span {
+  color: #e9c349;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+}
+
+.birth-journey-chart__selection-head > strong {
+  overflow: hidden;
+  color: rgba(236, 232, 255, 0.72);
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.birth-journey-chart__aspects {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px 6px;
+}
+
+.birth-journey-chart__aspects-label {
+  grid-column: 1 / -1;
+  margin-bottom: 1px;
+  color: rgba(236, 232, 255, 0.42);
+  font-family: ui-monospace, monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.birth-journey-chart__aspects button {
+  width: 100%;
+  min-height: 30px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: rgba(236, 232, 255, 0.62);
+  cursor: pointer;
+  text-align: left;
+}
+
+.birth-journey-chart__aspects button:hover,
+.birth-journey-chart__aspects button.on {
+  background: rgba(233, 195, 73, 0.08);
+  color: #ece8ff;
+}
+
+.birth-journey-chart__aspects button.on {
+  box-shadow: inset 2px 0 #e9c349;
+}
+
+.birth-journey-chart__aspects button span {
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.birth-journey-chart__aspects button small {
+  color: rgba(236, 232, 255, 0.44);
+  font-family: ui-monospace, monospace;
+  font-size: 8px;
+}
+
+.birth-journey-chart__recenter {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(202, 190, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(8, 8, 16, 0.82);
+  color: rgba(236, 232, 255, 0.78);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 650;
+  backdrop-filter: blur(10px);
+}
+
+.birth-journey-chart__recenter span:first-child {
+  margin-right: 5px;
+  color: #e9c349;
+  font-size: 16px;
+}
+
+.birth-journey-sectionhead {
+  min-height: 46px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.birth-journey-sectionhead h2 {
+  margin: 0 0 4px;
+  color: #ece8ff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 23px;
+  font-weight: 500;
+}
+
+.birth-journey-sectionhead span {
+  color: rgba(236, 232, 255, 0.48);
+  font-size: 11px;
+}
+
+.birth-journey-glance,
+.birth-patterns,
+.birth-pattern-evidence,
+.birth-lifeareas {
+  margin-top: 42px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.birth-journey-glance__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.birth-journey-glance__grid button {
+  min-height: 102px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 16px;
+  border: 1px solid rgba(202, 190, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  color: #ece8ff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.birth-journey-glance__grid button:hover {
+  border-color: rgba(233, 195, 73, 0.42);
+  background: rgba(233, 195, 73, 0.05);
+}
+
+.birth-journey-glance__grid span {
+  color: rgba(236, 232, 255, 0.5);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.birth-journey-glance__grid strong {
+  color: #ece8ff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.birth-journey-glance__grid small {
+  color: rgba(236, 232, 255, 0.56);
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+}
+
+.birth-patterns__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 310px));
+  gap: 12px;
+}
+
+.birth-composition-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.birth-composition-card {
+  min-width: 0;
+  min-height: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 18px;
+  border: 1px solid rgba(202, 190, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(10, 10, 20, 0.76);
+  color: #ece8ff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.birth-composition-card:hover,
+.birth-composition-card:focus-visible {
+  border-color: rgba(233, 195, 73, 0.62);
+  background: rgba(233, 195, 73, 0.055);
+}
+
+.birth-composition-card__label {
+  color: #ece8ff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+}
+
+.birth-composition-card__summary {
+  margin-top: 7px;
+  color: #e9c349;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 650;
+  text-transform: capitalize;
+}
+
+.birth-composition-card__bars {
+  width: 100%;
+  height: 5px;
+  display: flex;
+  gap: 2px;
+  margin: 18px 0;
+  overflow: hidden;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.birth-composition-card__bars i {
+  min-width: 3px;
+  background: #e9c349;
+}
+
+.birth-composition-card__bars i:nth-child(2) {
+  background: #65a0e8;
+}
+
+.birth-composition-card__bars i:nth-child(3) {
+  background: #7fca83;
+}
+
+.birth-composition-card__bars i:nth-child(4) {
+  background: #e56f72;
+}
+
+.birth-composition-card__bars i:nth-child(5) {
+  background: #a67ad8;
+}
+
+.birth-composition-card__description {
+  color: rgba(236, 232, 255, 0.62);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.birth-composition-card__action {
+  margin-top: auto;
+  padding-top: 16px;
+  color: #e9c349;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.birth-composition-detail {
+  margin-top: 24px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.birth-composition-intro {
+  width: min(920px, 100%);
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.birth-composition-toolbar {
+  width: min(920px, 100%);
+  display: flex;
+  justify-content: flex-end;
+  margin: 22px auto 0;
+}
+
+.birth-composition-toolbar button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(202, 190, 255, 0.22);
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(236, 232, 255, 0.68);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.birth-composition-toolbar button:hover {
+  border-color: rgba(233, 195, 73, 0.5);
+  color: #e9c349;
+}
+
+.birth-composition-chart-only {
+  width: min(920px, 100%);
+  margin: 24px auto 0;
+}
+
+.birth-composition-chart-only .birth-journey-chart {
+  position: relative;
+  top: auto;
+  height: min(650px, 68vh);
+  border: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.birth-composition-detail .lens-hero,
+.birth-composition-detail .lens-capped,
+.birth-composition-detail .lens-split {
+  max-width: 920px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.birth-composition-detail .lens-text p {
+  color: rgba(236, 232, 255, 0.8);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  line-height: 1.72;
+}
+
+.birth-pattern-card {
+  min-width: 0;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 16px;
+  border: 1px solid rgba(202, 190, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(10, 10, 20, 0.76);
+  color: #ece8ff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.birth-pattern-card:hover,
+.birth-pattern-card:focus-visible {
+  border-color: rgba(233, 195, 73, 0.62);
+  background: rgba(233, 195, 73, 0.055);
+}
+
+.birth-pattern-card .lens-wheelmini {
+  width: 150px;
+  max-width: 80%;
+  margin: 0 auto 8px;
+}
+
+.birth-pattern-card__label {
+  margin-top: auto;
+  color: #ece8ff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+}
+
+.birth-pattern-card__members {
+  min-height: 34px;
+  margin-top: 7px;
+  color: rgba(236, 232, 255, 0.55);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.birth-pattern-card__description {
+  display: -webkit-box;
+  margin-top: 8px;
+  overflow: hidden;
+  color: rgba(236, 232, 255, 0.62);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.birth-pattern-card__action {
+  margin-top: 12px;
+  color: #e9c349;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.birth-patterns__empty {
+  padding: 24px 0;
+  color: rgba(236, 232, 255, 0.7);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.birth-journey-backlink {
+  display: block;
+  margin-left: 0;
+  margin-bottom: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(236, 232, 255, 0.65);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.birth-journey-backlink:hover {
+  color: #e9c349;
+}
+
+.birth-pattern-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0 0 22px;
+}
+
+.birth-pattern-members button {
+  padding: 6px 10px;
+  border: 1px solid rgba(202, 190, 255, 0.18);
+  border-radius: 999px;
+  color: rgba(236, 232, 255, 0.72);
+  font-size: 11px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.birth-pattern-members button:hover,
+.birth-pattern-members button.on {
+  border-color: rgba(233, 195, 73, 0.62);
+  color: #e9c349;
+  background: rgba(233, 195, 73, 0.07);
+}
+
+.birth-pattern-evidence__list {
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.birth-pattern-evidence__list button {
+  width: 100%;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 8px 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(202, 190, 255, 0.1);
+  background: transparent;
+  color: rgba(236, 232, 255, 0.68);
+  cursor: pointer;
+  text-align: left;
+}
+
+.birth-pattern-evidence__list button.on {
+  background: rgba(233, 195, 73, 0.07);
+  box-shadow: inset 2px 0 #e9c349;
+}
+
+.birth-pattern-evidence__list button:hover {
+  color: #ece8ff;
+  background: rgba(233, 195, 73, 0.04);
+}
+
+.birth-pattern-evidence__list span {
+  color: #e9c349;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.birth-pattern-evidence__list strong {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.birth-pattern-evidence__list small {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+}
+
+.birth-pattern-evidence__empty {
+  color: rgba(236, 232, 255, 0.65);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+}
+
+.birth-lifeareas__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.birth-lifeareas__grid button {
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid rgba(202, 190, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  color: #ece8ff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.birth-lifeareas__grid button:hover {
+  border-color: rgba(233, 195, 73, 0.5);
+  background: rgba(233, 195, 73, 0.05);
+}
+
+.birth-lifeareas__grid span {
+  color: #e9c349;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+}
+
+.birth-lifeareas__grid strong {
+  margin-top: auto;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.birth-lifeareas__grid small {
+  color: rgba(236, 232, 255, 0.5);
+  font-size: 10px;
+}
+
+.birth-analysis-reading > section {
+  padding: 24px 0;
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.birth-analysis-reading p {
+  max-width: 68ch;
+  color: rgba(236, 232, 255, 0.8);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  line-height: 1.72;
+}
+
+.birth-journey-askpage {
+  min-height: calc(100vh - 125px);
+}
+
+.birth-ask-workspace {
+  min-height: min(700px, calc(100vh - 205px));
+  display: grid;
+  grid-template-columns: minmax(500px, 1.05fr) minmax(430px, 0.95fr);
+  align-items: stretch;
+  gap: clamp(28px, 4vw, 56px);
+}
+
+.birth-ask-workspace .birth-journey-chart {
+  top: 154px;
+  height: min(700px, calc(100vh - 205px));
+  min-height: 560px;
+}
+
+.birth-ask-chat {
+  min-width: 0;
+  height: min(700px, calc(100vh - 205px));
+  min-height: 560px;
+  overflow: hidden;
+  border-left: 1px solid rgba(202, 190, 255, 0.12);
+  background: rgba(10, 10, 20, 0.38);
+}
+
+.birth-ask-chat .ask-panel--dock {
+  min-height: 100%;
+}
+
+.birth-journey-footer {
+  min-height: 112px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 42px;
+  padding: 28px 0 8px;
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.birth-journey-footer button {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.birth-journey-footer__back {
+  border: 1px solid rgba(202, 190, 255, 0.2);
+  background: transparent;
+  color: rgba(236, 232, 255, 0.7);
+}
+
+.birth-journey-footer__next {
+  border: 1px solid rgba(233, 195, 73, 0.5);
+  background: rgba(233, 195, 73, 0.14);
+  color: #f4edcf;
+}
+
+.birth-journey-copy--tool .planets-tab-container,
+.birth-journey-copy--tool .planets-content {
+  background: transparent;
+}
+
+.birth-planet-selector {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  margin: 0 0 32px;
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
+  border-bottom: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.birth-planet-selector button {
+  position: relative;
+  min-width: 0;
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 6px;
+  border: 0;
+  border-right: 1px solid rgba(202, 190, 255, 0.08);
+  background: transparent;
+  color: rgba(236, 232, 255, 0.48);
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.birth-planet-selector button::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  bottom: 0;
+  left: 8px;
+  height: 2px;
+  background: transparent;
+}
+
+.birth-planet-selector button:hover {
+  color: rgba(236, 232, 255, 0.82);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.birth-planet-selector button.on {
+  color: #e9c349;
+}
+
+.birth-planet-selector button.on::after {
+  background: #e9c349;
+}
+
+.birth-planet-selector button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.birth-journey-copy--tool .planets-header,
+.birth-journey-copy--tool .planets-tabs {
+  display: none;
+}
+
+.detail-navigator--planets .detail-navigator__tabs button {
+  min-width: 88px;
+  padding-right: 7px;
+  padding-left: 7px;
+}
+
+.detail-navigator--analysis .detail-navigator__tabs button {
+  min-height: 62px;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-navigator--analysis .detail-navigator__tabs button small {
+  color: rgba(233, 195, 73, 0.62);
+  font-family: ui-monospace, monospace;
+  font-size: 7px;
+  font-weight: 500;
+}
+
+.birth-journey .ask-stellium-cta {
+  display: none !important;
+}
+
+@media (max-width: 1100px) {
+  .birth-journey-nav {
+    gap: 4px;
+  }
+  .birth-journey-nav button {
+    min-width: 112px;
+  }
+  .birth-journey-split {
+    grid-template-columns: minmax(320px, 0.9fr) minmax(440px, 1.1fr);
+    gap: 36px;
+  }
+  .birth-patterns__grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 300px));
+  }
+  .birth-composition-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .birth-journey::before {
+    opacity: 0.04;
+  }
+  .birth-journey-header__main {
+    min-height: 58px;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    padding: 6px 14px;
+  }
+  .birth-journey-header {
+    background: #08080f;
+    backdrop-filter: none;
+  }
+  .birth-journey-brand {
+    font-size: 0;
+  }
+  .birth-journey-brand span {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    font-size: 22px;
+  }
+  .birth-journey-identity {
+    align-items: flex-start;
+  }
+  .birth-journey-identity strong,
+  .birth-journey-identity span {
+    max-width: 48vw;
+  }
+  .birth-journey-ask {
+    width: 38px;
+    padding: 0;
+    font-size: 0;
+  }
+  .birth-journey-ask span {
+    font-size: 16px;
+  }
+  .birth-journey-nav {
+    min-height: 54px;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 0 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .birth-journey-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .birth-journey-nav button {
+    min-width: 116px;
+    flex: 0 0 116px;
+  }
+  .birth-journey-nav button strong {
+    font-size: 9px;
+  }
+  .birth-journey-main {
+    padding: 0 16px 28px;
+  }
+  .birth-journey-chapter {
+    padding-top: 28px;
+  }
+  .birth-journey-split,
+  .birth-journey-split--workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .birth-journey-split--overview .birth-journey-copy,
+  .birth-journey-split--patterns .birth-journey-copy,
+  .birth-journey-split--analysis .birth-journey-copy {
+    order: 2;
+  }
+  .birth-journey-split--overview .birth-journey-chart,
+  .birth-journey-split--patterns .birth-journey-chart,
+  .birth-journey-split--analysis .birth-journey-chart {
+    order: 1;
+  }
+  .birth-journey-copy {
+    max-width: none;
+  }
+  .birth-journey-copy--tool {
+    width: calc(100vw - 32px);
+    min-width: 0;
+    max-width: calc(100vw - 32px);
+    overflow: hidden;
+  }
+  .birth-ask-workspace {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .birth-ask-workspace .birth-journey-chart {
+    top: auto;
+    height: min(48svh, 390px);
+    min-height: 320px;
+  }
+  .birth-ask-chat {
+    width: 100%;
+    height: 620px;
+    min-height: 560px;
+    border-top: 1px solid rgba(202, 190, 255, 0.12);
+    border-left: 0;
+  }
+  .birth-journey-copy--tool h1,
+  .birth-journey-copy--tool p {
+    width: 100%;
+    max-width: 100%;
+  }
+  .birth-planet-selector {
+    display: flex;
+    margin-right: -16px;
+    margin-left: -16px;
+    padding: 0 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .birth-planet-selector::-webkit-scrollbar {
+    display: none;
+  }
+  .birth-planet-selector button {
+    min-width: 92px;
+    flex: 0 0 92px;
+  }
+  .birth-journey-copy h1,
+  .birth-journey-askpage h1 {
+    font-size: 38px;
+  }
+  .birth-journey-copy p,
+  .birth-journey-askpage p,
+  .birth-analysis-reading p {
+    font-size: 16px;
+    line-height: 1.68;
+  }
+  .birth-journey-chart {
+    position: relative;
+    top: auto;
+    width: 100%;
+    height: min(44svh, 360px);
+    min-height: 300px;
+    border: 0;
+    border-bottom: 1px solid rgba(202, 190, 255, 0.12);
+  }
+  .birth-journey-chart__selection {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .birth-journey-chart__selection-head {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .birth-journey-chart__aspects {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .birth-journey-chart__aspects::-webkit-scrollbar {
+    display: none;
+  }
+  .birth-journey-chart__aspects-label {
+    align-self: center;
+    flex: 0 0 auto;
+    margin: 0 3px 0 0;
+  }
+  .birth-journey-chart__aspects button {
+    flex: 0 0 150px;
+  }
+  .birth-journey-chart__recenter {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+  }
+  .detail-navigator--planets .detail-navigator__tabs button {
+    min-width: 118px;
+    flex-basis: 118px;
+  }
+  .birth-journey-chart__recenter span:first-child {
+    margin: 0;
+  }
+  .birth-journey-chart__recenter span:last-child {
+    display: none;
+  }
+  .birth-journey-glance__grid,
+  .birth-lifeareas__grid {
+    grid-template-columns: 1fr;
+  }
+  .birth-patterns__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .birth-composition-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .birth-pattern-card {
+    min-height: 250px;
+  }
+  .birth-pattern-evidence__list button {
+    grid-template-columns: 90px 1fr;
+  }
+  .birth-pattern-evidence__list small {
+    grid-column: 2;
+  }
+  .birth-journey-footer {
+    min-height: 90px;
+  }
+}
+
+@media (max-width: 520px) {
+  .birth-journey-identity span {
+    display: none;
+  }
+  .birth-journey-nav button {
+    min-width: 104px;
+    flex-basis: 104px;
+  }
+  .birth-journey-nav button > span {
+    width: 22px;
+    height: 22px;
+    flex-basis: 22px;
+  }
+  .birth-patterns__grid {
+    grid-template-columns: 1fr;
+  }
+  .birth-composition-grid {
+    grid-template-columns: 1fr;
+  }
+  .birth-pattern-card {
+    min-height: 224px;
+  }
+  .birth-pattern-card .lens-wheelmini {
+    width: 128px;
+  }
+  .birth-journey-footer {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+  .birth-journey-footer button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .birth-journey *,
+  .birth-journey *::before,
+  .birth-journey *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

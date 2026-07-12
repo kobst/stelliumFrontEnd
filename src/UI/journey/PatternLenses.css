@@ -54,12 +54,15 @@
   margin-top: 6px;
 }
 .lens-gauge {
+  border: 0;
   flex: 1;
   text-align: center;
   padding: 14px 6px 12px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.025);
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.09);
+  color: inherit;
+  cursor: pointer;
 }
 .lens-gauge:hover {
   background: rgba(202, 190, 255, 0.05);
@@ -106,11 +109,15 @@
 .lens-quadgrid .ax.e { left: -13px; top: 50%; transform: translateY(-50%); }
 .lens-quadgrid .ax.w { right: -13px; top: 50%; transform: translateY(-50%); }
 .lens-quadgrid .qd {
+  border: 0;
   padding: 13px;
   border-radius: 10px;
   background: color-mix(in srgb, var(--qc) 26%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--qc) 45%, transparent);
   min-height: 88px;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
 }
 .lens-quadgrid .qd:hover {
   background: color-mix(in srgb, var(--qc) 36%, transparent);
@@ -145,6 +152,8 @@
 
 /* planetary influence */
 .lens-irow {
+  width: 100%;
+  border: 0;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -152,6 +161,9 @@
   font-size: 12.5px;
   color: rgba(236, 232, 255, 0.7);
   border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
 }
 .lens-irow:hover {
   background: rgba(202, 190, 255, 0.05);
@@ -188,17 +200,26 @@
   margin-top: 8px;
 }
 .lens-shcard {
+  width: 100%;
   display: grid;
   grid-template-columns: 92px 1fr;
   gap: 4px 16px;
   align-items: center;
   padding: 13px 15px;
-  border-radius: 14px;
+  border: 0;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.025);
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.09);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
 }
 .lens-shcard:hover {
   background: rgba(202, 190, 255, 0.05);
+}
+.lens-shcard[aria-pressed="true"] {
+  background: rgba(233, 195, 73, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.58);
 }
 .lens-wheelmini {
   grid-row: 1 / 3;
@@ -220,6 +241,24 @@
 }
 .lens-shcard .mem {
   color: #ece8ff;
+}
+
+.lens-shape-analysis {
+  margin-top: 8px;
+  padding-top: 26px;
+  border-top: 1px solid rgba(202, 190, 255, 0.12);
+}
+
+.lens-shape-analysis h3 {
+  margin: 0 0 16px;
+  color: #e9c349;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.lens-shape-analysis .lens-text {
+  margin-top: 0;
 }
 
 /* ── Pattern A · hero: takeaway → big visual → narrative below ────── */
@@ -258,14 +297,24 @@
   gap: 14px;
 }
 .lens-etile {
+  border: 0;
   padding: 22px 16px 18px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.025);
   box-shadow: inset 0 0 0 1px rgba(202, 190, 255, 0.09);
   text-align: center;
+  color: inherit;
+  cursor: pointer;
 }
 .lens-etile:hover {
   background: rgba(202, 190, 255, 0.05);
+}
+.lens-etile[aria-pressed="true"],
+.lens-gauge[aria-pressed="true"],
+.lens-quadgrid .qd[aria-pressed="true"],
+.lens-irow[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px rgba(233, 195, 73, 0.58);
+  background: rgba(233, 195, 73, 0.07);
 }
 .lens-etile .eh {
   display: flex;

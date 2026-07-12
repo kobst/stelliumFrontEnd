@@ -13,6 +13,28 @@ const iconStyle = {
  * Falls back to a two-letter abbreviation when no SVG exists.
  */
 export function PlanetIcon({ name, size = 18, className = '', style = {} }) {
+  if (name === 'Node' || name === 'North Node' || name === 'True Node') {
+    return (
+      <span
+        className={className}
+        style={{ fontSize: size, lineHeight: 1, color: '#8fd36f', ...style }}
+        aria-label={name}
+      >
+        ☊
+      </span>
+    );
+  }
+  if (name === 'South Node') {
+    return (
+      <span
+        className={className}
+        style={{ fontSize: size, lineHeight: 1, color: '#8fd36f', ...style }}
+        aria-label={name}
+      >
+        ☋
+      </span>
+    );
+  }
   const src = planetIconPaths[name];
   if (!src) {
     return <span className={className} style={style}>{name ? name.substring(0, 2) : '??'}</span>;

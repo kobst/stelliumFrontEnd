@@ -41,6 +41,7 @@ export const BODIES: Record<string, BodyInfo> = {
   uranus: { glyph: '♅', color: '#6ee8e8', size: 0.11 },
   neptune: { glyph: '♆', color: '#6e8eff', size: 0.11 },
   pluto: { glyph: '♇', color: '#c98aff', size: 0.08 },
+  node: { glyph: '☊', color: '#8fd36f', size: 0.09 },
   earth: { glyph: '♁', color: '#5fb7ff', size: 0.12 },
 }
 

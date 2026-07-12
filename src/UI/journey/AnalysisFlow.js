@@ -94,7 +94,10 @@ const paragraphs = (text) =>
     .filter(Boolean);
 
 /** one flattened step's content; hover on pills sharpens the sky */
-export function AnalysisStepBody({ step, onHoverBodies }) {
+export function AnalysisStepBody({ step, onHoverBodies, onPinBodies, pinnedBodies }) {
+  const isPinned = (names) =>
+    pinnedBodies?.length === names.length &&
+    pinnedBodies.every((name, index) => name === names[index]);
   if (step.kind === 'intro') {
     return (
       <>
@@ -110,15 +113,20 @@ export function AnalysisStepBody({ step, onHoverBodies }) {
                       ? [decoded.planet]
                       : [];
                 return (
-                  <span
+                  <button
+                    type="button"
                     key={idx}
                     className="aflow-pill"
                     title={formatAspectDetail(decoded)}
+                    aria-pressed={isPinned(names)}
                     onMouseEnter={() => onHoverBodies?.(names.length ? names : null)}
                     onMouseLeave={() => onHoverBodies?.(null)}
+                    onFocus={() => onHoverBodies?.(names.length ? names : null)}
+                    onBlur={() => onHoverBodies?.(null)}
+                    onClick={() => onPinBodies?.(names)}
                   >
                     {renderAspectPhrase(decoded)}
-                  </span>
+                  </button>
                 );
               })}
             </div>
@@ -135,13 +143,18 @@ export function AnalysisStepBody({ step, onHoverBodies }) {
         {step.focus.length > 0 && (
           <div className="aflow-cast">
             {step.focus.map((n, i) => (
-              <span
+              <button
+                type="button"
                 key={i}
+                aria-pressed={isPinned([n])}
                 onMouseEnter={() => onHoverBodies?.([n])}
                 onMouseLeave={() => onHoverBodies?.(null)}
+                onFocus={() => onHoverBodies?.([n])}
+                onBlur={() => onHoverBodies?.(null)}
+                onClick={() => onPinBodies?.([n])}
               >
                 {n}
-              </span>
+              </button>
             ))}
           </div>
         )}

@@ -63,6 +63,16 @@ export interface ChartSceneProps {
    * takes precedence while active.
    */
   highlightBodies?: string[]
+  /**
+   * Bodies connected to the controlled selection. In isolated-selection
+   * mode they remain visible as secondary context while unrelated bodies
+   * recede almost completely.
+   */
+  relatedBodies?: string[]
+  /** use selected → related → suppressed marker hierarchy */
+  isolateSelection?: boolean
+  /** optional interaction for selecting a rendered aspect line */
+  onSelectAspect?: (aspect: Aspect) => void
   /** emphasis for the secondary (partner) ring, same semantics */
   highlightSecondaryBodies?: string[]
   /**

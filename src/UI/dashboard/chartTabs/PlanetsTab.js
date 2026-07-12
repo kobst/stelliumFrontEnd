@@ -25,7 +25,7 @@ const splitIntoParagraphs = (text) => {
   ));
 };
 
-function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseAskStellium = false, onEmphasizeBodies, onHoverBodies, onUserSelectPlanet, externalPlanet }) {
+function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseAskStellium = false, onEmphasizeBodies, onHoverBodies, onUserSelectPlanet, externalPlanet, showAspectTable = true }) {
   const planets = useMemo(() => {
     const rawPlanets = birthChart?.planets?.filter(p => !excludedPlanets.includes(p.name)) || [];
     // Sort planets by the canonical order
@@ -252,7 +252,7 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
             </div>
 
             {/* Structured Position + Aspects (mobile-style) */}
-            <div className="planet-details-card">
+            {showAspectTable && <div className="planet-details-card">
               <div className="planet-details-header">
                 <div className="planet-details-title">{currentPlanet.name}</div>
                 <div className="planet-details-subtitle">
@@ -281,13 +281,23 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
                         const canRender = Boolean(selfPos?.sign && otherPos?.sign);
                         const isOpen = openAspectIdx === idx;
                         const rowKey = `${aspect.aspectType}-${otherName}-${idx}`;
+                        const toggleAspect = () => {
+                          if (!canRender) return;
+                          const nextOpen = !isOpen;
+                          setOpenAspectIdx(nextOpen ? idx : null);
+                          onEmphasizeBodies?.(
+                            nextOpen
+                              ? [currentPlanet.name, otherName]
+                              : [currentPlanet.name]
+                          );
+                        };
                         return (
                           <React.Fragment key={rowKey}>
                             <div
                               className={`planet-aspect-row ${getAspectColorClass(aspect.aspectType)}${isOpen ? ' planet-aspect-row--open' : ''}`}
                               onMouseEnter={() => onHoverBodies?.([currentPlanet.name, otherName])}
                               onMouseLeave={() => onHoverBodies?.(null)}
-                              onClick={() => canRender && setOpenAspectIdx(isOpen ? null : idx)}
+                              onClick={toggleAspect}
                               role={canRender ? 'button' : undefined}
                               tabIndex={canRender ? 0 : undefined}
                               aria-expanded={canRender ? isOpen : undefined}
@@ -295,7 +305,7 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
                                 if (!canRender) return;
                                 if (e.key === 'Enter' || e.key === ' ') {
                                   e.preventDefault();
-                                  setOpenAspectIdx(isOpen ? null : idx);
+                                  toggleAspect();
                                 }
                               }}
                               style={canRender ? { cursor: 'pointer' } : undefined}
@@ -354,7 +364,7 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
                   <div className="planet-details-empty">No major aspects found</div>
                 )}
               </div>
-            </div>
+            </div>}
 
             {/* Interpretation paragraphs */}
             {interpretation?.interpretation ? (
