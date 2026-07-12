@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute, { OnboardingRoute } from './components/ProtectedRoute';
 
@@ -33,6 +33,16 @@ import ChartReaderPage from './pages/ChartReaderPage';
 import RelationshipJourneyPage from './pages/RelationshipJourneyPage';
 
 import './App.css';
+
+function DefaultChartView() {
+  const { userId, chartId } = useParams();
+  return <Navigate to={`/dashboard/${userId}/chart/${chartId}/reader`} replace />;
+}
+
+function DefaultRelationshipView() {
+  const { userId, compositeId } = useParams();
+  return <Navigate to={`/dashboard/${userId}/relationship/${compositeId}/journey`} replace />;
+}
 
 function App() {
   return (
@@ -114,6 +124,14 @@ function App() {
               path="/dashboard/:userId/chart/:chartId"
               element={
                 <ProtectedRoute>
+                  <DefaultChartView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/:userId/chart/:chartId/classic"
+              element={
+                <ProtectedRoute>
                   <ChartDetailPage />
                 </ProtectedRoute>
               }
@@ -146,8 +164,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
-<Route
+            <Route
               path="/dashboard/:userId/relationship/:compositeId"
+              element={
+                <ProtectedRoute>
+                  <DefaultRelationshipView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/:userId/relationship/:compositeId/classic"
               element={
                 <ProtectedRoute>
                   <RelationshipAnalysisPage />

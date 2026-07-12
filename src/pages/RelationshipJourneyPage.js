@@ -528,7 +528,7 @@ function RelationshipJourneyPage() {
           <button
             type="button"
             className="birth-journey-brand"
-            onClick={() => navigate(`/dashboard/${userId}/relationship/${compositeId}`)}
+            onClick={() => navigate(`/dashboard/${userId}/relationship/${compositeId}/classic`)}
             title="Return to classic relationship view"
           >
             <span aria-hidden="true">☼</span> Stellium

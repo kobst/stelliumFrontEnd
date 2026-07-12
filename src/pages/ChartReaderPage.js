@@ -700,7 +700,7 @@ function ChartReaderPage() {
           <button
             type="button"
             className="birth-journey-brand"
-            onClick={() => navigate(`/dashboard/${userId}/chart/${chartId}`)}
+            onClick={() => navigate(`/dashboard/${userId}/chart/${chartId}/classic`)}
             title="Return to classic chart view"
           >
             <span aria-hidden="true">☼</span> Stellium
