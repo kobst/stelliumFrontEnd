@@ -32,6 +32,13 @@ import './MainDashboardTheme.css';
 
 const PORTRAIT_TONES = ['lilac', 'gold', 'cyan', 'rose', 'sage', 'plum'];
 
+const DASHBOARD_TITLES = {
+  home: 'Horoscope',
+  charts: 'Charts',
+  relationships: 'Relationships',
+  settings: 'Settings',
+};
+
 function generateStardustCircles(count, seed) {
   const rng = (i, s) => {
     const x = Math.sin((i + s) * 9301 + 49297) * 233280;
@@ -203,6 +210,15 @@ function MainDashboard() {
 }
 
 function DashboardContent({ user, userId, entitlements, credits, activeTab, onTabChange, onSignOut, onNavigate }) {
+  useEffect(() => {
+    const section = activeTab.startsWith('settings:') ? 'settings' : activeTab;
+    const previousTitle = document.title;
+    document.title = `${DASHBOARD_TITLES[section] || 'Dashboard'} | Stellium`;
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [activeTab]);
+
   const handleSignOut = async () => {
     await onSignOut();
     onNavigate('/login');
@@ -691,28 +707,46 @@ function HomePane({ userId, user, entitlements }) {
 
   const horizonNav = (
     <nav className="md-horizon-nav" aria-label="Horoscope horizons">
-      {HOME_HORIZONS.map((item) => (
-        <button
-          type="button"
-          key={item.id}
-          className={horizon === item.id ? 'on' : ''}
-          aria-current={horizon === item.id ? 'page' : undefined}
-          data-horizon={item.id}
-          onClick={() => goToHorizon(item.id)}
-        >
-          {item.ask && <span aria-hidden="true">✦</span>}
-          <strong>{item.label}</strong>
-        </button>
-      ))}
+      <span className="md-horizon-nav__eyebrow">Horoscope</span>
+      <div className="md-horizon-nav__tabs" role="tablist" aria-label="Horoscope views">
+        {HOME_HORIZONS.map((item) => (
+          <button
+            type="button"
+            role="tab"
+            key={item.id}
+            id={`horoscope-tab-${item.id}`}
+            className={horizon === item.id ? 'on' : ''}
+            aria-selected={horizon === item.id}
+            aria-controls={item.ask ? 'horoscope-ask-panel' : 'horoscope-reading-panel'}
+            data-horizon={item.id}
+            onClick={() => goToHorizon(item.id)}
+          >
+            {item.ask && <span aria-hidden="true">✦</span>}
+            <strong>{item.label}</strong>
+          </button>
+        ))}
+      </div>
     </nav>
   );
 
   const stagePanel = (
     <>
-      <div className="md-panel-view" hidden={horizon === 'ask'}>
+      <div
+        id="horoscope-reading-panel"
+        className="md-panel-view"
+        role="tabpanel"
+        aria-labelledby={`horoscope-tab-${horizon}`}
+        hidden={horizon === 'ask'}
+      >
         {readingPanel}
       </div>
-      <div className="md-panel-view" hidden={horizon !== 'ask'}>
+      <div
+        id="horoscope-ask-panel"
+        className="md-panel-view"
+        role="tabpanel"
+        aria-labelledby="horoscope-tab-ask"
+        hidden={horizon !== 'ask'}
+      >
         {askPanel}
       </div>
     </>

@@ -224,19 +224,38 @@
   color: #e9c349;
 }
 
-/* One primary Home navigation controls the reading scope and Ask surface. */
+/* Page-level Horoscope views, visually subordinate to the global app nav. */
 .md-horizon-nav {
   width: 100%;
   min-height: 52px;
   display: flex;
-  align-items: stretch;
-  justify-content: center;
-  gap: clamp(14px, 4vw, 64px);
+  align-items: center;
+  gap: 28px;
 }
 
-.md-horizon-nav button {
+.md-horizon-nav__eyebrow {
+  flex: 0 0 auto;
+  padding-right: 28px;
+  border-right: 1px solid rgba(202, 190, 255, 0.12);
+  color: rgba(236, 232, 255, 0.38);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.md-horizon-nav__tabs {
+  min-width: 0;
+  display: flex;
+  align-self: stretch;
+  align-items: stretch;
+  gap: clamp(18px, 3vw, 44px);
+}
+
+.md-horizon-nav__tabs button {
   position: relative;
-  min-width: 132px;
+  min-width: 104px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -248,7 +267,7 @@
   cursor: pointer;
 }
 
-.md-horizon-nav button::after {
+.md-horizon-nav__tabs button::after {
   content: '';
   position: absolute;
   right: 0;
@@ -258,19 +277,19 @@
   background: transparent;
 }
 
-.md-horizon-nav button:hover {
+.md-horizon-nav__tabs button:hover {
   color: rgba(236, 232, 255, 0.82);
 }
 
-.md-horizon-nav button.on {
+.md-horizon-nav__tabs button.on {
   color: #e9c349;
 }
 
-.md-horizon-nav button.on::after {
+.md-horizon-nav__tabs button.on::after {
   background: #e9c349;
 }
 
-.md-horizon-nav button strong {
+.md-horizon-nav__tabs button strong {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -279,8 +298,10 @@
 }
 
 .sky-stage__subnav:has(.md-horizon-nav) {
-  min-height: 58px;
-  padding: 0 20px;
+  min-height: 64px;
+  padding: 0 max(32px, calc((100vw - 1240px) / 2 + 48px));
+  background: rgba(8, 8, 14, 0.82);
+  border-bottom-color: rgba(202, 190, 255, 0.12);
 }
 
 /* ═══ labeled transit chips ═══ */
@@ -468,13 +489,19 @@
 
 @media (max-width: 900px) {
   .md-horizon-nav {
-    justify-content: flex-start;
+    gap: 18px;
+  }
+  .md-horizon-nav__eyebrow {
+    padding-right: 18px;
+  }
+  .md-horizon-nav__tabs {
+    flex: 1;
     gap: 0;
     overflow-x: auto;
     scrollbar-width: none;
   }
-  .md-horizon-nav::-webkit-scrollbar { display: none; }
-  .md-horizon-nav button {
+  .md-horizon-nav__tabs::-webkit-scrollbar { display: none; }
+  .md-horizon-nav__tabs button {
     min-width: 118px;
     flex: 0 0 118px;
   }
@@ -519,17 +546,20 @@
 }
 
 @media (max-width: 600px) {
-  .md-horizon-nav button {
+  .md-horizon-nav__eyebrow {
+    display: none;
+  }
+  .md-horizon-nav__tabs button {
     min-width: 74px;
     flex-basis: 74px;
     padding-right: 5px;
     padding-left: 5px;
   }
-  .md-horizon-nav button:last-child {
+  .md-horizon-nav__tabs button:last-child {
     min-width: 112px;
     flex-basis: 112px;
   }
-  .md-horizon-nav button strong {
+  .md-horizon-nav__tabs button strong {
     font-size: 9px;
   }
   .transit-chip { width: 32px; height: 32px; justify-content: center; padding: 0; }

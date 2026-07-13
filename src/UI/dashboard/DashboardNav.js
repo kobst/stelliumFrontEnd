@@ -3,9 +3,9 @@ import BalanceChip from './BalanceChip';
 import './DashboardNav.css';
 
 const TABS = [
-  { id: 'home', label: 'Home' },
-  { id: 'charts', label: 'My Birth Chart' },
-  { id: 'relationships', label: 'My Relationships' }
+  { id: 'home', label: 'Horoscope' },
+  { id: 'charts', label: 'Charts' },
+  { id: 'relationships', label: 'Relationships' }
 ];
 
 function WordmarkGlyph() {
