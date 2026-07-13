@@ -1709,7 +1709,8 @@ export const deleteHoroscope = async (userId, horoscopeId) => {
 };
 
 // Advanced Custom Horoscope API
-// Backward compatible: accepts an array of transit events OR an options object { query?, selectedTransits?, transitEvents?, period? }
+// Backward compatible: accepts an array of transit events OR an options object
+// { query?, selectedTransits?, transitEvents?, period?, startDate?, endDate? }
 export const generateCustomHoroscope = async (userId, options) => {
   try {
     let body = {};
@@ -1722,7 +1723,9 @@ export const generateCustomHoroscope = async (userId, options) => {
         query,
         selectedTransits,
         transitEvents,
-        period
+        period,
+        startDate,
+        endDate
       } = options;
 
       if (typeof query === 'string' && query.trim().length > 0) {
@@ -1738,6 +1741,14 @@ export const generateCustomHoroscope = async (userId, options) => {
 
       if (period && ['daily', 'weekly', 'monthly'].includes(period)) {
         body.period = period;
+      }
+
+      if (startDate && !Number.isNaN(Date.parse(startDate))) {
+        body.startDate = new Date(startDate).toISOString();
+      }
+
+      if (endDate && !Number.isNaN(Date.parse(endDate))) {
+        body.endDate = new Date(endDate).toISOString();
       }
     }
 

@@ -120,6 +120,12 @@ function filterTransitsForPeriod(transits, period) {
     .slice(0, 12);
 }
 
+function formatCapturedDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 function MainDashboard() {
   const { userId } = useParams();
   const location = useLocation();
@@ -143,6 +149,10 @@ function MainDashboard() {
   const setUserAspects = useStore((state) => state.setUserAspects);
   const setCurrentUserContext = useStore((state) => state.setCurrentUserContext);
   const setActiveUserContext = useStore((state) => state.setActiveUserContext);
+
+  useEffect(() => {
+    setActiveTab(location.state?.section || 'home');
+  }, [location.state]);
 
   useEffect(() => {
     let cancelled = false;
@@ -195,6 +205,11 @@ function MainDashboard() {
     );
   }
 
+  const handleTabChange = (section) => {
+    if (section === activeTab) return;
+    navigate(`/dashboard/${userId}`, { state: { section } });
+  };
+
   return (
     <DashboardContent
       user={user}
@@ -202,7 +217,7 @@ function MainDashboard() {
       entitlements={entitlements}
       credits={credits}
       activeTab={activeTab}
-      onTabChange={setActiveTab}
+      onTabChange={handleTabChange}
       onSignOut={signOut}
       onNavigate={navigate}
     />
@@ -232,7 +247,7 @@ function DashboardContent({ user, userId, entitlements, credits, activeTab, onTa
         credits={credits}
         activeTab={activeTab}
         onTabChange={onTabChange}
-        onNavigateHome={() => onNavigate('/')}
+        onNavigateHome={() => onTabChange('home')}
         onSignOut={handleSignOut}
       />
 
@@ -293,6 +308,8 @@ const initialHomeHorizon = () => {
 };
 
 function HomePane({ userId, user, entitlements }) {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [horizon, setHorizon] = useState(initialHomeHorizon);
   const [period, setPeriod] = useState(() => {
     const initial = HOME_HORIZONS.find((item) => item.id === initialHomeHorizon());
@@ -315,12 +332,21 @@ function HomePane({ userId, user, entitlements }) {
   const [composing, setComposing] = useState(false);
   // the scrubber's current moment; sky clicks resolve against it
   const playheadRef = React.useRef(Date.now());
+  const getActiveSkyDate = useCallback(
+    () => new Date(playheadRef.current).toISOString(),
+    []
+  );
 
   const goToHorizon = useCallback((horizonId) => {
     const next = HOME_HORIZONS.find((item) => item.id === horizonId) || HOME_HORIZONS[0];
     setHorizon(next.id);
     if (next.period) setPeriod(next.period);
-    window.history.replaceState(null, '', `#${next.id}`);
+    if (window.location.hash !== `#${next.id}`) {
+      navigate(
+        { pathname: location.pathname, search: location.search, hash: `#${next.id}` },
+        { state: location.state }
+      );
+    }
     window.requestAnimationFrame(() => {
       document.querySelector(`[data-horizon="${next.id}"]`)?.scrollIntoView({
         block: 'nearest',
@@ -328,7 +354,7 @@ function HomePane({ userId, user, entitlements }) {
         behavior: 'auto',
       });
     });
-  }, []);
+  }, [location.pathname, location.search, location.state, navigate]);
 
   useEffect(() => {
     window.requestAnimationFrame(() => {
@@ -342,27 +368,29 @@ function HomePane({ userId, user, entitlements }) {
   }, [horizon]);
 
   useEffect(() => {
-    if (!HOME_HORIZONS.some((item) => item.id === window.location.hash.replace('#', ''))) {
-      window.history.replaceState(null, '', '#today');
+    const hash = location.hash.replace('#', '');
+    const next = HOME_HORIZONS.some((item) => item.id === hash) ? hash : 'today';
+    const config = HOME_HORIZONS.find((item) => item.id === next);
+    setHorizon(next);
+    if (config?.period) setPeriod(config.period);
+    if (!HOME_HORIZONS.some((item) => item.id === hash)) {
+      navigate(
+        { pathname: location.pathname, search: location.search, hash: '#today' },
+        { replace: true, state: location.state }
+      );
     }
-    const handleHashChange = () => {
-      const next = initialHomeHorizon();
-      const config = HOME_HORIZONS.find((item) => item.id === next);
-      setHorizon(next);
-      if (config?.period) setPeriod(config.period);
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  }, [location.hash, location.pathname, location.search, location.state, navigate]);
 
-  // clicking a body ON THE SKY adds the matching transit as Ask context:
-  // a transiting planet pulls its tightest upcoming window; a natal
-  // planet pulls the tightest transit hitting it
+  // Clicking the sky snapshots the aspect or point at the playhead so
+  // Ask context always describes the date the user was inspecting.
   const handleSkyPick = useCallback((sel, activeAspects = []) => {
     if (!sel) return;
     const name = fromSceneBodyName(sel.body);
     if (!name) return;
     const at = playheadRef.current;
+    const capturedAt = new Date(at).toISOString();
+    const capturedDay = capturedAt.slice(0, 10);
+    const capturedLabel = formatCapturedDate(capturedAt);
     let els = [];
 
     if (activeAspects.length) {
@@ -380,7 +408,7 @@ function HomePane({ userId, user, entitlements }) {
               (w.targetPlanet || w.natalPlanet) === nName &&
               String(w.aspect || '').toLowerCase() === a.type
           );
-          const payload = win
+          const basePayload = win
             ? formatTransitEvent(win)
             : {
                 type: a.type,
@@ -392,11 +420,16 @@ function HomePane({ userId, user, entitlements }) {
                 end: new Date(at).toISOString(),
                 description: `Transiting ${tName} ${a.type} natal ${nName} (orb ${a.orb?.toFixed ? a.orb.toFixed(1) : a.orb}°)`
               };
+          const payload = {
+            ...basePayload,
+            exact: capturedAt,
+            capturedAt,
+          };
           return {
             group: 'horoscope',
             type: 'transit',
-            key: `${tName}-${a.type}-${nName}-sky`,
-            label: `Transiting ${tName} ${a.type} Natal ${nName}`,
+            key: `${tName}-${a.type}-${nName}-${capturedDay}-sky`,
+            label: `Transiting ${tName} ${a.type} Natal ${nName} · ${capturedLabel}`,
             meta: payload.description || '',
             payload
           };
@@ -407,23 +440,51 @@ function HomePane({ userId, user, entitlements }) {
       const candidates = transits.filter((w) =>
         sel.layer === 'transit' ? w.transitingPlanet === name : (w.targetPlanet || w.natalPlanet) === name
       );
-      if (!candidates.length) return;
-      const activeNow = candidates.filter((w) => {
-        const start = Date.parse(w.start);
-        const end = Date.parse(w.end);
+      const activeAtPlayhead = candidates.filter((window) => {
+        const start = Date.parse(window.start);
+        const end = Date.parse(window.end);
         return Number.isFinite(start) && Number.isFinite(end) && start <= at && at <= end;
       });
-      const inPeriod = filterTransitsForPeriod(candidates, period);
-      els = (activeNow.length ? activeNow : inPeriod.length ? inPeriod : candidates)
-        .slice(0, 1)
-        .map((pick) => ({
+
+      if (!activeAtPlayhead.length) {
+        const layerLabel = sel.layer === 'transit' ? 'Transiting' : 'Natal';
+        const payload = {
+          type: sel.layer === 'transit' ? 'transit-position' : 'natal-point',
+          transitingPlanet: name,
+          targetPlanet: sel.layer === 'natal' ? name : undefined,
+          exact: capturedAt,
+          start: capturedAt,
+          end: capturedAt,
+          capturedAt,
+          description: `${layerLabel} ${name} viewed against the sky on ${capturedLabel}`,
+        };
+        els = [{
           group: 'horoscope',
           type: 'transit',
-          key: pick.id || `${pick.transitingPlanet}-${pick.aspect}-${pick.targetPlanet}-sky`,
-          label: formatTransitTitle(pick),
-          meta: pick.description || '',
-          payload: formatTransitEvent(pick)
-        }));
+          key: `${sel.layer}-${name}-${capturedDay}-sky`,
+          label: `${layerLabel} ${name} · ${capturedLabel}`,
+          meta: payload.description,
+          payload,
+        }];
+      } else {
+        els = activeAtPlayhead
+          .slice(0, 1)
+          .map((pick) => {
+            const payload = {
+              ...formatTransitEvent(pick),
+              exact: capturedAt,
+              capturedAt,
+            };
+            return {
+              group: 'horoscope',
+              type: 'transit',
+              key: `${pick.id || `${pick.transitingPlanet}-${pick.aspect}-${pick.targetPlanet}`}-${capturedDay}-sky`,
+              label: `${formatTransitTitle(pick)} · ${capturedLabel}`,
+              meta: pick.description || '',
+              payload,
+            };
+          });
+      }
     }
 
     if (!els.length) return;
@@ -431,7 +492,7 @@ function HomePane({ userId, user, entitlements }) {
     // selection (re-pushing history resurrected cleared chips)
     setAskElements(els);
     goToHorizon('ask');
-  }, [goToHorizon, transits, period]);
+  }, [goToHorizon, transits]);
 
   const handleCompose = useCallback(async () => {
     const selected = askSelection.map((el) => el.payload || el).filter(Boolean);
@@ -692,6 +753,7 @@ function HomePane({ userId, user, entitlements }) {
         birthChart={user?.birthChart}
         transitWindows={transits}
         horoscopePeriod={PERIOD_TO_HORIZON[period]}
+        getActiveDate={getActiveSkyDate}
         externalElements={askElements}
         onSelectionChange={setAskSelection}
         contextLabel="About your horoscope"

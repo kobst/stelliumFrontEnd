@@ -76,7 +76,8 @@ function HoroscopeSkyStage({
   askMode = false,
   onTimeSample,
 }) {
-  const window_ = PERIOD_WINDOWS[period] || PERIOD_WINDOWS.weekly;
+  const timelinePeriod = askMode ? 'monthly' : period;
+  const window_ = PERIOD_WINDOWS[timelinePeriod] || PERIOD_WINDOWS.weekly;
 
   const natal = useMemo(
     () => toChartScenePlacements(birthChart?.planets),
@@ -277,13 +278,13 @@ function HoroscopeSkyStage({
     </div>
   );
 
-  const tickFractions = period === 'daily'
+  const tickFractions = timelinePeriod === 'daily'
     ? [0, 0.25, 0.5, 0.75, 1]
-    : period === 'weekly'
+    : timelinePeriod === 'weekly'
       ? [0, 2 / 7, 4 / 7, 6 / 7, 1]
       : [0, 7 / 30, 14 / 30, 21 / 30, 1];
 
-  const timebar = range && playWindow && !askMode && (
+  const timebar = range && playWindow && (
     <div className="timebar">
       <button
         className="timebar__play"
@@ -321,7 +322,7 @@ function HoroscopeSkyStage({
         <div className="timebar__ticks">
           {tickFractions.map((fraction) => (
             <span key={fraction} style={{ left: `${fraction * 100}%` }}>
-              {period === 'daily'
+              {timelinePeriod === 'daily'
                 ? fmtHour(playWindow.start + fraction * (playWindow.end - playWindow.start) - (fraction === 1 ? 1 : 0))
                 : fmtTick(playWindow.start + fraction * (playWindow.end - playWindow.start) - (fraction === 1 ? 1 : 0))}
             </span>
@@ -344,17 +345,6 @@ function HoroscopeSkyStage({
         ⌖
       </button>
     </div>
-  );
-
-  const askControls = askMode && (
-    <button
-      type="button"
-      className="ask-sky-recenter"
-      title="Recenter the sky"
-      onClick={() => setFitNonce((n) => n + 1)}
-    >
-      <span aria-hidden="true">⌖</span> Recenter
-    </button>
   );
 
   // ── transit chips (labeled; default = the reading's transits) ─────
@@ -440,7 +430,7 @@ function HoroscopeSkyStage({
       topLeft={bodyStrip}
       panel={panel}
       panelHeader={panelHeader}
-      footer={timebar || askControls}
+      footer={timebar}
       overlay={detailOverlay}
     />
   );

@@ -22,8 +22,6 @@ import OnboardingConfirmation from './pages/OnboardingConfirmation';
 
 // Protected pages (auth + profile required)
 import MainDashboard from './pages/MainDashboard';
-import ChartDetailPage from './pages/ChartDetailPage';
-import RelationshipAnalysisPage from './pages/RelationshipAnalysisPage';
 import CreateRelationshipPage from './pages/CreateRelationshipPage';
 import UserSelectionPage from './pages/UserSelectionPage';
 import CelebsPage from './pages/CelebsPage';
@@ -132,7 +130,7 @@ function App() {
               path="/dashboard/:userId/chart/:chartId/classic"
               element={
                 <ProtectedRoute>
-                  <ChartDetailPage />
+                  <DefaultChartView />
                 </ProtectedRoute>
               }
             />
@@ -176,7 +174,7 @@ function App() {
               path="/dashboard/:userId/relationship/:compositeId/classic"
               element={
                 <ProtectedRoute>
-                  <RelationshipAnalysisPage />
+                  <DefaultRelationshipView />
                 </ProtectedRoute>
               }
             />

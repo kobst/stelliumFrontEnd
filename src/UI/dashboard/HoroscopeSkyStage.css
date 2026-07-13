@@ -206,24 +206,6 @@
   background: rgba(202, 190, 255, 0.08);
 }
 
-.ask-sky-recenter {
-  min-height: 38px;
-  padding: 0 13px;
-  border: 1px solid rgba(202, 190, 255, 0.2);
-  border-radius: 8px;
-  background: rgba(14, 14, 22, 0.78);
-  color: rgba(236, 232, 255, 0.74);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 650;
-  backdrop-filter: blur(12px);
-}
-
-.ask-sky-recenter span {
-  margin-right: 5px;
-  color: #e9c349;
-}
-
 /* Page-level Horoscope views, visually subordinate to the global app nav. */
 .md-horizon-nav {
   width: 100%;

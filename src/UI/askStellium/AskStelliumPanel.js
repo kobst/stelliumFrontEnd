@@ -286,7 +286,8 @@ function AskStelliumPanel({
   autoFocus = variant === 'overlay',
   externalElements,
   externalToggle,
-  onSelectionChange
+  onSelectionChange,
+  getActiveDate
 }) {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -308,6 +309,8 @@ function AskStelliumPanel({
   const hasLoadedRef = useRef(null);
   const overlayRef = useRef(null);
   const externalToggleRef = useRef(null);
+  const externalElementsRef = useRef(null);
+  const selectedElementsRef = useRef([]);
   const isOverlayVariant = variant === 'overlay';
 
   const navigate = useNavigate();
@@ -682,18 +685,28 @@ function AskStelliumPanel({
   }, []);
 
   // Stage bridge: elements pushed from outside (sky clicks, influence
-  // pills) merge into the selection; duplicates and overflow ignored.
+  // pills) merge into the selection while surfacing the shared cap.
   useEffect(() => {
-    if (!externalElements?.length) return;
-    setSelectedElements(prev => {
-      const merged = [...prev];
-      externalElements.forEach((el) => {
-        if (el?.key && !merged.some(x => x.key === el.key) && merged.length < MAX_SELECTIONS) {
-          merged.push(el);
-        }
-      });
-      return merged.length === prev.length ? prev : merged;
-    });
+    if (!externalElements?.length || externalElementsRef.current === externalElements) return;
+    externalElementsRef.current = externalElements;
+    const currentSelections = selectedElementsRef.current;
+    const additions = externalElements.filter(
+      (el) => el?.key && !currentSelections.some((selected) => selected.key === el.key)
+    );
+    if (!additions.length) return;
+
+    const available = MAX_SELECTIONS - currentSelections.length;
+    if (available <= 0) {
+      setSelectionError(`Add up to ${MAX_SELECTIONS} chart elements to focus your question.`);
+      return;
+    }
+
+    setSelectedElements([...currentSelections, ...additions.slice(0, available)]);
+    setSelectionError(
+      additions.length > available
+        ? `Add up to ${MAX_SELECTIONS} chart elements to focus your question.`
+        : null
+    );
   }, [externalElements]);
 
   useEffect(() => {
@@ -704,6 +717,7 @@ function AskStelliumPanel({
 
   // let the host mirror the selection back onto the sky
   useEffect(() => {
+    selectedElementsRef.current = selectedElements;
     onSelectionChange?.(selectedElements);
   }, [selectedElements, onSelectionChange]);
 
@@ -763,6 +777,16 @@ function AskStelliumPanel({
         responseText = response?.answer || response?.response || '';
       } else if (contentType === 'horoscope') {
         const requestBody = { period: activePeriod };
+        const activeDateValue = getActiveDate?.();
+        const activeDate = activeDateValue ? new Date(activeDateValue) : null;
+        if (activeDate && !Number.isNaN(activeDate.getTime())) {
+          const startDate = new Date(activeDate);
+          startDate.setHours(0, 0, 0, 0);
+          const endDate = new Date(activeDate);
+          endDate.setHours(23, 59, 59, 999);
+          requestBody.startDate = startDate.toISOString();
+          requestBody.endDate = endDate.toISOString();
+        }
         if (userMessage) {
           requestBody.query = userMessage;
         }
@@ -824,7 +848,8 @@ function AskStelliumPanel({
     fetchEntitlements,
     stelliumUser?._id,
     selectedElements,
-    activePeriod
+    activePeriod,
+    getActiveDate
   ]);
 
   const handleKeyPress = (e) => {

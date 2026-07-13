@@ -54,7 +54,7 @@ function DashboardLayout({ children, user, defaultSection = 'horoscope' }) {
         credits={credits}
         activeTab={activeTab}
         onTabChange={handleTabChange}
-        onNavigateHome={() => navigate('/')}
+        onNavigateHome={() => navigate(`/dashboard/${userId}`, { state: { section: 'home' } })}
         onSignOut={handleSignOut}
       />
 

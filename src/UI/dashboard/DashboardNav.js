@@ -71,7 +71,7 @@ function DashboardNav({ user, entitlements, credits, activeTab, onTabChange, onN
       <nav className="md-nav">
         <div className="md-nav__inner">
           <div className="md-nav__left">
-            <button type="button" className="md-wordmark" onClick={onNavigateHome} aria-label="Stellium home">
+            <button type="button" className="md-wordmark" onClick={onNavigateHome} aria-label="Go to Horoscope">
               <span className="md-wordmark__glyph"><WordmarkGlyph /></span>
               <span className="md-wordmark__name">Stellium</span>
             </button>

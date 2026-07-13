@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import useChartData from '../hooks/useChartData';
@@ -207,6 +207,7 @@ function ChapterFooter({ activeChapter, onNavigate }) {
 
 function ChartReaderPage() {
   const { userId, chartId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
   const entitlements = useEntitlements(stelliumUser);
@@ -435,14 +436,23 @@ function ChartReaderPage() {
   const isCelebrity =
     chart?.isCelebrity === true || chart?.kind === 'celebrity' || chart?.isReadOnly === true;
 
-  const goToChapter = useCallback((chapterId) => {
+  const applyChapterState = useCallback((chapterId) => {
     setActiveChapter(chapterId);
     setSelectedPatternKey(null);
     setShowCompositionChart(false);
     setSelectedAnalysisId(null);
     if (chapterId !== 'planets') setSkySelection(null);
     setPinnedNames(null);
-    window.history.replaceState(null, '', `#${chapterId}`);
+  }, []);
+
+  const goToChapter = useCallback((chapterId) => {
+    applyChapterState(chapterId);
+    if (window.location.hash !== `#${chapterId}`) {
+      navigate(
+        { pathname: location.pathname, search: location.search, hash: `#${chapterId}` },
+        { state: location.state }
+      );
+    }
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
     window.requestAnimationFrame(() => {
@@ -454,7 +464,7 @@ function ChartReaderPage() {
           inline: 'center',
         });
     });
-  }, []);
+  }, [applyChapterState, location.pathname, location.search, location.state, navigate]);
 
   const togglePinnedNames = useCallback((names) => {
     const next = (names || []).filter(Boolean);
@@ -599,13 +609,13 @@ function ChartReaderPage() {
   }, [activeChapter, focusedPlanetName, selectPlanet, skySelection]);
 
   useEffect(() => {
-    const onHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      if (CHAPTERS.some((chapter) => chapter.id === hash)) setActiveChapter(hash);
-    };
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
-  }, []);
+    const hash = location.hash.replace('#', '');
+    const chapterId = CHAPTERS.some((chapter) => chapter.id === hash) ? hash : 'overview';
+    if (chapterId !== activeChapter) {
+      applyChapterState(chapterId);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }, [activeChapter, applyChapterState, location.hash]);
 
   if (stelliumUser && userId !== stelliumUser._id) {
     return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
@@ -700,8 +710,8 @@ function ChartReaderPage() {
           <button
             type="button"
             className="birth-journey-brand"
-            onClick={() => navigate(`/dashboard/${userId}/chart/${chartId}/classic`)}
-            title="Return to classic chart view"
+            onClick={() => navigate(`/dashboard/${userId}`, { state: { section: 'home' } })}
+            title="Go to Horoscope"
           >
             <span aria-hidden="true">☼</span> Stellium
           </button>

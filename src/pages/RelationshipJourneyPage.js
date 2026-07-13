@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   fetchRelationshipAnalysis,
   fetchUser,
@@ -139,6 +139,7 @@ function RelationshipFooter({ activeChapter, onNavigate }) {
 
 function RelationshipJourneyPage() {
   const { userId, compositeId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const [relationship, setRelationship] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -189,12 +190,6 @@ function RelationshipJourneyPage() {
       cancelled = true;
     };
   }, [compositeId, userId]);
-
-  useEffect(() => {
-    const handleHashChange = () => setActiveChapter(chapterFromHash());
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
 
   useEffect(() => {
     window.requestAnimationFrame(() => {
@@ -318,11 +313,20 @@ function RelationshipJourneyPage() {
     if (!activeCompositeBody && compositeItems[0]) setActiveCompositeBody(compositeItems[0].id);
   }, [activeCompositeBody, compositeItems]);
 
-  const goToChapter = useCallback((chapterId) => {
+  const applyChapterState = useCallback((chapterId) => {
     setActiveChapter(chapterId);
     setHoverAB(null);
     setPinnedAB(null);
-    window.history.replaceState(null, '', `#${chapterId}`);
+  }, []);
+
+  const goToChapter = useCallback((chapterId) => {
+    applyChapterState(chapterId);
+    if (window.location.hash !== `#${chapterId}`) {
+      navigate(
+        { pathname: location.pathname, search: location.search, hash: `#${chapterId}` },
+        { state: location.state }
+      );
+    }
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
     window.requestAnimationFrame(() => {
@@ -332,7 +336,15 @@ function RelationshipJourneyPage() {
         behavior: reduced ? 'auto' : 'smooth',
       });
     });
-  }, []);
+  }, [applyChapterState, location.pathname, location.search, location.state, navigate]);
+
+  useEffect(() => {
+    const chapterId = chapterFromHash();
+    if (chapterId !== activeChapter) {
+      applyChapterState(chapterId);
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }, [activeChapter, applyChapterState, location.hash]);
 
   const pinFocus = useCallback((key, a = [], b = []) => {
     setPinnedAB((current) => current?.key === key ? null : { key, a, b });
@@ -528,8 +540,8 @@ function RelationshipJourneyPage() {
           <button
             type="button"
             className="birth-journey-brand"
-            onClick={() => navigate(`/dashboard/${userId}/relationship/${compositeId}/classic`)}
-            title="Return to classic relationship view"
+            onClick={() => navigate(`/dashboard/${userId}`, { state: { section: 'home' } })}
+            title="Go to Horoscope"
           >
             <span aria-hidden="true">☼</span> Stellium
           </button>
