@@ -211,6 +211,14 @@
   font-weight: 500;
 }
 
+.chart-reader-tooltip small {
+  display: block;
+  margin-top: 3px;
+  color: rgba(236, 232, 255, 0.48);
+  font-size: 9px;
+  font-weight: 500;
+}
+
 /* selection detail in the sky card footer */
 .chart-reader-sky-detail {
   padding: 10px 16px 14px;

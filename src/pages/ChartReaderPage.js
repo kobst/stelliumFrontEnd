@@ -46,6 +46,14 @@ const PLANET_ORDER = [
   'Midheaven', 'Node', 'North Node',
 ];
 
+const contextElementBodies = (element) => {
+  const payload = element?.payload || element;
+  if (!payload) return [];
+  if (payload.type === 'position') return [payload.planet].filter(Boolean);
+  if (payload.type === 'aspect') return [payload.planet1, payload.planet2].filter(Boolean);
+  return [];
+};
+
 const paragraphs = (text) =>
   String(text || '')
     .split(/\n\s*\n|\n/)
@@ -94,6 +102,7 @@ function ChartStage({
   onHoverAspect,
   onToggleAspect,
   onHoverBody,
+  onHoverSceneAspect,
   onSelectBody,
   onSelectAspect,
   onRecenter,
@@ -164,6 +173,7 @@ function ChartStage({
           isolateSelection={isolateSelection}
           selectedBody={selectedBody}
           onHoverBody={onHoverBody}
+          onHoverAspect={onHoverSceneAspect}
           onSelectBody={onSelectBody}
           onSelectAspect={onSelectAspect}
         />
@@ -240,9 +250,11 @@ function ChartReaderPage() {
   const [planetsSelectionNames, setPlanetsSelectionNames] = useState(null);
   const [externalPlanet, setExternalPlanet] = useState(null);
   const [skySelection, setSkySelection] = useState(null);
-  const [askElements, setAskElements] = useState([]);
   const [askSelection, setAskSelection] = useState([]);
-  const [askExternalToggle, setAskExternalToggle] = useState(null);
+  const [askInspector, setAskInspector] = useState(null);
+  const [askChartHoverElement, setAskChartHoverElement] = useState(null);
+  const [askTableHoverElement, setAskTableHoverElement] = useState(null);
+  const [askContextHost, setAskContextHost] = useState(null);
   const [fitNonce, setFitNonce] = useState(0);
   const mousePos = useRef({ x: 0, y: 0 });
   const [hoverInfo, setHoverInfo] = useState(null);
@@ -488,49 +500,29 @@ function ChartReaderPage() {
       if (!planet) return;
       setExternalPlanet({ name, nonce: Date.now() });
       if (activeChapter !== 'planets') goToChapter('planets');
-      if (canUseAskStellium) {
-        const data = formatPositionData(planet);
-        setAskElements([{ ...data, key: data.code, payload: data }]);
-      }
     },
-    [activeChapter, canUseAskStellium, goToChapter, planets]
+    [activeChapter, goToChapter, planets]
   );
 
   const askHighlightBodies = useMemo(() => {
-    const names = askSelection.flatMap((element) => {
-      const payload = element.payload || element;
-      if (element.type === 'position' || payload.type === 'position') {
-        return [payload.planet || element.planet].filter(Boolean);
-      }
-      if (element.type === 'aspect' || payload.type === 'aspect') {
-        return [
-          payload.planet1 || element.planet1,
-          payload.planet2 || element.planet2,
-        ].filter(Boolean);
-      }
-      return [];
-    });
+    const focusedElement = askTableHoverElement || askInspector?.element;
+    const names = focusedElement
+      ? contextElementBodies(focusedElement)
+      : askSelection.flatMap(contextElementBodies);
     return toSceneBodyNames([...new Set(names)]);
-  }, [askSelection]);
+  }, [askTableHoverElement, askInspector, askSelection]);
 
-  const toggleAskContext = useCallback((element) => {
-    if (!element) return;
-    setAskExternalToggle({ element, nonce: Date.now() });
+  const makeAskPositionElement = useCallback((planet) => {
+    if (!planet) return null;
+    const data = formatPositionData(planet);
+    return { ...data, key: data.code, payload: data };
   }, []);
 
-  const handleAskSkySelect = useCallback((selection) => {
-    if (!selection) return;
-    const name = fromSceneBodyName(selection.body);
-    const planet = name && planets.find((item) => item.name === name);
-    if (!planet) return;
-    const data = formatPositionData(planet);
-    toggleAskContext({ ...data, key: data.code, payload: data });
-  }, [planets, toggleAskContext]);
-
-  const handleAskAspectSelect = useCallback((sceneAspect) => {
+  const makeAskAspectElement = useCallback((sceneAspect) => {
+    if (!sceneAspect) return null;
     const nameA = fromSceneBodyName(sceneAspect.bodyA);
     const nameB = fromSceneBodyName(sceneAspect.bodyB);
-    if (!nameA || !nameB) return;
+    if (!nameA || !nameB) return null;
     const rawAspect = aspects.find((aspect) => {
       const samePair =
         (aspect.aspectedPlanet === nameA && aspect.aspectingPlanet === nameB) ||
@@ -544,10 +536,96 @@ function ChartReaderPage() {
     };
     const planet1 = planets.find((planet) => planet.name === rawAspect.aspectedPlanet);
     const planet2 = planets.find((planet) => planet.name === rawAspect.aspectingPlanet);
+    if (!planet1 || !planet2) return null;
+    const data = formatAspectData(rawAspect, planet1, planet2);
+    return { ...data, key: data.code, payload: data };
+  }, [aspects, planets]);
+
+  const handleAskSkySelect = useCallback((selection) => {
+    if (!selection) return;
+    const name = fromSceneBodyName(selection.body);
+    const planet = name && planets.find((item) => item.name === name);
+    if (!planet) return;
+    const element = makeAskPositionElement(planet);
+    setAskInspector({ element, nonce: Date.now() });
+  }, [makeAskPositionElement, planets]);
+
+  const handleAskAspectSelect = useCallback((sceneAspect) => {
+    const element = makeAskAspectElement(sceneAspect);
+    if (element) setAskInspector({ element, nonce: Date.now() });
+  }, [makeAskAspectElement]);
+
+  const handleAskSkyHover = useCallback((hover) => {
+    setHoverInfo(
+      hover
+        ? { body: hover.body, x: mousePos.current.x, y: mousePos.current.y }
+        : null
+    );
+    if (!hover) {
+      setAskChartHoverElement(null);
+      return;
+    }
+    const name = fromSceneBodyName(hover.body);
+    const planet = name && planets.find((item) => item.name === name);
+    setAskChartHoverElement(makeAskPositionElement(planet));
+  }, [makeAskPositionElement, planets]);
+
+  const handleAskAspectHover = useCallback((sceneAspect) => {
+    const element = sceneAspect ? makeAskAspectElement(sceneAspect) : null;
+    setAskChartHoverElement(element);
+    setHoverInfo(
+      element
+        ? { label: element.label, x: mousePos.current.x, y: mousePos.current.y }
+        : null
+    );
+  }, [makeAskAspectElement]);
+
+  const inspectAskElement = useCallback((element) => {
+    setAskInspector(element ? { element, nonce: Date.now() } : null);
+  }, []);
+
+  const askInspectorPayload = askInspector?.element?.payload || askInspector?.element;
+  const askInspectedPlanet = askInspectorPayload?.type === 'position'
+    ? planets.find((planet) => planet.name === askInspectorPayload.planet) || null
+    : null;
+  const askInspectedAspects = useMemo(() => {
+    if (!askInspectedPlanet) return [];
+    return aspects
+      .filter((aspect) =>
+        aspect.aspectingPlanet === askInspectedPlanet.name ||
+        aspect.aspectedPlanet === askInspectedPlanet.name
+      )
+      .map((aspect) => ({
+        ...aspect,
+        otherPlanet: aspect.aspectingPlanet === askInspectedPlanet.name
+          ? aspect.aspectedPlanet
+          : aspect.aspectingPlanet,
+      }));
+  }, [aspects, askInspectedPlanet]);
+  const askSelectedBody = useMemo(() => {
+    if (!askInspectedPlanet) return null;
+    const body = toSceneBodyNames([askInspectedPlanet.name])?.[0];
+    if (!body) return null;
+    return {
+      body,
+      layer: 'natal',
+      longitude: Number(askInspectedPlanet.full_degree) || 0,
+    };
+  }, [askInspectedPlanet]);
+
+  const inspectAskPlanetAspect = useCallback((otherPlanet) => {
+    if (!askInspectedPlanet) return;
+    const rawAspect = aspects.find((aspect) =>
+      (aspect.aspectedPlanet === askInspectedPlanet.name && aspect.aspectingPlanet === otherPlanet) ||
+      (aspect.aspectingPlanet === askInspectedPlanet.name && aspect.aspectedPlanet === otherPlanet)
+    );
+    if (!rawAspect) return;
+    const planet1 = planets.find((planet) => planet.name === rawAspect.aspectedPlanet);
+    const planet2 = planets.find((planet) => planet.name === rawAspect.aspectingPlanet);
     if (!planet1 || !planet2) return;
     const data = formatAspectData(rawAspect, planet1, planet2);
-    toggleAskContext({ ...data, key: data.code, payload: data });
-  }, [aspects, planets, toggleAskContext]);
+    inspectAskElement({ ...data, key: data.code, payload: data });
+  }, [aspects, askInspectedPlanet, inspectAskElement, planets]);
 
   const handleSkyHover = useCallback((hover) => {
     setHoverInfo(
@@ -687,10 +765,30 @@ function ChartReaderPage() {
       fitNonce={fitNonce}
       highlightBodies={askHighlightBodies}
       isolateSelection={false}
-      selectedBody={null}
-      selectedPlanet={null}
-      selectedAspects={[]}
-      onHoverBody={handleSkyHover}
+      selectedBody={askSelectedBody}
+      selectedPlanet={askInspectedPlanet}
+      selectedAspects={askInspectedAspects}
+      activeAspectBody={contextElementBodies(askTableHoverElement)[1] || null}
+      onHoverAspect={(names) => {
+        if (!names?.length) {
+          setAskTableHoverElement(null);
+          return;
+        }
+        const [nameA, nameB] = names;
+        const rawAspect = aspects.find((aspect) =>
+          (aspect.aspectedPlanet === nameA && aspect.aspectingPlanet === nameB) ||
+          (aspect.aspectingPlanet === nameA && aspect.aspectedPlanet === nameB)
+        );
+        if (!rawAspect) return;
+        const planet1 = planets.find((planet) => planet.name === rawAspect.aspectedPlanet);
+        const planet2 = planets.find((planet) => planet.name === rawAspect.aspectingPlanet);
+        if (!planet1 || !planet2) return;
+        const data = formatAspectData(rawAspect, planet1, planet2);
+        setAskTableHoverElement({ ...data, key: data.code, payload: data });
+      }}
+      onToggleAspect={inspectAskPlanetAspect}
+      onHoverBody={handleAskSkyHover}
+      onHoverSceneAspect={handleAskAspectHover}
       onSelectBody={handleAskSkySelect}
       onSelectAspect={handleAskAspectSelect}
       onRecenter={() => setFitNonce((value) => value + 1)}
@@ -750,13 +848,28 @@ function ChartReaderPage() {
           className="chart-reader-tooltip"
           style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 10 }}
         >
-          {hoveredPlanet ? (
+          {hoverInfo.label ? (
+            <>
+              {hoverInfo.label}
+              {activeChapter === 'ask' && <small>Click to inspect this aspect</small>}
+            </>
+          ) : hoveredPlanet ? (
             <>
               {hoveredPlanet.name}
               <span className="dim">
                 {' '}· {hoveredPlanet.sign}
                 {degreeLabel(hoveredPlanet) && ` ${degreeLabel(hoveredPlanet)}`}
               </span>
+              {activeChapter === 'ask' && (
+                <small>
+                  Click to inspect its position and{' '}
+                  {aspects.filter((aspect) =>
+                    aspect.aspectedPlanet === hoveredPlanet.name ||
+                    aspect.aspectingPlanet === hoveredPlanet.name
+                  ).length}{' '}
+                  aspects
+                </small>
+              )}
             </>
           ) : (
             hoverInfo.body
@@ -1047,16 +1160,26 @@ function ChartReaderPage() {
           <ChapterHeader label="Ask Stellium" />
           <div className="birth-ask-workspace">
             {activeChapter === 'ask' && askChartStage}
+            <aside
+              ref={setAskContextHost}
+              className="birth-ask-context"
+              aria-label="Chart context inspector"
+            />
             <section className="birth-ask-chat" aria-label="Ask Stellium conversation">
               <AskStelliumPanel
                 variant="dock"
+                defaultContextOpen
+                contextPlacement="external"
+                contextContainer={askContextHost}
                 isOpen={activeChapter === 'ask'}
                 onClose={() => goToChapter('analysis')}
                 contentType="birthchart"
                 contentId={chartId}
                 birthChart={birthChart}
-                externalElements={askElements}
-                externalToggle={askExternalToggle}
+                externalInspect={askInspector}
+                externalHover={askChartHoverElement}
+                onElementHover={setAskTableHoverElement}
+                onElementInspect={inspectAskElement}
                 onSelectionChange={setAskSelection}
                 contextLabel="About your birth chart"
                 placeholderText="Ask about this chart…"

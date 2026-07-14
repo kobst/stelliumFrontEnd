@@ -140,6 +140,7 @@ function ChartSceneImpl({
   onHoverBody,
   onSelectBody,
   onSelectAspect,
+  onHoverAspect,
 }: ChartSceneProps) {
   const planets = useMemo(() => natal.filter((p) => !(p.body in ANGLES)), [natal])
   const angles = useMemo(() => natal.filter((p) => p.body in ANGLES), [natal])
@@ -335,6 +336,7 @@ function ChartSceneImpl({
         highlightBodies={highlightBodies}
         isolateBodies={isolatedAspectBodies}
         onSelectAspect={onSelectAspect}
+        onHoverAspect={onHoverAspect}
       />
 
       {!relationship && markers.map(({ placement, radius }) => (

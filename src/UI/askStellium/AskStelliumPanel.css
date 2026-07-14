@@ -9,7 +9,8 @@
 
 /* Scoped design tokens — prefixed to avoid clobbering app globals */
 .ask-panel-backdrop,
-.ask-panel {
+.ask-panel,
+.ask-panel__compact-context--persistent {
   --as-surface:     #0f0f17;
   --as-surface-low: #15151f;
   --as-surface-mid: #1c1c28;
@@ -566,12 +567,34 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+.ask-panel__overlay-help-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px 8px;
+}
+
 .ask-panel__overlay-help {
-  padding: 14px 16px 8px;
   color: var(--as-text-muted);
   font-family: var(--as-serif);
   font-size: 12.5px;
   font-style: italic;
+}
+
+.ask-panel__show-all {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: var(--as-gold);
+  cursor: pointer;
+  font-family: var(--as-sans);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ask-panel__show-all:hover {
+  color: #f2dd82;
 }
 
 /* Overlay header — underline tabs + count */
@@ -689,6 +712,25 @@
   padding: 6px 16px 0;
 }
 
+.ask-panel__table-head {
+  display: grid;
+  grid-template-columns: minmax(58px, 0.7fr) minmax(100px, 1.5fr) minmax(62px, 0.72fr) 64px;
+  gap: 7px;
+  padding: 7px 12px;
+  border-top: 1px solid var(--as-ghost);
+  border-bottom: 1px solid var(--as-ghost);
+  color: var(--as-text-faint);
+  font-family: var(--as-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.ask-panel__table-head span:last-child {
+  text-align: right;
+}
+
 .ask-panel__compact-error {
   padding: 0 14px 10px;
   color: #ff9b9b;
@@ -701,7 +743,7 @@
 }
 
 .ask-panel__overlay-items {
-  max-height: 168px;
+  max-height: min(310px, 38vh);
   overflow-y: auto;
   padding: 2px 12px 10px;
   display: flex;
@@ -709,6 +751,107 @@
   gap: 4px;
   scrollbar-width: thin;
   scrollbar-color: var(--as-surface-hi) transparent;
+}
+
+.ask-panel__table-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  align-items: stretch;
+  min-height: 48px;
+  border-bottom: 1px solid rgba(202, 190, 255, 0.08);
+  background: transparent;
+  transition: background 140ms ease, box-shadow 140ms ease;
+}
+
+.ask-panel__table-row:last-child {
+  border-bottom: 0;
+}
+
+.ask-panel__table-row:hover,
+.ask-panel__table-row:focus-within,
+.ask-panel__table-row--highlighted {
+  background: rgba(202, 190, 255, 0.055);
+  box-shadow: inset 2px 0 rgba(202, 190, 255, 0.55);
+}
+
+.ask-panel__table-row--selected {
+  background: rgba(233, 195, 73, 0.055);
+}
+
+.ask-panel__table-focus {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(58px, 0.7fr) minmax(100px, 1.5fr) minmax(62px, 0.72fr);
+  align-items: center;
+  gap: 7px;
+  padding: 9px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--as-text);
+  cursor: crosshair;
+  text-align: left;
+}
+
+.ask-panel__table-focus strong,
+.ask-panel__table-focus span,
+.ask-panel__table-focus small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ask-panel__table-focus strong {
+  font-family: var(--as-sans);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.ask-panel__table-focus span {
+  color: var(--as-text-muted);
+  font-family: var(--as-sans);
+  font-size: 11.5px;
+}
+
+.ask-panel__table-focus small {
+  color: var(--as-text-faint);
+  font-family: var(--as-mono);
+  font-size: 9px;
+}
+
+.ask-panel__table-add {
+  align-self: center;
+  justify-self: end;
+  min-width: 58px;
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 8px;
+  border: 1px solid rgba(233, 195, 73, 0.25);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--as-gold);
+  cursor: pointer;
+  font-family: var(--as-sans);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.ask-panel__table-add:hover:not(:disabled) {
+  border-color: rgba(233, 195, 73, 0.5);
+  background: rgba(233, 195, 73, 0.09);
+}
+
+.ask-panel__table-add--selected {
+  border-color: rgba(202, 190, 255, 0.28);
+  color: var(--as-primary);
+}
+
+.ask-panel__table-add:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .ask-panel__overlay-items::-webkit-scrollbar {
@@ -1057,4 +1200,85 @@
    own header would be a second "Ask Stellium" masthead — hide it */
 .ask-panel--dock .ask-panel__header {
   display: none;
+}
+
+.ask-panel--dock .ask-panel__items-overlay {
+  position: relative;
+  top: auto;
+  margin: 0 0 4px;
+  border-radius: 0 0 12px 12px;
+  box-shadow: inset 0 0 0 1px var(--as-ghost-strong);
+}
+
+/* Full-screen Reader: context is a permanent sibling of the chart and
+   conversation, not a dropdown layered over either one. */
+.ask-panel__compact-context--persistent {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0;
+  background: rgba(15, 15, 23, 0.72);
+  color: var(--as-text);
+  font-family: var(--as-sans);
+}
+
+.ask-panel__compact-context--persistent .ask-panel__compact-bar {
+  min-height: 70px;
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--as-ghost-strong);
+}
+
+.ask-panel__compact-context--persistent .ask-panel__context-trigger {
+  cursor: default;
+}
+
+.ask-panel__compact-context--persistent .ask-panel__context-action {
+  display: none;
+}
+
+.ask-panel__compact-context--persistent .ask-panel__items-overlay {
+  position: relative;
+  inset: auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0;
+  box-shadow: none;
+  animation: none;
+}
+
+.ask-panel__compact-context--persistent .ask-panel__overlay-items-wrap {
+  flex: 1;
+  min-height: 0;
+}
+
+.ask-panel__compact-context--persistent .ask-panel__overlay-items {
+  height: 100%;
+  max-height: none;
+}
+
+@media (max-width: 640px) {
+  .ask-panel__table-head {
+    grid-template-columns: minmax(62px, 0.7fr) minmax(110px, 1.4fr) 66px;
+  }
+
+  .ask-panel__table-head span:nth-child(3),
+  .ask-panel__table-focus small {
+    display: none;
+  }
+
+  .ask-panel__table-head span:last-child {
+    grid-column: 3;
+  }
+
+  .ask-panel__table-focus {
+    grid-template-columns: minmax(62px, 0.7fr) minmax(110px, 1.4fr);
+  }
 }

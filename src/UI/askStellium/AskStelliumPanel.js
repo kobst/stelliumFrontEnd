@@ -267,6 +267,43 @@ const getCategoryBadgeInfo = (contentType, element) => {
   return { label: '', colorClass: '' };
 };
 
+const titleCase = (value) => String(value || '')
+  .replace(/(^|\s)\S/g, (letter) => letter.toUpperCase());
+
+const getContextTableCells = (contentType, element) => {
+  const payload = element.payload || element;
+  if ((contentType === 'birthchart' || contentType === 'analysis') && payload.type === 'position') {
+    const degree = Number(payload.degree);
+    return {
+      primary: payload.planet,
+      detail: [Number.isFinite(degree) ? `${degree.toFixed(1)}°` : null, payload.sign]
+        .filter(Boolean)
+        .join(' '),
+      metric: payload.house ? `House ${payload.house}` : '—',
+    };
+  }
+  if ((contentType === 'birthchart' || contentType === 'analysis') && payload.type === 'aspect') {
+    const orb = Number(payload.orb);
+    return {
+      primary: payload.planet1,
+      detail: `${titleCase(payload.aspectType)} ${payload.planet2}`,
+      metric: Number.isFinite(orb) ? `${orb.toFixed(1)}° orb` : '—',
+    };
+  }
+  if ((contentType === 'birthchart' || contentType === 'analysis') && payload.type === 'house') {
+    return {
+      primary: payload.house ? `House ${payload.house}` : 'House',
+      detail: payload.sign || payload.label,
+      metric: 'Cusp',
+    };
+  }
+  return {
+    primary: element.label || element.description || element.code,
+    detail: element.meta || '',
+    metric: getCategoryBadgeInfo(contentType, element).label,
+  };
+};
+
 const makeMessageId = () => `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 function AskStelliumPanel({
@@ -284,8 +321,15 @@ function AskStelliumPanel({
   disableHistory = false,
   variant = 'overlay',
   autoFocus = variant === 'overlay',
+  defaultContextOpen = false,
+  contextPlacement = 'inline',
+  contextContainer,
   externalElements,
   externalToggle,
+  externalInspect,
+  externalHover,
+  onElementHover,
+  onElementInspect,
   onSelectionChange,
   getActiveDate
 }) {
@@ -300,18 +344,23 @@ function AskStelliumPanel({
   const [activePeriod, setActivePeriod] = useState('weekly');
   const [transitTypeFilter, setTransitTypeFilter] = useState('all');
   const [relationshipFilter, setRelationshipFilter] = useState('all');
-  const [birthchartFilter, setBirthchartFilter] = useState('all');
-  const [overlayOpen, setOverlayOpen] = useState(false);
+  const [birthchartFilter, setBirthchartFilter] = useState(
+    contentType === 'birthchart' || contentType === 'analysis' ? 'positions' : 'all'
+  );
+  const [overlayOpen, setOverlayOpen] = useState(defaultContextOpen);
   const [overlaySearch, setOverlaySearch] = useState('');
+  const [inspectorFocus, setInspectorFocus] = useState(null);
   const messagesEndRef = useRef(null);
   const panelRef = useRef(null);
   const textareaRef = useRef(null);
   const hasLoadedRef = useRef(null);
   const overlayRef = useRef(null);
   const externalToggleRef = useRef(null);
+  const externalInspectRef = useRef(null);
   const externalElementsRef = useRef(null);
   const selectedElementsRef = useRef([]);
   const isOverlayVariant = variant === 'overlay';
+  const persistentContext = contextPlacement === 'external';
 
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
@@ -383,8 +432,9 @@ function AskStelliumPanel({
     setMessages([]);
     setSelectedElements([]);
     setSelectionError(null);
-    setOverlayOpen(false);
-  }, [contentId, contentType]);
+    setOverlayOpen(defaultContextOpen);
+    setInspectorFocus(null);
+  }, [contentId, contentType, defaultContextOpen]);
 
   useEffect(() => {
     setActivePeriod(resolvedPeriod);
@@ -394,6 +444,17 @@ function AskStelliumPanel({
   useEffect(() => {
     if (!overlayOpen) setOverlaySearch('');
   }, [overlayOpen]);
+
+  useEffect(() => {
+    if (!externalInspect?.element || externalInspectRef.current === externalInspect.nonce) return;
+    externalInspectRef.current = externalInspect.nonce;
+    setInspectorFocus(externalInspect.element);
+    setOverlayOpen(true);
+    setOverlaySearch('');
+    if (contentType === 'birthchart' || contentType === 'analysis') {
+      setBirthchartFilter('all');
+    }
+  }, [contentType, externalInspect]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -456,7 +517,7 @@ function AskStelliumPanel({
 
   // Close overlay on outside click
   useEffect(() => {
-    if (!overlayOpen) return;
+    if (!overlayOpen || persistentContext) return;
     const handleClickOutside = (e) => {
       if (overlayRef.current && !overlayRef.current.contains(e.target)) {
         setOverlayOpen(false);
@@ -464,7 +525,7 @@ function AskStelliumPanel({
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [overlayOpen]);
+  }, [overlayOpen, persistentContext]);
 
   // Prevent body scroll when panel is open
   useEffect(() => {
@@ -621,12 +682,29 @@ function AskStelliumPanel({
   }, [contentType, filteredBirthchartElements, filteredRelationshipElements, transitElements]);
 
   const filteredOverlayElements = useMemo(() => {
-    if (!overlaySearch.trim()) return selectableElements;
+    let elements = selectableElements;
+    if (inspectorFocus && (contentType === 'birthchart' || contentType === 'analysis')) {
+      const focusKey = inspectorFocus.key || inspectorFocus.code;
+      const focusPayload = inspectorFocus.payload || inspectorFocus;
+      if (focusPayload.type === 'position') {
+        const body = focusPayload.planet;
+        elements = selectableElements.filter((element) => {
+          const payload = element.payload || element;
+          return (
+            (payload.type === 'position' && payload.planet === body) ||
+            (payload.type === 'aspect' && (payload.planet1 === body || payload.planet2 === body))
+          );
+        });
+      } else if (focusPayload.type === 'aspect') {
+        elements = selectableElements.filter((element) => (element.key || element.code) === focusKey);
+      }
+    }
+    if (!overlaySearch.trim()) return elements;
     const query = overlaySearch.toLowerCase();
-    return selectableElements.filter(el =>
+    return elements.filter(el =>
       (el.label || el.description || '').toLowerCase().includes(query)
     );
-  }, [selectableElements, overlaySearch]);
+  }, [contentType, inspectorFocus, selectableElements, overlaySearch]);
 
   const hasContextData = useMemo(() => {
     if (contentType === 'birthchart' || contentType === 'analysis') {
@@ -714,6 +792,30 @@ function AskStelliumPanel({
     externalToggleRef.current = externalToggle.nonce;
     handleToggleElement(externalToggle.element);
   }, [externalToggle, handleToggleElement]);
+
+  const inspectElement = useCallback((element) => {
+    setInspectorFocus(element);
+    onElementInspect?.(element);
+  }, [onElementInspect]);
+
+  const clearInspectorFocus = useCallback(() => {
+    setInspectorFocus(null);
+    onElementHover?.(null);
+    onElementInspect?.(null);
+  }, [onElementHover, onElementInspect]);
+
+  const elementIsExternallyHovered = useCallback((element) => {
+    if (!externalHover) return false;
+    const payload = element.payload || element;
+    const hoverPayload = externalHover.payload || externalHover;
+    if (hoverPayload.type === 'position') {
+      if (payload.type === 'position') return payload.planet === hoverPayload.planet;
+      if (payload.type === 'aspect') {
+        return payload.planet1 === hoverPayload.planet || payload.planet2 === hoverPayload.planet;
+      }
+    }
+    return (element.key || element.code) === (externalHover.key || externalHover.code);
+  }, [externalHover]);
 
   // let the host mirror the selection back onto the sky
   useEffect(() => {
@@ -950,14 +1052,22 @@ function AskStelliumPanel({
           </button>
         </div>
 
-        {/* Compact Context Bar */}
-        {hasContextData && (
-          <div className="ask-panel__compact-context" ref={overlayRef}>
+        {/* Context picker stays inline for drawers, or portals into the
+            dedicated Reader inspector column in full-screen layouts. */}
+        {hasContextData && (() => {
+          const contextPicker = (
+          <div
+            className={`ask-panel__compact-context${persistentContext ? ' ask-panel__compact-context--persistent' : ''}`}
+            ref={overlayRef}
+          >
             <div className="ask-panel__compact-bar">
               <div className="ask-panel__context-summary">
                 <button
                   className={`ask-panel__context-trigger ${overlayOpen ? 'ask-panel__context-trigger--open' : ''} ${selectedElements.length > 0 ? 'ask-panel__context-trigger--has-selection' : ''}`}
-                  onClick={() => setOverlayOpen(!overlayOpen)}
+                  onClick={() => {
+                    if (!persistentContext) setOverlayOpen(!overlayOpen);
+                  }}
+                  aria-expanded={persistentContext || overlayOpen}
                 >
                   Context
                 </button>
@@ -986,17 +1096,27 @@ function AskStelliumPanel({
               </div>
             </div>
 
-            {selectionError && !overlayOpen && (
+            {selectionError && !overlayOpen && !persistentContext && (
               <div className="ask-panel__compact-error" role="status">
                 {selectionError}
               </div>
             )}
 
-            {/* Overlay — floats over messages area */}
-            {overlayOpen && (
+            {(overlayOpen || persistentContext) && (
               <div className="ask-panel__items-overlay">
-                <div className="ask-panel__overlay-help">
-                  Add up to {MAX_SELECTIONS} chart elements to focus your question.
+                <div className="ask-panel__overlay-help-row">
+                  <div className="ask-panel__overlay-help">
+                    Inspect the chart, then explicitly add up to {MAX_SELECTIONS} details as context.
+                  </div>
+                  {inspectorFocus && (
+                    <button
+                      type="button"
+                      className="ask-panel__show-all"
+                      onClick={clearInspectorFocus}
+                    >
+                      Show all
+                    </button>
+                  )}
                 </div>
                 <div className="ask-panel__overlay-header">
                   <div className="ask-panel__overlay-tabs">
@@ -1038,6 +1158,14 @@ function AskStelliumPanel({
                 {selectionError && (
                   <div className="ask-panel__overlay-error">{selectionError}</div>
                 )}
+                {(contentType === 'birthchart' || contentType === 'analysis') && (
+                  <div className="ask-panel__table-head" aria-hidden="true">
+                    <span>Body</span>
+                    <span>Position / aspect</span>
+                    <span>House / orb</span>
+                    <span>Context</span>
+                  </div>
+                )}
                 <div className="ask-panel__overlay-items-wrap">
                   <div className="ask-panel__overlay-items">
                     {(() => {
@@ -1050,8 +1178,46 @@ function AskStelliumPanel({
                         const key = element.key || element.code;
                         const selected = isSelected(key);
                         const disabledByLimit = selectionLimitReached && !selected;
+                        const cells = getContextTableCells(contentType, element);
+                        const externallyHovered = elementIsExternallyHovered(element);
                         const prevBadge = index > 0 ? getCategoryBadgeInfo(contentType, filteredOverlayElements[index - 1]) : null;
                         const sectionHeader = showDividers && (!prevBadge || prevBadge.label !== badge.label);
+
+                        if (contentType === 'birthchart' || contentType === 'analysis') {
+                          return (
+                            <div
+                              key={key}
+                              className={`ask-panel__table-row ${selected ? 'ask-panel__table-row--selected' : ''} ${externallyHovered ? 'ask-panel__table-row--highlighted' : ''}`}
+                              onMouseEnter={() => onElementHover?.({ ...element, key })}
+                              onMouseLeave={() => onElementHover?.(null)}
+                              onFocus={() => onElementHover?.({ ...element, key })}
+                              onBlur={(event) => {
+                                if (!event.currentTarget.contains(event.relatedTarget)) onElementHover?.(null);
+                              }}
+                            >
+                              <button
+                                type="button"
+                                className="ask-panel__table-focus"
+                                onClick={() => inspectElement({ ...element, key })}
+                                aria-label={`Show ${element.label} on the chart`}
+                              >
+                                <strong>{cells.primary}</strong>
+                                <span>{cells.detail}</span>
+                                <small>{cells.metric}</small>
+                              </button>
+                              <button
+                                type="button"
+                                className={`ask-panel__table-add ${selected ? 'ask-panel__table-add--selected' : ''}`}
+                                onClick={() => handleToggleElement({ ...element, key })}
+                                disabled={disabledByLimit}
+                                aria-label={`${selected ? 'Remove' : 'Add'} ${element.label} ${selected ? 'from' : 'to'} context`}
+                              >
+                                <span aria-hidden="true">{selected ? '✓' : '+'}</span>
+                                {selected ? 'Added' : 'Add'}
+                              </button>
+                            </div>
+                          );
+                        }
 
                         return (
                           <React.Fragment key={key}>
@@ -1095,7 +1261,10 @@ function AskStelliumPanel({
               </div>
             )}
           </div>
-        )}
+          );
+          if (!persistentContext) return contextPicker;
+          return contextContainer ? createPortal(contextPicker, contextContainer) : null;
+        })()}
 
         {/* Messages */}
         <div className="ask-panel__messages">

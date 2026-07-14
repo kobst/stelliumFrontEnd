@@ -39,6 +39,7 @@ interface AspectLineProps {
   /** both endpoints are in the external highlight set */
   highlighted: boolean
   onSelect?: (aspect: Aspect) => void
+  onHover?: (aspect: Aspect | null) => void
 }
 
 function AspectLine({
@@ -52,6 +53,7 @@ function AspectLine({
   highlightMode,
   highlighted,
   onSelect,
+  onHover,
 }: AspectLineProps) {
   const lineRef = useRef<Line2>(null)
 
@@ -98,6 +100,8 @@ function AspectLine({
         event.stopPropagation()
         onSelect(aspect)
       } : undefined}
+      onPointerOver={onHover ? () => onHover(aspect) : undefined}
+      onPointerOut={onHover ? () => onHover(null) : undefined}
     />
   )
 }
@@ -122,6 +126,7 @@ interface AspectLinesProps {
   /** only render aspects touching one body, or connecting a supplied pair */
   isolateBodies?: string[]
   onSelectAspect?: (aspect: Aspect) => void
+  onHoverAspect?: (aspect: Aspect | null) => void
 }
 
 /**
@@ -141,6 +146,7 @@ export function AspectLines({
   highlightBodies,
   isolateBodies,
   onSelectAspect,
+  onHoverAspect,
 }: AspectLinesProps) {
   const highlightSet = useMemo(
     () => (highlightBodies?.length ? new Set(highlightBodies) : null),
@@ -208,6 +214,7 @@ export function AspectLines({
             highlightMode={!!highlightSet}
             highlighted={highlighted}
             onSelect={onSelectAspect}
+            onHover={onHoverAspect}
           />
         )
       })}

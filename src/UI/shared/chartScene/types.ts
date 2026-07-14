@@ -73,6 +73,8 @@ export interface ChartSceneProps {
   isolateSelection?: boolean
   /** optional interaction for selecting a rendered aspect line */
   onSelectAspect?: (aspect: Aspect) => void
+  /** pointer enters/leaves a rendered aspect line */
+  onHoverAspect?: (aspect: Aspect | null) => void
   /** emphasis for the secondary (partner) ring, same semantics */
   highlightSecondaryBodies?: string[]
   /**
