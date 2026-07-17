@@ -2,26 +2,10 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCelebrityRelationships, fetchCelebrities, fetchRelationshipAnalysis } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
-import { getRelationshipCardSummary, relationshipStrengthWord } from '../Utilities/relationshipSummary';
+import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 import './PublicCelebrityRelationships.css';
 
 const PORTRAIT_TONES = ['lilac', 'gold', 'cyan', 'rose', 'sage', 'plum'];
-
-const CLUSTER_ICONS = {
-  Harmony: '\u{1F495}',
-  Passion: '\u{1F525}',
-  Connection: '\u{1F9E0}',
-  Stability: '\u{1F48E}',
-  Growth: '\u{1F331}'
-};
-const ORDERED_CLUSTERS = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
-const CLUSTER_SHORT = {
-  Harmony: 'HAR',
-  Passion: 'PAS',
-  Connection: 'CON',
-  Stability: 'STA',
-  Growth: 'GRO'
-};
 
 const ARCHETYPE_META = {
   'Lightning in a Bottle': { icon: '⚡', meta: 'High harmony · High passion' },
@@ -38,13 +22,6 @@ const ARCHETYPE_META = {
   'Quiet Connection':      { icon: '✦', meta: 'Subtle overall signal' }
 };
 const DEFAULT_META = { icon: '✨', meta: 'Cosmic chemistry' };
-
-function scoreBand(score) {
-  if (typeof score !== 'number') return 'gold';
-  if (score >= 80) return 'green';
-  if (score >= 50) return 'gold';
-  return 'orange';
-}
 
 function getUserName(rel, prefix) {
   const first = rel?.[`${prefix}_firstName`];
@@ -65,20 +42,6 @@ function getUserPhoto(rel, prefix) {
   return rel?.[`${prefix}_profilePhotoUrl`] || rel?.[`${prefix}_photoUrl`] || null;
 }
 
-function getClusterScores(rel) {
-  const ca = rel?.relationshipAnalysisStatus?.clusterScoring
-    || rel?.clusterScoring
-    || rel?.clusterAnalysis
-    || {};
-  const clusters = ca?.clusters || {};
-  const out = {};
-  ORDERED_CLUSTERS.forEach((c) => {
-    const s = clusters?.[c]?.score;
-    out[c] = typeof s === 'number' ? Math.round(s) : 0;
-  });
-  return out;
-}
-
 function getOverall(rel) {
   return rel?.relationshipAnalysisStatus?.clusterScoring?.overall
     || rel?.clusterScoring?.overall
@@ -89,9 +52,7 @@ function getOverall(rel) {
 function getArchetype(rel) {
   const overall = getOverall(rel);
   const { cardHeadline, blurb } = getRelationshipCardSummary(overall);
-  const scores = getClusterScores(rel);
-  const fallbackStrength = relationshipStrengthWord(scores.overall);
-  return { label: cardHeadline || fallbackStrength || 'Cosmic Pair', blurb: blurb || '' };
+  return { label: cardHeadline || 'Cosmic Pair', blurb: blurb || '' };
 }
 
 function getSunSign(rel, prefix) {
@@ -195,27 +156,8 @@ function TwinPortraits({ rel, tones, large = false }) {
   );
 }
 
-function StatsStrip({ scores }) {
-  return (
-    <div className="crl-stats">
-      {ORDERED_CLUSTERS.map((cluster) => {
-        const v = scores[cluster];
-        const band = scoreBand(v);
-        return (
-          <div className="crl-stat" key={cluster}>
-            <div className="crl-stat__ic">{CLUSTER_ICONS[cluster]}</div>
-            <div className={`crl-stat__v ${band}`}>{v}</div>
-            <div className="crl-stat__l">{CLUSTER_SHORT[cluster]}</div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 function HeroCoupleCard({ rel, tones, onClick }) {
   const { label, blurb } = getArchetype(rel);
-  const scores = getClusterScores(rel);
   const userAFirst = getUserFirstName(rel, 'userA');
   const userBFirst = getUserFirstName(rel, 'userB');
   return (
@@ -228,10 +170,7 @@ function HeroCoupleCard({ rel, tones, onClick }) {
           {blurb && <p>{blurb}</p>}
         </div>
         <div>
-          <StatsStrip scores={scores} />
-          <div>
-            <span className="crl-hero-couple__more">Read full analysis →</span>
-          </div>
+          <span className="crl-hero-couple__more">Read full analysis →</span>
         </div>
       </div>
     </button>
@@ -240,7 +179,6 @@ function HeroCoupleCard({ rel, tones, onClick }) {
 
 function PairCard({ rel, tones, onClick }) {
   const { label } = getArchetype(rel);
-  const scores = getClusterScores(rel);
   const userAFirst = getUserFirstName(rel, 'userA');
   const userBFirst = getUserFirstName(rel, 'userB');
   const sunA = getSunSign(rel, 'userA');
@@ -261,7 +199,6 @@ function PairCard({ rel, tones, onClick }) {
             {signs.length === 2 && <> · {signs[1]}</>}
           </div>
         )}
-        <StatsStrip scores={scores} />
       </div>
     </button>
   );

@@ -21,8 +21,6 @@
   --crl-cyan:      #00dce5;
   --crl-cyan-dim:  rgba(0,220,229,0.55);
 
-  --crl-green:  #5dd6a0;
-  --crl-orange: #ff9d6a;
 
   --crl-text:       #ece8ff;
   --crl-text-muted: rgba(236,232,255,0.62);
@@ -539,42 +537,6 @@
   margin-top: 22px;
 }
 
-/* Stats strip (used by hero & grid card) */
-.crl-stats {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0;
-  background: var(--crl-surface);
-  border-radius: 14px;
-  padding: 4px;
-  box-shadow: inset 0 0 0 1px var(--crl-ghost);
-}
-.crl-stat {
-  padding: 12px 4px;
-  text-align: center;
-  border-left: 1px solid var(--crl-ghost);
-}
-.crl-stat:first-child { border-left: 0; }
-.crl-stat__ic { font-size: 14px; margin-bottom: 4px; }
-.crl-stat__v {
-  font-family: var(--crl-serif);
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1;
-}
-.crl-stat__v.green { color: var(--crl-green); }
-.crl-stat__v.gold  { color: var(--crl-gold); }
-.crl-stat__v.orange { color: var(--crl-orange); }
-.crl-stat__l {
-  font-family: var(--crl-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--crl-text-faint);
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-
 /* ─── Grid section ─────────────────────────────── */
 .crl-grid-section {
   padding: 24px 0 100px;
@@ -645,15 +607,6 @@
   margin-bottom: 12px;
 }
 .crl-pair-card__signs .pri { color: var(--crl-primary); }
-.crl-pair-card .crl-stats {
-  border-radius: 10px;
-  padding: 2px;
-}
-.crl-pair-card .crl-stat {
-  padding: 8px 2px;
-}
-.crl-pair-card .crl-stat__v { font-size: 15px; }
-.crl-pair-card .crl-stat__l { font-size: 8.5px; letter-spacing: 0.1em; margin-top: 3px; }
 
 /* Archetype group header */
 .crl-arche-head {
