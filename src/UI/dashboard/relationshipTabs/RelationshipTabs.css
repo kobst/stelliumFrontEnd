@@ -1568,14 +1568,6 @@ body.ask-stellium-panel-open .ask-stellium-cta {
   font-weight: 500;
 }
 
-.analysis-cluster-tab .tab-score {
-  color: inherit;
-}
-
-.analysis-cluster-tab.active .tab-score {
-  color: #2dd4bf;
-}
-
 /* Cluster Content */
 .analysis-cluster-content {
   padding: 24px;
@@ -1603,12 +1595,6 @@ body.ask-stellium-panel-open .ask-stellium-cta {
   font-size: 1.5rem;
   font-weight: 600;
   color: white;
-}
-
-.cluster-content-score {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #2dd4bf;
 }
 
 /* Metrics Row */
@@ -1912,33 +1898,6 @@ body.ask-stellium-panel-open .ask-stellium-cta {
   letter-spacing: 2px;
 }
 
-/* Strength bar for items with no star rating */
-.panel-aspects__strength-bar-wrap {
-  display: inline-block;
-  width: 60px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
-  overflow: hidden;
-  flex-shrink: 0;
-  cursor: default;
-}
-
-.panel-aspects__strength-bar {
-  height: 100%;
-  border-radius: 2px;
-  min-width: 2px;
-  transition: width 0.3s ease;
-}
-
-.panel-aspects__strength-bar--support {
-  background: rgba(52, 211, 153, 0.6);
-}
-
-.panel-aspects__strength-bar--challenge {
-  background: rgba(248, 113, 113, 0.6);
-}
-
 /* Show all expander button */
 .panel-aspects__show-all {
   display: block;
@@ -2152,10 +2111,6 @@ body.ask-stellium-panel-open .ask-stellium-cta {
 
   .cluster-content-name {
     font-size: 1.2rem;
-  }
-
-  .cluster-content-score {
-    font-size: 2rem;
   }
 
   .cluster-metrics-row {

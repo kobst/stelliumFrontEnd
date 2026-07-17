@@ -17,17 +17,6 @@ const CLUSTER_ICONS = {
   Growth: "🌱"
 };
 
-// Get quadrant label
-const getQuadrantLabel = (quadrant) => {
-  if (!quadrant) return 'N/A';
-  const q = quadrant.toLowerCase();
-  if (q.includes('easy') || q.includes('thriving')) return 'Easy-Going';
-  if (q.includes('dynamic') || q.includes('passion')) return 'Dynamic';
-  if (q.includes('growth') || q.includes('challenge')) return 'Growth Edge';
-  if (q.includes('stable') || q.includes('steady')) return 'Steady';
-  return quadrant;
-};
-
 function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, isCelebrity = false, initialAnalysisStatus = null, canUseAskStellium = false }) {
   const [selectedCluster, setSelectedCluster] = useState('Harmony');
   const [selectedPanel, setSelectedPanel] = useState('support');
@@ -356,7 +345,6 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
   // Get current cluster data
   const currentClusterData = clusters?.[selectedCluster];
   const currentAnalysisData = getClusterAnalysisData(selectedCluster);
-  const currentScore = currentClusterData?.score || 0;
 
   // Get the panel content based on selection
   const getPanelContent = () => {
@@ -401,7 +389,6 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
         {/* Cluster Tabs */}
         <div className="analysis-cluster-tabs">
           {orderedClusters.map(cluster => {
-            const score = clusters?.[cluster]?.score || 0;
             const isActive = selectedCluster === cluster;
             return (
               <button
@@ -410,7 +397,6 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
                 onClick={() => setSelectedCluster(cluster)}
               >
                 <span className="tab-name">{cluster}</span>
-                <span className="tab-score">{Math.round(score)}%</span>
               </button>
             );
           })}
@@ -424,7 +410,6 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
               <span className="cluster-content-icon">{CLUSTER_ICONS[selectedCluster]}</span>
               <span className="cluster-content-name">{selectedCluster}</span>
             </div>
-            <span className="cluster-content-score">{Math.round(currentScore)}%</span>
           </div>
 
 
@@ -472,7 +457,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
                         <div className="key-factor-item__header">
                           <span className="key-factor-item__description">{aspect.description}</span>
                           {starRating > 0 && (
-                            <span className="key-factor-item__stars" title={`Score: ${contributionScore.toFixed(1)}`}>{'★'.repeat(starRating)}</span>
+                            <span className="key-factor-item__stars">{'★'.repeat(starRating)}</span>
                           )}
                         </div>
                       </div>
@@ -625,7 +610,6 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
                 </p>
               );
             }
-            const maxScore = Math.max(...items.map(i => Math.abs(i.clusterScore)));
             const visibleItems = showAllAspects ? items : items.slice(0, 5);
             return (
               <>
@@ -634,22 +618,9 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
                     <li key={`${item.id || 'item'}-${index}`} className="panel-aspects__item">
                       <div className="panel-aspects__item-main">
                         <span className="panel-aspects__description">{item.description}</span>
-                        {item.starRating != null && item.starRating > 0 ? (
-                          <span
-                            className="panel-aspects__stars panel-aspects__stars--prominent"
-                            title={`Score: ${Math.abs(item.clusterScore).toFixed(1)}`}
-                          >
+                        {item.starRating != null && item.starRating > 0 && (
+                          <span className="panel-aspects__stars panel-aspects__stars--prominent">
                             {'★'.repeat(item.starRating)}
-                          </span>
-                        ) : (
-                          <span
-                            className="panel-aspects__strength-bar-wrap"
-                            title={`Score: ${Math.abs(item.clusterScore).toFixed(1)}`}
-                          >
-                            <span
-                              className={`panel-aspects__strength-bar ${aspectPanel === 'support' ? 'panel-aspects__strength-bar--support' : 'panel-aspects__strength-bar--challenge'}`}
-                              style={{ width: `${maxScore > 0 ? (Math.abs(item.clusterScore) / maxScore) * 100 : 0}%` }}
-                            />
                           </span>
                         )}
                       </div>
