@@ -47,7 +47,7 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
   const overall = relationship?.relationshipAnalysisStatus?.overall ||
                   relationship?.clusterScoring?.overall ||
                   relationship?.clusterAnalysis?.overall;
-  const { cardHeadline, blurb, showArchetypeOnCard } = getRelationshipCardSummary(overall);
+  const { cardHeadline, blurb } = getRelationshipCardSummary(overall);
 
   // Get birth data for partner (userB)
   const userBPlanets = relationship?.userB_birthChart?.planets;
@@ -109,7 +109,7 @@ function RelationshipCard({ relationship, onClick, onDelete }) {
           </button>
         </div>
         {cardHeadline && (
-          <p className={showArchetypeOnCard ? 'relationship-card__archetype' : 'relationship-card__strength'}>
+          <p className="relationship-card__archetype">
             {cardHeadline}
           </p>
         )}

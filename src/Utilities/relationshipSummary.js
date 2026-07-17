@@ -41,31 +41,18 @@ export function getRelationshipSummary(overall) {
   };
 }
 
-export function relationshipStrengthWord(strengthScore) {
-  if (typeof strengthScore !== 'number' || Number.isNaN(strengthScore)) return '';
-  if (strengthScore >= 80) return 'Deep Connection';
-  if (strengthScore >= 65) return 'Strong Connection';
-  if (strengthScore >= 45) return 'Steady Connection';
-  if (strengthScore >= 25) return 'Developing Connection';
-  return 'Quiet Connection';
-}
-
 export function getRelationshipCardSummary(overall) {
   const summary = getRelationshipSummary(overall);
   const rawLabel = summary.rawLabel || '';
   const resolvedLevel = summary.resolvedLevel;
   const detailRoute = summary.detailArchetype?.route || null;
-  const strengthLabel = relationshipStrengthWord(summary.headline?.strengthScore);
   const showDetailLeaf = detailRoute === 'cluster_leaf';
   const showLegacyLeafOrFamily = !summary.detailArchetype && (resolvedLevel === 'leaf' || resolvedLevel === 'family');
-  const showArchetypeOnCard = showDetailLeaf || showLegacyLeafOrFamily;
   const cardLabel = showDetailLeaf ? summary.label : showLegacyLeafOrFamily ? rawLabel : '';
 
   return {
     ...summary,
     cardLabel,
-    strengthLabel,
-    cardHeadline: showArchetypeOnCard ? cardLabel : strengthLabel,
-    showArchetypeOnCard
+    cardHeadline: cardLabel || summary.resolvedLabel || summary.label || ''
   };
 }
