@@ -110,7 +110,7 @@ const HelpCenter = () => {
             <p>This step allows you to pair two charts (you + partner, or any two people). Stellium instantly generates:</p>
             <ul>
               <li>Synastry overlay</li>
-              <li>Initial compatibility scores</li>
+              <li>Your relationship archetype</li>
               <li>A quick interpretive overview</li>
               <li>Supportive & challenging patterns</li>
               <li>Composite chart summary</li>
@@ -140,12 +140,12 @@ const HelpCenter = () => {
             </ul>
             <p><strong>Plus:</strong></p>
             <ul>
-              <li>Harmony vs challenge radar chart</li>
+              <li>Harmony & challenge patterns per category</li>
               <li>Detailed aspect breakdown</li>
               <li>Spark aspects (sexual, transformative, emotional, intellectual, power)</li>
               <li>Keystone aspects</li>
               <li>House overlays</li>
-              <li>Weighted scores & patterns</li>
+              <li>Relationship archetype & dominant patterns</li>
             </ul>
             <p>It's a multi-panel, deeply detailed AI interpretation.</p>
           </div>
@@ -156,7 +156,7 @@ const HelpCenter = () => {
             <ul>
               <li>Synastry analysis</li>
               <li>Composite analysis</li>
-              <li>Category scoring</li>
+              <li>Category-by-category pattern analysis</li>
               <li>Aspect significance weights</li>
               <li>Narrative synthesis</li>
               <li>Natural language interpretation</li>

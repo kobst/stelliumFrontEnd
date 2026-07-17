@@ -873,7 +873,7 @@ function LandingPage() {
                   <td className="credit">1</td>
                 </tr>
                 <tr>
-                  <td className="row-label">Relationship overview + scores</td>
+                  <td className="row-label">Relationship overview + pattern</td>
                   <td style={{ color: 'var(--lp-text-muted)' }}>Uses credits</td>
                   <td className="plus">Included</td>
                   <td className="credit">5</td>
