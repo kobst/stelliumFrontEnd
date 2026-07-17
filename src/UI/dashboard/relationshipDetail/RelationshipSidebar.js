@@ -10,8 +10,6 @@ const CLUSTER_ICONS = {
   Growth: '\u{1F331}'
 };
 
-const ORDERED_CLUSTERS = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
-
 const SECTIONS = [
   { id: 'overview', label: 'Overview' },
   { id: 'scores', label: 'Pattern' },
@@ -19,13 +17,6 @@ const SECTIONS = [
   { id: 'charts', label: 'Charts' },
   { id: 'analysis', label: '360 Analysis' }
 ];
-
-function scoreColorClass(score) {
-  if (typeof score !== 'number') return '';
-  if (score >= 80) return 'green';
-  if (score >= 50) return 'gold';
-  return 'orange';
-}
 
 function countAspectsByType(aspects) {
   if (!Array.isArray(aspects)) return { harmonious: 0, challenging: 0 };
@@ -72,7 +63,6 @@ function RelationshipSidebar({
 }) {
   const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
   const overall = clusterAnalysis?.overall;
-  const clusters = clusterAnalysis?.clusters;
   const synastryAspects = relationship?.synastryAspects || [];
   const { label, blurb, dominantClusters, headline } = getRelationshipSummary(overall);
   const aspectCounts = countAspectsByType(synastryAspects);
@@ -92,10 +82,6 @@ function RelationshipSidebar({
 
   const dominantCluster = dominantClusters?.[0] || overall?.dominantCluster;
   const challengeCluster = overall?.challengeCluster;
-  const dominantScore = dominantCluster && clusters?.[dominantCluster]?.score;
-  const dominantClusterLabel =
-    typeof dominantScore === 'number' && dominantScore < 25 ? 'Most Active' : 'Strongest';
-  const challengeScore = challengeCluster && clusters?.[challengeCluster]?.score;
 
   return (
     <nav className="rd-section-nav" aria-label="Relationship sections">
@@ -125,16 +111,9 @@ function RelationshipSidebar({
         </div>
 
         <div className="rd-pair-name">{userAFirst} &amp; {userBFirst}</div>
-        {headline && (
+        {headline?.flavorPresent && headline?.flavorCluster && (
           <div className="rd-pair-strength">
-            <div className="rd-pair-strength__label">Relationship Strength</div>
-            <div className="rd-pair-strength__main">
-              <span className="rd-pair-strength__score">{Math.round(headline.strengthScore)}</span>
-              <span className="rd-pair-strength__unit">connection</span>
-            </div>
-            {headline.flavorPresent && headline.flavorCluster && (
-              <div className="rd-pair-strength__tag">{headline.flavorCluster}-Forward</div>
-            )}
+            <div className="rd-pair-strength__tag">{headline.flavorCluster}-Forward</div>
           </div>
         )}
         {label && <div className="rd-pair-arche">{label}</div>}
@@ -142,15 +121,10 @@ function RelationshipSidebar({
 
         {dominantCluster && (
           <div className="rd-stat-block">
-            <div className="rd-stat-block__label">{dominantClusterLabel}</div>
+            <div className="rd-stat-block__label">Strongest</div>
             <div className="rd-stat-row">
               <div className="rd-stat-row__ic">{CLUSTER_ICONS[dominantCluster]}</div>
-              <div className="rd-stat-row__nm">
-                {dominantCluster} <span className="dash">—</span>
-              </div>
-              <div className={`rd-stat-row__vv ${scoreColorClass(dominantScore)}`}>
-                {dominantScore != null ? `${Math.round(dominantScore)}%` : '—'}
-              </div>
+              <div className="rd-stat-row__nm">{dominantCluster}</div>
             </div>
           </div>
         )}
@@ -160,12 +134,7 @@ function RelationshipSidebar({
             <div className="rd-stat-block__label">Growth Area</div>
             <div className="rd-stat-row">
               <div className="rd-stat-row__ic">{CLUSTER_ICONS[challengeCluster]}</div>
-              <div className="rd-stat-row__nm">
-                {challengeCluster} <span className="dash">—</span>
-              </div>
-              <div className={`rd-stat-row__vv ${scoreColorClass(challengeScore)}`}>
-                {challengeScore != null ? `${Math.round(challengeScore)}%` : '—'}
-              </div>
+              <div className="rd-stat-row__nm">{challengeCluster}</div>
             </div>
           </div>
         )}
@@ -184,26 +153,6 @@ function RelationshipSidebar({
           </div>
         )}
 
-        {clusters && (
-          <div className="rd-stat-block">
-            <div className="rd-stat-block__label">All Dimensions</div>
-            {ORDERED_CLUSTERS.map((cluster) => {
-              const score = clusters[cluster]?.score;
-              if (score === undefined) return null;
-              return (
-                <div key={cluster} className="rd-stat-row">
-                  <div className="rd-stat-row__ic">{CLUSTER_ICONS[cluster]}</div>
-                  <div className="rd-stat-row__nm">
-                    {cluster} <span className="dash">—</span>
-                  </div>
-                  <div className={`rd-stat-row__vv ${scoreColorClass(score)}`}>
-                    {Math.round(score)}%
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       <div className="rd-tabs" role="tablist">

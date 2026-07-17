@@ -5,10 +5,29 @@
       "Bash(rm:*)",
       "Bash(find:*)",
       "Bash(git checkout:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git log:*)",
       "Bash(grep:*)",
       "Bash(rg:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(npm run build:*)",
+      "Bash(CI=true npm run build:*)",
+      "Bash(npx eslint:*)"
     ],
-    "deny": []
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)"
+    ]
   }
 }
