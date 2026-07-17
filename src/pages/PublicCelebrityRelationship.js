@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
 import RelationshipDetailLayout from '../UI/dashboard/relationshipDetail/RelationshipDetailLayout';
 import AskStelliumCta from '../UI/dashboard/chartTabs/AskStelliumCta';
-import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
 import CompositeTab from '../UI/dashboard/relationshipTabs/CompositeTab';
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
@@ -19,7 +18,7 @@ function PublicCelebrityRelationship() {
   const [relationship, setRelationship] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeSection, setActiveSection] = useState('scores');
+  const [activeSection, setActiveSection] = useState('overview');
   const [askOpen, setAskOpen] = useState(false);
 
   useEffect(() => {
@@ -114,7 +113,6 @@ function PublicCelebrityRelationship() {
     );
   }
 
-  const hasAnalysis = !!(relationship?.completeAnalysis && Object.keys(relationship.completeAnalysis).length > 0);
   const relationshipScoredItems =
     relationship?.scoredItems ||
     relationship?.clusterAnalysis?.scoredItems ||
@@ -135,18 +133,6 @@ function PublicCelebrityRelationship() {
   );
 
   const sections = [
-    {
-      id: 'scores',
-      content: renderWithAskStellium(
-        <ScoresTab
-          relationship={relationship}
-          hasAnalysis={hasAnalysis}
-          onNavigateToAnalysis={() => setActiveSection('analysis')}
-          compositeId={compositeId}
-          isCelebrity={true}
-        />
-      )
-    },
     {
       id: 'overview',
       content: renderWithAskStellium(

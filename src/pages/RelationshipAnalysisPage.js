@@ -3,10 +3,8 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { getUserCompositeCharts, fetchRelationshipAnalysis, fetchUser, getRelationshipWorkflowStatus } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
-import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import DashboardLayout from '../UI/layout/DashboardLayout';
 import RelationshipDetailLayout from '../UI/dashboard/relationshipDetail/RelationshipDetailLayout';
-import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import OverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
 import CompositeTab from '../UI/dashboard/relationshipTabs/CompositeTab';
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
@@ -201,24 +199,9 @@ function RelationshipAnalysisPage() {
 
   const hasAnalysis = !!(relationship?.completeAnalysis && Object.keys(relationship.completeAnalysis).length > 0);
   const canUseAskStellium = Boolean(hasAnalysis);
-  const navigateToAnalysis = () => setActiveSection('analysis');
 
   // Build sections array for RelationshipDetailLayout
   const sections = [
-    {
-      id: 'scores',
-      content: (
-        <ScoresTab
-          relationship={relationship}
-          hasAnalysis={hasAnalysis}
-          canUseAskStellium={canUseAskStellium}
-          onNavigateToAnalysis={navigateToAnalysis}
-          creditCost={CREDIT_COSTS.FULL_RELATIONSHIP}
-          creditsRemaining={entitlements.credits?.total}
-          compositeId={compositeId}
-        />
-      )
-    },
     {
       id: 'overview',
       content: <OverviewTab relationship={relationship} compositeId={compositeId} canUseAskStellium={canUseAskStellium} />

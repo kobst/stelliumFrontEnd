@@ -12,9 +12,8 @@ const CLUSTER_ICONS = {
 
 const SECTIONS = [
   { id: 'overview', label: 'Overview' },
-  { id: 'scores', label: 'Pattern' },
-  { id: 'composite', label: 'Composite' },
   { id: 'charts', label: 'Charts' },
+  { id: 'composite', label: 'Composite' },
   { id: 'analysis', label: '360 Analysis' }
 ];
 

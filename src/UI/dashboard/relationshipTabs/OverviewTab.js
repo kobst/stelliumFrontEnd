@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import AskStelliumCta from '../chartTabs/AskStelliumCta';
+import { getRelationshipSummary } from '../../../Utilities/relationshipSummary';
 import './RelationshipTabs.css';
 
 function OverviewTab({ relationship, compositeId, isCelebrity = false, canUseAskStellium = false }) {
@@ -9,6 +10,9 @@ function OverviewTab({ relationship, compositeId, isCelebrity = false, canUseAsk
   const initialOverview = relationship?.initialOverview;
   const holisticOverview = relationship?.completeAnalysis?.holisticOverview;
   const overview = holisticOverview || initialOverview;
+
+  const clusterAnalysis = relationship?.clusterScoring || relationship?.clusterAnalysis;
+  const { label, blurb } = getRelationshipSummary(clusterAnalysis?.overall);
 
   const relationshipScoredItems =
     relationship?.scoredItems ||
@@ -43,6 +47,14 @@ function OverviewTab({ relationship, compositeId, isCelebrity = false, canUseAsk
       <div className="rd-section-head">
         <h2>Relationship Overview</h2>
       </div>
+
+      {(label || blurb) && (
+        <div className="rd-score-summary rd-score-summary--detail">
+          <div className="rd-score-summary__label">Relationship Pattern</div>
+          {label && <h3 className="rd-score-summary__title">{label}</h3>}
+          {blurb && <p>{blurb}</p>}
+        </div>
+      )}
 
       {paragraphs.length > 0 ? (
         <article className="rd-overview-reading">
