@@ -7,7 +7,7 @@ import { useCheckout } from '../hooks/useCheckout';
 import { ZODIAC_SIGNS } from '../Utilities/zodiac';
 import { trackLandingCTAClicked } from '../Utilities/analytics';
 import { fetchCelebrities, getCelebrityRelationships, fetchRelationshipAnalysis } from '../Utilities/api';
-import { getRelationshipCardSummary, relationshipStrengthWord } from '../Utilities/relationshipSummary';
+import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 
 const SIGN_DATES = {
   aries: 'Mar 21 – Apr 19',
@@ -236,30 +236,8 @@ function PairCard({ relationship, gradients, onClick }) {
     relationship?.clusterScoring ||
     relationship?.clusterAnalysis ||
     {};
-  const overallScore = Math.round(scoring?.overall?.score ?? relationship?.compatibilityScore ?? 0);
   const { cardHeadline } = getRelationshipCardSummary(scoring?.overall);
-  const archetype = cardHeadline || relationshipStrengthWord(overallScore) || 'Cosmic Connection';
-
-  const clusters = scoring?.clusters || scoring;
-  const findScore = (keys) => {
-    for (const key of keys) {
-      const direct = clusters?.[key];
-      if (direct && typeof direct === 'object' && typeof direct.score === 'number') {
-        return Math.round(direct.score);
-      }
-      if (typeof direct === 'number') return Math.round(direct);
-    }
-    return null;
-  };
-
-  const stats = [
-    { label: 'HAR', score: findScore(['Harmony', 'HARMONY', 'harmony']) ?? overallScore },
-    { label: 'PAS', score: findScore(['Passion', 'PASSION', 'passion', 'INTIMACY_AND_PASSION']) ?? overallScore },
-    { label: 'CON', score: findScore(['Connection', 'CONNECTION', 'connection', 'EMOTIONAL_SECURITY_CONNECTION', 'COMMUNICATION_AND_MENTAL_CONNECTION']) ?? overallScore },
-    { label: 'STA', score: findScore(['Stability', 'STABILITY', 'stability', 'PRACTICAL_GROWTH_SHARED_GOALS']) ?? overallScore },
-    { label: 'GRO', score: findScore(['Growth', 'GROWTH', 'growth', 'KARMIC_LESSONS_GROWTH']) ?? overallScore }
-  ];
-  const maxStat = Math.max(...stats.map((s) => s.score));
+  const archetype = cardHeadline || 'Cosmic Connection';
 
   return (
     <button type="button" className="lp-pair-card" onClick={onClick}>
@@ -270,14 +248,6 @@ function PairCard({ relationship, gradients, onClick }) {
       <div className="lp-pair-card__names">{userAName} & {userBName}</div>
       <div className="lp-pair-card__archetype">{archetype}</div>
       <p>Cosmic chemistry across five dimensions — see the full synastry and composite breakdown.</p>
-      <div className="lp-stat-strip">
-        {stats.map(({ label, score }) => (
-          <div className="lp-stat-strip__stat" key={label}>
-            <span className={`lp-stat-strip__v${score === maxStat ? ' gold' : ''}`}>{score}</span>
-            <span className="lp-stat-strip__l">{label}</span>
-          </div>
-        ))}
-      </div>
     </button>
   );
 }
