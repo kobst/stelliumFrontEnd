@@ -299,17 +299,6 @@ body.ask-stellium-panel-open .ask-stellium-cta {
   font-weight: 500;
 }
 
-/* Radar Chart */
-.radar-chart-section {
-  margin-bottom: 24px;
-}
-
-.radar-chart-container {
-  height: 280px;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
 /* Cluster Cards */
 .cluster-cards-section {
   margin-bottom: 16px;
@@ -493,16 +482,6 @@ body.ask-stellium-panel-open .ask-stellium-cta {
   color: rgba(255, 255, 255, 0.82);
   font-size: 0.98rem;
   line-height: 1.65;
-}
-
-.scores-radar-wrapper {
-  position: relative;
-  height: 560px;
-  margin: 16px 0 8px;
-  padding: 20px;
-  background: rgba(139, 92, 246, 0.06);
-  border-radius: 12px;
-  border: 1px solid rgba(139, 92, 246, 0.15);
 }
 
 .scores-empty-state {
