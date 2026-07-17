@@ -485,13 +485,7 @@ export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = n
     }
 
     const responseData = await response.json();
-    console.log('Enhanced relationship creation response:', responseData);
-    
-    // Log new cluster analysis structure if present
-    if (responseData.clusterAnalysis) {
-      console.log("✅ Cluster Analysis from creation:", responseData.clusterAnalysis);
-    }
-    
+
     return responseData;
   } catch (error) {
     console.error(ERROR_API_CALL, error);
@@ -638,27 +632,7 @@ export const fetchRelationshipAnalysis = async (compositeChartId) => {
     }
 
     const responseData = await response.json();
-    
-    console.log("🔍 FULL API RESPONSE:", JSON.stringify(responseData, null, 2));
-    console.log("🔍 Cluster Analysis present?", !!responseData.clusterAnalysis);
-    console.log("🔍 Response keys:", Object.keys(responseData));
-    
-    // Log the new cluster analysis structure if present
-    if (responseData.clusterAnalysis) {
-      console.log("✅ New Cluster Analysis available:", responseData.clusterAnalysis);
-      console.log("🎯 Clusters:", Object.keys(responseData.clusterAnalysis.clusters || {}));
-      console.log("📊 Overall Score:", responseData.clusterAnalysis.overall?.score);
-      console.log("🏆 Dominant Cluster:", responseData.clusterAnalysis.overall?.dominantCluster);
-    }
-    
-    // Log tension flow analysis if present
-    if (responseData.tensionFlowAnalysis) {
-      console.log("✅ Tension Flow Analysis available:", responseData.tensionFlowAnalysis);
-      console.log("📈 Support Density:", responseData.tensionFlowAnalysis.supportDensity);
-      console.log("📉 Challenge Density:", responseData.tensionFlowAnalysis.challengeDensity);
-      console.log("🎯 Quadrant:", responseData.tensionFlowAnalysis.quadrant);
-    }
-    
+
     return responseData;
   } catch (error) {
     console.error(ERROR_API_CALL, error);
