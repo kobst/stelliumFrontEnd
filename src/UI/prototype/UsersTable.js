@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './UsersTable.css';
 import { fetchUsers, fetchUsersPaginated, deleteSubject } from '../../Utilities/api'
 import useStore from '../../Utilities/store';
@@ -10,7 +9,6 @@ function UsersTable({ onUserSelect, usePagination = false }) {
   const [deletingUser, setDeletingUser] = useState(null);
   const selectedUser = useStore(state => state.selectedUser);
   const currentUserId = useStore(state => state.userId);
-  const navigate = useNavigate();
 
   // Create a wrapper function for the paginated API
   const fetchUsersWrapper = useMemo(() => {

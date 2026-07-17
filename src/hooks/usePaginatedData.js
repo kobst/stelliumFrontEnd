@@ -50,6 +50,7 @@ export const usePaginatedData = (fetchFunction, initialOptions = {}) => {
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchFunction, pagination.currentPage, pagination.itemsPerPage, search.debouncedSearchTerm, sortBy, sortOrder]);
 
   // Fetch data when dependencies change
@@ -62,6 +63,7 @@ export const usePaginatedData = (fetchFunction, initialOptions = {}) => {
     if (search.debouncedSearchTerm !== search.searchTerm) {
       pagination.reset();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search.debouncedSearchTerm, search.searchTerm, pagination.reset]);
 
   const refresh = useCallback((additionalParams = {}) => {
@@ -72,6 +74,7 @@ export const usePaginatedData = (fetchFunction, initialOptions = {}) => {
     setSortBy(field);
     setSortOrder(order);
     pagination.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.reset]);
 
   return {

@@ -92,6 +92,7 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskSt
   const [activeSubTab, setActiveSubTab] = useState('synastry');
   const [chatOpen, setChatOpen] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const synastryAspects = relationship?.synastryAspects || [];
   const compositeChart = relationship?.compositeChart || {};
   const userAName = relationship?.userA_name || 'Person A';

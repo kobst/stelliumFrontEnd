@@ -28,7 +28,6 @@ const PLANET_ORDER = [
 
 function GuestDashboard() {
   const activeUserContext = useStore(state => state.activeUserContext);
-  const currentUserContext = useStore(state => state.currentUserContext);
   const returnToOwnerContext = useStore(state => state.returnToOwnerContext);
   const userPlanets = useStore(state => state.userPlanets);
   const userHouses = useStore(state => state.userHouses);
@@ -74,6 +73,7 @@ function GuestDashboard() {
     if (guestId) {
       fetchAnalysisForUserAsync();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guestId]);
 
   // Legacy completion banner removed

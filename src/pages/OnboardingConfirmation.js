@@ -98,6 +98,7 @@ const OnboardingConfirmation = () => {
         };
 
         performCreation();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [creationAttempt, userData, firebaseUser, creationResult?.success, createUser, setUserId, setUserPlanets, setUserHouses, setUserAspects, setSelectedUser]);
 
     // Update local state when creation completes

@@ -205,6 +205,7 @@ const useSubjectCreation = () => {
   }, [subjectType]);
 
   // Get complete data after workflow completion (legacy)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCompleteData = async (userId, workflowId) => {
     try {
       const response = await getCompleteWorkflowData(userId, workflowId);
@@ -279,13 +280,11 @@ const useSubjectCreation = () => {
         const statusResponse = await checkStatus(workflowId);
         
         if (statusResponse.completed) {
-          // Workflow completed, get complete data
-          const completeResponse = await getCompleteData(statusResponse.userId, workflowId);
+          // Workflow completed, get complete data (stored via setCompleteData)
+          await getCompleteData(statusResponse.userId, workflowId);
           // Clear the interval
           clearInterval(interval);
           setPollInterval(null);
-          
-          // Workflow completed, data is available in completeResponse
         }
       } catch (error) {
         console.error('Polling error:', error);

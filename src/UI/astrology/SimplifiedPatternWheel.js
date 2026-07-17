@@ -481,8 +481,7 @@ const SimplifiedPatternWheel = memo(({
           
           for (let i = 0; i < sortedPlanets.length; i++) {
             const planet = sortedPlanets[i];
-            const nextPlanet = sortedPlanets[(i + 1) % sortedPlanets.length];
-            
+
             currentGroup.push(planet);
             
             // Check if there's a large gap after this planet
@@ -565,8 +564,10 @@ const SimplifiedPatternWheel = memo(({
           }
         });
         break;
+      default:
+        break;
     }
-    
+
     return sections;
   };
 
@@ -732,6 +733,7 @@ const SimplifiedPatternWheel = memo(({
         drawPlanets(ctx, planets);
         break;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planets, pattern, patternData, size]);
 
   return (

@@ -31,6 +31,7 @@ export function useEntitlements(user) {
     if (user?._id && !store.lastFetched) {
       store.fetchEntitlements(user._id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?._id, store.lastFetched, store.fetchEntitlements]);
 
   // Memoize legacy entitlements (backward compatibility)
@@ -114,6 +115,7 @@ export function useEntitlements(user) {
     if (user?._id) {
       return store.fetchEntitlements(user._id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?._id, store.fetchEntitlements]);
 
   const refreshAfterPurchase = useCallback(
@@ -122,6 +124,7 @@ export function useEntitlements(user) {
         return store.refreshAfterPurchase(user._id, delayMs);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [user?._id, store.refreshAfterPurchase]
   );
 
@@ -130,12 +133,14 @@ export function useEntitlements(user) {
       return store.useQuestion(user._id);
     }
     return Promise.resolve({ success: false, error: 'No user' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?._id, store.useQuestion]);
 
   const isAnalysisUnlocked = useCallback(
     (entityType, entityId) => {
       return store.isAnalysisUnlocked(entityType, entityId);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [store.isAnalysisUnlocked]
   );
 
@@ -147,6 +152,7 @@ export function useEntitlements(user) {
       }
       return store.canStartFullReport(entityType);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [store.isAnalysisUnlocked, store.canStartFullReport]
   );
 

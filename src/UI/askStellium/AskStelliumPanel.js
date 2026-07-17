@@ -316,9 +316,13 @@ function AskStelliumPanel({
   const storedPatterns = useStore(state => state.userPatterns);
 
   const config = HISTORY_CONFIG[contentType];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const planets = birthChart?.planets || storedPlanets || [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const aspects = birthChart?.aspects || storedAspects || [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const houses = birthChart?.houses || storedHouses || [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const patterns = birthChart?.patterns || storedPatterns || {};
 
   const resolvedPeriod = useMemo(() => {

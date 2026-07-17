@@ -221,40 +221,6 @@ const extractKeyAspects = (subtopic) => {
   return [];
 };
 
-// Render a single key element card
-const renderKeyElement = (decoded, idx) => {
-  if (decoded.type === 'placement') {
-    return (
-      <div key={idx} className="key-element-card">
-        <div className="element-planet">{decoded.planet}</div>
-        <div className="element-detail">{decoded.sign} in House {decoded.house}</div>
-      </div>
-    );
-  }
-
-  if (decoded.type === 'aspect') {
-    return (
-      <div key={idx} className="key-element-card aspect-card">
-        <div className="element-title">{renderAspectPhrase(decoded)}</div>
-        <div className="element-detail">
-          {decoded.p1.planet} in {decoded.p1.sign} ({houseLabel(decoded.p1.house)})
-        </div>
-        <div className="element-detail">
-          {decoded.p2.planet} in {decoded.p2.sign} ({houseLabel(decoded.p2.house)})
-        </div>
-        <span className="aspect-type-tag">{decoded.aspect}</span>
-      </div>
-    );
-  }
-
-  // Fallback for unknown types
-  return (
-    <div key={idx} className="key-element-card">
-      <div className="element-detail">{decoded.pretty}</div>
-    </div>
-  );
-};
-
 // Format subtopic name from key
 const formatSubtopicName = (key) => {
   return key

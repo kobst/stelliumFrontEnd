@@ -22,7 +22,7 @@ const PlanetPositionsTable = ({ planetsArray }) => {
                   <SignIcon name={planet.sign} size={20} />
                 </td>
                 <td>{planet.sign}</td>
-                <td>{planet.is_retro == "true" ? "Retro" : ""}</td>
+                <td>{planet.is_retro === "true" ? "Retro" : ""}</td>
               </tr>
           ))}
       </tbody>
