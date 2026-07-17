@@ -704,6 +704,9 @@
   color: inherit;
   text-align: left;
 }
+.rd-bar-card__summary--plain {
+  grid-template-columns: 1fr 18px;
+}
 .rd-bar-card__chev {
   color: var(--rd-text-faint);
   font-size: 12px;
