@@ -152,6 +152,22 @@ export async function generateCelebrityHoroscope(celebrityId, type, options = {}
   );
 }
 
+export async function askCelebrityHoroscope(celebrityId, { query, period, date }) {
+  const body = { query };
+
+  if (period) body.period = period;
+  if (date) body.date = date;
+
+  return apiFetch(
+    `/admin/celebrities/${encodeURIComponent(celebrityId)}/horoscopes/custom`,
+    {
+      method: HTTP_POST,
+      headers: await buildAuthHeaders(),
+      body: JSON.stringify(body),
+    }
+  );
+}
+
 export async function getCelebrityHoroscope(celebrityId, type, date = null) {
   const params = new URLSearchParams();
   if (type) params.set('type', type);

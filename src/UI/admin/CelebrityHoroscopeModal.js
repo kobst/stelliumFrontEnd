@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  askCelebrityHoroscope,
   generateCelebrityHoroscope,
   getCelebrityHoroscope,
 } from '../../Utilities/adminApi';
@@ -43,16 +44,25 @@ function getBirthTimeMode(record, response) {
     ?? response?.metadata?.birthTimeMode;
 }
 
-function formatGenerationError(error) {
-  const message = error?.message || 'Failed to generate the horoscope.';
-  const errorDetails = `${message} ${JSON.stringify(error?.data || {})}`;
-  const fullAnalysisRequired = /full[\s_-]*analysis|birth[\s_-]*chart[\s_-]*analysis|rag vectors?|analysis.{0,30}(complete|required)|(?:complete|required).{0,30}analysis/i.test(errorDetails);
+function isFullAnalysisRequiredError(error) {
+  const errorDetails = `${error?.message || ''} ${JSON.stringify(error?.data || {})}`;
+  return /full[\s_-]*analysis|birth[\s_-]*chart[\s_-]*analysis|rag vectors?|analysis.{0,30}(complete|required)|(?:complete|required).{0,30}analysis/i.test(errorDetails);
+}
 
-  if (fullAnalysisRequired) {
+function formatGenerationError(error) {
+  if (isFullAnalysisRequiredError(error)) {
     return 'Generate full analysis first. This celebrity must have a completed full analysis before a horoscope can be generated.';
   }
 
-  return message;
+  return error?.message || 'Failed to generate the horoscope.';
+}
+
+function formatAskError(error) {
+  if (isFullAnalysisRequiredError(error)) {
+    return 'Generate full analysis first. This celebrity must have a completed full analysis before horoscope questions can be answered.';
+  }
+
+  return error?.message || 'Failed to answer the horoscope question.';
 }
 
 function copyText(text) {
@@ -81,6 +91,11 @@ function CelebrityHoroscopeModal({ celebrity, onClose }) {
   const [generatingAction, setGeneratingAction] = useState(null);
   const [error, setError] = useState('');
   const [copyStatus, setCopyStatus] = useState('');
+  const [question, setQuestion] = useState('');
+  const [askResult, setAskResult] = useState(null);
+  const [asking, setAsking] = useState(false);
+  const [askError, setAskError] = useState('');
+  const [askCopyStatus, setAskCopyStatus] = useState('');
   const requestIdRef = useRef(0);
 
   const celebrityName = useMemo(() => {
@@ -97,6 +112,15 @@ function CelebrityHoroscopeModal({ celebrity, onClose }) {
   const birthTimeMode = getBirthTimeMode(record, result);
   const hasReducedPrecision = String(birthTimeMode || '').toLowerCase().includes('unknown')
     || degradedFeatures.length > 0;
+  const askRecord = useMemo(() => getHoroscopeRecord(askResult), [askResult]);
+  const askInterpretation = useMemo(() => getInterpretation(askRecord), [askRecord]);
+  const askDegradedFeatures = useMemo(
+    () => getDegradedFeatures(askRecord, askResult),
+    [askRecord, askResult]
+  );
+  const askBirthTimeMode = getBirthTimeMode(askRecord, askResult);
+  const askHasReducedPrecision = String(askBirthTimeMode || '').toLowerCase().includes('unknown')
+    || askDegradedFeatures.length > 0;
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -185,6 +209,42 @@ function CelebrityHoroscopeModal({ celebrity, onClose }) {
       setCopyStatus('Copied to clipboard');
     } catch (copyError) {
       setCopyStatus('Copy failed. Select and copy the text manually.');
+    }
+  };
+
+  const handleAsk = async (event) => {
+    event.preventDefault();
+
+    const query = question.trim();
+    if (!celebrity?._id || !query || asking) return;
+
+    setAsking(true);
+    setAskResult(null);
+    setAskError('');
+    setAskCopyStatus('');
+
+    try {
+      const response = await askCelebrityHoroscope(celebrity._id, {
+        query,
+        period: type,
+        date,
+      });
+      setAskResult(response);
+    } catch (requestError) {
+      setAskError(formatAskError(requestError));
+    } finally {
+      setAsking(false);
+    }
+  };
+
+  const handleAskCopy = async () => {
+    if (!askInterpretation) return;
+
+    try {
+      await copyText(askInterpretation);
+      setAskCopyStatus('Copied to clipboard');
+    } catch (copyError) {
+      setAskCopyStatus('Copy failed. Select and copy the text manually.');
     }
   };
 
@@ -295,6 +355,79 @@ function CelebrityHoroscopeModal({ celebrity, onClose }) {
             </div>
           </div>
         )}
+
+        <section className="chm-result" aria-labelledby="celebrity-horoscope-question-title">
+          <div className="chm-result-header">
+            <h3 id="celebrity-horoscope-question-title">Ask about this horoscope</h3>
+          </div>
+
+          <form onSubmit={handleAsk}>
+            <label className="chm-date-field">
+              <span>Question</span>
+              <textarea
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+                rows={4}
+                disabled={asking}
+                placeholder={`Ask a question about ${celebrityName}'s ${type} horoscope...`}
+                style={{
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  padding: '10px',
+                  border: '1px solid rgba(139, 92, 246, 0.35)',
+                  borderRadius: '6px',
+                  background: 'rgba(0, 0, 0, 0.25)',
+                  color: 'white',
+                  font: 'inherit',
+                  lineHeight: 1.5,
+                  resize: 'vertical',
+                }}
+              />
+            </label>
+
+            <div className="chm-actions">
+              <button
+                type="submit"
+                className="chm-button chm-button-primary"
+                disabled={asking || !question.trim()}
+              >
+                {asking ? 'Asking...' : 'Ask'}
+              </button>
+            </div>
+          </form>
+
+          {askError && <div className="chm-error" role="alert">{askError}</div>}
+
+          {askInterpretation && (
+            <div>
+              <div className="chm-result-header">
+                <h3>Answer</h3>
+                <button type="button" className="chm-button chm-button-copy" onClick={handleAskCopy}>
+                  Copy answer
+                </button>
+              </div>
+
+              {askHasReducedPrecision && (
+                <div
+                  className="chm-precision-note"
+                  title={askDegradedFeatures.length > 0 ? `Degraded features: ${askDegradedFeatures.join(', ')}` : undefined}
+                >
+                  Reduced precision (birth time unknown)
+                </div>
+              )}
+
+              <div className="chm-interpretation">{askInterpretation}</div>
+
+              <div className="chm-result-footer">
+                <div className="chm-meta">
+                  {askRecord?.period && <span>Period: {askRecord.period}</span>}
+                  {askRecord?.date && <span>Date: {askRecord.date}</span>}
+                </div>
+                {askCopyStatus && <div className="chm-copy-status" aria-live="polite">{askCopyStatus}</div>}
+              </div>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );
