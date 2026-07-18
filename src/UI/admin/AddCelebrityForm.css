@@ -1,21 +1,126 @@
-/* Readability fixes for the admin "Add New Celebrity" form, which sits on a
-   dark background. Native pickers and the Google Places dropdown need explicit
-   dark-theme theming so their text stays legible. */
-
-/* Render native date/time/select controls (text, picker icons, and popups)
-   with a dark color scheme so they are visible on the dark form. */
-.add-celebrity-form input[type="date"],
-.add-celebrity-form input[type="time"],
-.add-celebrity-form select {
-  color-scheme: dark;
+.admin-page .add-celebrity-form .admin-form {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-/* Google Places autocomplete prediction dropdown. The input itself has a white
-   background, so match the dropdown: a light surface with dark text keeps the
-   suggestions readable instead of low-contrast purple-on-dark. */
+.add-celebrity-form__group {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  max-width: 760px;
+  margin-bottom: 14px;
+}
+
+.add-celebrity-form__group--top {
+  align-items: start;
+}
+
+.add-celebrity-form__label {
+  color: var(--admin-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.add-celebrity-form__fields,
+.add-celebrity-form__photo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-page .add-celebrity-form__fields .admin-input {
+  width: 180px;
+}
+
+.add-celebrity-form__location {
+  width: min(100%, 420px);
+}
+
+.admin-page .add-celebrity-form .celebrity-location-autocomplete {
+  display: block;
+  width: 100%;
+}
+
 .celebrity-location-autocomplete {
-  --gmp-mat-color-surface: #ffffff;
-  --gmp-mat-color-on-surface: #1a1a2e;
-  --gmp-mat-color-on-surface-variant: #555555;
-  --gmp-mat-color-primary: #5116b5;
+  --gmp-mat-color-surface: var(--admin-surface);
+  --gmp-mat-color-on-surface: var(--admin-text);
+  --gmp-mat-color-on-surface-variant: var(--admin-text-muted);
+  --gmp-mat-color-primary: var(--admin-accent);
+}
+
+.add-celebrity-form__preview {
+  position: relative;
+}
+
+.add-celebrity-form__preview img {
+  display: block;
+  width: 80px;
+  height: 80px;
+  border: 1px solid var(--admin-border);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.add-celebrity-form__remove-photo {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #ffffff;
+  border-radius: 50%;
+  background: var(--admin-danger);
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.admin-page .add-celebrity-form__file-input {
+  width: min(100%, 360px);
+  font-size: 12px;
+}
+
+.add-celebrity-form__help,
+.add-celebrity-form__error {
+  margin: 5px 0 0;
+  font-size: 12px;
+}
+
+.add-celebrity-form__help {
+  color: var(--admin-text-muted);
+}
+
+.add-celebrity-form__error {
+  color: var(--admin-danger);
+}
+
+.add-celebrity-form__actions {
+  margin: 18px 0 0 152px;
+}
+
+@media (max-width: 640px) {
+  .add-celebrity-form__group {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .add-celebrity-form__label {
+    text-align: left;
+  }
+
+  .add-celebrity-form__actions {
+    margin-left: 0;
+  }
 }

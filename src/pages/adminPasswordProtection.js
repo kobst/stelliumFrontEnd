@@ -137,33 +137,18 @@ const AdminPasswordProtection = ({ children }) => {
   }
 
   return (
-    <>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '10px 16px',
-        background: '#0f1025',
-        color: '#d7d7e6',
-        borderBottom: '1px solid #2d2f52'
-      }}>
-        <span style={{ fontSize: '13px' }}>{signedInLabel}</span>
+    <div className="admin-shell">
+      <div className="admin-auth-bar">
+        <span className="admin-auth-session">{signedInLabel}</span>
         <button
           onClick={handleSignOut}
-          style={{
-            background: '#2b2e5e',
-            color: '#fff',
-            border: '1px solid #4a4f89',
-            borderRadius: '6px',
-            padding: '6px 10px',
-            cursor: 'pointer'
-          }}
+          className="admin-btn admin-btn--ghost"
         >
           Sign out
         </button>
       </div>
       {children}
-    </>
+    </div>
   );
 };
 

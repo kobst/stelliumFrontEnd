@@ -9,6 +9,7 @@ import CelebrityHoroscopeModal from '../UI/admin/CelebrityHoroscopeModal';
 import HoroscopePreview from '../UI/admin/HoroscopePreview';
 import VideoAssetsTab from '../UI/admin/VideoAssetsTab';
 import useStore from '../Utilities/store';
+import '../styles/admin-theme.css';
 
 function AdminPage() {
   const [refreshCelebrities, setRefreshCelebrities] = useState(0);
@@ -63,19 +64,18 @@ function AdminPage() {
   };
 
   return (
-    <div className="admin-page" style={{ marginBottom: '50px' }}>
-      <div className="admin-header">
-        <div className="maintxt mont-font">
-          <h1 className="logotxt">ADMIN - USER MANAGEMENT</h1>
-        </div>
-      </div>
+    <main className="admin-page">
+      <header className="admin-page-header">
+        <h1>ADMIN — USER MANAGEMENT</h1>
+      </header>
 
-      <UsersTable onUserSelect={handleUserSelect} usePagination={true} />
+      <UsersTable onUserSelect={handleUserSelect} usePagination={true} adminTheme={true} />
       <CelebritiesTable
         onCelebritySelect={handleCelebritySelect}
         onGenerateHoroscope={setHoroscopeCelebrity}
         key={refreshCelebrities}
         usePagination={true}
+        adminTheme={true}
       />
       <AddCelebrityForm onCelebrityAdded={handleCelebrityAdded} />
       <CelebrityRelationshipsTab />
@@ -87,7 +87,7 @@ function AdminPage() {
           onClose={() => setHoroscopeCelebrity(null)}
         />
       )}
-    </div>
+    </main>
   );
 }
 

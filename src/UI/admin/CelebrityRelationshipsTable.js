@@ -79,9 +79,9 @@ function CelebrityRelationshipsTable() {
 
   if (loading) {
     return (
-      <div className="user-table-container">
-        <h2 style={{ color: 'grey' }}>Celebrity Relationships</h2>
-        <div style={{ textAlign: 'center', padding: '20px' }}>
+      <div>
+        <h2 className="admin-section-title">Celebrity Relationships</h2>
+        <div className="admin-empty">
           <p>Loading celebrity relationships...</p>
         </div>
       </div>
@@ -89,17 +89,10 @@ function CelebrityRelationshipsTable() {
   }
 
   return (
-    <div className="user-table-container">
-      <h2 style={{ color: 'grey' }}>Celebrity Relationships</h2>
+    <div>
+      <h2 className="admin-section-title">Celebrity Relationships</h2>
       {celebrityRelationships.length === 0 ? (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '40px', 
-          color: '#6c757d',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '8px',
-          border: '1px solid #dee2e6'
-        }}>
+        <div className="admin-empty">
           <p style={{ margin: 0, fontSize: '16px' }}>
             No celebrity relationships found.
           </p>
@@ -108,28 +101,23 @@ function CelebrityRelationshipsTable() {
           </p>
         </div>
       ) : (
-        <div className="user-table-scroll">
-          <table className="user-table">
+        <div className="admin-table-scroll">
+          <table className="admin-table">
             <thead>
               <tr>
-                <th style={{ color: 'orange' }}>Celebrity A</th>
-                <th style={{ color: 'orange' }}>Celebrity B</th>
-                <th style={{ color: 'orange' }}>Celebrity A DOB</th>
-                <th style={{ color: 'orange' }}>Celebrity B DOB</th>
-                <th style={{ color: 'orange' }}>Created</th>
-                <th style={{ color: 'orange' }}>Actions</th>
+                <th>Celebrity A</th>
+                <th>Celebrity B</th>
+                <th>Celebrity A DOB</th>
+                <th>Celebrity B DOB</th>
+                <th>Created</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {celebrityRelationships.map((relationship) => (
                 <tr
                   key={relationship._id}
-                  style={{ 
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.target.parentElement.style.backgroundColor = 'rgba(128, 0, 128, 0.1)'}
-                  onMouseLeave={(e) => e.target.parentElement.style.backgroundColor = 'transparent'}
+                  style={{ cursor: 'pointer' }}
                 >
                   <td onClick={() => handleRelationshipSelect(relationship)}>{relationship.userA_firstName} {relationship.userA_lastName}</td>
                   <td onClick={() => handleRelationshipSelect(relationship)}>{relationship.userB_firstName} {relationship.userB_lastName}</td>
@@ -137,21 +125,13 @@ function CelebrityRelationshipsTable() {
                   <td onClick={() => handleRelationshipSelect(relationship)}>{new Date(relationship.userB_dateOfBirth).toLocaleDateString()}</td>
                   <td onClick={() => handleRelationshipSelect(relationship)}>{new Date(relationship.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className="admin-actions">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleRelationshipSelect(relationship);
                         }}
-                        style={{
-                          padding: '4px 8px',
-                          backgroundColor: '#007bff',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
+                        className="admin-btn admin-btn--primary"
                       >
                         View
                       </button>
@@ -161,16 +141,7 @@ function CelebrityRelationshipsTable() {
                           handleDeleteRelationship(relationship);
                         }}
                         disabled={deletingRelationship === relationship._id}
-                        style={{
-                          padding: '4px 8px',
-                          backgroundColor: deletingRelationship === relationship._id ? '#6c757d' : '#dc3545',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: deletingRelationship === relationship._id ? 'not-allowed' : 'pointer',
-                          fontSize: '12px',
-                          opacity: deletingRelationship === relationship._id ? 0.6 : 1
-                        }}
+                        className="admin-btn admin-btn--danger"
                       >
                         {deletingRelationship === relationship._id ? 'Deleting...' : 'Delete'}
                       </button>

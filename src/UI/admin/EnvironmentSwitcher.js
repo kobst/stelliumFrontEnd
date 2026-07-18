@@ -39,7 +39,7 @@ const EnvironmentSwitcher = () => {
     <div className="environment-switcher">
       <div className="environment-header">
         <h3>Environment Control</h3>
-        <div className={`current-environment ${currentEnvironment}`}>
+        <div className={`current-environment admin-badge admin-badge--${currentEnvironment} ${currentEnvironment}`}>
           <span className="env-label">Current:</span>
           <span className="env-name">{getCurrentEnvData()?.label}</span>
           <span className="env-url">{getApiUrl()}</span>
@@ -63,7 +63,7 @@ const EnvironmentSwitcher = () => {
       </div>
 
       {showConfirmation && (
-        <div className="confirmation-overlay">
+        <div className="environment-switcher__confirmation-overlay">
           <div className="confirmation-dialog">
             <h4>Switch Environment</h4>
             <p>
@@ -74,10 +74,10 @@ const EnvironmentSwitcher = () => {
               This will change the API endpoint and may clear some cached data.
             </p>
             <div className="confirmation-buttons">
-              <button className="confirm-btn" onClick={confirmSwitch}>
+              <button className="admin-btn admin-btn--danger" onClick={confirmSwitch}>
                 Switch Environment
               </button>
-              <button className="cancel-btn" onClick={cancelSwitch}>
+              <button className="admin-btn admin-btn--ghost" onClick={cancelSwitch}>
                 Cancel
               </button>
             </div>

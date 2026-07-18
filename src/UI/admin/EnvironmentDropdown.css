@@ -1,64 +1,47 @@
 .environment-dropdown {
   position: relative;
   display: inline-block;
+  color: var(--admin-text);
 }
 
 .env-dropdown-trigger {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: white;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  min-width: 120px;
   justify-content: space-between;
+  min-width: 120px;
+  min-height: 34px;
+  cursor: pointer;
 }
 
 .env-dropdown-trigger:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  filter: brightness(0.97);
 }
 
-.env-dropdown-trigger.dev {
-  border-color: #2196f3;
-  color: #1565c0;
-}
-
-.env-dropdown-trigger.prod {
-  border-color: #f44336;
-  color: #c62828;
-}
-
-.env-indicator {
+.env-dropdown-trigger .env-indicator {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
 }
 
 .dropdown-arrow {
   font-size: 10px;
-  transition: transform 0.2s ease;
 }
 
 .env-dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);
   right: 0;
-  min-width: 280px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   z-index: 1000;
+  min-width: 300px;
   overflow: hidden;
-  margin-top: 4px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: var(--admin-surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
 }
 
 .env-dropdown-item {
@@ -66,30 +49,30 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 12px 16px;
-  border: none;
-  background: white;
-  cursor: pointer;
-  transition: background 0.2s ease;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font: inherit;
   text-align: left;
+  cursor: pointer;
+}
+
+.env-dropdown-item:last-child {
+  border-bottom: 0;
 }
 
 .env-dropdown-item:hover {
-  background: #f8f9fa;
+  background: #f0f0f2;
 }
 
-.env-dropdown-item.active {
-  background: #e3f2fd;
-}
-
-.env-dropdown-item.dev:hover,
 .env-dropdown-item.dev.active {
-  background: #e3f2fd;
+  background: #fef9c3;
 }
 
-.env-dropdown-item.prod:hover,
 .env-dropdown-item.prod.active {
-  background: #ffebee;
+  background: #fee2e2;
 }
 
 .env-icon {
@@ -98,106 +81,69 @@
 
 .env-details {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 2px;
-  flex: 1;
 }
 
-.env-name {
-  font-weight: 600;
+.environment-dropdown .env-name {
+  color: var(--admin-text);
   font-size: 14px;
-  color: #333;
+  font-weight: 650;
 }
 
-.env-url {
+.environment-dropdown .env-url {
+  color: var(--admin-text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 11px;
-  color: #666;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 
 .active-indicator {
-  color: #4caf50;
-  font-weight: bold;
+  color: var(--admin-success);
   font-size: 16px;
+  font-weight: 700;
 }
 
 .dropdown-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 999;
 }
 
-.confirmation-overlay {
+.env-dropdown-confirmation-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
+  inset: 0;
+  z-index: 1001;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1001;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .confirmation-dialog-compact {
-  background: white;
+  width: min(90%, 400px);
   padding: 24px;
+  border: 1px solid var(--admin-border);
   border-radius: 8px;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
 }
 
 .confirmation-dialog-compact h4 {
-  margin: 0 0 12px 0;
-  color: #333;
+  margin: 0 0 12px;
+  color: var(--admin-text);
   font-size: 18px;
 }
 
 .confirmation-dialog-compact p {
-  margin: 0 0 20px 0;
+  margin: 0 0 20px;
+  color: var(--admin-text-muted);
   line-height: 1.5;
-  color: #666;
 }
 
 .confirmation-buttons {
   display: flex;
-  gap: 8px;
   justify-content: flex-end;
-}
-
-.confirm-btn-compact {
-  background: #f44336;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: background 0.2s ease;
-}
-
-.confirm-btn-compact:hover {
-  background: #d32f2f;
-}
-
-.cancel-btn-compact {
-  background: #6c757d;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: background 0.2s ease;
-}
-
-.cancel-btn-compact:hover {
-  background: #5a6268;
+  gap: 8px;
 }

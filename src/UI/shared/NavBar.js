@@ -9,14 +9,14 @@ function NavBar() {
   const isAdminPage = location.pathname.startsWith('/admin');
 
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${isAdminPage ? 'admin-navbar' : ''}`}>
       <ul>
         <li><NavLink to="/">Home</NavLink></li>
         <li><NavLink to="/pricingTable">Pricing</NavLink></li>
         <li><NavLink to="/admin">Admin</NavLink></li>
       </ul>
       {isAdminPage && (
-        <div className={`environment-badge ${currentEnvironment}`}>
+        <div className={`environment-badge admin-badge admin-badge--${currentEnvironment} ${currentEnvironment}`}>
           <span className="env-indicator">
             {isProduction() ? '🔴 PROD' : '🟡 DEV'}
           </span>

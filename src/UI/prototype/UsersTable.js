@@ -6,7 +6,7 @@ import useStore from '../../Utilities/store';
 import { usePaginatedData } from '../../hooks/usePaginatedData';
 import ProfilePhoto from '../shared/ProfilePhoto';
 
-function UsersTable({ onUserSelect, usePagination = false }) {
+function UsersTable({ onUserSelect, usePagination = false, adminTheme = false }) {
   const [users, setUsers] = useState([]);
   const [deletingUser, setDeletingUser] = useState(null);
   const selectedUser = useStore(state => state.selectedUser);
@@ -91,13 +91,20 @@ function UsersTable({ onUserSelect, usePagination = false }) {
     return paginatedData.sortOrder === 'asc' ? ' ▲' : ' ▼';
   };
 
-  const getSortableHeaderStyle = (field) => ({
+  const getSortableHeaderStyle = (field) => adminTheme ? undefined : ({
     color: 'orange',
     cursor: usePagination ? 'pointer' : 'default',
     userSelect: 'none',
     padding: '8px',
     borderBottom: usePagination && paginatedData.sortBy === field ? '2px solid orange' : 'none'
   });
+
+  const getSortableHeaderClass = (field) => {
+    if (!adminTheme) return undefined;
+    return `admin-table__sortable${paginatedData.sortBy === field ? ' admin-table__sortable--active' : ''}`;
+  };
+
+  const legacyStyle = (style) => adminTheme ? undefined : style;
 
   const handleDeleteUser = async (user) => {
     // Prevent users from deleting themselves
@@ -167,33 +174,35 @@ function UsersTable({ onUserSelect, usePagination = false }) {
   const filteredUsers = dataSource.filter(user => user.kind === 'accountSelf');
 
   return (
-    <div className="user-table-container">
-      <h2 style={{ color: 'grey' }}>Account Owners</h2>
+    <div className={adminTheme ? 'admin-card' : 'user-table-container'}>
+      <h2 className={adminTheme ? 'admin-section-title' : undefined} style={legacyStyle({ color: 'grey' })}>Account Owners</h2>
       
       {/* Search and pagination controls - only show when usePagination is true */}
       {usePagination && (
-        <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className={adminTheme ? 'admin-table-toolbar' : undefined} style={legacyStyle({ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' })}>
           <input
             type="text"
             placeholder="Search account owners..."
             value={paginatedData.search.searchTerm}
             onChange={(e) => paginatedData.search.updateSearchTerm(e.target.value)}
-            style={{
+            className={adminTheme ? 'admin-input' : undefined}
+            style={legacyStyle({
               padding: '8px 12px',
               border: '1px solid #ccc',
               borderRadius: '4px',
               minWidth: '200px'
-            }}
+            })}
           />
           
           <select
             value={paginatedData.pagination.itemsPerPage}
             onChange={(e) => paginatedData.pagination.changeItemsPerPage(Number(e.target.value))}
-            style={{
+            className={adminTheme ? 'admin-select' : undefined}
+            style={legacyStyle({
               padding: '8px 12px',
               border: '1px solid #ccc',
               borderRadius: '4px'
-            }}
+            })}
           >
             <option value={10}>10 per page</option>
             <option value={20}>20 per page</option>
@@ -202,26 +211,27 @@ function UsersTable({ onUserSelect, usePagination = false }) {
             <option value={200}>200 per page</option>
           </select>
 
-          {paginatedData.loading && <span style={{ color: 'orange' }}>Loading...</span>}
+          {paginatedData.loading && <span className={adminTheme ? 'admin-muted' : undefined} style={legacyStyle({ color: 'orange' })}>Loading...</span>}
         </div>
       )}
 
       {/* Error message */}
       {usePagination && paginatedData.error && (
-        <div style={{ color: 'red', marginBottom: '10px' }}>
+        <div className={adminTheme ? 'admin-status admin-status--danger' : undefined} style={legacyStyle({ color: 'red', marginBottom: '10px' })}>
           Error: {paginatedData.error}
         </div>
       )}
 
-      <div className="user-table-scroll">
-        <table className="user-table">
+      <div className={adminTheme ? 'admin-table-scroll' : 'user-table-scroll'}>
+        <table className={adminTheme ? 'admin-table' : 'user-table'}>
           <thead>
             <tr>
-              <th style={{ color: 'orange', padding: '8px' }}>
+              <th style={legacyStyle({ color: 'orange', padding: '8px' })}>
                 Photo
               </th>
               <th
                 style={getSortableHeaderStyle('firstName')}
+                className={getSortableHeaderClass('firstName')}
                 onClick={() => handleSort('firstName')}
                 title={usePagination ? 'Click to sort by first name' : ''}
               >
@@ -229,6 +239,7 @@ function UsersTable({ onUserSelect, usePagination = false }) {
               </th>
               <th 
                 style={getSortableHeaderStyle('lastName')}
+                className={getSortableHeaderClass('lastName')}
                 onClick={() => handleSort('lastName')}
                 title={usePagination ? 'Click to sort by last name' : ''}
               >
@@ -236,6 +247,7 @@ function UsersTable({ onUserSelect, usePagination = false }) {
               </th>
               <th 
                 style={getSortableHeaderStyle('email')}
+                className={getSortableHeaderClass('email')}
                 onClick={() => handleSort('email')}
                 title={usePagination ? 'Click to sort by email' : ''}
               >
@@ -243,18 +255,19 @@ function UsersTable({ onUserSelect, usePagination = false }) {
               </th>
               <th 
                 style={getSortableHeaderStyle('dateOfBirth')}
+                className={getSortableHeaderClass('dateOfBirth')}
                 onClick={() => handleSort('dateOfBirth')}
                 title={usePagination ? 'Click to sort by date of birth' : ''}
               >
                 Date of Birth{getSortIcon('dateOfBirth')}
               </th>
-              <th style={{ color: 'orange' }}>Actions</th>
+              <th style={legacyStyle({ color: 'orange' })}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'grey' }}>
+                <td colSpan="6" className={adminTheme ? 'admin-muted' : undefined} style={legacyStyle({ textAlign: 'center', padding: '20px', color: 'grey' })}>
                   {usePagination && paginatedData.loading ? 'Loading...' : 'No account owners found'}
                 </td>
               </tr>
@@ -263,13 +276,13 @@ function UsersTable({ onUserSelect, usePagination = false }) {
                 <tr
                   key={user._id}
                   className={selectedUser && selectedUser._id === user._id ? 'selected-row' : ''}
-                  style={{
+                  style={legacyStyle({
                     cursor: 'pointer',
                     backgroundColor: selectedUser && selectedUser._id === user._id ? 'rgba(128, 0, 128, 0.3)' : 'transparent',
                     transition: 'background-color 0.2s ease'
-                  }}
+                  })}
                 >
-                  <td onClick={() => handleUserSelect(user)} style={{ padding: '8px' }}>
+                  <td onClick={() => handleUserSelect(user)} style={legacyStyle({ padding: '8px' })}>
                     <ProfilePhoto subject={user} size={40} />
                   </td>
                   <td onClick={() => handleUserSelect(user)}>{user.firstName}</td>
@@ -277,13 +290,14 @@ function UsersTable({ onUserSelect, usePagination = false }) {
                   <td onClick={() => handleUserSelect(user)}>{user.email}</td>
                   <td onClick={() => handleUserSelect(user)}>{user.dateOfBirth}</td>
                   <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className={adminTheme ? 'admin-actions' : undefined} style={legacyStyle({ display: 'flex', gap: '8px' })}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleUserSelect(user);
                         }}
-                        style={{
+                        className={adminTheme ? 'admin-btn admin-btn--primary' : undefined}
+                        style={legacyStyle({
                           padding: '4px 8px',
                           backgroundColor: selectedUser && selectedUser._id === user._id ? '#28a745' : '#007bff',
                           color: 'white',
@@ -291,7 +305,7 @@ function UsersTable({ onUserSelect, usePagination = false }) {
                           borderRadius: '4px',
                           cursor: 'pointer',
                           fontSize: '12px'
-                        }}
+                        })}
                       >
                         {selectedUser && selectedUser._id === user._id ? 'Selected' : 'Select'}
                       </button>
@@ -301,7 +315,8 @@ function UsersTable({ onUserSelect, usePagination = false }) {
                           handleDeleteUser(user);
                         }}
                         disabled={deletingUser === user._id || user._id === currentUserId}
-                        style={{
+                        className={adminTheme ? 'admin-btn admin-btn--danger' : undefined}
+                        style={legacyStyle({
                           padding: '4px 8px',
                           backgroundColor: user._id === currentUserId ? '#6c757d' : 
                                           deletingUser === user._id ? '#6c757d' : '#dc3545',
@@ -312,7 +327,7 @@ function UsersTable({ onUserSelect, usePagination = false }) {
                                  deletingUser === user._id ? 'not-allowed' : 'pointer',
                           fontSize: '12px',
                           opacity: (deletingUser === user._id || user._id === currentUserId) ? 0.6 : 1
-                        }}
+                        })}
                         title={user._id === currentUserId ? 'Cannot delete your own account' : ''}
                       >
                         {user._id === currentUserId ? 'Self' : 
@@ -329,50 +344,52 @@ function UsersTable({ onUserSelect, usePagination = false }) {
 
       {/* Pagination controls - only show when usePagination is true */}
       {usePagination && (
-        <div style={{ 
+        <div className={adminTheme ? 'admin-pagination' : undefined} style={legacyStyle({
           marginTop: '20px', 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '10px'
-        }}>
-          <div style={{ color: 'grey', fontSize: '14px' }}>
+        })}>
+          <div className={adminTheme ? 'admin-muted' : undefined} style={legacyStyle({ color: 'grey', fontSize: '14px' })}>
             Showing {filteredUsers.length} of {paginatedData.pagination.totalItems} account owners
             {paginatedData.search.debouncedSearchTerm && (
               <span> (filtered by "{paginatedData.search.debouncedSearchTerm}")</span>
             )}
           </div>
           
-          <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+          <div className={adminTheme ? 'admin-pagination__controls' : undefined} style={legacyStyle({ display: 'flex', gap: '5px', alignItems: 'center' })}>
             <button
               onClick={paginatedData.pagination.goToPrev}
               disabled={!paginatedData.pagination.hasPrev || paginatedData.loading}
-              style={{
+              className={adminTheme ? 'admin-btn admin-btn--ghost' : undefined}
+              style={legacyStyle({
                 padding: '6px 12px',
                 border: '1px solid #ccc',
                 borderRadius: '4px',
                 backgroundColor: paginatedData.pagination.hasPrev ? '#f8f9fa' : '#e9ecef',
                 cursor: paginatedData.pagination.hasPrev ? 'pointer' : 'not-allowed'
-              }}
+              })}
             >
               Previous
             </button>
             
-            <span style={{ margin: '0 10px', color: 'grey' }}>
+            <span className={adminTheme ? 'admin-muted' : undefined} style={legacyStyle({ margin: '0 10px', color: 'grey' })}>
               Page {paginatedData.pagination.currentPage} of {paginatedData.pagination.totalPages}
             </span>
             
             <button
               onClick={paginatedData.pagination.goToNext}
               disabled={!paginatedData.pagination.hasNext || paginatedData.loading}
-              style={{
+              className={adminTheme ? 'admin-btn admin-btn--ghost' : undefined}
+              style={legacyStyle({
                 padding: '6px 12px',
                 border: '1px solid #ccc',
                 borderRadius: '4px',
                 backgroundColor: paginatedData.pagination.hasNext ? '#f8f9fa' : '#e9ecef',
                 cursor: paginatedData.pagination.hasNext ? 'pointer' : 'not-allowed'
-              }}
+              })}
             >
               Next
             </button>

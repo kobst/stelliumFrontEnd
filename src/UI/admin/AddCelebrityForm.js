@@ -7,7 +7,6 @@ import {
 } from '../../Utilities/api';
 import useSubjectCreation from '../../hooks/useSubjectCreation';
 import GooglePlaceAutocomplete from '../shared/GooglePlaceAutocomplete';
-import '../landingPage/UserSignUpForm.css';
 import './AddCelebrityForm.css';
 
 const AddCelebrityForm = ({ onCelebrityAdded }) => {
@@ -178,40 +177,6 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
       }
     };
 
-    const headerStyle = {
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: '20px',
-      textAlign: 'center',
-      width: '100%',
-      marginBottom: '20px',
-      padding: '10px 0',
-      borderBottom: '1px solid white'
-    };    
-    
-    const inputStyle = {
-      color: '#d6c8ff',
-      width: '140px',
-      marginRight: '10px',
-      backgroundColor: 'transparent',
-      border: '1px solid white',
-      padding: '5px',
-      borderRadius: '3px'
-    };
-
-    const labelStyle = {
-      color: 'white',
-      width: '140px',
-      display: 'inline-block',
-      marginRight: '10px'
-    };
-
-    const formGroupStyle = {
-      marginBottom: '15px',
-      display: 'flex',
-      alignItems: 'center'
-    };
-
     const handlePlaceSelect = ({ formattedAddress, lat, lon }) => {
         try {
             if (lat == null || lon == null) {
@@ -228,117 +193,93 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
     };
 
     return (
-      <div className="email_form add-celebrity-form" style={{ marginTop: '30px', padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
-        <form onSubmit={handleSubmit}>
-        <h2 style={headerStyle}>Add New Celebrity</h2>
+      <section className="admin-card add-celebrity-form">
+        <form className="admin-form" onSubmit={handleSubmit}>
+        <h2 className="admin-section-title">Add New Celebrity</h2>
 
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Name</label>
-            <input 
-              type="text" 
-              placeholder="First Name" 
-              value={firstName}
-              onChange={e => setFirstName(e.target.value)}
-              style={inputStyle}
-              className="input-dark-placeholder"
-              disabled={loading}
-            />
-            <input 
-              type="text" 
-              placeholder="Last Name" 
-              value={lastName}
-              onChange={e => setLastName(e.target.value)}
-              style={inputStyle}
-              className="input-dark-placeholder"
-              disabled={loading}
-            />
+          <div className="add-celebrity-form__group">
+            <label className="add-celebrity-form__label">Name</label>
+            <div className="add-celebrity-form__fields">
+              <input
+                type="text"
+                placeholder="First Name"
+                value={firstName}
+                onChange={e => setFirstName(e.target.value)}
+                className="admin-input"
+                disabled={loading}
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={e => setLastName(e.target.value)}
+                className="admin-input"
+                disabled={loading}
+              />
+            </div>
           </div>
 
-          <div style={formGroupStyle}>
-            <label htmlFor="location" style={labelStyle}>Born in</label>
-            <GooglePlaceAutocomplete
+          <div className="add-celebrity-form__group">
+            <label htmlFor="location" className="add-celebrity-form__label">Born in</label>
+            <div className="add-celebrity-form__location">
+              <GooglePlaceAutocomplete
                 key={locationInputKey}
                 onPlaceSelected={handlePlaceSelect}
-                className="celebrity-location-autocomplete"
-                style={{
-                    ...inputStyle,
-                    width: '290px',
-                    backgroundColor: 'white',
-                    color: '#1a1a2e'
-                }}
+                className="celebrity-location-autocomplete admin-input"
                 placeholder="City, Country"
                 disabled={loading}
-            />
+              />
+            </div>
           </div>
 
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Born on</label>
+          <div className="add-celebrity-form__group">
+            <label className="add-celebrity-form__label">Born on</label>
             <input 
               type="date" 
               value={date} 
               onChange={e => setDate(e.target.value)} 
-              style={inputStyle}
+              className="admin-input"
               disabled={loading}
             />
           </div>
 
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>at this time</label>
-            <select
-              value={unknownTime ? 'unknown' : 'known'}
-              onChange={(e) => {
-                if (e.target.value === 'unknown') {
-                  setUnknownTime(true);
-                  setTime('');
-                } else {
-                  setUnknownTime(false);
-                }
-              }}
-              style={{
-                ...inputStyle,
-                width: '120px',
-                backgroundColor: 'transparent',
-                color: '#d6c8ff',
-                border: '1px solid white',
-                padding: '5px',
-                borderRadius: '3px',
-                cursor: 'pointer',
-                marginRight: '8px'
-              }}
-              disabled={loading}
-            >
-              <option value="known">Known Time</option>
-              <option value="unknown">Unknown</option>
-            </select>
-            {!unknownTime && (
-              <input
-                type="time"
-                value={time}
-                onChange={e => setTime(e.target.value)}
-                style={{
-                  ...inputStyle,
-                  margin: 0
+          <div className="add-celebrity-form__group">
+            <label className="add-celebrity-form__label">At this time</label>
+            <div className="add-celebrity-form__fields">
+              <select
+                value={unknownTime ? 'unknown' : 'known'}
+                onChange={(e) => {
+                  if (e.target.value === 'unknown') {
+                    setUnknownTime(true);
+                    setTime('');
+                  } else {
+                    setUnknownTime(false);
+                  }
                 }}
+                className="admin-select"
                 disabled={loading}
-              />
-            )}
+              >
+                <option value="known">Known Time</option>
+                <option value="unknown">Unknown</option>
+              </select>
+              {!unknownTime && (
+                <input
+                  type="time"
+                  value={time}
+                  onChange={e => setTime(e.target.value)}
+                  className="admin-input"
+                  disabled={loading}
+                />
+              )}
+            </div>
           </div>
 
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Gender/Sex</label>
+          <div className="add-celebrity-form__group">
+            <label className="add-celebrity-form__label">Gender/Sex</label>
             <select
               value={gender}
               onChange={(e) => setGender(e.target.value)}
-              style={{
-                ...inputStyle,
-                width: '140px',
-                backgroundColor: 'transparent',
-                color: '#d6c8ff',
-                border: '1px solid white',
-                padding: '5px',
-                borderRadius: '3px',
-                cursor: 'pointer'
-              }}
+              className="admin-select"
               disabled={loading}
             >
               <option value="">Select...</option>
@@ -349,44 +290,23 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
           </div>
 
           {/* Profile Photo Upload */}
-          <div style={{ ...formGroupStyle, alignItems: 'flex-start' }}>
-            <label style={labelStyle}>Profile Photo</label>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div className="add-celebrity-form__group add-celebrity-form__group--top">
+            <label className="add-celebrity-form__label">Profile Photo</label>
+            <div>
+              <div className="add-celebrity-form__photo-row">
                 {/* Photo Preview */}
                 {photoPreview && (
-                  <div style={{ position: 'relative' }}>
+                  <div className="add-celebrity-form__preview">
                     <img
                       src={photoPreview}
                       alt="Preview"
-                      style={{
-                        width: '80px',
-                        height: '80px',
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                        border: '2px solid white'
-                      }}
                     />
                     <button
                       type="button"
                       onClick={clearPhoto}
                       disabled={loading || photoUploading}
-                      style={{
-                        position: 'absolute',
-                        top: '-5px',
-                        right: '-5px',
-                        width: '20px',
-                        height: '20px',
-                        borderRadius: '50%',
-                        backgroundColor: '#ef4444',
-                        color: 'white',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
+                      className="add-celebrity-form__remove-photo"
+                      aria-label="Remove selected profile photo"
                     >
                       ×
                     </button>
@@ -399,58 +319,36 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
                     accept="image/jpeg,image/png,image/gif,image/webp"
                     onChange={handlePhotoSelect}
                     disabled={loading || photoUploading}
-                    style={{
-                      padding: '5px',
-                      border: '1px solid white',
-                      borderRadius: '3px',
-                      backgroundColor: 'transparent',
-                      color: 'white',
-                      fontSize: '12px',
-                      cursor: loading || photoUploading ? 'not-allowed' : 'pointer'
-                    }}
+                    className="admin-input add-celebrity-form__file-input"
                   />
-                  <p style={{ color: '#888', fontSize: '11px', marginTop: '5px', marginBottom: 0 }}>
+                  <p className="add-celebrity-form__help">
                     Optional. JPEG, PNG, GIF, WebP (max 5MB)
                   </p>
                 </div>
               </div>
               {photoError && (
-                <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '5px', marginBottom: 0 }}>
+                <p className="add-celebrity-form__error">
                   {photoError}
                 </p>
               )}
             </div>
           </div>
 
-          <div style={formGroupStyle}>
-            <input
-              className="email-submit-btn"
+          <div className="add-celebrity-form__actions">
+            <button
+              className="admin-btn admin-btn--primary"
               type="submit"
-              value={loading ? "Adding..." : photoUploading ? "Uploading Photo..." : "Add Celebrity"}
-              style={{
-                ...inputStyle,
-                width: 'auto',
-                cursor: (loading || photoUploading) ? 'not-allowed' : 'pointer',
-                backgroundColor: (loading || photoUploading) ? '#ccc' : 'white',
-                color: 'black',
-                fontWeight: 'bold',
-                opacity: (loading || photoUploading) ? 0.6 : 1
-              }}
               disabled={loading || photoUploading}
-            />
+            >
+              {loading ? 'Adding...' : photoUploading ? 'Uploading Photo...' : 'Add Celebrity'}
+            </button>
           </div>
         </form>
         
         {/* Loading Status Display */}
         {(loading || photoUploading) && (
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            padding: '15px',
-            borderRadius: '6px',
-            margin: '15px 0',
-            textAlign: 'center'
-          }}>
-            <p style={{ color: 'white', margin: '0' }}>
+          <div className="admin-status">
+            <p style={{ margin: 0 }}>
               {photoUploading
                 ? 'Uploading profile photo to S3...'
                 : 'Creating celebrity profile and generating overview...'}
@@ -459,20 +357,20 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
         )}
         
         {successMessage && (
-          <div style={{ color: 'green', marginTop: '15px', textAlign: 'center' }}>
+          <div className="admin-status admin-status--success">
             <p>{successMessage}</p>
           </div>
         )}
         
         {(Object.keys(formErrors).length > 0 || error) && (
-          <div style={{ color: 'red', marginTop: '15px' }}>
+          <div className="admin-status admin-status--danger">
             {Object.values(formErrors).map((err, index) => (
               <p key={index}>{err}</p>
             ))}
             {error && <p>{error}</p>}
           </div>
         )}
-      </div>
+      </section>
     );
   };
   

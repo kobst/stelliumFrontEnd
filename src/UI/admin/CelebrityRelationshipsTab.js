@@ -77,14 +77,8 @@ function CelebrityRelationshipsTab() {
       label: 'Potential Celebrity Matches',
       content: (
         <div>
-          <div style={{ 
-            marginBottom: '20px', 
-            padding: '15px', 
-            backgroundColor: '#f8f9fa', 
-            borderRadius: '8px', 
-            border: '1px solid #dee2e6' 
-          }}>
-            <p style={{ margin: '0', color: '#6c757d', fontStyle: 'italic' }}>
+          <div className="admin-status">
+            <p style={{ margin: 0 }}>
               💡 <strong>Tip:</strong> Select one celebrity from each table below to create a relationship between them.
             </p>
           </div>
@@ -111,21 +105,11 @@ function CelebrityRelationshipsTab() {
   ];
 
   return (
-    <div className="celebrity-relationships-tab">
-      <div className="maintxt mont-font">
-        <h2 style={{ color: 'grey', marginBottom: '20px' }}>Celebrity Relationships</h2>
-      </div>
+    <section className="celebrity-relationships-tab admin-card">
+      <h2 className="admin-section-title">Celebrity Relationships</h2>
 
       {relationshipMessage && !selectedCelebrityA && !selectedCelebrityB && (
-        <div style={{ 
-          padding: '15px', 
-          backgroundColor: relationshipMessage.includes('Error') ? '#f8d7da' : '#d4edda', 
-          color: relationshipMessage.includes('Error') ? '#721c24' : '#155724',
-          marginBottom: '20px', 
-          borderRadius: '8px',
-          border: `1px solid ${relationshipMessage.includes('Error') ? '#f5c6cb' : '#c3e6cb'}`,
-          textAlign: 'center'
-        }}>
+        <div className={`admin-status ${relationshipMessage.includes('Error') ? 'admin-status--danger' : 'admin-status--success'}`}>
           <p style={{ margin: 0, fontWeight: 'bold' }}>
             {relationshipMessage}
           </p>
@@ -138,15 +122,9 @@ function CelebrityRelationshipsTab() {
       )}
       
       {(selectedCelebrityA || selectedCelebrityB) && (
-        <div style={{ 
-          padding: '20px', 
-          backgroundColor: '#f5f5f5', 
-          marginBottom: '20px', 
-          borderRadius: '8px',
-          textAlign: 'center'
-        }}>
+        <div className="admin-selection-panel">
           <h3>Selected Celebrities</h3>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', marginBottom: '15px' }}>
+          <div className="admin-selection-summary">
             <div>
               <strong>Celebrity A:</strong> {selectedCelebrityA ? 
                 `${selectedCelebrityA.firstName} ${selectedCelebrityA.lastName}` : 
@@ -163,24 +141,12 @@ function CelebrityRelationshipsTab() {
           <button 
             onClick={handleCreateCelebrityRelationship}
             disabled={isCreatingRelationship || !selectedCelebrityA || !selectedCelebrityB}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: (isCreatingRelationship || !selectedCelebrityA || !selectedCelebrityB) ? '#ccc' : '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: (isCreatingRelationship || !selectedCelebrityA || !selectedCelebrityB) ? 'not-allowed' : 'pointer',
-              fontSize: '16px'
-            }}
+            className="admin-btn admin-btn--primary"
           >
             {isCreatingRelationship ? 'Creating Relationship...' : 'Create Celebrity Relationship'}
           </button>
           {relationshipMessage && (
-            <p style={{ 
-              marginTop: '10px', 
-              color: relationshipMessage.includes('Error') ? 'red' : 'green',
-              fontWeight: 'bold'
-            }}>
+            <p className={`admin-status ${relationshipMessage.includes('Error') ? 'admin-status--danger' : 'admin-status--success'}`}>
               {relationshipMessage}
             </p>
           )}
@@ -188,7 +154,7 @@ function CelebrityRelationshipsTab() {
       )}
       
       <TabMenu tabs={celebrityRelationshipTabs} />
-    </div>
+    </section>
   );
 }
 

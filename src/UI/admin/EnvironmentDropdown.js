@@ -43,7 +43,7 @@ const EnvironmentDropdown = () => {
     <>
       <div className="environment-dropdown">
         <button
-          className={`env-dropdown-trigger ${currentEnvironment}`}
+          className={`env-dropdown-trigger admin-badge admin-badge--${currentEnvironment} ${currentEnvironment}`}
           onClick={() => setIsOpen(!isOpen)}
         >
           <span className="env-indicator">
@@ -86,7 +86,7 @@ const EnvironmentDropdown = () => {
 
       {/* Confirmation Dialog */}
       {showConfirmation && (
-        <div className="confirmation-overlay">
+        <div className="env-dropdown-confirmation-overlay">
           <div className="confirmation-dialog-compact">
             <h4>Switch Environment?</h4>
             <p>
@@ -94,10 +94,10 @@ const EnvironmentDropdown = () => {
               <strong>{availableEnvironments.find(env => env.key === targetEnvironment)?.label}</strong>?
             </p>
             <div className="confirmation-buttons">
-              <button className="confirm-btn-compact" onClick={confirmSwitch}>
+              <button className="admin-btn admin-btn--danger" onClick={confirmSwitch}>
                 Switch
               </button>
-              <button className="cancel-btn-compact" onClick={cancelSwitch}>
+              <button className="admin-btn admin-btn--ghost" onClick={cancelSwitch}>
                 Cancel
               </button>
             </div>

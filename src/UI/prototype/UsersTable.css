@@ -1,3 +1,5 @@
+/* These selectors intentionally remain the legacy treatment for consumers of
+   UsersTable outside /admin. The admin route opts into admin-table instead. */
 .user-table tr {
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -18,4 +20,4 @@
 .user-table td {
   padding: 12px;
   color: white;
-} 
+}

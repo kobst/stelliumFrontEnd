@@ -9,6 +9,7 @@ function CelebritiesTable({
   selectedForRelationship,
   genderFilter = 'all',
   usePagination = false,
+  adminTheme = false,
 }) {
   const [celebrities, setCelebrities] = useState([]);
   const [deletingCelebrity, setDeletingCelebrity] = useState(null);
@@ -66,13 +67,20 @@ function CelebritiesTable({
     return paginatedData.sortOrder === 'asc' ? ' ▲' : ' ▼';
   };
 
-  const getSortableHeaderStyle = (field) => ({
+  const getSortableHeaderStyle = (field) => adminTheme ? undefined : ({
     color: 'orange',
     cursor: usePagination ? 'pointer' : 'default',
     userSelect: 'none',
     padding: '8px',
     borderBottom: usePagination && paginatedData.sortBy === field ? '2px solid orange' : 'none'
   });
+
+  const getSortableHeaderClass = (field) => {
+    if (!adminTheme) return undefined;
+    return `admin-table__sortable${paginatedData.sortBy === field ? ' admin-table__sortable--active' : ''}`;
+  };
+
+  const legacyStyle = (style) => adminTheme ? undefined : style;
 
   const handleDeleteCelebrity = async (celebrity) => {
     const confirmDelete = window.confirm(
@@ -137,33 +145,35 @@ function CelebritiesTable({
   });
 
   return (
-    <div className="user-table-container">
-      <h2 style={{ color: 'grey' }}>Celebrity Charts</h2>
+    <div className={adminTheme ? 'admin-card' : 'user-table-container'}>
+      <h2 className={adminTheme ? 'admin-section-title' : undefined} style={legacyStyle({ color: 'grey' })}>Celebrity Charts</h2>
       
       {/* Search and pagination controls - only show when usePagination is true */}
       {usePagination && (
-        <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className={adminTheme ? 'admin-table-toolbar' : undefined} style={legacyStyle({ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' })}>
           <input
             type="text"
             placeholder="Search celebrities..."
             value={paginatedData.search.searchTerm}
             onChange={(e) => paginatedData.search.updateSearchTerm(e.target.value)}
-            style={{
+            className={adminTheme ? 'admin-input' : undefined}
+            style={legacyStyle({
               padding: '8px 12px',
               border: '1px solid #ccc',
               borderRadius: '4px',
               minWidth: '200px'
-            }}
+            })}
           />
           
           <select
             value={paginatedData.pagination.itemsPerPage}
             onChange={(e) => paginatedData.pagination.changeItemsPerPage(Number(e.target.value))}
-            style={{
+            className={adminTheme ? 'admin-select' : undefined}
+            style={legacyStyle({
               padding: '8px 12px',
               border: '1px solid #ccc',
               borderRadius: '4px'
-            }}
+            })}
           >
             <option value={10}>10 per page</option>
             <option value={20}>20 per page</option>
@@ -172,23 +182,24 @@ function CelebritiesTable({
             <option value={200}>200 per page</option>
           </select>
 
-          {paginatedData.loading && <span style={{ color: 'orange' }}>Loading...</span>}
+          {paginatedData.loading && <span className={adminTheme ? 'admin-muted' : undefined} style={legacyStyle({ color: 'orange' })}>Loading...</span>}
         </div>
       )}
 
       {/* Error message */}
       {usePagination && paginatedData.error && (
-        <div style={{ color: 'red', marginBottom: '10px' }}>
+        <div className={adminTheme ? 'admin-status admin-status--danger' : undefined} style={legacyStyle({ color: 'red', marginBottom: '10px' })}>
           Error: {paginatedData.error}
         </div>
       )}
 
-      <div className="user-table-scroll">
-        <table className="user-table">
+      <div className={adminTheme ? 'admin-table-scroll' : 'user-table-scroll'}>
+        <table className={adminTheme ? 'admin-table' : 'user-table'}>
           <thead>
             <tr>
               <th 
                 style={getSortableHeaderStyle('firstName')}
+                className={getSortableHeaderClass('firstName')}
                 onClick={() => handleSort('firstName')}
                 title={usePagination ? 'Click to sort by first name' : ''}
               >
@@ -196,6 +207,7 @@ function CelebritiesTable({
               </th>
               <th 
                 style={getSortableHeaderStyle('lastName')}
+                className={getSortableHeaderClass('lastName')}
                 onClick={() => handleSort('lastName')}
                 title={usePagination ? 'Click to sort by last name' : ''}
               >
@@ -203,6 +215,7 @@ function CelebritiesTable({
               </th>
               <th 
                 style={getSortableHeaderStyle('dateOfBirth')}
+                className={getSortableHeaderClass('dateOfBirth')}
                 onClick={() => handleSort('dateOfBirth')}
                 title={usePagination ? 'Click to sort by date of birth' : ''}
               >
@@ -210,18 +223,19 @@ function CelebritiesTable({
               </th>
               <th
                 style={getSortableHeaderStyle('placeOfBirth')}
+                className={getSortableHeaderClass('placeOfBirth')}
                 onClick={() => handleSort('placeOfBirth')}
                 title={usePagination ? 'Click to sort by place of birth' : ''}
               >
                 Place of Birth{getSortIcon('placeOfBirth')}
               </th>
-              <th style={{ color: 'orange' }}>Actions</th>
+              <th style={legacyStyle({ color: 'orange' })}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredCelebrities.length === 0 ? (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'grey' }}>
+                <td colSpan="5" className={adminTheme ? 'admin-muted' : undefined} style={legacyStyle({ textAlign: 'center', padding: '20px', color: 'grey' })}>
                   {usePagination && paginatedData.loading ? 'Loading...' : 'No celebrities found'}
                 </td>
               </tr>
@@ -230,24 +244,25 @@ function CelebritiesTable({
                 <tr
                   key={celebrity._id}
                   className={selectedForRelationship && selectedForRelationship._id === celebrity._id ? 'selected-row' : ''}
-                  style={{
+                  style={legacyStyle({
                     cursor: 'pointer',
                     backgroundColor: selectedForRelationship && selectedForRelationship._id === celebrity._id ? 'rgba(128, 0, 128, 0.3)' : 'transparent',
                     transition: 'background-color 0.2s ease'
-                  }}
+                  })}
                 >
                   <td onClick={() => handleCelebritySelect(celebrity)}>{celebrity.firstName}</td>
                   <td onClick={() => handleCelebritySelect(celebrity)}>{celebrity.lastName}</td>
                   <td onClick={() => handleCelebritySelect(celebrity)}>{celebrity.dateOfBirth}</td>
                   <td onClick={() => handleCelebritySelect(celebrity)}>{celebrity.placeOfBirth}</td>
                   <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className={adminTheme ? 'admin-actions' : undefined} style={legacyStyle({ display: 'flex', gap: '8px' })}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleCelebritySelect(celebrity);
                         }}
-                        style={{
+                        className={adminTheme ? 'admin-btn admin-btn--primary' : undefined}
+                        style={legacyStyle({
                           padding: '4px 8px',
                           backgroundColor: selectedForRelationship && selectedForRelationship._id === celebrity._id ? '#28a745' : '#007bff',
                           color: 'white',
@@ -255,7 +270,7 @@ function CelebritiesTable({
                           borderRadius: '4px',
                           cursor: 'pointer',
                           fontSize: '12px'
-                        }}
+                        })}
                       >
                         {selectedForRelationship && selectedForRelationship._id === celebrity._id ? 'Selected' : 'Select'}
                       </button>
@@ -265,7 +280,8 @@ function CelebritiesTable({
                             e.stopPropagation();
                             onGenerateHoroscope(celebrity);
                           }}
-                          style={{
+                          className={adminTheme ? 'admin-btn admin-btn--ghost' : undefined}
+                          style={legacyStyle({
                             padding: '4px 8px',
                             backgroundColor: '#7c3aed',
                             color: 'white',
@@ -273,7 +289,7 @@ function CelebritiesTable({
                             borderRadius: '4px',
                             cursor: 'pointer',
                             fontSize: '12px'
-                          }}
+                          })}
                         >
                           Horoscope
                         </button>
@@ -284,7 +300,8 @@ function CelebritiesTable({
                           handleDeleteCelebrity(celebrity);
                         }}
                         disabled={deletingCelebrity === celebrity._id}
-                        style={{
+                        className={adminTheme ? 'admin-btn admin-btn--danger' : undefined}
+                        style={legacyStyle({
                           padding: '4px 8px',
                           backgroundColor: deletingCelebrity === celebrity._id ? '#6c757d' : '#dc3545',
                           color: 'white',
@@ -293,7 +310,7 @@ function CelebritiesTable({
                           cursor: deletingCelebrity === celebrity._id ? 'not-allowed' : 'pointer',
                           fontSize: '12px',
                           opacity: deletingCelebrity === celebrity._id ? 0.6 : 1
-                        }}
+                        })}
                       >
                         {deletingCelebrity === celebrity._id ? 'Deleting...' : 'Delete'}
                       </button>
@@ -308,50 +325,52 @@ function CelebritiesTable({
 
       {/* Pagination controls - only show when usePagination is true */}
       {usePagination && (
-        <div style={{ 
+        <div className={adminTheme ? 'admin-pagination' : undefined} style={legacyStyle({
           marginTop: '20px', 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '10px'
-        }}>
-          <div style={{ color: 'grey', fontSize: '14px' }}>
+        })}>
+          <div className={adminTheme ? 'admin-muted' : undefined} style={legacyStyle({ color: 'grey', fontSize: '14px' })}>
             Showing {filteredCelebrities.length} of {paginatedData.pagination.totalItems} celebrities
             {paginatedData.search.debouncedSearchTerm && (
               <span> (filtered by "{paginatedData.search.debouncedSearchTerm}")</span>
             )}
           </div>
           
-          <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+          <div className={adminTheme ? 'admin-pagination__controls' : undefined} style={legacyStyle({ display: 'flex', gap: '5px', alignItems: 'center' })}>
             <button
               onClick={paginatedData.pagination.goToPrev}
               disabled={!paginatedData.pagination.hasPrev || paginatedData.loading}
-              style={{
+              className={adminTheme ? 'admin-btn admin-btn--ghost' : undefined}
+              style={legacyStyle({
                 padding: '6px 12px',
                 border: '1px solid #ccc',
                 borderRadius: '4px',
                 backgroundColor: paginatedData.pagination.hasPrev ? '#f8f9fa' : '#e9ecef',
                 cursor: paginatedData.pagination.hasPrev ? 'pointer' : 'not-allowed'
-              }}
+              })}
             >
               Previous
             </button>
             
-            <span style={{ margin: '0 10px', color: 'grey' }}>
+            <span className={adminTheme ? 'admin-muted' : undefined} style={legacyStyle({ margin: '0 10px', color: 'grey' })}>
               Page {paginatedData.pagination.currentPage} of {paginatedData.pagination.totalPages}
             </span>
             
             <button
               onClick={paginatedData.pagination.goToNext}
               disabled={!paginatedData.pagination.hasNext || paginatedData.loading}
-              style={{
+              className={adminTheme ? 'admin-btn admin-btn--ghost' : undefined}
+              style={legacyStyle({
                 padding: '6px 12px',
                 border: '1px solid #ccc',
                 borderRadius: '4px',
                 backgroundColor: paginatedData.pagination.hasNext ? '#f8f9fa' : '#e9ecef',
                 cursor: paginatedData.pagination.hasNext ? 'pointer' : 'not-allowed'
-              }}
+              })}
             >
               Next
             </button>
