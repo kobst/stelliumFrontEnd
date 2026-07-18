@@ -3,7 +3,7 @@ import BirthChartSummaryTable from '../birthChart/tables/BirthChartSummaryTable'
 import Ephemeris from '../shared/Ephemeris';
 import ProfilePhotoManager from '../admin/ProfilePhotoManager';
 
-const UserBirthChartContainer= ({ selectedUser, isDataPopulated, userPlanets, userHouses, userAspects, onUserUpdate }) => {
+const UserBirthChartContainer= ({ selectedUser, isDataPopulated, userPlanets, userHouses, userAspects, onUserUpdate, adminTheme = false }) => {
   const [currentUser, setCurrentUser] = useState(selectedUser);
 
   // Update currentUser when selectedUser changes
@@ -22,9 +22,9 @@ const UserBirthChartContainer= ({ selectedUser, isDataPopulated, userPlanets, us
   };
 
   return (
-    <div className="horoscope-container">
+    <section className={adminTheme ? 'admin-card subject-chart-card' : 'horoscope-container'}>
       {currentUser && (
-        <div className="user-info" style={{ color: 'white' }}>
+        <div className={adminTheme ? 'user-info subject-user-info' : 'user-info'} style={adminTheme ? undefined : { color: 'white' }}>
           {/* Profile Photo Manager with upload/delete controls */}
           <ProfilePhotoManager
             subject={currentUser}
@@ -33,22 +33,22 @@ const UserBirthChartContainer= ({ selectedUser, isDataPopulated, userPlanets, us
             size={120}
           />
 
-          <div style={{ marginTop: '10px', padding: '10px 0', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <p style={{ margin: '5px 0', fontSize: '14px', color: '#9ca3af' }}>
-              <strong style={{ color: '#a78bfa' }}>User ID:</strong> {currentUser._id}
+          <div className={adminTheme ? 'subject-user-meta' : undefined} style={adminTheme ? undefined : { marginTop: '10px', padding: '10px 0', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <p className={adminTheme ? 'admin-muted admin-id' : undefined} style={adminTheme ? undefined : { margin: '5px 0', fontSize: '14px', color: '#9ca3af' }}>
+              <strong style={adminTheme ? undefined : { color: '#a78bfa' }}>User ID:</strong> {currentUser._id}
             </p>
           </div>
         </div>
       )}
 
       {isDataPopulated ? (
-        <div>
-          <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={userAspects} />
+        <div className={adminTheme ? 'subject-chart-content' : undefined}>
+          <BirthChartSummaryTable planets={userPlanets} houses={userHouses} aspects={userAspects} adminTheme={adminTheme} />
         </div>
       ) : (
-        <Ephemeris />
+        <Ephemeris adminTheme={adminTheme} />
       )}
-    </div>
+    </section>
   );
 };
 

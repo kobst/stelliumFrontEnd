@@ -512,3 +512,536 @@ button {
   font-size: 16px;
   white-space: pre-wrap;
 }
+
+/* Phase 2 admin subject dashboard ---------------------------------------- */
+.subject-dashboard {
+  width: 100%;
+  max-width: none;
+  color: var(--admin-text);
+  text-align: left;
+}
+
+.subject-dashboard .admin-card {
+  width: 100%;
+  max-width: none;
+}
+
+.subject-dashboard .admin-btn--primary {
+  border-color: var(--admin-accent) !important;
+  background: var(--admin-accent) !important;
+  color: #ffffff !important;
+}
+
+.subject-dashboard .admin-btn--ghost {
+  border-color: var(--admin-border) !important;
+  background: var(--admin-surface) !important;
+  color: var(--admin-text) !important;
+}
+
+.subject-dashboard .admin-btn--danger {
+  border-color: var(--admin-danger) !important;
+  background: var(--admin-danger) !important;
+  color: #ffffff !important;
+}
+
+.subject-dashboard .status-banner {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: #f0f0f2;
+  color: var(--admin-text);
+  text-align: left;
+}
+
+.subject-dashboard .status-banner.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.subject-dashboard__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.subject-dashboard__toolbar > span {
+  margin: 0 !important;
+  padding: 4px 9px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8 !important;
+  font-weight: 700;
+}
+
+.subject-dashboard__raw-wrap {
+  margin: 0 0 24px;
+}
+
+.subject-dashboard .subject-raw-data {
+  max-height: 70vh;
+  overflow: auto;
+  border-color: var(--admin-border) !important;
+  background: var(--admin-surface) !important;
+  color: var(--admin-text);
+}
+
+.subject-dashboard .subject-raw-data h3,
+.subject-dashboard .subject-raw-data h4,
+.subject-dashboard .subject-raw-data summary,
+.subject-dashboard .subject-raw-data pre,
+.subject-dashboard .subject-raw-data__summary > div {
+  color: var(--admin-text) !important;
+}
+
+.subject-dashboard .subject-raw-data__summary {
+  margin-bottom: 18px;
+  padding: 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 5px;
+  background: #fafafa !important;
+}
+
+.subject-dashboard .subject-raw-data__summary h4 {
+  margin: 0 0 8px;
+}
+
+.subject-dashboard .subject-raw-data__section {
+  margin-bottom: 14px;
+}
+
+.subject-dashboard .subject-raw-data__section:last-child {
+  margin-bottom: 0;
+}
+
+.subject-dashboard .subject-raw-data__section summary {
+  margin-bottom: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.subject-dashboard .subject-raw-data__section pre {
+  margin: 0;
+  font-size: 11px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.subject-chart-card {
+  overflow: hidden;
+}
+
+.subject-user-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  color: var(--admin-text);
+}
+
+.subject-user-info h3 {
+  color: var(--admin-text) !important;
+  text-shadow: none !important;
+}
+
+.subject-user-meta {
+  min-width: 0;
+  padding-left: 20px;
+  border-left: 1px solid var(--admin-border);
+}
+
+.subject-user-meta p {
+  margin: 0;
+  color: var(--admin-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.subject-user-meta strong {
+  color: var(--admin-text);
+}
+
+.subject-birth-chart {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(520px, 1.05fr);
+  gap: 24px;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+}
+
+.subject-birth-chart .left-section,
+.subject-birth-chart .right-section {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  padding: 0;
+  justify-content: flex-start;
+  gap: 14px;
+}
+
+.subject-birth-chart .subject-data-panel {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.subject-birth-chart .subject-data-panel > .admin-section-title {
+  margin-bottom: 12px;
+  color: var(--admin-text);
+  font-size: 17px;
+}
+
+.subject-birth-chart .ephemeris-wheel--admin {
+  width: 100%;
+  overflow: hidden;
+  padding: 10px;
+  border: 1px solid #303036;
+  border-radius: 5px;
+  background: var(--admin-header-bg);
+}
+
+.subject-birth-chart .ephemeris-wheel__canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.subject-birth-chart .subject-house-table-scroll {
+  max-height: 360px;
+}
+
+.subject-birth-chart .house-position-table {
+  display: table;
+  width: 100%;
+  color: var(--admin-text);
+}
+
+.subject-birth-chart .table-container,
+.subject-birth-chart .aspects-table-wrapper {
+  margin: 0;
+  padding: 0;
+}
+
+.subject-birth-chart .aspects-container {
+  flex-grow: 0;
+  overflow: visible;
+}
+
+.subject-birth-chart .aspects-table-wrapper {
+  max-height: 420px;
+}
+
+.subject-birth-chart .house-position-table,
+.subject-birth-chart .planet-positions-table,
+.subject-birth-chart .aspects-table {
+  padding: 0;
+  border: 0;
+  color: var(--admin-text);
+  font-size: 13px;
+}
+
+.subject-birth-chart .admin-table td {
+  white-space: nowrap;
+}
+
+.subject-dashboard__tabs {
+  padding-top: 16px;
+}
+
+.subject-dashboard__tabs .tab-menu {
+  overflow-x: auto;
+}
+
+.subject-dashboard .overview-section,
+.subject-dashboard .subtopics,
+.subject-dashboard .planet-grid,
+.subject-dashboard .pattern-grid {
+  max-width: none;
+  padding: 0;
+}
+
+.subject-dashboard .overview-section > p,
+.subject-dashboard .category-overview,
+.subject-dashboard .category-synthesis,
+.subject-dashboard .subtopic {
+  margin: 0 0 16px;
+  padding: 18px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.subject-dashboard .subtopic h4,
+.subject-dashboard .category-synthesis h4 {
+  margin: 0 0 10px;
+  color: var(--admin-text);
+  font-size: 16px;
+}
+
+.subject-dashboard .subtopic p,
+.subject-dashboard .category-overview p,
+.subject-dashboard .category-synthesis p {
+  margin: 0;
+  color: var(--admin-text);
+}
+
+.subject-dashboard .analysis-notice,
+.subject-dashboard .analysis-empty-state {
+  margin: 0 0 16px;
+  padding: 18px;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 6px !important;
+  background: #fafafa !important;
+  color: var(--admin-text) !important;
+}
+
+.subject-dashboard .analysis-notice {
+  margin-top: 20px;
+}
+
+.subject-dashboard .analysis-empty-state {
+  padding: 32px 20px;
+  text-align: center;
+}
+
+.subject-dashboard .analysis-notice p,
+.subject-dashboard .analysis-empty-state h3,
+.subject-dashboard .analysis-empty-state p {
+  color: var(--admin-text) !important;
+}
+
+.subject-dashboard .analysis-notice p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.subject-dashboard .analysis-empty-state .admin-section-title {
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.subject-dashboard .analysis-empty-state p {
+  margin: 0 auto 18px;
+  max-width: 760px;
+  line-height: 1.6;
+}
+
+.subject-dashboard .subject-optional-category {
+  margin-top: 8px;
+}
+
+.subject-dashboard .pattern-grid {
+  gap: 16px;
+}
+
+.subject-dashboard .subject-pattern-card,
+.subject-dashboard .subject-planet-card {
+  margin: 0 0 16px;
+  border-color: var(--admin-border);
+  box-shadow: none;
+}
+
+.subject-dashboard .subject-pattern-card__interpretation,
+.subject-dashboard .subject-planet-card__interpretation {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-border);
+  color: var(--admin-text);
+  font-size: 15px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.subject-dashboard .subject-planet-card__description {
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.subject-dashboard .subject-planet-card__description p {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.subject-dashboard .planet-distribution,
+.subject-dashboard .patterns-content {
+  border-color: var(--admin-border);
+  background: #fafafa;
+}
+
+.subject-dashboard .distribution-item,
+.subject-dashboard [data-pattern-type="planetary"] .distribution-item {
+  border-color: var(--admin-border) !important;
+  background: var(--admin-surface) !important;
+}
+
+.subject-dashboard .category-name,
+.subject-dashboard .percentage-display,
+.subject-dashboard .pattern-section h5,
+.subject-dashboard .pattern-section li,
+.subject-dashboard .patterns-content h6,
+.subject-dashboard .patterns-content p {
+  color: var(--admin-text) !important;
+  text-shadow: none !important;
+}
+
+.subject-dashboard .planet-tag {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.subject-dashboard .topic-tension-flow,
+.subject-dashboard .topic-emotional-description,
+.subject-dashboard .topic-llm-analysis,
+.subject-dashboard .topic-metric-item,
+.subject-dashboard .topic-aspect-breakdown {
+  border-color: var(--admin-border);
+  background: #fafafa;
+  color: var(--admin-text);
+}
+
+.subject-dashboard .topic-header h4,
+.subject-dashboard .topic-emotional-description p,
+.subject-dashboard .topic-llm-analysis h5,
+.subject-dashboard .llm-analysis-content,
+.subject-dashboard .metric-text,
+.subject-dashboard .aspect-label,
+.subject-dashboard .topic-keystone-aspects h5 {
+  color: var(--admin-text);
+  text-shadow: none;
+}
+
+.subject-dashboard .topic-technical-toggle {
+  border-color: var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.subject-dashboard .workflow-section {
+  border-color: var(--admin-border);
+  background: var(--admin-surface);
+  text-align: left;
+}
+
+.subject-dashboard .workflow-section h3,
+.subject-dashboard .workflow-section h4,
+.subject-dashboard .workflow-section p,
+.subject-dashboard .progress-percentage {
+  color: var(--admin-text) !important;
+}
+
+.subject-dashboard .workflow-button {
+  display: inline-flex;
+  margin: 0;
+}
+
+.subject-dashboard .subject-workflow-actions,
+.subject-dashboard .workflow-progress {
+  margin-bottom: 20px;
+}
+
+.subject-dashboard .subject-workflow-summary {
+  margin-top: 10px;
+}
+
+.subject-dashboard .progress-fill {
+  background: var(--admin-accent) !important;
+}
+
+.subject-dashboard .analysis-complete-message,
+.subject-dashboard .analysis-available-message {
+  border-color: #bbf7d0 !important;
+  background: #f0fdf4 !important;
+}
+
+.subject-dashboard .analysis-complete-message {
+  margin-bottom: 20px;
+  padding: 18px;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.subject-dashboard .analysis-complete-message h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.subject-dashboard .analysis-complete-message p,
+.subject-dashboard .analysis-available-message p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.subject-dashboard .analysis-available-message {
+  display: inline-block;
+  margin: 0 0 16px;
+  padding: 12px 16px;
+}
+
+.subject-dashboard .analysis-complete-message h3,
+.subject-dashboard .analysis-complete-message p,
+.subject-dashboard .analysis-available-message p {
+  color: #166534 !important;
+}
+
+.subject-dashboard .subject-debug-tools {
+  border-color: var(--admin-border) !important;
+  background: var(--admin-surface) !important;
+}
+
+.subject-dashboard .subject-debug-tools h3,
+.subject-dashboard .subject-debug-tools p,
+.subject-dashboard .subject-debug-tools div {
+  color: var(--admin-text) !important;
+}
+
+.subject-dashboard .subject-debug-tools .admin-section-title {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.subject-dashboard .subject-debug-tools p {
+  margin: 0 0 14px;
+  font-size: 14px;
+}
+
+.subject-dashboard .subject-debug-id {
+  margin-top: 8px;
+}
+
+@media (max-width: 1100px) {
+  .subject-birth-chart {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .subject-user-info {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .subject-user-meta {
+    width: 100%;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--admin-border);
+    border-left: 0;
+  }
+}

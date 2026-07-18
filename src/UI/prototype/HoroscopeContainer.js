@@ -1,8 +1,84 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { generateWeeklyHoroscope, generateMonthlyHoroscope, generateCustomHoroscope, generateDailyHoroscope } from '../../Utilities/api';
+import { generateCelebrityHoroscope } from '../../Utilities/adminApi';
 import './HoroscopeContainer.css';
 
-const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null, userId }) => {
+const ACCOUNT_HOROSCOPE_UNAVAILABLE = "Viewing another account's horoscope isn't available here.";
+
+const isUnauthorizedError = (error) => (
+  error?.status === 401 || /(?:status[:\s]*|\b)401\b/i.test(error?.message || '')
+);
+
+const getHoroscopeRecord = (response) => (
+  response?.horoscope || response?.data?.horoscope || response?.data || response || null
+);
+
+const getInterpretation = (record) => {
+  const interpretation = record?.interpretation ?? record?.narrative ?? record?.text;
+  if (typeof interpretation === 'string') return interpretation;
+  if (typeof interpretation?.text === 'string') return interpretation.text;
+  if (typeof interpretation?.content === 'string') return interpretation.content;
+  return '';
+};
+
+const getPeriodEndDate = (startDate, type) => {
+  const endDate = new Date(`${startDate}T12:00:00`);
+  if (Number.isNaN(endDate.getTime())) return startDate;
+
+  if (type === 'weekly') {
+    endDate.setDate(endDate.getDate() + 6);
+  } else if (type === 'monthly') {
+    endDate.setMonth(endDate.getMonth() + 1, 0);
+  }
+
+  return endDate.toISOString().split('T')[0];
+};
+
+const formatDateParam = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const normalizeCelebrityHoroscope = (response, startDate, type) => {
+  const rawRecord = getHoroscopeRecord(response);
+  const record = rawRecord && typeof rawRecord === 'object' ? rawRecord : {};
+  const degradedFeatures = record.degradedFeatures
+    ?? record.metadata?.degradedFeatures
+    ?? response?.data?.degradedFeatures
+    ?? response?.data?.metadata?.degradedFeatures
+    ?? response?.degradedFeatures
+    ?? response?.metadata?.degradedFeatures;
+  const birthTimeMode = record.birthTimeMode
+    ?? record.metadata?.birthTimeMode
+    ?? response?.data?.birthTimeMode
+    ?? response?.data?.metadata?.birthTimeMode
+    ?? response?.birthTimeMode
+    ?? response?.metadata?.birthTimeMode;
+
+  return {
+    ...record,
+    interpretation: getInterpretation(record),
+    degradedFeatures: Array.isArray(degradedFeatures) ? degradedFeatures : [],
+    birthTimeMode,
+    startDate: record.startDate || startDate,
+    endDate: record.endDate || getPeriodEndDate(startDate, type)
+  };
+};
+
+const HoroscopeContainer = ({
+  transitWindows = [],
+  loading = false,
+  error = null,
+  userId,
+  subjectId,
+  celebrityId,
+  isCelebrity = false
+}) => {
+  const horoscopeSubjectId = isCelebrity
+    ? celebrityId || subjectId || userId
+    : subjectId || userId;
   const [activeTab, setActiveTab] = useState('today');
   const [showTransits, setShowTransits] = useState(true);
   const [selectedTransits, setSelectedTransits] = useState(new Set());
@@ -19,8 +95,8 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     thisMonth: null,
     nextMonth: null
   });
-  const [horoscopeLoading, setHoroscopeLoading] = useState(false);
   const [horoscopeError, setHoroscopeError] = useState(null);
+  const [accountHoroscopeUnavailable, setAccountHoroscopeUnavailable] = useState(false);
   const [loadedTabs, setLoadedTabs] = useState(new Set());
   const [tabLoadingStates, setTabLoadingStates] = useState({
     today: false,
@@ -46,10 +122,16 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
     thisMonth: 0,
     nextMonth: 0
   });
+  const unavailableRef = useRef(false);
+  const inFlightTabsRef = useRef(new Set());
 
   // Helper function to format dates for display
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    if (!dateString) return 'Date unavailable';
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+      ? new Date(`${dateString}T12:00:00`)
+      : new Date(dateString);
+    if (Number.isNaN(date.getTime())) return 'Date unavailable';
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
       day: 'numeric',
@@ -59,6 +141,9 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
 
   // Helper function to format date ranges
   const formatDateRange = (start, end) => {
+    if (!start && !end) return 'Date range unavailable';
+    if (!start) return formatDate(end);
+    if (!end) return formatDate(start);
     const startDate = new Date(start);
     const endDate = new Date(end);
     
@@ -164,18 +249,29 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
   };
 
   // Helper function to get horoscope for a specific period
-  const getHoroscopeForPeriod = async (userId, startDate, type) => {
+  const getHoroscopeForPeriod = async (startDate, type) => {
     try {
+      if (!['daily', 'weekly', 'monthly'].includes(type)) {
+        throw new Error(`Unknown horoscope type: ${type}`);
+      }
+
+      if (isCelebrity) {
+        const response = await withTimeout(
+          generateCelebrityHoroscope(horoscopeSubjectId, type, { date: startDate })
+        );
+        return normalizeCelebrityHoroscope(response, startDate, type);
+      }
+
       let response;
       switch (type) {
         case 'daily':
-          response = await withTimeout(generateDailyHoroscope(userId, startDate));
+          response = await withTimeout(generateDailyHoroscope(horoscopeSubjectId, startDate));
           break;
         case 'weekly':
-          response = await withTimeout(generateWeeklyHoroscope(userId, startDate));
+          response = await withTimeout(generateWeeklyHoroscope(horoscopeSubjectId, startDate));
           break;
         case 'monthly':
-          response = await withTimeout(generateMonthlyHoroscope(userId, startDate));
+          response = await withTimeout(generateMonthlyHoroscope(horoscopeSubjectId, startDate));
           break;
         default:
           throw new Error(`Unknown horoscope type: ${type}`);
@@ -323,11 +419,17 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
 
   // Fetch horoscope for a specific tab with retry capability
   const fetchHoroscopeForTab = async (tab, isRetry = false, attemptNumber = 0) => {
-    if (!userId || (!isRetry && loadedTabs.has(tab) && horoscopeCache[tab])) return;
+    if (
+      !horoscopeSubjectId
+      || unavailableRef.current
+      || inFlightTabsRef.current.has(tab)
+      || (!isRetry && loadedTabs.has(tab) && horoscopeCache[tab])
+    ) return false;
+
+    inFlightTabsRef.current.add(tab);
     
     // Set individual tab loading state
     setTabLoadingStates(prev => ({ ...prev, [tab]: true }));
-    setHoroscopeLoading(true);
     
     if (isRetry) {
       setHoroscopeError(null);
@@ -340,32 +442,34 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       
       switch (tab) {
         case 'today':
-          startDate = getTodayRange().start.toISOString().split('T')[0];
+          startDate = formatDateParam(getTodayRange().start);
           type = 'daily';
           break;
         case 'tomorrow':
-          startDate = getTomorrowRange().start.toISOString().split('T')[0];
+          startDate = formatDateParam(getTomorrowRange().start);
           type = 'daily';
           break;
         case 'thisWeek':
-          startDate = getCurrentWeekRange().start;
+          startDate = formatDateParam(getCurrentWeekRange().start);
           type = 'weekly';
           break;
         case 'nextWeek':
-          startDate = getNextWeekRange().start;
+          startDate = formatDateParam(getNextWeekRange().start);
           type = 'weekly';
           break;
         case 'thisMonth':
-          startDate = getCurrentMonthRange().start;
+          startDate = formatDateParam(getCurrentMonthRange().start);
           type = 'monthly';
           break;
         case 'nextMonth':
-          startDate = getNextMonthRange().start;
+          startDate = formatDateParam(getNextMonthRange().start);
           type = 'monthly';
           break;
+        default:
+          throw new Error(`Unknown horoscope tab: ${tab}`);
       }
       
-      const horoscope = await getHoroscopeForPeriod(userId, startDate, type);
+      const horoscope = await getHoroscopeForPeriod(startDate, type);
       
       setHoroscopeCache(prev => ({
         ...prev,
@@ -377,10 +481,20 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       if (isRetry) {
         setHoroscopeError(null);
       }
+      return true;
     } catch (error) {
       console.error(`Error fetching ${tab} horoscope:`, error);
+
+      if (!isCelebrity && isUnauthorizedError(error)) {
+        unavailableRef.current = true;
+        setAccountHoroscopeUnavailable(true);
+        setHoroscopeError(null);
+        setTabErrors(prev => ({ ...prev, [tab]: null }));
+        setLoadedTabs(prev => new Set([...prev, tab]));
+        return false;
+      }
       
-      const currentAttempts = retryAttempts[tab] || attemptNumber;
+      const currentAttempts = attemptNumber;
       const maxRetries = 3;
       
       if (currentAttempts < maxRetries) {
@@ -399,9 +513,10 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
         setHoroscopeError(`Failed to load ${tab} horoscope: ${error.message}`);
         setLoadedTabs(prev => new Set([...prev, tab])); // Mark as loaded even if failed
       }
+      return false;
     } finally {
+      inFlightTabsRef.current.delete(tab);
       setTabLoadingStates(prev => ({ ...prev, [tab]: false }));
-      setHoroscopeLoading(false);
     }
   };
 
@@ -446,8 +561,10 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Check if we should still preload (user might have navigated away)
-        if (userId) {
-          fetchHoroscopeForTab(tab);
+        if (horoscopeSubjectId && !unavailableRef.current) {
+          await fetchHoroscopeForTab(tab);
+        } else if (unavailableRef.current) {
+          break;
         }
       }
     }
@@ -455,13 +572,15 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
 
   // Load horoscope when active tab changes
   useEffect(() => {
-    if (userId) {
-      fetchHoroscopeForTab(activeTab).then(() => {
+    if (horoscopeSubjectId) {
+      fetchHoroscopeForTab(activeTab).then((loaded) => {
         // Start background preloading after current tab loads successfully
-        startBackgroundPreloading();
+        if (loaded && !unavailableRef.current) {
+          startBackgroundPreloading();
+        }
       });
     }
-  }, [activeTab, userId]); // fetchHoroscopeForTab is defined in this component, not an external dependency
+  }, [activeTab, horoscopeSubjectId, isCelebrity]); // Request helpers are local to this component
 
   // Add new function to handle transit selection
   const handleTransitSelection = (transitId) => {
@@ -486,6 +605,11 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
 
   // Add new function to generate custom/chat/hybrid horoscope
   const handleGenerateCustomHoroscope = async () => {
+    if (isCelebrity) {
+      setCustomHoroscopeError('Custom horoscope requests are not supported by the celebrity admin route.');
+      return;
+    }
+
     const hasQuery = typeof customQuery === 'string' && customQuery.trim().length > 0;
     const selectedTransitEvents = filteredTransits
       .filter((_, index) => selectedTransits.has(index))
@@ -525,7 +649,7 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       if (hasQuery) requestBody.query = customQuery.trim();
       if (cappedEvents.length > 0) requestBody.selectedTransits = cappedEvents;
 
-      const response = await generateCustomHoroscope(userId, requestBody);
+      const response = await generateCustomHoroscope(horoscopeSubjectId, requestBody);
       // Be flexible with backend shape: allow either { success, horoscope } or direct horoscope response
       const hasSuccess = response && typeof response.success === 'boolean';
       const gotHoroscope = response?.horoscope || (!hasSuccess && response && (response.interpretation || response.text));
@@ -541,7 +665,7 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
       }
     } catch (error) {
       console.error('Error generating custom horoscope:', error);
-      setCustomHoroscopeError(error.message);
+      setCustomHoroscopeError(isUnauthorizedError(error) ? ACCOUNT_HOROSCOPE_UNAVAILABLE : error.message);
     } finally {
       setGeneratingCustom(false);
     }
@@ -549,61 +673,67 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
 
   if (loading) {
     return (
-      <div className="horoscope-container">
-        <div className="loading-message">Loading horoscope data...</div>
-      </div>
+      <section className="horoscope-container admin-card">
+        <div className="loading-message admin-status">Loading horoscope data...</div>
+      </section>
     );
   }
 
   // Only show full error state if we have no data at all
   const hasAnyData = Object.values(horoscopeCache).some(value => value !== null);
-  if ((error || horoscopeError) && !hasAnyData) {
+  if ((error || horoscopeError) && !hasAnyData && !accountHoroscopeUnavailable) {
     return (
-      <div className="horoscope-container">
-        <div className="error-message">Error loading data: {error || horoscopeError}</div>
-      </div>
+      <section className="horoscope-container admin-card">
+        <div className="error-message admin-status admin-status--danger">Error loading data: {error || horoscopeError}</div>
+      </section>
     );
   }
 
   return (
-    <div className="horoscope-container">
-      <h2>Horoscope Forecast</h2>
+    <section className="horoscope-container admin-card">
+      <h2 className="admin-section-title">Horoscope Forecast</h2>
       
       {/* Tab Navigation */}
-      <div className="tab-navigation">
+      <div className="horoscope-period-tabs" role="tablist" aria-label="Horoscope period">
         <button 
           className={getTabClassName('today')}
           onClick={() => setActiveTab('today')}
+          aria-pressed={activeTab === 'today'}
         >
           Today {tabLoadingStates.today && '⏳'} {tabErrors.today && '❌'} {horoscopeCache.today && '✓'}
         </button>
         <button 
           className={getTabClassName('tomorrow')}
           onClick={() => setActiveTab('tomorrow')}
+          aria-pressed={activeTab === 'tomorrow'}
         >
           Tomorrow {tabLoadingStates.tomorrow && '⏳'} {tabErrors.tomorrow && '❌'} {horoscopeCache.tomorrow && '✓'}
         </button>
         <button 
           className={getTabClassName('thisWeek')}
           onClick={() => setActiveTab('thisWeek')}
+          aria-pressed={activeTab === 'thisWeek'}
         >
           This Week {tabLoadingStates.thisWeek && '⏳'} {tabErrors.thisWeek && '❌'} {horoscopeCache.thisWeek && '✓'}
         </button>
         <button 
           className={getTabClassName('nextWeek')}
           onClick={() => setActiveTab('nextWeek')}
+          aria-pressed={activeTab === 'nextWeek'}
         >
           Next Week {tabLoadingStates.nextWeek && '⏳'} {tabErrors.nextWeek && '❌'} {horoscopeCache.nextWeek && '✓'}
         </button>
         <button 
           className={getTabClassName('thisMonth')}
           onClick={() => setActiveTab('thisMonth')}
+          aria-pressed={activeTab === 'thisMonth'}
         >
           This Month {tabLoadingStates.thisMonth && '⏳'} {tabErrors.thisMonth && '❌'} {horoscopeCache.thisMonth && '✓'}
         </button>
         <button 
           className={getTabClassName('nextMonth')}
           onClick={() => setActiveTab('nextMonth')}
+          aria-pressed={activeTab === 'nextMonth'}
         >
           Next Month {tabLoadingStates.nextMonth && '⏳'} {tabErrors.nextMonth && '❌'} {horoscopeCache.nextMonth && '✓'}
         </button>
@@ -618,7 +748,11 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
 
       {/* Horoscope Content */}
       <div className="horoscope-content">
-        {tabLoadingStates[activeTab] && !horoscopeCache[activeTab] ? (
+        {accountHoroscopeUnavailable ? (
+          <div className="horoscope-unavailable admin-status" role="status">
+            {ACCOUNT_HOROSCOPE_UNAVAILABLE}
+          </div>
+        ) : tabLoadingStates[activeTab] && !horoscopeCache[activeTab] ? (
           <div className="horoscope-loading">
             <h3>Loading {activeTab === 'today' || activeTab === 'tomorrow' ? 'Daily' : activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope...</h3>
             <div className="loading-spinner">⏳</div>
@@ -631,7 +765,7 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
             <h3>Failed to Load Horoscope</h3>
             <p>{tabErrors[activeTab]}</p>
             <button 
-              className="retry-button"
+              className="retry-button admin-btn admin-btn--ghost"
               onClick={() => retryHoroscope(activeTab)}
               disabled={tabLoadingStates[activeTab]}
             >
@@ -645,6 +779,15 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
             <p className="horoscope-date-range">
               {formatDateRange(horoscopeCache[activeTab].startDate, horoscopeCache[activeTab].endDate)}
             </p>
+            {(horoscopeCache[activeTab].degradedFeatures?.length > 0
+              || String(horoscopeCache[activeTab].birthTimeMode || '').toLowerCase().includes('unknown')) && (
+              <div className="horoscope-precision-note admin-status">
+                Reduced precision (birth time unknown)
+                {horoscopeCache[activeTab].degradedFeatures?.length > 0 && (
+                  <span> — unavailable: {horoscopeCache[activeTab].degradedFeatures.join(', ')}</span>
+                )}
+              </div>
+            )}
             
             {/* Daily horoscope key transits */}
             {(activeTab === 'today' || activeTab === 'tomorrow') && horoscopeCache[activeTab].keyTransits && horoscopeCache[activeTab].keyTransits.length > 0 && (
@@ -683,7 +826,7 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
             <h3>{activeTab === 'today' || activeTab === 'tomorrow' ? 'Daily' : activeTab.includes('Week') ? 'Weekly' : 'Monthly'} Horoscope</h3>
             <p>Click to load your {activeTab} horoscope</p>
             <button 
-              className="load-button" 
+              className="load-button admin-btn admin-btn--primary"
               onClick={() => fetchHoroscopeForTab(activeTab)}
               disabled={tabLoadingStates[activeTab]}
             >
@@ -719,15 +862,11 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
         )}
 
         {/* Custom Request Panel (always visible) */}
-        <div className="custom-request-panel" style={{
-          margin: '16px 0',
-          padding: '16px',
-          background: 'rgba(139, 92, 246, 0.08)',
-          border: '1px solid rgba(139, 92, 246, 0.25)',
-          borderRadius: 8
-        }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#a78bfa' }}>Custom Horoscope Request</h4>
+        {!accountHoroscopeUnavailable && (
+        <div className="custom-request-panel">
+          <h4>Custom Horoscope Request</h4>
           <textarea
+            className="admin-input horoscope-query"
             value={customQuery}
             onChange={(e) => setCustomQuery(e.target.value)}
             placeholder={
@@ -736,15 +875,6 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
                 : 'Ask a question about this period (chat mode)'
             }
             rows={3}
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '6px',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
-              background: 'rgba(139, 92, 246, 0.08)',
-              color: 'white',
-              outline: 'none'
-            }}
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
             <div style={{ fontSize: 12, color: '#9ca3af' }}>
@@ -752,9 +882,10 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
               {` • Period: ${getActivePeriod()}`}
             </div>
             <button 
-              className="generate-custom-button"
+              className="generate-custom-button admin-btn admin-btn--primary"
               onClick={handleGenerateCustomHoroscope}
               disabled={generatingCustom}
+              title={isCelebrity ? 'Custom horoscope requests are not supported by the celebrity admin route.' : undefined}
             >
               {generatingCustom ? 'Generating...' : 'Generate Custom Horoscope'}
             </button>
@@ -763,18 +894,19 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
             )}
           </div>
         </div>
+        )}
 
         {/* Collapsible Transit Section */}
         <div className="transit-section">
           <button 
-            className="transit-toggle"
+            className="transit-toggle admin-btn admin-btn--ghost"
             onClick={() => setShowTransits(!showTransits)}
           >
             {showTransits ? 'Hide' : 'Show'} Transit Details
           </button>
           
           {showTransits && (
-            <div className="transit-description-container">
+            <div className="transit-description-container admin-table-scroll">
               {filteredTransits.length === 0 ? (
                 <div className="no-transits-message">
                   No significant transits found for {
@@ -785,7 +917,7 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
                 </div>
               ) : (
                 <>
-                  <table className="transit-description-table">
+                  <table className="transit-description-table admin-table">
                     <thead>
                       <tr>
                         <th>Select</th>
@@ -817,7 +949,7 @@ const HoroscopeContainer = ({ transitWindows = [], loading = false, error = null
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -5,6 +5,7 @@ import {
   adminFetchCelebrityBirthChartChatHistory
 } from '../../Utilities/adminApi';
 import AskStelliumPanel from '../askStellium/AskStelliumPanel';
+import '../../styles/admin-theme.css';
 import './EnhancedChatBirthChart.css';
 
 // Helper functions for aspect/position formatting
@@ -86,14 +87,14 @@ function AdminCelebrityBirthChartAsk({ userId, userPlanets, userAspects, birthCh
   };
 
   return (
-    <div className="enhanced-chat-container">
-      <div className="chat-welcome" style={{ minHeight: 260 }}>
+    <div className="enhanced-chat-container admin-enhanced-chat admin-enhanced-chat--welcome">
+      <div className="chat-welcome admin-card">
         <div className="welcome-icon">✨</div>
-        <h3>Ask Stellium</h3>
+        <h3 className="admin-section-title">Ask Stellium</h3>
         <p>Ask questions about this celebrity birth chart using the current Stellium chat experience.</p>
           <button
             type="button"
-            className="submit-button"
+            className="submit-button admin-btn admin-btn--primary"
             onClick={() => setAskPanelOpen(true)}
           >
           Open Ask Stellium
@@ -317,9 +318,9 @@ const LegacyEnhancedChatBirthChart = ({
   const currentMode = getMode();
 
   return (
-    <div className="enhanced-chat-container">
+    <div className="enhanced-chat-container admin-enhanced-chat">
       <div className="enhanced-chat-header">
-        <h3>Enhanced Chat</h3>
+        <h3 className="admin-section-title">Enhanced Chat</h3>
         <p className="description">
           Select aspects/positions and/or ask questions to get personalized astrological insights.
         </p>
@@ -327,7 +328,7 @@ const LegacyEnhancedChatBirthChart = ({
 
       {/* Error message */}
       {error && (
-        <div className="error-message">
+        <div className="enhanced-chat-error admin-status admin-status--danger">
           {error}
         </div>
       )}
@@ -335,7 +336,7 @@ const LegacyEnhancedChatBirthChart = ({
       {/* Main Content Layout */}
       <div className="enhanced-chat-layout">
         {/* Left Panel - Selection Tables */}
-        <div className="selection-panel">
+        <div className="selection-panel admin-card">
           <div className="selection-controls">
             <div className="selection-info">
               <span className="selection-count">
@@ -344,7 +345,7 @@ const LegacyEnhancedChatBirthChart = ({
               {selectedElements.length > 0 && (
                 <button 
                   onClick={handleClearSelection}
-                  className="clear-button"
+                  className="clear-button admin-btn admin-btn--ghost"
                 >
                   Clear Selection
                 </button>
@@ -353,8 +354,8 @@ const LegacyEnhancedChatBirthChart = ({
           </div>
 
           <div className="tables-container">
-            <div className="positions-section">
-              <h4>Planetary Positions</h4>
+            <div className="positions-section admin-chat-data-section">
+              <h4 className="admin-section-title">Planetary Positions</h4>
               <div className="elements-list">
                 {positionsData.map(position => (
                   <div
@@ -380,8 +381,8 @@ const LegacyEnhancedChatBirthChart = ({
               </div>
             </div>
 
-            <div className="aspects-section">
-              <h4>Aspects</h4>
+            <div className="aspects-section admin-chat-data-section">
+              <h4 className="admin-section-title">Aspects</h4>
               <div className="elements-list">
                 {aspectsData.map(aspect => (
                   <div
@@ -415,7 +416,7 @@ const LegacyEnhancedChatBirthChart = ({
         </div>
 
         {/* Right Panel - Chat Interface */}
-        <div className="chat-panel">
+        <div className="chat-panel admin-card">
           {/* Chat Messages */}
           <div className="chat-messages" ref={messagesRef}>
         {isHistoryLoading && chatMessages.length === 0 && (
@@ -431,7 +432,7 @@ const LegacyEnhancedChatBirthChart = ({
                 message.type === 'user'
                   ? 'user-message'
                   : message.type === 'error'
-                  ? 'error-message'
+                  ? 'chat-error-message'
                   : 'assistant-message'
               }`}
             >
@@ -506,14 +507,14 @@ const LegacyEnhancedChatBirthChart = ({
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyPress}
                 placeholder="Ask a question about your birth chart..."
-                className="query-input"
+                className="query-input admin-input"
                 rows={3}
               />
               <div className="input-controls">
                 <button
                   onClick={handleSubmit}
                   disabled={!currentMode || isLoading}
-                  className="submit-button"
+                  className="submit-button admin-btn admin-btn--primary"
                 >
                   {isLoading ? 'Processing...' : 'Send'}
                 </button>

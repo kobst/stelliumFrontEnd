@@ -2,7 +2,7 @@ import React from 'react';
 import './HousePositionTable.css';
 import { zodiacIcons } from '../../../Utilities/constants';
 
-const HousePositionTable = ({ houseArray }) => {
+const HousePositionTable = ({ houseArray, adminTheme = false }) => {
   // Function to get the correct image path for signs
   const getSignImagePath = (signName) => {
     const formattedName = signName.toLowerCase();
@@ -23,6 +23,37 @@ const HousePositionTable = ({ houseArray }) => {
     filteredHouses.slice(4, 8),
     filteredHouses.slice(8, 12)
   ];
+
+  if (adminTheme) {
+    return (
+      <table className="house-position-table admin-table">
+        <thead>
+          <tr>
+            <th>House</th>
+            <th aria-label="Zodiac symbol">Sign</th>
+            <th>Sign name</th>
+            <th>Degree</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredHouses.map((house, index) => (
+            <tr key={index}>
+              <td>{house.house}</td>
+              <td>
+                <img
+                  src={getSignImagePath(house.sign)}
+                  alt={house.sign}
+                  className="symbol-img"
+                />
+              </td>
+              <td>{house.sign}</td>
+              <td>{calculateRemainder(house.degree)}°</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
 
   return (
     <div className="house-position-table">

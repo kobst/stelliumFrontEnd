@@ -111,7 +111,7 @@ const CANVAS_DIMENSIONS = {
     houseCircleRadius: 180
 };
 
-const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 0, instanceId }) => {
+const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 0, instanceId, adminTheme = false }) => {
     const canvasRef = useRef(null);
     
     // Get ascendant degree from houses
@@ -426,11 +426,16 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
 
     
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <canvas ref={canvasRef} width={600} height={600} />
-            <div style={{ width: '800px', display: 'flex', justifyContent: 'center' }}>
-                {/* <PlanetPositions planets={planetsArray}/> */}
-            </div>
+        <div
+            className={adminTheme ? 'ephemeris-wheel ephemeris-wheel--admin' : 'ephemeris-wheel'}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+        >
+            <canvas className="ephemeris-wheel__canvas" ref={canvasRef} width={600} height={600} />
+            {!adminTheme && (
+                <div style={{ width: '800px', display: 'flex', justifyContent: 'center' }}>
+                    {/* Legacy spacer retained for consumer chart layouts. */}
+                </div>
+            )}
         </div>
     );
 });

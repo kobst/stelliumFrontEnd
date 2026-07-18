@@ -314,3 +314,258 @@
       font-size: 0.8rem;
     }
   }
+
+/* Admin subject-dashboard treatment. Kept scoped so legacy/consumer surfaces
+   that share generic tab class names retain their existing appearance. */
+.subject-dashboard .horoscope-container {
+  margin: 0;
+  padding: 20px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  box-shadow: none;
+}
+
+.subject-dashboard .horoscope-container > .admin-section-title {
+  margin-bottom: 16px;
+  color: var(--admin-text);
+  font-size: 20px;
+  text-align: left;
+}
+
+.subject-dashboard .horoscope-period-tabs {
+  display: flex;
+  justify-content: flex-start;
+  gap: 4px;
+  overflow-x: auto;
+  margin: 0 0 20px;
+  padding: 0;
+  border-bottom: 1px solid var(--admin-border);
+  background: transparent;
+}
+
+.subject-dashboard .horoscope-period-tabs .tab-button {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 5px 5px 0 0;
+  background: transparent;
+  color: var(--admin-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  transition: none;
+}
+
+.subject-dashboard .horoscope-period-tabs .tab-button:hover:not(:disabled) {
+  background: #f0f0f2;
+  color: var(--admin-text);
+}
+
+.subject-dashboard .horoscope-period-tabs .tab-button.active {
+  border-color: var(--admin-border);
+  border-bottom-color: var(--admin-surface);
+  background: var(--admin-surface);
+  color: var(--admin-accent);
+}
+
+.subject-dashboard .horoscope-period-tabs .tab-button.error {
+  color: var(--admin-danger);
+}
+
+.subject-dashboard .horoscope-period-tabs .tab-button.loaded:not(.active) {
+  color: #166534;
+}
+
+.subject-dashboard .horoscope-content {
+  margin-top: 0;
+}
+
+.subject-dashboard .horoscope-text,
+.subject-dashboard .custom-horoscope-section,
+.subject-dashboard .custom-request-panel {
+  margin: 0 0 20px;
+  padding: 18px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: #fafafa;
+  color: var(--admin-text);
+}
+
+.subject-dashboard .horoscope-text h3,
+.subject-dashboard .custom-horoscope-section h3,
+.subject-dashboard .custom-request-panel h4,
+.subject-dashboard .horoscope-loading h3,
+.subject-dashboard .horoscope-error h3,
+.subject-dashboard .horoscope-placeholder h3 {
+  margin: 0 0 12px;
+  color: var(--admin-text);
+  font-size: 17px;
+  font-weight: 650;
+  text-align: left;
+}
+
+.subject-dashboard .horoscope-text p,
+.subject-dashboard .custom-horoscope-section p,
+.subject-dashboard .horoscope-placeholder p,
+.subject-dashboard .horoscope-error p {
+  color: var(--admin-text);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.subject-dashboard .horoscope-date-range {
+  margin-top: 14px !important;
+  color: var(--admin-text-muted) !important;
+  font-size: 13px !important;
+  font-style: normal;
+}
+
+.subject-dashboard .horoscope-precision-note {
+  margin: 14px 0 0;
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #78350f;
+}
+
+.subject-dashboard .key-transits,
+.subject-dashboard .key-themes {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: var(--admin-surface);
+}
+
+.subject-dashboard .key-transits h4,
+.subject-dashboard .key-themes h4 {
+  margin: 0 0 8px;
+  color: var(--admin-text);
+  font-size: 14px;
+}
+
+.subject-dashboard .key-transits li,
+.subject-dashboard .key-themes li {
+  padding: 8px 0;
+  border-bottom-color: var(--admin-border);
+  color: var(--admin-text);
+}
+
+.subject-dashboard .transit-item strong,
+.subject-dashboard .transit-date {
+  color: var(--admin-text);
+}
+
+.subject-dashboard .loading-message,
+.subject-dashboard .no-transits-message,
+.subject-dashboard .horoscope-loading,
+.subject-dashboard .horoscope-placeholder,
+.subject-dashboard .horoscope-error,
+.subject-dashboard .horoscope-unavailable {
+  padding: 24px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: #fafafa;
+  color: var(--admin-text-muted);
+  font-style: normal;
+  text-align: left;
+}
+
+.subject-dashboard .error-message,
+.subject-dashboard .partial-error-notice,
+.subject-dashboard .horoscope-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.subject-dashboard .partial-error-notice {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+}
+
+.subject-dashboard .partial-error-notice p,
+.subject-dashboard .retry-info {
+  margin: 0;
+  color: inherit;
+}
+
+.subject-dashboard .loading-spinner {
+  margin-top: 8px;
+}
+
+.subject-dashboard .custom-request-panel .horoscope-query {
+  display: block;
+  width: 100%;
+  min-height: 84px;
+  resize: vertical;
+  color-scheme: light;
+}
+
+.subject-dashboard .custom-request-panel .horoscope-query::placeholder {
+  color: var(--admin-text-muted);
+}
+
+.subject-dashboard .custom-request-panel > div > div {
+  color: var(--admin-text-muted) !important;
+}
+
+.subject-dashboard .generate-custom-button {
+  padding: 8px 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: none;
+}
+
+.subject-dashboard .generate-custom-button:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+}
+
+.subject-dashboard .transit-section {
+  margin-top: 20px;
+}
+
+.subject-dashboard .transit-toggle {
+  width: auto;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+}
+
+.subject-dashboard .transit-description-container {
+  margin-top: 0;
+  padding: 0;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  background: var(--admin-surface);
+}
+
+.subject-dashboard .transit-description-table {
+  margin: 0;
+}
+
+.subject-dashboard .transit-description-table th,
+.subject-dashboard .transit-description-table td {
+  color: var(--admin-text);
+}
+
+.subject-dashboard .transit-description-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--admin-accent);
+}
+
+@media (max-width: 720px) {
+  .subject-dashboard .horoscope-container {
+    padding: 16px;
+  }
+
+  .subject-dashboard .horoscope-period-tabs .tab-button {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}

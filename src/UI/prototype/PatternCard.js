@@ -39,8 +39,9 @@ ChartJS.register(
   Title
 );
 
-const PatternCard = ({ title, data, type }) => {
+const PatternCard = ({ title, data, type, adminTheme = false }) => {
   const userPlanets = useStore(state => state.userPlanets);
+  const chartTextColor = adminTheme ? '#1a1a1a' : 'white';
   
   useEffect(() => {
     // Component will re-render when any of these dependencies change
@@ -130,7 +131,7 @@ const PatternCard = ({ title, data, type }) => {
         labels: {
           boxWidth: 12,
           padding: 15,
-          color: 'white',
+          color: chartTextColor,
           font: {
             weight: 'bold'
           }
@@ -147,7 +148,7 @@ const PatternCard = ({ title, data, type }) => {
     scales: type === 'quadrants' ? {
       x: {
         ticks: {
-          color: 'white',
+          color: chartTextColor,
           font: {
             weight: 'bold',
             size: 12
@@ -156,7 +157,7 @@ const PatternCard = ({ title, data, type }) => {
       },
       y: {
         ticks: {
-          color: 'white',
+          color: chartTextColor,
           font: {
             weight: 'bold'
           }
@@ -804,14 +805,15 @@ const PatternCard = ({ title, data, type }) => {
   return (
     <div 
       data-pattern-type={type}
-      style={{ 
+      className={adminTheme ? 'admin-card subject-pattern-card' : undefined}
+      style={adminTheme ? undefined : {
         backgroundColor: 'rgba(139, 92, 246, 0.1)', 
         padding: '20px', 
         borderRadius: '8px',
         border: '1px solid rgba(139, 92, 246, 0.3)',
         marginBottom: '20px'
       }}>
-      <h3 style={{ 
+      <h3 className={adminTheme ? 'admin-section-title' : undefined} style={adminTheme ? undefined : {
         color: '#a78bfa', 
         margin: '0 0 20px 0',
         fontSize: '1.3rem'
@@ -827,7 +829,7 @@ const PatternCard = ({ title, data, type }) => {
         <>
           {renderPatterns()}
           {data.interpretation && (
-            <p style={{ 
+            <p className={adminTheme ? 'subject-pattern-card__interpretation' : undefined} style={adminTheme ? undefined : {
               color: 'white', 
               lineHeight: '1.6', 
               margin: '20px 0 0 0',
@@ -847,7 +849,7 @@ const PatternCard = ({ title, data, type }) => {
             {renderPlanetDistribution()}
           </div>
           {data.interpretation && (
-            <p style={{ 
+            <p className={adminTheme ? 'subject-pattern-card__interpretation' : undefined} style={adminTheme ? undefined : {
               color: 'white', 
               lineHeight: '1.6', 
               margin: '0',
@@ -865,4 +867,4 @@ const PatternCard = ({ title, data, type }) => {
   );
 };
 
-export default PatternCard; 
+export default PatternCard;

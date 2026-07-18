@@ -1,7 +1,7 @@
 import React from 'react';
 import './PlanetPositionsTable.css';
 
-const PlanetPositionsTable = ({ planetsArray }) => {
+const PlanetPositionsTable = ({ planetsArray, adminTheme = false }) => {
 
   const excludedPlanets = ["South Node", "Part of Fortune"];
   
@@ -42,7 +42,19 @@ const PlanetPositionsTable = ({ planetsArray }) => {
   };
 
   return (
-    <table className="planet-positions-table">
+    <table className={`planet-positions-table${adminTheme ? ' admin-table' : ''}`}>
+      {adminTheme && (
+        <thead>
+          <tr>
+            <th aria-label="Planet symbol">Body</th>
+            <th>Planet</th>
+            <th>Degree</th>
+            <th aria-label="Zodiac symbol">Sign</th>
+            <th>Sign name</th>
+            <th>Motion</th>
+          </tr>
+        </thead>
+      )}
       <tbody>
           {planetsArray
             .filter(planet => !excludedPlanets.includes(planet.name))

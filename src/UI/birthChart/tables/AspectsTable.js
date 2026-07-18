@@ -1,7 +1,7 @@
 import React from 'react';
 import './AspectsTable.css';
 
-const AspectsTable = ({ aspectsArray }) => {
+const AspectsTable = ({ aspectsArray, adminTheme = false }) => {
 
   // Function to get the aspect name
   const getAspectName = (aspectType) => {
@@ -42,7 +42,19 @@ const AspectsTable = ({ aspectsArray }) => {
   };
 
   return (
-    <table className="aspects-table">
+    <table className={`aspects-table${adminTheme ? ' admin-table' : ''}`}>
+      {adminTheme && (
+        <thead>
+          <tr>
+            <th aria-label="First planet symbol">Body</th>
+            <th>First planet</th>
+            <th>Aspect</th>
+            <th aria-label="Second planet symbol">Body</th>
+            <th>Second planet</th>
+            <th>Orb</th>
+          </tr>
+        </thead>
+      )}
       <tbody>
         {aspectsArray.map((aspect, index) => (
           <tr key={index}>

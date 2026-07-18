@@ -21,6 +21,7 @@ import PatternCard from '../UI/prototype/PatternCard';
 import PlanetCard from '../UI/prototype/PlanetCard';
 import TopicTensionFlowAnalysis from '../UI/prototype/TopicTensionFlowAnalysis';
 import EnhancedChatBirthChart from '../UI/prototype/EnhancedChatBirthChart';
+import '../styles/admin-theme.css';
 
 // Order in which planetary interpretations should appear
 const PLANET_ORDER = [
@@ -517,7 +518,7 @@ function UserDashboard() {
           <div className="subtopics">
             {/* Category overview */}
             {cat?.overview && (
-              <div className="category-overview" style={{ marginBottom: '12px' }}>
+              <div className="category-overview">
                 <p>{cat.overview}</p>
               </div>
             )}
@@ -538,7 +539,7 @@ function UserDashboard() {
 
             {/* Synthesis if present */}
             {cat?.synthesis && (
-              <div className="category-synthesis" style={{ marginTop: '16px' }}>
+              <div className="category-synthesis">
                 <h4>Synthesis</h4>
                 <p>{cat.synthesis}</p>
               </div>
@@ -546,7 +547,7 @@ function UserDashboard() {
 
             {/* Optional category indicator */}
             {selectedOptional && !cat?.isCore && (
-              <div style={{ marginTop: '8px', fontSize: '12px', color: '#a78bfa' }}>
+              <div className="subject-optional-category admin-muted">
                 Included optional category
               </div>
             )}
@@ -566,14 +567,8 @@ function UserDashboard() {
       <section className="overview-section">
         <p>{basicAnalysis.overview}</p>
         {hasPartialAnalysis() && (
-          <div style={{ 
-            marginTop: '20px', 
-            padding: '15px', 
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
-            borderRadius: '8px'
-          }}>
-            <p style={{ margin: '0', fontSize: '14px', color: '#a78bfa' }}>
+          <div className="analysis-notice">
+            <p>
               ✨ This is your personalized overview! To unlock detailed planetary interpretations, 
               life area insights, and personalized chat, complete your full analysis above.
             </p>
@@ -590,31 +585,16 @@ function UserDashboard() {
       <section className="dominance-section">
         {/* Show complete analysis prompt if we have partial analysis and no dominance data */}
         {hasPartialAnalysis() ? (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px 20px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '8px',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
-            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>🔍 Chart Patterns Analysis</h3>
-            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+          <div className="analysis-empty-state">
+            <h3 className="admin-section-title">🔍 Chart Patterns Analysis</h3>
+            <p>
               Discover how the elements, modalities, and quadrants in your birth chart shape your personality, 
               approach to life, and core patterns of behavior.
             </p>
             <button
+              className="admin-btn admin-btn--primary"
               onClick={handleStartFullAnalysis}
               disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
-              style={{
-                backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '16px'
-              }}
             >
               {fullAnalysisLoading ? 'Starting Analysis...' : 
                (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
@@ -630,6 +610,7 @@ function UserDashboard() {
                 interpretation: basicAnalysis.dominance?.elements?.interpretation
               }}
               type="elements"
+              adminTheme
             />
             <PatternCard
               title="Modalities"
@@ -638,6 +619,7 @@ function UserDashboard() {
                 interpretation: basicAnalysis.dominance?.modalities?.interpretation
               }}
               type="modalities"
+              adminTheme
             />
             <PatternCard
               title="Quadrants"
@@ -646,6 +628,7 @@ function UserDashboard() {
                 interpretation: basicAnalysis.dominance?.quadrants?.interpretation
               }}
               type="quadrants"
+              adminTheme
             />
             <PatternCard
               title="Patterns and Structures"
@@ -654,6 +637,7 @@ function UserDashboard() {
                 interpretation: basicAnalysis.dominance?.patterns?.interpretation
               }}
               type="patterns"
+              adminTheme
             />
             <PatternCard
               title="Planetary Dominance"
@@ -662,6 +646,7 @@ function UserDashboard() {
                 interpretation: basicAnalysis.dominance?.planetary?.interpretation
               }}
               type="planetary"
+              adminTheme
             />
           </div>
         )}
@@ -676,31 +661,16 @@ function UserDashboard() {
       <section className="planets-section">
         {/* Show complete analysis prompt if we have partial analysis and no planetary data */}
         {hasPartialAnalysis() ? (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px 20px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '8px',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
-            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>🪐 Planetary Influences</h3>
-            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+          <div className="analysis-empty-state">
+            <h3 className="admin-section-title">🪐 Planetary Influences</h3>
+            <p>
               Explore detailed interpretations of how each planet in your birth chart influences different 
               aspects of your personality, relationships, career, and life path.
             </p>
             <button
+              className="admin-btn admin-btn--primary"
               onClick={handleStartFullAnalysis}
               disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
-              style={{
-                backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '16px'
-              }}
             >
               {fullAnalysisLoading ? 'Starting Analysis...' : 
                (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
@@ -716,6 +686,7 @@ function UserDashboard() {
                   planet={planet}
                   interpretation={basicAnalysis.planets[planet].interpretation}
                   description={basicAnalysis.planets[planet].description}
+                  adminTheme
                 />
               ))}
           </div>
@@ -737,32 +708,17 @@ function UserDashboard() {
       label: '360 Analysis',
       content: (
         <section className="analysis-360-section">
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px 20px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '8px',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
-            <h3 style={{ color: '#a78bfa', marginBottom: '15px' }}>🌟 360-Degree Life Analysis</h3>
-            <p style={{ color: 'white', marginBottom: '20px', lineHeight: '1.6' }}>
+          <div className="analysis-empty-state">
+            <h3 className="admin-section-title">🌟 360-Degree Life Analysis</h3>
+            <p>
               Unlock comprehensive insights into every area of your life - personality, relationships, 
               career, spirituality, communication, and more. Get detailed analysis across 6 major life themes 
               with 24 specific subtopics.
             </p>
             <button
+              className="admin-btn admin-btn--primary"
               onClick={handleStartFullAnalysis}
               disabled={fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)}
-              style={{
-                backgroundColor: (fullAnalysisLoading || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '16px'
-              }}
             >
               {fullAnalysisLoading ? 'Starting Analysis...' : 
                (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
@@ -811,10 +767,14 @@ function UserDashboard() {
       label: 'Horoscope',
       content: (
         <HoroscopeContainer
+          key={`${isCelebrity ? 'celebrity' : 'user'}-${userId}`}
           transitWindows={transitWindows}
           loading={transitLoading}
           error={transitError}
           userId={userId}
+          subjectId={userId}
+          celebrityId={isCelebrity ? userId : undefined}
+          isCelebrity={isCelebrity}
         />
       )
     });
@@ -836,7 +796,7 @@ function UserDashboard() {
   }
 
   return (
-    <div className="user-prototype-page">
+    <main className="user-prototype-page admin-page subject-dashboard">
       {fetchLoading && (
         <div className="status-banner">Loading existing analysis...</div>
       )}
@@ -845,47 +805,31 @@ function UserDashboard() {
       )}
 
       {/* Debug Raw Data View */}
-      <div style={{ margin: '10px 20px' }}>
+      <div className="subject-dashboard__toolbar">
         <button
+          className={`admin-btn ${showRawData ? 'admin-btn--danger' : 'admin-btn--ghost'}`}
           onClick={() => setShowRawData(!showRawData)}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: showRawData ? '#ef4444' : '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontWeight: 'bold'
-          }}
         >
           {showRawData ? 'Hide Raw Data' : 'Show Raw Data (Debug)'}
         </button>
         {isCelebrity && (
-          <span style={{ marginLeft: '10px', color: '#a78bfa', fontSize: '12px' }}>
+          <span className="admin-badge">
             ⭐ Celebrity Profile
           </span>
         )}
       </div>
 
       {showRawData && (
-        <div style={{ margin: '10px 20px' }}>
-          <div style={{
-            background: '#1a1a2e',
-            border: '1px solid #374151',
-            borderRadius: '8px',
-            padding: '20px',
-            maxHeight: '70vh',
-            overflow: 'auto'
-          }}>
-            <h3 style={{ color: '#a78bfa', marginTop: 0, marginBottom: '15px' }}>
+        <div className="subject-dashboard__raw-wrap">
+          <div className="subject-raw-data admin-card">
+            <h3 className="admin-section-title">
               Raw Analysis Data
             </h3>
 
             {/* Summary Stats */}
-            <div style={{ marginBottom: '20px', padding: '10px', background: '#252540', borderRadius: '4px' }}>
-              <h4 style={{ color: '#60a5fa', margin: '0 0 10px 0' }}>Summary</h4>
-              <div style={{ color: '#d1d5db', fontSize: '13px' }}>
+            <div className="subject-raw-data__summary">
+              <h4>Summary</h4>
+              <div className="admin-muted">
                 <div>• Overview: {basicAnalysis?.overview ? `${basicAnalysis.overview.length} chars` : 'Missing'}</div>
                 <div>• Planets interpreted: {basicAnalysis?.planets ? Object.keys(basicAnalysis.planets).length : 0}</div>
                 <div>• Dominance sections: {basicAnalysis?.dominance ? Object.keys(basicAnalysis.dominance).filter(k => basicAnalysis.dominance[k]?.interpretation).length : 0}/5</div>
@@ -896,65 +840,41 @@ function UserDashboard() {
             </div>
 
             {/* Basic Analysis */}
-            <details style={{ marginBottom: '15px' }}>
-              <summary style={{ color: '#60a5fa', cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px' }}>
+            <details className="subject-raw-data__section">
+              <summary>
                 basicAnalysis
               </summary>
-              <pre style={{
-                color: '#e5e7eb',
-                fontSize: '11px',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                margin: 0
-              }}>
+              <pre>
                 {JSON.stringify(basicAnalysis, null, 2)}
               </pre>
             </details>
 
             {/* Broad Category Analyses */}
-            <details style={{ marginBottom: '15px' }}>
-              <summary style={{ color: '#60a5fa', cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px' }}>
+            <details className="subject-raw-data__section">
+              <summary>
                 broadCategoryAnalyses ({broadCategoryAnalyses ? Object.keys(broadCategoryAnalyses).length : 0} categories)
               </summary>
-              <pre style={{
-                color: '#e5e7eb',
-                fontSize: '11px',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                margin: 0
-              }}>
+              <pre>
                 {JSON.stringify(broadCategoryAnalyses, null, 2)}
               </pre>
             </details>
 
             {/* Selected User / Birth Chart */}
-            <details style={{ marginBottom: '15px' }}>
-              <summary style={{ color: '#60a5fa', cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px' }}>
+            <details className="subject-raw-data__section">
+              <summary>
                 selectedUser (birth chart data)
               </summary>
-              <pre style={{
-                color: '#e5e7eb',
-                fontSize: '11px',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                margin: 0
-              }}>
+              <pre>
                 {JSON.stringify(selectedUser, null, 2)}
               </pre>
             </details>
 
             {/* Workflow Status */}
-            <details>
-              <summary style={{ color: '#60a5fa', cursor: 'pointer', fontWeight: 'bold', marginBottom: '10px' }}>
+            <details className="subject-raw-data__section">
+              <summary>
                 Workflow State
               </summary>
-              <pre style={{
-                color: '#e5e7eb',
-                fontSize: '11px',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                margin: 0
-              }}>
+              <pre>
                 {JSON.stringify({
                   userId,
                   isCelebrity,
@@ -977,6 +897,7 @@ function UserDashboard() {
         userHouses={userHouses}
         userAspects={userAspects}
         dailyTransits={dailyTransits}
+        adminTheme
         onUserUpdate={(updatedUser) => {
           console.log('User updated with new photo:', updatedUser);
           // Update store state with new user data
@@ -988,28 +909,22 @@ function UserDashboard() {
 
       {/* New Full Analysis Workflow Section - Only show when needed */}
       {(!isAnalysisPopulated() || fullAnalysisProgress || isFullAnalysisCompleted) && (
-        <div className="workflow-section">
-          <h3>🚀 New Analysis System (Recommended)</h3>
+        <section className="workflow-section admin-card">
+          <h3 className="admin-section-title">New Analysis System</h3>
           {!isAnalysisPopulated() && (
-            <div style={{ marginBottom: '20px' }}>
+            <div className="subject-workflow-actions">
               <button
                 onClick={handleStartFullAnalysis}
                 disabled={fullAnalysisLoading || !userId || workflowStarted || (fullAnalysisProgress && !isFullAnalysisCompleted)}
-                className="workflow-button primary"
-                style={{
-                  backgroundColor: (fullAnalysisLoading || workflowStarted || (fullAnalysisProgress && !isFullAnalysisCompleted)) ? '#6c757d' : '#8b5cf6',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: 'bold'
-                }}
+                className="workflow-button primary admin-btn admin-btn--primary"
               >
                 {fullAnalysisLoading || workflowStarted ? 'Starting Analysis...' : 
                  (fullAnalysisProgress && !isFullAnalysisCompleted) ? 'Analysis in Progress...' : 
                  'Start Complete Analysis'}
               </button>
-            
+
               {fullAnalysisProgress && !isFullAnalysisCompleted && (
-                <div style={{ color: '#666', fontSize: '14px', marginTop: '10px' }}>
+                <div className="admin-muted subject-workflow-summary">
                   {fullAnalysisProgress.percentage}% Complete 
                   {fullAnalysisProgress.currentPhase && ` - ${fullAnalysisProgress.currentPhase}`}
                 </div>
@@ -1019,7 +934,7 @@ function UserDashboard() {
 
           {/* Full Analysis Progress Bar */}
           {fullAnalysisProgress && !isFullAnalysisCompleted && (
-            <div className="workflow-progress" style={{ marginBottom: '20px' }}>
+            <div className="workflow-progress">
               <div className="progress-header">
                 <h4>
                   Generating Complete Birth Chart Analysis
@@ -1032,10 +947,7 @@ function UserDashboard() {
               <div className="progress-bar">
                 <div 
                   className="progress-fill" 
-                  style={{ 
-                    width: `${fullAnalysisProgress.percentage || 0}%`,
-                    backgroundColor: '#8b5cf6'
-                  }}
+                  style={{ width: `${fullAnalysisProgress.percentage || 0}%` }}
                 ></div>
               </div>
               <div className="progress-percentage">
@@ -1045,91 +957,51 @@ function UserDashboard() {
           )}
 
           {isFullAnalysisCompleted && (
-            <div style={{ 
-              padding: '20px', 
-              backgroundColor: 'rgba(34, 197, 94, 0.15)', 
-              border: '2px solid rgba(34, 197, 94, 0.4)', 
-              borderRadius: '8px',
-              marginBottom: '20px',
-              textAlign: 'center',
-              animation: 'fadeIn 0.5s ease-in-out'
-            }}>
-              <h3 style={{ 
-                color: '#10b981', 
-                margin: '0 0 8px 0', 
-                fontWeight: 'bold',
-                fontSize: '1.2rem'
-              }}>
+            <div className="admin-status admin-status--success analysis-complete-message">
+              <h3>
                 ✅ Analysis Complete!
               </h3>
-              <p style={{ 
-                color: '#ffffff', 
-                margin: '0', 
-                fontWeight: '500',
-                lineHeight: '1.5',
-                fontSize: '1rem'
-              }}>
+              <p>
                 Your full birth chart analysis is now available. Explore all tabs to discover your personalized insights!
               </p>
             </div>
           )}
-        </div>
+        </section>
       )}
 
       {/* Show subtle message when analysis content is available */}
       {isAnalysisPopulated() && !fullAnalysisProgress && !isFullAnalysisCompleted && (
-        <div style={{ 
-          padding: '12px 16px', 
-          backgroundColor: 'rgba(34, 197, 94, 0.1)', 
-          border: '1px solid rgba(34, 197, 94, 0.3)', 
-          borderRadius: '6px',
-          marginBottom: '16px',
-          display: 'inline-block'
-        }}>
-          <p style={{ color: '#ffffff', margin: '0', fontSize: '14px', fontWeight: '500' }}>
-            ✅ <span style={{ color: '#10b981', fontWeight: 'bold' }}>Analysis Available</span> - Explore your insights while processing finishes
+        <div className="admin-status admin-status--success analysis-available-message">
+          <p>
+            ✅ <strong>Analysis Available</strong> - Explore your insights while processing finishes
           </p>
         </div>
       )}
 
       {/* Debug Subtopic Astro Data Button */}
       {userId && (
-        <div style={{ 
-          padding: '20px', 
-          marginBottom: '20px',
-          backgroundColor: '#1f2937', 
-          borderRadius: '8px',
-          border: '1px solid #374151'
-        }}>
-          <h3 style={{ color: '#fbbf24', marginBottom: '15px', fontSize: '16px' }}>🔬 Debug Tools</h3>
-          <p style={{ color: '#d1d5db', marginBottom: '15px', fontSize: '14px' }}>
+        <section className="admin-card subject-debug-tools">
+          <h3 className="admin-section-title">🔬 Debug Tools</h3>
+          <p>
             Development tool to retrieve subtopic astro data for this user profile.
           </p>
           <button
+            className="admin-btn admin-btn--ghost"
             onClick={handleDebugSubtopicAstroData}
             disabled={isDebugLoading || !userId}
-            style={{
-              backgroundColor: isDebugLoading ? '#6b7280' : '#f59e0b',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: isDebugLoading ? 'not-allowed' : 'pointer',
-              opacity: isDebugLoading ? 0.6 : 1
-            }}
           >
             {isDebugLoading ? '🔄 Loading...' : '🔍 Get Subtopic Astro Data'}
           </button>
-          <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px' }}>
+          <div className="admin-muted subject-debug-id">
             User ID: {userId}
           </div>
-        </div>
+        </section>
       )}
 
-      <TabMenu tabs={mainTabs} />
-    </div>
+      <section className="admin-card subject-dashboard__tabs">
+        <TabMenu tabs={mainTabs} />
+      </section>
+    </main>
   );
 }
 

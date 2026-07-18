@@ -1,14 +1,14 @@
 import React, { memo } from 'react';
 
-const PlanetCard = memo(({ planet, interpretation, description }) => (
-  <div style={{ 
+const PlanetCard = memo(({ planet, interpretation, description, adminTheme = false }) => (
+  <div className={adminTheme ? 'admin-card subject-planet-card' : undefined} style={adminTheme ? undefined : {
     backgroundColor: 'rgba(139, 92, 246, 0.1)', 
     padding: '20px', 
     borderRadius: '8px',
     border: '1px solid rgba(139, 92, 246, 0.3)',
     marginBottom: '20px'
   }}>
-    <h3 style={{ 
+    <h3 className={adminTheme ? 'admin-section-title' : undefined} style={adminTheme ? undefined : {
       color: '#a78bfa', 
       margin: '0 0 15px 0',
       fontSize: '1.3rem'
@@ -29,14 +29,14 @@ const PlanetCard = memo(({ planet, interpretation, description }) => (
       {planet}
     </h3>
     {description && (
-      <div style={{ 
+      <div className={adminTheme ? 'subject-planet-card__description' : undefined} style={adminTheme ? undefined : {
         backgroundColor: 'rgba(59, 130, 246, 0.1)', 
         padding: '15px', 
         borderRadius: '6px',
         border: '1px solid rgba(59, 130, 246, 0.3)',
         marginBottom: '15px'
       }}>
-        <p style={{ 
+        <p style={adminTheme ? undefined : {
           color: 'white', 
           margin: '0',
           fontSize: '14px',
@@ -48,7 +48,7 @@ const PlanetCard = memo(({ planet, interpretation, description }) => (
       </div>
     )}
     {interpretation && (
-      <p style={{ 
+      <p className={adminTheme ? 'subject-planet-card__interpretation' : undefined} style={adminTheme ? undefined : {
         color: 'white', 
         lineHeight: '1.6', 
         margin: '0',

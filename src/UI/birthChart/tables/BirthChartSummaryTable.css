@@ -35,6 +35,10 @@
   margin-bottom: 10px;
 }
 
+.birth-chart:not(.subject-birth-chart) .planet-position-container {
+  display: contents;
+}
+
 .aspects-container {
   display: flex;
   flex-direction: column;
@@ -55,7 +59,7 @@
   max-height: 200px; /* Adjust the height as needed */
 }
 
-h3 {
+.birth-chart h3 {
   text-align: center;
   margin-bottom: 10px;
 }
