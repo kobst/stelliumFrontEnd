@@ -23,7 +23,10 @@ async function apiFetch(path, options = {}) {
   const response = await fetch(`${getServerUrl()}${path}`, options);
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data?.error || `HTTP error! status: ${response.status}`);
+    const error = new Error(data?.error || data?.message || `HTTP error! status: ${response.status}`);
+    error.status = response.status;
+    error.data = data;
+    throw error;
   }
   return data;
 }
@@ -127,6 +130,45 @@ export async function fetchWeeklyHoroscopePreview(date = null) {
 export async function fetchAdminWeeklySunSign(sign, date = null) {
   const query = date ? `?date=${date}` : '';
   return apiFetch(`/admin/horoscopes/weekly/${sign}${query}`, {
+    method: 'GET',
+    headers: await buildAuthHeaders(),
+  });
+}
+
+export async function generateCelebrityHoroscope(celebrityId, type, options = {}) {
+  const { date, force } = options;
+  const body = {};
+
+  if (date) body.date = date;
+  if (force !== undefined) body.force = Boolean(force);
+
+  return apiFetch(
+    `/admin/celebrities/${encodeURIComponent(celebrityId)}/horoscopes/${encodeURIComponent(type)}`,
+    {
+      method: HTTP_POST,
+      headers: await buildAuthHeaders(),
+      body: JSON.stringify(body),
+    }
+  );
+}
+
+export async function getCelebrityHoroscope(celebrityId, type, date = null) {
+  const params = new URLSearchParams();
+  if (type) params.set('type', type);
+  if (date) params.set('date', date);
+  const query = params.toString();
+
+  return apiFetch(
+    `/admin/celebrities/${encodeURIComponent(celebrityId)}/horoscopes/current${query ? `?${query}` : ''}`,
+    {
+      method: 'GET',
+      headers: await buildAuthHeaders(),
+    }
+  );
+}
+
+export async function listCelebrityHoroscopes(celebrityId) {
+  return apiFetch(`/admin/celebrities/${encodeURIComponent(celebrityId)}/horoscopes`, {
     method: 'GET',
     headers: await buildAuthHeaders(),
   });

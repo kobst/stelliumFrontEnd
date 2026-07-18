@@ -5,12 +5,14 @@ import UsersTable from '../UI/prototype/UsersTable';
 import CelebritiesTable from '../UI/prototype/CelebritiesTable';
 import AddCelebrityForm from '../UI/admin/AddCelebrityForm';
 import CelebrityRelationshipsTab from '../UI/admin/CelebrityRelationshipsTab';
+import CelebrityHoroscopeModal from '../UI/admin/CelebrityHoroscopeModal';
 import HoroscopePreview from '../UI/admin/HoroscopePreview';
 import VideoAssetsTab from '../UI/admin/VideoAssetsTab';
 import useStore from '../Utilities/store';
 
 function AdminPage() {
   const [refreshCelebrities, setRefreshCelebrities] = useState(0);
+  const [horoscopeCelebrity, setHoroscopeCelebrity] = useState(null);
   
   const setSelectedUser = useStore(state => state.setSelectedUser);
   const setUserId = useStore(state => state.setUserId);
@@ -69,11 +71,22 @@ function AdminPage() {
       </div>
 
       <UsersTable onUserSelect={handleUserSelect} usePagination={true} />
-      <CelebritiesTable onCelebritySelect={handleCelebritySelect} key={refreshCelebrities} usePagination={true} />
+      <CelebritiesTable
+        onCelebritySelect={handleCelebritySelect}
+        onGenerateHoroscope={setHoroscopeCelebrity}
+        key={refreshCelebrities}
+        usePagination={true}
+      />
       <AddCelebrityForm onCelebrityAdded={handleCelebrityAdded} />
       <CelebrityRelationshipsTab />
       <HoroscopePreview />
       <VideoAssetsTab />
+      {horoscopeCelebrity && (
+        <CelebrityHoroscopeModal
+          celebrity={horoscopeCelebrity}
+          onClose={() => setHoroscopeCelebrity(null)}
+        />
+      )}
     </div>
   );
 }

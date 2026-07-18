@@ -1,0 +1,272 @@
+.celebrity-horoscope-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(3, 2, 10, 0.82);
+  backdrop-filter: blur(4px);
+}
+
+.celebrity-horoscope-modal {
+  width: min(860px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: 24px;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 14px;
+  background: #171124;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+  text-align: left;
+}
+
+.chm-header,
+.chm-result-header,
+.chm-result-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.chm-header {
+  margin-bottom: 22px;
+}
+
+.chm-eyebrow {
+  margin-bottom: 4px;
+  color: #a78bfa;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chm-header h2,
+.chm-result-header h3 {
+  margin: 0;
+  color: white;
+}
+
+.chm-header h2 {
+  font-size: 1.5rem;
+}
+
+.chm-result-header h3 {
+  font-size: 1.08rem;
+}
+
+.chm-close {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  font-size: 1.8rem;
+  line-height: 1;
+  padding: 4px 8px;
+}
+
+.chm-close:hover {
+  color: white;
+}
+
+.chm-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.chm-period-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.chm-period-button,
+.chm-button {
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  border-radius: 6px;
+  background: rgba(139, 92, 246, 0.16);
+  color: white;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 600;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.chm-period-button {
+  padding: 8px 14px;
+  text-transform: capitalize;
+}
+
+.chm-period-button:hover:not(:disabled),
+.chm-period-button.active,
+.chm-button:hover:not(:disabled) {
+  border-color: #a78bfa;
+  background: rgba(139, 92, 246, 0.35);
+}
+
+.chm-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.78rem;
+}
+
+.chm-date-field input {
+  min-width: 160px;
+  padding: 7px 10px;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  color: white;
+  color-scheme: dark;
+  font: inherit;
+}
+
+.chm-actions {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.chm-button {
+  padding: 8px 16px;
+}
+
+.chm-button-primary {
+  border-color: rgba(34, 197, 94, 0.5);
+  background: rgba(34, 197, 94, 0.22);
+}
+
+.chm-button-primary:hover:not(:disabled) {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.38);
+}
+
+.chm-button:disabled,
+.chm-period-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.chm-button-copy {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+}
+
+.chm-empty,
+.chm-error {
+  padding: 34px 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.chm-empty {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.chm-error {
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+}
+
+.chm-result {
+  margin-top: 8px;
+  padding: 22px;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 12px;
+  background: rgba(139, 92, 246, 0.07);
+}
+
+.chm-result-header {
+  margin-bottom: 14px;
+}
+
+.chm-precision-note {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 5px 9px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.chm-interpretation {
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.94rem;
+  line-height: 1.72;
+  white-space: pre-wrap;
+}
+
+.chm-result-footer {
+  align-items: flex-end;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(139, 92, 246, 0.16);
+}
+
+.chm-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.74rem;
+}
+
+.chm-copy-status {
+  flex-shrink: 0;
+  color: #a78bfa;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 640px) {
+  .celebrity-horoscope-modal-overlay {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .celebrity-horoscope-modal {
+    max-height: calc(100vh - 24px);
+    padding: 18px;
+  }
+
+  .chm-controls,
+  .chm-result-header,
+  .chm-result-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .chm-period-toggle {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .chm-date-field input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .chm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .chm-copy-status {
+    flex-shrink: 1;
+  }
+}

@@ -3,7 +3,13 @@ import './UsersTable.css';
 import { fetchCelebrities, fetchCelebritiesPaginated, deleteSubject } from '../../Utilities/adminApi'
 import { usePaginatedData } from '../../hooks/usePaginatedData';
 
-function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFilter = 'all', usePagination = false }) {
+function CelebritiesTable({
+  onCelebritySelect,
+  onGenerateHoroscope,
+  selectedForRelationship,
+  genderFilter = 'all',
+  usePagination = false,
+}) {
   const [celebrities, setCelebrities] = useState([]);
   const [deletingCelebrity, setDeletingCelebrity] = useState(null);
 
@@ -253,6 +259,25 @@ function CelebritiesTable({ onCelebritySelect, selectedForRelationship, genderFi
                       >
                         {selectedForRelationship && selectedForRelationship._id === celebrity._id ? 'Selected' : 'Select'}
                       </button>
+                      {onGenerateHoroscope && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onGenerateHoroscope(celebrity);
+                          }}
+                          style={{
+                            padding: '4px 8px',
+                            backgroundColor: '#7c3aed',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          Horoscope
+                        </button>
+                      )}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
