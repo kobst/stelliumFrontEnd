@@ -10,7 +10,7 @@ import GooglePlaceAutocomplete from '../shared/GooglePlaceAutocomplete';
 import './AddCelebrityForm.css';
 
 const AddCelebrityForm = ({ onCelebrityAdded }) => {
-    const { createCelebrity, loading, error } = useSubjectCreation();
+    const { createCelebrity, startFullAnalysisWorkflowAdmin, loading, error } = useSubjectCreation();
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -148,8 +148,25 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
             }
           }
 
+          // Auto-start the full birth chart analysis (admin, credit-free) so
+          // creating a celebrity is a single step. Fail-soft: the celebrity is
+          // still created if the analysis fails to kick off.
+          let analysisStarted = false;
+          if (celebId) {
+            try {
+              await startFullAnalysisWorkflowAdmin(celebId);
+              analysisStarted = true;
+            } catch (analysisErr) {
+              console.error('Celebrity created but full analysis failed to start:', analysisErr);
+            }
+          }
+
           // Show success message
-          setSuccessMessage(`${firstName} ${lastName} has been added successfully!`);
+          setSuccessMessage(
+            analysisStarted
+              ? `${firstName} ${lastName} added — full birth chart analysis started (running in the background).`
+              : `${firstName} ${lastName} added, but the full analysis didn't start. Open the celebrity and start it from its dashboard.`
+          );
           setWorkflowStatus('completed');
 
           // Clear form
