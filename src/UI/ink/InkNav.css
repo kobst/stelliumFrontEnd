@@ -1,0 +1,231 @@
+.ink-nav {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  width: 100%;
+  border-bottom: 1px solid rgba(35,40,64,.08);
+  background: rgba(244,239,229,.92);
+  color: var(--ink, #232840);
+  font-family: var(--ink-serif, "EB Garamond", Georgia, serif);
+  backdrop-filter: blur(10px);
+}
+
+.ink-nav *,
+.ink-nav *::before,
+.ink-nav *::after {
+  box-sizing: border-box;
+}
+
+.ink-nav__inner {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  width: min(1160px, 94vw);
+  margin: 0 auto;
+  padding: 12px 0;
+}
+
+.ink-nav--marketing .ink-nav__inner {
+  gap: clamp(16px, 2.6vw, 34px);
+  padding: 16px 0;
+}
+
+.ink-nav__wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  flex: 0 0 auto;
+  color: var(--ink, #232840);
+  font-family: inherit;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.ink-nav--marketing .ink-nav__wordmark {
+  margin-right: auto;
+  gap: 10px;
+  font-size: 30px;
+}
+
+.ink-nav__wordmark:hover {
+  color: var(--ink, #232840);
+}
+
+.ink-nav__mark {
+  font-size: 18px;
+}
+
+.ink-nav--marketing .ink-nav__mark {
+  font-size: 20px;
+}
+
+.ink-nav__marketing-links {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2.6vw, 34px);
+}
+
+.ink-nav__link {
+  color: var(--ink-soft, rgba(35,40,64,.78));
+  font-size: 15.5px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.ink-nav__link:hover {
+  color: var(--ink, #232840);
+}
+
+.ink-nav__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 9px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--navy, #1b2140);
+  color: #f2ecdd;
+  box-shadow: 0 8px 22px -10px rgba(27,33,64,.6);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all .18s ease;
+}
+
+.ink-nav__cta:hover {
+  color: #f2ecdd;
+  box-shadow: 0 12px 26px -10px rgba(27,33,64,.65);
+  transform: translateY(-1px);
+}
+
+.ink-nav__segments {
+  display: flex;
+  gap: clamp(10px, 2.4vw, 30px);
+  margin: 0 auto;
+}
+
+.ink-nav__segment {
+  padding: 6px 2px;
+  border-bottom: 2px solid transparent;
+  color: var(--ink-faint, rgba(35,40,64,.55));
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.ink-nav__segment.on {
+  border-bottom-color: var(--blue, #3437a8);
+  color: var(--ink, #232840);
+}
+
+.ink-nav__segment:hover:not(.on) {
+  color: var(--ink, #232840);
+}
+
+.ink-nav__credits {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  color: var(--gold, #b08d3e);
+  box-shadow: inset 0 0 0 1px rgba(176,141,62,.5);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.ink-nav__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ink-nav__user-meta {
+  display: block;
+  text-align: right;
+  line-height: 1.2;
+}
+
+.ink-nav__user-meta b {
+  display: block;
+  color: var(--ink, #232840);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ink-nav__user-meta > span {
+  display: block;
+  color: var(--gold, #b08d3e);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .18em;
+}
+
+.ink-nav__avatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  overflow: hidden;
+  flex: 0 0 38px;
+  border-radius: 50%;
+  background: var(--paper-2, #f0ebe0);
+  color: var(--ink, #232840);
+  box-shadow: inset 0 0 0 1px var(--line, rgba(35,40,64,.16)), 0 0 0 2px var(--paper, #f4efe5), 0 0 0 3px rgba(176,141,62,.5);
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.ink-nav__avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 920px) {
+  .ink-nav__marketing-links {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .ink-nav--app .ink-nav__inner {
+    flex-wrap: wrap;
+  }
+
+  .ink-nav__segments {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ink-nav__user-meta {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .ink-nav__inner {
+    gap: 12px;
+  }
+
+  .ink-nav__credits {
+    margin-left: auto;
+    padding-inline: 12px;
+  }
+
+  .ink-nav__avatar {
+    display: none;
+  }
+}
