@@ -1598,10 +1598,12 @@ export const createCelebrity = async (celebrityData) => {
     // Remove email field for celebrities (not required)
     delete requestData.email;
     
+    const token = await getFirebaseIdToken();
     const response = await fetch(`${getServerUrl()}${endpoint}`, {
       method: HTTP_POST,
       headers: {
-        [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+        [CONTENT_TYPE_HEADER]: APPLICATION_JSON,
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
       body: JSON.stringify(requestData)
     });
