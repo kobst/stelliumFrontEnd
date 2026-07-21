@@ -30,6 +30,13 @@ import Chart3DPage from './pages/Chart3DPage';
 import ChartReaderPage from './pages/ChartReaderPage';
 import RelationshipJourneyPage from './pages/RelationshipJourneyPage';
 
+// ink design direction — paper/ink re-skins of the core surfaces
+import InkLandingPage from './pages/InkLandingPage';
+import InkBirthChartPage from './pages/InkBirthChartPage';
+import InkRelationshipPage from './pages/InkRelationshipPage';
+import InkMyChartsPage from './pages/InkMyChartsPage';
+import InkMyRelationshipsPage from './pages/InkMyRelationshipsPage';
+
 import './App.css';
 
 function DefaultChartView() {
@@ -49,7 +56,7 @@ function App() {
         <div className="App">
           <Routes>
             {/* Public routes - no auth required */}
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<InkLandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/pricingTable" element={<PricingTable />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -119,10 +126,26 @@ function App() {
               }
             />
             <Route
+              path="/dashboard/:userId/charts"
+              element={
+                <ProtectedRoute>
+                  <InkMyChartsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/:userId/relationships"
+              element={
+                <ProtectedRoute>
+                  <InkMyRelationshipsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/dashboard/:userId/chart/:chartId"
               element={
                 <ProtectedRoute>
-                  <DefaultChartView />
+                  <InkBirthChartPage />
                 </ProtectedRoute>
               }
             />
@@ -166,7 +189,7 @@ function App() {
               path="/dashboard/:userId/relationship/:compositeId"
               element={
                 <ProtectedRoute>
-                  <DefaultRelationshipView />
+                  <InkRelationshipPage />
                 </ProtectedRoute>
               }
             />
