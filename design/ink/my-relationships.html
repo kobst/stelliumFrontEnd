@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>My Relationships · Iris</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4efe5; --paper-2: #f0ebe0; --card: #f6f1e7;
+    --ink: #232840; --ink-soft: rgba(35,40,64,0.78); --ink-faint: rgba(35,40,64,0.55);
+    --blue: #3437a8; --gold: #b08d3e; --navy: #1b2140; --line: rgba(35,40,64,0.16);
+    --serif: "EB Garamond", Georgia, serif; --script: "Caveat", cursive;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--serif); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { color: var(--ink); }
+  p { margin: 0; }
+  ::selection { background: rgba(52,55,168,0.16); }
+  .wrap { width: min(1120px, 93vw); margin: 0 auto; }
+  h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(38px, 4vw, 54px); margin: 0; line-height: 1.1; }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(30px, 3.2vw, 42px); margin: 0; }
+  .it { font-style: italic; color: var(--blue); }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.26em; text-transform: uppercase; color: var(--blue); }
+
+  .nav { position: sticky; top: 0; z-index: 6; background: rgba(244,239,229,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(35,40,64,0.08); }
+  .nav-inner { width: min(1160px, 94vw); margin: 0 auto; display: flex; align-items: center; gap: 22px; padding: 12px 0; }
+  .wordmark { font-family: var(--serif); font-size: 26px; font-weight: 500; color: var(--ink); display: flex; align-items: baseline; gap: 9px; }
+  .wordmark .mark { font-size: 18px; }
+  .seg { display: flex; gap: clamp(10px, 2.4vw, 30px); margin: 0 auto; }
+  .seg a { font-family: var(--serif); font-size: 16px; color: var(--ink-faint); padding: 6px 2px; border-bottom: 2px solid transparent; white-space: nowrap; }
+  .seg a.on { color: var(--ink); border-bottom-color: var(--blue); }
+  .seg a:hover:not(.on) { color: var(--ink); }
+  .credits { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; font-style: italic; color: var(--gold); border-radius: 999px; padding: 7px 16px; box-shadow: inset 0 0 0 1px rgba(176,141,62,0.5); white-space: nowrap; }
+  .me { display: flex; align-items: center; gap: 10px; }
+  .me .who { text-align: right; line-height: 1.2; }
+  .me .who b { font-size: 14px; font-weight: 600; display: block; }
+  .me .who span { font-size: 10px; font-weight: 600; letter-spacing: 0.18em; color: var(--gold); }
+  .me .ava { width: 38px; height: 38px; border-radius: 50%; background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--line), 0 0 0 2px var(--paper), 0 0 0 3px rgba(176,141,62,0.5); display: grid; place-items: center; font-family: var(--serif); font-weight: 500; color: var(--ink); }
+
+  .page-head { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding: clamp(34px, 5vh, 54px) 0 8px; }
+  .page-head .hgroup { margin-right: auto; display: grid; gap: 10px; }
+  .page-head .rule { width: 64px; height: 1px; background: rgba(176,141,62,0.75); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; font-family: var(--serif); font-size: 16px; border-radius: 999px; padding: 12px 26px; transition: all .18s ease; white-space: nowrap; border: none; cursor: pointer; }
+  .btn.navy { background: var(--navy); color: #f2ecdd; box-shadow: 0 8px 22px -10px rgba(27,33,64,0.6); }
+  .btn.navy:hover { transform: translateY(-1px); color: #f2ecdd; }
+
+  /* relationship rows */
+  .rel-list { display: grid; gap: 16px; padding: 26px 0 60px; }
+  .rel-row { display: grid; grid-template-columns: 200px 1fr auto; gap: 24px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 16px 26px 16px 14px; transition: transform .18s ease, box-shadow .18s ease; }
+  .rel-row:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -18px rgba(35,40,64,0.35); }
+  .duo { width: 200px; height: auto; display: block; }
+  .rel-row .cn { font-family: var(--serif); font-size: 27px; color: var(--ink); }
+  .rel-row .cn .amp { font-style: italic; color: var(--blue); }
+  .rel-row .bd { font-size: 13.5px; font-style: italic; color: var(--ink-faint); margin-top: 2px; display: block; }
+  .rel-row .go { font-style: italic; font-size: 15.5px; color: var(--blue); white-space: nowrap; }
+  .rel-row:hover .go { color: var(--ink); }
+
+  /* create panel */
+  .create { display: none; padding-bottom: 90px; }
+  .create.open { display: block; }
+  .create-head { text-align: center; display: grid; gap: 8px; justify-items: center; margin-bottom: 30px; }
+  .create-head .sub { font-style: italic; font-size: 17px; color: var(--ink-soft); }
+  .you-chip { display: grid; gap: 2px; justify-items: center; background: var(--navy); color: #f2ecdd; border-radius: 8px; padding: 16px 36px; box-shadow: 0 14px 30px -14px rgba(27,33,64,0.6); }
+  .you-chip b { font-family: var(--serif); font-weight: 500; font-size: 22px; }
+  .you-chip span { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #d8ba74; }
+  .heart { text-align: center; color: var(--blue); font-size: 22px; margin: 12px 0 26px; }
+  .pick-card { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 28px 30px; margin-bottom: 26px; }
+  .pick-card > h3 { font-family: var(--serif); font-weight: 500; font-size: 25px; margin: 0 0 4px; }
+  .pick-card > .hint { font-style: italic; font-size: 15px; color: var(--ink-faint); margin-bottom: 18px; }
+  .chip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  .pchip { display: grid; gap: 1px; justify-items: center; text-align: center; padding: 14px 10px; border-radius: 4px; background: var(--paper); border: 1px solid rgba(35,40,64,0.18); cursor: pointer; font-family: var(--serif); transition: all .15s ease; }
+  .pchip b { font-family: var(--serif); font-weight: 500; font-size: 18px; color: var(--ink); line-height: 1.2; }
+  .pchip span { font-size: 13px; font-style: italic; color: var(--ink-faint); }
+  .pchip:hover { border-color: rgba(52,55,168,0.5); }
+  .pchip.sel { background: rgba(52,55,168,0.06); border: 1.5px solid var(--blue); }
+  .pchip.sel span { color: var(--blue); }
+
+  .tools { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+  .search { flex: 1; min-width: 220px; font-family: var(--serif); font-style: italic; font-size: 15.5px; color: var(--ink); padding: 12px 18px; border-radius: 999px; border: 1px solid rgba(35,40,64,0.28); background: var(--paper); outline: none; }
+  .search:focus { border-color: var(--blue); }
+  .filters { display: flex; gap: clamp(8px, 1.6vw, 18px); }
+  .filters button { font-family: var(--serif); font-size: 14px; letter-spacing: 0.08em; color: var(--ink-faint); padding: 7px 4px; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; }
+  .filters button.on { color: var(--ink); border-bottom-color: var(--blue); }
+  .celeb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .cchip { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 18px 10px 14px; border-radius: 4px; background: var(--paper); border: 1px solid rgba(35,40,64,0.18); cursor: pointer; font-family: var(--serif); transition: all .15s ease; }
+  .cchip .medal { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-weight: 500; font-size: 20px; color: rgba(35,40,64,0.6); }
+  .cchip b { font-family: var(--serif); font-weight: 500; font-size: 17px; color: var(--ink); line-height: 1.15; }
+  .cchip span { font-size: 12.5px; font-style: italic; color: var(--ink-faint); }
+  .cchip:hover { border-color: rgba(52,55,168,0.5); }
+  .cchip.sel { background: rgba(52,55,168,0.06); border: 1.5px solid var(--blue); }
+  .cchip.sel span { color: var(--blue); }
+  .cchip.hide { display: none; }
+  .tint-blue { background: radial-gradient(circle at 30% 25%, rgba(52,55,168,0.16), rgba(52,55,168,0.05)); }
+  .tint-gold { background: radial-gradient(circle at 30% 25%, rgba(176,141,62,0.22), rgba(176,141,62,0.07)); }
+  .tint-rose { background: radial-gradient(circle at 30% 25%, rgba(190,110,95,0.2), rgba(190,110,95,0.06)); }
+  .tint-sage { background: radial-gradient(circle at 30% 25%, rgba(122,138,109,0.22), rgba(122,138,109,0.07)); }
+
+  .create-cta { position: sticky; bottom: 18px; display: flex; justify-content: center; pointer-events: none; }
+  .create-cta .inner { pointer-events: auto; display: flex; align-items: center; gap: 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 10px 12px 10px 24px; box-shadow: 0 18px 40px -12px rgba(27,33,64,0.35); opacity: 0; transform: translateY(10px); transition: all .25s ease; }
+  .create-cta .inner.show { opacity: 1; transform: none; }
+  .create-cta .pair-lbl { font-style: italic; font-size: 16px; color: var(--ink-soft); }
+  .create-cta .pair-lbl b { color: var(--ink); font-style: normal; font-weight: 600; }
+  .create-cta .cost { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; color: var(--gold); }
+
+  @media (max-width: 760px) {
+    .seg { order: 3; width: 100%; justify-content: center; }
+    .nav-inner { flex-wrap: wrap; }
+    .me .who { display: none; }
+    .rel-row { grid-template-columns: 150px 1fr; }
+    .duo { width: 150px; }
+    .rel-row .go { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" data-screen-label="Nav">
+  <div class="nav-inner">
+    <a class="wordmark" href="Stellium Home v7 (ink).html">Iris <span class="mark">✳</span></a>
+    <div class="seg">
+      <a href="My Dashboard.html">Horoscope</a>
+      <a href="My Charts (ink).html">Charts</a>
+      <a class="on" href="#">Relationships</a>
+    </div>
+    <span class="credits">✳ 404 credits</span>
+    <div class="me"><div class="who"><b>Eva Hanson</b><span>PLUS</span></div><div class="ava">EH</div></div>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<div class="page-head" data-screen-label="My Relationships">
+  <div class="hgroup">
+    <div class="eyebrow">Your connections</div>
+    <h1>My <span class="it">Relationships</span></h1>
+    <div class="rule"></div>
+  </div>
+  <button class="btn navy" id="openCreate">＋ Add New Relationship ✳</button>
+</div>
+
+<div class="rel-list" id="relList">
+  <a class="rel-row" href="Relationship (ink).html">
+    <svg class="duo" data-seed="3" role="img" aria-label="Eva's and Angelina's charts interlocking"></svg>
+    <span><span class="cn">Eva <span class="amp">&amp;</span> Angelina</span><span class="bd">June 4, 1975</span></span>
+    <span class="go">Open reading →</span>
+  </a>
+  <a class="rel-row" href="Relationship (ink).html">
+    <svg class="duo" data-seed="11" role="img" aria-label="Eva's and Dua's charts interlocking"></svg>
+    <span><span class="cn">Eva <span class="amp">&amp;</span> Dua</span><span class="bd">August 22, 1995</span></span>
+    <span class="go">Open reading →</span>
+  </a>
+  <a class="rel-row" href="Relationship (ink).html">
+    <svg class="duo" data-seed="27" role="img" aria-label="Eva's and Beyoncé's charts interlocking"></svg>
+    <span><span class="cn">Eva <span class="amp">&amp;</span> Beyoncé</span><span class="bd">September 5, 1981</span></span>
+    <span class="go">Open reading →</span>
+  </a>
+  <a class="rel-row" href="Relationship (ink).html">
+    <svg class="duo" data-seed="40" role="img" aria-label="Eva's and Jennifer's charts interlocking"></svg>
+    <span><span class="cn">Eva <span class="amp">&amp;</span> Jennifer</span><span class="bd">August 15, 1990</span></span>
+    <span class="go">Open reading →</span>
+  </a>
+</div>
+
+<section class="create" id="createPanel" data-screen-label="Create Relationship">
+  <div class="create-head">
+    <div class="eyebrow">Create relationship</div>
+    <h2>Who are we <span class="it">reading together?</span></h2>
+    <p class="sub">Analyze your compatibility with someone.</p>
+  </div>
+  <div style="display: grid; justify-items: center;">
+    <div class="you-chip"><b>Eva Hanson</b><span>Scorpio Sun</span></div>
+    <div class="heart">♡</div>
+  </div>
+
+  <div class="pick-card">
+    <h3>Your Charts</h3>
+    <p class="hint">Anyone you've added as a birth chart can be read with you — <a href="My Charts (ink).html">add a person first →</a></p>
+    <div class="chip-grid" id="chartPick">
+      <button class="pchip" data-name="Edward HanHanHausen"><b>Edward HanHanHausen</b><span>Scorpio Sun</span></button>
+      <button class="pchip" data-name="Arlo Black"><b>Arlo Black</b><span>Pisces Sun</span></button>
+      <button class="pchip" data-name="Beatrice February"><b>Beatrice February</b><span>Scorpio Sun</span></button>
+      <button class="pchip" data-name="Beatrice Webber"><b>Beatrice Webber</b><span>Aries Sun</span></button>
+      <button class="pchip" data-name="Samantha Vazquez"><b>Samantha Vazquez</b><span>Capricorn Sun</span></button>
+      <button class="pchip" data-name="Andrea Henderson"><b>Andrea Henderson</b><span>Aquarius Sun</span></button>
+      <button class="pchip" data-name="Christina Gross"><b>Christina Gross</b><span>Libra Sun</span></button>
+      <button class="pchip" data-name="Jake Rutkowski"><b>Jake Rutkowski</b><span>Virgo Sun</span></button>
+      <button class="pchip" data-name="Aaron Mulder"><b>Aaron Mulder</b><span>Virgo Sun</span></button>
+      <button class="pchip" data-name="Rippleara Ripples"><b>Rippleara Ripples</b><span>Taurus Sun</span></button>
+      <button class="pchip" data-name="Richard Berger"><b>Richard Berger</b><span>Taurus Sun</span></button>
+      <button class="pchip" data-name="Codey Birk"><b>Codey Birk</b><span>Capricorn Sun</span></button>
+    </div>
+  </div>
+
+  <div class="pick-card">
+    <h3>Or Choose a Celebrity</h3>
+    <p class="hint">Run your chemistry against a famous chart.</p>
+    <div class="tools">
+      <input class="search" id="celebSearch" type="text" placeholder="Search celebrities by name…" aria-label="Search celebrities" />
+      <div class="filters" id="celebFilters">
+        <button class="on" data-g="all">All</button>
+        <button data-g="m">Male</button>
+        <button data-g="f">Female</button>
+      </div>
+    </div>
+    <div class="celeb-grid" id="celebPick">
+      <button class="cchip" data-g="f" data-name="Zendaya Coleman"><span class="medal tint-blue">ZC</span><b>Zendaya Coleman</b><span>Virgo</span></button>
+      <button class="cchip" data-g="m" data-name="Pedro Pascal"><span class="medal tint-gold">PP</span><b>Pedro Pascal</b><span>Aries</span></button>
+      <button class="cchip" data-g="m" data-name="Dwayne Johnson"><span class="medal tint-sage">DJ</span><b>Dwayne Johnson</b><span>Taurus</span></button>
+      <button class="cchip" data-g="f" data-name="Simone Biles"><span class="medal tint-rose">SB</span><b>Simone Biles</b><span>Pisces</span></button>
+      <button class="cchip" data-g="m" data-name="Brad Pitt"><span class="medal tint-gold">BP</span><b>Brad Pitt</b><span>Sagittarius</span></button>
+      <button class="cchip" data-g="m" data-name="Usain Bolt"><span class="medal tint-sage">UB</span><b>Usain Bolt</b><span>Leo</span></button>
+      <button class="cchip" data-g="m" data-name="David Beckham"><span class="medal tint-blue">DB</span><b>David Beckham</b><span>Taurus</span></button>
+      <button class="cchip" data-g="m" data-name="Denzel Washington"><span class="medal tint-gold">DW</span><b>Denzel Washington</b><span>Capricorn</span></button>
+      <button class="cchip" data-g="f" data-name="Billie Eilish"><span class="medal tint-rose">BE</span><b>Billie Eilish</b><span>Sagittarius</span></button>
+      <button class="cchip" data-g="f" data-name="Victoria Beckham"><span class="medal tint-blue">VB</span><b>Victoria Beckham</b><span>Aries</span></button>
+      <button class="cchip" data-g="f" data-name="Shakira Ripoll"><span class="medal tint-gold">SR</span><b>Shakira Ripoll</b><span>Aquarius</span></button>
+      <button class="cchip" data-g="m" data-name="Cristiano Ronaldo"><span class="medal tint-sage">CR</span><b>Cristiano Ronaldo</b><span>Aquarius</span></button>
+      <button class="cchip" data-g="m" data-name="Christopher Nolan"><span class="medal tint-blue">CN</span><b>Christopher Nolan</b><span>Leo</span></button>
+      <button class="cchip" data-g="m" data-name="Tom Holland"><span class="medal tint-rose">TH</span><b>Tom Holland</b><span>Gemini</span></button>
+      <button class="cchip" data-g="m" data-name="Keanu Reeves"><span class="medal tint-gold">KR</span><b>Keanu Reeves</b><span>Virgo</span></button>
+      <button class="cchip" data-g="f" data-name="Angelina Jolie"><span class="medal tint-rose">AJ</span><b>Angelina Jolie</b><span>Gemini</span></button>
+      <button class="cchip" data-g="f" data-name="Lady Gaga"><span class="medal tint-blue">LG</span><b>Lady Gaga</b><span>Aries</span></button>
+      <button class="cchip" data-g="m" data-name="Lionel Messi"><span class="medal tint-sage">LM</span><b>Lionel Messi</b><span>Cancer</span></button>
+      <button class="cchip" data-g="f" data-name="Selena Gomez"><span class="medal tint-rose">SG</span><b>Selena Gomez</b><span>Cancer</span></button>
+      <button class="cchip" data-g="m" data-name="Benny Blanco"><span class="medal tint-gold">BB</span><b>Benny Blanco</b><span>Pisces</span></button>
+      <button class="cchip" data-g="f" data-name="Taylor Swift"><span class="medal tint-blue">TS</span><b>Taylor Swift</b><span>Sagittarius</span></button>
+      <button class="cchip" data-g="f" data-name="Beyoncé Knowles"><span class="medal tint-gold">BK</span><b>Beyoncé Knowles</b><span>Virgo</span></button>
+      <button class="cchip" data-g="f" data-name="Florence Pugh"><span class="medal tint-rose">FP</span><b>Florence Pugh</b><span>Capricorn</span></button>
+      <button class="cchip" data-g="m" data-name="Timothée Chalamet"><span class="medal tint-sage">TC</span><b>Timothée Chalamet</b><span>Capricorn</span></button>
+    </div>
+  </div>
+
+  <div class="create-cta">
+    <div class="inner" id="ctaBar">
+      <span class="pair-lbl">Eva Hanson <span style="color:var(--blue);">♡</span> <b id="pairName">—</b></span>
+      <span class="cost">5 CREDITS</span>
+      <a class="btn navy" href="Relationship (ink).html">Create Relationship ✳</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+  /* interlocking duo-wheel graphic — ink palette */
+  (function () {
+    var NS = 'http://www.w3.org/2000/svg';
+    function el(t, a) { var n = document.createElementNS(NS, t); for (var k in a) n.setAttribute(k, a[k]); return n; }
+    function pol(cx, cy, r, deg) { var a = (deg - 90) * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+    function wheel(svg, cx, cy, R, fill, tick, dot, seed, dark) {
+      var g = el('g', { style: 'mix-blend-mode: multiply;' });
+      g.appendChild(el('circle', { cx: cx, cy: cy, r: R, fill: fill, opacity: 0.92 }));
+      for (var i = 0; i < 12; i++) {
+        var p1 = pol(cx, cy, R, i * 30), p2 = pol(cx, cy, R * 0.86, i * 30);
+        g.appendChild(el('line', { x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1], stroke: tick, 'stroke-width': 0.7 }));
+      }
+      g.appendChild(el('circle', { cx: cx, cy: cy, r: R * 0.86, fill: 'none', stroke: tick, 'stroke-width': 0.7 }));
+      var s = seed, rnd = function () { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+      var pts = [];
+      for (var j = 0; j < 6; j++) {
+        var p = pol(cx, cy, R * (0.25 + rnd() * 0.52), rnd() * 360);
+        pts.push(p);
+        g.appendChild(el('circle', { cx: p[0], cy: p[1], r: 1.8, fill: dot }));
+      }
+      for (var k = 0; k < pts.length - 1; k++) {
+        g.appendChild(el('line', { x1: pts[k][0], y1: pts[k][1], x2: pts[k + 1][0], y2: pts[k + 1][1], stroke: '#b08d3e', 'stroke-width': 0.55, opacity: 0.7 }));
+      }
+      g.appendChild(el('circle', { cx: cx, cy: cy, r: 2.4, fill: '#b08d3e' }));
+      svg.appendChild(g);
+      if (dark) {
+        for (var m = 0; m < 14; m++) {
+          var q = pol(cx, cy, R * 0.8 * Math.sqrt(rnd()), rnd() * 360);
+          svg.appendChild(el('circle', { cx: q[0], cy: q[1], r: rnd() * 0.7 + 0.3, fill: 'rgba(240,235,220,0.7)' }));
+        }
+      }
+    }
+    document.querySelectorAll('svg.duo').forEach(function (svg) {
+      var seed = +svg.dataset.seed || 1;
+      svg.setAttribute('viewBox', '0 0 220 120');
+      wheel(svg, 68, 60, 52, 'rgba(52,55,168,0.14)', 'rgba(35,40,64,0.4)', '#3437a8', seed, false);
+      wheel(svg, 152, 60, 52, 'rgba(27,33,64,0.9)', 'rgba(216,186,116,0.6)', '#d8ba74', seed + 5, true);
+      var heart = el('text', { x: 110, y: 66, 'text-anchor': 'middle', 'font-size': 20, fill: '#3437a8' });
+      heart.textContent = '\u2665\uFE0E';
+      svg.appendChild(heart);
+    });
+  })();
+</script>
+<script>
+  var panel = document.getElementById('createPanel');
+  var relList = document.getElementById('relList');
+  var openBtn = document.getElementById('openCreate');
+  openBtn.addEventListener('click', function () {
+    var open = panel.classList.toggle('open');
+    relList.style.display = open ? 'none' : 'grid';
+    openBtn.innerHTML = open ? '← Back to relationships' : '＋ Add New Relationship ✳';
+  });
+  var chips = document.querySelectorAll('.pchip, .cchip');
+  var bar = document.getElementById('ctaBar'), pairName = document.getElementById('pairName');
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      chips.forEach(function (x) { x.classList.remove('sel'); });
+      c.classList.add('sel');
+      pairName.textContent = c.dataset.name;
+      bar.classList.add('show');
+    });
+  });
+  var q = '', g = 'all';
+  function applyFilter() {
+    document.querySelectorAll('.cchip').forEach(function (c) {
+      var okG = g === 'all' || c.dataset.g === g;
+      var okQ = !q || c.dataset.name.toLowerCase().indexOf(q) !== -1;
+      c.classList.toggle('hide', !(okG && okQ));
+    });
+  }
+  document.getElementById('celebSearch').addEventListener('input', function (e) { q = e.target.value.trim().toLowerCase(); applyFilter(); });
+  document.querySelectorAll('#celebFilters button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#celebFilters button').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on'); g = b.dataset.g; applyFilter();
+    });
+  });
+</script>
+</body>
+</html>

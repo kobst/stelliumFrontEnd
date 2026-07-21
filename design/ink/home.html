@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Iris · The stars, read just for you</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4efe5; --paper-2: #f0ebe0; --card: #f6f1e7;
+    --ink: #232840; --ink-soft: rgba(35,40,64,0.78); --ink-faint: rgba(35,40,64,0.55);
+    --blue: #3437a8; --gold: #b08d3e; --navy: #1b2140; --line: rgba(35,40,64,0.16);
+    --serif: "EB Garamond", Georgia, serif; --script: "Caveat", cursive;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--serif); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { color: var(--ink); }
+  p { margin: 0; }
+  img { display: block; }
+  ::selection { background: rgba(52,55,168,0.16); }
+  .wrap { width: min(1080px, 92vw); margin: 0 auto; }
+  .eyebrow { font-family: var(--serif); font-size: 12px; font-weight: 600; letter-spacing: 0.26em; text-transform: uppercase; color: var(--blue); }
+  h1, h2 { font-family: var(--serif); font-weight: 500; line-height: 1.12; margin: 0; color: var(--ink); }
+  .it { font-style: italic; color: var(--blue); }
+  .sect-rule { border: none; border-top: 1px solid var(--line); margin: 0; }
+
+  /* nav */
+  .nav { position: sticky; top: 0; z-index: 8; background: rgba(244,239,229,0.92); backdrop-filter: blur(10px); }
+  .nav-inner { width: min(1160px, 94vw); margin: 0 auto; display: flex; align-items: center; gap: clamp(16px, 2.6vw, 34px); padding: 16px 0; }
+  .wordmark { font-family: var(--serif); font-size: 30px; font-weight: 500; color: var(--ink); display: flex; align-items: baseline; gap: 10px; margin-right: auto; }
+  .wordmark .mark { font-size: 20px; }
+  .nav a.link { font-size: 15.5px; color: var(--ink-soft); white-space: nowrap; }
+  .nav a.link:hover { color: var(--ink); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; font-family: var(--serif); font-size: 16px; border-radius: 999px; padding: 11px 26px; white-space: nowrap; transition: all .18s ease; cursor: pointer; border: none; }
+  .btn.navy { background: var(--navy); color: #f2ecdd; box-shadow: 0 8px 22px -10px rgba(27,33,64,0.6); }
+  .btn.navy:hover { transform: translateY(-1px); box-shadow: 0 12px 26px -10px rgba(27,33,64,0.65); color: #f2ecdd; }
+  .btn.ghost { background: none; color: var(--ink); box-shadow: inset 0 0 0 1px rgba(35,40,64,0.35); }
+  .btn.ghost:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+  .nav .btn { padding: 9px 22px; font-size: 15px; }
+
+  /* hero */
+  .hero { padding: clamp(40px, 6vh, 70px) 0 clamp(46px, 7vh, 80px); }
+  .hero-grid { display: grid; grid-template-columns: 0.92fr 1.08fr; gap: clamp(24px, 4vw, 56px); align-items: center; }
+  .hero h1 { font-size: clamp(42px, 5.2vw, 62px); margin: 18px 0 22px; }
+  .hero .lede { font-size: 18.5px; color: var(--ink-soft); max-width: 34ch; text-wrap: pretty; }
+  .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin: 30px 0 0; }
+  .micro { margin-top: 22px; font-size: 14.5px; color: var(--ink-faint); }
+  .micro b { font-weight: 500; }
+  .hero-art { position: relative; }
+  .hero-art > img { width: min(100%, 480px); height: auto; }
+  .note { position: relative; background: #f2ecdf; padding: 26px 22px 20px; box-shadow: 0 1px 2px rgba(35,40,64,0.12), 0 14px 28px -14px rgba(35,40,64,0.35); font-family: var(--script); color: #2c3260; }
+  .note::before { content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 74px; height: 24px; background: rgba(180,166,140,0.5); box-shadow: 0 1px 2px rgba(35,40,64,0.12); }
+  .note-hero { position: absolute; top: 4%; right: -2%; width: min(215px, 46%); transform: rotate(4deg); font-size: 23px; line-height: 1.5; text-align: center; }
+  .note-hero .heart { display: block; font-size: 20px; margin-top: 10px; }
+
+  /* ask */
+  .ask { background: var(--paper-2); padding: clamp(52px, 8vh, 92px) 0; }
+  .ask-grid { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: clamp(26px, 4.5vw, 70px); align-items: start; }
+  .ask h2 { font-size: clamp(30px, 3.4vw, 42px); margin-top: 16px; }
+  .note-q { display: inline-block; transform: rotate(-2deg); font-size: clamp(22px, 2.3vw, 27px); line-height: 1.45; padding: 22px 30px 18px; max-width: 46ch; }
+  .note-q::before { left: 14%; transform: rotate(-8deg); width: 60px; height: 20px; }
+  .ask-answer { margin: 26px 4px 0; font-size: 18px; color: var(--ink-soft); max-width: 44ch; text-wrap: pretty; }
+  .ask-sig { margin-top: 14px; font-style: italic; font-size: 18px; color: var(--ink); }
+  .ask-bar { margin-top: clamp(36px, 5vh, 56px); border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: rgba(246,241,231,0.6); }
+  .ask-bar-inner { display: flex; align-items: center; gap: 16px; border: 1px solid rgba(35,40,64,0.1); border-radius: 10px; padding: 8px 8px 8px 22px; }
+  .ask-bar input { flex: 1; border: none; background: none; outline: none; font-family: var(--serif); font-style: italic; font-size: 16.5px; color: var(--ink); min-width: 0; border-bottom: 1px solid rgba(35,40,64,0.25); padding: 6px 2px; }
+  .ask-bar input::placeholder { color: var(--ink-faint); }
+
+  /* three ways */
+  .ways { padding: clamp(52px, 8vh, 92px) 0; }
+  .ways .eyebrow { display: block; text-align: center; color: var(--ink-faint); }
+  .ways-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(18px, 2.6vw, 32px); margin-top: clamp(28px, 4vh, 44px); }
+  .way { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 34px 28px 30px; text-align: center; display: grid; justify-items: center; gap: 6px; }
+  .way img { height: 118px; width: auto; mix-blend-mode: multiply; margin-bottom: 16px; }
+  .way h3 { font-family: var(--serif); font-weight: 500; font-size: 24px; margin: 0; }
+  .way p { font-size: 16px; color: var(--ink-soft); max-width: 24ch; }
+
+  /* celebs + couples */
+  .famous { background: var(--paper-2); padding: clamp(52px, 8vh, 92px) 0; }
+  .sect-head { text-align: center; display: grid; gap: 12px; justify-items: center; margin-bottom: clamp(28px, 4vh, 44px); }
+  .sect-head .eyebrow { color: var(--ink-faint); }
+  .sect-head .eyebrow .hl { color: var(--blue); }
+  .sect-head h2 { font-size: clamp(28px, 3.2vw, 40px); }
+  .celebs { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(14px, 2.2vw, 26px); }
+  .celeb, .couple { background: var(--card); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; display: grid; grid-template-rows: auto auto; transition: transform .18s ease, box-shadow .18s ease; }
+  .celeb:hover, .couple:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -18px rgba(35,40,64,0.35); }
+  .celeb img { width: 100%; aspect-ratio: 162 / 178; object-fit: cover; mix-blend-mode: multiply; }
+  .couple img { width: 100%; aspect-ratio: 216 / 150; object-fit: cover; mix-blend-mode: multiply; }
+  .celeb .cinfo, .couple .cinfo { padding: 14px 18px 18px; }
+  .celeb .nm, .couple .nm { font-size: 20px; color: var(--ink); display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .celeb .nm .spk, .couple .nm .spk { font-size: 13px; color: var(--ink-faint); }
+  .celeb .sig { font-size: 14px; color: var(--ink-faint); margin-top: 2px; }
+  .couples { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 2.4vw, 28px); margin-top: clamp(48px, 7vh, 80px); }
+  .couple .tag { font-style: italic; font-size: 15px; color: var(--gold); margin-top: 2px; }
+
+  /* footer band */
+  .foot-band { padding: clamp(36px, 5vh, 56px) 0 clamp(48px, 7vh, 72px); }
+  .foot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(16px, 2.4vw, 30px); background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px; padding: clamp(24px, 3vw, 38px) clamp(22px, 3vw, 40px); }
+  .fitem { display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: start; }
+  .fitem .ic { width: 34px; height: 34px; display: grid; place-items: center; font-size: 19px; color: var(--ink); }
+  .fitem b { font-weight: 600; font-size: 16px; display: block; }
+  .fitem span { font-size: 14.5px; color: var(--ink-soft); line-height: 1.45; display: block; }
+
+  footer.colophon { border-top: 1px solid var(--line); padding: 26px 0 40px; }
+  .colo-inner { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; font-size: 14.5px; color: var(--ink-faint); }
+  .colo-inner .wm { font-size: 20px; color: var(--ink); margin-right: auto; }
+
+  @media (max-width: 920px) {
+    .nav a.link { display: none; }
+    .hero-grid, .ask-grid { grid-template-columns: 1fr; }
+    .hero-art { max-width: 520px; }
+    .ways-grid, .celebs { grid-template-columns: repeat(2, 1fr); }
+    .couples { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+    .foot-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .ways-grid, .celebs { grid-template-columns: 1fr; }
+    .foot-grid { grid-template-columns: 1fr; }
+    .note-hero { position: static; transform: rotate(2deg); margin: 18px auto 0; width: min(260px, 90%); }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" data-screen-label="Nav">
+  <div class="nav-inner">
+    <a class="wordmark" href="#">Iris <span class="mark">✳</span></a>
+    <a class="link" href="#how">How it works</a>
+    <a class="link" href="#ways">Features</a>
+    <a class="link" href="#examples">Examples</a>
+    <a class="link" href="#">About</a>
+    <a class="link" href="#">Pricing</a>
+    <a class="btn navy" href="Create Account.html">Get started</a>
+  </div>
+</nav>
+
+<header class="hero wrap" data-screen-label="01 Hero" id="how">
+  <div class="hero-grid">
+    <div>
+      <span class="eyebrow">AI astrology, made personal</span>
+      <h1>The stars,<br />read <span class="it">just for you.</span></h1>
+      <p class="lede">Iris reads your actual birth chart — not your sun sign — for guidance that genuinely knows you.</p>
+      <div class="hero-ctas">
+        <a class="btn navy" href="Create Account.html">Get started ✳</a>
+        <a class="btn ghost" href="#ways">See how it works</a>
+      </div>
+      <p class="micro">No credit card &nbsp;·&nbsp; <b>25 welcome credits</b></p>
+    </div>
+    <div class="hero-art">
+      <img src="assets/ink/hero-moon-mountain.png" alt="An ink-etched crescent moon over a hatched mountain range, scattered with stars" />
+      <div class="note note-hero">You are not too much. The stars knew exactly what they were doing.<span class="heart">♡</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="ask" data-screen-label="02 Ask Iris">
+  <div class="wrap">
+    <div class="ask-grid">
+      <div>
+        <span class="eyebrow">Ask her anything</span>
+        <h2>She’s read your chart.<br />Now <span class="it">ask her</span> about it.</h2>
+      </div>
+      <div>
+        <div class="note note-q">Why do I keep dating the same person in different fonts?</div>
+        <p class="ask-answer">Your Venus in Scorpio conjunct your South Node. You’re not choosing them — you’re remembering them.</p>
+        <p class="ask-sig">— Iris ✳</p>
+      </div>
+    </div>
+    <div class="ask-bar">
+      <div class="ask-bar-inner">
+        <input type="text" placeholder="Ask about your chart..." aria-label="Ask about your chart" />
+        <button class="btn navy" type="button">Ask Iris ✳</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ways wrap" data-screen-label="03 Three ways" id="ways">
+  <span class="eyebrow">One sky, three ways to read it</span>
+  <div class="ways-grid">
+    <div class="way">
+      <img src="assets/ink/ill-wheel.png" alt="A hand-drawn zodiac wheel with sign glyphs" />
+      <h3>Your chart, in full</h3>
+      <p>Every placement and pattern, read in plain language.</p>
+    </div>
+    <div class="way">
+      <img src="assets/ink/ill-venn.png" alt="Two overlapping ink circles with a star where they meet" />
+      <h3>You + them</h3>
+      <p>How two charts move together.</p>
+    </div>
+    <div class="way">
+      <img src="assets/ink/ill-road.png" alt="An ink road winding through hills beneath a crescent moon" />
+      <h3>What’s ahead</h3>
+      <p>Guidance timed to your actual sky.</p>
+    </div>
+  </div>
+</section>
+
+<section class="famous" data-screen-label="04 Celebrities" id="examples">
+  <div class="wrap">
+    <div class="sect-head">
+      <span class="eyebrow">She reads famous people too</span>
+      <h2>Their charts explain a lot, <span class="it">honestly.</span></h2>
+    </div>
+    <div class="celebs">
+      <a class="celeb" href="Celebrity Charts.html">
+        <img src="assets/ink/celeb-1.png" alt="Ink portrait of Margaret Qualley" />
+        <span class="cinfo"><span class="nm">Margaret Qualley <span class="spk">✳</span></span><span class="sig">Scorpio Sun · Gemini Moon</span></span>
+      </a>
+      <a class="celeb" href="Celebrity Charts.html">
+        <img src="assets/ink/celeb-2.png" alt="Ink portrait of Post Malone" />
+        <span class="cinfo"><span class="nm">Post Malone <span class="spk">✳</span></span><span class="sig">Cancer Sun · Virgo Moon</span></span>
+      </a>
+      <a class="celeb" href="Celebrity Charts.html">
+        <img src="assets/ink/celeb-3.png" alt="Ink portrait of Oprah Winfrey" />
+        <span class="cinfo"><span class="nm">Oprah Winfrey <span class="spk">✳</span></span><span class="sig">Aquarius Sun · Sagittarius Moon</span></span>
+      </a>
+      <a class="celeb" href="Celebrity Charts.html">
+        <img src="assets/ink/celeb-4.png" alt="Ink portrait of Paul Mescal" />
+        <span class="cinfo"><span class="nm">Paul Mescal <span class="spk">✳</span></span><span class="sig">Aquarius Sun · Cancer Moon</span></span>
+      </a>
+    </div>
+
+    <div class="sect-head" style="margin-top: clamp(56px, 8vh, 90px); margin-bottom: 0;">
+      <span class="eyebrow"><span class="hl">Cosmic</span> chemistry between famous couples</span>
+      <h2>Some connections <span class="it">just make sense.</span></h2>
+    </div>
+    <div class="couples">
+      <a class="couple" href="Celebrity Relationships.html">
+        <img src="assets/ink/couple-1.png" alt="Ink portrait of A$AP Rocky and Rihanna" />
+        <span class="cinfo"><span class="nm">A$AP Rocky &amp; Rihanna</span><span class="tag">Quiet Connection</span></span>
+      </a>
+      <a class="couple" href="Celebrity Relationships.html">
+        <img src="assets/ink/couple-2.png" alt="Ink portrait of Zendaya and Tom Holland" />
+        <span class="cinfo"><span class="nm">Zendaya &amp; Tom Holland</span><span class="tag">Developing Connection</span></span>
+      </a>
+      <a class="couple" href="Celebrity Relationships.html">
+        <img src="assets/ink/couple-3.png" alt="Ink portrait of David and Victoria Beckham" />
+        <span class="cinfo"><span class="nm">David Beckham &amp; Victoria Beckham</span><span class="tag">Iron &amp; Honey</span></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="foot-band wrap" data-screen-label="05 Assurances">
+  <div class="foot-grid">
+    <div class="fitem"><span class="ic">☀</span><span><b>Made for real life</b><span>Practical guidance you can actually use.</span></span></div>
+    <div class="fitem"><span class="ic">◍</span><span><b>Your data is yours</b><span>Private, secure, never shared.</span></span></div>
+    <div class="fitem"><span class="ic">⊘</span><span><b>Cancel anytime</b><span>She won’t take it personally.</span></span></div>
+    <div class="fitem"><span class="ic">♡</span><span><b>Created with care</b><span>By astrologers, designers, and engineers who get it.</span></span></div>
+  </div>
+</section>
+
+<footer class="colophon" data-screen-label="Footer">
+  <div class="wrap colo-inner">
+    <span class="wm">Iris ✳</span>
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <span>© 2026</span>
+  </div>
+</footer>
+
+</body>
+</html>
