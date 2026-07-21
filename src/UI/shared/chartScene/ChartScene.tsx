@@ -136,6 +136,7 @@ function ChartSceneImpl({
   fitRadius,
   fitNonce = 0,
   disableZoom = false,
+  background = '#030308',
   paused = false,
   onHoverBody,
   onSelectBody,
@@ -312,7 +313,7 @@ function ChartSceneImpl({
       {topDown && <TopDownFit />}
       {!topDown && fitRadius ? <OrbitFit fitRadius={fitRadius} coveredRightPx={coveredRightPx} fitNonce={fitNonce} /> : null}
       <ViewOffset coveredRightPx={coveredRightPx} />
-      <color attach="background" args={['#030308']} />
+      <color attach="background" args={[background]} />
       <ambientLight intensity={0.4} />
       <pointLight position={[0, 6, 0]} intensity={20} color="#8888ff" />
 

@@ -122,6 +122,11 @@ export interface ChartSceneProps {
   /** scroll-narrative mounts: the wheel belongs to the page, not the camera */
   disableZoom?: boolean
   /**
+   * scene clear color. Defaults to the near-black night sky; themed
+   * mounts (e.g. the ink pages' navy medallions) pass their own.
+   */
+  background?: string
+  /**
    * stop the render loop entirely (frameloop "never") — for mounts that
    * hide the scene with CSS while it stays mounted; a hidden WebGL
    * canvas otherwise keeps burning GPU/CPU every frame

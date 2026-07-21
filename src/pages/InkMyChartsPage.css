@@ -1,0 +1,635 @@
+.ink-my-charts {
+  min-height: 100vh;
+}
+
+.ink-my-charts__wrap {
+  width: min(1120px, 93vw);
+  margin: 0 auto;
+}
+
+.ink-my-charts__page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 24px;
+  padding: clamp(34px, 5vh, 54px) 0 8px;
+}
+
+.ink-my-charts__heading-group {
+  display: grid;
+  gap: 10px;
+  margin-right: auto;
+}
+
+.ink-my-charts__heading-group h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: clamp(38px, 4vw, 54px);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.ink-my-charts__count {
+  color: var(--ink-faint);
+  font-size: 14px;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.ink-my-charts__count b {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.ink-my-charts__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: clamp(14px, 1.8vw, 22px);
+  padding: 30px 0 90px;
+}
+
+.ink-my-charts__card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+  text-decoration: none;
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+
+.ink-my-charts__card:hover {
+  color: var(--ink);
+  box-shadow: 0 18px 34px -18px rgba(35, 40, 64, .35);
+  transform: translateY(-3px);
+}
+
+.ink-my-charts__card:focus-visible,
+.ink-my-charts__add-card:focus-visible,
+.ink-my-charts__retry:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.ink-my-charts__card--active {
+  border-color: transparent;
+  box-shadow: 0 0 0 1.5px var(--blue);
+}
+
+.ink-my-charts__number {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgba(244, 239, 229, .92);
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: 14px;
+  font-style: italic;
+}
+
+.ink-my-charts__active-mark {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  color: var(--blue);
+  font-size: 14px;
+}
+
+.ink-my-charts__portrait {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  aspect-ratio: 1 / .92;
+  place-items: center;
+  border-bottom: 1px solid var(--line);
+}
+
+.ink-my-charts__portrait--blue {
+  background: radial-gradient(circle at 30% 25%, rgba(52, 55, 168, .16), rgba(52, 55, 168, .05));
+}
+
+.ink-my-charts__portrait--gold {
+  background: radial-gradient(circle at 30% 25%, rgba(176, 141, 62, .22), rgba(176, 141, 62, .07));
+}
+
+.ink-my-charts__portrait--rose {
+  background: radial-gradient(circle at 30% 25%, rgba(190, 110, 95, .2), rgba(190, 110, 95, .06));
+}
+
+.ink-my-charts__portrait--sage {
+  background: radial-gradient(circle at 30% 25%, rgba(122, 138, 109, .22), rgba(122, 138, 109, .07));
+}
+
+.ink-my-charts__portrait img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ink-my-charts__initials {
+  color: rgba(35, 40, 64, .5);
+  font-family: var(--ink-serif);
+  font-size: 52px;
+  font-weight: 500;
+}
+
+.ink-my-charts__card-info {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  padding: 12px 16px 15px;
+}
+
+.ink-my-charts__name {
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: 21px;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ink-my-charts__sign {
+  color: var(--ink-faint);
+  font-size: 13.5px;
+  font-style: italic;
+}
+
+.ink-my-charts__add-card {
+  display: grid;
+  min-height: 240px;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  border: 1.4px dashed rgba(35, 40, 64, .32);
+  border-radius: 6px;
+  background: none;
+  color: var(--ink-faint);
+  font-family: var(--ink-serif);
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.ink-my-charts__add-card:hover {
+  border-color: var(--blue);
+  background: rgba(52, 55, 168, .03);
+  color: var(--ink);
+}
+
+.ink-my-charts__plus {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid rgba(35, 40, 64, .25);
+  border-radius: 50%;
+  font-size: 22px;
+}
+
+.ink-my-charts__add-card:hover .ink-my-charts__plus {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.ink-my-charts__add-card b {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.ink-my-charts__state,
+.ink-my-charts__notice,
+.ink-my-charts__creating {
+  margin-top: 30px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(246, 241, 231, .72);
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.ink-my-charts__state {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 28px;
+  font-style: italic;
+}
+
+.ink-my-charts__state p,
+.ink-my-charts__notice {
+  margin: 0;
+}
+
+.ink-my-charts__retry {
+  padding: 6px 16px;
+  border: 1px solid rgba(52, 55, 168, .35);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--blue);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ink-my-charts__notice {
+  padding: 10px 18px;
+  border-color: rgba(176, 141, 62, .32);
+  color: var(--ink);
+  font-size: 15px;
+  font-style: italic;
+}
+
+.ink-my-charts__creating {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  box-shadow: 0 14px 30px -18px rgba(27, 33, 64, .5);
+}
+
+.ink-my-charts__spinner {
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid rgba(52, 55, 168, .25);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: ink-my-charts-spin .8s linear infinite;
+}
+
+@keyframes ink-my-charts-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ink-my-charts__skeleton {
+  overflow: hidden;
+  min-height: 250px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+}
+
+.ink-my-charts__skeleton-portrait,
+.ink-my-charts__skeleton-line {
+  display: block;
+  background: linear-gradient(100deg, rgba(35, 40, 64, .05) 20%, rgba(255, 255, 255, .42) 42%, rgba(35, 40, 64, .05) 64%);
+  background-size: 240% 100%;
+  animation: ink-my-charts-shimmer 1.3s ease-in-out infinite;
+}
+
+.ink-my-charts__skeleton-portrait {
+  aspect-ratio: 1 / .92;
+  border-bottom: 1px solid var(--line);
+}
+
+.ink-my-charts__skeleton-line {
+  width: calc(100% - 32px);
+  height: 14px;
+  margin: 15px 16px 0;
+  border-radius: 999px;
+}
+
+.ink-my-charts__skeleton-line--short {
+  width: 42%;
+  height: 9px;
+  margin-top: 9px;
+}
+
+@keyframes ink-my-charts-shimmer {
+  to { background-position-x: -240%; }
+}
+
+/* The existing AddChartModal retains all form, Places, timezone, and upload logic. */
+.ink-my-charts__modal-skin .modal-backdrop {
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: 5vh 4vw;
+  background: rgba(27, 33, 64, .4);
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__content {
+  width: min(520px, 100%);
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  box-shadow: 0 30px 70px -20px rgba(27, 33, 64, .5);
+  color: var(--ink);
+  font-family: var(--ink-serif);
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__header {
+  align-items: flex-start;
+  padding: 26px 30px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__header h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: 0;
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__header h2::before {
+  content: "Add ";
+  font-size: 30px;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__header h2::after {
+  content: "Birth Chart";
+  color: var(--blue);
+  font-size: 30px;
+  font-style: italic;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__header-text {
+  gap: 2px;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__subtitle {
+  margin: 0;
+  color: var(--ink-faint);
+  font-family: var(--ink-serif);
+  font-size: 15px;
+  font-style: italic;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__close-btn {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  color: var(--ink-faint);
+  font-family: var(--ink-serif);
+  font-size: 25px;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__close-btn:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__form {
+  gap: 16px;
+  padding: 24px 30px 30px;
+  border-radius: 0 0 8px 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ink-serif);
+}
+
+.ink-my-charts__modal-skin .modal-photo-upload {
+  gap: 8px;
+}
+
+.ink-my-charts__modal-skin .modal-photo-upload__circle {
+  width: 92px;
+  height: 92px;
+  border: 1px dashed rgba(35, 40, 64, .28);
+  background: var(--card);
+}
+
+.ink-my-charts__modal-skin .modal-photo-upload__circle:hover {
+  border-color: var(--blue);
+  background: rgba(52, 55, 168, .04);
+}
+
+.ink-my-charts__modal-skin .modal-photo-upload__placeholder {
+  color: var(--ink-faint);
+}
+
+.ink-my-charts__modal-skin .modal-photo-upload__hint {
+  color: var(--ink-faint);
+  font-family: var(--ink-serif);
+  font-size: 13.5px;
+  font-style: italic;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__row {
+  gap: 14px;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__group {
+  gap: 5px;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__group label {
+  color: var(--ink-faint) !important;
+  font-family: var(--ink-serif);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input,
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group select,
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group .add-chart-modal__location-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid rgba(35, 40, 64, .28) !important;
+  border-radius: 4px;
+  background-color: var(--card) !important;
+  color: var(--ink) !important;
+  font-family: var(--ink-serif) !important;
+  font-size: 15.5px;
+  font-style: normal !important;
+  -webkit-text-fill-color: var(--ink) !important;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input::placeholder,
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group .add-chart-modal__location-input::placeholder {
+  color: var(--ink-faint) !important;
+  font-style: italic;
+  -webkit-text-fill-color: var(--ink-faint) !important;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input:focus,
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group select:focus,
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group .add-chart-modal__location-input:focus {
+  border-color: var(--blue) !important;
+  background-color: var(--card) !important;
+  box-shadow: 0 0 0 2px rgba(52, 55, 168, .1);
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group select {
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23232840' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+  background-color: var(--card) !important;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group select option {
+  background: var(--card) !important;
+  color: var(--ink) !important;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input[type="date"],
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input[type="time"] {
+  background: var(--card) !important;
+  color-scheme: light;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input[type="date"]::-webkit-calendar-picker-indicator,
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__time-row {
+  gap: 14px;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__time-select {
+  width: 45% !important;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__field-error {
+  color: #9a3f38;
+  font-family: var(--ink-serif);
+  font-size: 13px;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__submit-error {
+  border: 1px solid rgba(154, 63, 56, .3);
+  border-radius: 4px;
+  background: rgba(154, 63, 56, .08);
+  color: #7d302b;
+  font-family: var(--ink-serif);
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__submit-btn {
+  margin-top: 0;
+  padding: 13px 28px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #f2ecdd;
+  box-shadow: 0 8px 22px -10px rgba(27, 33, 64, .6);
+  font-family: var(--ink-serif);
+  font-size: 0;
+  font-weight: 400;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__submit-btn::after {
+  content: "Create Birth Chart ✳";
+  font-size: 16px;
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__submit-btn:disabled::after {
+  content: "Creating Chart…";
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__submit-btn:hover:not(:disabled) {
+  box-shadow: 0 12px 26px -10px rgba(27, 33, 64, .65);
+}
+
+.ink-my-charts__modal-skin .add-chart-modal__form::after {
+  content: "the stars are patient — accuracy over speed";
+  color: var(--ink-faint);
+  font-family: var(--ink-serif);
+  font-size: 14px;
+  font-style: italic;
+  text-align: center;
+}
+
+body.ink-my-charts-modal-open {
+  overflow: hidden;
+}
+
+body.ink-my-charts-modal-open .pac-container {
+  border: 1px solid rgba(35, 40, 64, .2) !important;
+  border-radius: 4px !important;
+  background: var(--card) !important;
+  box-shadow: 0 10px 24px -12px rgba(35, 40, 64, .45) !important;
+  font-family: var(--ink-serif) !important;
+}
+
+body.ink-my-charts-modal-open .pac-item {
+  border-top-color: rgba(35, 40, 64, .1) !important;
+  color: var(--ink-soft) !important;
+}
+
+body.ink-my-charts-modal-open .pac-item:hover {
+  background: rgba(52, 55, 168, .06) !important;
+}
+
+body.ink-my-charts-modal-open .pac-item-query {
+  color: var(--ink) !important;
+}
+
+body.ink-my-charts-modal-open .pac-matched {
+  color: var(--blue) !important;
+}
+
+@media (max-width: 600px) {
+  .ink-my-charts__page-head {
+    align-items: flex-start;
+  }
+
+  .ink-my-charts__count {
+    width: 100%;
+  }
+
+  .ink-my-charts__grid {
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  }
+
+  .ink-my-charts__creating {
+    right: 4vw;
+    bottom: 16px;
+    left: 4vw;
+    justify-content: center;
+  }
+
+  .ink-my-charts__modal-skin .add-chart-modal__header {
+    padding: 22px 22px 16px;
+  }
+
+  .ink-my-charts__modal-skin .add-chart-modal__form {
+    padding: 22px;
+  }
+
+  .ink-my-charts__modal-skin .add-chart-modal__row,
+  .ink-my-charts__modal-skin .add-chart-modal__time-row {
+    flex-direction: column;
+  }
+
+  .ink-my-charts__modal-skin .add-chart-modal__time-select {
+    width: 100% !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-my-charts__card,
+  .ink-my-charts__add-card {
+    transition: none;
+  }
+
+  .ink-my-charts__card:hover {
+    transform: none;
+  }
+
+  .ink-my-charts__spinner,
+  .ink-my-charts__skeleton-portrait,
+  .ink-my-charts__skeleton-line {
+    animation: none;
+  }
+}

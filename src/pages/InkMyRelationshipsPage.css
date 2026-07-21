@@ -1,0 +1,542 @@
+.ink-relationships__main {
+  width: min(1120px, 93vw);
+  padding-bottom: 1px;
+}
+
+.ink-relationships__page-head {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: clamp(34px, 5vh, 54px) 0 8px;
+}
+
+.ink-relationships__heading-group {
+  display: grid;
+  gap: 10px;
+  margin-right: auto;
+}
+
+.ink-relationships__heading-group h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: clamp(38px, 4vw, 54px);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.ink-relationships__gold-rule {
+  width: 64px;
+  height: 1px;
+  background: rgba(176, 141, 62, .75);
+}
+
+.ink-relationships__list {
+  display: grid;
+  gap: 16px;
+  padding: 26px 0 60px;
+}
+
+.ink-relationships__row {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+  padding: 16px 26px 16px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+  text-decoration: none;
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+
+.ink-relationships__row:hover {
+  color: var(--ink);
+  box-shadow: 0 18px 34px -18px rgba(35, 40, 64, .35);
+  transform: translateY(-2px);
+}
+
+.ink-relationships__duo {
+  display: block;
+  width: 200px;
+  height: auto;
+}
+
+.ink-relationships__row-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.ink-relationships__couple-name {
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: 27px;
+  line-height: 1.2;
+}
+
+.ink-relationships__couple-name > span {
+  color: var(--blue);
+  font-style: italic;
+}
+
+.ink-relationships__birth-date {
+  margin-top: 2px;
+  color: var(--ink-faint);
+  font-size: 13.5px;
+  font-style: italic;
+}
+
+.ink-relationships__open {
+  color: var(--blue);
+  font-size: 15.5px;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.ink-relationships__row:hover .ink-relationships__open {
+  color: var(--ink);
+}
+
+.ink-relationships__status,
+.ink-relationships__empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-height: 220px;
+  padding: 44px 24px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  text-align: center;
+}
+
+.ink-relationships__status-mark,
+.ink-relationships__empty > span {
+  color: var(--blue);
+  font-size: 28px;
+}
+
+.ink-relationships__status p,
+.ink-relationships__empty p {
+  max-width: 520px;
+  margin: 0;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.ink-relationships__empty h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 500;
+}
+
+.ink-relationships__empty .ink-btn {
+  margin-top: 12px;
+}
+
+.ink-relationships__text-button {
+  padding: 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(52, 55, 168, .45);
+  background: none;
+  color: var(--blue);
+  font-family: var(--ink-serif);
+  font-size: 15px;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.ink-relationships__create {
+  padding: 4px 0 90px;
+}
+
+.ink-relationships__create-head {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.ink-relationships__create-head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: clamp(30px, 3.2vw, 42px);
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.ink-relationships__create-head p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 17px;
+  font-style: italic;
+}
+
+.ink-relationships__you-wrap {
+  display: grid;
+  justify-items: center;
+}
+
+.ink-relationships__you-chip {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 16px 36px;
+  border-radius: 8px;
+  background: var(--navy);
+  color: #f2ecdd;
+  box-shadow: 0 14px 30px -14px rgba(27, 33, 64, .6);
+}
+
+.ink-relationships__you-chip b {
+  font-family: var(--ink-serif);
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.ink-relationships__you-chip span {
+  color: #d8ba74;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.ink-relationships__heart {
+  margin: 12px 0 26px;
+  color: var(--blue);
+  font-size: 22px;
+}
+
+.ink-relationships__pick-card {
+  margin-bottom: 26px;
+  padding: 28px 30px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+}
+
+.ink-relationships__pick-card > h3 {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.ink-relationships__hint {
+  margin: 0 0 18px;
+  color: var(--ink-faint);
+  font-size: 15px;
+  font-style: italic;
+}
+
+.ink-relationships__hint a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.ink-relationships__subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.ink-relationships__person-chip,
+.ink-relationships__celebrity-chip {
+  border: 1px solid rgba(35, 40, 64, .18);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  text-align: center;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+.ink-relationships__person-chip {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  padding: 14px 10px;
+}
+
+.ink-relationships__person-chip b,
+.ink-relationships__celebrity-chip b {
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.ink-relationships__person-chip b {
+  font-size: 18px;
+}
+
+.ink-relationships__person-chip > span,
+.ink-relationships__celebrity-chip > span:last-child {
+  color: var(--ink-faint);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.ink-relationships__person-chip:hover,
+.ink-relationships__celebrity-chip:hover {
+  border-color: rgba(52, 55, 168, .5);
+}
+
+.ink-relationships__person-chip.is-selected,
+.ink-relationships__celebrity-chip.is-selected {
+  border: 1.5px solid var(--blue);
+  background: rgba(52, 55, 168, .06);
+}
+
+.ink-relationships__person-chip.is-selected > span,
+.ink-relationships__celebrity-chip.is-selected > span:last-child {
+  color: var(--blue);
+}
+
+.ink-relationships__tools {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.ink-relationships__search {
+  flex: 1;
+  min-width: 220px;
+  padding: 12px 18px;
+  border: 1px solid rgba(35, 40, 64, .28);
+  border-radius: 999px;
+  outline: none;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: 15.5px;
+  font-style: italic;
+}
+
+.ink-relationships__search:focus {
+  border-color: var(--blue);
+}
+
+.ink-relationships__filters {
+  display: flex;
+  gap: clamp(8px, 1.6vw, 18px);
+}
+
+.ink-relationships__filters button {
+  padding: 7px 4px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--ink-faint);
+  font-family: var(--ink-serif);
+  font-size: 14px;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+
+.ink-relationships__filters button.is-active {
+  border-bottom-color: var(--blue);
+  color: var(--ink);
+}
+
+.ink-relationships__celebrity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.ink-relationships__celebrity-chip {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 18px 10px 14px;
+}
+
+.ink-relationships__celebrity-chip b {
+  font-size: 17px;
+  line-height: 1.15;
+}
+
+.ink-relationships__medal {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  color: rgba(35, 40, 64, .6);
+  font-family: var(--ink-serif);
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.ink-relationships__medal.tint-blue {
+  background: radial-gradient(circle at 30% 25%, rgba(52, 55, 168, .16), rgba(52, 55, 168, .05));
+}
+
+.ink-relationships__medal.tint-gold {
+  background: radial-gradient(circle at 30% 25%, rgba(176, 141, 62, .22), rgba(176, 141, 62, .07));
+}
+
+.ink-relationships__medal.tint-rose {
+  background: radial-gradient(circle at 30% 25%, rgba(190, 110, 95, .2), rgba(190, 110, 95, .06));
+}
+
+.ink-relationships__medal.tint-sage {
+  background: radial-gradient(circle at 30% 25%, rgba(122, 138, 109, .22), rgba(122, 138, 109, .07));
+}
+
+.ink-relationships__pick-card .ink-relationships__status {
+  min-height: 130px;
+  padding-block: 24px;
+  border: 0;
+  background: var(--paper);
+}
+
+.ink-relationships__inline-empty {
+  margin: 0;
+  padding: 22px;
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink-faint);
+  font-style: italic;
+  text-align: center;
+}
+
+.ink-relationships__create-error {
+  margin: -6px 0 20px;
+  padding: 12px 18px;
+  border: 1px solid rgba(156, 63, 63, .3);
+  border-radius: 6px;
+  background: rgba(156, 63, 63, .06);
+  color: #7d3535;
+  text-align: center;
+}
+
+.ink-relationships__cta-wrap {
+  position: sticky;
+  bottom: 18px;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.ink-relationships__cta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 12px 10px 24px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: 0 18px 40px -12px rgba(27, 33, 64, .35);
+  pointer-events: auto;
+}
+
+.ink-relationships__pair-label {
+  color: var(--ink-soft);
+  font-size: 16px;
+  font-style: italic;
+}
+
+.ink-relationships__pair-label > span {
+  color: var(--blue);
+}
+
+.ink-relationships__pair-label b {
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.ink-relationships__cost {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  white-space: nowrap;
+}
+
+.ink-relationships__cta .ink-btn:disabled {
+  cursor: wait;
+  opacity: .72;
+  transform: none;
+}
+
+@media (max-width: 760px) {
+  .ink-relationships__row {
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 14px;
+    padding: 12px;
+  }
+
+  .ink-relationships__duo {
+    width: 150px;
+  }
+
+  .ink-relationships__couple-name {
+    font-size: 22px;
+  }
+
+  .ink-relationships__open {
+    display: none;
+  }
+
+  .ink-relationships__cta {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: min(94vw, 520px);
+    border-radius: 18px;
+    padding: 12px 16px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .ink-relationships__page-head .ink-btn {
+    width: 100%;
+  }
+
+  .ink-relationships__row {
+    grid-template-columns: 112px minmax(0, 1fr);
+  }
+
+  .ink-relationships__duo {
+    width: 112px;
+  }
+
+  .ink-relationships__couple-name {
+    font-size: 19px;
+  }
+
+  .ink-relationships__birth-date {
+    font-size: 12.5px;
+  }
+
+  .ink-relationships__pick-card {
+    padding: 22px 18px;
+  }
+
+  .ink-relationships__filters {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ink-relationships__pair-label,
+  .ink-relationships__cost {
+    width: 100%;
+  }
+}
