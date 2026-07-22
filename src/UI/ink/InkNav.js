@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useEntitlements } from '../../hooks/useEntitlements';
 import './InkNav.css';
@@ -9,7 +9,7 @@ const DEFAULT_MARKETING_LINKS = [
   { label: 'Features', href: '#ways' },
   { label: 'Examples', href: '#examples' },
   { label: 'About', href: '#about' },
-  { label: 'Pricing', href: '/pricingTable' },
+  { label: 'Pricing', href: '#pricing' },
 ];
 
 const APP_SEGMENTS = [
@@ -50,7 +50,8 @@ function MarketingNav({ marketingLinks = DEFAULT_MARKETING_LINKS, className = ''
 }
 
 function AppNav({ activeSegment = 'home', onSegmentChange, user: userOverride, className = '' }) {
-  const { stelliumUser } = useAuth();
+  const { stelliumUser, signOut } = useAuth();
+  const navigate = useNavigate();
   const user = userOverride || stelliumUser;
   const entitlements = useEntitlements(user);
   const dashboardPath = user?._id ? `/dashboard/${user._id}` : '/';
@@ -58,6 +59,31 @@ function AppNav({ activeSegment = 'home', onSegmentChange, user: userOverride, c
   const creditTotal = Number(entitlements?.credits?.total);
   const credits = Number.isFinite(creditTotal) ? creditTotal : 0;
   const tier = (entitlements?.plan || entitlements?.tier || 'free').toUpperCase();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  // the chip's menu closes on outside click and Escape
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onDown = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) setMenuOpen(false);
+    };
+    const onKey = (event) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
+
+  const handleSignOut = async () => {
+    setMenuOpen(false);
+    await signOut();
+    navigate('/');
+  };
 
   const handleSegmentClick = (event, segment) => {
     if (!onSegmentChange) return;
@@ -98,18 +124,46 @@ function AppNav({ activeSegment = 'home', onSegmentChange, user: userOverride, c
 
         <span className="ink-nav__credits">✳ {credits} credits</span>
 
-        <div className="ink-nav__user">
-          <span className="ink-nav__user-meta">
-            <b>{displayName}</b>
-            <span>{tier}</span>
-          </span>
-          <span className="ink-nav__avatar">
-            {user?.profilePhotoUrl ? (
-              <img src={user.profilePhotoUrl} alt={displayName} />
-            ) : (
-              getInitials(user)
-            )}
-          </span>
+        <div className="ink-nav__user-wrap" ref={menuRef}>
+          <button
+            type="button"
+            className="ink-nav__user"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span className="ink-nav__user-meta">
+              <b>{displayName}</b>
+              <span>{tier}</span>
+            </span>
+            <span className="ink-nav__avatar">
+              {user?.profilePhotoUrl ? (
+                <img src={user.profilePhotoUrl} alt={displayName} />
+              ) : (
+                getInitials(user)
+              )}
+            </span>
+          </button>
+          {menuOpen && (
+            <div className="ink-nav__menu" role="menu">
+              <Link
+                className="ink-nav__menu-item"
+                role="menuitem"
+                to={`${dashboardPath}/legacy`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Settings
+              </Link>
+              <button
+                type="button"
+                className="ink-nav__menu-item"
+                role="menuitem"
+                onClick={handleSignOut}
+              >
+                Log out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </nav>

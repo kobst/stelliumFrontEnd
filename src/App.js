@@ -6,7 +6,6 @@ import ProtectedRoute, { OnboardingRoute } from './components/ProtectedRoute';
 // Public pages
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
-import PricingTable from './pages/plans';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import HelpCenter from './pages/HelpCenter';
@@ -22,16 +21,12 @@ import OnboardingConfirmation from './pages/OnboardingConfirmation';
 
 // Protected pages (auth + profile required)
 import MainDashboard from './pages/MainDashboard';
-import CreateRelationshipPage from './pages/CreateRelationshipPage';
-import UserSelectionPage from './pages/UserSelectionPage';
-import CelebsPage from './pages/CelebsPage';
-import GuestDashboard from './UI/prototype/GuestDashboard';
-import Chart3DPage from './pages/Chart3DPage';
 import ChartReaderPage from './pages/ChartReaderPage';
 import RelationshipJourneyPage from './pages/RelationshipJourneyPage';
 
 // ink design direction — paper/ink re-skins of the core surfaces
 import InkLandingPage from './pages/InkLandingPage';
+import InkHoroscopePage from './pages/InkHoroscopePage';
 import InkBirthChartPage from './pages/InkBirthChartPage';
 import InkRelationshipPage from './pages/InkRelationshipPage';
 import InkMyChartsPage from './pages/InkMyChartsPage';
@@ -42,6 +37,11 @@ import './App.css';
 function DefaultChartView() {
   const { userId, chartId } = useParams();
   return <Navigate to={`/dashboard/${userId}/chart/${chartId}/reader`} replace />;
+}
+
+function CreateRelationshipRedirect() {
+  const { userId } = useParams();
+  return <Navigate to={`/dashboard/${userId}/relationships`} replace />;
 }
 
 function DefaultRelationshipView() {
@@ -58,7 +58,8 @@ function App() {
             {/* Public routes - no auth required */}
             <Route path="/" element={<InkLandingPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/pricingTable" element={<PricingTable />} />
+            {/* pricing lives on the landing page now */}
+            <Route path="/pricingTable" element={<Navigate to="/#pricing" replace />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/help" element={<HelpCenter />} />
@@ -68,10 +69,6 @@ function App() {
             <Route path="/celebrity-relationships/:compositeId" element={<PublicCelebrityRelationship />} />
             <Route path="/horoscopes/weekly" element={<PublicWeeklyHoroscopesPage />} />
             <Route path="/horoscopes/weekly/:sign" element={<PublicWeeklyHoroscopesPage />} />
-            {/* 3D chart scaffold (PR 1) — renders the logged-in chart when
-                store data exists, sample data otherwise */}
-            <Route path="/chart-3d" element={<Chart3DPage />} />
-
             {/* Onboarding routes - auth required, no profile required */}
             <Route
               path="/onboarding"
@@ -119,6 +116,16 @@ function App() {
             {/* Protected routes - auth + profile required */}
             <Route
               path="/dashboard/:userId"
+              element={
+                <ProtectedRoute>
+                  <InkHoroscopePage />
+                </ProtectedRoute>
+              }
+            />
+            {/* pre-ink dashboard shell — kept only for the Settings
+                section until it gets an ink home */}
+            <Route
+              path="/dashboard/:userId/legacy"
               element={
                 <ProtectedRoute>
                   <MainDashboard />
@@ -181,7 +188,7 @@ function App() {
               path="/dashboard/:userId/relationship/create"
               element={
                 <ProtectedRoute>
-                  <CreateRelationshipPage />
+                  <CreateRelationshipRedirect />
                 </ProtectedRoute>
               }
             />
@@ -198,30 +205,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DefaultRelationshipView />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/users"
-              element={
-                <ProtectedRoute>
-                  <UserSelectionPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/celebs"
-              element={
-                <ProtectedRoute>
-                  <CelebsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/guestDashboard"
-              element={
-                <ProtectedRoute>
-                  <GuestDashboard />
                 </ProtectedRoute>
               }
             />

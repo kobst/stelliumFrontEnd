@@ -521,6 +521,99 @@ function InkLandingPage() {
           </div>
         </section>
 
+        <section className="ink-wrap ink-landing__pricing" id="pricing">
+          <div className="ink-sect-head">
+            <span className="ink-eyebrow">Choose your plan</span>
+            <h2>Choose how deep you want to <span className="ink-italic">go.</span></h2>
+            <p className="ink-landing__pricing-lede">
+              Plus includes everyday guidance and three full reports each billing period.
+              Credit packs cover extra reports and never expire.
+            </p>
+          </div>
+
+          <div className="ink-landing__plans">
+            <div className="ink-landing__plan">
+              <h3>Free</h3>
+              <p className="pd">Explore your chart and sample features.</p>
+              <div className="price">$0 <span className="per">/ forever</span></div>
+              <ul>
+                <li><span>Weekly &amp; monthly horoscopes included</span></li>
+                <li><span>Daily horoscopes available for 1 credit</span></li>
+                <li><span>Unlimited chart &amp; relationship creation</span></li>
+                <li><span><span className="gold">25 welcome credits</span> on signup</span></li>
+                <li><span>Buy more credits anytime</span></li>
+              </ul>
+              <Link className="ink-btn ink-btn--ghost" to="/signUp">Get started free</Link>
+            </div>
+
+            <div className="ink-landing__plan ink-landing__plan--pop">
+              <span className="flag">Most popular</span>
+              <h3>Plus</h3>
+              <p className="pd">Everyday guidance plus three full reports per billing period.</p>
+              <div className="price">$20 <span className="per">/ month</span></div>
+              <ul>
+                <li><span><b>Everything in Free, plus —</b></span></li>
+                <li><span><span className="gold">3 full reports</span> per billing period (natal or relationship)</span></li>
+                <li><span>Ask Stellium included — up to 50 / day</span></li>
+                <li><span>Daily horoscopes tuned to your chart</span></li>
+                <li><span>Extra reports with credits after your quota</span></li>
+              </ul>
+              <div>
+                <Link className="ink-btn ink-btn--navy" to="/signUp">Start Plus ✳</Link>
+                <p className="fine">Cancel anytime.</p>
+              </div>
+            </div>
+
+            <div className="ink-landing__plan">
+              <h3>Credit Pack</h3>
+              <p className="pd">One-time credits. No subscription.</p>
+              <div className="packs">
+                <div className="pack"><span className="pp">$10</span><span className="pc">100 credits</span></div>
+                <div className="pack pack--best"><span className="pp">$20</span><span className="pc">250 credits</span><span className="bv">Best value</span></div>
+              </div>
+              <ul>
+                <li><span>Credits <span className="gold">never expire</span></span></li>
+                <li><span>Buy extra reports or any credit action</span></li>
+                <li><span>Stack with Free or Plus</span></li>
+              </ul>
+              <Link className="ink-btn ink-btn--ghost" to="/signUp">Buy credits</Link>
+            </div>
+          </div>
+
+          <div className="ink-landing__compare">
+            <h3>What&rsquo;s <span className="ink-italic">in</span> each plan</h3>
+            <table>
+              <thead>
+                <tr><th>&nbsp;</th><th>Free</th><th className="pl">Plus</th><th>Credit cost</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Daily horoscope</td><td>1 credit / day</td><td><span className="yes">✓</span></td><td><span className="cr">1</span></td></tr>
+                <tr><td>Weekly horoscope</td><td><span className="yes">✓</span></td><td><span className="yes">✓</span></td><td>—</td></tr>
+                <tr><td>Monthly horoscope</td><td><span className="yes">✓</span></td><td><span className="yes">✓</span></td><td>—</td></tr>
+                <tr><td>Guest chart + short overview</td><td>Uses credits</td><td>Included</td><td><span className="cr">1</span></td></tr>
+                <tr><td>Relationship overview + pattern</td><td>Uses credits</td><td>Included</td><td><span className="cr">5</span></td></tr>
+                <tr><td>Ask Stellium</td><td>1 credit each</td><td>50 / day</td><td><span className="cr">1</span></td></tr>
+                <tr><td>Natal report</td><td>Uses credits</td><td>Uses 3-report pool</td><td><span className="cr">75</span></td></tr>
+                <tr><td>Relationship report</td><td>Uses credits</td><td>Uses same pool</td><td><span className="cr">60</span></td></tr>
+                <tr><td>Welcome credits</td><td><span className="cr">25</span></td><td>—</td><td>—</td></tr>
+              </tbody>
+            </table>
+            <p className="fine">
+              Plus reports are one pooled quota across natal and relationship. Unused reports
+              don&rsquo;t carry over — purchased credits do.
+            </p>
+          </div>
+        </section>
+
+        <section className="ink-landing__closing">
+          <div className="ink-wrap">
+            <span className="ink-eyebrow ink-landing__closing-eyebrow">Ready when you are</span>
+            <h2>Your first reading <span className="ink-italic">is waiting.</span></h2>
+            <p>60 seconds of birth data. A lifetime of context for everything that follows.</p>
+            <Link className="ink-btn ink-btn--navy" to="/signUp">Get started ✳</Link>
+          </div>
+        </section>
+
         <section className="ink-wrap ink-landing__assurances" id="about">
           <div className="ink-landing__assurance-grid">
             {ASSURANCES.map((item) => (
