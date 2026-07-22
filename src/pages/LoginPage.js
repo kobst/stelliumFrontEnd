@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import InkNav from '../UI/ink/InkNav';
+import '../styles/ink.css';
 import './LoginPage.css';
 
 function GoogleMark() {
@@ -207,12 +209,11 @@ const LoginPage = () => {
   );
 
   return (
-    <div className="login-page">
-      <div className="login-page__halo login-page__halo--c" aria-hidden="true" />
-      <div className="login-page__halo login-page__halo--l" aria-hidden="true" />
-      <div className="login-page__halo login-page__halo--r" aria-hidden="true" />
+    <div className="ink-page login-page">
+      <InkNav variant="marketing" marketingLinks={[]} />
 
-      <div className="login-wrap">
+      <main className="login-main">
+        <div className="login-wrap">
         <div className="login-top">
           <button type="button" className="login-top__back" onClick={() => navigate('/')}>
             <span className="login-top__arrow">←</span> Back to home
@@ -350,7 +351,17 @@ const LoginPage = () => {
             )}
           </div>
         </div>
-      </div>
+        </div>
+      </main>
+
+      <footer className="login-footer">
+        <div className="ink-wrap login-colophon">
+          <span className="login-colophon__wordmark">Stellium ✳</span>
+          <a href="/privacy-policy">Privacy</a>
+          <a href="/terms-of-service">Terms</a>
+          <span>© 2026</span>
+        </div>
+      </footer>
     </div>
   );
 };

@@ -6,6 +6,9 @@ import useSubjectCreation from '../hooks/useSubjectCreation';
 import BirthChartSummaryTable from '../UI/birthChart/tables/BirthChartSummaryTable';
 import { formatCalendarDate } from '../Utilities/dateFormatting';
 import { trackSignupCompleted, identifyUser } from '../Utilities/analytics';
+import InkNav from '../UI/ink/InkNav';
+import '../styles/ink.css';
+import './OnboardingConfirmation.css';
 
 const OnboardingConfirmation = () => {
     const navigate = useNavigate();
@@ -115,10 +118,24 @@ const OnboardingConfirmation = () => {
     // Show error if no user data
     if (!userData) {
         return (
-            <div style={{ padding: '20px' }}>
-                <h1 style={{ color: 'white' }}>Error</h1>
-                <p style={{ color: 'white' }}>No user data found. Please complete the onboarding form.</p>
-                <button onClick={() => navigate('/onboarding')}>Go to Onboarding</button>
+            <div className="ink-page onboarding-confirmation">
+                <InkNav variant="marketing" marketingLinks={[]} />
+                <main className="onboarding-confirmation__main ink-wrap">
+                    <section className="onboarding-confirmation__card onboarding-confirmation__card--error ink-card">
+                        <span className="ink-eyebrow">Something went astray</span>
+                        <h1>Error</h1>
+                        <p>No user data found. Please complete the onboarding form.</p>
+                        <button className="ink-btn ink-btn--navy" onClick={() => navigate('/onboarding')}>Go to Onboarding</button>
+                    </section>
+                </main>
+                <footer className="onboarding-confirmation__footer">
+                    <div className="ink-wrap onboarding-confirmation__colophon">
+                        <span className="onboarding-confirmation__wordmark">Stellium ✳</span>
+                        <a href="/privacy-policy">Privacy</a>
+                        <a href="/terms-of-service">Terms</a>
+                        <span>© 2026</span>
+                    </div>
+                </footer>
             </div>
         );
     }
@@ -154,189 +171,124 @@ const OnboardingConfirmation = () => {
     };
 
     return (
-        <div style={{ padding: '20px' }}>
-            <h1 style={{ color: 'white' }}>
-                Welcome to Stellium, {userData?.firstName || firebaseUser?.displayName || 'User'}!
-            </h1>
-            <p style={{ color: 'white' }}>
-                {isCreating ? 'Creating your profile...' : isComplete ? 'Your profile has been created successfully!' : error ? 'Profile creation failed. Please retry.' : 'Processing...'}
-            </p>
+        <div className="ink-page onboarding-confirmation">
+            <InkNav variant="marketing" marketingLinks={[]} />
 
-            {/* Birth Date Display */}
-            {userData?.dateOfBirth && (
-                <div style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    padding: '15px',
-                    borderRadius: '8px',
-                    margin: '20px 0',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    textAlign: 'center'
-                }}>
-                    <p style={{
-                        color: 'white',
-                        margin: '0',
-                        fontSize: '18px',
-                        fontWeight: '500'
-                    }}>
+            <main className="onboarding-confirmation__main ink-wrap">
+                <header className="onboarding-confirmation__header">
+                    <span className="ink-eyebrow">Your chart is taking shape</span>
+                    <h1>
+                        Welcome to Stellium, <em>{userData?.firstName || firebaseUser?.displayName || 'User'}.</em>
+                    </h1>
+                    <p>
+                        {isCreating ? 'Creating your profile...' : isComplete ? 'Your profile has been created successfully!' : error ? 'Profile creation failed. Please retry.' : 'Processing...'}
+                    </p>
+                </header>
+
+                {/* Birth Date Display */}
+                {userData?.dateOfBirth && (
+                    <div className="onboarding-confirmation__birth-date ink-card">
+                        <span className="ink-eyebrow">Birth date</span>
+                        <p>
                         Birth Date: {formatCalendarDate(userData.dateOfBirth, 'en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
                         })}
-                    </p>
-                </div>
-            )}
+                        </p>
+                    </div>
+                )}
 
-            {/* Creating User Status */}
-            {isCreating && (
-                <div style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    margin: '20px 0',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    textAlign: 'center'
-                }}>
-                    <div style={{
-                        width: '40px',
-                        height: '40px',
-                        border: '3px solid rgba(139, 92, 246, 0.3)',
-                        borderTop: '3px solid #8b5cf6',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite',
-                        margin: '0 auto 15px auto'
-                    }} />
-                    <h3 style={{ color: 'white', margin: '0 0 10px 0' }}>
-                        Creating Your Profile & Overview...
-                    </h3>
-                    <p style={{ color: 'white', margin: '0' }}>
-                        Generating your birth chart and personalized overview...
-                    </p>
-                    <style>{`
-                        @keyframes spin {
-                            0% { transform: rotate(0deg); }
-                            100% { transform: rotate(360deg); }
-                        }
-                    `}</style>
-                </div>
-            )}
+                {/* Creating User Status */}
+                {isCreating && (
+                    <section className="onboarding-confirmation__status ink-card" aria-live="polite" aria-busy="true">
+                        <div className="onboarding-confirmation__spinner" />
+                        <h3>Creating Your Profile &amp; Overview...</h3>
+                        <p>Generating your birth chart and personalized overview...</p>
+                    </section>
+                )}
 
-            {/* Error Display */}
-            {error && (
-                <div style={{
-                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    margin: '20px 0',
-                    border: '1px solid rgba(255, 0, 0, 0.3)'
-                }}>
-                    <h3 style={{ color: '#ff6b6b', margin: '0 0 10px 0' }}>
+                {/* Error Display */}
+                {error && (
+                    <section className="onboarding-confirmation__error ink-card" role="alert">
+                        <h3>
                         {error.includes('Email already in use') ? 'Email Already Registered' : 'Error'}
-                    </h3>
-                    <p style={{ color: 'white', margin: '0 0 15px 0' }}>
+                        </h3>
+                        <p>
                         {error.includes('Email already in use')
                             ? `An account with the email "${userData?.email}" already exists. This may mean you already have a profile.`
                             : error.includes('Invalid email format')
                                 ? 'Please enter a valid email address.'
                                 : error
                         }
-                    </p>
-                    {error.includes('Email already in use') && (
-                        <button
-                            onClick={() => refreshStelliumUser().then(() => {
-                                // Try to get user ID from the refresh
-                                navigate('/login');
-                            })}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: '#8b5cf6',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Try Logging In
-                        </button>
-                    )}
-                    {!error.includes('Email already in use') && (
-                        <button
-                            onClick={handleRetryCreation}
-                            disabled={loading}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: '#8b5cf6',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: loading ? 'not-allowed' : 'pointer',
-                                opacity: loading ? 0.7 : 1
-                            }}
-                        >
-                            {loading ? 'Retrying...' : 'Retry Profile Creation'}
-                        </button>
-                    )}
-                </div>
-            )}
+                        </p>
+                        {error.includes('Email already in use') && (
+                            <button
+                                className="ink-btn ink-btn--navy"
+                                onClick={() => refreshStelliumUser().then(() => {
+                                    // Try to get user ID from the refresh
+                                    navigate('/login');
+                                })}
+                            >
+                                Try Logging In
+                            </button>
+                        )}
+                        {!error.includes('Email already in use') && (
+                            <button
+                                className="ink-btn ink-btn--navy"
+                                onClick={handleRetryCreation}
+                                disabled={loading}
+                            >
+                                {loading ? 'Retrying...' : 'Retry Profile Creation'}
+                            </button>
+                        )}
+                    </section>
+                )}
 
 
             {/* Birth Chart Data (table) */}
-            {hasBirthChartData && (
-                <div style={{ margin: '20px 0' }}>
-                    <h3 style={{ color: 'white', marginBottom: '15px' }}>Your Birth Chart Data</h3>
+                {hasBirthChartData && (
+                    <section className="onboarding-confirmation__chart-data">
+                        <h3>Your Birth Chart Data</h3>
                     <BirthChartSummaryTable
                         planets={birthChartData.planets || []}
                         houses={birthChartData.houses || []}
                         aspects={birthChartData.aspects || []}
                     />
-                </div>
-            )}
+                    </section>
+                )}
 
             {/* Generated Overview Display (short overview only) */}
-            {hasOverview && (
-                <div style={{
-                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    margin: '20px 0',
-                    border: '1px solid rgba(139, 92, 246, 0.3)'
-                }}>
-                    <h2 style={{ color: '#a78bfa', margin: '0 0 15px 0' }}>
-                        Your Personal Birth Chart Overview
-                    </h2>
-                    <p style={{
-                        color: 'white',
-                        lineHeight: '1.6',
-                        margin: '0',
-                        fontSize: '16px'
-                    }}>
-                        {overviewContent}
-                    </p>
-                </div>
-            )}
+                {hasOverview && (
+                    <section className="onboarding-confirmation__overview ink-card">
+                        <span className="ink-eyebrow">First reading</span>
+                        <h2>Your Personal Birth Chart Overview</h2>
+                        <p>{overviewContent}</p>
+                    </section>
+                )}
 
             {/* Navigation Buttons */}
-            <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                {canGoToDashboard && (
-                    <button
-                        onClick={handleGoToDashboard}
-                        disabled={!canGoToDashboard}
-                        style={{
-                            padding: '15px 30px',
-                            backgroundColor: '#8b5cf6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            cursor: canGoToDashboard ? 'pointer' : 'not-allowed',
-                            fontSize: '16px',
-                            fontWeight: 'bold',
-                            opacity: canGoToDashboard ? 1 : 0.7
-                        }}
-                    >
-                        Go to My Dashboard
-                    </button>
-                )}
-            </div>
+                <div className="onboarding-confirmation__actions">
+                    {canGoToDashboard && (
+                        <button
+                            className="ink-btn ink-btn--navy"
+                            onClick={handleGoToDashboard}
+                            disabled={!canGoToDashboard}
+                        >
+                            Go to My Dashboard
+                        </button>
+                    )}
+                </div>
+            </main>
+
+            <footer className="onboarding-confirmation__footer">
+                <div className="ink-wrap onboarding-confirmation__colophon">
+                    <span className="onboarding-confirmation__wordmark">Stellium ✳</span>
+                    <a href="/privacy-policy">Privacy</a>
+                    <a href="/terms-of-service">Terms</a>
+                    <span>© 2026</span>
+                </div>
+            </footer>
         </div>
     );
 };

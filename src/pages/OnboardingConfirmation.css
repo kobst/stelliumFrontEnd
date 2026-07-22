@@ -1,0 +1,215 @@
+.onboarding-confirmation {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  text-align: left;
+}
+
+.onboarding-confirmation__main {
+  flex: 1;
+  padding-top: clamp(52px, 8vw, 92px);
+  padding-bottom: clamp(72px, 10vw, 120px);
+}
+
+.onboarding-confirmation__header {
+  max-width: 760px;
+  margin: 0 auto clamp(32px, 5vw, 52px);
+  text-align: center;
+}
+
+.onboarding-confirmation__header h1,
+.onboarding-confirmation__card h1 {
+  margin: 14px 0 16px;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: clamp(40px, 5vw, 60px);
+  font-weight: 400;
+  letter-spacing: -.025em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.onboarding-confirmation__header h1 em {
+  color: var(--blue);
+  font-weight: inherit;
+}
+
+.onboarding-confirmation__header > p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 19px;
+  font-style: italic;
+}
+
+.onboarding-confirmation__birth-date,
+.onboarding-confirmation__status,
+.onboarding-confirmation__error,
+.onboarding-confirmation__overview,
+.onboarding-confirmation__card {
+  width: min(720px, 100%);
+  margin: 22px auto;
+  padding: clamp(24px, 4vw, 36px);
+}
+
+.onboarding-confirmation__birth-date {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 18px;
+  padding-block: 19px;
+  text-align: center;
+}
+
+.onboarding-confirmation__birth-date p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.onboarding-confirmation__status {
+  text-align: center;
+}
+
+.onboarding-confirmation__spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 17px;
+  border: 2px solid rgba(35, 40, 64, .14);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: confirmation-spin .8s linear infinite;
+}
+
+@keyframes confirmation-spin {
+  to { transform: rotate(360deg); }
+}
+
+.onboarding-confirmation__status h3,
+.onboarding-confirmation__error h3,
+.onboarding-confirmation__chart-data h3 {
+  margin: 0 0 7px;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.onboarding-confirmation__status p,
+.onboarding-confirmation__error p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 16px;
+  font-style: italic;
+}
+
+.onboarding-confirmation__error {
+  border-color: rgba(154, 63, 56, .3);
+  background: rgba(154, 63, 56, .07);
+}
+
+.onboarding-confirmation__error h3 {
+  color: #7d302b;
+}
+
+.onboarding-confirmation__error .ink-btn {
+  margin-top: 19px;
+}
+
+.onboarding-confirmation__chart-data {
+  width: min(920px, 100%);
+  margin: 40px auto;
+}
+
+.onboarding-confirmation__chart-data h3 {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.onboarding-confirmation__overview {
+  position: relative;
+  border-color: rgba(176, 141, 62, .34);
+}
+
+.onboarding-confirmation__overview::after {
+  content: "written in your stars";
+  position: absolute;
+  top: -17px;
+  right: 24px;
+  padding: 0 8px;
+  background: var(--paper);
+  color: var(--blue);
+  font-family: var(--ink-script);
+  font-size: 20px;
+  transform: rotate(-2deg);
+}
+
+.onboarding-confirmation__overview h2 {
+  margin: 10px 0 15px;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.onboarding-confirmation__overview p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.onboarding-confirmation__actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 32px;
+}
+
+.onboarding-confirmation .ink-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.onboarding-confirmation__card {
+  text-align: center;
+}
+
+.onboarding-confirmation__card p {
+  margin: 0 0 22px;
+  color: var(--ink-soft);
+  font-size: 17px;
+  font-style: italic;
+}
+
+.onboarding-confirmation__card--error {
+  border-color: rgba(154, 63, 56, .3);
+}
+
+.onboarding-confirmation__footer {
+  padding: 25px 0 38px;
+  border-top: 1px solid var(--line);
+}
+
+.onboarding-confirmation__colophon {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  color: var(--ink-faint);
+  font-size: 14px;
+}
+
+.onboarding-confirmation__colophon a { color: var(--blue); }
+.onboarding-confirmation__wordmark { margin-right: auto; color: var(--ink); font-size: 20px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-confirmation__spinner { animation: none; }
+}
+
+@media (max-width: 560px) {
+  .onboarding-confirmation__birth-date { display: block; }
+  .onboarding-confirmation__birth-date .ink-eyebrow { display: block; margin-bottom: 6px; }
+  .onboarding-confirmation__overview::after { right: 12px; }
+}

@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import StelliumWordmark from '../UI/shared/StelliumWordmark';
 import OnboardingForm from '../UI/landingPage/OnboardingForm';
+import InkNav from '../UI/ink/InkNav';
+import '../styles/ink.css';
 import './signUpPage.css';
 
 const OnboardingPage = () => {
@@ -33,50 +34,66 @@ const OnboardingPage = () => {
 
     if (loading || !firebaseUser) {
         return (
-            <div className="signup-page">
-                <div style={{ textAlign: 'center', padding: '50px', color: 'white' }}>
-                    <div className="loading-spinner" style={{
-                        width: '40px',
-                        height: '40px',
-                        border: '3px solid rgba(255, 255, 255, 0.2)',
-                        borderTopColor: '#d138d4',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite',
-                        margin: '0 auto 16px'
-                    }}></div>
+            <div className="ink-page signup-page">
+                <InkNav variant="marketing" marketingLinks={[]} />
+                <div className="onboarding-loading" aria-live="polite" aria-busy="true">
+                    <div className="loading-spinner"></div>
                     <p>Loading...</p>
                 </div>
+                <footer className="onboarding-footer">
+                    <div className="ink-wrap onboarding-colophon">
+                        <span className="onboarding-colophon__wordmark">Stellium ✳</span>
+                        <a href="/privacy-policy">Privacy</a>
+                        <a href="/terms-of-service">Terms</a>
+                        <span>© 2026</span>
+                    </div>
+                </footer>
             </div>
         );
     }
 
     return (
-        <div className="signup-page">
-            {/* Navigation buttons */}
-            <div className="onboarding-nav">
-                <button className="back-button" onClick={handleBackToHome}>
-                    Back to Home
-                </button>
-                <button className="logout-button" onClick={handleLogout}>
-                    Log Out
-                </button>
-            </div>
+        <div className="ink-page signup-page">
+            <InkNav variant="marketing" marketingLinks={[]} />
 
-            <div className="signup-container">
-                {/* Header */}
-                <div className="signup-header">
-                    <StelliumWordmark size="lg" />
-                    <h1 className="signup-title">Complete Your Profile</h1>
-                    <p className="signup-subtitle">
-                        Enter your birth information to unlock your personalized astrological insights
-                    </p>
-                </div>
+            <main className="onboarding-main">
+                <div className="onboarding-shell ink-wrap">
+                    <div className="onboarding-nav">
+                        <button className="back-button" onClick={handleBackToHome}>
+                            ← Back to Home
+                        </button>
+                        <button className="logout-button" onClick={handleLogout}>
+                            Log Out
+                        </button>
+                    </div>
 
-                {/* Onboarding form */}
-                <div className="signup-form-container">
-                    <OnboardingForm />
+                    <div className="signup-layout">
+                        <header className="signup-header">
+                            <span className="ink-eyebrow">Your celestial coordinates</span>
+                            <h1 className="signup-title">Complete your <em>profile.</em></h1>
+                            <p className="signup-subtitle">
+                                Enter your birth information to unlock your personalized astrological insights
+                            </p>
+                            <aside className="onboarding-note" aria-label="A note about birth details">
+                                The more precise your details, the clearer your chart becomes.
+                            </aside>
+                        </header>
+
+                        <div className="signup-form-container ink-card">
+                            <OnboardingForm />
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </main>
+
+            <footer className="onboarding-footer">
+                <div className="ink-wrap onboarding-colophon">
+                    <span className="onboarding-colophon__wordmark">Stellium ✳</span>
+                    <a href="/privacy-policy">Privacy</a>
+                    <a href="/terms-of-service">Terms</a>
+                    <span>© 2026</span>
+                </div>
+            </footer>
         </div>
     );
 }
