@@ -1,79 +1,336 @@
-/* Public Celebrity Dashboard */
-
 .public-celebrity-dashboard {
-  min-height: 100vh;
-  padding: var(--content-padding);
-  color: white;
-  max-width: var(--max-content-width);
-  margin: 0 auto;
+  background:
+    radial-gradient(circle at 84% 17%, rgba(176, 141, 62, .065), transparent 27rem),
+    var(--paper);
 }
 
-.public-celebrity-dashboard__ask-inline {
-  margin-top: 24px;
+.public-celebrity-dashboard button,
+.public-celebrity-dashboard input,
+.public-celebrity-dashboard textarea {
+  font-family: var(--ink-serif);
 }
 
-/* Loading/Error States */
-.dashboard-loading,
-.dashboard-error {
+.pcb-head {
+  min-height: 92px;
+}
+
+.pcb-back {
+  position: absolute;
+  top: 34px;
+  left: max(4vw, calc((100vw - 1080px) / 2));
+  color: var(--ink-faint);
+  font-size: 13px;
+  font-style: italic;
+  text-decoration: none;
+}
+
+.pcb-back:hover {
+  color: var(--blue);
+}
+
+.pcb-tabs {
+  top: 62px;
+}
+
+.pcb-panel {
+  min-height: 620px;
+}
+
+.pcb-overview-copy {
+  min-width: 0;
+}
+
+.pcb-overview-copy > h2 {
+  margin: 14px 0 20px;
+  color: var(--ink);
+  font-size: clamp(40px, 4.8vw, 60px);
+  font-weight: 500;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.pcb-overview-copy .overview-tab {
+  margin: 0;
+}
+
+.pcb-overview-copy .bcd-reading {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.pcb-overview-copy .bcd-reading__quote,
+.pcb-overview-copy .bcd-reading__label-row {
+  display: none;
+}
+
+.pcb-overview-copy .bcd-reading__body {
+  color: var(--ink-soft);
+  font-family: var(--ink-serif);
+  font-size: 17px;
+  line-height: 1.62;
+}
+
+.pcb-overview-copy .bcd-reading__body p {
+  margin: 0 0 14px;
+}
+
+.pcb-medallion {
+  border-color: rgba(176, 141, 62, .7);
+  background: #1b2140;
+}
+
+.pcb-tab-content {
+  max-width: 1080px;
+}
+
+.pcb-tab-content > * {
+  max-width: 100%;
+}
+
+.pcb-tab-content :is(.chart-tab-content, .chart-tab, .dominance-patterns-tab, .patterns-tab, .planets-tab, .analysis-tab) {
+  color: var(--ink);
+  font-family: var(--ink-serif);
+}
+
+.pcb-tab-content .cts-root {
+  --cts-surface-low: var(--card);
+  --cts-surface-mid: var(--paper-2);
+  --cts-ghost: var(--line);
+  --cts-gold: var(--gold);
+  --cts-primary: var(--blue);
+  --cts-text: var(--ink);
+  --cts-text-muted: var(--ink-soft);
+  --cts-text-faint: var(--ink-faint);
+}
+
+.pcb-tab-content .cts-card {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  box-shadow: none;
+}
+
+.pcb-tab-content :is(.cts-card-head h3, .cts-planet-name, .cts-house-sign, .cts-wheel-side h4) {
+  font-family: var(--ink-serif);
+}
+
+.pcb-tab-content :is(.patterns-header, .planets-header, .analysis-header, .chart-section-header) {
+  border: 1px solid var(--line) !important;
+  border-radius: 7px;
+  background: var(--paper-2) !important;
+  box-shadow: none !important;
+}
+
+.pcb-tab-content :is(.patterns-header-title, .planets-header-title, .analysis-header__title, .chart-section-title) {
+  border-bottom-color: var(--gold) !important;
+  color: var(--ink) !important;
+  font-family: var(--ink-serif);
+  font-weight: 500;
+}
+
+.pcb-tab-content :is(.patterns-tabs, .planets-tabs, .analysis-domain-tabs) {
+  border: 1px solid var(--line);
+  background: transparent;
+}
+
+.pcb-tab-content :is(.patterns-tabs, .planets-tabs)::before,
+.pcb-tab-content :is(.patterns-tabs, .planets-tabs)::after {
+  display: none;
+}
+
+.pcb-tab-content :is(.patterns-tab-btn, .planets-tab-btn, .analysis-domain-tab) {
+  color: var(--ink-faint);
+}
+
+.pcb-tab-content :is(.patterns-tab-btn--active, .planets-tab-btn--active, .analysis-domain-tab--active) {
+  color: var(--blue);
+}
+
+.pcb-tab-content :is(
+  .bar-chart-container,
+  .dominance-pattern-section,
+  .planet-details-card,
+  .planet-aspects-table,
+  .analysis-domain-content,
+  .analysis-theme-item,
+  .analysis-prompt,
+  .analysis-progress,
+  .chart-tab-empty
+) {
+  border: 1px solid var(--line) !important;
+  border-radius: 7px;
+  background: var(--card) !important;
+  box-shadow: none !important;
+}
+
+.pcb-tab-content :is(.planet-aspects-header, .analysis-theme-item__header) {
+  border-color: var(--line);
+  background: var(--paper-2);
+}
+
+.pcb-tab-content :is(
+  .bar-chart-label,
+  .planet-main-symbol,
+  .planet-sign-name,
+  .planet-details-title,
+  .planet-aspect-planet .planet-name,
+  .planet-aspect-type,
+  .analysis-domain-title,
+  .analysis-theme-item__title
+) {
+  color: var(--ink) !important;
+}
+
+.pcb-tab-content :is(
+  .patterns-interpretation p,
+  .planet-degree-display,
+  .planet-details-subtitle,
+  .planet-details-section-title,
+  .planet-aspects-label,
+  .planet-aspect-orb,
+  .planet-interpretation-section,
+  .analysis-domain-overview,
+  .analysis-theme-item__summary,
+  .analysis-theme-item__content,
+  .analysis-synthesis,
+  .prompt-note,
+  .chart-tab-empty p
+) {
+  color: var(--ink-soft) !important;
+}
+
+.pcb-tab-content :is(.planet-aspect-row, .planet-aspect-mini) {
+  border-color: var(--line);
+}
+
+.pcb-conversion {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: 58px;
+  padding: 28px 30px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--paper-2);
+}
+
+.pcb-conversion h2 {
+  margin: 6px 0 7px;
+  color: var(--ink);
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.pcb-conversion p {
+  max-width: 60ch;
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.pcb-ask-inline {
+  margin-top: 45px;
+}
+
+.pcb-bottom-cta {
+  padding: 34px 0;
+  border-top: 1px solid var(--line);
+  background: var(--paper-2);
+}
+
+.pcb-bottom-cta__inner {
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 50vh;
-  color: rgba(255, 255, 255, 0.8);
-  font-family: "Montserrat", sans-serif;
+  gap: 24px;
 }
 
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(167, 139, 250, 0.2);
-  border-top-color: #a78bfa;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
+.pcb-bottom-cta p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 19px;
+  font-style: italic;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.pcb-state {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  min-height: 62vh;
+  padding: 60px 24px;
+  color: var(--ink-soft);
+  text-align: center;
 }
 
-.dashboard-error p {
-  margin-bottom: 20px;
-  color: #ff6b6b;
+.pcb-state > span {
+  color: var(--gold);
+  font-size: 28px;
+  animation: pcb-pulse 1.8s ease-in-out infinite;
 }
 
-.back-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  font-family: "Montserrat", sans-serif;
+.pcb-state p {
+  margin: 0 0 8px;
+  font-size: 19px;
+  font-style: italic;
 }
 
-.back-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.5);
+.pcb-state--error > span {
+  animation: none;
 }
 
-/* Tablet */
-@media (max-width: 1023px) {
-  .public-celebrity-dashboard {
-    padding: var(--content-padding-tablet);
+@keyframes pcb-pulse {
+  0%, 100% { opacity: .4; transform: scale(.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 900px) {
+  .pcb-back {
+    position: static;
+    display: block;
+    margin-bottom: 7px;
+  }
+
+  .pcb-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pcb-conversion {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 
-/* Mobile */
-@media (max-width: 767px) {
-  .public-celebrity-dashboard {
-    padding: var(--content-padding-mobile);
+@media (max-width: 760px) {
+  .pcb-tabs {
+    top: 112px;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 16px;
+    overflow-x: auto;
+    padding-inline: 4vw;
   }
 
-  .public-celebrity-dashboard__ask-inline {
-    margin-top: 20px;
+  .pcb-tabs .ink-tab {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .pcb-tabs {
+    top: 106px;
+  }
+
+  .pcb-bottom-cta__inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pcb-state > span {
+    animation: none;
   }
 }
