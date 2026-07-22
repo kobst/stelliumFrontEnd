@@ -1,5 +1,15 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import InkNav from '../UI/ink/InkNav';
+import '../styles/ink.css';
 import './HelpCenter.css';
+
+const MARKETING_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Weekly horoscopes', href: '/horoscopes/weekly' },
+  { label: 'Celebrity charts', href: '/celebrities' },
+  { label: 'Help', href: '/help' }
+];
 
 const HelpCenter = () => {
   const scrollToSection = (id) => {
@@ -10,20 +20,24 @@ const HelpCenter = () => {
   };
 
   return (
-    <div className="help-center-page">
-      <div className="help-container">
-        <h1>Stellium Help Center</h1>
-        <p className="welcome-text">Welcome to the Stellium Help Center. Below you'll find answers to the most common questions about charts, relationships, chat, subscriptions, and your account.</p>
+    <div className="ink-page help-center-page">
+      <InkNav variant="marketing" marketingLinks={MARKETING_LINKS} />
+      <main className="help-container">
+        <header className="help-header">
+          <span className="ink-eyebrow">Questions, answered</span>
+          <h1>Stellium Help Center</h1>
+          <p className="welcome-text">Welcome to the Stellium Help Center. Below you'll find answers to the most common questions about charts, relationships, chat, subscriptions, and your account.</p>
+        </header>
 
         {/* Navigation Menu */}
         <nav className="help-nav">
-          <button onClick={() => scrollToSection('birth-charts')}>Birth Charts</button>
-          <button onClick={() => scrollToSection('relationships')}>Relationships</button>
-          <button onClick={() => scrollToSection('chat')}>Chat</button>
+          <button type="button" onClick={() => scrollToSection('birth-charts')}>Birth Charts</button>
+          <button type="button" onClick={() => scrollToSection('relationships')}>Relationships</button>
+          <button type="button" onClick={() => scrollToSection('chat')}>Chat</button>
           {/* Legacy credits removed */}
-          <button onClick={() => scrollToSection('subscriptions')}>Subscriptions</button>
-          <button onClick={() => scrollToSection('privacy')}>Privacy</button>
-          <button onClick={() => scrollToSection('support')}>Support</button>
+          <button type="button" onClick={() => scrollToSection('subscriptions')}>Subscriptions</button>
+          <button type="button" onClick={() => scrollToSection('privacy')}>Privacy</button>
+          <button type="button" onClick={() => scrollToSection('support')}>Support</button>
         </nav>
 
         {/* Birth Charts Section */}
@@ -323,7 +337,16 @@ const HelpCenter = () => {
           <p>Send us an email: <a href="mailto:support@stellium.ai" className="help-link">support@stellium.ai</a></p>
           <p>Or reach out through the app.</p>
         </section>
-      </div>
+      </main>
+      <footer className="help-colophon">
+        <div className="ink-wrap">
+          <span className="help-colophon__wordmark">Stellium ✳</span>
+          <Link to="/privacy-policy">Privacy</Link>
+          <Link to="/terms-of-service">Terms</Link>
+          <Link to="/help">Help</Link>
+          <span>© {new Date().getFullYear()}</span>
+        </div>
+      </footer>
     </div>
   );
 };

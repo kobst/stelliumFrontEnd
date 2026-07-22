@@ -1,12 +1,26 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import InkNav from '../UI/ink/InkNav';
+import '../styles/ink.css';
 import './TermsOfService.css';
+
+const MARKETING_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Weekly horoscopes', href: '/horoscopes/weekly' },
+  { label: 'Celebrity charts', href: '/celebrities' },
+  { label: 'Help', href: '/help' }
+];
 
 const TermsOfService = () => {
   return (
-    <div className="terms-of-service-page">
-      <div className="terms-container">
-        <h1>Terms of Service</h1>
-        <p className="last-updated">Last updated: {new Date().toLocaleDateString()}</p>
+    <div className="ink-page terms-of-service-page">
+      <InkNav variant="marketing" marketingLinks={MARKETING_LINKS} />
+      <main className="terms-container">
+        <header className="terms-header">
+          <span className="ink-eyebrow">Stellium legal</span>
+          <h1>Terms of Service</h1>
+          <p className="last-updated">Last updated: {new Date().toLocaleDateString()}</p>
+        </header>
         
         <section className="terms-section">
           <h2>1. Acceptance of Terms</h2>
@@ -101,7 +115,16 @@ const TermsOfService = () => {
           <p>If you have any questions about these Terms of Service, please contact us at:</p>
           <p>Email: support@stellium.app</p>
         </section>
-      </div>
+      </main>
+      <footer className="terms-colophon">
+        <div className="ink-wrap">
+          <span className="terms-colophon__wordmark">Stellium ✳</span>
+          <Link to="/privacy-policy">Privacy</Link>
+          <Link to="/terms-of-service">Terms</Link>
+          <Link to="/help">Help</Link>
+          <span>© {new Date().getFullYear()}</span>
+        </div>
+      </footer>
     </div>
   );
 };

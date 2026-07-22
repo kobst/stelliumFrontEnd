@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import InkNav from '../UI/ink/InkNav';
 import useWeeklySunSignHoroscope from '../hooks/useWeeklySunSignHoroscope';
 import {
   formatDateRange,
@@ -13,10 +14,15 @@ import {
   normalizeZodiacSign,
   ZODIAC_SIGNS
 } from '../Utilities/zodiac';
-import { useAuth } from '../context/AuthContext';
+import '../styles/ink.css';
 import './PublicWeeklyHoroscopesPage.css';
 
-const THEME_PILL_TONES = ['gold', '', 'cyan', '', 'gold', ''];
+const MARKETING_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Weekly horoscopes', href: '/horoscopes/weekly' },
+  { label: 'Celebrity charts', href: '/celebrities' },
+  { label: 'Help', href: '/help' }
+];
 
 const PLANET_GLYPH_TO_FILE = {
   Sun: 'Sun',
@@ -30,45 +36,6 @@ const PLANET_GLYPH_TO_FILE = {
   Neptune: 'Neptune',
   Pluto: 'Pluto'
 };
-
-function generateStardustCircles(count, seed) {
-  const rng = (i, s) => {
-    const x = Math.sin((i + s) * 9301 + 49297) * 233280;
-    return x - Math.floor(x);
-  };
-  const circles = [];
-  for (let i = 0; i < count; i += 1) {
-    const cx = rng(i * 2, seed) * 100;
-    const cy = rng(i * 2 + 1, seed) * 100;
-    const r = rng(i * 3 + 5, seed) * 0.18 + 0.06;
-    const o = rng(i * 4 + 11, seed) * 0.6 + 0.1;
-    circles.push(
-      <circle key={i} cx={cx.toFixed(2)} cy={cy.toFixed(2)} r={r.toFixed(2)} fill="#cabeff" opacity={o.toFixed(2)} />
-    );
-  }
-  return circles;
-}
-
-function Stardust({ seed = 1, density = 80 }) {
-  const circles = useMemo(() => generateStardustCircles(density, seed), [density, seed]);
-  return (
-    <svg className="wh-stardust" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      {circles}
-    </svg>
-  );
-}
-
-function WordmarkGlyph() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-      <circle cx="15" cy="6" r="2.2" fill="#cabeff" />
-      <ellipse cx="15" cy="6" rx="3.4" ry="0.9" stroke="#cabeff" strokeOpacity="0.55" strokeWidth="0.6" fill="none" transform="rotate(-18 15 6)" />
-      <circle cx="11" cy="12" r="3.2" fill="#cabeff" />
-      <circle cx="9" cy="17" r="1.1" fill="#cabeff" opacity="0.7" />
-      <path d="M3 19 Q11 22 19 19" stroke="#cabeff" strokeWidth="0.6" fill="none" opacity="0.6" />
-    </svg>
-  );
-}
 
 function shiftDateByDays(dateString, days) {
   const parsed = parseDateInput(dateString) || parseDateInput(formatLocalDateParam());
@@ -87,8 +54,7 @@ function getIsoWeekNumber(dateString) {
   const dayNum = tmp.getUTCDay() || 7;
   tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
   const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
-  const weekNo = Math.ceil((((tmp - yearStart) / 86400000) + 1) / 7);
-  return weekNo;
+  return Math.ceil((((tmp - yearStart) / 86400000) + 1) / 7);
 }
 
 function formatStepperRange(startDateStr) {
@@ -114,8 +80,7 @@ function formatThemeText(theme) {
 
 function getThemeGlyphFile(theme) {
   if (theme && typeof theme === 'object' && theme.transitingPlanet) {
-    const file = PLANET_GLYPH_TO_FILE[theme.transitingPlanet];
-    if (file) return file;
+    return PLANET_GLYPH_TO_FILE[theme.transitingPlanet] || null;
   }
   return null;
 }
@@ -124,7 +89,7 @@ function splitInterpretationIntoParagraphs(text) {
   if (!text) return [];
   return text
     .split(/\n\s*\n|\n/)
-    .map((p) => p.trim())
+    .map((paragraph) => paragraph.trim())
     .filter(Boolean);
 }
 
@@ -132,7 +97,6 @@ function PublicWeeklyHoroscopesPage() {
   const navigate = useNavigate();
   const { sign: routeSign } = useParams();
   const [searchParams] = useSearchParams();
-  const { stelliumUser } = useAuth();
 
   const normalizedSign = normalizeZodiacSign(routeSign || DEFAULT_ZODIAC_SIGN);
   const requestedDateParam = searchParams.get('date');
@@ -142,11 +106,7 @@ function PublicWeeklyHoroscopesPage() {
 
   useEffect(() => {
     const params = searchParams.toString();
-    if (!routeSign) {
-      navigate(`/horoscopes/weekly/${DEFAULT_ZODIAC_SIGN}${params ? `?${params}` : ''}`, { replace: true });
-      return;
-    }
-    if (!normalizedSign) {
+    if (!routeSign || !normalizedSign) {
       navigate(`/horoscopes/weekly/${DEFAULT_ZODIAC_SIGN}${params ? `?${params}` : ''}`, { replace: true });
     }
   }, [navigate, normalizedSign, routeSign, searchParams]);
@@ -165,7 +125,6 @@ function PublicWeeklyHoroscopesPage() {
   const weekStartDate = getUtcWeekStartDateString(requestedDate);
   const weekNumber = getIsoWeekNumber(weekStartDate);
   const weekStepperLabel = formatStepperRange(weekStartDate);
-
   const weekRange = formatDateRange(
     horoscope?.startDate || details?.startDate,
     horoscope?.endDate || details?.endDate
@@ -174,7 +133,6 @@ function PublicWeeklyHoroscopesPage() {
     () => (horoscope?.analysis?.keyThemes || []).slice(0, 6),
     [horoscope]
   );
-
   const paragraphs = useMemo(
     () => splitInterpretationIntoParagraphs(horoscope?.interpretation || horoscope?.text || ''),
     [horoscope]
@@ -186,7 +144,7 @@ function PublicWeeklyHoroscopesPage() {
     if (loading) return `${signLabel}, reading the sky for this week…`;
     return (
       <>
-        {signLabel}, the week opens <span className="italic">on a held note.</span>
+        {signLabel}, the week opens <span className="ink-italic">on a held note.</span>
       </>
     );
   }, [signLabel, loading, notReady, error]);
@@ -224,185 +182,118 @@ function PublicWeeklyHoroscopesPage() {
   const navigateWithDate = (sign, dateStr) => {
     const params = new URLSearchParams(searchParams);
     if (dateStr) params.set('date', dateStr);
-    const qs = params.toString();
-    navigate(`/horoscopes/weekly/${sign}${qs ? `?${qs}` : ''}`);
+    const query = params.toString();
+    navigate(`/horoscopes/weekly/${sign}${query ? `?${query}` : ''}`);
   };
 
-  const handleSelectSign = (nextSign) => navigateWithDate(nextSign);
-  const handleBackToHome = () => navigate('/');
+  const handlePrevWeek = () => navigateWithDate(selectedSign, shiftDateByDays(weekStartDate, -7));
+  const handleNextWeek = () => navigateWithDate(selectedSign, shiftDateByDays(weekStartDate, 7));
 
-  const handlePrevWeek = () => {
-    const prevStart = shiftDateByDays(weekStartDate, -7);
-    navigateWithDate(selectedSign, prevStart);
-  };
-  const handleNextWeek = () => {
-    const nextStart = shiftDateByDays(weekStartDate, 7);
-    navigateWithDate(selectedSign, nextStart);
-  };
-
-  const handleDashboardCta = () => {
-    if (stelliumUser) navigate(`/dashboard/${stelliumUser._id}`);
-    else navigate('/birthChartEntry');
-  };
-
-  // Scroll to top on first mount and whenever the selected sign changes,
-  // so deep links like /horoscopes/weekly/scorpio always land at the reading
-  // instead of preserving the previous page's scroll position.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [selectedSign]);
 
   return (
-    <div className="wh-page">
-      {/* ─── NAV ───────────────────────────────────────────── */}
-      <nav className="wh-nav">
-        <div className="wh-nav__inner">
-          <button type="button" className="wh-wordmark" onClick={handleBackToHome} aria-label="Stellium home">
-            <span className="wh-wordmark__glyph"><WordmarkGlyph /></span>
-            <span className="wh-wordmark__name">Stellium</span>
-          </button>
-          <div className="wh-nav__links">
-            <button type="button" className="wh-nav__link" onClick={handleBackToHome}>Home</button>
-            <span className="wh-nav__link active">Horoscopes</span>
-            <button type="button" className="wh-nav__link" onClick={() => navigate('/celebrities')}>Charts</button>
-            <button type="button" className="wh-nav__link" onClick={() => navigate('/#pricing')}>Pricing</button>
-            {stelliumUser ? (
-              <button type="button" className="wh-btn wh-btn--primary" onClick={handleDashboardCta}>
-                Go to Dashboard <span style={{ opacity: 0.65 }}>→</span>
-              </button>
-            ) : (
-              <>
-                <button type="button" className="wh-btn wh-btn--ghost" onClick={() => navigate('/login')}>
-                  Sign in
-                </button>
-                <button type="button" className="wh-btn wh-btn--primary" onClick={handleDashboardCta}>
-                  Start free <span style={{ opacity: 0.65 }}>→</span>
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+    <div className="ink-page wh-ink-page">
+      <InkNav variant="marketing" marketingLinks={MARKETING_LINKS} />
 
-      {/* ─── HERO ──────────────────────────────────────────── */}
-      <section className="wh-hero">
-        <div className="wh-halo lilac wh-hero__halo-c" />
-        <Stardust seed={1} density={80} />
-
-        <div className="wh-wrap">
-          <div className="wh-hero__top">
-            <button type="button" className="wh-back-link" onClick={handleBackToHome}>
-              <span className="wh-back-link__arrow">←</span> Back to home
-            </button>
-            <span className="wh-hero__top-right">
-              <span className="wh-hero__dot" />
-              Updated Monday at 6:00 am ET
-            </span>
-          </div>
-
-          <div className="wh-hero__eyebrow">
-            <span className="wh-hero__bar" />
-            <span className="wh-eyebrow gold">Public editorial horoscope</span>
-            <span className="wh-hero__bar wh-hero__bar--r" />
-          </div>
-
-          <h1>This week, <span className="accent">read by the sky.</span></h1>
-          <p className="wh-hero__lede">
-            Pick your sun sign for the editorial forecast. Then come back with your full chart for the version that actually knows you.
+      <main>
+        <header className="ink-wrap wh-ink-hero">
+          <span className="ink-eyebrow">Public editorial horoscope</span>
+          <h1>{signLabel} weekly horoscope</h1>
+          <p>
+            Pick your sun sign for the week’s editorial forecast, then return with your full chart
+            for the reading that knows your placements.
           </p>
 
-          <div className="wh-week-stepper">
-            <button
-              type="button"
-              className="wh-week-stepper__btn"
-              onClick={handlePrevWeek}
-              aria-label="Previous week"
-            >
-              ←
-            </button>
-            <span className="wh-week-stepper__label">
-              {weekStepperLabel}
-              <span className="wh-week-stepper__small">Week {weekNumber}</span>
+          <div className="wh-ink-week" aria-label={`Week ${weekNumber}: ${weekStepperLabel}`}>
+            <button type="button" onClick={handlePrevWeek} aria-label="Previous week">←</button>
+            <span>
+              <b>{weekStepperLabel}</b>
+              <small>Week {weekNumber}</small>
             </span>
-            <button
-              type="button"
-              className="wh-week-stepper__btn"
-              onClick={handleNextWeek}
-              aria-label="Next week"
-            >
-              →
-            </button>
+            <button type="button" onClick={handleNextWeek} aria-label="Next week">→</button>
           </div>
-        </div>
-      </section>
+        </header>
 
-      {/* ─── READING + SIDEBAR ───────────────────────────────── */}
-      <section className="wh-reading-wrap">
-        <div className="wh-halo lilac wh-reading-wrap__halo-l" />
-        <div className="wh-halo gold wh-reading-wrap__halo-r" />
-        <Stardust seed={2} density={50} />
+        <section className="wh-ink-sign-band" aria-labelledby="choose-sign-heading">
+          <div className="ink-wrap">
+            <div className="wh-ink-section-heading">
+              <span className="ink-eyebrow">The zodiac desk</span>
+              <h2 id="choose-sign-heading">Choose your sun sign</h2>
+            </div>
+            <div className="wh-ink-signs">
+              {ZODIAC_SIGNS.map((sign) => {
+                const isSelected = selectedSign === sign.value;
+                return (
+                  <button
+                    key={sign.value}
+                    type="button"
+                    className={`wh-ink-sign${isSelected ? ' is-selected' : ''}`}
+                    onClick={() => navigateWithDate(sign.value)}
+                    aria-pressed={isSelected}
+                  >
+                    <img src={`/assets/signs/${sign.value}.svg`} alt="" aria-hidden="true" />
+                    <span>{sign.label}</span>
+                    <small>{isSelected ? 'Reading now' : 'Read forecast'}</small>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-        <div className="wh-wrap">
-          <div className="wh-reading-grid">
-            <article className="wh-reading">
-              <div className="wh-reading__head">
-                <div className="wh-eyebrow gold wh-reading__head-sign">
-                  <img src={`/assets/signs/${selectedSign}.svg`} alt="" aria-hidden="true" />
-                  {signLabel}
-                </div>
-                {weekRange && <div className="wh-reading__date">{weekRange}</div>}
-              </div>
+        <section className="ink-wrap wh-ink-reading-section" aria-label={`${signLabel} horoscope reading`}>
+          <article className="ink-card wh-ink-reading">
+            <div className="wh-ink-date-strip">
+              <span>
+                <img src={`/assets/signs/${selectedSign}.svg`} alt="" aria-hidden="true" />
+                {signLabel}
+              </span>
+              <span>{weekRange || weekStepperLabel}</span>
+            </div>
 
+            <div className="wh-ink-reading-copy">
               <h2>{headline}</h2>
 
               {loading && (
-                <div className="wh-reading__state">Reading this week’s sky for {signLabel}…</div>
+                <div className="wh-ink-state" role="status">Reading this week’s sky for {signLabel}…</div>
               )}
 
               {!loading && notReady && (
-                <div className="wh-reading__state">
+                <div className="wh-ink-state">
                   This week’s {signLabel} horoscope hasn’t been published yet. Check back soon — these go up Monday mornings.
                 </div>
               )}
 
               {!loading && error && (
-                <div className="wh-reading__state">
-                  We couldn’t load the {signLabel} horoscope right now.
-                  <div className="wh-reading__state-cta">
-                    <button type="button" className="wh-btn wh-btn--ghost" onClick={refetch}>
-                      Try again
-                    </button>
-                  </div>
+                <div className="wh-ink-state" role="alert">
+                  <p>We couldn’t load the {signLabel} horoscope right now.</p>
+                  <button type="button" className="ink-btn ink-btn--ghost" onClick={refetch}>Try again</button>
                 </div>
+              )}
+
+              {!loading && !notReady && !error && !horoscope && (
+                <div className="wh-ink-state">No reading is available for this week yet. Please check back soon.</div>
               )}
 
               {!loading && !notReady && !error && horoscope && (
                 <>
-                  <div className="wh-reading__body">
-                    {paragraphs.map((paragraph, i) => (
-                      <p key={i}>{paragraph}</p>
-                    ))}
+                  <div className="wh-ink-article-body">
+                    {paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
                   </div>
 
                   {keyThemes.length > 0 && (
-                    <div className="wh-themes">
-                      <div className="wh-themes__label">Key themes</div>
-                      <div className="wh-theme-pills">
-                        {keyThemes.map((theme, i) => {
+                    <div className="wh-ink-themes">
+                      <span className="ink-eyebrow">Key themes</span>
+                      <div>
+                        {keyThemes.map((theme, index) => {
                           const text = formatThemeText(theme);
                           if (!text) return null;
                           const glyphFile = getThemeGlyphFile(theme);
-                          const tone = THEME_PILL_TONES[i % THEME_PILL_TONES.length];
                           return (
-                            <span key={i} className={`wh-theme-pill${tone ? ` ${tone}` : ''}`}>
-                              {glyphFile && (
-                                <img
-                                  className="wh-theme-pill__glyph"
-                                  src={`/assets/planets/${glyphFile}.svg`}
-                                  alt=""
-                                  aria-hidden="true"
-                                />
-                              )}
+                            <span className="ink-chip wh-ink-theme" key={index}>
+                              {glyphFile && <img src={`/assets/planets/${glyphFile}.svg`} alt="" aria-hidden="true" />}
                               {text}
                             </span>
                           );
@@ -412,94 +303,25 @@ function PublicWeeklyHoroscopesPage() {
                   )}
                 </>
               )}
-            </article>
+            </div>
+          </article>
 
-            <aside className="wh-side">
-              <div className="wh-side__card cta">
-                <div className="wh-eyebrow gold">Personalize this</div>
-                <h3>
-                  This same week, read for your{' '}
-                  <em>whole chart.</em>
-                </h3>
-                <p className="wh-side__card-body">
-                  Sun-sign columns are a start. The full reading uses your actual placements — moon, rising, and transits to your natal chart.
-                </p>
-                <button type="button" className="wh-btn wh-btn--primary" onClick={handleDashboardCta}>
-                  {stelliumUser ? 'Go to your dashboard' : 'Get my full reading'} →
-                </button>
-                {!stelliumUser && (
-                  <div className="wh-side__card-footnote">Takes 60 seconds · No credit card</div>
-                )}
-              </div>
+          <aside className="wh-ink-cta">
+            <span className="ink-eyebrow">Beyond your sun sign</span>
+            <h2>Your chart makes the week <span className="ink-italic">personal.</span></h2>
+            <p>Read the same sky through your moon, rising sign, natal placements, and current transits.</p>
+            <Link className="ink-btn ink-btn--navy" to="/signUp">Get your personal reading ✳</Link>
+          </aside>
+        </section>
+      </main>
 
-              <div className="wh-side__card">
-                <div className="wh-eyebrow lilac">Other signs</div>
-                <div className="wh-quick">
-                  {ZODIAC_SIGNS.map((sign) => (
-                    <button
-                      key={sign.value}
-                      type="button"
-                      className={`wh-quick__row${selectedSign === sign.value ? ' active' : ''}`}
-                      onClick={() => handleSelectSign(sign.value)}
-                    >
-                      <img
-                        className="wh-quick__icon"
-                        src={`/assets/signs/${sign.value}.svg`}
-                        alt=""
-                        aria-hidden="true"
-                      />
-                      <span className="wh-quick__nm">{sign.label}</span>
-                      <span className="wh-quick__ar">{selectedSign === sign.value ? '●' : '→'}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </aside>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── FOOTER ────────────────────────────────────────── */}
-      <footer className="wh-footer">
-        <div className="wh-wrap">
-          <div className="wh-foot-grid">
-            <div className="wh-foot-brand">
-              <button type="button" className="wh-wordmark" onClick={handleBackToHome}>
-                <span className="wh-wordmark__glyph"><WordmarkGlyph /></span>
-                <span className="wh-wordmark__name">Stellium</span>
-              </button>
-              <p className="wh-foot-brand__blurb">
-                Personalized astrology, powered by AI. Your chart, read like a person — not a horoscope column.
-              </p>
-            </div>
-            <div>
-              <h4>Product</h4>
-              <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/horoscopes/weekly">Horoscopes</a></li>
-                <li><a href="/celebrities">Celebrity charts</a></li>
-                <li><a href="/#pricing">Pricing</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4>Contact</h4>
-              <ul>
-                <li><a href="mailto:hello@stellium.ai">hello@stellium.ai</a></li>
-                <li><a href="/help">Help & Support</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4>Legal</h4>
-              <ul>
-                <li><a href="/privacy-policy">Privacy Policy</a></li>
-                <li><a href="/terms-of-service">Terms of Service</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="wh-foot-bot">
-            <span>© {new Date().getFullYear()} Stellium · Personalized astrology, powered by AI.</span>
-            <span className="wh-foot-bot__italic">Made under a generous sky.</span>
-          </div>
+      <footer className="wh-ink-colophon">
+        <div className="ink-wrap">
+          <span className="wh-ink-colophon__wordmark">Stellium ✳</span>
+          <Link to="/privacy-policy">Privacy</Link>
+          <Link to="/terms-of-service">Terms</Link>
+          <Link to="/help">Help</Link>
+          <span>© {new Date().getFullYear()}</span>
         </div>
       </footer>
     </div>

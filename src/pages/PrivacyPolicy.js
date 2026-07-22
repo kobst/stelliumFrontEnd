@@ -1,12 +1,26 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import InkNav from '../UI/ink/InkNav';
+import '../styles/ink.css';
 import './PrivacyPolicy.css';
+
+const MARKETING_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Weekly horoscopes', href: '/horoscopes/weekly' },
+  { label: 'Celebrity charts', href: '/celebrities' },
+  { label: 'Help', href: '/help' }
+];
 
 const PrivacyPolicy = () => {
   return (
-    <div className="privacy-policy-page">
-      <div className="policy-container">
-        <h1>Privacy Policy</h1>
-        <p className="last-updated">Last updated: {new Date().toLocaleDateString()}</p>
+    <div className="ink-page privacy-policy-page">
+      <InkNav variant="marketing" marketingLinks={MARKETING_LINKS} />
+      <main className="policy-container">
+        <header className="policy-header">
+          <span className="ink-eyebrow">Stellium legal</span>
+          <h1>Privacy Policy</h1>
+          <p className="last-updated">Last updated: {new Date().toLocaleDateString()}</p>
+        </header>
         
         <section className="policy-section">
           <h2>1. Information We Collect</h2>
@@ -99,7 +113,16 @@ const PrivacyPolicy = () => {
           <p>If you have any questions about this Privacy Policy, please contact us at:</p>
           <p>Email: admin@stellium.app</p>
         </section>
-      </div>
+      </main>
+      <footer className="policy-colophon">
+        <div className="ink-wrap">
+          <span className="policy-colophon__wordmark">Stellium ✳</span>
+          <Link to="/privacy-policy">Privacy</Link>
+          <Link to="/terms-of-service">Terms</Link>
+          <Link to="/help">Help</Link>
+          <span>© {new Date().getFullYear()}</span>
+        </div>
+      </footer>
     </div>
   );
 };

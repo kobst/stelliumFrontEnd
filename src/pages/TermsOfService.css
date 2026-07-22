@@ -1,97 +1,111 @@
 .terms-of-service-page {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-  color: white;
-  padding: 60px 20px 40px;
+  width: 100%;
 }
 
 .terms-container {
-  max-width: 800px;
+  width: min(70ch, 88vw);
   margin: 0 auto;
-  line-height: 1.6;
+  padding: clamp(62px, 9vw, 108px) 0 clamp(72px, 10vw, 120px);
+}
+
+.terms-header {
+  margin-bottom: clamp(44px, 7vw, 72px);
+  text-align: center;
 }
 
 .terms-of-service-page h1 {
-  font-family: "Montserrat", sans-serif;
-  font-size: 2.5rem;
-  text-align: center;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: #d138d4;
-  text-shadow: 0 0 20px rgba(209, 56, 212, 0.3);
+  margin: 12px 0 8px;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: clamp(44px, 7vw, 72px);
+  font-weight: 400;
+  letter-spacing: -.025em;
+  line-height: 1;
 }
 
-.last-updated {
-  text-align: center;
-  opacity: 0.7;
-  margin-bottom: 40px;
+.terms-of-service-page .last-updated {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 15px;
   font-style: italic;
 }
 
 .terms-section {
-  margin-bottom: 40px;
-  padding: 30px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0;
+  padding: clamp(30px, 5vw, 48px) 0;
+  border-top: 1px solid var(--line);
+}
+
+.terms-section:last-child {
+  border-bottom: 1px solid var(--line);
 }
 
 .terms-section h2 {
-  color: #d138d4;
-  font-family: "Montserrat", sans-serif;
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  margin: 0 0 20px;
+  color: var(--ink);
+  font-family: var(--ink-serif);
+  font-size: clamp(27px, 3vw, 34px);
+  font-weight: 500;
+  line-height: 1.15;
 }
 
-.terms-section h3 {
-  color: #ffffff;
-  font-size: 1.2rem;
-  margin: 20px 0 10px 0;
-  font-weight: 600;
+.terms-section p,
+.terms-section li {
+  color: var(--ink-soft);
+  font-size: 18px;
+  line-height: 1.72;
 }
 
 .terms-section p {
-  margin-bottom: 15px;
-  opacity: 0.9;
+  margin: 0 0 14px;
 }
 
 .terms-section ul {
-  margin: 15px 0;
-  padding-left: 30px;
+  margin: 14px 0;
+  padding-left: 1.35em;
 }
 
 .terms-section li {
-  margin-bottom: 10px;
-  opacity: 0.85;
+  margin-bottom: 7px;
+  padding-left: 5px;
 }
 
 .terms-section li::marker {
-  color: #d138d4;
+  color: var(--gold);
 }
 
 .terms-section strong {
-  color: #d138d4;
+  color: var(--ink);
   font-weight: 600;
 }
 
-@media (max-width: 768px) {
-  .terms-of-service-page {
-    padding: 40px 15px 30px;
-  }
-  
-  .terms-of-service-page h1 {
-    font-size: 2rem;
-  }
-  
-  .terms-section {
-    padding: 20px;
-  }
-  
-  .terms-section h2 {
-    font-size: 1.3rem;
+.terms-colophon {
+  padding: 26px 0 40px;
+  border-top: 1px solid var(--line);
+}
+
+.terms-colophon > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  color: var(--ink-faint);
+  font-size: 14.5px;
+}
+
+.terms-colophon a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.terms-colophon__wordmark {
+  margin-right: auto;
+  color: var(--ink);
+  font-size: 20px;
+}
+
+@media (max-width: 560px) {
+  .terms-container {
+    width: min(70ch, 90vw);
   }
 }
