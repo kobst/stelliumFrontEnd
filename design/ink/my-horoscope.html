@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Horoscopes by Iris</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Caveat:wght@500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4efe5; --paper-2: #f0ebe0; --card: #f6f1e7;
+    --ink: #232840; --ink-soft: rgba(35,40,64,0.78); --ink-faint: rgba(35,40,64,0.55);
+    --blue: #3437a8; --gold: #b08d3e; --navy: #1b2140; --line: rgba(35,40,64,0.16);
+    --serif: "EB Garamond", Georgia, serif; --script: "Caveat", cursive;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--serif); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { color: var(--ink); }
+  p { margin: 0 0 14px; }
+  ::selection { background: rgba(52,55,168,0.16); }
+  .wrap { width: min(1240px, 94vw); margin: 0 auto; }
+  .it { font-style: italic; color: var(--blue); }
+
+  .nav { position: sticky; top: 0; z-index: 6; background: rgba(244,239,229,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(35,40,64,0.08); }
+  .nav-inner { width: min(1160px, 94vw); margin: 0 auto; display: flex; align-items: center; gap: 22px; padding: 12px 0; }
+  .wordmark { font-family: var(--serif); font-size: 26px; font-weight: 500; color: var(--ink); display: flex; align-items: baseline; gap: 9px; }
+  .wordmark .mark { font-size: 18px; }
+  .seg { display: flex; gap: clamp(10px, 2.4vw, 30px); margin: 0 auto; }
+  .seg a { font-family: var(--serif); font-size: 16px; color: var(--ink-faint); padding: 6px 2px; border-bottom: 2px solid transparent; white-space: nowrap; }
+  .seg a.on { color: var(--ink); border-bottom-color: var(--blue); }
+  .seg a:hover:not(.on) { color: var(--ink); }
+  .credits { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; font-style: italic; color: var(--gold); border-radius: 999px; padding: 7px 16px; box-shadow: inset 0 0 0 1px rgba(176,141,62,0.5); white-space: nowrap; }
+  .me { display: flex; align-items: center; gap: 10px; }
+  .me .who { text-align: right; line-height: 1.2; }
+  .me .who b { font-size: 14px; font-weight: 600; display: block; }
+  .me .who span { font-size: 10px; font-weight: 600; letter-spacing: 0.18em; color: var(--gold); }
+  .me .ava { width: 38px; height: 38px; border-radius: 50%; background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--line), 0 0 0 2px var(--paper), 0 0 0 3px rgba(176,141,62,0.5); display: grid; place-items: center; font-family: var(--serif); font-weight: 500; color: var(--ink); }
+
+  /* period tabs */
+  .htabs { display: flex; justify-content: center; gap: clamp(12px, 3vw, 44px); border-bottom: 1px solid var(--line); background: rgba(244,239,229,0.94); }
+  .htab { display: flex; align-items: baseline; gap: 9px; padding: 13px 2px 14px; font-family: var(--serif); font-size: 16px; color: var(--ink-faint); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+  .htab .n { font-style: italic; font-size: 14px; }
+  .htab.on { color: var(--ink); border-bottom-color: var(--blue); }
+  .htab.on .n { color: var(--blue); }
+  .htab:hover { color: var(--ink); }
+  .htab .sp { color: var(--blue); font-size: 13px; }
+
+  /* layout */
+  .stage { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(20px, 2.6vw, 40px); align-items: start; padding: clamp(22px, 3.5vh, 40px) 0 70px; }
+
+  /* transit chips */
+  .chips-card { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; }
+  .chips-card .lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.24em; color: var(--ink-faint); margin-right: 4px; }
+  .tmode, .tchip { font-family: var(--serif); font-size: 14px; border-radius: 999px; padding: 5px 14px; border: 1px solid rgba(35,40,64,0.2); cursor: pointer; background: none; color: var(--ink-faint); display: inline-flex; align-items: center; gap: 6px; }
+  .tmode.on { background: var(--navy); color: #f2ecdd; border-color: var(--navy); }
+  .tchip .g { font-size: 14px; }
+  .tchip.on { color: var(--ink); border: 1.4px solid var(--pc, var(--blue)); background: color-mix(in srgb, var(--pc, var(--blue)) 7%, transparent); }
+  .tchip:hover { color: var(--ink); }
+  .qm { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-style: italic; color: var(--ink-faint); border: 1px solid rgba(35,40,64,0.2); cursor: help; }
+
+  /* medallion + timeline */
+  .medallion { position: relative; display: grid; place-items: center; }
+  .medallion svg { width: 100%; height: auto; }
+  .timeline { display: grid; grid-template-columns: auto 1fr auto auto; gap: 14px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 10px 18px 10px 10px; margin-top: 18px; }
+  .timeline .play { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--navy); color: #d8ba74; font-size: 13px; cursor: pointer; }
+  .track { position: relative; height: 3px; background: rgba(35,40,64,0.14); }
+  .track .win { position: absolute; top: 0; bottom: 0; left: 42%; width: 23%; background: rgba(52,55,168,0.25); }
+  .track .cursor { position: absolute; top: -6px; left: 52%; width: 2px; height: 15px; background: var(--blue); }
+  .track .dates { position: absolute; top: 10px; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 11px; font-style: italic; color: var(--ink-faint); }
+  .timeline .cur { font-size: 14px; font-style: italic; white-space: nowrap; color: var(--ink-soft); }
+  .timeline .now { font-family: var(--serif); font-size: 14px; border-radius: 999px; padding: 6px 16px; border: 1px solid rgba(35,40,64,0.25); cursor: pointer; background: none; color: var(--ink-soft); }
+  .timeline .now:hover { color: var(--ink); border-color: var(--ink); }
+
+  /* reading card */
+  .read-card { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 30px 32px 26px; }
+  .read-card h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(28px, 2.6vw, 36px); margin: 0 0 4px; }
+  .read-card h1 .it { font-style: italic; color: var(--blue); }
+  .read-range { font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 18px; }
+  .read-range b { color: var(--blue); font-weight: 600; }
+  .read-body p { font-size: 16px; color: var(--ink-soft); text-wrap: pretty; }
+  .read-note { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-style: italic; color: var(--ink-faint); margin-top: 6px; }
+  .read-note .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); }
+
+  /* ask pane */
+  #askPane { display: none; gap: 16px; }
+  #askPane h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(28px, 2.6vw, 36px); margin: 0; }
+  #askPane .sub { font-style: italic; font-size: 16px; color: var(--ink-soft); margin-top: -8px; }
+  .ctx { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 11.5px; font-weight: 600; letter-spacing: 0.2em; color: var(--ink-faint); }
+  .ctx .chip { letter-spacing: 0; font-size: 13.5px; font-style: italic; font-weight: 400; color: var(--blue); border: 1px solid rgba(52,55,168,0.35); border-radius: 999px; padding: 4px 13px; }
+  .ctx a { letter-spacing: 0; font-size: 14px; font-style: italic; font-weight: 400; }
+  .try { display: grid; gap: 10px; }
+  .try .lbl { font-size: 11.5px; font-weight: 600; letter-spacing: 0.24em; color: var(--ink-faint); }
+  .try button { text-align: left; font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--ink-soft); background: var(--paper); border: 1px solid rgba(35,40,64,0.18); border-radius: 4px; padding: 13px 17px; cursor: pointer; }
+  .try button:hover { border-color: var(--blue); color: var(--ink); }
+  .ask-input { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+  .ask-input input { font-family: var(--serif); font-style: italic; font-size: 16px; padding: 13px 20px; border-radius: 999px; border: 1px solid rgba(35,40,64,0.3); background: var(--paper); color: var(--ink); outline: none; }
+  .ask-input input:focus { border-color: var(--blue); }
+  .ask-input input::placeholder { color: var(--ink-faint); }
+  .ask-input button { width: 48px; height: 48px; border-radius: 50%; border: none; background: var(--navy); color: #f2ecdd; font-size: 17px; cursor: pointer; box-shadow: 0 8px 22px -10px rgba(27,33,64,0.6); }
+  .ask-foot { font-size: 13.5px; font-style: italic; color: var(--ink-faint); }
+  .ask-foot b { color: var(--blue); font-weight: 500; }
+
+  @media (max-width: 980px) {
+    .stage { grid-template-columns: 1fr; }
+    .seg { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" data-screen-label="Nav">
+  <div class="nav-inner">
+    <a class="wordmark" href="Stellium Home v7 (ink).html">Iris <span class="mark">✳</span></a>
+    <div class="seg">
+      <a class="on" href="#">Horoscope</a>
+      <a href="My Charts (ink).html">Charts</a>
+      <a href="My Relationships (ink).html">Relationships</a>
+    </div>
+    <span class="credits">✳ 404 credits</span>
+    <div class="me"><div class="who"><b>Eva Hanson</b><span>PLUS</span></div><div class="ava">EH</div></div>
+  </div>
+</nav>
+
+<nav class="htabs" data-screen-label="Period tabs">
+  <button class="htab" data-p="today"><span class="n">i.</span>Today</button>
+  <button class="htab" data-p="week"><span class="n">ii.</span>This Week</button>
+  <button class="htab" data-p="month"><span class="n">iii.</span>This Month</button>
+  <button class="htab" data-p="ask"><span class="sp">✳</span> Ask Iris</button>
+</nav>
+
+<main class="wrap stage">
+
+<div data-screen-label="Transit chart">
+  <div class="chips-card" id="chipsCard" style="display: none;">
+    <span class="lbl">TRANSITS</span>
+    <button class="tmode" data-m="reading">Reading</button>
+    <button class="tmode" data-m="all">All</button>
+    <button class="tchip" data-t="sun" style="--pc:#b98f2f;"><span class="g">☉︎</span>Sun</button>
+    <button class="tchip" data-t="moon" style="--pc:#8f8aa8;"><span class="g">☽︎</span>Moon</button>
+    <button class="tchip" data-t="mercury" style="--pc:#3f9a8e;"><span class="g">☿︎</span>Mercury</button>
+    <button class="tchip" data-t="venus" style="--pc:#c06a80;"><span class="g">♀︎</span>Venus</button>
+    <button class="tchip" data-t="mars" style="--pc:#c0564a;"><span class="g">♂︎</span>Mars</button>
+    <button class="tchip" data-t="jupiter" style="--pc:#b8813a;"><span class="g">♃︎</span>Jupiter</button>
+    <button class="tchip" data-t="saturn" style="--pc:#93805e;"><span class="g">♄︎</span>Saturn</button>
+    <button class="tchip" data-t="uranus" style="--pc:#4b93a8;"><span class="g">♅︎</span>Uranus</button>
+    <button class="tchip" data-t="neptune" style="--pc:#7a6cc0;"><span class="g">♆︎</span>Neptune</button>
+    <button class="tchip" data-t="pluto" style="--pc:#96588e;"><span class="g">♇︎</span>Pluto</button>
+    <span class="qm" title="Toggle a planet to show or hide its aspect lines to your natal chart. 'Reading' shows only the planets in today's reading.">?</span>
+  </div>
+  <div class="medallion"><svg id="horoWheel" role="img" aria-label="Today's sky over Eva's natal chart — transiting planets on the outer ring, aspect lines to natal planets"></svg></div>
+  <div class="timeline" data-screen-label="Timeline">
+    <button class="play" aria-label="Play">▶</button>
+    <div class="track"><span class="win"></span><span class="cursor"></span>
+      <span class="dates"><span>Jun 30</span><span>Jul 7</span><span>Jul 14</span><span>Jul 21</span><span>Jul 30</span></span>
+    </div>
+    <span class="cur">Mon, Jul 13</span>
+    <button class="now">Now</button>
+  </div>
+</div>
+
+<div>
+  <div class="read-card" id="readingPane" data-screen-label="Reading">
+    <h1>Horoscopes <span class="it">by Iris</span></h1>
+    <div class="read-range" id="readRange"></div>
+    <div class="read-body" id="readBody"></div>
+    <p class="read-note"><span class="dot"></span>The chart highlights only the transits discussed in this reading</p>
+  </div>
+  <div class="read-card" id="askPane" data-screen-label="Ask Iris">
+    <h1>Ask Iris <span class="it" style="font-size:0.55em; vertical-align:super;">✳</span></h1>
+    <p class="sub">She's read this sky. Ask her about it.</p>
+    <div class="ctx">CONTEXT <span class="chip">Transiting Saturn sextile natal Moon · Jul 22 ✕</span><a href="#">Edit</a></div>
+    <div class="try">
+      <span class="lbl">TRY ASKING:</span>
+      <button>How should I understand transiting Saturn sextile my natal Moon?</button>
+      <button>Where does this influence show up most strongly?</button>
+      <button>What is the growth edge in this transit?</button>
+      <button>How can I work with it in daily life?</button>
+    </div>
+    <form class="ask-input" onsubmit="return false;">
+      <input type="text" placeholder="Ask about this sky…" aria-label="Ask a question" />
+      <button aria-label="Send">→</button>
+    </form>
+    <p class="ask-foot"><b>✳</b> Included with Plus · fair use applies</p>
+  </div>
+</div>
+
+</main>
+
+<script src="horoscope-paper.js"></script>
+</body>
+</html>
