@@ -35,7 +35,6 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
     const validateForm = () => {
       const errors = {};
       if (!firstName.trim()) errors.firstName = "First name is required";
-      if (!lastName.trim()) errors.lastName = "Last name is required";
       if (!date) errors.date = "Date is required";
       if (!unknownTime && !time) errors.time = "Time is required";
       if (!lat || !lon) errors.location = "Location is required";
@@ -162,10 +161,11 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
           }
 
           // Show success message
+          const celebName = [firstName, lastName].map(p => p.trim()).filter(Boolean).join(' ');
           setSuccessMessage(
             analysisStarted
-              ? `${firstName} ${lastName} added — full birth chart analysis started (running in the background).`
-              : `${firstName} ${lastName} added, but the full analysis didn't start. Open the celebrity and start it from its dashboard.`
+              ? `${celebName} added — full birth chart analysis started (running in the background).`
+              : `${celebName} added, but the full analysis didn't start. Open the celebrity and start it from its dashboard.`
           );
           setWorkflowStatus('completed');
 
@@ -227,7 +227,7 @@ const AddCelebrityForm = ({ onCelebrityAdded }) => {
               />
               <input
                 type="text"
-                placeholder="Last Name"
+                placeholder="Last Name (optional)"
                 value={lastName}
                 onChange={e => setLastName(e.target.value)}
                 className="admin-input"
