@@ -41,7 +41,6 @@ const OnboardingForm = () => {
     const validateForm = () => {
         const errors = {};
         if (!firstName.trim()) errors.firstName = "First name is required";
-        if (!lastName.trim()) errors.lastName = "Last name is required";
         if (!date) errors.date = "Date is required";
         if (!unknownTime && !time) errors.time = "Time is required";
         if (!lat || !lon) errors.location = "Location is required";
@@ -171,7 +170,7 @@ const OnboardingForm = () => {
                         type="text"
                         id="lname"
                         name="lname"
-                        placeholder="Last Name"
+                        placeholder="Last Name (optional)"
                         value={lastName}
                         onChange={e => setLastName(e.target.value)}
                         style={inputStyle}

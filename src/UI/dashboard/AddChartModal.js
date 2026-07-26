@@ -79,7 +79,6 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
   const validateForm = () => {
     const errors = {};
     if (!firstName.trim()) errors.firstName = "First name is required";
-    if (!lastName.trim()) errors.lastName = "Last name is required";
     if (!gender) errors.gender = "Gender is required";
     if (!lat || !lon) errors.location = "Birth location is required";
     if (!date) errors.date = "Birth date is required";
@@ -244,7 +243,7 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
                 id="lastName"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                placeholder="Last name"
+                placeholder="Last name (optional)"
                 disabled={isSubmitting}
                 className={formErrors.lastName ? 'error' : ''}
               />
