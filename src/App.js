@@ -4,7 +4,6 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute, { OnboardingRoute } from './components/ProtectedRoute';
 
 // Public pages
-import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
@@ -31,6 +30,8 @@ import InkBirthChartPage from './pages/InkBirthChartPage';
 import InkRelationshipPage from './pages/InkRelationshipPage';
 import InkMyChartsPage from './pages/InkMyChartsPage';
 import InkMyRelationshipsPage from './pages/InkMyRelationshipsPage';
+import HomeInkV7 from './pages/HomeInkV7';
+import FreeReadingPage from './pages/FreeReadingPage';
 
 import './App.css';
 
@@ -56,7 +57,10 @@ function App() {
         <div className="App">
           <Routes>
             {/* Public routes - no auth required */}
-            <Route path="/" element={<InkLandingPage />} />
+            <Route path="/" element={<HomeInkV7 />} />
+            <Route path="/free-reading" element={<FreeReadingPage />} />
+            <Route path="/landing-legacy" element={<InkLandingPage />} />
+            <Route path="/try" element={<Navigate to="/" replace />} />
             <Route path="/login" element={<LoginPage />} />
             {/* pricing lives on the landing page now */}
             <Route path="/pricingTable" element={<Navigate to="/#pricing" replace />} />

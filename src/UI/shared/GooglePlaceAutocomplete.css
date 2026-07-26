@@ -17,6 +17,17 @@
   width: 100%;
 }
 
+/* The gmp web component follows the OS color scheme by default, which renders
+   a dark input on dark-mode machines regardless of page styling. The app's
+   surfaces are the light ink/paper palette, so pin the component to light.
+   (Tag selector on purpose: className assignment on the custom element does
+   not reliably persist, so class-based overrides never match.) */
+.google-place-autocomplete__mount gmp-place-autocomplete {
+  display: block;
+  width: 100%;
+  color-scheme: light;
+}
+
 .google-place-autocomplete__fallback {
   width: 100%;
 }

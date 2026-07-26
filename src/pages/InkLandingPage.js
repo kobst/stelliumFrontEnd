@@ -400,7 +400,7 @@ function InkLandingPage() {
                 genuinely knows you.
               </p>
               <div className="ink-landing__hero-ctas">
-                <Link className="ink-btn ink-btn--navy" to="/signUp">Get started ✳</Link>
+                <Link className="ink-btn ink-btn--navy" to="/try">Read my chart free ✳</Link>
                 <a className="ink-btn ink-btn--ghost" href="#ways">See how it works</a>
               </div>
               <p className="ink-landing__micro">
