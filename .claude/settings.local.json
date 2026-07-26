@@ -7,7 +7,11 @@
       "Bash(git checkout:*)",
       "Bash(grep:*)",
       "Bash(rg:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(mkdir -p /tmp/celeb_design)",
+      "Bash(gunzip -c /tmp/celeb_design.tar.gz)",
+      "Bash(tar -xf - -C /tmp/celeb_design)",
+      "Read(//tmp/**)"
     ],
     "deny": []
   }
