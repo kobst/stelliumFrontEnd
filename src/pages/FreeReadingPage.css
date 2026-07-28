@@ -105,10 +105,14 @@
 .fr-sugg button:hover { border-color: var(--ink); }
 .fr-sugg button:disabled { opacity: 0.4; cursor: default; }
 .fr-ask-bar { margin-top: 20px; border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: rgba(246,241,231,0.6); }
-.fr-ask-bar-inner { display: flex; align-items: center; gap: 16px; border: 1px solid rgba(35,40,64,0.1); border-radius: 10px; padding: 8px 8px 8px 22px; }
-.fr-ask-bar input { flex: 1; border: none; background: none; outline: none; font-family: var(--serif); font-style: italic; font-size: 16.5px; color: var(--ink); min-width: 0; border-bottom: 1px solid rgba(35,40,64,0.25); padding: 6px 2px; }
-.fr-ask-bar input::placeholder { color: var(--ink-faint); }
-.fr-ask-bar input:disabled { color: var(--ink-faint); }
+.fr-ask-bar-inner { display: flex; align-items: flex-end; gap: 16px; border: 1px solid rgba(35,40,64,0.1); border-radius: 10px; padding: 8px 8px 8px 22px; }
+.fr-ask-bar input,
+.fr-ask-bar textarea { flex: 1; border: none; background: none; outline: none; font-family: var(--serif); font-style: italic; font-size: 16.5px; color: var(--ink); min-width: 0; border-bottom: 1px solid rgba(35,40,64,0.25); padding: 6px 2px; }
+.fr-ask-bar textarea { resize: none; overflow-y: auto; line-height: 1.5; max-height: 9.5em; }
+.fr-ask-bar input::placeholder,
+.fr-ask-bar textarea::placeholder { color: var(--ink-faint); }
+.fr-ask-bar input:disabled,
+.fr-ask-bar textarea:disabled { color: var(--ink-faint); }
 
 /* email gate (backend-enforced after the free question; styled to match the wall) */
 .fr-gate { margin-top: clamp(22px, 3vh, 30px); background: var(--card); border: 1.4px solid rgba(52,55,168,0.45); border-radius: 6px; padding: clamp(24px, 3.4vw, 34px); text-align: center; display: grid; gap: 12px; justify-items: center; }

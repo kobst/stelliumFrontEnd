@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   askTrialQuestion,
@@ -128,6 +128,7 @@ const FreeReadingPage = () => {
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [chatError, setChatError] = useState('');
+  const askInputRef = useRef(null);
   const [suggestions, setSuggestions] = useState(SUGGESTIONS);
   const [trialState, setTrialState] = useState(null);
 
@@ -191,6 +192,14 @@ const FreeReadingPage = () => {
     );
     return () => clearInterval(timer);
   }, [pendingPreview, createError]);
+
+  // Auto-grow the ask textarea so long questions wrap instead of scrolling
+  useEffect(() => {
+    const el = askInputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [input]);
 
   if (!session && (pendingPreview || createError)) {
     const previewName = pendingPreview?.firstName || 'friend';
@@ -463,13 +472,14 @@ const FreeReadingPage = () => {
             {!emailGateOpen && (
               <div className="fr-ask-bar">
                 <div className="fr-ask-bar-inner">
-                  <input
-                    type="text"
+                  <textarea
+                    ref={askInputRef}
+                    rows={1}
                     placeholder={outOfQuestions ? 'Create an account to keep asking' : 'Ask Iris about your chart...'}
                     aria-label="Ask Iris about your chart"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); ask(input); } }}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(input); } }}
                     disabled={busy || outOfQuestions}
                   />
                   <button className="fr-btn fr-btn--navy" type="button" disabled={busy || outOfQuestions} onClick={() => ask(input)}>
