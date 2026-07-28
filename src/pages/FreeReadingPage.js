@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { askTrialQuestion, attachTrialEmail, loadTrialSession } from '../Utilities/trialApi';
+import {
+  askTrialQuestion,
+  attachTrialEmail,
+  loadTrialSession,
+  getPendingTrialReading,
+  clearPendingTrialReading,
+} from '../Utilities/trialApi';
 import './FreeReadingPage.css';
 
 const ASSET = (name) => `${process.env.PUBLIC_URL || ''}/assets/ink/${name}`;
@@ -103,9 +109,20 @@ const SUGGESTIONS = [
   'Is this year meant to be this heavy?',
 ];
 
+const LOADING_LINES = [
+  'Casting your chart for the exact minute you arrived…',
+  'Placing your planets in their houses…',
+  'Tracing the aspects between them…',
+  'Iris is reading. She doesn’t skim…',
+  'Writing it up in plain language…',
+];
+
 const FreeReadingPage = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState(undefined); // undefined = loading, null = none
+  const [pendingPreview, setPendingPreview] = useState(null); // set while creation is in flight
+  const [createError, setCreateError] = useState('');
+  const [loadingLineIndex, setLoadingLineIndex] = useState(0);
 
   const [thread, setThread] = useState([]);
   const [input, setInput] = useState('');
@@ -120,21 +137,106 @@ const FreeReadingPage = () => {
   const [emailError, setEmailError] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
+    const adoptSession = (existing) => {
+      if (cancelled) return;
+      setSession(existing);
+      setTrialState(existing.trial || null);
+      setPendingPreview(null);
+      try {
+        const pending = window.localStorage.getItem('stellium_trial_pending_question');
+        if (pending) {
+          setInput(pending);
+          window.localStorage.removeItem('stellium_trial_pending_question');
+        }
+      } catch (e) { /* ignore */ }
+    };
+
     const existing = loadTrialSession();
-    if (!existing?.overview) {
-      navigate('/', { replace: true });
-      return;
+    if (existing?.overview) {
+      adoptSession(existing);
+      return undefined;
     }
-    setSession(existing);
-    setTrialState(existing.trial || null);
-    try {
-      const pending = window.localStorage.getItem('stellium_trial_pending_question');
-      if (pending) {
-        setInput(pending);
-        window.localStorage.removeItem('stellium_trial_pending_question');
-      }
-    } catch (e) { /* ignore */ }
+
+    // No session yet: a creation kicked off on the landing page may be in
+    // flight — own the wait here with a real loading experience.
+    const pending = getPendingTrialReading();
+    if (pending) {
+      setPendingPreview(pending.preview);
+      pending.promise
+        .then((created) => adoptSession(created))
+        .catch((error) => {
+          if (cancelled) return;
+          clearPendingTrialReading();
+          setCreateError(
+            error?.status === 429
+              ? 'Too many readings from this connection today — try again tomorrow.'
+              : (error?.message || 'Something went wrong reading your chart.')
+          );
+        });
+      return () => { cancelled = true; };
+    }
+
+    navigate('/', { replace: true });
+    return () => { cancelled = true; };
   }, [navigate]);
+
+  // Rotate the loading copy while creation is in flight
+  useEffect(() => {
+    if (!pendingPreview || createError) return undefined;
+    const timer = setInterval(
+      () => setLoadingLineIndex((i) => (i + 1) % LOADING_LINES.length),
+      3400
+    );
+    return () => clearInterval(timer);
+  }, [pendingPreview, createError]);
+
+  if (!session && (pendingPreview || createError)) {
+    const previewName = pendingPreview?.firstName || 'friend';
+    const previewVitals = pendingPreview?.vitals || {};
+    return (
+      <div className="fr">
+        <nav className="fr-nav">
+          <div className="fr-nav-inner">
+            <Link className="fr-wordmark" to="/">Iris <span className="fr-mark">✳</span></Link>
+          </div>
+        </nav>
+        <header className="fr-mast fr-wrap">
+          <div className="fr-mast-grid">
+            <div>
+              <span className="fr-eyebrow">{createError ? 'Something went wrong' : 'Your free reading'}</span>
+              {createError ? (
+                <>
+                  <h1>We couldn’t finish <span className="fr-it">your chart.</span></h1>
+                  <p className="fr-load-error">{createError}</p>
+                  <Link className="fr-btn fr-btn--navy" to="/">Try again ✳</Link>
+                </>
+              ) : (
+                <>
+                  <h1>One moment, <span className="fr-it">{previewName}</span>.<br />Iris is reading your chart.</h1>
+                  <div className="fr-vitals">
+                    {previewVitals.date && <span><b>{formatVitalsDate(previewVitals.date)}</b></span>}
+                    <span>{formatVitalsTime(previewVitals.time)}</span>
+                    {previewVitals.place && <span>{previewVitals.place}</span>}
+                  </div>
+                  <p className="fr-load-line" aria-live="polite">{LOADING_LINES[loadingLineIndex]}</p>
+                </>
+              )}
+            </div>
+            <div className="fr-mast-art">
+              <img
+                className={createError ? '' : 'fr-wheel-spin'}
+                src={ASSET('ill-wheel.png')}
+                alt="A hand-drawn zodiac wheel with sign glyphs, inked on paper"
+              />
+              {!createError && <div className="fr-note">Good things take about half a minute.</div>}
+            </div>
+          </div>
+        </header>
+      </div>
+    );
+  }
 
   if (!session) return null;
 

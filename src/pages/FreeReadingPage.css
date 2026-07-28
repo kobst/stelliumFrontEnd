@@ -126,6 +126,33 @@
 .fr-colo-inner { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; font-size: 14.5px; color: var(--ink-faint); }
 .fr-wm { font-size: 20px; color: var(--ink); margin-right: auto; }
 
+/* Loading experience while the chart + overview are generated */
+.fr-load-line {
+  margin-top: 22px;
+  font-family: var(--script);
+  font-size: 23px;
+  color: #2c3260;
+  min-height: 1.5em;
+  transition: opacity .4s ease;
+}
+.fr-load-error {
+  margin: 14px 0 22px;
+  font-size: 17px;
+  color: var(--ink-soft);
+  max-width: 46ch;
+}
+.fr-wheel-spin {
+  animation: fr-wheel-rotate 46s linear infinite;
+  transform-origin: 50% 50%;
+}
+@keyframes fr-wheel-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fr-wheel-spin { animation: none; }
+}
+
 @media (max-width: 920px) {
   .fr-mast-grid { grid-template-columns: 1fr; }
   .fr-mast-art { order: -1; }

@@ -2,20 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import GooglePlaceAutocomplete from '../UI/shared/GooglePlaceAutocomplete';
 import { fetchTimeZone } from '../Utilities/api';
-import { createTrialReading, saveTrialSession, loadTrialSession } from '../Utilities/trialApi';
+import { beginTrialReading } from '../Utilities/trialApi';
 import './HomeInkV7.css';
 
 const ASSET = (name) => `${process.env.PUBLIC_URL || ''}/assets/ink/${name}`;
-
-/** Pull Sun / Moon / Rising out of the trial create response for the reading page. */
-const extractBigThree = (birthChart) => {
-  const byName = {};
-  (birthChart?.planets || []).forEach((p) => { byName[p.name] = p; });
-  const pick = (name) => byName[name]
-    ? { sign: byName[name].sign || null, house: byName[name].house || null }
-    : null;
-  return { sun: pick('Sun'), moon: pick('Moon'), rising: pick('Ascendant') };
-};
 
 const HomeInkV7 = () => {
   const navigate = useNavigate();
@@ -28,7 +18,6 @@ const HomeInkV7 = () => {
   const [lat, setLat] = useState(null);
   const [lon, setLon] = useState(null);
   const [formError, setFormError] = useState('');
-  const [creating, setCreating] = useState(false);
   const [askDraft, setAskDraft] = useState('');
 
   const handlePlaceSelected = ({ formattedAddress, lat: placeLat, lon: placeLon }) => {
@@ -38,9 +27,8 @@ const HomeInkV7 = () => {
     setLon(placeLon);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    if (creating) return;
     setFormError('');
 
     if (!name.trim()) return setFormError('Your name, please — she likes to know who she’s reading.');
@@ -48,41 +36,22 @@ const HomeInkV7 = () => {
     if (!unknownTime && !time) return setFormError('Add your birth time, or switch to “Unknown”.');
     if (lat == null || lon == null) return setFormError('Pick your birth place from the suggestions.');
 
-    setCreating(true);
-    try {
-      const birthTimeUnknown = unknownTime;
-      const timeForTimezone = birthTimeUnknown ? '12:00' : time;
-      const epochTimeSeconds = Math.floor(new Date(`${date}T${timeForTimezone}:00`).getTime() / 1000);
-      const tzone = await fetchTimeZone(lat, lon, epochTimeSeconds);
-
-      const data = await createTrialReading({
+    // Kick off the whole pipeline without awaiting and hand the wait to the
+    // reading page, which owns the loading experience.
+    beginTrialReading(
+      {
         firstName: name.trim().split(/\s+/)[0],
         lastName: name.trim().split(/\s+/).slice(1).join(' '),
         dateOfBirth: date,
+        time,
+        birthTimeUnknown: unknownTime,
         placeOfBirth,
-        ...(birthTimeUnknown ? { birthTimeUnknown: true } : { time }),
-        lat: parseFloat(lat),
-        lon: parseFloat(lon),
-        tzone: parseFloat(tzone),
-      });
-
-      // Enrich the stored session with everything the reading page renders
-      saveTrialSession({
-        ...loadTrialSession(),
-        vitals: { date, time: birthTimeUnknown ? null : time, place: placeOfBirth },
-        bigThree: extractBigThree(data.birthChart),
-        trial: data.trial,
-      });
-
-      navigate('/free-reading');
-    } catch (error) {
-      setFormError(
-        error?.status === 429
-          ? 'Too many readings from this connection today — try again tomorrow.'
-          : (error.message || 'Something went wrong reading your chart. Try again.')
-      );
-      setCreating(false);
-    }
+        lat,
+        lon,
+      },
+      { fetchTimeZone }
+    );
+    navigate('/free-reading');
   };
 
   // The marketing ask-bar has no chart yet: stash the question and take them to the form
@@ -175,8 +144,8 @@ const HomeInkV7 = () => {
                 </div>
               </div>
               {formError && <p className="hv7-form-error" role="alert">{formError}</p>}
-              <button className="hv7-btn hv7-btn--navy" type="submit" disabled={creating}>
-                {creating ? 'Reading your chart…' : 'Read my chart free ✳'}
+              <button className="hv7-btn hv7-btn--navy" type="submit">
+                Read my chart free ✳
               </button>
             </form>
             <p className="hv7-micro">Free overview &nbsp;·&nbsp; <b>3 questions for Iris</b> &nbsp;·&nbsp; no card, no account</p>

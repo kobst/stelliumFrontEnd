@@ -69,6 +69,81 @@ export const createTrialReading = async (birthData) => {
   return data;
 };
 
+/** Pull Sun / Moon / Rising out of a birth chart for the reading page. */
+export const extractBigThree = (birthChart) => {
+  const byName = {};
+  (birthChart?.planets || []).forEach((p) => { byName[p.name] = p; });
+  const pick = (name) => byName[name]
+    ? { sign: byName[name].sign || null, house: byName[name].house || null }
+    : null;
+  return { sun: pick('Sun'), moon: pick('Moon'), rising: pick('Ascendant') };
+};
+
+// In-flight trial creation, so the landing page can navigate to /free-reading
+// immediately and the reading page can await the result there. Module-scoped:
+// survives SPA navigation, not a hard reload (reload with no session → home).
+let pendingTrialReading = null;
+
+/**
+ * Start the full creation pipeline (timezone lookup → create → enrich session)
+ * WITHOUT awaiting it. Returns immediately; the reading page consumes the
+ * pending handle. Safe under StrictMode double-effects: getPendingTrialReading
+ * does not clear the handle — it is replaced on the next begin, and cleared
+ * when the promise settles into a saved session.
+ */
+export const beginTrialReading = (form, { fetchTimeZone }) => {
+  const preview = {
+    firstName: form.firstName,
+    vitals: {
+      date: form.dateOfBirth,
+      time: form.birthTimeUnknown ? null : form.time,
+      place: form.placeOfBirth,
+    },
+  };
+
+  const promise = (async () => {
+    const timeForTimezone = form.birthTimeUnknown ? '12:00' : form.time;
+    const epochTimeSeconds = Math.floor(new Date(`${form.dateOfBirth}T${timeForTimezone}:00`).getTime() / 1000);
+    const tzone = await fetchTimeZone(form.lat, form.lon, epochTimeSeconds);
+
+    const data = await createTrialReading({
+      firstName: form.firstName,
+      lastName: form.lastName || '',
+      dateOfBirth: form.dateOfBirth,
+      placeOfBirth: form.placeOfBirth,
+      ...(form.birthTimeUnknown ? { birthTimeUnknown: true } : { time: form.time }),
+      lat: parseFloat(form.lat),
+      lon: parseFloat(form.lon),
+      tzone: parseFloat(tzone),
+    });
+
+    saveTrialSession({
+      ...loadTrialSession(),
+      vitals: preview.vitals,
+      bigThree: extractBigThree(data.birthChart),
+      trial: data.trial,
+    });
+    return loadTrialSession();
+  })();
+
+  // Keep the handle until settled so late subscribers (or StrictMode's second
+  // effect run) can still attach; never let a rejection go unhandled here.
+  pendingTrialReading = { promise, preview };
+  promise.catch(() => {}).finally(() => {
+    if (pendingTrialReading?.promise === promise) {
+      // Leave errored handles in place so the reading page can render the
+      // failure; successful runs are represented by the saved session.
+      loadTrialSession() && (pendingTrialReading = null);
+    }
+  });
+
+  return pendingTrialReading;
+};
+
+export const getPendingTrialReading = () => pendingTrialReading;
+
+export const clearPendingTrialReading = () => { pendingTrialReading = null; };
+
 /**
  * Ask a trial question. Returns { answer, trial } on success.
  * Gate outcomes are returned (not thrown) so the UI can render them:
