@@ -36,6 +36,16 @@
 .hv7-btn--navy[disabled] { opacity: 0.45; cursor: default; transform: none; box-shadow: none; }
 .hv7-btn--ghost { background: none; color: var(--ink); box-shadow: inset 0 0 0 1px rgba(35,40,64,0.35); }
 .hv7-btn--ghost:hover { box-shadow: inset 0 0 0 1px var(--ink); color: var(--ink); }
+/* Links double as buttons: outrank the `.hv7 a` link color so CTAs keep their
+   intended label colors in every state. */
+.hv7 a.hv7-btn--navy,
+.hv7 a.hv7-btn--navy:visited,
+.hv7 a.hv7-btn--navy:hover,
+.hv7 a.hv7-btn--navy:active,
+.hv7 button.hv7-btn--navy { color: #f2ecdd; }
+.hv7 a.hv7-btn--ghost,
+.hv7 a.hv7-btn--ghost:visited,
+.hv7 a.hv7-btn--ghost:hover { color: var(--ink); }
 
 /* nav */
 .hv7-nav { position: sticky; top: 0; z-index: 8; background: rgba(244,239,229,0.92); backdrop-filter: blur(10px); }

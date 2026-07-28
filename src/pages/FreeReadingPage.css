@@ -32,6 +32,13 @@
 .fr-btn--navy { background: var(--navy); color: #f2ecdd; box-shadow: 0 8px 22px -10px rgba(27,33,64,0.6); }
 .fr-btn--navy:hover { transform: translateY(-1px); box-shadow: 0 12px 26px -10px rgba(27,33,64,0.65); color: #f2ecdd; }
 .fr-btn--navy[disabled] { opacity: 0.45; cursor: default; transform: none; box-shadow: none; }
+/* Links double as buttons: outrank the `.fr a` link color so navy CTAs keep
+   their cream label in every state. */
+.fr a.fr-btn--navy,
+.fr a.fr-btn--navy:visited,
+.fr a.fr-btn--navy:hover,
+.fr a.fr-btn--navy:active,
+.fr button.fr-btn--navy { color: #f2ecdd; }
 
 .fr-note { position: relative; background: #f2ecdf; padding: 26px 22px 20px; box-shadow: 0 1px 2px rgba(35,40,64,0.12), 0 14px 28px -14px rgba(35,40,64,0.35); font-family: var(--script); color: #2c3260; }
 .fr-note::before { content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-3deg); width: 74px; height: 24px; background: rgba(180,166,140,0.5); box-shadow: 0 1px 2px rgba(35,40,64,0.12); }

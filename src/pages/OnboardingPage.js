@@ -109,13 +109,15 @@ const OnboardingPage = () => {
                             </aside>
                         </header>
 
-                        {trialSession && (
-                            <div className="ink-card onboarding-trial-claim" style={{ padding: '20px 24px', marginBottom: '20px' }}>
-                                <p style={{ margin: 0 }}>
+                        {trialSession ? (
+                            /* A trial reading exists: claiming replaces the form entirely.
+                               "Start fresh" clears the session and reveals the form. */
+                            <div className="signup-form-container ink-card onboarding-trial-claim" style={{ padding: '30px 32px', alignSelf: 'start' }}>
+                                <p style={{ margin: 0, fontSize: '1.05rem' }}>
                                     <strong>Welcome back{trialSession.firstName ? `, ${trialSession.firstName}` : ''}.</strong>{' '}
-                                    Keep the chart and reading you created — no need to re-enter anything.
+                                    We saved the chart and reading you created — no need to re-enter anything.
                                 </p>
-                                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '12px' }}>
+                                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '18px' }}>
                                     <button className="ink-btn ink-btn--navy" onClick={handleClaimTrial} disabled={claiming}>
                                         {claiming ? 'Restoring your reading…' : 'Continue with my chart ✳'}
                                     </button>
@@ -123,13 +125,16 @@ const OnboardingPage = () => {
                                         Start fresh instead
                                     </button>
                                 </div>
+                                <p style={{ marginTop: '14px', marginBottom: 0, fontSize: '0.85rem', color: 'var(--ink-faint, #8b8694)', fontStyle: 'italic' }}>
+                                    Starting fresh discards the trial reading and lets you enter new birth details.
+                                </p>
                                 {claimError && <p style={{ color: '#a03232', marginTop: '10px', marginBottom: 0 }}>{claimError}</p>}
                             </div>
+                        ) : (
+                            <div className="signup-form-container ink-card">
+                                <OnboardingForm />
+                            </div>
                         )}
-
-                        <div className="signup-form-container ink-card">
-                            <OnboardingForm />
-                        </div>
                     </div>
                 </div>
             </main>
