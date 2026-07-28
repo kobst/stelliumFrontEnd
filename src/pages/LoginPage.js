@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { loadTrialSession } from '../Utilities/trialApi';
 import { useAuth } from '../context/AuthContext';
 import InkNav from '../UI/ink/InkNav';
 import '../styles/ink.css';
@@ -215,9 +216,15 @@ const LoginPage = () => {
       <main className="login-main">
         <div className="login-wrap">
         <div className="login-top">
-          <button type="button" className="login-top__back" onClick={() => navigate('/')}>
-            <span className="login-top__arrow">←</span> Back to home
-          </button>
+          {loadTrialSession()?.overview ? (
+            <button type="button" className="login-top__back" onClick={() => navigate('/free-reading')}>
+              <span className="login-top__arrow">←</span> Back to your reading
+            </button>
+          ) : (
+            <button type="button" className="login-top__back" onClick={() => navigate('/')}>
+              <span className="login-top__arrow">←</span> Back to home
+            </button>
+          )}
           <span className="login-top__right">
             <span className="login-top__dot" aria-hidden="true" /> Free to start · no credit card
           </span>

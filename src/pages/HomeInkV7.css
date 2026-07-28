@@ -71,6 +71,23 @@
 .hv7-note-hero { position: absolute; top: 4%; right: -2%; width: min(215px, 46%); transform: rotate(4deg); font-size: 23px; line-height: 1.5; text-align: center; }
 .hv7-heart { display: block; font-size: 20px; margin-top: 10px; }
 
+/* welcome-back ribbon for a saved trial reading */
+.hv7-saved-reading {
+  margin-top: 26px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: var(--card);
+  border: 1.4px solid rgba(52,55,168,0.45);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 16px;
+  color: var(--ink-soft);
+  max-width: 430px;
+}
+.hv7-saved-reading__btn { padding: 8px 20px; font-size: 15px; }
+
 /* birth form */
 .hv7-bform { margin: 26px 0 0; display: grid; gap: 12px; max-width: 430px; }
 .hv7-bf-row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }

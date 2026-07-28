@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import GooglePlaceAutocomplete from '../UI/shared/GooglePlaceAutocomplete';
 import { fetchTimeZone } from '../Utilities/api';
-import { beginTrialReading } from '../Utilities/trialApi';
+import { beginTrialReading, loadTrialSession } from '../Utilities/trialApi';
 import './HomeInkV7.css';
 
 const ASSET = (name) => `${process.env.PUBLIC_URL || ''}/assets/ink/${name}`;
@@ -19,6 +19,7 @@ const HomeInkV7 = () => {
   const [lon, setLon] = useState(null);
   const [formError, setFormError] = useState('');
   const [askDraft, setAskDraft] = useState('');
+  const [savedReading] = useState(() => loadTrialSession());
 
   const handlePlaceSelected = ({ formattedAddress, lat: placeLat, lon: placeLon }) => {
     if (placeLat == null || placeLon == null) return;
@@ -85,6 +86,17 @@ const HomeInkV7 = () => {
             <p className="hv7-lede">
               Iris reads your actual birth chart — not your sun sign — for guidance that genuinely knows you.
             </p>
+
+            {savedReading?.overview && (
+              <div className="hv7-saved-reading">
+                <span>
+                  Welcome back{savedReading.firstName ? `, ${savedReading.firstName}` : ''} — your reading is saved.
+                </span>
+                <Link className="hv7-btn hv7-btn--navy hv7-saved-reading__btn" to="/free-reading">
+                  Continue reading ✳
+                </Link>
+              </div>
+            )}
 
             <form className="hv7-bform" onSubmit={handleSubmit}>
               <div className="hv7-bf-row hv7-bf-row--one">
