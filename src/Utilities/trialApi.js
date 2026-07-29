@@ -162,6 +162,23 @@ export const askTrialQuestion = async (session, query) => {
 };
 
 /**
+ * Load the trial conversation so a returning visitor sees their previous
+ * questions. Returns [] on any failure — rehydration is best-effort.
+ */
+export const fetchTrialHistory = async (session) => {
+  try {
+    const response = await fetch(`${SERVER_URL}/public/trial/${session.subjectId}/history`, {
+      headers: { 'X-Trial-Token': session.trialToken },
+    });
+    if (!response.ok) return { messages: [], trial: null };
+    const data = await response.json().catch(() => ({}));
+    return { messages: data.messages || [], trial: data.trial || null };
+  } catch (error) {
+    return { messages: [], trial: null };
+  }
+};
+
+/**
  * Attach an email to the trial session. sendReading=true also emails the
  * overview to the visitor (the ungated "email me this reading" capture).
  */

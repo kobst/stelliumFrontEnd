@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   askTrialQuestion,
   attachTrialEmail,
+  fetchTrialHistory,
   loadTrialSession,
   getPendingTrialReading,
   clearPendingTrialReading,
@@ -152,6 +153,22 @@ const FreeReadingPage = () => {
           window.localStorage.removeItem('stellium_trial_pending_question');
         }
       } catch (e) { /* ignore */ }
+
+      // Rehydrate the conversation for returning visitors: pair the stored
+      // user/assistant messages back into Q&A bubbles and refresh gate state.
+      fetchTrialHistory(existing).then(({ messages, trial }) => {
+        if (cancelled) return;
+        const pairs = [];
+        messages.forEach((message) => {
+          if (message.role === 'user') {
+            pairs.push({ q: message.content, a: null });
+          } else if (message.role === 'assistant' && pairs.length > 0 && pairs[pairs.length - 1].a === null) {
+            pairs[pairs.length - 1].a = message.content;
+          }
+        });
+        if (pairs.length > 0) setThread(pairs.filter((qa) => qa.a !== null));
+        if (trial) setTrialState((prev) => ({ ...prev, ...trial }));
+      });
     };
 
     const existing = loadTrialSession();
