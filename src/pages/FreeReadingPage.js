@@ -114,7 +114,7 @@ const LOADING_LINES = [
   'Casting your chart for the exact minute you arrived…',
   'Placing your planets in their houses…',
   'Tracing the aspects between them…',
-  'Iris is reading. She doesn’t skim…',
+  'Astral Gravity is reading. No skimming, promise…',
   'Writing it up in plain language…',
 ];
 
@@ -225,7 +225,7 @@ const FreeReadingPage = () => {
       <div className="fr">
         <nav className="fr-nav">
           <div className="fr-nav-inner">
-            <Link className="fr-wordmark" to="/">Iris <span className="fr-mark">✳</span></Link>
+            <Link className="fr-wordmark" to="/">Astral Gravity <span className="fr-mark">✳</span></Link>
           </div>
         </nav>
         <header className="fr-mast fr-wrap">
@@ -240,7 +240,7 @@ const FreeReadingPage = () => {
                 </>
               ) : (
                 <>
-                  <h1>One moment, <span className="fr-it">{previewName}</span>.<br />Iris is reading your chart.</h1>
+                  <h1>One moment, <span className="fr-it">{previewName}</span>.<br />Astral Gravity is reading your chart.</h1>
                   <div className="fr-vitals">
                     {previewVitals.date && <span><b>{formatVitalsDate(previewVitals.date)}</b></span>}
                     <span>{formatVitalsTime(previewVitals.time)}</span>
@@ -352,7 +352,7 @@ const FreeReadingPage = () => {
     <div className="fr">
       <nav className="fr-nav">
         <div className="fr-nav-inner">
-          <Link className="fr-wordmark" to="/">Iris <span className="fr-mark">✳</span></Link>
+          <Link className="fr-wordmark" to="/">Astral Gravity <span className="fr-mark">✳</span></Link>
           <span className="fr-credits"><b>{questionsLeft}</b> free question{questionsLeft === 1 ? '' : 's'} left</span>
           <Link className="fr-btn fr-btn--navy fr-nav-btn" to="/signUp">Create free account</Link>
         </div>
@@ -433,7 +433,7 @@ const FreeReadingPage = () => {
         <div className="fr-wrap">
           <div className="fr-sect-head">
             <span className="fr-eyebrow">Three questions, on the house</span>
-            <h2>She’s read your chart. <span className="fr-it">Ask her.</span></h2>
+            <h2>Your chart’s been read. <span className="fr-it">Ask away.</span></h2>
           </div>
           <div className="fr-ask-shell">
             <div className="fr-tally">
@@ -449,8 +449,8 @@ const FreeReadingPage = () => {
                   <div className="fr-q">{qa.q}</div>
                   <div className="fr-a">
                     {qa.a === null
-                      ? <span className="fr-typing">Iris is reading your chart…</span>
-                      : <>{qa.a}<span className="fr-a-sig">— Iris ✳</span></>}
+                      ? <span className="fr-typing">Astral Gravity is reading your chart…</span>
+                      : <>{qa.a}<span className="fr-a-sig">— Astral Gravity ✳</span></>}
                   </div>
                 </div>
               ))}
@@ -468,7 +468,7 @@ const FreeReadingPage = () => {
               <form className="fr-gate" onSubmit={submitEmailGate}>
                 <span className="fr-eyebrow">One small thing</span>
                 <h3>That first one was on the house.</h3>
-                <p>Leave your email and Iris will answer your next {questionsLeft === 1 ? 'question' : `${questionsLeft} questions`} — and send you this reading to keep.</p>
+                <p>Leave your email and Astral Gravity will answer your next {questionsLeft === 1 ? 'question' : `${questionsLeft} questions`} — and send you this reading to keep.</p>
                 <div className="fr-gate-row">
                   <input
                     type="email"
@@ -492,15 +492,15 @@ const FreeReadingPage = () => {
                   <textarea
                     ref={askInputRef}
                     rows={1}
-                    placeholder={outOfQuestions ? 'Create an account to keep asking' : 'Ask Iris about your chart...'}
-                    aria-label="Ask Iris about your chart"
+                    placeholder={outOfQuestions ? 'Create an account to keep asking' : 'Ask about your chart...'}
+                    aria-label="Ask about your chart"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(input); } }}
                     disabled={busy || outOfQuestions}
                   />
                   <button className="fr-btn fr-btn--navy" type="button" disabled={busy || outOfQuestions} onClick={() => ask(input)}>
-                    Ask Iris ✳
+                    Gravity Chat ✳
                   </button>
                 </div>
               </div>
@@ -512,7 +512,7 @@ const FreeReadingPage = () => {
               <div className="fr-wall">
                 <span className="fr-eyebrow">That’s your three</span>
                 <h3>Keep going with <span className="fr-it">25 free credits.</span></h3>
-                <p>Create an account and Iris keeps this chart, remembers the conversation, and opens the full reading — patterns, every placement, and your 360° analysis.</p>
+                <p>Create an account and Astral Gravity keeps this chart, remembers the conversation, and opens the full reading — patterns, every placement, and your 360° analysis.</p>
                 <Link className="fr-btn fr-btn--navy" to="/signUp">Create free account ✳</Link>
                 <p className="fr-fine">No card required. Your reading is saved to this chart.</p>
               </div>
@@ -530,11 +530,11 @@ const FreeReadingPage = () => {
 
       <footer className="fr-colophon">
         <div className="fr-wrap fr-colo-inner">
-          <span className="fr-wm">Iris ✳</span>
+          <span className="fr-wm">Astral Gravity ✳</span>
           <Link to="/">Home</Link>
           <Link to="/privacy-policy">Privacy</Link>
           <Link to="/terms-of-service">Terms</Link>
-          <span>© 2026 Iris</span>
+          <span>© 2026 Astral Gravity</span>
         </div>
       </footer>
     </div>

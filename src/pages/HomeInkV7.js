@@ -32,7 +32,7 @@ const HomeInkV7 = () => {
     event.preventDefault();
     setFormError('');
 
-    if (!name.trim()) return setFormError('Your name, please — she likes to know who she’s reading.');
+    if (!name.trim()) return setFormError('Your name, please — it makes the reading yours.');
     if (!date) return setFormError('Your birth date is required.');
     if (!unknownTime && !time) return setFormError('Add your birth time, or switch to “Unknown”.');
     if (lat == null || lon == null) return setFormError('Pick your birth place from the suggestions.');
@@ -69,7 +69,7 @@ const HomeInkV7 = () => {
     <div className="hv7">
       <nav className="hv7-nav">
         <div className="hv7-nav-inner">
-          <Link className="hv7-wordmark" to="/">Iris <span className="hv7-mark">✳</span></Link>
+          <Link className="hv7-wordmark" to="/">Astral Gravity <span className="hv7-mark">✳</span></Link>
           <a className="hv7-navlink" href="#how">How it works</a>
           <a className="hv7-navlink" href="#ways">Features</a>
           <a className="hv7-navlink" href="#examples">Examples</a>
@@ -84,7 +84,7 @@ const HomeInkV7 = () => {
             <span className="hv7-eyebrow">AI astrology, made personal</span>
             <h1>The stars,<br />read <span className="hv7-it">just for you.</span></h1>
             <p className="hv7-lede">
-              Iris reads your actual birth chart — not your sun sign — for guidance that genuinely knows you.
+              Astral Gravity reads your actual birth chart — not your sun sign — for guidance that genuinely knows you.
             </p>
 
             {savedReading?.overview && (
@@ -160,7 +160,7 @@ const HomeInkV7 = () => {
                 Read my chart free ✳
               </button>
             </form>
-            <p className="hv7-micro">Free overview &nbsp;·&nbsp; <b>3 questions for Iris</b> &nbsp;·&nbsp; no card, no account</p>
+            <p className="hv7-micro">Free overview &nbsp;·&nbsp; <b>3 Gravity Chat questions</b> &nbsp;·&nbsp; no card, no account</p>
           </div>
           <div className="hv7-hero-art">
             <img src={ASSET('hero-moon-mountain.png')} alt="An ink-etched crescent moon over a hatched mountain range, scattered with stars" />
@@ -176,15 +176,15 @@ const HomeInkV7 = () => {
         <div className="hv7-wrap">
           <div className="hv7-ask-grid">
             <div>
-              <span className="hv7-eyebrow">Ask her anything</span>
-              <h2>She’s read your chart.<br />Now <span className="hv7-it">ask her</span> about it.</h2>
+              <span className="hv7-eyebrow">Ask it anything</span>
+              <h2>Your chart’s been read.<br />Now <span className="hv7-it">ask away.</span></h2>
             </div>
             <div>
               <div className="hv7-note hv7-note-q">Why do I keep dating the same person in different fonts?</div>
               <p className="hv7-ask-answer">
                 Your Venus in Scorpio conjunct your South Node. You’re not choosing them — you’re remembering them.
               </p>
-              <p className="hv7-ask-sig">— Iris ✳</p>
+              <p className="hv7-ask-sig">— Astral Gravity ✳</p>
             </div>
           </div>
           <form className="hv7-ask-bar" onSubmit={handleMarketingAsk}>
@@ -196,7 +196,7 @@ const HomeInkV7 = () => {
                 value={askDraft}
                 onChange={(e) => setAskDraft(e.target.value)}
               />
-              <button className="hv7-btn hv7-btn--navy" type="submit">Ask Iris ✳</button>
+              <button className="hv7-btn hv7-btn--navy" type="submit">Gravity Chat ✳</button>
             </div>
           </form>
         </div>
@@ -299,7 +299,7 @@ const HomeInkV7 = () => {
             <ul>
               <li><span><b>Everything in Free, plus —</b></span></li>
               <li><span><span className="hv7-gold">3 full reports</span> per billing period (natal or relationship)</span></li>
-              <li><span>Ask Iris included — up to 50 / day</span></li>
+              <li><span>Gravity Chat included — up to 50 / day</span></li>
               <li><span>Daily horoscopes tuned to your chart</span></li>
               <li><span>Extra reports with credits after your quota</span></li>
             </ul>
@@ -333,7 +333,7 @@ const HomeInkV7 = () => {
               <tr><td>Monthly horoscope</td><td><span className="hv7-yes">✓</span></td><td><span className="hv7-yes">✓</span></td><td>—</td></tr>
               <tr><td>Guest chart + short overview</td><td>Uses credits</td><td>Included</td><td><span className="hv7-cr">1</span></td></tr>
               <tr><td>Relationship overview + pattern</td><td>Uses credits</td><td>Included</td><td><span className="hv7-cr">5</span></td></tr>
-              <tr><td>Ask Iris</td><td>1 credit each</td><td>50 / day</td><td><span className="hv7-cr">1</span></td></tr>
+              <tr><td>Gravity Chat</td><td>1 credit each</td><td>50 / day</td><td><span className="hv7-cr">1</span></td></tr>
               <tr><td>Natal report</td><td>Uses credits</td><td>Uses 3-report pool</td><td><span className="hv7-cr">75</span></td></tr>
               <tr><td>Relationship report</td><td>Uses credits</td><td>Uses same pool</td><td><span className="hv7-cr">60</span></td></tr>
               <tr><td>Welcome credits</td><td><span className="hv7-cr">25</span></td><td>—</td><td>—</td></tr>
@@ -365,7 +365,7 @@ const HomeInkV7 = () => {
 
       <footer className="hv7-colophon">
         <div className="hv7-wrap hv7-colo-inner">
-          <span className="hv7-wm">Iris ✳</span>
+          <span className="hv7-wm">Astral Gravity ✳</span>
           <Link to="/privacy-policy">Privacy</Link>
           <Link to="/terms-of-service">Terms</Link>
           <span>© 2026</span>
