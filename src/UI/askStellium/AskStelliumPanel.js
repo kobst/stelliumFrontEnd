@@ -393,7 +393,7 @@ function AskStelliumPanel({
   // Load chat history when panel opens
   useEffect(() => {
     if (!isOpen || !contentId || !config) return;
-    if (disableHistory) return; // celebrity Ask Stellium: ephemeral, don't load prior history
+    if (disableHistory) return; // celebrity Gravity Chat: ephemeral, don't load prior history
     if (hasLoadedRef.current === contentId) return;
 
     const loadHistory = async () => {
@@ -925,7 +925,7 @@ function AskStelliumPanel({
       restoreCredits(creditsSnapshot);
 
       if (err.status === 429 || err.message?.includes('LIMIT_REACHED')) {
-        setError("You've reached today's Ask Stellium fair-use limit. Try again tomorrow.");
+        setError("You've reached today's Gravity Chat fair-use limit. Try again tomorrow.");
       } else if (err.status === 402 || err.status === 403 || err.message?.includes('403')) {
         setShowPaywall(true);
         setError(err.message || 'Failed to send message');
@@ -1028,7 +1028,7 @@ function AskStelliumPanel({
     : `${primarySubjectName}'s chart`;
   const welcomeTitle = (contentType === 'birthchart' || contentType === 'analysis')
     ? `Ask anything about ${chartOwner}`
-    : 'Ask Stellium';
+    : 'Gravity Chat';
   const panelSubtitle = (contentType === 'birthchart' || contentType === 'analysis')
     ? `Ask anything about ${chartOwner}`
     : (placeholderText || 'Ask questions and get personalized insights.');
@@ -1042,7 +1042,7 @@ function AskStelliumPanel({
         {/* Header */}
         <div className="ask-panel__header">
           <div className="ask-panel__header-text">
-            <div className="ask-panel__title">Ask Stellium</div>
+            <div className="ask-panel__title">Gravity Chat</div>
             <div className="ask-panel__context">{panelSubtitle}</div>
           </div>
           <button className="ask-panel__close" onClick={onClose} aria-label="Close panel">

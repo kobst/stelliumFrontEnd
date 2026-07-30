@@ -126,8 +126,8 @@ function BalanceChip({ entitlements, credits, onManage, onBuyCredits }) {
             </div>
             <div className="md-pop-sub">
               {isPlus
-                ? 'Never expire · used for extra reports & Ask Stellium'
-                : 'Used for reports & Ask Stellium'}
+                ? 'Never expire · used for extra reports & Gravity Chat'
+                : 'Used for reports & Gravity Chat'}
             </div>
             <div className="md-pop-costs">
               <div className="md-pop-cost-row">
@@ -137,7 +137,7 @@ function BalanceChip({ entitlements, credits, onManage, onBuyCredits }) {
                 Relationship report <span className="md-pop-cost-row__c">{CREDIT_COSTS.FULL_RELATIONSHIP} credits</span>
               </div>
               <div className="md-pop-cost-row">
-                Ask Stellium <span className="md-pop-cost-row__c">
+                Gravity Chat <span className="md-pop-cost-row__c">
                   {CREDIT_COSTS.ASK_STELLIUM} {CREDIT_COSTS.ASK_STELLIUM === 1 ? 'credit' : 'credits'}
                 </span>
               </div>

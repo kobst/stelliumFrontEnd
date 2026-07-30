@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-function AskStelliumCta({ hasFullAccess, onActivate, label = 'Ask Stellium about this chart' }) {
+function AskStelliumCta({ hasFullAccess, onActivate, label = 'Ask about this chart with Gravity Chat' }) {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const dismissTimerRef = useRef(null);
 
@@ -61,7 +61,7 @@ function AskStelliumCta({ hasFullAccess, onActivate, label = 'Ask Stellium about
             className={`ask-stellium-tooltip${tooltipVisible ? ' ask-stellium-tooltip--visible' : ''}`}
             role="tooltip"
           >
-            Full analysis required to use Ask Stellium
+            Full analysis required to use Gravity Chat
           </div>
         )}
       </div>

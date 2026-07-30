@@ -438,7 +438,7 @@
   color: var(--bcd-gold);
 }
 
-/* Ask Stellium mini-CTA */
+/* Gravity Chat mini-CTA */
 .bcd-ai-cta {
   background: linear-gradient(180deg, rgba(0,220,229,0.10), rgba(0,220,229,0.02)), var(--bcd-surface-low);
   border-radius: 18px;
@@ -874,7 +874,7 @@
   .bcd-wrap { padding: 0 28px; }
 }
 @media (max-width: 720px) {
-  /* Clear the fixed Ask Stellium bottom bar so the last content isn't hidden. */
+  /* Clear the fixed Gravity Chat bottom bar so the last content isn't hidden. */
   .bcd-page { padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (max-width: 640px) {

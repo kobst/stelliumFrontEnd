@@ -52,7 +52,7 @@ const plans = [
       "Daily, Weekly & Monthly horoscopes",
       "Everything in Free",
       "3 full natal or relationship reports per month",
-      "Ask Stellium and everyday features included under fair use",
+      "Gravity Chat and everyday features included under fair use",
       "Best value for ongoing insight",
     ],
     cta: "Start Plus",
@@ -352,7 +352,7 @@ export default function PricingTable() {
             <span style={{ color: '#a78bfa', fontSize: '14px', fontWeight: '600' }}>60 credits</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'white', fontSize: '14px' }}>Ask Stellium (1 question)</span>
+            <span style={{ color: 'white', fontSize: '14px' }}>Gravity Chat (1 question)</span>
             <span style={{ color: '#a78bfa', fontSize: '14px', fontWeight: '600' }}>1 credit</span>
           </div>
         </div>

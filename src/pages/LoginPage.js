@@ -35,7 +35,7 @@ const SIGNUP_BENEFITS = [
   },
   {
     glyph: '✶',
-    title: 'Ask Stellium, your AI astrologer',
+    title: 'Gravity Chat, your AI astrologer',
     sub: 'Real answers from your real chart data — 1 credit per question.'
   }
 ];
@@ -201,7 +201,7 @@ const LoginPage = () => {
             Welcome back to <span className="login-val__accent">your sky.</span>
           </h1>
           <p className="login-val__lede">
-            Sign in to pick up your readings, horoscopes, and Ask Stellium credits right where you
+            Sign in to pick up your readings, horoscopes, and Gravity Chat credits right where you
             left them.
           </p>
         </>

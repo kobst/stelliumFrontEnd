@@ -464,7 +464,7 @@ function InkLandingPage() {
                   placeholder="Ask about your chart..."
                   aria-label="Ask about your chart"
                 />
-                <button className="ink-btn ink-btn--navy" type="submit">Ask Stellium ✳</button>
+                <button className="ink-btn ink-btn--navy" type="submit">Gravity Chat ✳</button>
               </div>
             </form>
           </div>
@@ -554,7 +554,7 @@ function InkLandingPage() {
               <ul>
                 <li><span><b>Everything in Free, plus —</b></span></li>
                 <li><span><span className="gold">3 full reports</span> per billing period (natal or relationship)</span></li>
-                <li><span>Ask Stellium included — up to 50 / day</span></li>
+                <li><span>Gravity Chat included — up to 50 / day</span></li>
                 <li><span>Daily horoscopes tuned to your chart</span></li>
                 <li><span>Extra reports with credits after your quota</span></li>
               </ul>
@@ -592,7 +592,7 @@ function InkLandingPage() {
                 <tr><td>Monthly horoscope</td><td><span className="yes">✓</span></td><td><span className="yes">✓</span></td><td>—</td></tr>
                 <tr><td>Guest chart + short overview</td><td>Uses credits</td><td>Included</td><td><span className="cr">1</span></td></tr>
                 <tr><td>Relationship overview + pattern</td><td>Uses credits</td><td>Included</td><td><span className="cr">5</span></td></tr>
-                <tr><td>Ask Stellium</td><td>1 credit each</td><td>50 / day</td><td><span className="cr">1</span></td></tr>
+                <tr><td>Gravity Chat</td><td>1 credit each</td><td>50 / day</td><td><span className="cr">1</span></td></tr>
                 <tr><td>Natal report</td><td>Uses credits</td><td>Uses 3-report pool</td><td><span className="cr">75</span></td></tr>
                 <tr><td>Relationship report</td><td>Uses credits</td><td>Uses same pool</td><td><span className="cr">60</span></td></tr>
                 <tr><td>Welcome credits</td><td><span className="cr">25</span></td><td>—</td><td>—</td></tr>

@@ -25,7 +25,7 @@ const TABS = [
   { id: 'synastry', roman: 'ii.', label: 'Synastry' },
   { id: 'composite', roman: 'iii.', label: 'Composite' },
   { id: 'analysis', roman: 'iv.', label: '360 Analysis' },
-  { id: 'ask', roman: 'v.', label: 'Ask Stellium' },
+  { id: 'ask', roman: 'v.', label: 'Gravity Chat' },
 ];
 
 const CLUSTERS = [
@@ -778,11 +778,11 @@ function InkRelationshipPage() {
             </aside>
 
             <article className="ink-relationship__ask-main">
-              <h2>Ask Stellium <span aria-hidden="true">✳</span></h2>
+              <h2>Gravity Chat <span aria-hidden="true">✳</span></h2>
               <p className="ink-relationship__ask-subhead">
                 Stellium has read both charts. Ask about the space between them.
               </p>
-              <div className="ink-relationship__ask-chat" aria-label="Ask Stellium conversation">
+              <div className="ink-relationship__ask-chat" aria-label="Gravity Chat conversation">
                 <AskStelliumPanel
                   variant="dock"
                   isOpen={activeTab === 'ask'}

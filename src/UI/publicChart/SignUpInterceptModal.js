@@ -57,7 +57,7 @@ function SignUpInterceptModal({
 
         <div className="pcc-modal__body">
           <div className="pcc-modal__eyebrow">
-            <span className="sp" aria-hidden="true">&#10022;</span> Ask Stellium
+            <span className="sp" aria-hidden="true">&#10022;</span> Gravity Chat
           </div>
           <h2>
             One question away from <span className="italic">reading {firstName} like a person.</span>

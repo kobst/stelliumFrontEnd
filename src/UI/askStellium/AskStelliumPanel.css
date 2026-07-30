@@ -1,5 +1,5 @@
 /* ──────────────────────────────────────────────────────────
-   Ask Stellium panel — Astral Gravity/Stellium "Celestial Etherealism"
+   Gravity Chat panel — Astral Gravity/Stellium "Celestial Etherealism"
    Faithful to the Birth Chart Dashboard design handoff:
    Newsreader serif display, Manrope sans, lilac/gold/cyan on
    a deep #0f0f17 surface, tonal cards, no hard borders, halos.
@@ -1197,7 +1197,7 @@
 }
 
 /* dock: the SkyStage panel already provides tabs + chrome; the panel's
-   own header would be a second "Ask Stellium" masthead — hide it */
+   own header would be a second "Gravity Chat" masthead — hide it */
 .ask-panel--dock .ask-panel__header {
   display: none;
 }

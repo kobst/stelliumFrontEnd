@@ -93,7 +93,7 @@ function SubscriptionSettings({ userId, user, entitlements, onNavigateTab }) {
             Relationship report <span className="ss-costs__c">{CREDIT_COSTS.FULL_RELATIONSHIP} credits</span>
           </div>
           <div className="ss-costs__row">
-            Ask Stellium question <span className="ss-costs__c">{askCost} {askCost === 1 ? 'credit' : 'credits'}</span>
+            Gravity Chat question <span className="ss-costs__c">{askCost} {askCost === 1 ? 'credit' : 'credits'}</span>
           </div>
         </div>
 

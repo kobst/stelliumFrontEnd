@@ -17,7 +17,7 @@ function UpgradeModal({
   subscriptionPrice = 20,
   features = [
     '3 full natal or relationship reports per billing period',
-    'Ask Stellium included under a 50-question daily fair-use limit',
+    'Gravity Chat included under a 50-question daily fair-use limit',
     'Guest charts, relationship overviews, and horoscopes included',
     'Purchased credits cover additional reports and never expire',
   ],

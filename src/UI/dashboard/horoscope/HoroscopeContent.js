@@ -102,7 +102,7 @@ function HoroscopeContent({
             <div
               className="horoscope-content__moon-icon horoscope-content__moon-icon--clickable"
               onClick={() => setChatOpen(prev => !prev)}
-              title="Ask Stellium"
+              title="Gravity Chat"
             />
           </div>
 
@@ -155,7 +155,7 @@ function HoroscopeContent({
             onClick={() => setChatOpen(prev => !prev)}
           >
             <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
+            Gravity Chat
           </button>
         </div>
 

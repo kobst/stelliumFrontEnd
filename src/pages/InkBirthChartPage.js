@@ -26,7 +26,7 @@ const CHAPTERS = [
   { id: 'patterns', roman: 'ii.', label: 'Patterns' },
   { id: 'planets', roman: 'iii.', label: 'Chart & Planets' },
   { id: 'analysis', roman: 'iv.', label: '360 Analysis' },
-  { id: 'ask', roman: 'v.', label: 'Ask Stellium' },
+  { id: 'ask', roman: 'v.', label: 'Gravity Chat' },
 ];
 
 const PATTERN_LENSES = [
@@ -844,7 +844,7 @@ function InkBirthChartPage() {
             </aside>
 
             <div className="ibc-ask-main">
-              <h2>Ask Stellium <span className="ink-italic">✳</span></h2>
+              <h2>Gravity Chat <span className="ink-italic">✳</span></h2>
               <p className="ibc-ask-sub">Stellium has read your chart. Ask about it.</p>
               {isAnalysisComplete ? (
                 <div className="ibc-ask-panel-host">
@@ -868,7 +868,7 @@ function InkBirthChartPage() {
                 <div className="ink-card ibc-ask-locked">
                   <span aria-hidden="true">◎</span>
                   <h3>Complete your 360 Analysis first.</h3>
-                  <p>Ask Stellium opens once the full chart reading is ready.</p>
+                  <p>Gravity Chat opens once the full chart reading is ready.</p>
                   <button
                     type="button"
                     className="ink-btn ink-btn--navy"

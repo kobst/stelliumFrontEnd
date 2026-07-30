@@ -184,9 +184,9 @@ const HelpCenter = () => {
           </div>
         </section>
 
-        {/* Ask Stellium (Chat) Section */}
+        {/* Gravity Chat (Chat) Section */}
         <section id="chat" className="help-section">
-          <h2>Ask Stellium (Chat)</h2>
+          <h2>Gravity Chat (Chat)</h2>
 
           <div className="help-item">
             <h3>How does the chat system work?</h3>
@@ -237,7 +237,7 @@ const HelpCenter = () => {
             <ul>
               <li>Everything in Free</li>
               <li>3 birth chart/relationship analyses per month</li>
-              <li>Ask Stellium included under a 50-question daily fair-use limit</li>
+              <li>Gravity Chat included under a 50-question daily fair-use limit</li>
               <li>Guest charts, relationship overviews, and horoscopes included</li>
               <li>Purchased credits cover additional reports and never expire</li>
             </ul>

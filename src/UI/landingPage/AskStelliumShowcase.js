@@ -96,7 +96,7 @@ function AskStelliumShowcase() {
         {/* Left: Copy */}
         <div className="ask-showcase__copy">
           <span className="ask-showcase__pretitle">YOUR PERSONAL AI ASTROLOGER</span>
-          <h2 className="ask-showcase__title">Ask Stellium anything about your chart</h2>
+          <h2 className="ask-showcase__title">Ask Gravity Chat anything about your chart</h2>
           <p className="ask-showcase__description">
             Just type a question, or pick specific placements and aspects as context for more targeted answers.
             Stellium reads your actual chart data — not generic horoscopes.
@@ -126,7 +126,7 @@ function AskStelliumShowcase() {
             {/* Panel Header */}
             <div className="ask-showcase__panel-header">
               <div>
-                <div className="ask-showcase__panel-title">Ask Stellium</div>
+                <div className="ask-showcase__panel-title">Gravity Chat</div>
                 <div className="ask-showcase__panel-context">{tab.contextLabel}</div>
               </div>
             </div>

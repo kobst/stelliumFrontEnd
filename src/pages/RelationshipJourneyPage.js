@@ -29,7 +29,7 @@ const CHAPTERS = [
   { id: 'synastry', label: 'Synastry' },
   { id: 'analysis', label: '360 Analysis' },
   { id: 'composite', label: 'Composite' },
-  { id: 'ask', label: 'Ask Stellium' },
+  { id: 'ask', label: 'Gravity Chat' },
 ];
 
 const CLUSTERS = [
@@ -550,7 +550,7 @@ function RelationshipJourneyPage() {
             {overallLabel && <span>{overallLabel}</span>}
           </div>
           <button type="button" className="birth-journey-ask" onClick={() => goToChapter('ask')}>
-            <span aria-hidden="true">✦</span> Ask Stellium
+            <span aria-hidden="true">✦</span> Gravity Chat
           </button>
         </div>
         <nav className="birth-journey-nav relationship-reader-nav" aria-label="Relationship reading chapters">
@@ -810,10 +810,10 @@ function RelationshipJourneyPage() {
         )}
 
         <article className="birth-journey-chapter birth-journey-askpage" hidden={activeChapter !== 'ask'}>
-          <ChapterHeader label="Ask Stellium" />
+          <ChapterHeader label="Gravity Chat" />
           <div className="birth-ask-workspace">
             {activeChapter === 'ask' && askChart}
-            <section className="birth-ask-chat" aria-label="Ask Stellium conversation">
+            <section className="birth-ask-chat" aria-label="Gravity Chat conversation">
               <AskStelliumPanel
                 variant="dock"
                 isOpen={activeChapter === 'ask'}

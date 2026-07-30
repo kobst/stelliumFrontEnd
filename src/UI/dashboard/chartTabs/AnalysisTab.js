@@ -606,7 +606,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
             onClick={() => setChatOpen(prev => !prev)}
           >
             <span className="ask-stellium-trigger__icon">&#10024;</span>
-            Ask Stellium
+            Gravity Chat
           </button>
         )}
       </div>

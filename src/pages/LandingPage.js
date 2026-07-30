@@ -822,7 +822,7 @@ function LandingPage() {
               <ul className="lp-plan__list">
                 <li className="bold"><span className="lp-plan__check">✓</span> Everything in Free, plus —</li>
                 <li><span className="lp-plan__check">✓</span> <span className="lp-plan__credits-gold">3 full reports</span> per billing period <span className="lp-plan__faint">(natal or relationship)</span></li>
-                <li><span className="lp-plan__check">✓</span> Ask Stellium included — up to 50 / day</li>
+                <li><span className="lp-plan__check">✓</span> Gravity Chat included — up to 50 / day</li>
                 <li><span className="lp-plan__check">✓</span> Daily horoscopes tuned to your chart</li>
                 <li><span className="lp-plan__check">✓</span> Extra reports with credits after your quota</li>
               </ul>
@@ -909,7 +909,7 @@ function LandingPage() {
                   <td className="credit">5</td>
                 </tr>
                 <tr>
-                  <td className="row-label">Ask Stellium</td>
+                  <td className="row-label">Gravity Chat</td>
                   <td style={{ color: 'var(--lp-text-muted)' }}>1 credit each</td>
                   <td className="plus">50 / day</td>
                   <td className="credit">1</td>

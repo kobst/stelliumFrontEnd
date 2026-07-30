@@ -9,7 +9,7 @@ function AskStelliumFab({ onClick }) {
     <button type="button" className="pcc pcc-fab" onClick={onClick}>
       <span className="pcc-fab__sp" aria-hidden="true">&#10024;</span>
       <span className="pcc-fab__copy">
-        <span className="pcc-fab__title">Ask Stellium about this chart</span>
+        <span className="pcc-fab__title">Ask about this chart with Gravity Chat</span>
         <span className="pcc-fab__sub">
           Sign up free, get <b>25 credits</b> to ask anything
         </span>

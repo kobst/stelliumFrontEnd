@@ -293,7 +293,7 @@ const HOME_HORIZONS = [
   { id: 'today', label: 'Today', period: 'daily' },
   { id: 'week', label: 'This Week', period: 'weekly' },
   { id: 'month', label: 'This Month', period: 'monthly' },
-  { id: 'ask', label: 'Ask Stellium', ask: true },
+  { id: 'ask', label: 'Gravity Chat', ask: true },
 ];
 
 const PERIOD_TO_HORIZON = {

@@ -30,7 +30,7 @@ const HORIZONS = [
   { id: 'today', roman: 'i.', label: 'Today', period: 'daily' },
   { id: 'week', roman: 'ii.', label: 'This Week', period: 'weekly' },
   { id: 'month', roman: 'iii.', label: 'This Month', period: 'monthly' },
-  { id: 'ask', mark: '✳', label: 'Ask Stellium', ask: true },
+  { id: 'ask', mark: '✳', label: 'Gravity Chat', ask: true },
 ];
 
 const PERIOD_OPTIONS = {
@@ -826,7 +826,7 @@ function HoroscopeExperience({ user, userId, entitlements }) {
                       onFocus={() => setFocusTransit(transit)}
                       onBlur={() => setFocusTransit(null)}
                       onClick={() => handleInfluenceClick(transit)}
-                      title="Focus this influence and add it to Ask Stellium"
+                      title="Focus this influence and add it to Gravity Chat"
                       key={key}
                     >
                       {title}{dateLabel ? <small> · {dateLabel}</small> : null}
@@ -851,7 +851,7 @@ function HoroscopeExperience({ user, userId, entitlements }) {
           hidden={activeHorizon !== 'ask'}
         >
           <div className="ihp-ask-heading">
-            <h1>Ask Stellium <i>✳</i></h1>
+            <h1>Gravity Chat <i>✳</i></h1>
             <p>She’s read this sky. Ask her about it.</p>
           </div>
           <div className="ink-card ihp-ask-panel">

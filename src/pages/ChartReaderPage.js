@@ -37,7 +37,7 @@ const CHAPTERS = [
   { id: 'patterns', label: 'Patterns' },
   { id: 'planets', label: 'Chart & Planets' },
   { id: 'analysis', label: '360 Analysis' },
-  { id: 'ask', label: 'Ask Stellium' },
+  { id: 'ask', label: 'Gravity Chat' },
 ];
 
 const PLANET_ORDER = [
@@ -823,7 +823,7 @@ function ChartReaderPage() {
             onClick={() => goToChapter('ask')}
             disabled={!canUseAskStellium}
           >
-            <span aria-hidden="true">✦</span> Ask Stellium
+            <span aria-hidden="true">✦</span> Gravity Chat
           </button>
         </div>
         <nav className="birth-journey-nav" aria-label="Birth chart reading chapters">
@@ -1157,7 +1157,7 @@ function ChartReaderPage() {
           className="birth-journey-chapter birth-journey-askpage"
           hidden={activeChapter !== 'ask'}
         >
-          <ChapterHeader label="Ask Stellium" />
+          <ChapterHeader label="Gravity Chat" />
           <div className="birth-ask-workspace">
             {activeChapter === 'ask' && askChartStage}
             <aside
@@ -1165,7 +1165,7 @@ function ChartReaderPage() {
               className="birth-ask-context"
               aria-label="Chart context inspector"
             />
-            <section className="birth-ask-chat" aria-label="Ask Stellium conversation">
+            <section className="birth-ask-chat" aria-label="Gravity Chat conversation">
               <AskStelliumPanel
                 variant="dock"
                 defaultContextOpen

@@ -253,7 +253,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
             <AskStelliumCta
               hasFullAccess={canUseAskStellium}
               onActivate={() => setChatOpen(prev => !prev)}
-              label="Ask Stellium about this relationship"
+              label="Ask about this relationship with Gravity Chat"
             />
           )}
         </div>
@@ -278,7 +278,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
             <AskStelliumCta
               hasFullAccess={canUseAskStellium}
               onActivate={() => setChatOpen(prev => !prev)}
-              label="Ask Stellium about this relationship"
+              label="Ask about this relationship with Gravity Chat"
             />
           )}
         </div>
@@ -391,7 +391,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
           <AskStelliumCta
             hasFullAccess={canUseAskStellium}
             onActivate={() => setChatOpen(prev => !prev)}
-            label="Ask Stellium about this relationship"
+            label="Ask about this relationship with Gravity Chat"
           />
         )}
       </div>
