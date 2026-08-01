@@ -1,0 +1,294 @@
+/* Gravity Chat — conversational trial intake, ink style.
+   Namespaced under .gic; inherits the hv7 page's font/palette context. */
+
+.gic {
+  display: flex;
+  flex-direction: column;
+  margin-top: 26px;
+  max-width: 470px;
+  height: 520px;
+  background: rgba(246, 241, 231, 0.75);
+  border: 1px solid rgba(35, 40, 64, 0.16);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 18px 34px -24px rgba(35, 40, 64, 0.4);
+}
+
+.gic-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(35, 40, 64, 0.12);
+  background: rgba(244, 239, 229, 0.9);
+}
+
+.gic-title {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #232840;
+}
+
+.gic-quota {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: rgba(35, 40, 64, 0.55);
+  white-space: nowrap;
+}
+
+.gic-feed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+
+.gic-bubble {
+  max-width: 88%;
+  padding: 10px 15px;
+  border-radius: 14px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #232840;
+  animation: gic-in 0.28s ease both;
+}
+
+@keyframes gic-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gic-bubble { animation: none; }
+}
+
+.gic-bubble--bot {
+  align-self: flex-start;
+  background: #f6f1e7;
+  border: 1px solid rgba(35, 40, 64, 0.12);
+  border-bottom-left-radius: 4px;
+}
+
+.gic-bubble--user {
+  align-self: flex-end;
+  background: #f2ecdf;
+  font-family: "Caveat", cursive;
+  font-size: 20px;
+  color: #2c3260;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 1px 2px rgba(35, 40, 64, 0.1);
+}
+
+.gic-bubble--answer { max-width: 94%; }
+
+.gic-sig {
+  display: block;
+  margin-top: 8px;
+  font-style: italic;
+  font-size: 14.5px;
+  color: rgba(35, 40, 64, 0.7);
+}
+
+.gic-typing {
+  font-style: italic;
+  color: rgba(35, 40, 64, 0.55);
+}
+
+/* result card in the feed */
+.gic-result {
+  align-self: stretch;
+  background: #f6f1e7;
+  border: 1px solid rgba(35, 40, 64, 0.14);
+  border-radius: 10px;
+  padding: 16px 18px;
+  animation: gic-in 0.28s ease both;
+}
+
+.gic-b3 { display: grid; gap: 6px; margin-bottom: 12px; }
+
+.gic-b3-row { display: flex; align-items: baseline; gap: 10px; }
+
+.gic-b3-role {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(35, 40, 64, 0.55);
+  width: 52px;
+}
+
+.gic-b3-pl {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 18px;
+  color: #232840;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.gic-b3-gl { color: #3437a8; font-size: 15px; }
+
+.gic-reading {
+  margin: 0;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(35, 40, 64, 0.85);
+}
+
+/* honest blur: the hidden text is the real continuation of the reading */
+.gic-locked {
+  position: relative;
+  margin-top: 10px;
+  max-height: 110px;
+  overflow: hidden;
+}
+
+.gic-locked-text {
+  margin: 0;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(35, 40, 64, 0.75);
+  filter: blur(4px);
+  user-select: none;
+}
+
+.gic-locked-over {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, rgba(246, 241, 231, 0.05), rgba(246, 241, 231, 0.85));
+}
+
+/* input bars */
+.gic-bar {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid rgba(35, 40, 64, 0.12);
+  background: rgba(244, 239, 229, 0.9);
+}
+
+.gic-bar input {
+  flex: 1;
+  min-width: 0;
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  color: #232840;
+  background: rgba(246, 241, 231, 0.9);
+  border: 1px solid rgba(35, 40, 64, 0.22);
+  border-radius: 8px;
+  padding: 9px 13px;
+  outline: none;
+  color-scheme: light;
+}
+
+.gic-bar input:focus { border-color: #3437a8; box-shadow: 0 0 0 3px rgba(52, 55, 168, 0.1); }
+.gic-bar input::placeholder { color: rgba(35, 40, 64, 0.5); }
+
+.gic-bar--place .google-place-autocomplete { width: 100%; }
+.gic-bar--place gmp-place-autocomplete,
+.gic-bar--place .google-place-autocomplete__element,
+.gic-bar--place .google-place-autocomplete__fallback {
+  width: 100%;
+  padding: 9px 13px !important;
+  border: 1px solid rgba(35, 40, 64, 0.22) !important;
+  border-radius: 8px !important;
+  background: rgba(246, 241, 231, 0.9) !important;
+  background-color: rgba(246, 241, 231, 0.9) !important;
+  color: #232840 !important;
+  -webkit-text-fill-color: #232840 !important;
+  font-family: "EB Garamond", Georgia, serif !important;
+  font-size: 16px !important;
+  box-shadow: none !important;
+  color-scheme: light !important;
+}
+
+.gic-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 15px;
+  border-radius: 999px;
+  padding: 9px 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  background: #1b2140;
+  color: #f2ecdd !important;
+  box-shadow: 0 8px 22px -10px rgba(27, 33, 64, 0.6);
+  transition: all 0.18s ease;
+  text-decoration: none;
+}
+
+.gic-btn:hover { transform: translateY(-1px); color: #f2ecdd !important; }
+.gic-btn[disabled] { opacity: 0.45; cursor: default; transform: none; }
+
+.gic-time { border-top: 1px solid rgba(35, 40, 64, 0.12); }
+.gic-time .gic-bar { border-top: none; padding-bottom: 6px; }
+
+.gic-chip {
+  margin: 0 14px 12px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: #232840;
+  background: none;
+  border: 1px solid rgba(35, 40, 64, 0.25);
+  border-radius: 999px;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
+.gic-chip:hover { border-color: #232840; }
+
+.gic-casting {
+  padding: 14px 18px;
+  border-top: 1px solid rgba(35, 40, 64, 0.12);
+  background: rgba(244, 239, 229, 0.9);
+  font-family: "Caveat", cursive;
+  font-size: 19px;
+  color: #2c3260;
+  text-align: center;
+}
+
+.gic-done-bar {
+  display: flex;
+  justify-content: center;
+  padding: 12px 14px;
+  border-top: 1px solid rgba(35, 40, 64, 0.12);
+  background: rgba(244, 239, 229, 0.9);
+}
+
+/* gate + wall bubbles */
+.gic-gate p, .gic-wall p { margin: 0 0 10px; }
+.gic-gate-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.gic-gate-row input {
+  flex: 1 1 170px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 15px;
+  color: #232840;
+  background: rgba(246, 241, 231, 0.9);
+  border: 1px solid rgba(35, 40, 64, 0.22);
+  border-radius: 999px;
+  padding: 8px 15px;
+  outline: none;
+}
+
+@media (max-width: 560px) {
+  .gic { height: 480px; max-width: 100%; }
+}

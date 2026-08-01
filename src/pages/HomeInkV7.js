@@ -1,59 +1,14 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import GooglePlaceAutocomplete from '../UI/shared/GooglePlaceAutocomplete';
-import { fetchTimeZone } from '../Utilities/api';
-import { beginTrialReading, loadTrialSession } from '../Utilities/trialApi';
+import { Link } from 'react-router-dom';
+import GravityIntakeChat from '../UI/gravity/GravityIntakeChat';
+import { loadTrialSession } from '../Utilities/trialApi';
 import './HomeInkV7.css';
 
 const ASSET = (name) => `${process.env.PUBLIC_URL || ''}/assets/ink/${name}`;
 
 const HomeInkV7 = () => {
-  const navigate = useNavigate();
-
-  const [name, setName] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [unknownTime, setUnknownTime] = useState(false);
-  const [placeOfBirth, setPlaceOfBirth] = useState('');
-  const [lat, setLat] = useState(null);
-  const [lon, setLon] = useState(null);
-  const [formError, setFormError] = useState('');
   const [askDraft, setAskDraft] = useState('');
   const [savedReading] = useState(() => loadTrialSession());
-
-  const handlePlaceSelected = ({ formattedAddress, lat: placeLat, lon: placeLon }) => {
-    if (placeLat == null || placeLon == null) return;
-    setPlaceOfBirth(formattedAddress);
-    setLat(placeLat);
-    setLon(placeLon);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setFormError('');
-
-    if (!name.trim()) return setFormError('Your name, please — it makes the reading yours.');
-    if (!date) return setFormError('Your birth date is required.');
-    if (!unknownTime && !time) return setFormError('Add your birth time, or switch to “Unknown”.');
-    if (lat == null || lon == null) return setFormError('Pick your birth place from the suggestions.');
-
-    // Kick off the whole pipeline without awaiting and hand the wait to the
-    // reading page, which owns the loading experience.
-    beginTrialReading(
-      {
-        firstName: name.trim().split(/\s+/)[0],
-        lastName: name.trim().split(/\s+/).slice(1).join(' '),
-        dateOfBirth: date,
-        time,
-        birthTimeUnknown: unknownTime,
-        placeOfBirth,
-        lat,
-        lon,
-      },
-      { fetchTimeZone }
-    );
-    navigate('/free-reading');
-  };
 
   // The marketing ask-bar has no chart yet: stash the question and take them to the form
   const handleMarketingAsk = (event) => {
@@ -61,7 +16,6 @@ const HomeInkV7 = () => {
     if (askDraft.trim()) {
       try { window.localStorage.setItem('stellium_trial_pending_question', askDraft.trim()); } catch (e) { /* ignore */ }
     }
-    document.getElementById('bfName')?.focus();
     document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -98,68 +52,7 @@ const HomeInkV7 = () => {
               </div>
             )}
 
-            <form className="hv7-bform" onSubmit={handleSubmit}>
-              <div className="hv7-bf-row hv7-bf-row--one">
-                <div className="hv7-fld">
-                  <label htmlFor="bfName">Your name</label>
-                  <input
-                    id="bfName"
-                    type="text"
-                    placeholder="Eva"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    autoComplete="given-name"
-                  />
-                </div>
-              </div>
-              <div className="hv7-bf-row hv7-bf-row--one">
-                <div className="hv7-fld">
-                  <label htmlFor="bfDate">Date of birth</label>
-                  <input id="bfDate" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-                </div>
-              </div>
-              <div className="hv7-bf-row hv7-bf-row--one">
-                <div className="hv7-fld">
-                  <label htmlFor="bfTimeMode">At this time</label>
-                  <div className="hv7-time-cell">
-                    <select
-                      id="bfTimeMode"
-                      value={unknownTime ? 'unknown' : 'known'}
-                      onChange={(e) => {
-                        if (e.target.value === 'unknown') {
-                          setUnknownTime(true);
-                          setTime('');
-                        } else {
-                          setUnknownTime(false);
-                        }
-                      }}
-                    >
-                      <option value="known">Known Time</option>
-                      <option value="unknown">Unknown</option>
-                    </select>
-                    {!unknownTime && (
-                      <input
-                        id="bfTime"
-                        type="time"
-                        aria-label="Time of birth"
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="hv7-bf-row hv7-bf-row--one">
-                <div className="hv7-fld">
-                  <label htmlFor="bfPlace">Place of birth</label>
-                  <GooglePlaceAutocomplete onPlaceSelected={handlePlaceSelected} placeholder="Lisbon, Portugal" />
-                </div>
-              </div>
-              {formError && <p className="hv7-form-error" role="alert">{formError}</p>}
-              <button className="hv7-btn hv7-btn--navy" type="submit">
-                Read my chart free ✳
-              </button>
-            </form>
+            {!savedReading?.overview && <GravityIntakeChat />}
             <p className="hv7-micro">Free overview &nbsp;·&nbsp; <b>3 Gravity Chat questions</b> &nbsp;·&nbsp; no card, no account</p>
           </div>
           <div className="hv7-hero-art">

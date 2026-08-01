@@ -8,6 +8,7 @@ import {
   getPendingTrialReading,
   clearPendingTrialReading,
 } from '../Utilities/trialApi';
+import { splitOverviewForTeaser } from '../UI/gravity/GravityIntakeChat';
 import './FreeReadingPage.css';
 
 const ASSET = (name) => `${process.env.PUBLIC_URL || ''}/assets/ink/${name}`;
@@ -339,14 +340,9 @@ const FreeReadingPage = () => {
     { role: 'Rising', data: bigThree.rising, lines: RISING_LINES },
   ].filter((item) => item.data?.sign);
 
-  // Overviews mix short section headings ("Your Core Identity") with prose;
-  // render headings as headings and drop-cap only the first prose paragraph.
-  const overviewBlocks = String(session.overview || '')
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .map((text) => ({ text, isHeading: text.length < 60 && !/[.!?]$/.test(text) }));
-  let dropCapUsed = false;
+  // Short, honest teaser: show the core of the real reading, blur the actual
+  // continuation (never canned filler — what the blur hides is their reading).
+  const { head: overviewHead, tail: overviewTail } = splitOverviewForTeaser(session.overview);
 
   return (
     <div className="fr">
@@ -405,23 +401,12 @@ const FreeReadingPage = () => {
           <h2>What your chart <span className="fr-it">keeps saying.</span></h2>
         </div>
         <div className="fr-ovw-body">
-          {overviewBlocks.map((block, i) => {
-            if (block.isHeading) {
-              return <h3 className="fr-ovw-h" key={i}>{block.text}</h3>;
-            }
-            if (!dropCapUsed) {
-              dropCapUsed = true;
-              return <p key={i}><span className="fr-lead">{block.text.charAt(0)}</span>{block.text.slice(1)}</p>;
-            }
-            return <p key={i}>{block.text}</p>;
-          })}
+          {overviewHead && (
+            <p><span className="fr-lead">{overviewHead.charAt(0)}</span>{overviewHead.slice(1)}</p>
+          )}
         </div>
         <div className="fr-locked">
-          <p className="fr-veil">
-            Saturn’s position by house begins the longer story of commitment and reputation, and the way your Venus is
-            configured sets the terms for how intimacy is negotiated across every chapter of the reading — including the
-            aspects to your natal points and the progressed picture over the next two years.
-          </p>
+          {overviewTail && <p className="fr-veil" aria-hidden="true">{overviewTail}</p>}
           <div className="fr-over">
             <p>Your full reading continues — patterns, every placement, and the 360° analysis.</p>
             <Link className="fr-btn fr-btn--navy" to="/signUp">Unlock the full reading ✳</Link>
