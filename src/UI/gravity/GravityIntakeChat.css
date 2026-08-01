@@ -115,18 +115,32 @@
   animation: gic-in 0.28s ease both;
 }
 
-.gic-b3 { display: grid; gap: 6px; margin-bottom: 12px; }
+.gic-b3 { display: grid; gap: 10px; margin-bottom: 14px; }
 
-.gic-b3-row { display: flex; align-items: baseline; gap: 10px; }
+.gic-b3-card {
+  background: #faf6ec;
+  border: 1px solid rgba(35, 40, 64, 0.14);
+  border-radius: 6px;
+  padding: 14px 16px 13px;
+  display: grid;
+  gap: 4px;
+}
 
 .gic-b3-role {
   font-family: "EB Garamond", Georgia, serif;
   font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: rgba(35, 40, 64, 0.55);
-  width: 52px;
+}
+
+.gic-b3-line {
+  margin: 0;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(35, 40, 64, 0.72);
 }
 
 .gic-b3-pl {

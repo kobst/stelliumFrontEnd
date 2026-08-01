@@ -8,6 +8,7 @@ import {
   attachTrialEmail,
   extractBigThree,
 } from '../../Utilities/trialApi';
+import { SIGN_GLYPHS, SUN_LINES, MOON_LINES, RISING_LINES, ordinal } from '../../Utilities/signCopy';
 import './GravityIntakeChat.css';
 
 /**
@@ -34,18 +35,6 @@ const CASTING_LINES = [
   'Tracing the aspects between them…',
   'Writing it up in plain language…',
 ];
-
-const SIGN_GLYPHS = {
-  Aries: '♈', Taurus: '♉', Gemini: '♊', Cancer: '♋', Leo: '♌', Virgo: '♍',
-  Libra: '♎', Scorpio: '♏', Sagittarius: '♐', Capricorn: '♑', Aquarius: '♒', Pisces: '♓',
-};
-
-const ordinal = (n) => {
-  if (!n) return '';
-  const s = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
-};
 
 /**
  * Split the real overview into a short visible head (~first five lines) and
@@ -89,7 +78,7 @@ const formatTimeAnswer = (t) => {
 let bubbleKey = 0;
 const nextKey = () => `b${bubbleKey += 1}`;
 
-const GravityIntakeChat = () => {
+const GravityIntakeChat = ({ onReadingReady }) => {
   const [feed, setFeed] = useState([]);
   const [step, setStep] = useState(STEP.NAME);
   const [textValue, setTextValue] = useState('');
@@ -145,6 +134,7 @@ const GravityIntakeChat = () => {
       const created = await promise;
       setSession(created);
       setTrialState(created.trial || null);
+      if (typeof onReadingReady === 'function') onReadingReady(created);
 
       const { head, tail } = splitOverviewForTeaser(created.overview);
       push({
@@ -387,21 +377,22 @@ const GravityIntakeChat = () => {
           }
           if (item.kind === 'result') {
             const b3 = [
-              { role: 'Sun', d: item.bigThree?.sun },
-              { role: 'Moon', d: item.bigThree?.moon },
-              { role: 'Rising', d: item.bigThree?.rising },
+              { role: 'Sun', d: item.bigThree?.sun, lines: SUN_LINES },
+              { role: 'Moon', d: item.bigThree?.moon, lines: MOON_LINES },
+              { role: 'Rising', d: item.bigThree?.rising, lines: RISING_LINES },
             ].filter((x) => x.d?.sign);
             return (
               <div className="gic-result" key={item.key}>
                 {b3.length > 0 && (
                   <div className="gic-b3">
-                    {b3.map(({ role, d }) => (
-                      <div className="gic-b3-row" key={role}>
+                    {b3.map(({ role, d, lines }) => (
+                      <div className="gic-b3-card" key={role}>
                         <span className="gic-b3-role">{role}</span>
                         <span className="gic-b3-pl">
                           <span className="gic-b3-gl">{SIGN_GLYPHS[d.sign] || '✳'}</span>
                           {d.sign}{d.house ? `, ${ordinal(d.house)}` : ''}
                         </span>
+                        {lines[d.sign] && <p className="gic-b3-line">{lines[d.sign]}</p>}
                       </div>
                     ))}
                   </div>

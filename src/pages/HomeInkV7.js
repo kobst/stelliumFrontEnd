@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import GravityIntakeChat from '../UI/gravity/GravityIntakeChat';
 import { loadTrialSession } from '../Utilities/trialApi';
+import { buildMastNote } from '../Utilities/signCopy';
 import './HomeInkV7.css';
 
 const ASSET = (name) => `${process.env.PUBLIC_URL || ''}/assets/ink/${name}`;
@@ -9,6 +10,9 @@ const ASSET = (name) => `${process.env.PUBLIC_URL || ''}/assets/ink/${name}`;
 const HomeInkV7 = () => {
   const [askDraft, setAskDraft] = useState('');
   const [savedReading] = useState(() => loadTrialSession());
+  const [castReading, setCastReading] = useState(null);
+  // the wheel replaces the hero art once a chart exists (fresh cast or saved)
+  const wheelReading = castReading || (savedReading?.bigThree ? savedReading : null);
 
   // The marketing ask-bar has no chart yet: stash the question and take them to the form
   const handleMarketingAsk = (event) => {
@@ -52,15 +56,28 @@ const HomeInkV7 = () => {
               </div>
             )}
 
-            {!savedReading?.overview && <GravityIntakeChat />}
+            {!savedReading?.overview && <GravityIntakeChat onReadingReady={setCastReading} />}
             <p className="hv7-micro">Free overview &nbsp;·&nbsp; <b>3 Gravity Chat questions</b> &nbsp;·&nbsp; no card, no account</p>
           </div>
           <div className="hv7-hero-art">
-            <img src={ASSET('hero-moon-mountain.png')} alt="An ink-etched crescent moon over a hatched mountain range, scattered with stars" />
-            <div className="hv7-note hv7-note-hero">
-              You are not too much. The stars knew exactly what they were doing.
-              <span className="hv7-heart">♡</span>
-            </div>
+            {wheelReading ? (
+              <>
+                <img
+                  className="hv7-hero-wheel"
+                  src={ASSET('ill-wheel.png')}
+                  alt="A hand-drawn zodiac wheel with sign glyphs, inked on paper"
+                />
+                <div className="hv7-note hv7-note-hero">{buildMastNote(wheelReading.bigThree)}</div>
+              </>
+            ) : (
+              <>
+                <img src={ASSET('hero-moon-mountain.png')} alt="An ink-etched crescent moon over a hatched mountain range, scattered with stars" />
+                <div className="hv7-note hv7-note-hero">
+                  You are not too much. The stars knew exactly what they were doing.
+                  <span className="hv7-heart">♡</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </header>

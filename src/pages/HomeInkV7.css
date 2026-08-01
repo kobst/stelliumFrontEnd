@@ -71,6 +71,21 @@
 .hv7-note-hero { position: absolute; top: 4%; right: -2%; width: min(215px, 46%); transform: rotate(4deg); font-size: 23px; line-height: 1.5; text-align: center; }
 .hv7-heart { display: block; font-size: 20px; margin-top: 10px; }
 
+/* chart wheel replaces the hero art once a reading exists */
+.hv7-hero-wheel {
+  width: min(100%, 420px);
+  height: auto;
+  mix-blend-mode: multiply;
+  animation: hv7-wheel-in 0.8s ease both;
+}
+@keyframes hv7-wheel-in {
+  from { opacity: 0; transform: rotate(-8deg) scale(0.96); }
+  to { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hv7-hero-wheel { animation: none; }
+}
+
 /* welcome-back ribbon for a saved trial reading */
 .hv7-saved-reading {
   margin-top: 26px;
