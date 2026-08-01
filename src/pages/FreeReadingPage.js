@@ -9,7 +9,7 @@ import {
   clearPendingTrialReading,
 } from '../Utilities/trialApi';
 import { splitOverviewForTeaser } from '../UI/gravity/GravityIntakeChat';
-import { SIGN_GLYPHS, SUN_LINES, MOON_LINES, RISING_LINES, ordinal, buildMastNote } from '../Utilities/signCopy';
+import { SUN_LINES, MOON_LINES, RISING_LINES, ordinal, buildMastNote, signIconPath } from '../Utilities/signCopy';
 import './FreeReadingPage.css';
 
 const ASSET = (name) => `${process.env.PUBLIC_URL || ''}/assets/ink/${name}`;
@@ -309,7 +309,7 @@ const FreeReadingPage = () => {
                 <div className="fr-b3" key={role}>
                   <span className="fr-role">{role}</span>
                   <span className="fr-pl">
-                    <span className="fr-gl">{SIGN_GLYPHS[data.sign] || '✳'}</span>
+                    <img className="fr-sign-icon" src={signIconPath(data.sign)} alt="" aria-hidden="true" />
                     {data.sign}{data.house ? `, ${ordinal(data.house)}` : ''}
                   </span>
                   <p>{lines[data.sign]}</p>

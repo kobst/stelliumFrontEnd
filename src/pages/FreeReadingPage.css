@@ -69,7 +69,7 @@
 .fr-b3 { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 26px 24px 24px; display: grid; gap: 6px; }
 .fr-role { font-size: 11.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); }
 .fr-pl { font-size: 26px; display: flex; align-items: baseline; gap: 10px; }
-.fr-gl { font-family: "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols 2", var(--serif); font-size: 19px; color: var(--blue); }
+.fr-sign-icon { width: 20px; height: 20px; align-self: center; opacity: 0.85; }
 .fr-b3 p { font-size: 15.5px; color: var(--ink-soft); text-wrap: pretty; }
 .fr-sect-head { text-align: center; display: grid; gap: 12px; justify-items: center; }
 .fr-sect-head .fr-eyebrow { color: var(--ink-faint); }

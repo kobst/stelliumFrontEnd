@@ -8,7 +8,7 @@ import {
   attachTrialEmail,
   extractBigThree,
 } from '../../Utilities/trialApi';
-import { SIGN_GLYPHS, SUN_LINES, MOON_LINES, RISING_LINES, ordinal } from '../../Utilities/signCopy';
+import { SUN_LINES, MOON_LINES, RISING_LINES, ordinal, signIconPath } from '../../Utilities/signCopy';
 import './GravityIntakeChat.css';
 
 /**
@@ -389,7 +389,7 @@ const GravityIntakeChat = ({ onReadingReady }) => {
                       <div className="gic-b3-card" key={role}>
                         <span className="gic-b3-role">{role}</span>
                         <span className="gic-b3-pl">
-                          <span className="gic-b3-gl">{SIGN_GLYPHS[d.sign] || '✳'}</span>
+                          <img className="gic-b3-icon" src={signIconPath(d.sign)} alt="" aria-hidden="true" />
                           {d.sign}{d.house ? `, ${ordinal(d.house)}` : ''}
                         </span>
                         {lines[d.sign] && <p className="gic-b3-line">{lines[d.sign]}</p>}

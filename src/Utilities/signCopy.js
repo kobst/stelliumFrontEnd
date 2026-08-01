@@ -79,3 +79,7 @@ export const buildMastNote = (bigThree) => {
   }
   return 'The sky kept the receipts. Here they are.';
 };
+
+/** Path to the app's standard SVG glyph for a sign (public/assets/signs). */
+export const signIconPath = (sign) =>
+  sign ? `${process.env.PUBLIC_URL || ''}/assets/signs/${String(sign).toLowerCase()}.svg` : '';

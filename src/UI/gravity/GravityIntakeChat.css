@@ -152,7 +152,7 @@
   gap: 7px;
 }
 
-.gic-b3-gl { color: #3437a8; font-size: 15px; }
+.gic-b3-icon { width: 17px; height: 17px; align-self: center; opacity: 0.85; }
 
 .gic-reading {
   margin: 0;
