@@ -87,9 +87,10 @@ function SignGlyph({ sign, tint = 'primary', size = 14 }) {
   );
 }
 
-function WheelCard({ planets, houses, aspects, counters }) {
+function WheelCard({ planets, houses, aspects, counters, theme = 'night' }) {
+  const isInk = theme === 'ink';
   return (
-    <section className="cts-card cts-card--wheel">
+    <section className={`cts-card cts-card--wheel${isInk ? ' cts-card--wheel-ink' : ''}`}>
       <header className="cts-card-head">
         <h3>The Wheel</h3>
         <span className="cts-card-sub">{counters}</span>
@@ -97,13 +98,14 @@ function WheelCard({ planets, houses, aspects, counters }) {
 
       <div className="cts-wheel-layout">
         <div className="cts-wheel">
-          <div className="cts-wheel-halo" aria-hidden="true" />
+          {!isInk && <div className="cts-wheel-halo" aria-hidden="true" />}
           <div className="cts-wheel-canvas">
             <Ephemeris
               planets={planets}
               houses={houses}
               aspects={aspects}
               transits={[]}
+              theme={theme}
               instanceId="chart-tab-wheel"
             />
           </div>
@@ -111,15 +113,29 @@ function WheelCard({ planets, houses, aspects, counters }) {
 
         <aside className="cts-wheel-side">
           <h4>Read the lines.</h4>
-          <p className="cts-wheel-desc">
-            Solid green threads are flowing aspects. Dashed rose are tension. Gold is moon-tied or transformative.
-          </p>
-          <div className="cts-legend">
-            <div className="cts-lg-row"><span className="cts-swatch flowing" />Flowing (trine, sextile)</div>
-            <div className="cts-lg-row"><span className="cts-swatch tension" />Tension (square, opposition)</div>
-            <div className="cts-lg-row"><span className="cts-swatch neutral" />Conjunction</div>
-            <div className="cts-lg-row"><span className="cts-swatch moon" />Lunar / transformative</div>
-          </div>
+          {isInk ? (
+            <>
+              <p className="cts-wheel-desc">
+                Indigo threads are flowing aspects; madder red marks the charged ones.
+              </p>
+              <div className="cts-legend">
+                <div className="cts-lg-row"><span className="cts-swatch ink-flowing" />Flowing (trine, sextile)</div>
+                <div className="cts-lg-row"><span className="cts-swatch ink-tension" />Charged (conjunction, square, opposition)</div>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="cts-wheel-desc">
+                Solid green threads are flowing aspects. Dashed rose are tension. Gold is moon-tied or transformative.
+              </p>
+              <div className="cts-legend">
+                <div className="cts-lg-row"><span className="cts-swatch flowing" />Flowing (trine, sextile)</div>
+                <div className="cts-lg-row"><span className="cts-swatch tension" />Tension (square, opposition)</div>
+                <div className="cts-lg-row"><span className="cts-swatch neutral" />Conjunction</div>
+                <div className="cts-lg-row"><span className="cts-swatch moon" />Lunar / transformative</div>
+              </div>
+            </>
+          )}
         </aside>
       </div>
     </section>
@@ -337,7 +353,7 @@ function KeyAspectsCard({ aspects, planets, houses }) {
   );
 }
 
-function ChartTabSummary({ planets = [], houses = [], aspects = [] }) {
+function ChartTabSummary({ planets = [], houses = [], aspects = [], theme = 'night' }) {
   const visiblePlanets = useMemo(
     () => planets.filter((p) => p?.name && !HIDDEN_PLANETS.has(p.name)),
     [planets]
@@ -346,7 +362,7 @@ function ChartTabSummary({ planets = [], houses = [], aspects = [] }) {
 
   return (
     <div className="cts-root">
-      <WheelCard planets={planets} houses={houses} aspects={aspects} counters={counters} />
+      <WheelCard planets={planets} houses={houses} aspects={aspects} counters={counters} theme={theme} />
       <div className="cts-row">
         <PlanetsListCard planets={planets} />
         <HousesGridCard houses={houses} />

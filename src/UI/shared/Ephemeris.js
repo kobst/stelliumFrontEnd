@@ -566,11 +566,14 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         const context = canvas.getContext('2d');
         drawZodiacWheel(context, planets, houses, aspects, transits, isCancelled);
 
-        // Cleanup function to cancel stale async draws and release resources
+        // Cleanup cancels stale async draws. The module-level svgCache is
+        // deliberately NOT revoked here: it is shared by every Ephemeris
+        // instance, and revoking it from one unmounting wheel poisons the
+        // blob URLs another mounted wheel has already handed to <img> loads
+        // (glyphs silently vanish). The cache is small and bounded, so
+        // keeping the object URLs alive for the app's lifetime is fine.
         return () => {
             cancelled = true;
-            svgCache.forEach(url => URL.revokeObjectURL(url));
-            svgCache.clear();
         };
     }, [planets, houses, aspects, transits, drawZodiacWheel]);
 

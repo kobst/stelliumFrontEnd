@@ -180,7 +180,7 @@ function PublicCelebrityDashboard() {
 
   const tabContent = {
     overview: <OverviewTab basicAnalysis={basicAnalysis} birthChart={birthChart} isCelebrity />,
-    chart: <ChartTab birthChart={birthChart} isCelebrity />,
+    chart: <ChartTab birthChart={birthChart} isCelebrity theme="ink" />,
     dominance: (
       <DominancePatternsTab
         birthChart={birthChart}

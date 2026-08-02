@@ -4,7 +4,7 @@ import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
 import AskStelliumCta from './AskStelliumCta';
 import './ChartTab.css';
 
-function ChartTab({ birthChart, chartId, isCelebrity = false, canUseAskStellium = false }) {
+function ChartTab({ birthChart, chartId, isCelebrity = false, canUseAskStellium = false, theme = 'night' }) {
   const [chatOpen, setChatOpen] = useState(false);
   const planets = birthChart?.planets || [];
   const houses = birthChart?.houses || [];
@@ -20,7 +20,7 @@ function ChartTab({ birthChart, chartId, isCelebrity = false, canUseAskStellium 
 
   return (
     <div className="chart-tab">
-      <ChartTabSummary planets={planets} houses={houses} aspects={aspects} />
+      <ChartTabSummary planets={planets} houses={houses} aspects={aspects} theme={theme} />
 
       {!isCelebrity && (
         <div style={{ marginTop: 24 }}>
