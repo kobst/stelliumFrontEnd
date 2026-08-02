@@ -77,8 +77,15 @@
 }
 
 .pcb-medallion {
-  border-color: rgba(176, 141, 62, .7);
-  background: #1b2140;
+  /* square parchment postcard for the ink-themed wheel */
+  border-color: rgba(57, 68, 90, .3);
+  border-radius: 8px;
+  background: radial-gradient(circle at 50% 42%, #f7f1e6 0%, #f2eadb 62%, #ece2cf 100%);
+  box-shadow:
+    0 1px 2px rgba(35, 40, 64, .12),
+    0 22px 44px -28px rgba(35, 40, 64, .45);
+  display: grid;
+  place-items: center;
 }
 
 .pcb-tab-content {
@@ -333,4 +340,10 @@
   .pcb-state > span {
     animation: none;
   }
+}
+
+/* give the ink wheel more room on the public chart overview */
+.pcb-overview .ibc-medallion-frame,
+.ibc-overview-visual .ibc-medallion-frame {
+  width: min(100%, 540px);
 }

@@ -58,6 +58,46 @@ const PLANET_COLORS = {
     Pluto: '#8A2BE2',    // purple
 };
 
+// Drawing palettes. 'night' is the original light-on-dark look for the app
+// dashboards; 'ink' is slate ink on cream paper for the etched marketing pages.
+// Each theme also carries its own geometry (at the 600px base size): the ink
+// wheel fills its plate like the etched reference illustration — wider ring
+// band, heavier strokes, planet glyphs hugging the ring.
+const INK = '#39445a';
+const THEMES = {
+    night: {
+        ring: 'white',
+        zodiacColor: () => 'white',
+        planetColor: (name) => PLANET_COLORS[name] || 'red',
+        aspectSoft: 'blue',
+        aspectHard: 'red',
+        dims: { centerX: 300, centerY: 300, outerRadius: 170, innerRadius: 105, houseCircleRadius: 180 },
+        ringWidth: 1,
+        zodiacIconSize: 50,
+        zodiacRingOffset: 32,
+        collisionMode: 'radial',
+        planetAnchorOffset: 50,
+        planetIconSize: 40,
+    },
+    ink: {
+        ring: 'rgba(57, 68, 90, 0.8)',
+        zodiacColor: () => INK,
+        planetColor: () => INK,
+        aspectSoft: 'rgba(52, 55, 168, 0.5)',
+        aspectHard: 'rgba(178, 74, 58, 0.55)',
+        // planet glyphs orbit outside the ring with clear air (fixed radius
+        // 264 + icon half 17 = 281 < 300, fits the square plate) — collisions
+        // dodge sideways along the ring instead of stacking outward
+        dims: { centerX: 300, centerY: 300, outerRadius: 216, innerRadius: 140, houseCircleRadius: 227 },
+        ringWidth: 1.7,
+        zodiacIconSize: 52,
+        zodiacRingOffset: 38,
+        collisionMode: 'angular',
+        planetAnchorOffset: 48,
+        planetIconSize: 34,
+    },
+};
+
 const hexToRgba = (hex, alpha = 1) => {
     let h = hex.replace('#', '');
     if (h.length === 3) {
@@ -98,32 +138,22 @@ const loadAndModifySVG = async (url, color, instanceId) => {
     }
 };
 
-const getColorForZodiac = (index) => {
-    return 'white';
-  };
-
-// Base dimensions at 600px canvas size — used as ratios for scaling
+// Base canvas size — theme dims are defined at this size and scaled to fit
 const BASE_SIZE = 600;
-const BASE_DIMENSIONS = {
-    centerX: 300,
-    centerY: 300,
-    outerRadius: 170,
-    innerRadius: 105,
-    houseCircleRadius: 180
-};
 
-const scaleDimensions = (size) => {
+const scaleDimensions = (size, base) => {
     const ratio = size / BASE_SIZE;
     return {
-        centerX: BASE_DIMENSIONS.centerX * ratio,
-        centerY: BASE_DIMENSIONS.centerY * ratio,
-        outerRadius: BASE_DIMENSIONS.outerRadius * ratio,
-        innerRadius: BASE_DIMENSIONS.innerRadius * ratio,
-        houseCircleRadius: BASE_DIMENSIONS.houseCircleRadius * ratio
+        centerX: base.centerX * ratio,
+        centerY: base.centerY * ratio,
+        outerRadius: base.outerRadius * ratio,
+        innerRadius: base.innerRadius * ratio,
+        houseCircleRadius: base.houseCircleRadius * ratio
     };
 };
 
-const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 0, instanceId }) => {
+const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 0, instanceId, theme = 'night' }) => {
+    const palette = THEMES[theme] || THEMES.night;
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
     const [canvasSize, setCanvasSize] = useState(BASE_SIZE);
@@ -133,7 +163,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         return (houses && houses.length !== 0) ? houses[0].degree : ascendantDegree;
     }, [houses, ascendantDegree]);
 
-    const dims = useMemo(() => scaleDimensions(canvasSize), [canvasSize]);
+    const dims = useMemo(() => scaleDimensions(canvasSize, palette.dims), [canvasSize, palette]);
 
     // Memoize the drawing functions
     const drawHouses = useCallback((ctx, houses, houseRotationRadians) => {
@@ -148,19 +178,19 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
             } else {
                 ctx.lineWidth = 1;
             }
-            ctx.strokeStyle = 'white';
+            ctx.strokeStyle = palette.ring;
             ctx.stroke();
             ctx.lineWidth = 1;
         });
-    }, [dims]);
+    }, [dims, palette]);
 
     const drawPlanets = useCallback(async (ctx, planetsToDraw, rotationRadians, isCancelled) => {
         const scale = canvasSize / BASE_SIZE;
-        const ICON_WIDTH = Math.round(40 * scale);
-        const ICON_HEIGHT = Math.round(40 * scale);
+        const ICON_WIDTH = Math.round(palette.planetIconSize * scale);
+        const ICON_HEIGHT = Math.round(palette.planetIconSize * scale);
         const ICON_DRAW_OFFSET_X = Math.round(10 * scale);
         const ICON_DRAW_OFFSET_Y = Math.round(10 * scale);
-        const BASE_PLANET_ICON_ANCHOR_RADIUS = dims.outerRadius + 50 * scale;
+        const BASE_PLANET_ICON_ANCHOR_RADIUS = dims.outerRadius + palette.planetAnchorOffset * scale;
 
         // Sort planets by degree to process them in order around the circle
         const sortedPlanets = [...planetsToDraw].sort((a, b) => a.full_degree - b.full_degree);
@@ -177,37 +207,40 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
             // Calculate the true angular position for the planet, including chart rotation
             const truePlanetRadians = ((270 - planetDegree) % 360) * Math.PI / 180 + rotationRadians;
 
-            let currentIconAnchorRadius = BASE_PLANET_ICON_ANCHOR_RADIUS;
-            let adjustedIconTopLeftX, adjustedIconTopLeftY;
-            let collisionDetected = true;
-            let attempts = 0;
-            const MAX_ADJUSTMENT_ATTEMPTS = 10; // Max times to push icon radially outward
+            // Candidate positions, tried in order. 'radial' stacks colliding
+            // icons outward (original dashboard behavior); 'angular' keeps the
+            // radius fixed and slides them sideways along the ring, so they can
+            // never leave the plate.
             const RADIAL_PUSH_INCREMENT = Math.round(15 * scale);
-
-            while (collisionDetected && attempts < MAX_ADJUSTMENT_ATTEMPTS) {
-                const iconAnchorX = dims.centerX + currentIconAnchorRadius * Math.cos(truePlanetRadians);
-                const iconAnchorY = dims.centerY + currentIconAnchorRadius * Math.sin(truePlanetRadians);
-
-                adjustedIconTopLeftX = iconAnchorX - ICON_DRAW_OFFSET_X;
-                adjustedIconTopLeftY = iconAnchorY - ICON_DRAW_OFFSET_Y;
-
-                collisionDetected = false;
-                for (const pos of occupiedPositions) {
-                    if (
-                        adjustedIconTopLeftX < pos.x + pos.width &&
-                        adjustedIconTopLeftX + ICON_WIDTH > pos.x &&
-                        adjustedIconTopLeftY < pos.y + pos.height &&
-                        adjustedIconTopLeftY + ICON_HEIGHT > pos.y
-                    ) {
-                        collisionDetected = true;
-                        break;
-                    }
+            const candidates = [{ radius: BASE_PLANET_ICON_ANCHOR_RADIUS, angle: 0 }];
+            if (palette.collisionMode === 'angular') {
+                const angularStep = (ICON_WIDTH * 1.1) / BASE_PLANET_ICON_ANCHOR_RADIUS;
+                for (let k = 1; k <= 6; k++) {
+                    candidates.push({ radius: BASE_PLANET_ICON_ANCHOR_RADIUS, angle: k * angularStep });
+                    candidates.push({ radius: BASE_PLANET_ICON_ANCHOR_RADIUS, angle: -k * angularStep });
                 }
-
-                if (collisionDetected) {
-                    currentIconAnchorRadius += RADIAL_PUSH_INCREMENT;
-                    attempts++;
+            } else {
+                for (let k = 1; k < 10; k++) {
+                    candidates.push({ radius: BASE_PLANET_ICON_ANCHOR_RADIUS + k * RADIAL_PUSH_INCREMENT, angle: 0 });
                 }
+            }
+
+            let adjustedIconTopLeftX;
+            let adjustedIconTopLeftY;
+            let wasMoved = false;
+            for (let i = 0; i < candidates.length; i++) {
+                const candidate = candidates[i];
+                const candidateRadians = truePlanetRadians + candidate.angle;
+                adjustedIconTopLeftX = dims.centerX + candidate.radius * Math.cos(candidateRadians) - ICON_DRAW_OFFSET_X;
+                adjustedIconTopLeftY = dims.centerY + candidate.radius * Math.sin(candidateRadians) - ICON_DRAW_OFFSET_Y;
+                wasMoved = i > 0;
+                const collides = occupiedPositions.some((pos) => (
+                    adjustedIconTopLeftX < pos.x + pos.width &&
+                    adjustedIconTopLeftX + ICON_WIDTH > pos.x &&
+                    adjustedIconTopLeftY < pos.y + pos.height &&
+                    adjustedIconTopLeftY + ICON_HEIGHT > pos.y
+                ));
+                if (!collides) break;
             }
 
             occupiedPositions.push({
@@ -223,7 +256,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                 drawX: adjustedIconTopLeftX,
                 drawY: adjustedIconTopLeftY,
                 truePlanetRadians: truePlanetRadians, // Save for drawing hash mark and indicator line
-                wasMoved: currentIconAnchorRadius !== BASE_PLANET_ICON_ANCHOR_RADIUS
+                wasMoved
             });
         }
 
@@ -231,7 +264,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         for (const info of planetDrawInfos) {
             const { planetName, iconUrl, drawX, drawY, truePlanetRadians, wasMoved } = info;
 
-            const planetColor = PLANET_COLORS[planetName] || 'red';
+            const planetColor = palette.planetColor(planetName);
 
             // Draw the planet hash mark first (so icon can draw over its end if needed)
             ctx.beginPath();
@@ -279,7 +312,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                 console.error(`Error processing SVG for ${planetName}:`, error);
             }
         }
-    }, [instanceId, dims, canvasSize]);
+    }, [instanceId, dims, canvasSize, palette]);
 
     const drawAspectLines = useCallback((ctx, aspects, innerRadius, rotationRadians) => {
   
@@ -311,15 +344,15 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
 
             // Set line color based on aspect type
             if (aspect.aspectType === 'sextile' || aspect.aspectType === 'trine') {
-                ctx.strokeStyle = 'blue';
+                ctx.strokeStyle = palette.aspectSoft;
             } else {
-                ctx.strokeStyle = 'red';
+                ctx.strokeStyle = palette.aspectHard;
             }
 
             ctx.lineWidth = 1;
             ctx.stroke();
         });
-    }, [dims]);
+    }, [dims, palette]);
 
     const drawTransits = useCallback(async (ctx, transits, rotationRadians, houseRotationRadians, isCancelled) => {
         const scale = canvasSize / BASE_SIZE;
@@ -457,7 +490,8 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         ctx.rotate(rotationRadians);
         ctx.translate(-dims.centerX, -dims.centerY);
 
-        ctx.strokeStyle = 'white';
+        ctx.strokeStyle = palette.ring;
+        ctx.lineWidth = palette.ringWidth;
 
         ctx.beginPath();
         ctx.arc(dims.centerX, dims.centerY, dims.outerRadius, 0, 2 * Math.PI);
@@ -474,18 +508,19 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
             ctx.beginPath();
             ctx.moveTo(dims.centerX + dims.innerRadius * Math.cos(angle), dims.centerY + dims.innerRadius * Math.sin(angle));
             ctx.lineTo(dims.centerX + dims.outerRadius * Math.cos(angle), dims.centerY + dims.outerRadius * Math.sin(angle));
-            ctx.lineWidth = 1;
+            ctx.lineWidth = palette.ringWidth;
             ctx.stroke();
         }
+        ctx.lineWidth = 1;
 
         const scale = canvasSize / BASE_SIZE;
-        const zodiacIconSize = Math.round(50 * scale);
-        const zodiacIconOffset = Math.round(25 * scale);
-        const zodiacRingOffset = Math.round(32 * scale);
+        const zodiacIconSize = Math.round(palette.zodiacIconSize * scale);
+        const zodiacIconOffset = Math.round((palette.zodiacIconSize / 2) * scale);
+        const zodiacRingOffset = Math.round(palette.zodiacRingOffset * scale);
 
         zodiacIcons.forEach(async (iconAddress, index) => {
             if (isCancelled()) return;
-            const icon = await loadAndModifySVG(iconAddress, getColorForZodiac(index), instanceId);
+            const icon = await loadAndModifySVG(iconAddress, palette.zodiacColor(index), instanceId);
             if (isCancelled()) return;
             const iconDegree = 15 + index * 30;
             const iconRadians = ((270 - iconDegree) % 360) * Math.PI / 180 + rotationRadians;
@@ -518,7 +553,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
 
         ctx.restore();
         ctx.strokeStyle = '#000000';
-    }, [currentAscendantDegree, drawHouses, drawPlanets, drawAspectLines, drawTransits, instanceId, dims, canvasSize]);
+    }, [currentAscendantDegree, drawHouses, drawPlanets, drawAspectLines, drawTransits, instanceId, dims, canvasSize, palette]);
 
     // Single effect for drawing
     useEffect(() => {

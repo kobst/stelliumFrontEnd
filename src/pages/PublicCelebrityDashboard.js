@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { fetchAnalysis, fetchUser } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
-import { toChartSceneAspects, toChartScenePlacements } from '../Utilities/chartSceneAdapter';
 import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
 import AskStelliumCta from '../UI/dashboard/chartTabs/AskStelliumCta';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
@@ -12,7 +11,7 @@ import OverviewTab from '../UI/dashboard/chartTabs/OverviewTab';
 import PlanetsTab from '../UI/dashboard/chartTabs/PlanetsTab';
 import InkNav from '../UI/ink/InkNav';
 import InkPublicFooter from '../UI/publicInk/InkPublicFooter';
-import { ChartScene } from '../UI/shared/chartScene';
+import Ephemeris from '../UI/shared/Ephemeris';
 import '../styles/ink.css';
 import './InkBirthChartPage.css';
 import './PublicCelebrityDashboard.css';
@@ -145,8 +144,10 @@ function PublicCelebrityDashboard() {
   const birthChart = celebrity?.birthChart || {};
   const planets = useMemo(() => birthChart?.planets || [], [birthChart?.planets]);
   const aspects = useMemo(() => birthChart?.aspects || [], [birthChart?.aspects]);
-  const natal = useMemo(() => toChartScenePlacements(planets), [planets]);
-  const natalAspects = useMemo(() => toChartSceneAspects(aspects), [aspects]);
+  const wheelHouses = useMemo(() => {
+    const houses = (birthChart?.houses || []).filter((h) => Number.isFinite(h?.degree));
+    return houses.length === 12 ? houses : [];
+  }, [birthChart?.houses]);
 
   if (loading) return <PageState>Drawing the celebrity chart…</PageState>;
   if (error || !celebrity) return <PageState error>{error || 'Celebrity not found.'}</PageState>;
@@ -251,15 +252,15 @@ function PublicCelebrityDashboard() {
                 </article>
                 <div className="ibc-overview-visual">
                   <div className="ibc-medallion-frame">
-                    {natal.length > 0 ? (
+                    {planets.length > 0 ? (
                       <div className="ibc-medallion ibc-medallion--overview pcb-medallion" aria-label={`${celebrityName}'s natal chart`}>
-                        <ChartScene
-                          background="#1b2140"
-                          natal={natal}
-                          natalAspects={natalAspects}
-                          topDown
-                          disableZoom
-                          paused={activeSection !== 'overview'}
+                        <Ephemeris
+                          planets={planets}
+                          houses={wheelHouses}
+                          aspects={aspects}
+                          transits={[]}
+                          theme="ink"
+                          instanceId="pcb-wheel"
                         />
                       </div>
                     ) : (
