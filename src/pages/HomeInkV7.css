@@ -166,11 +166,38 @@
 .hv7-hl { color: var(--blue); }
 .hv7-sect-head h2 { font-size: clamp(28px, 3.2vw, 40px); }
 .hv7-sect-head--couples { margin-top: clamp(56px, 8vh, 90px); margin-bottom: 0; }
+.hv7 a.hv7-browse-link {
+  font-style: italic;
+  font-size: 16px;
+  color: var(--accent, #3437a8);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(52, 55, 168, 0.35);
+  padding-bottom: 1px;
+}
+.hv7 a.hv7-browse-link:hover { border-bottom-color: #3437a8; }
 .hv7-celebs { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(14px, 2.2vw, 26px); }
 .hv7-celeb, .hv7-couple { background: var(--card); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; display: grid; grid-template-rows: auto auto; transition: transform .18s ease, box-shadow .18s ease; }
 .hv7-celeb:hover, .hv7-couple:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -18px rgba(35,40,64,0.35); }
-.hv7-celeb img { width: 100%; aspect-ratio: 162 / 178; object-fit: cover; mix-blend-mode: multiply; }
-.hv7-couple img { width: 100%; aspect-ratio: 216 / 150; object-fit: cover; mix-blend-mode: multiply; }
+.hv7-celeb img {
+  width: 100%;
+  aspect-ratio: 162 / 178;
+  object-fit: cover;
+  object-position: 50% 22%;
+  /* tone the real photos toward the page's etched-ink look */
+  filter: grayscale(1) sepia(0.28) saturate(0.85) contrast(1.02);
+  mix-blend-mode: multiply;
+}
+.hv7-celeb-ghost-img { display: block; width: 100%; aspect-ratio: 162 / 178; background: #e9e2d3; }
+.hv7-couple-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--card); }
+.hv7-couple-duo img {
+  width: 100%;
+  aspect-ratio: 107 / 150;
+  object-fit: cover;
+  object-position: 50% 22%;
+  filter: grayscale(1) sepia(0.28) saturate(0.85) contrast(1.02);
+  mix-blend-mode: multiply;
+}
+.hv7-couple-ghost-img { display: block; width: 100%; aspect-ratio: 216 / 150; background: #e9e2d3; }
 .hv7-cinfo { padding: 14px 18px 18px; display: block; }
 .hv7-nm { font-size: 20px; color: var(--ink); display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .hv7-spk { font-size: 13px; color: var(--ink-faint); }

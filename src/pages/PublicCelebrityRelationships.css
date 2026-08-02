@@ -170,7 +170,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: saturate(.68) sepia(.08);
+  /* etched-ink tone, matching the landing page and celebrity directory */
+  filter: grayscale(1) sepia(0.28) saturate(0.85) contrast(1.02);
 }
 
 .pcrl-duo__join {

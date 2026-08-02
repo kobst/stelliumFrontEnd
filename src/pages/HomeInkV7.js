@@ -1,17 +1,82 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import GravityIntakeChat from '../UI/gravity/GravityIntakeChat';
 import InkWheel from '../UI/gravity/InkWheel';
 import { loadTrialSession } from '../Utilities/trialApi';
 import { buildMastNote } from '../Utilities/signCopy';
+import { fetchCelebrities, getCelebrityRelationships } from '../Utilities/api';
 import './HomeInkV7.css';
 
 const ASSET = (name) => `${process.env.PUBLIC_URL || ''}/assets/ink/${name}`;
+
+// Real charts from the celebrity directory, featured by name when available
+const FEATURED_CELEB_NAMES = ['Taylor Swift', 'Timothée Chalamet', 'Zendaya Coleman', 'Bad Bunny'];
+
+const celebFullName = (c) => `${c?.firstName || ''} ${c?.lastName || ''}`.trim();
+const celebPhoto = (c) => c?.profilePhotoUrl || c?.photoUrl || null;
+const celebSign = (c, planet) =>
+  (c?.birthChart?.planets || []).find((p) => p?.name === planet)?.sign || null;
+
+const pickFeaturedCelebs = (list) => {
+  const withPhotos = list.filter(celebPhoto);
+  const preferred = FEATURED_CELEB_NAMES
+    .map((name) => withPhotos.find((c) => celebFullName(c) === name))
+    .filter(Boolean);
+  const rest = withPhotos.filter((c) => !preferred.includes(c));
+  return [...preferred, ...rest].slice(0, 4);
+};
+
+// Real celebrity relationships, featured by couple when available
+const FEATURED_COUPLE_NAMES = [
+  'Zendaya Coleman & Tom Holland',
+  'David Beckham & Victoria Beckham',
+  'Jay Z & Beyoncé Knowles',
+];
+
+const coupleUserName = (rel, prefix) =>
+  `${rel?.[`${prefix}_firstName`] || ''} ${rel?.[`${prefix}_lastName`] || ''}`.trim();
+const coupleTitle = (rel) => `${coupleUserName(rel, 'userA')} & ${coupleUserName(rel, 'userB')}`;
+
+const pickFeaturedCouples = (relationships, celebrities) => {
+  const photoById = {};
+  celebrities.forEach((c) => {
+    if (c?._id && celebPhoto(c)) photoById[c._id] = celebPhoto(c);
+  });
+  const withPhotos = relationships
+    .map((rel) => ({
+      ...rel,
+      userA_profilePhotoUrl: rel.userA_profilePhotoUrl || photoById[rel.userA_id] || null,
+      userB_profilePhotoUrl: rel.userB_profilePhotoUrl || photoById[rel.userB_id] || null,
+    }))
+    .filter((rel) => rel.userA_profilePhotoUrl && rel.userB_profilePhotoUrl);
+  const preferred = FEATURED_COUPLE_NAMES
+    .map((title) => withPhotos.find((rel) => coupleTitle(rel) === title))
+    .filter(Boolean);
+  const rest = withPhotos.filter((rel) => !preferred.includes(rel));
+  return [...preferred, ...rest].slice(0, 3);
+};
 
 const HomeInkV7 = () => {
   const [askDraft, setAskDraft] = useState('');
   const [savedReading] = useState(() => loadTrialSession());
   const [castReading, setCastReading] = useState(null);
+  const [featuredCelebs, setFeaturedCelebs] = useState([]);
+  const [featuredCouples, setFeaturedCouples] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    Promise.allSettled([fetchCelebrities(), getCelebrityRelationships(20)])
+      .then(([celebResult, coupleResult]) => {
+        if (!active) return;
+        const celebData = celebResult.status === 'fulfilled' ? celebResult.value : [];
+        const celebs = Array.isArray(celebData) ? celebData : celebData?.data || [];
+        if (celebs.length) setFeaturedCelebs(pickFeaturedCelebs(celebs));
+        const coupleData = coupleResult.status === 'fulfilled' ? coupleResult.value : [];
+        const couples = Array.isArray(coupleData) ? coupleData : coupleData?.relationships || coupleData?.data || [];
+        if (couples.length) setFeaturedCouples(pickFeaturedCouples(couples, celebs));
+      });
+    return () => { active = false; };
+  }, []);
   // the wheel replaces the hero art once a chart exists (fresh cast or saved)
   const wheelReading = castReading || (savedReading?.bigThree ? savedReading : null);
 
@@ -135,43 +200,68 @@ const HomeInkV7 = () => {
           <div className="hv7-sect-head">
             <span className="hv7-eyebrow">She reads famous people too</span>
             <h2>Their charts explain a lot, <span className="hv7-it">honestly.</span></h2>
+            <Link className="hv7-browse-link" to="/celebrities">Browse the rest of the celebrities ↗</Link>
           </div>
           <div className="hv7-celebs">
-            <Link className="hv7-celeb" to="/celebrities">
-              <img src={ASSET('celeb-1.png')} alt="Ink portrait of Margaret Qualley" />
-              <span className="hv7-cinfo"><span className="hv7-nm">Margaret Qualley <span className="hv7-spk">✳</span></span><span className="hv7-sig">Scorpio Sun · Gemini Moon</span></span>
-            </Link>
-            <Link className="hv7-celeb" to="/celebrities">
-              <img src={ASSET('celeb-2.png')} alt="Ink portrait of Post Malone" />
-              <span className="hv7-cinfo"><span className="hv7-nm">Post Malone <span className="hv7-spk">✳</span></span><span className="hv7-sig">Cancer Sun · Virgo Moon</span></span>
-            </Link>
-            <Link className="hv7-celeb" to="/celebrities">
-              <img src={ASSET('celeb-3.png')} alt="Ink portrait of Oprah Winfrey" />
-              <span className="hv7-cinfo"><span className="hv7-nm">Oprah Winfrey <span className="hv7-spk">✳</span></span><span className="hv7-sig">Aquarius Sun · Sagittarius Moon</span></span>
-            </Link>
-            <Link className="hv7-celeb" to="/celebrities">
-              <img src={ASSET('celeb-4.png')} alt="Ink portrait of Paul Mescal" />
-              <span className="hv7-cinfo"><span className="hv7-nm">Paul Mescal <span className="hv7-spk">✳</span></span><span className="hv7-sig">Aquarius Sun · Cancer Moon</span></span>
-            </Link>
+            {featuredCelebs.length > 0
+              ? featuredCelebs.map((celeb) => {
+                  const name = celebFullName(celeb);
+                  const sun = celebSign(celeb, 'Sun');
+                  const moon = celebSign(celeb, 'Moon');
+                  const signLine = [sun && `${sun} Sun`, moon && `${moon} Moon`].filter(Boolean).join(' · ');
+                  return (
+                    <Link className="hv7-celeb" key={celeb._id} to={`/celebrities/${celeb._id}`}>
+                      <img src={celebPhoto(celeb)} alt={`Portrait of ${name}`} loading="lazy" decoding="async" />
+                      <span className="hv7-cinfo">
+                        <span className="hv7-nm">{name} <span className="hv7-spk">✳</span></span>
+                        {signLine && <span className="hv7-sig">{signLine}</span>}
+                      </span>
+                    </Link>
+                  );
+                })
+              : [0, 1, 2, 3].map((i) => (
+                  <div className="hv7-celeb hv7-celeb--ghost" key={i} aria-hidden="true">
+                    <span className="hv7-celeb-ghost-img" />
+                    <span className="hv7-cinfo">
+                      <span className="hv7-nm">&nbsp;</span>
+                      <span className="hv7-sig">&nbsp;</span>
+                    </span>
+                  </div>
+                ))}
           </div>
 
           <div className="hv7-sect-head hv7-sect-head--couples">
             <span className="hv7-eyebrow"><span className="hv7-hl">Cosmic</span> chemistry between famous couples</span>
             <h2>Some connections <span className="hv7-it">just make sense.</span></h2>
+            <Link className="hv7-browse-link" to="/celebrity-relationships">Browse the rest of the couples ↗</Link>
           </div>
           <div className="hv7-couples">
-            <Link className="hv7-couple" to="/celebrity-relationships">
-              <img src={ASSET('couple-1.png')} alt="Ink portrait of A$AP Rocky and Rihanna" />
-              <span className="hv7-cinfo"><span className="hv7-nm">A$AP Rocky &amp; Rihanna</span><span className="hv7-tag">Quiet Connection</span></span>
-            </Link>
-            <Link className="hv7-couple" to="/celebrity-relationships">
-              <img src={ASSET('couple-2.png')} alt="Ink portrait of Zendaya and Tom Holland" />
-              <span className="hv7-cinfo"><span className="hv7-nm">Zendaya &amp; Tom Holland</span><span className="hv7-tag">Developing Connection</span></span>
-            </Link>
-            <Link className="hv7-couple" to="/celebrity-relationships">
-              <img src={ASSET('couple-3.png')} alt="Ink portrait of David and Victoria Beckham" />
-              <span className="hv7-cinfo"><span className="hv7-nm">David Beckham &amp; Victoria Beckham</span><span className="hv7-tag">Iron &amp; Honey</span></span>
-            </Link>
+            {featuredCouples.length > 0
+              ? featuredCouples.map((rel) => {
+                  const nameA = coupleUserName(rel, 'userA');
+                  const nameB = coupleUserName(rel, 'userB');
+                  return (
+                    <Link className="hv7-couple" key={rel._id} to={`/celebrity-relationships/${rel._id}`}>
+                      <span className="hv7-couple-duo">
+                        <img src={rel.userA_profilePhotoUrl} alt={`Portrait of ${nameA}`} loading="lazy" decoding="async" />
+                        <img src={rel.userB_profilePhotoUrl} alt={`Portrait of ${nameB}`} loading="lazy" decoding="async" />
+                      </span>
+                      <span className="hv7-cinfo">
+                        <span className="hv7-nm">{nameA} &amp; {nameB}</span>
+                        {rel.archetypeLabel && <span className="hv7-tag">{rel.archetypeLabel}</span>}
+                      </span>
+                    </Link>
+                  );
+                })
+              : [0, 1, 2].map((i) => (
+                  <div className="hv7-couple hv7-couple--ghost" key={i} aria-hidden="true">
+                    <span className="hv7-couple-ghost-img" />
+                    <span className="hv7-cinfo">
+                      <span className="hv7-nm">&nbsp;</span>
+                      <span className="hv7-tag">&nbsp;</span>
+                    </span>
+                  </div>
+                ))}
           </div>
         </div>
       </section>
