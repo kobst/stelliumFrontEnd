@@ -152,7 +152,7 @@ const scaleDimensions = (size, base) => {
     };
 };
 
-const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 0, instanceId, theme = 'night' }) => {
+const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 0, instanceId, theme = 'night', emphasisPlanets = null }) => {
     const palette = THEMES[theme] || THEMES.night;
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
@@ -231,15 +231,17 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
             for (let i = 0; i < candidates.length; i++) {
                 const candidate = candidates[i];
                 const candidateRadians = truePlanetRadians + candidate.angle;
-                adjustedIconTopLeftX = dims.centerX + candidate.radius * Math.cos(candidateRadians) - ICON_DRAW_OFFSET_X;
-                adjustedIconTopLeftY = dims.centerY + candidate.radius * Math.sin(candidateRadians) - ICON_DRAW_OFFSET_Y;
-                wasMoved = i > 0;
+                const candidateX = dims.centerX + candidate.radius * Math.cos(candidateRadians) - ICON_DRAW_OFFSET_X;
+                const candidateY = dims.centerY + candidate.radius * Math.sin(candidateRadians) - ICON_DRAW_OFFSET_Y;
                 const collides = occupiedPositions.some((pos) => (
-                    adjustedIconTopLeftX < pos.x + pos.width &&
-                    adjustedIconTopLeftX + ICON_WIDTH > pos.x &&
-                    adjustedIconTopLeftY < pos.y + pos.height &&
-                    adjustedIconTopLeftY + ICON_HEIGHT > pos.y
+                    candidateX < pos.x + pos.width &&
+                    candidateX + ICON_WIDTH > pos.x &&
+                    candidateY < pos.y + pos.height &&
+                    candidateY + ICON_HEIGHT > pos.y
                 ));
+                adjustedIconTopLeftX = candidateX;
+                adjustedIconTopLeftY = candidateY;
+                wasMoved = i > 0;
                 if (!collides) break;
             }
 
@@ -260,18 +262,25 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
             });
         }
 
+        // Planets outside the emphasis set draw dimmed (used to isolate one
+        // body's aspects); an empty/absent set means everything is full-ink.
+        const emphasisSet = emphasisPlanets && emphasisPlanets.length ? new Set(emphasisPlanets) : null;
+
         // Phase 2: Draw planet icons and their hash marks (and indicator lines if moved)
         for (const info of planetDrawInfos) {
             const { planetName, iconUrl, drawX, drawY, truePlanetRadians, wasMoved } = info;
 
             const planetColor = palette.planetColor(planetName);
+            const drawAlpha = emphasisSet && !emphasisSet.has(planetName) ? 0.25 : 1;
 
             // Draw the planet hash mark first (so icon can draw over its end if needed)
+            ctx.globalAlpha = drawAlpha;
             ctx.beginPath();
             ctx.moveTo(dims.centerX + dims.outerRadius * Math.cos(truePlanetRadians), dims.centerY + dims.outerRadius * Math.sin(truePlanetRadians));
             ctx.lineTo(dims.centerX + dims.houseCircleRadius * Math.cos(truePlanetRadians), dims.centerY + dims.houseCircleRadius * Math.sin(truePlanetRadians));
             ctx.strokeStyle = planetColor; // Planet hash mark color
             ctx.stroke();
+            ctx.globalAlpha = 1;
 
             // Load and draw the planet icon
             try {
@@ -282,6 +291,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                 planetImage.src = coloredIconUrl;
                 planetImage.onload = () => {
                     if (isCancelled()) return;
+                    ctx.globalAlpha = drawAlpha;
                     ctx.drawImage(planetImage, drawX, drawY, ICON_WIDTH, ICON_HEIGHT);
 
                     // If the icon was moved, draw an indicator line
@@ -298,6 +308,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                         ctx.stroke();
                         ctx.lineWidth = 1; // Reset line width
                     }
+                    ctx.globalAlpha = 1;
                 };
                 planetImage.onerror = () => {
                     if (isCancelled()) return;
@@ -312,7 +323,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                 console.error(`Error processing SVG for ${planetName}:`, error);
             }
         }
-    }, [instanceId, dims, canvasSize, palette]);
+    }, [instanceId, dims, canvasSize, palette, emphasisPlanets]);
 
     const drawAspectLines = useCallback((ctx, aspects, innerRadius, rotationRadians) => {
   

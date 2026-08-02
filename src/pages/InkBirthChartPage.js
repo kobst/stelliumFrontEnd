@@ -3,7 +3,7 @@ import { Navigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import useChartData from '../hooks/useChartData';
 import InkNav from '../UI/ink/InkNav';
-import { ChartScene } from '../UI/shared/chartScene';
+import Ephemeris from '../UI/shared/Ephemeris';
 import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
 import AnalysisTab, {
   decodeAstroCode,
@@ -11,13 +11,7 @@ import AnalysisTab, {
   renderAspectPhrase,
 } from '../UI/dashboard/chartTabs/AnalysisTab';
 import { flattenAnalysis } from '../UI/journey/AnalysisFlow';
-import { extractShapeCards } from '../UI/journey/PatternLenses';
-import {
-  fromSceneBodyName,
-  toChartSceneAspects,
-  toChartScenePlacements,
-  toSceneBodyNames,
-} from '../Utilities/chartSceneAdapter';
+import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import '../styles/ink.css';
 import './InkBirthChartPage.css';
 
@@ -27,22 +21,6 @@ const CHAPTERS = [
   { id: 'planets', roman: 'iii.', label: 'Chart & Planets' },
   { id: 'analysis', roman: 'iv.', label: '360 Analysis' },
   { id: 'ask', roman: 'v.', label: 'Gravity Chat' },
-];
-
-const PATTERN_LENSES = [
-  {
-    id: 'shapes',
-    label: 'Shapes',
-    tag: 'How several placements combine into larger geometric patterns.',
-  },
-  { id: 'elements', label: 'Elements', tag: "What you're made of." },
-  { id: 'modalities', label: 'Modalities', tag: 'How you move.' },
-  { id: 'quadrants', label: 'Quadrants', tag: 'Where your weight sits.' },
-  {
-    id: 'influence',
-    label: 'Planetary Influence',
-    tag: 'Who leads the orchestra.',
-  },
 ];
 
 const BODY_DEFINITIONS = [
@@ -176,17 +154,14 @@ function InkPageState({ message, error = false }) {
 
 function Medallion({
   className = '',
-  natal,
-  natalAspects,
-  paused,
-  highlightBodies,
-  relatedBodies,
-  selectedBody,
-  isolateSelection = false,
-  onSelectBody,
   label,
+  planets = [],
+  houses = [],
+  aspects = [],
+  emphasisPlanets = null,
+  instanceId = 'ibc-ink-wheel',
 }) {
-  if (!natal.length) {
+  if (!planets.length) {
     return (
       <div className={`ibc-medallion ibc-medallion--empty ${className}`.trim()} role="status">
         Chart wheel data is unavailable.
@@ -195,90 +170,18 @@ function Medallion({
   }
 
   return (
-    <div className={`ibc-medallion ${className}`.trim()} aria-label={label}>
-      <ChartScene
-          background="#1b2140"
-        natal={natal}
-        natalAspects={natalAspects}
-        topDown
-        disableZoom
-        paused={paused}
-        highlightBodies={highlightBodies}
-        relatedBodies={relatedBodies}
-        selectedBody={selectedBody}
-        isolateSelection={isolateSelection}
-        onSelectBody={onSelectBody}
+    <div className={`ibc-medallion ibc-medallion--ink ${className}`.trim()} aria-label={label}>
+      <Ephemeris
+        planets={planets}
+        houses={houses}
+        aspects={aspects}
+        transits={[]}
+        theme="ink"
+        emphasisPlanets={emphasisPlanets}
+        instanceId={instanceId}
       />
     </div>
   );
-}
-
-function PatternBars({ items, influence = false }) {
-  const safeItems = (items || [])
-    .map((item) => ({ ...item, percentage: Number(item?.percentage) || 0 }))
-    .sort((a, b) => b.percentage - a.percentage);
-  const shownItems = influence ? safeItems.slice(0, 6) : safeItems;
-  const max = Math.max(...shownItems.map((item) => item.percentage), 1);
-
-  if (!shownItems.length) {
-    return <p className="ibc-empty-copy">This pattern data is not available yet.</p>;
-  }
-
-  return (
-    <div className={`ibc-pattern-bars${influence ? ' ibc-pattern-bars--influence' : ''}`}>
-      {shownItems.map((item, index) => (
-        <div className="ibc-pattern-bar-item" key={`${item.name}-${index}`}>
-          <span className="ibc-pattern-bar-value">
-            {influence && index === 0 ? '1st' : `${item.percentage.toFixed(0)}%`}
-          </span>
-          <span
-            className={`ibc-pattern-bar${index === 0 ? ' is-leading' : ''}`}
-            style={{ '--ibc-bar-height': `${Math.max(8, (item.percentage / max) * 100)}%` }}
-          />
-          <span className="ibc-pattern-bar-label">{item.name}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function PatternVisual({
-  lens,
-  data,
-  shapeCards,
-  natal,
-  natalAspects,
-  paused,
-}) {
-  if (lens.id === 'shapes') {
-    const leadShape = shapeCards[0];
-    return (
-      <div className="ibc-shape-visual">
-        <p className="ibc-annotation">
-          {leadShape
-            ? `${leadShape.label.toLowerCase()} · ${leadShape.members.length} bodies connected ↓`
-            : 'no major geometric pattern dominates ↓'}
-        </p>
-        <Medallion
-          className="ibc-pattern-medallion"
-          natal={natal}
-          natalAspects={natalAspects}
-          paused={paused}
-          highlightBodies={toSceneBodyNames(leadShape?.members)}
-          label="Natal chart highlighting the leading chart shape"
-        />
-        {shapeCards.length > 1 && (
-          <div className="ibc-shape-list" aria-label="Detected chart shapes">
-            {shapeCards.slice(0, 3).map((shape) => (
-              <span key={shape.key}>{shape.label}</span>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return <PatternBars items={data} influence={lens.id === 'influence'} />;
 }
 
 function AnalysisReading({ group }) {
@@ -355,18 +258,15 @@ function InkBirthChartPage() {
   } = useChartData(userId, chartId);
 
   const [activeChapter, setActiveChapter] = useState('overview');
-  const [activePattern, setActivePattern] = useState('shapes');
   const [selectedPlanetName, setSelectedPlanetName] = useState(null);
   const [selectedAnalysisId, setSelectedAnalysisId] = useState(null);
 
   const planets = useMemo(() => birthChart?.planets || [], [birthChart?.planets]);
   const aspects = useMemo(() => birthChart?.aspects || [], [birthChart?.aspects]);
-  const natal = useMemo(() => toChartScenePlacements(planets), [planets]);
-  const natalAspects = useMemo(() => toChartSceneAspects(aspects), [aspects]);
-  const shapeCards = useMemo(
-    () => extractShapeCards(birthChart?.patterns?.patterns || birthChart?.patterns || [], planets),
-    [birthChart?.patterns, planets]
-  );
+  const wheelHouses = useMemo(() => {
+    const houses = (birthChart?.houses || []).filter((h) => Number.isFinite(h?.degree));
+    return houses.length === 12 ? houses : [];
+  }, [birthChart?.houses]);
 
   const planetChoices = useMemo(
     () => BODY_DEFINITIONS.map((definition) => {
@@ -385,14 +285,6 @@ function InkBirthChartPage() {
   );
 
   const selectedPlanet = selectedChoice?.planet || null;
-  const selectedSceneName = toSceneBodyNames([selectedPlanet?.name])?.[0] || null;
-  const selectedSceneBody = selectedSceneName && selectedPlanet
-    ? {
-        body: selectedSceneName,
-        layer: 'natal',
-        longitude: Number(selectedPlanet.full_degree) || 0,
-      }
-    : null;
 
   const selectedPlanetAspects = useMemo(() => {
     if (!selectedPlanet) return [];
@@ -416,10 +308,12 @@ function InkBirthChartPage() {
       );
   }, [aspects, selectedPlanet]);
 
-  const relatedBodies = useMemo(
-    () => toSceneBodyNames(selectedPlanetAspects.map((aspect) => aspect.otherPlanet)),
-    [selectedPlanetAspects]
-  );
+  // ink wheel isolation: the chosen body plus its aspect partners stay
+  // full-ink, everything else dims
+  const wheelEmphasisPlanets = useMemo(() => {
+    if (!selectedPlanet) return null;
+    return [selectedPlanet.name, ...selectedPlanetAspects.map((aspect) => aspect.otherPlanet)];
+  }, [selectedPlanet, selectedPlanetAspects]);
 
   const knownNames = useMemo(() => planets.map((planet) => planet.name), [planets]);
   const analysisSteps = useMemo(
@@ -443,41 +337,11 @@ function InkBirthChartPage() {
     analysisGroups[0] ||
     null;
 
-  const activeLens = PATTERN_LENSES.find((lens) => lens.id === activePattern) || PATTERN_LENSES[0];
-  const patternData = useMemo(() => ({
-    elements: elements?.elements || [],
-    modalities: modalities?.modalities || [],
-    quadrants: quadrants?.quadrants || [],
-    influence: planetaryDominance?.planets || [],
-  }), [elements?.elements, modalities?.modalities, planetaryDominance?.planets, quadrants?.quadrants]);
-  const patternInterpretations = useMemo(() => ({
-    shapes:
-      basicAnalysis?.dominance?.pattern?.interpretation ||
-      basicAnalysis?.dominance?.patterns?.interpretation,
-    elements: basicAnalysis?.dominance?.elements?.interpretation,
-    modalities: basicAnalysis?.dominance?.modalities?.interpretation,
-    quadrants: basicAnalysis?.dominance?.quadrants?.interpretation,
-    influence: basicAnalysis?.dominance?.planetary?.interpretation,
-  }), [basicAnalysis?.dominance]);
-
-  const activePatternItems = patternData[activeLens.id] || [];
-  const activePatternInterpretation = patternInterpretations[activeLens.id];
-  const leadPatternItem = [...activePatternItems].sort(
-    (a, b) => Number(b?.percentage || 0) - Number(a?.percentage || 0)
-  )[0];
-
   const handleChapterChange = useCallback((chapterId) => {
     setActiveChapter(chapterId);
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
   }, []);
-
-  const handleSceneBodySelect = useCallback((selection) => {
-    const backendName = selection ? fromSceneBodyName(selection.body) : null;
-    if (!backendName) return;
-    const choice = planetChoices.find((item) => item.aliases.includes(backendName));
-    if (choice) setSelectedPlanetName(choice.name);
-  }, [planetChoices]);
 
   if (stelliumUser && userId !== stelliumUser._id) {
     return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
@@ -519,7 +383,6 @@ function InkBirthChartPage() {
     : 'House placement unavailable';
   const isCelebrity =
     chart?.isCelebrity === true || chart?.kind === 'celebrity' || chart?.isReadOnly === true;
-  const activePatternIndex = PATTERN_LENSES.findIndex((lens) => lens.id === activeLens.id);
   const activeAnalysisIndex = analysisGroups.findIndex(
     (group) => group.domain.id === selectedAnalysis?.domain.id
   );
@@ -575,9 +438,10 @@ function InkBirthChartPage() {
               <div className="ibc-medallion-frame">
                 <Medallion
                   className="ibc-medallion--overview"
-                  natal={natal}
-                  natalAspects={natalAspects}
-                  paused={activeChapter !== 'overview'}
+                  planets={planets}
+                  houses={wheelHouses}
+                  aspects={aspects}
+                  instanceId="ibc-wheel-overview"
                   label={`${subjectName}'s natal chart`}
                 />
                 <span className="ibc-annotation">{chartAnnotation}</span>
@@ -596,62 +460,17 @@ function InkBirthChartPage() {
           aria-labelledby="ibc-tab-patterns"
           hidden={activeChapter !== 'patterns'}
         >
-          <div className="ink-wrap">
-            <nav className="ink-pmenu" aria-label="Chart pattern lenses">
-              {PATTERN_LENSES.map((lens) => (
-                <button
-                  type="button"
-                  className={`ink-pm-item${activeLens.id === lens.id ? ' on' : ''}`}
-                  aria-pressed={activeLens.id === lens.id}
-                  onClick={() => setActivePattern(lens.id)}
-                  key={lens.id}
-                >
-                  <span className="ink-pm-label">{lens.label}</span>
-                </button>
-              ))}
-            </nav>
-            <p className="ibc-sub-count">{activePatternIndex + 1} of {PATTERN_LENSES.length}</p>
-            <div className="ibc-pattern-grid">
-              <div className="ink-card ibc-pattern-card">
-                <PatternVisual
-                  lens={activeLens}
-                  data={activePatternItems}
-                  shapeCards={shapeCards}
-                  natal={natal}
-                  natalAspects={natalAspects}
-                  paused={activeChapter !== 'patterns' || activeLens.id !== 'shapes'}
-                />
-              </div>
-              <article className="ibc-pattern-copy">
-                <div className="ink-eyebrow">Patterns</div>
-                <h2>{activeLens.label}</h2>
-                <p className="ibc-pattern-tag">{activeLens.tag}</p>
-                {activeLens.id === 'shapes' && shapeCards.length > 0 && (
-                  <p>
-                    <strong>{shapeCards[0].label}.</strong> {shapeCards[0].description}
-                  </p>
-                )}
-                {activeLens.id !== 'shapes' && leadPatternItem && (
-                  <p>
-                    <strong>{leadPatternItem.name}</strong> leads this lens at{' '}
-                    {Number(leadPatternItem.percentage || 0).toFixed(0)}%.
-                  </p>
-                )}
-                {paragraphs(activePatternInterpretation).length > 0 ? (
-                  paragraphs(activePatternInterpretation).map((text, index) => (
-                    <p key={index}>{text}</p>
-                  ))
-                ) : activeLens.id === 'shapes' && !shapeCards.length ? (
-                  <p className="ibc-empty-copy">
-                    No major chart shapes were detected; this chart distributes its energy more evenly.
-                  </p>
-                ) : (
-                  <p className="ibc-empty-copy">
-                    A written interpretation for this pattern is not available yet.
-                  </p>
-                )}
-              </article>
-            </div>
+          <div className="ink-wrap pcb-tab-content">
+            <DominancePatternsTab
+              birthChart={birthChart}
+              basicAnalysis={basicAnalysis}
+              elements={elements}
+              modalities={modalities}
+              quadrants={quadrants}
+              planetaryDominance={planetaryDominance}
+              hasAnalysis={hasAnalysis}
+              onNavigateToAnalysis={() => handleChapterChange('analysis')}
+            />
           </div>
         </section>
 
@@ -746,17 +565,14 @@ function InkBirthChartPage() {
                 <div className="ibc-planet-visual">
                   <Medallion
                     className="ibc-medallion--planet"
-                    natal={natal}
-                    natalAspects={natalAspects}
-                    paused={activeChapter !== 'planets'}
-                    selectedBody={selectedSceneBody}
-                    highlightBodies={selectedSceneName ? [selectedSceneName] : undefined}
-                    relatedBodies={relatedBodies}
-                    isolateSelection
-                    onSelectBody={handleSceneBodySelect}
+                    planets={planets}
+                    houses={wheelHouses}
+                    aspects={selectedPlanet ? selectedPlanetAspects : aspects}
+                    emphasisPlanets={wheelEmphasisPlanets}
+                    instanceId="ibc-wheel-planet"
                     label={`Natal chart isolating ${selectedChoice?.name}`}
                   />
-                  <p className="ibc-annotation">select a body to isolate its aspects ↑</p>
+                  <p className="ibc-annotation">choose a body from the list to isolate its aspects ↑</p>
                 </div>
               </div>
             ) : (
@@ -830,9 +646,10 @@ function InkBirthChartPage() {
             <aside className="ibc-ask-side">
               <Medallion
                 className="ibc-medallion--ask"
-                natal={natal}
-                natalAspects={natalAspects}
-                paused={activeChapter !== 'ask'}
+                planets={planets}
+                houses={wheelHouses}
+                aspects={aspects}
+                instanceId="ibc-wheel-ask"
                 label={`${subjectName}'s active chart context`}
               />
               <div className="ink-card ibc-context-card">
