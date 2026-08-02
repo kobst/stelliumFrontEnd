@@ -152,18 +152,6 @@
   color: var(--ink-soft);
   max-width: 46ch;
 }
-.fr-wheel-spin {
-  animation: fr-wheel-rotate 46s linear infinite;
-  transform-origin: 50% 50%;
-}
-@keyframes fr-wheel-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .fr-wheel-spin { animation: none; }
-}
-
 @media (max-width: 920px) {
   .fr-mast-grid { grid-template-columns: 1fr; }
   .fr-mast-art { order: -1; }

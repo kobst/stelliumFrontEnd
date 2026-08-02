@@ -9,10 +9,10 @@ import {
   clearPendingTrialReading,
 } from '../Utilities/trialApi';
 import { splitOverviewForTeaser } from '../UI/gravity/GravityIntakeChat';
+import InkWheel from '../UI/gravity/InkWheel';
 import { SUN_LINES, MOON_LINES, RISING_LINES, ordinal, buildMastNote, signIconPath } from '../Utilities/signCopy';
 import './FreeReadingPage.css';
 
-const ASSET = (name) => `${process.env.PUBLIC_URL || ''}/assets/ink/${name}`;
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -177,11 +177,7 @@ const FreeReadingPage = () => {
               )}
             </div>
             <div className="fr-mast-art">
-              <img
-                className={createError ? '' : 'fr-wheel-spin'}
-                src={ASSET('ill-wheel.png')}
-                alt="A hand-drawn zodiac wheel with sign glyphs, inked on paper"
-              />
+              <InkWheel spinning={!createError} instanceId="fr-loading-wheel" />
               {!createError && <div className="fr-note">Good things take about half a minute.</div>}
             </div>
           </div>
@@ -291,7 +287,7 @@ const FreeReadingPage = () => {
             </div>
           </div>
           <div className="fr-mast-art">
-            <img src={ASSET('ill-wheel.png')} alt="A hand-drawn zodiac wheel with sign glyphs, inked on paper" />
+            <InkWheel chart={session.chart} instanceId="fr-wheel" />
             <div className="fr-note">{buildMastNote(bigThree)}</div>
           </div>
         </div>

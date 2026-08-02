@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import GravityIntakeChat from '../UI/gravity/GravityIntakeChat';
+import InkWheel from '../UI/gravity/InkWheel';
 import { loadTrialSession } from '../Utilities/trialApi';
 import { buildMastNote } from '../Utilities/signCopy';
 import './HomeInkV7.css';
@@ -62,11 +63,7 @@ const HomeInkV7 = () => {
           <div className="hv7-hero-art">
             {wheelReading ? (
               <>
-                <img
-                  className="hv7-hero-wheel"
-                  src={ASSET('ill-wheel.png')}
-                  alt="A hand-drawn zodiac wheel with sign glyphs, inked on paper"
-                />
+                <InkWheel chart={wheelReading.chart} instanceId="hero-wheel" />
                 <div className="hv7-note hv7-note-hero">{buildMastNote(wheelReading.bigThree)}</div>
               </>
             ) : (
@@ -116,7 +113,7 @@ const HomeInkV7 = () => {
         <span className="hv7-eyebrow hv7-eyebrow--center">One sky, three ways to read it</span>
         <div className="hv7-ways-grid">
           <div className="hv7-way">
-            <img src={ASSET('ill-wheel.png')} alt="A hand-drawn zodiac wheel with sign glyphs" />
+            <img src={ASSET('ill-wheel-etched.jpg')} alt="A hand-etched zodiac wheel with the twelve sign glyphs in astronomical order" />
             <h3>Your chart, in full</h3>
             <p>Every placement and pattern, read in plain language.</p>
           </div>

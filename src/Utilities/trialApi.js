@@ -69,6 +69,33 @@ export const createTrialReading = async (birthData) => {
   return data;
 };
 
+/**
+ * Slim a full birth chart down to what the zodiac wheel (Ephemeris) needs,
+ * so it fits comfortably in the localStorage trial session.
+ */
+export const slimChartForWheel = (birthChart) => {
+  if (!birthChart) return null;
+  return {
+    planets: (birthChart.planets || []).map((p) => ({
+      name: p.name,
+      full_degree: p.full_degree,
+      sign: p.sign,
+      house: p.house,
+    })),
+    houses: (birthChart.houses || [])
+      .filter((h) => Number.isFinite(h.degree))
+      .map((h) => ({ house: h.house, degree: h.degree, sign: h.sign })),
+    aspects: (birthChart.aspects || []).map((a) => ({
+      aspectingPlanet: a.aspectingPlanet,
+      aspectedPlanet: a.aspectedPlanet,
+      aspectType: a.aspectType,
+      aspectingPlanetDegree: a.aspectingPlanetDegree,
+      aspectedPlanetDegree: a.aspectedPlanetDegree,
+      orb: a.orb,
+    })),
+  };
+};
+
 /** Pull Sun / Moon / Rising out of a birth chart for the reading page. */
 export const extractBigThree = (birthChart) => {
   const byName = {};
@@ -121,6 +148,7 @@ export const beginTrialReading = (form, { fetchTimeZone }) => {
       ...loadTrialSession(),
       vitals: preview.vitals,
       bigThree: extractBigThree(data.birthChart),
+      chart: slimChartForWheel(data.birthChart),
       trial: data.trial,
     });
     return loadTrialSession();
