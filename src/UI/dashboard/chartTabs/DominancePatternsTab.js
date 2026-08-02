@@ -22,24 +22,51 @@ const TABS = [
   { id: 'patterns', label: 'Patterns' }
 ];
 
-const elementColors = {
-  'Fire': '#ef4444',
-  'Earth': '#a3a042',
-  'Air': '#38bdf8',
-  'Water': '#8b5cf6'
-};
-
 const modalityColors = {
   'Cardinal': '#f59e0b',
   'Fixed': '#22c55e',
   'Mutable': '#06b6d4'
 };
 
-const quadrantColors = {
-  'SouthEast': '#f472b6',
-  'SouthWest': '#a78bfa',
-  'NorthWest': '#60a5fa',
-  'NorthEast': '#34d399'
+const PLANET_GLYPHS = {
+  Sun: '\u2609', Moon: '\u263D', Mercury: '\u263F', Venus: '\u2640', Mars: '\u2642',
+  Jupiter: '\u2643', Saturn: '\u2644', Uranus: '\u2645', Neptune: '\u2646', Pluto: '\u2647',
+  Ascendant: '\u271B', Midheaven: 'Mc', Node: '\u260A', 'North Node': '\u260A', Chiron: '\u26B7',
+};
+
+const ELEMENT_NOTES = {
+  Water: 'Feeling, memory, instinct \u2014 knowledge arriving before evidence.',
+  Air: 'Language, pattern, perspective \u2014 the distance that makes sense of things.',
+  Earth: 'Form, patience, the body \u2014 what can actually be built and kept.',
+  Fire: 'Impulse, faith, momentum \u2014 the willingness to begin before it is safe.',
+};
+
+// Quadrant naming follows the backend house grouping (NorthEast = houses 1-3, etc.)
+const QUADRANT_META = {
+  NorthEast: {
+    title: 'First \u00B7 Self', houses: 'Houses 1\u20133', corner: 'll',
+  },
+  NorthWest: {
+    title: 'Second \u00B7 Ground', houses: 'Houses 4\u20136', corner: 'lr',
+  },
+  SouthWest: {
+    title: 'Third \u00B7 Others', houses: 'Houses 7\u20139', corner: 'ur',
+  },
+  SouthEast: {
+    title: 'Fourth \u00B7 World', houses: 'Houses 10\u201312', corner: 'ul',
+  },
+};
+
+// Quarter-circle wedge paths in a 340x340 viewBox (center 170, radius 135)
+const QUADRANT_WEDGES = {
+  ul: 'M170 170 L35 170 A135 135 0 0 1 170 35 Z',
+  ur: 'M170 170 L170 35 A135 135 0 0 1 305 170 Z',
+  lr: 'M170 170 L305 170 A135 135 0 0 1 170 305 Z',
+  ll: 'M170 170 L170 305 A135 135 0 0 1 35 170 Z',
+};
+
+const QUADRANT_LABEL_POS = {
+  ul: { x: 113, y: 120 }, ur: { x: 227, y: 120 }, lr: { x: 227, y: 228 }, ll: { x: 113, y: 228 },
 };
 
 function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity, canUseAskStellium = false, onHoverBodies }) {
@@ -54,74 +81,76 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
   const patterns = birthChart?.patterns?.patterns || birthChart?.patterns || [];
   const planets = birthChart?.planets || [];
 
-  // Element icon SVGs
-  const ElementIcon = ({ element }) => {
+  // Element glyphs, alchemical-style, tinted for the leading element
+  const ElementGlyph = ({ element }) => {
+    const color = '#3437a8';
     const icons = {
-      Fire: (
-        <svg width="14" height="14" viewBox="0 0 14 14" className="elements-bar__icon">
-          <path d="M7 1C4.5 4.5 3 7 3 9a4 4 0 008 0c0-2-1.5-4.5-4-8z" fill={elementColors.Fire} />
-        </svg>
+      Water: <path d="M14 3C9 10 6 14.5 6 18.5a8 8 0 0016 0C22 14.5 19 10 14 3z" fill={color} />,
+      Fire: <path d="M14 3c-4 5.5-8 9.5-8 14a8 8 0 0016 0c0-4.5-4-8.5-8-14z" fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />,
+      Air: (
+        <g fill={color}>
+          <path d="M14 5L23 19H5z" opacity=".45" />
+          <path d="M14 5l6.4 10H7.6z" />
+        </g>
       ),
       Earth: (
-        <svg width="14" height="14" viewBox="0 0 14 14" className="elements-bar__icon">
-          <path d="M7 2l5 10H2z" fill={elementColors.Earth} />
-        </svg>
+        <g fill={color}>
+          <path d="M5 9h18l-9 14z" opacity=".45" />
+          <path d="M7.6 13h12.8L14 23z" />
+        </g>
       ),
-      Air: (
-        <svg width="14" height="14" viewBox="0 0 14 14" className="elements-bar__icon">
-          <path d="M1 4h9M1 7h6M1 10h11" stroke={elementColors.Air} strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      ),
-      Water: (
-        <svg width="14" height="14" viewBox="0 0 14 14" className="elements-bar__icon">
-          <path d="M7 1L3.5 7a4 4 0 007 0L7 1z" fill={elementColors.Water} />
-        </svg>
-      )
     };
-    return icons[element] || null;
+    return (
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+        {icons[element] || null}
+      </svg>
+    );
   };
 
-  // Elements: Horizontal Stacked Bar
+  // Elements: stacked ink rows — bar, planet chips, one-line note
   const ElementsBar = ({ data }) => {
     if (!data || data.length === 0) return null;
+    const sorted = [...data]
+      .map((item) => ({ ...item, percentage: Number(item.percentage) || 0 }))
+      .sort((a, b) => b.percentage - a.percentage);
+
     return (
-      <div className="elements-bar">
-        <div className="elements-bar__track">
-          {data.map((item, i) => (
+      <div className="elem-ink">
+        {sorted.map((item) => {
+          const count = item.planets?.length || 0;
+          return (
             <div
-              key={i}
-              className="elements-bar__segment"
-              style={{
-                flex: item.percentage || 0,
-                backgroundColor: elementColors[item.name] || '#8b5cf6'
-              }}
-            />
-          ))}
-        </div>
-        <div className="elements-bar__legend">
-          {data.map((item, i) => (
-            <div
-              key={i}
-              className="elements-bar__legend-item"
+              className="elem-ink__row"
+              key={item.name}
               onMouseEnter={() => emphasize(item.planets)}
               onMouseLeave={clearEmphasis}
             >
-              <div className="elements-bar__legend-row">
-                <ElementIcon element={item.name} />
-                <span className="elements-bar__dot" style={{ backgroundColor: elementColors[item.name] }} />
-                <span className="elements-bar__name">{item.name}</span>
-                <span className="elements-bar__pct">{item.percentage?.toFixed(1)}%</span>
-              </div>
-              {item.planets && item.planets.length > 0 && (
-                <div className="elements-bar__planets">
-                  {item.planets.map((p, j) => (
-                    <span key={j} className="elements-bar__planet-tag">{p}</span>
-                  ))}
+              <div className="elem-ink__icon"><ElementGlyph element={item.name} /></div>
+              <div className="elem-ink__body">
+                <div className="elem-ink__head">
+                  <h4>{item.name}</h4>
+                  <span className="elem-ink__meta">
+                    {Math.round(item.percentage)}% · {count} {count === 1 ? 'planet' : 'planets'}
+                  </span>
                 </div>
-              )}
+                <div className="elem-ink__track">
+                  <span style={{ width: `${Math.min(100, item.percentage)}%` }} />
+                </div>
+                {count > 0 && (
+                  <div className="elem-ink__chips">
+                    {item.planets.map((planetName) => (
+                      <span key={planetName} className="elem-ink__chip">
+                        <span className="elem-ink__chip-glyph" aria-hidden="true">{PLANET_GLYPHS[planetName] || ''}</span>
+                        {planetName}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {ELEMENT_NOTES[item.name] && <p className="elem-ink__note">{ELEMENT_NOTES[item.name]}</p>}
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
     );
   };
@@ -189,59 +218,86 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
     );
   };
 
-  // Quadrants: 2x2 Spatial Grid
+  // Quadrants: circle diagram with AC/DC/MC/IC axes + house-group legend
+  const QuadrantMini = ({ corner }) => (
+    <svg width="26" height="26" viewBox="0 0 340 340" aria-hidden="true" className="quad-ink__mini">
+      <circle cx="170" cy="170" r="135" fill="none" stroke="#8d8a80" strokeWidth="14" />
+      <path d={QUADRANT_WEDGES[corner]} fill="#2c3260" />
+    </svg>
+  );
+
   const QuadrantGrid = ({ data }) => {
     if (!data || data.length === 0) return null;
 
     const byName = {};
-    data.forEach(d => { byName[d.name] = d; });
-
-    const cells = [
-      { key: 'SouthEast', label: 'South East' },
-      { key: 'SouthWest', label: 'South West' },
-      { key: 'NorthEast', label: 'North East' },
-      { key: 'NorthWest', label: 'North West' }
-    ];
-
-    const maxPct = Math.max(...data.map(d => d.percentage || 0));
-
-    const hexToRgba = (hex, alpha) => {
-      const rv = parseInt(hex.slice(1, 3), 16);
-      const gv = parseInt(hex.slice(3, 5), 16);
-      const bv = parseInt(hex.slice(5, 7), 16);
-      return `rgba(${rv}, ${gv}, ${bv}, ${alpha})`;
-    };
+    data.forEach((item) => { byName[item.name] = item; });
+    const order = ['NorthEast', 'NorthWest', 'SouthWest', 'SouthEast'];
+    const maxPct = Math.max(...data.map((item) => Number(item.percentage) || 0), 1);
 
     return (
-      <div className="quadrant-grid">
-        <div className="quadrant-grid__axis quadrant-grid__axis--top">S</div>
-        <div className="quadrant-grid__axis quadrant-grid__axis--bottom">N</div>
-        <div className="quadrant-grid__axis quadrant-grid__axis--left">E</div>
-        <div className="quadrant-grid__axis quadrant-grid__axis--right">W</div>
-        <div className="quadrant-grid__wrapper">
-          {cells.map(({ key, label }) => {
-            const item = byName[key] || { percentage: 0, planets: [] };
-            const pct = item.percentage || 0;
-            const color = quadrantColors[key] || '#8b5cf6';
-            const alpha = maxPct > 0 && pct > 0 ? 0.12 + (pct / maxPct) * 0.38 : 0.06;
+      <div className="quad-ink">
+        <svg className="quad-ink__chart" viewBox="0 0 340 340" role="img" aria-label="Planet distribution across the four chart quadrants">
+          {order.map((key) => {
+            const meta = QUADRANT_META[key];
+            const pct = Number(byName[key]?.percentage) || 0;
+            const alpha = 0.28 + 0.5 * (pct / maxPct);
+            return (
+              <path
+                d={QUADRANT_WEDGES[meta.corner]}
+                fill={`rgba(92, 92, 168, ${alpha.toFixed(2)})`}
+                key={key}
+                onMouseEnter={() => emphasize(byName[key]?.planets)}
+                onMouseLeave={clearEmphasis}
+              />
+            );
+          })}
+          <line x1="26" y1="170" x2="314" y2="170" stroke="rgba(35, 40, 64, 0.45)" strokeWidth="1.4" />
+          <line x1="170" y1="26" x2="170" y2="314" stroke="rgba(35, 40, 64, 0.45)" strokeWidth="1.4" />
+          <text className="quad-ink__axis" x="170" y="14" textAnchor="middle">MC</text>
+          <text className="quad-ink__axis" x="170" y="334" textAnchor="middle">IC</text>
+          <text className="quad-ink__axis" x="14" y="175" textAnchor="middle">AC</text>
+          <text className="quad-ink__axis" x="326" y="175" textAnchor="middle">DC</text>
+          {order.map((key) => {
+            const meta = QUADRANT_META[key];
+            const pos = QUADRANT_LABEL_POS[meta.corner];
+            const pct = Number(byName[key]?.percentage) || 0;
+            return (
+              <text className="quad-ink__pct" x={pos.x} y={pos.y} textAnchor="middle" key={key}>
+                {Math.round(pct)}%
+              </text>
+            );
+          })}
+        </svg>
 
+        <div className="quad-ink__legend">
+          {order.map((key) => {
+            const meta = QUADRANT_META[key];
+            const item = byName[key] || {};
+            const pct = Number(item.percentage) || 0;
             return (
               <div
+                className="quad-ink__row"
                 key={key}
-                className="quadrant-grid__cell"
-                style={{ backgroundColor: hexToRgba(color, alpha) }}
                 onMouseEnter={() => emphasize(item.planets)}
                 onMouseLeave={clearEmphasis}
               >
-                <span className="quadrant-grid__name">{label}</span>
-                <span className="quadrant-grid__pct">{pct.toFixed(1)}%</span>
-                {item.planets && item.planets.length > 0 && (
-                  <div className="quadrant-grid__planets">
-                    {item.planets.map((p, j) => (
-                      <span key={j} className="quadrant-grid__planet-tag">{p}</span>
-                    ))}
-                  </div>
-                )}
+                <QuadrantMini corner={meta.corner} />
+                <div className="quad-ink__copy">
+                  <p className="quad-ink__title">
+                    <strong>{meta.title}</strong>
+                    <em>{meta.houses} · {Math.round(pct)}%</em>
+                  </p>
+                  {item.planets?.length > 0 && (
+                    <div className="elem-ink__chips quad-ink__chips">
+                      {item.planets.map((planetName) => (
+                        <span key={planetName} className="elem-ink__chip">
+                          <span className="elem-ink__chip-glyph" aria-hidden="true">{PLANET_GLYPHS[planetName] || ''}</span>
+                          {planetName}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -275,7 +331,8 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
                   className="bar-chart-bar"
                   style={{
                     width: `${(item.percentage / maxPercentage) * 100}%`,
-                    backgroundColor: '#8b5cf6'
+                    // deepest ink for the leading planet, fading proportionally
+                    backgroundColor: `rgba(52, 55, 168, ${(0.35 + 0.65 * ((item.percentage || 0) / maxPercentage)).toFixed(2)})`
                   }}
                 />
               </div>

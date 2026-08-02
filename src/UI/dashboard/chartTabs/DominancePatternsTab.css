@@ -214,7 +214,7 @@
 }
 
 .bar-chart-label {
-  color: rgba(255, 255, 255, 0.9);
+  color: #232840;
   font-size: 0.85rem;
   font-weight: 500;
   text-align: right;
@@ -225,7 +225,7 @@
 .bar-chart-bar-wrapper {
   flex: 1;
   height: 24px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #ddd7c9;
   border-radius: 4px;
   overflow: hidden;
   min-width: 0;
@@ -239,7 +239,7 @@
 }
 
 .bar-chart-value {
-  color: rgba(255, 255, 255, 0.7);
+  color: #232840;
   font-size: 0.8rem;
   font-weight: 500;
   text-align: right;
@@ -640,3 +640,53 @@
     padding: 16px;
   }
 }
+
+/* ── ink redesign: Elements ─────────────────────────────────────────── */
+.elem-ink { display: grid; gap: 30px; }
+.elem-ink__row { display: grid; grid-template-columns: 44px 1fr; gap: 4px 14px; align-items: start; }
+.elem-ink__icon { padding-top: 2px; }
+.elem-ink__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.elem-ink__head h4 { margin: 0; font-size: 21px; font-weight: 600; color: #232840; }
+.elem-ink__meta { font-style: italic; font-size: 15px; color: #7a756a; white-space: nowrap; }
+.elem-ink__track {
+  margin-top: 8px;
+  height: 5px;
+  border-radius: 3px;
+  background: #ddd7c9;
+  overflow: hidden;
+}
+.elem-ink__track span { display: block; height: 100%; border-radius: 3px; background: #3437a8; }
+.elem-ink__chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.elem-ink__chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 14px;
+  border: 1px solid rgba(35, 40, 64, 0.35);
+  border-radius: 999px;
+  font-size: 14.5px;
+  color: #232840;
+  background: transparent;
+}
+.elem-ink__chip { border-color: rgba(52, 55, 168, 0.5); color: #3437a8; }
+.elem-ink__chip-glyph { font-size: 13px; }
+.elem-ink__note { margin: 10px 0 0; font-size: 15.5px; line-height: 1.5; color: #6f6a5e; }
+
+/* ── ink redesign: Quadrants ────────────────────────────────────────── */
+.quad-ink { display: grid; gap: 26px; justify-items: center; }
+.quad-ink__chart { width: min(100%, 320px); }
+.quad-ink__axis {
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  fill: #7a756a;
+}
+.quad-ink__pct { font-size: 19px; fill: #232840; }
+.quad-ink__legend { display: grid; gap: 18px; justify-self: stretch; }
+.quad-ink__row { display: grid; grid-template-columns: 26px 1fr; gap: 14px; align-items: start; }
+.quad-ink__mini { margin-top: 3px; }
+.quad-ink__title { margin: 0; font-size: 16.5px; color: #232840; }
+.quad-ink__title strong { font-weight: 600; }
+.quad-ink__title em { margin-left: 8px; font-size: 14.5px; color: #7a756a; }
+.quad-ink__blurb { margin: 4px 0 0; font-size: 15px; line-height: 1.5; color: #6f6a5e; }
+
+.quad-ink__chips { margin-top: 8px; }
