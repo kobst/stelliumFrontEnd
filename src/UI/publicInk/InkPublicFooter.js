@@ -8,7 +8,7 @@ function InkPublicFooter() {
       <div className="ink-wrap public-ink-footer__inner">
         <div className="public-ink-footer__colophon">
           <Link className="public-ink-footer__wordmark" to="/">
-            Stellium <span aria-hidden="true">✳</span>
+            Astral Gravity <span aria-hidden="true">✳</span>
           </Link>
           <p>Personal astrology, drawn from the real sky and read with care.</p>
         </div>
@@ -21,7 +21,7 @@ function InkPublicFooter() {
         </nav>
 
         <p className="public-ink-footer__signoff">
-          © {new Date().getFullYear()} Stellium · Made under a generous sky.
+          © {new Date().getFullYear()} Astral Gravity · Made under a generous sky.
         </p>
       </div>
     </footer>

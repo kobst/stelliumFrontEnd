@@ -32,7 +32,7 @@ function MarketingNav({ marketingLinks = DEFAULT_MARKETING_LINKS, className = ''
     <nav className={`ink-nav ink-nav--marketing ${className}`.trim()} aria-label="Main navigation">
       <div className="ink-nav__inner">
         <Link className="ink-nav__wordmark" to="/">
-          Stellium <span className="ink-nav__mark" aria-hidden="true">✳</span>
+          Astral Gravity <span className="ink-nav__mark" aria-hidden="true">✳</span>
         </Link>
 
         <div className="ink-nav__marketing-links">
@@ -95,7 +95,7 @@ function AppNav({ activeSegment = 'home', onSegmentChange, user: userOverride, c
     <nav className={`ink-nav ink-nav--app ${className}`.trim()} aria-label="Dashboard navigation">
       <div className="ink-nav__inner">
         <Link className="ink-nav__wordmark" to="/">
-          Stellium <span className="ink-nav__mark" aria-hidden="true">✳</span>
+          Astral Gravity <span className="ink-nav__mark" aria-hidden="true">✳</span>
         </Link>
 
         <div className="ink-nav__segments" aria-label="Dashboard sections">
