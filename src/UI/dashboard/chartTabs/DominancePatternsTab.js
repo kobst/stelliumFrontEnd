@@ -22,12 +22,6 @@ const TABS = [
   { id: 'patterns', label: 'Patterns' }
 ];
 
-const modalityColors = {
-  'Cardinal': '#f59e0b',
-  'Fixed': '#22c55e',
-  'Mutable': '#06b6d4'
-};
-
 const PLANET_GLYPHS = {
   Sun: '\u2609', Moon: '\u263D', Mercury: '\u263F', Venus: '\u2640', Mars: '\u2642',
   Jupiter: '\u2643', Saturn: '\u2644', Uranus: '\u2645', Neptune: '\u2646', Pluto: '\u2647',
@@ -156,61 +150,67 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
   };
 
   // Modalities: Three Semi-Circle Arc Gauges
+  // Modality glyphs: Cardinal starts (arrow up), Fixed holds (square),
+  // Mutable adapts (turning arrow)
+  const ModalityGlyph = ({ modality }) => {
+    const color = '#3437a8';
+    const icons = {
+      Cardinal: <path d="M14 4l7 8h-4v12h-6V12H7z" fill={color} />,
+      Fixed: <rect x="7.5" y="8" width="13" height="13" fill={color} />,
+      Mutable: (
+        <g>
+          <path d="M21 5v9H11" fill="none" stroke={color} strokeWidth="2.8" />
+          <path d="M12 9.5L4 14l8 4.5z" fill={color} />
+        </g>
+      ),
+    };
+    return (
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+        {icons[modality] || null}
+      </svg>
+    );
+  };
+
+  // Modalities: stacked ink rows — bar + planet chips, same system as Elements
   const ModalityGauges = ({ data }) => {
     if (!data || data.length === 0) return null;
-    const maxPct = Math.max(...data.map(d => d.percentage || 0));
+    const sorted = [...data]
+      .map((item) => ({ ...item, percentage: Number(item.percentage) || 0 }))
+      .sort((a, b) => b.percentage - a.percentage);
 
     return (
-      <div className="modality-gauges">
-        {data.map((item, i) => {
-          const pct = item.percentage || 0;
-          const isDominant = pct === maxPct && pct > 0;
-          const sweepAngle = (pct / 100) * 180;
-          const endAngleRad = ((180 + sweepAngle) * Math.PI) / 180;
-          const r = 40;
-          const cx = 60;
-          const cy = 50;
-          const x2 = cx + r * Math.cos(endAngleRad);
-          const y2 = cy + r * Math.sin(endAngleRad);
-          const color = modalityColors[item.name] || '#8b5cf6';
-
+      <div className="elem-ink">
+        {sorted.map((item) => {
+          const count = item.planets?.length || 0;
           return (
             <div
-              key={i}
-              className={`modality-gauge${isDominant ? ' modality-gauge--dominant' : ''}`}
+              className="elem-ink__row"
+              key={item.name}
               onMouseEnter={() => emphasize(item.planets)}
               onMouseLeave={clearEmphasis}
             >
-              <svg viewBox="0 0 120 65" className="modality-gauge__svg">
-                <path
-                  d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-                  fill="none"
-                  stroke="rgba(255,255,255,0.1)"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                />
-                {pct > 0 && (
-                  <path
-                    d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${x2} ${y2}`}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                    style={isDominant ? { filter: `drop-shadow(0 0 6px ${color})` } : undefined}
-                  />
-                )}
-                <text x={cx} y={cy - 8} textAnchor="middle" dominantBaseline="middle" className="modality-gauge__value">
-                  {pct.toFixed(1)}%
-                </text>
-              </svg>
-              <div className="modality-gauge__label">{item.name}</div>
-              {item.planets && item.planets.length > 0 && (
-                <div className="modality-gauge__planets">
-                  {item.planets.map((p, j) => (
-                    <span key={j} className="modality-gauge__planet-tag">{p}</span>
-                  ))}
+              <div className="elem-ink__icon"><ModalityGlyph modality={item.name} /></div>
+              <div className="elem-ink__body">
+                <div className="elem-ink__head">
+                  <h4>{item.name}</h4>
+                  <span className="elem-ink__meta">
+                    {Math.round(item.percentage)}% · {count} {count === 1 ? 'planet' : 'planets'}
+                  </span>
                 </div>
-              )}
+                <div className="elem-ink__track">
+                  <span style={{ width: `${Math.min(100, item.percentage)}%` }} />
+                </div>
+                {count > 0 && (
+                  <div className="elem-ink__chips">
+                    {item.planets.map((planetName) => (
+                      <span key={planetName} className="elem-ink__chip">
+                        <span className="elem-ink__chip-glyph" aria-hidden="true">{PLANET_GLYPHS[planetName] || ''}</span>
+                        {planetName}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}

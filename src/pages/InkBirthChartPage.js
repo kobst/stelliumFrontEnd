@@ -483,7 +483,7 @@ function InkBirthChartPage() {
         >
           <div className="ibc-planets-wrap">
             {planetChoices.length > 0 ? (
-              <div className="ibc-planets-grid">
+              <div>
                 <nav className="ibc-body-menu" aria-label="Chart bodies">
                   {planetChoices.map((choice) => (
                     <button
@@ -499,6 +499,7 @@ function InkBirthChartPage() {
                   ))}
                 </nav>
 
+                <div className="ibc-planets-grid">
                 <article className="ibc-planet-copy">
                   <div className="ink-eyebrow">{selectedChoice?.name}</div>
                   <h2>
@@ -573,6 +574,7 @@ function InkBirthChartPage() {
                     label={`Natal chart isolating ${selectedChoice?.name}`}
                   />
                   <p className="ibc-annotation">choose a body from the list to isolate its aspects ↑</p>
+                </div>
                 </div>
               </div>
             ) : (
