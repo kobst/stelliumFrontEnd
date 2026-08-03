@@ -50,17 +50,6 @@ export const ANGLES: Record<string, { label: string; color: string }> = {
   asc: { label: 'AC', color: '#9be8ff' },
   mc: { label: 'MC', color: '#ffc9f0' },
 }
-
-
-/** red for tension, blue for flow, gold for fusion */
-export const ASPECT_COLORS: Record<AspectType, string> = {
-  conjunction: '#e9c349',
-  opposition: '#ff6f6f',
-  square: '#ff6f6f',
-  trine: '#5e8eff',
-  sextile: '#5e8eff',
-}
-
 /** widest orb still counted per aspect type; drives line strength */
 export const ASPECT_MAX_ORB: Record<AspectType, number> = {
   conjunction: 8,

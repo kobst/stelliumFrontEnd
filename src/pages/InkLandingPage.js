@@ -419,7 +419,7 @@ function InkLandingPage() {
               ) : (
                 <div className="ink-landing__medallion">
                   <ChartScene
-                    background="#1b2140"
+                    background="#f5eee5"
                     natal={natal}
                     natalAspects={natalAspects}
                     paused={false}

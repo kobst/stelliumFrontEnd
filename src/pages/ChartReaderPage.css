@@ -142,6 +142,22 @@
   height: clamp(420px, 58vh, 640px);
 }
 
+/* Ink wheel postcard used by every ChartStage mount on this page. */
+.birth-journey-chart.birth-journey-chart--ink {
+  border: 1px solid rgba(57, 68, 90, .3);
+  border-radius: 10px;
+  background: radial-gradient(circle at 50% 42%, #f7f1e6 0%, #f2eadb 62%, #ece2cf 100%);
+  box-shadow:
+    0 1px 2px rgba(35, 40, 64, .12),
+    0 22px 44px -28px rgba(35, 40, 64, .45);
+  isolation: isolate;
+}
+
+.birth-journey-chart--ink .birth-journey-chart__scene,
+.birth-journey-chart--ink .birth-journey-chart__scene canvas {
+  border-radius: inherit;
+}
+
 /* expand-in-place: same card, same scene instance, the whole viewport.
    The sticky wrapper creates its own stacking context, so the card's
    z-index alone can't escape it — the wrapper itself must rise while

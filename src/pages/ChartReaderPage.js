@@ -110,7 +110,7 @@ function ChartStage({
   showRecenter = true,
 }) {
   return (
-    <div className={`birth-journey-chart${compact ? ' birth-journey-chart--compact' : ''}`}>
+    <div className={`birth-journey-chart birth-journey-chart--ink${compact ? ' birth-journey-chart--compact' : ''}`}>
       {selectedPlanet && (
         <div
           className={`birth-journey-chart__selection${
@@ -163,6 +163,8 @@ function ChartStage({
       )}
       <div className="birth-journey-chart__scene">
         <ChartScene
+          background="#f5eee5"
+          theme="ink"
           natal={natal}
           natalAspects={natalAspects}
           fitRadius={5.9}

@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { Line } from '@react-three/drei'
 import type { Line2 } from 'three-stdlib'
 import { PlanetMarker } from './PlanetMarker'
+import { useScenePalette } from './sceneTheme'
 import { OrbitRings } from './OrbitRings'
 import {
   dampFactor,
@@ -12,7 +13,6 @@ import {
   longitudeToPosition,
 } from './utils'
 import {
-  ASPECT_COLORS,
   ASPECT_MAX_ORB,
   NATAL_PLANET_RADIUS,
   TRANSIT_PLANET_RADIUS,
@@ -92,6 +92,7 @@ function TransitAspectLine({
   lineWidth,
   onSelect,
 }: TransitAspectLineProps) {
+  const palette = useScenePalette()
   const lineRef = useRef<Line2>(null)
   const initialOpacity = useRef(0) // always fades in from nothing
 
@@ -104,17 +105,80 @@ function TransitAspectLine({
     <Line
       ref={lineRef}
       points={[from, to]}
-      color={ASPECT_COLORS[aspect.type]}
+      color={palette.aspectColor(aspect.type)}
       lineWidth={lineWidth}
       transparent
       opacity={initialOpacity.current}
       depthWrite={false}
-      blending={THREE.AdditiveBlending}
+      blending={THREE.NormalBlending}
       onClick={onSelect ? (event) => {
         event.stopPropagation()
         onSelect(aspect)
       } : undefined}
     />
+  )
+}
+
+interface TransitLeaderLineProps {
+  from: THREE.Vector3
+  to: THREE.Vector3
+  targetOpacity: number
+}
+
+/** Dashed radial connector from a transiting body down to the aspect circle.
+ *  Radial by construction, so it cannot misstate the longitude. */
+function TransitLeaderLine({ from, to, targetOpacity }: TransitLeaderLineProps) {
+  const palette = useScenePalette()
+  const lineRef = useRef<Line2>(null)
+  const initialOpacity = useRef(0)
+
+  useFrame((_, delta) => {
+    const mat = lineRef.current?.material
+    if (mat) mat.opacity += (targetOpacity - mat.opacity) * dampFactor(delta)
+  })
+
+  return (
+    <Line
+      ref={lineRef}
+      points={[from, to]}
+      color={palette.leader}
+      lineWidth={1}
+      dashed
+      dashSize={0.12}
+      gapSize={0.09}
+      transparent
+      opacity={initialOpacity.current}
+      depthWrite={false}
+    />
+  )
+}
+
+interface AspectEndpointDotProps {
+  position: THREE.Vector3
+  targetOpacity: number
+}
+
+/** Small filled dot anchoring a chord endpoint on the shared aspect circle. */
+function AspectEndpointDot({ position, targetOpacity }: AspectEndpointDotProps) {
+  const palette = useScenePalette()
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
+
+  useFrame((_, delta) => {
+    const mat = materialRef.current
+    if (mat) mat.opacity += (targetOpacity - mat.opacity) * dampFactor(delta)
+  })
+
+  return (
+    <mesh position={position} rotation={[-Math.PI / 2, 0, 0]}>
+      <circleGeometry args={[palette.endpointDotRadius, 20]} />
+      <meshBasicMaterial
+        ref={materialRef}
+        color={palette.endpointDot}
+        transparent
+        opacity={0}
+        depthWrite={false}
+      />
+    </mesh>
   )
 }
 
@@ -155,6 +219,7 @@ export function TransitLayer({
   onSelectBody,
   onSelectAspect,
 }: TransitLayerProps) {
+  const palette = useScenePalette()
   const enabledBodies = useMemo(
     () => (aspectBodies ? new Set(aspectBodies) : null),
     [aspectBodies],
@@ -200,43 +265,89 @@ export function TransitLayer({
         />
       ))}
 
-      {tracks.map((track) => {
-        const orb = trackOrbAt(track, index, frac)
-        if (orb === null) return null
-        const maxOrb = ASPECT_MAX_ORB[track.aspect.type]
-        const strength = Math.min(1, Math.max(0, 1 - orb / maxOrb))
-        // squared ramp de-clutters the full sky; focused views use the
-        // honest linear ramp so anything in orb is actually visible
-        const weight = lineBoost ? strength : strength * strength
-        const transitLon = transitLonByBody.get(track.aspect.bodyA)
-        const natal = natalByBody.get(track.aspect.bodyB)
-        if (transitLon === undefined || !natal) return null
-        const enabled = !enabledBodies || enabledBodies.has(track.aspect.bodyA)
-        // transit lines run transit body (bodyA) → natal body (bodyB)
-        const involved =
-          !!focus &&
-          ((focus.layer === 'transit' && focus.body === track.aspect.bodyA) ||
-            (focus.layer === 'natal' && focus.body === track.aspect.bodyB))
-        const baseOpacity = weight * 0.85
-        const targetOpacity = !(visible && enabled)
-          ? 0
-          : focus
-            ? involved
-              ? Math.min(0.95, baseOpacity + 0.3)
-              : 0.03
-            : baseOpacity
+      {(() => {
+        const chords = tracks
+          .map((track) => {
+            const orb = trackOrbAt(track, index, frac)
+            if (orb === null) return null
+            const maxOrb = ASPECT_MAX_ORB[track.aspect.type]
+            const strength = Math.min(1, Math.max(0, 1 - orb / maxOrb))
+            // squared ramp de-clutters the full sky; focused views use the
+            // honest linear ramp so anything in orb is actually visible
+            const weight = lineBoost ? strength : strength * strength
+            const transitLon = transitLonByBody.get(track.aspect.bodyA)
+            const natal = natalByBody.get(track.aspect.bodyB)
+            if (transitLon === undefined || !natal) return null
+            const enabled = !enabledBodies || enabledBodies.has(track.aspect.bodyA)
+            // transit lines run transit body (bodyA) → natal body (bodyB)
+            const involved =
+              !!focus &&
+              ((focus.layer === 'transit' && focus.body === track.aspect.bodyA) ||
+                (focus.layer === 'natal' && focus.body === track.aspect.bodyB))
+            const baseOpacity = weight * 0.85
+            const targetOpacity = !(visible && enabled)
+              ? 0
+              : focus
+                ? involved
+                  ? Math.min(0.95, baseOpacity + 0.3)
+                  : 0.03
+                : baseOpacity
+            return { track, transitLon, natalLon: natal.longitude, weight, targetOpacity }
+          })
+          .filter((chord): chord is NonNullable<typeof chord> => chord !== null)
+
+        // One dashed leader per transiting body and one dot per projected
+        // endpoint, each following the strongest opacity among its chords so a
+        // filtered/dimmed unit fades as one.
+        const leaderByBody = new Map<string, { lon: number; opacity: number }>()
+        const dotByKey = new Map<string, { lon: number; opacity: number }>()
+        for (const chord of chords) {
+          const leader = leaderByBody.get(chord.track.aspect.bodyA)
+          if (!leader || chord.targetOpacity > leader.opacity) {
+            leaderByBody.set(chord.track.aspect.bodyA, { lon: chord.transitLon, opacity: chord.targetOpacity })
+          }
+          for (const [key, lon] of [
+            [`t-${chord.track.aspect.bodyA}`, chord.transitLon],
+            [`n-${chord.track.aspect.bodyB}`, chord.natalLon],
+          ] as Array<[string, number]>) {
+            const dot = dotByKey.get(key)
+            if (!dot || chord.targetOpacity > dot.opacity) {
+              dotByKey.set(key, { lon, opacity: chord.targetOpacity })
+            }
+          }
+        }
+
         return (
-          <TransitAspectLine
-            key={trackKey(track.aspect)}
-            aspect={track.aspect}
-            from={longitudeToPosition(transitLon, TRANSIT_PLANET_RADIUS)}
-            to={longitudeToPosition(natal.longitude, NATAL_PLANET_RADIUS)}
-            targetOpacity={targetOpacity}
-            lineWidth={1 + weight * 2.5}
-            onSelect={onSelectAspect}
-          />
+          <>
+            {chords.map((chord) => (
+              <TransitAspectLine
+                key={trackKey(chord.track.aspect)}
+                aspect={chord.track.aspect}
+                from={longitudeToPosition(chord.transitLon, NATAL_PLANET_RADIUS)}
+                to={longitudeToPosition(chord.natalLon, NATAL_PLANET_RADIUS)}
+                targetOpacity={chord.targetOpacity}
+                lineWidth={1 + chord.weight * 2.5}
+                onSelect={onSelectAspect}
+              />
+            ))}
+            {[...leaderByBody.entries()].map(([body, leader]) => (
+              <TransitLeaderLine
+                key={`leader-${body}`}
+                from={longitudeToPosition(leader.lon, TRANSIT_PLANET_RADIUS - 0.15)}
+                to={longitudeToPosition(leader.lon, NATAL_PLANET_RADIUS)}
+                targetOpacity={leader.opacity * palette.leaderOpacity}
+              />
+            ))}
+            {[...dotByKey.entries()].map(([key, dot]) => (
+              <AspectEndpointDot
+                key={`dot-${key}`}
+                position={longitudeToPosition(dot.lon, NATAL_PLANET_RADIUS, 0.02)}
+                targetOpacity={Math.min(1, dot.opacity * 1.1)}
+              />
+            ))}
+          </>
         )
-      })}
+      })()}
     </group>
   )
 }

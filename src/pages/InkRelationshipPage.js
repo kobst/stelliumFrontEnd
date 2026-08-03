@@ -140,7 +140,8 @@ function RelationshipScene({
   return (
     <div className="ink-relationship__scene" role="img" aria-label={label}>
       <ChartScene
-          background="#1b2140"
+        background="#f5eee5"
+        theme="ink"
         natal={[]}
         natalAspects={[]}
         paused={paused}
@@ -383,8 +384,6 @@ function InkRelationshipPage() {
     b: bPlacements,
     nameA: aName,
     nameB: bName,
-    colorA: '#b08d3e',
-    colorB: '#4a6e9e',
     synastryAspects,
     compositePlacements,
     compositeAspects,

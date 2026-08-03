@@ -87,15 +87,6 @@
   margin: 0 auto;
 }
 
-.cts-wheel-halo {
-  position: absolute;
-  inset: -8%;
-  background: radial-gradient(circle, rgba(202, 190, 255, 0.32), transparent 60%);
-  filter: blur(30px);
-  z-index: 0;
-  pointer-events: none;
-}
-
 .cts-wheel-canvas {
   position: relative;
   z-index: 1;
@@ -140,11 +131,6 @@
   height: 10px;
   border-radius: 50%;
 }
-
-.cts-swatch.flowing { background: #5dd6a0; box-shadow: 0 0 8px #5dd6a0; }
-.cts-swatch.tension { background: #ff8a8a; box-shadow: 0 0 8px #ff8a8a; }
-.cts-swatch.neutral { background: var(--cts-primary); box-shadow: 0 0 8px var(--cts-primary); }
-.cts-swatch.moon    { background: var(--cts-gold); box-shadow: 0 0 8px var(--cts-gold); }
 
 /* ───────── Glyphs (mask-tinted SVGs from /assets/) ───────── */
 .cts-glyph {

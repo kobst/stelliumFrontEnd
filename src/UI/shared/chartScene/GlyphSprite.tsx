@@ -35,12 +35,7 @@ function getGlyphTexture(char: string, color: string): THREE.CanvasTexture {
   }
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.shadowColor = color
-  ctx.shadowBlur = 18
   ctx.fillStyle = color
-  // double pass: soft glow underneath, crisp glyph on top
-  ctx.fillText(text, size / 2, size / 2)
-  ctx.shadowBlur = 0
   ctx.fillText(text, size / 2, size / 2)
 
   const texture = new THREE.CanvasTexture(canvas)

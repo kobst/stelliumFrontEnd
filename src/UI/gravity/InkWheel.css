@@ -1,6 +1,4 @@
-/* InkWheel — the shared Ephemeris chart on an ink-navy "night sky" disk.
-   The wheel draws light strokes and bright planet marks, so it needs a
-   dark ground on the paper-toned pages. */
+/* InkWheel — the shared ink Ephemeris chart on a parchment postcard. */
 
 .ink-wheel { position: relative; width: 100%; }
 
@@ -8,12 +6,13 @@
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 42%, #2c3260 0%, #1b2140 62%, #141930 100%);
-  border: 1px solid rgba(35, 40, 64, 0.35);
+  overflow: hidden;
+  border: 1px solid rgba(57, 68, 90, .3);
+  border-radius: 10px;
+  background: radial-gradient(circle at 50% 42%, #f7f1e6 0%, #f2eadb 62%, #ece2cf 100%);
   box-shadow:
-    inset 0 0 60px rgba(0, 0, 0, 0.35),
-    0 24px 48px -28px rgba(27, 33, 64, 0.65);
+    0 1px 2px rgba(35, 40, 64, .12),
+    0 22px 44px -28px rgba(35, 40, 64, .45);
   animation: ink-wheel-in 0.8s ease both;
 }
 

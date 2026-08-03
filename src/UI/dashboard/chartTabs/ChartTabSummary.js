@@ -87,10 +87,9 @@ function SignGlyph({ sign, tint = 'primary', size = 14 }) {
   );
 }
 
-function WheelCard({ planets, houses, aspects, counters, theme = 'night' }) {
-  const isInk = theme === 'ink';
+function WheelCard({ planets, houses, aspects, counters }) {
   return (
-    <section className={`cts-card cts-card--wheel${isInk ? ' cts-card--wheel-ink' : ''}`}>
+    <section className="cts-card cts-card--wheel cts-card--wheel-ink">
       <header className="cts-card-head">
         <h3>The Wheel</h3>
         <span className="cts-card-sub">{counters}</span>
@@ -98,14 +97,13 @@ function WheelCard({ planets, houses, aspects, counters, theme = 'night' }) {
 
       <div className="cts-wheel-layout">
         <div className="cts-wheel">
-          {!isInk && <div className="cts-wheel-halo" aria-hidden="true" />}
           <div className="cts-wheel-canvas">
             <Ephemeris
               planets={planets}
               houses={houses}
               aspects={aspects}
               transits={[]}
-              theme={theme}
+              theme="ink"
               instanceId="chart-tab-wheel"
             />
           </div>
@@ -113,29 +111,13 @@ function WheelCard({ planets, houses, aspects, counters, theme = 'night' }) {
 
         <aside className="cts-wheel-side">
           <h4>Read the lines.</h4>
-          {isInk ? (
-            <>
-              <p className="cts-wheel-desc">
-                Indigo threads are flowing aspects; madder red marks the charged ones.
-              </p>
-              <div className="cts-legend">
-                <div className="cts-lg-row"><span className="cts-swatch ink-flowing" />Flowing (trine, sextile)</div>
-                <div className="cts-lg-row"><span className="cts-swatch ink-tension" />Charged (conjunction, square, opposition)</div>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="cts-wheel-desc">
-                Solid green threads are flowing aspects. Dashed rose are tension. Gold is moon-tied or transformative.
-              </p>
-              <div className="cts-legend">
-                <div className="cts-lg-row"><span className="cts-swatch flowing" />Flowing (trine, sextile)</div>
-                <div className="cts-lg-row"><span className="cts-swatch tension" />Tension (square, opposition)</div>
-                <div className="cts-lg-row"><span className="cts-swatch neutral" />Conjunction</div>
-                <div className="cts-lg-row"><span className="cts-swatch moon" />Lunar / transformative</div>
-              </div>
-            </>
-          )}
+          <p className="cts-wheel-desc">
+            Indigo threads are flowing aspects; madder red marks the charged ones.
+          </p>
+          <div className="cts-legend">
+            <div className="cts-lg-row"><span className="cts-swatch ink-flowing" />Flowing (trine, sextile)</div>
+            <div className="cts-lg-row"><span className="cts-swatch ink-tension" />Charged (conjunction, square, opposition)</div>
+          </div>
         </aside>
       </div>
     </section>
@@ -353,7 +335,7 @@ function KeyAspectsCard({ aspects, planets, houses }) {
   );
 }
 
-function ChartTabSummary({ planets = [], houses = [], aspects = [], theme = 'night' }) {
+function ChartTabSummary({ planets = [], houses = [], aspects = [] }) {
   const visiblePlanets = useMemo(
     () => planets.filter((p) => p?.name && !HIDDEN_PLANETS.has(p.name)),
     [planets]
@@ -362,7 +344,7 @@ function ChartTabSummary({ planets = [], houses = [], aspects = [], theme = 'nig
 
   return (
     <div className="cts-root">
-      <WheelCard planets={planets} houses={houses} aspects={aspects} counters={counters} theme={theme} />
+      <WheelCard planets={planets} houses={houses} aspects={aspects} counters={counters} />
       <div className="cts-row">
         <PlanetsListCard planets={planets} />
         <HousesGridCard houses={houses} />

@@ -665,7 +665,8 @@ function HoroscopeExperience({ user, userId, entitlements }) {
               <div className="ihp-medallion" aria-label="Your natal chart with the current transit sky">
                 {natal.length ? (
                   <ChartScene
-                    background="#1b2140"
+                    background="#f5eee5"
+                    theme="ink"
                     natal={natal}
                     natalAspects={natalAspects}
                     transitFrames={frames || undefined}

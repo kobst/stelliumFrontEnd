@@ -6,12 +6,11 @@ import { Line, useCursor } from '@react-three/drei'
 import { GlyphSprite } from './GlyphSprite'
 import { dampFactor, longitudeToPosition } from './utils'
 import { ANGLES, BODIES, WHEEL_INNER_RADIUS } from './constants'
+import { useScenePalette } from './sceneTheme'
 import type { Placement } from './types'
 
 // scratch vector reused across frames to avoid per-frame allocation
 const scaleVec = new THREE.Vector3()
-
-const BASE_EMISSIVE = 2.2
 
 /** hover/selection visual treatment */
 export type MarkerState = 'normal' | 'active' | 'related' | 'muted' | 'suppressed'
@@ -25,6 +24,8 @@ interface PlanetMarkerProps {
   hidden?: boolean
   /** enlarges glyphs for small/top-down mounts */
   glyphScale?: number
+  /** optional layer tint (used to distinguish relationship partners) */
+  color?: string
   /** active = hovered/selected; muted = another body is selected */
   state?: MarkerState
   onHover?: (placement: Placement | null) => void
@@ -38,12 +39,12 @@ export function PlanetMarker({
   sizeScale = 1,
   hidden = false,
   glyphScale = 1,
+  color,
   state = 'normal',
   onHover,
   onSelect,
 }: PlanetMarkerProps) {
   const groupRef = useRef<THREE.Group>(null)
-  const materialRef = useRef<THREE.MeshStandardMaterial>(null)
   const [pointerOver, setPointerOver] = useState(false)
   useCursor(pointerOver && !hidden)
 
@@ -62,18 +63,7 @@ export function PlanetMarker({
             ? 0.85
             : 1
   const scaleTarget = hidden ? 0 : sizeScale * stateScale
-  const emissiveTarget =
-    state === 'active'
-      ? 3.4
-      : state === 'related'
-        ? 1.5
-        : state === 'suppressed'
-          ? 0.2
-          : state === 'muted'
-            ? 1.1
-            : BASE_EMISSIVE
-  const opacityTarget =
-    state === 'suppressed' ? 0.07 : state === 'related' ? 0.62 : 1
+  const palette = useScenePalette()
 
   // mount position/scale stay fixed; the lerp below owns them afterwards,
   // so reactive props would snap on every mode change
@@ -86,14 +76,10 @@ export function PlanetMarker({
     const f = dampFactor(delta)
     group.position.lerp(target, f)
     group.scale.lerp(scaleVec.set(scaleTarget, scaleTarget, scaleTarget), f)
-    const mat = materialRef.current
-    if (mat) {
-      mat.emissiveIntensity += (emissiveTarget - mat.emissiveIntensity) * f
-      mat.opacity += (opacityTarget - mat.opacity) * f
-    }
   })
 
   const info = BODIES[placement.body]
+  const markerColor = color ?? (info ? palette.bodyColor(info.color) : undefined)
   if (!info) return null
 
   const handleOver = (e: ThreeEvent<PointerEvent>) => {
@@ -124,20 +110,19 @@ export function PlanetMarker({
         onClick={handleClick}
       >
         <sphereGeometry args={[info.size, 32, 32]} />
-        <meshStandardMaterial
-          ref={materialRef}
-          color={info.color}
-          emissive={info.color}
-          emissiveIntensity={BASE_EMISSIVE}
+        {/* Invisible hit target: the ink look is glyph-only, but the sphere
+            still carries hover/click raycasting. */}
+        <meshBasicMaterial
+          color={markerColor}
           transparent
-          opacity={1}
-          toneMapped={false}
+          opacity={0}
+          depthWrite={false}
         />
       </mesh>
       <mesh visible={state === 'active'}>
         <ringGeometry args={[info.size * 1.55, info.size * 1.78, 32]} />
         <meshBasicMaterial
-          color={info.color}
+          color={markerColor}
           transparent
           opacity={0.82}
           depthWrite={false}
@@ -146,9 +131,9 @@ export function PlanetMarker({
       </mesh>
       <GlyphSprite
         char={info.glyph}
-        color={info.color}
-        position={[0, info.size + 0.28, 0]}
-        scale={0.45 * glyphScale}
+        color={markerColor as string}
+        position={[0, 0.02, 0]}
+        scale={0.5 * glyphScale}
         opacity={
           state === 'suppressed'
             ? 0.06
@@ -162,8 +147,8 @@ export function PlanetMarker({
       {placement.retrograde && (
         <GlyphSprite
           char="℞"
-          color="#ff8f8f"
-          position={[0.24, info.size + 0.4, 0]}
+          color={palette.retro}
+          position={[0.26, 0.2, 0]}
           scale={0.2 * glyphScale}
           opacity={
             state === 'suppressed'
@@ -192,6 +177,7 @@ export function AngleMarker({
   onHover?: (placement: Placement | null) => void
   onSelect?: (placement: Placement) => void
 }) {
+  const palette = useScenePalette()
   const info = ANGLES[placement.body]
   if (!info) return null
 
@@ -221,7 +207,7 @@ export function AngleMarker({
     <group>
       <Line
         points={[inner, outer]}
-        color={info.color}
+        color={palette.angleColor(info.color)}
         lineWidth={1}
         transparent
         opacity={state === 'active' ? 0.95 : opacity * 0.55}
@@ -231,7 +217,7 @@ export function AngleMarker({
       />
       <GlyphSprite
         char={info.label}
-        color={info.color}
+        color={palette.angleColor(info.color)}
         position={[labelPos.x, labelPos.y, labelPos.z]}
         scale={labelScale}
         opacity={opacity}
@@ -239,7 +225,7 @@ export function AngleMarker({
       {state === 'active' && (
         <GlyphSprite
           char="◯"
-          color="#e9c349"
+          color={palette.edge}
           position={[labelPos.x, labelPos.y + 0.01, labelPos.z]}
           scale={0.82}
           opacity={0.9}

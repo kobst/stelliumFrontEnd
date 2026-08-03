@@ -1,12 +1,12 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, Stars } from '@react-three/drei'
-import { Bloom, EffectComposer } from '@react-three/postprocessing'
+import { OrbitControls } from '@react-three/drei'
 import { ZodiacWheel } from './ZodiacWheel'
 import { OrbitRings } from './OrbitRings'
 import { AspectLines } from './AspectLines'
 import { TransitLayer } from './TransitLayer'
 import { AngleMarker, PlanetMarker } from './PlanetMarker'
+import { SCENE_PALETTE, SceneThemeProvider } from './sceneTheme'
 import { RelationshipLayer } from './RelationshipLayer'
 import type { MarkerState } from './PlanetMarker'
 import { dampFactor, spreadPlacements } from './utils'
@@ -136,7 +136,7 @@ function ChartSceneImpl({
   fitRadius,
   fitNonce = 0,
   disableZoom = false,
-  background = '#030308',
+  background = '#f5eee5',
   paused = false,
   onHoverBody,
   onSelectBody,
@@ -305,19 +305,20 @@ function ChartSceneImpl({
     <Canvas
       camera={{ position: topDown ? [0, 12.2, 0.5] : [0, 7.5, 9], fov: 45 }}
       gl={{ antialias: true }}
+      // Ink colors are output-referred illustration colors, not an HDR scene.
+      flat
       dpr={[1, 2]}
       frameloop={paused ? 'never' : 'always'}
       onPointerMissed={() => select(null)}
     >
+      <SceneThemeProvider value={SCENE_PALETTE}>
       <FrameloopSync paused={paused} />
       {topDown && <TopDownFit />}
       {!topDown && fitRadius ? <OrbitFit fitRadius={fitRadius} coveredRightPx={coveredRightPx} fitNonce={fitNonce} /> : null}
       <ViewOffset coveredRightPx={coveredRightPx} />
       <color attach="background" args={[background]} />
-      <ambientLight intensity={0.4} />
-      <pointLight position={[0, 6, 0]} intensity={20} color="#8888ff" />
-
-      <Stars radius={60} depth={40} count={3000} factor={3} saturation={0.4} fade speed={0.4} />
+      <ambientLight intensity={0.8} />
+      <pointLight position={[0, 6, 0]} intensity={12} color={SCENE_PALETTE.light} />
 
       <ZodiacWheel
         dimmed={helioMode}
@@ -458,15 +459,6 @@ function ChartSceneImpl({
         </>
       )}
 
-      <EffectComposer>
-        <Bloom
-          intensity={0.9}
-          luminanceThreshold={0.25}
-          luminanceSmoothing={0.6}
-          mipmapBlur
-        />
-      </EffectComposer>
-
       <OrbitControls
         enablePan={false}
         enableZoom={!disableZoom}
@@ -475,6 +467,7 @@ function ChartSceneImpl({
         maxPolarAngle={Math.PI * 0.85}
         makeDefault
       />
+      </SceneThemeProvider>
     </Canvas>
   )
 }

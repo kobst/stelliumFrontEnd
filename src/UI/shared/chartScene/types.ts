@@ -122,10 +122,12 @@ export interface ChartSceneProps {
   /** scroll-narrative mounts: the wheel belongs to the page, not the camera */
   disableZoom?: boolean
   /**
-   * scene clear color. Defaults to the near-black night sky; themed
-   * mounts (e.g. the ink pages' navy medallions) pass their own.
+   * Scene clear color. Defaults to parchment; themed mounts may pass a
+   * matching paper tone of their own.
    */
   background?: string
+  /** retained compatibility hook; ink is the only scene palette */
+  theme?: 'ink'
   /**
    * stop the render loop entirely (frameloop "never") — for mounts that
    * hide the scene with CSS while it stays mounted; a hidden WebGL

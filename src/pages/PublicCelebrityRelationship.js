@@ -351,7 +351,8 @@ function PublicCelebrityRelationship() {
                       {canDrawRelationship ? (
                         <div className="ink-relationship__scene" aria-label={`${userAName} and ${userBName} relationship chart`}>
                           <ChartScene
-                            background="#1b2140"
+                            background="#f5eee5"
+                            theme="ink"
                             natal={[]}
                             natalAspects={[]}
                             topDown
@@ -362,8 +363,6 @@ function PublicCelebrityRelationship() {
                               b: placementsB,
                               nameA: shortA,
                               nameB: shortB,
-                              colorA: '#b08d3e',
-                              colorB: '#4a6e9e',
                               blend: 1,
                               comp: 0,
                               synastryAspects,

@@ -1,9 +1,9 @@
+import { useScenePalette } from './sceneTheme'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { circlePoints, dampFactor } from './utils'
 
-const RING_COLOR = '#5a5aa8'
 const RING_OPACITY = 0.28
 
 interface OrbitRingsProps {
@@ -16,6 +16,7 @@ interface OrbitRingsProps {
  * modes and cross-faded, so toggling animates instead of popping.
  */
 export function OrbitRings({ radii, visible }: OrbitRingsProps) {
+  const palette = useScenePalette()
   const materialRef = useRef<THREE.LineBasicMaterial>(null)
 
   const geometry = useMemo(() => {
@@ -43,7 +44,7 @@ export function OrbitRings({ radii, visible }: OrbitRingsProps) {
     <lineSegments geometry={geometry}>
       <lineBasicMaterial
         ref={materialRef}
-        color={RING_COLOR}
+        color={palette.ring}
         transparent
         opacity={0}
         depthWrite={false}

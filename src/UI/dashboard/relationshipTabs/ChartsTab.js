@@ -92,7 +92,10 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskSt
   const [activeSubTab, setActiveSubTab] = useState('synastry');
   const [chatOpen, setChatOpen] = useState(false);
 
-  const synastryAspects = relationship?.synastryAspects || [];
+  const synastryAspects = useMemo(
+    () => relationship?.synastryAspects || [],
+    [relationship?.synastryAspects]
+  );
   const compositeChart = relationship?.compositeChart || {};
   const userAName = relationship?.userA_name || 'Person A';
   const userBName = relationship?.userB_name || 'Person B';
@@ -238,6 +241,7 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskSt
                           houses={birthChartA.houses || []}
                           aspects={hasBothCharts ? synastryAspectsForChartA : []}
                           transits={hasChartB ? birthChartB.planets : []}
+                          theme="ink"
                           instanceId="synastry-a"
                         />
                       </div>
@@ -253,6 +257,7 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskSt
                           houses={birthChartB.houses || []}
                           aspects={hasBothCharts ? synastryAspectsForChartB : []}
                           transits={hasChartA ? birthChartA.planets : []}
+                          theme="ink"
                           instanceId="synastry-b"
                         />
                       </div>

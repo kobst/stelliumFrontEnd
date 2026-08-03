@@ -98,8 +98,8 @@ export function RelationshipLayer({
   b,
   nameA,
   nameB,
-  colorA = '#cabeff',
-  colorB = '#ff9ec4',
+  colorA = '#39445a',
+  colorB = '#3437a8',
   blend,
   comp,
   compositePlacements,
@@ -157,6 +157,7 @@ export function RelationshipLayer({
         key={`${side}-${p.body}`}
         placement={{ ...p, longitude }}
         radius={radius}
+        color={side === 'a' ? colorA : colorB}
         sizeScale={side === 'b' ? 0.8 : 1}
         hidden={side === 'b' && ec > 0.5}
         state={stateFor(p.body, side)}

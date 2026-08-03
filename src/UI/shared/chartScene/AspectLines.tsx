@@ -4,7 +4,8 @@ import { useFrame } from '@react-three/fiber'
 import { Line } from '@react-three/drei'
 import type { Line2 } from 'three-stdlib'
 import { dampFactor, longitudeToPosition } from './utils'
-import { ASPECT_COLORS, ASPECT_MAX_ORB } from './constants'
+import { ASPECT_MAX_ORB } from './constants'
+import { useScenePalette } from './sceneTheme'
 import type {
   Aspect,
   BodySelection,
@@ -55,6 +56,7 @@ function AspectLine({
   onSelect,
   onHover,
 }: AspectLineProps) {
+  const palette = useScenePalette()
   const lineRef = useRef<Line2>(null)
 
   const strength = orbStrength(aspect)
@@ -90,12 +92,12 @@ function AspectLine({
     <Line
       ref={lineRef}
       points={points}
-      color={ASPECT_COLORS[aspect.type]}
+      color={palette.aspectColor(aspect.type)}
       lineWidth={(emphasized ? 1.5 : 1) + strength * (emphasized ? 2.5 : 2)}
       transparent
       opacity={initialOpacity.current}
       depthWrite={false}
-      blending={emphasized ? THREE.AdditiveBlending : THREE.NormalBlending}
+      blending={THREE.NormalBlending}
       onClick={onSelect ? (event) => {
         event.stopPropagation()
         onSelect(aspect)
