@@ -732,13 +732,12 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
                 onMouseEnter={() => emphasize(pattern.bodies)}
                 onMouseLeave={clearEmphasis}
               >
-                <h4 className="pattern-wheel-label">{pattern.label}</h4>
+                <p className="pattern-wheel-note">
+                  {(pattern.description || pattern.label).replace(/\.$/, '')} ↓
+                </p>
                 <div className="pattern-wheel-visual">
                   {pattern.component}
                 </div>
-                {pattern.description && (
-                  <p className="pattern-wheel-description">{pattern.description}</p>
-                )}
               </div>
             ))}
           </div>

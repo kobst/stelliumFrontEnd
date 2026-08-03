@@ -1,40 +1,6 @@
 import React, { useRef, useEffect, memo } from 'react';
 import useStore from '../../Utilities/store';
 
-// Planet colors from ephemeris
-const PLANET_COLORS = {
-  Sun: '#FFD700',     // gold
-  Moon: '#A9A9A9',    // grey
-  Mercury: '#FFA500', // orange
-  Venus: '#FF69B4',   // hot pink
-  Mars: '#FF4500',    // red
-  Jupiter: '#0000FF', // blue
-  Saturn: '#800080',  // purple
-  Uranus: '#00FFFF',  // cyan
-  Neptune: '#4B0082', // indigo
-  Pluto: '#8B4513',   // saddle brown
-  Ascendant: '#32CD32', // lime green
-  Midheaven: '#20B2AA', // light sea green
-  Node: '#9ACD32'     // yellow green
-};
-
-// Planet Unicode symbols
-const PLANET_SYMBOLS = {
-  Sun: '☉',
-  Moon: '☽',
-  Mercury: '☿',
-  Venus: '♀',
-  Mars: '♂',
-  Jupiter: '♃',
-  Saturn: '♄',
-  Uranus: '♅',
-  Neptune: '♆',
-  Pluto: '♇',
-  Ascendant: 'AC',
-  Midheaven: 'MC',
-  Node: '☊'
-};
-
 const SimplifiedPatternWheel = memo(({ 
   planets = [], 
   pattern = 'basic', 
@@ -74,8 +40,15 @@ const SimplifiedPatternWheel = memo(({
     // Draw outer circle
     ctx.beginPath();
     ctx.arc(centerX, centerY, outerRadius, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(57, 68, 90, 0.45)';
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+
+    // Lighter inner orbit circle the planet dots sit on
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, planetRadius, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(57, 68, 90, 0.16)';
+    ctx.lineWidth = 1.2;
     ctx.stroke();
   };
 
@@ -89,23 +62,12 @@ const SimplifiedPatternWheel = memo(({
       }
       
       const position = degreeToPosition(degree);
-      const color = PLANET_COLORS[planet.name] || '#ffffff';
-      
-      // Draw planet dot
+
+      // Uniform ink dots — the pattern is about geometry, not identity
       ctx.beginPath();
-      ctx.arc(position.x, position.y, 3, 0, 2 * Math.PI);
-      ctx.fillStyle = color;
+      ctx.arc(position.x, position.y, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = '#3437a8';
       ctx.fill();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      
-      // Draw planet label using Unicode symbol
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '10px Arial';
-      ctx.textAlign = 'center';
-      const symbol = PLANET_SYMBOLS[planet.name] || planet.name[0];
-      ctx.fillText(symbol, position.x, position.y - 8);
     });
   };
 
@@ -136,10 +98,12 @@ const SimplifiedPatternWheel = memo(({
       ctx.arc(centerX, centerY, outerRadius + 8, startRadians, endRadians, false);
     }
     
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
+    ctx.strokeStyle = 'rgba(52, 55, 168, 0.65)';
+    ctx.lineWidth = 2;
     ctx.lineCap = 'round';
+    ctx.setLineDash([5, 4]);
     ctx.stroke();
+    ctx.setLineDash([]);
   };
 
   // Draw arc for stellium - draw the SHORTEST path between start and end
@@ -191,10 +155,12 @@ const SimplifiedPatternWheel = memo(({
     ctx.beginPath();
     ctx.arc(centerX, centerY, outerRadius + 8, startRadians, endRadians, false);
     
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
+    ctx.strokeStyle = 'rgba(52, 55, 168, 0.65)';
+    ctx.lineWidth = 2;
     ctx.lineCap = 'round';
+    ctx.setLineDash([5, 4]);
     ctx.stroke();
+    ctx.setLineDash([]);
   };
 
   // Draw aspect lines
@@ -216,27 +182,27 @@ const SimplifiedPatternWheel = memo(({
       switch (line.type) {
         case 'square':
         case 'opposition':
-          ctx.strokeStyle = 'rgba(255, 124, 124, 0.8)'; // red
+          ctx.strokeStyle = 'rgba(52, 55, 168, 0.6)';
           ctx.lineWidth = 2;
           ctx.setLineDash([]);
           break;
         case 'trine':
-          ctx.strokeStyle = 'rgba(136, 225, 255, 0.8)'; // blue
+          ctx.strokeStyle = 'rgba(52, 55, 168, 0.6)';
           ctx.lineWidth = 2;
           ctx.setLineDash([]);
           break;
         case 'sextile':
-          ctx.strokeStyle = 'rgba(79, 99, 255, 0.8)'; // indigo
+          ctx.strokeStyle = 'rgba(52, 55, 168, 0.6)';
           ctx.lineWidth = 2;
           ctx.setLineDash([]);
           break;
         case 'quincunx':
-          ctx.strokeStyle = 'rgba(252, 211, 77, 0.8)'; // gold
+          ctx.strokeStyle = 'rgba(52, 55, 168, 0.6)';
           ctx.lineWidth = 2;
           ctx.setLineDash([4, 3]);
           break;
         default:
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+          ctx.strokeStyle = 'rgba(52, 55, 168, 0.5)';
           ctx.lineWidth = 1;
           ctx.setLineDash([]);
       }
@@ -626,7 +592,7 @@ const SimplifiedPatternWheel = memo(({
             ctx.lineTo(pos2.x, pos2.y);
             
             // Orange lines for bucket pattern
-            ctx.strokeStyle = '#f59e0b';
+            ctx.strokeStyle = 'rgba(52, 55, 168, 0.65)';
             ctx.lineWidth = 2;
             ctx.setLineDash([]);
             ctx.stroke();
@@ -674,7 +640,7 @@ const SimplifiedPatternWheel = memo(({
           // Default single-section chart shape
           const span = calculateChartShapeSpan(filteredPlanets);
           if (span) {
-            drawArc(ctx, span.startDeg, span.endDeg, '#8b5cf6', 6);
+            drawArc(ctx, span.startDeg, span.endDeg, 'ink', 2);
           }
         }
         break;
@@ -682,7 +648,7 @@ const SimplifiedPatternWheel = memo(({
       case 'stellium':
         drawPlanets(ctx, planets);
         if (patternData.startDeg !== undefined && patternData.endDeg !== undefined) {
-          drawStelliumArc(ctx, patternData.startDeg, patternData.endDeg, '#f59e0b', 5);
+          drawStelliumArc(ctx, patternData.startDeg, patternData.endDeg, 'ink', 2);
         }
         break;
         
@@ -740,22 +706,7 @@ const SimplifiedPatternWheel = memo(({
         ref={canvasRef}
         width={size}
         height={size}
-        style={{
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '50%',
-          background: 'rgba(0, 0, 0, 0.2)'
-        }}
       />
-      {patternData.label && (
-        <div style={{
-          marginTop: '8px',
-          fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.8)',
-          fontWeight: '500'
-        }}>
-          {patternData.label}
-        </div>
-      )}
     </div>
   );
 });
