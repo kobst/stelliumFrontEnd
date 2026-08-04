@@ -1,0 +1,77 @@
+.ihp-up-next {
+  margin: 4px 0 18px;
+  padding: 16px 22px 18px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+}
+
+.ihp-up-next__label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--ink-faint);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.ihp-up-next__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ihp-up-next__grid button {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  text-align: left;
+}
+
+.ihp-up-next__grid button:hover b,
+.ihp-up-next__grid button:focus-visible b {
+  color: var(--blue);
+}
+
+.ihp-up-next__grid button:focus-visible {
+  outline: 1px solid var(--blue);
+  outline-offset: 4px;
+}
+
+.ihp-up-next__grid span {
+  color: var(--ink-faint);
+  font-size: 12.5px;
+  font-style: italic;
+}
+
+.ihp-up-next__grid b {
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+}
+
+.ihp-up-next > p {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 14px;
+  font-style: italic;
+}
+
+@media (max-width: 980px) {
+  .ihp-up-next__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .ihp-up-next__grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,231 @@
+.ihp-tracker {
+  overflow: hidden;
+  padding: 14px 18px 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+}
+
+.ihp-tracker--empty {
+  padding: 36px 20px;
+  color: var(--ink-faint);
+  font-style: italic;
+  text-align: center;
+}
+
+.ihp-tracker__row {
+  display: grid;
+  grid-template-columns: minmax(145px, 196px) minmax(260px, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-width: 480px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(57, 68, 90, .07);
+  transition: background .15s, opacity .18s;
+}
+
+.ihp-tracker__row:hover:not(.ihp-tracker__row--head),
+.ihp-tracker__row.is-selected {
+  background: rgba(52, 55, 168, .055);
+}
+
+.ihp-tracker__row.is-quiet {
+  opacity: .44;
+}
+
+.ihp-tracker__row.is-quiet:hover,
+.ihp-tracker__row.is-quiet.is-selected {
+  opacity: .8;
+}
+
+.ihp-tracker__row--head {
+  margin-bottom: 2px;
+  padding-bottom: 8px;
+  border-bottom-color: var(--line);
+}
+
+.ihp-tracker__name {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 5px;
+  padding: 0 3px;
+  overflow: hidden;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-size: 14.5px;
+  text-align: left;
+}
+
+.ihp-tracker__name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ihp-tracker__name b {
+  flex: 0 0 auto;
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.ihp-tracker__name:focus-visible,
+.ihp-tracker__bar:focus-visible {
+  outline: 1px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.ihp-tracker__lane {
+  position: relative;
+  height: 26px;
+  cursor: crosshair;
+}
+
+.ihp-tracker__row--head .ihp-tracker__lane {
+  height: 20px;
+  cursor: default;
+}
+
+.ihp-tracker__tick {
+  position: absolute;
+  top: 50%;
+  color: var(--ink-faint);
+  font-size: 11px;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.ihp-tracker__tick:first-child {
+  transform: translate(0, -50%);
+}
+
+.ihp-tracker__tick:last-child {
+  transform: translate(-100%, -50%);
+}
+
+.ihp-tracker__bar {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  height: 7px;
+  min-width: 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  opacity: .72;
+  transform: translateY(-50%);
+}
+
+.ihp-tracker__row:hover .ihp-tracker__bar,
+.ihp-tracker__row.is-selected .ihp-tracker__bar {
+  opacity: 1;
+}
+
+.ihp-tracker__bar.is-flowing,
+.ihp-tracker__legend i.is-flowing {
+  background: var(--blue);
+}
+
+.ihp-tracker__bar.is-frictional,
+.ihp-tracker__legend i.is-frictional {
+  background: var(--madder, #a8483c);
+}
+
+.ihp-tracker__exact {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  font-size: 11px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.ihp-tracker__exact.is-flowing {
+  color: var(--blue);
+}
+
+.ihp-tracker__exact.is-frictional {
+  color: var(--madder, #a8483c);
+}
+
+.ihp-tracker__line {
+  position: absolute;
+  z-index: 3;
+  top: -3px;
+  bottom: -3px;
+  width: 1.5px;
+  pointer-events: none;
+}
+
+.ihp-tracker__line--today {
+  background: rgba(176, 141, 62, .72);
+}
+
+.ihp-tracker__line--today.has-label::after {
+  position: absolute;
+  top: -21px;
+  left: 50%;
+  color: var(--gold);
+  content: 'today';
+  font-family: var(--ink-script);
+  font-size: 15px;
+  transform: translateX(-50%);
+}
+
+.ihp-tracker__line--playhead {
+  background: var(--madder, #a8483c);
+}
+
+.ihp-tracker__status {
+  margin: 20px 0;
+  color: var(--ink-faint);
+  font-style: italic;
+  text-align: center;
+}
+
+.ihp-tracker__status.is-error {
+  color: #8e4646;
+}
+
+.ihp-tracker__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 16px;
+  margin-top: 10px;
+  color: var(--ink-faint);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.ihp-tracker__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ihp-tracker__legend i {
+  width: 14px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.ihp-tracker__legend em {
+  width: 1.5px;
+  height: 12px;
+}
+
+.ihp-tracker__legend em.is-today {
+  background: var(--gold);
+}
+
+.ihp-tracker__legend em.is-playhead {
+  background: var(--madder, #a8483c);
+}
+
+@media (max-width: 720px) {
+  .ihp-tracker {
+    overflow-x: auto;
+  }
+}

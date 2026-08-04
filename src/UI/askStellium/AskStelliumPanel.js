@@ -325,13 +325,19 @@ function AskStelliumPanel({
   contextPlacement = 'inline',
   contextContainer,
   externalElements,
+  syncExternalElements = false,
   externalToggle,
+  externalMessage,
   externalInspect,
   externalHover,
   onElementHover,
   onElementInspect,
   onSelectionChange,
-  getActiveDate
+  onLoadingChange,
+  getActiveDate,
+  includeHoroscopeReading = true,
+  preserveSelectionOnSend = false,
+  selectionLimit = MAX_SELECTIONS
 }) {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -358,9 +364,14 @@ function AskStelliumPanel({
   const externalToggleRef = useRef(null);
   const externalInspectRef = useRef(null);
   const externalElementsRef = useRef(null);
+  const externalMessageRef = useRef(null);
   const selectedElementsRef = useRef([]);
   const isOverlayVariant = variant === 'overlay';
   const persistentContext = contextPlacement === 'external';
+
+  useEffect(() => {
+    onLoadingChange?.(loading);
+  }, [loading, onLoadingChange]);
 
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
@@ -378,10 +389,22 @@ function AskStelliumPanel({
   const storedPatterns = useStore(state => state.userPatterns);
 
   const config = HISTORY_CONFIG[contentType];
-  const planets = birthChart?.planets || storedPlanets || [];
-  const aspects = birthChart?.aspects || storedAspects || [];
-  const houses = birthChart?.houses || storedHouses || [];
-  const patterns = birthChart?.patterns || storedPatterns || {};
+  const planets = useMemo(
+    () => birthChart?.planets || storedPlanets || [],
+    [birthChart?.planets, storedPlanets]
+  );
+  const aspects = useMemo(
+    () => birthChart?.aspects || storedAspects || [],
+    [birthChart?.aspects, storedAspects]
+  );
+  const houses = useMemo(
+    () => birthChart?.houses || storedHouses || [],
+    [birthChart?.houses, storedHouses]
+  );
+  const patterns = useMemo(
+    () => birthChart?.patterns || storedPatterns || {},
+    [birthChart?.patterns, storedPatterns]
+  );
 
   const resolvedPeriod = useMemo(() => {
     if (horoscopePeriod === 'today') return 'daily';
@@ -744,13 +767,13 @@ function AskStelliumPanel({
       return;
     }
 
-    if (selectedElements.length >= MAX_SELECTIONS) {
-      setSelectionError(`Add up to ${MAX_SELECTIONS} chart elements to focus your question.`);
+    if (selectedElements.length >= selectionLimit) {
+      setSelectionError(`Add up to ${selectionLimit} chart elements to focus your question.`);
       return;
     }
 
     setSelectedElements(prev => [...prev, element]);
-  }, [isSelected, selectedElements.length]);
+  }, [isSelected, selectedElements.length, selectionLimit]);
 
   const clearSelections = useCallback(() => {
     setSelectedElements([]);
@@ -765,27 +788,42 @@ function AskStelliumPanel({
   // Stage bridge: elements pushed from outside (sky clicks, influence
   // pills) merge into the selection while surfacing the shared cap.
   useEffect(() => {
-    if (!externalElements?.length || externalElementsRef.current === externalElements) return;
+    if (externalElementsRef.current === externalElements) return;
     externalElementsRef.current = externalElements;
+    if (syncExternalElements) {
+      const next = (externalElements || []).filter((element) => element?.key).slice(0, selectionLimit);
+      const previous = selectedElementsRef.current;
+      const unchanged = previous.length === next.length && previous.every(
+        (element, index) => element.key === next[index].key
+      );
+      if (!unchanged) setSelectedElements(next);
+      setSelectionError(
+        (externalElements?.length || 0) > selectionLimit
+          ? `Add up to ${selectionLimit} chart elements to focus your question.`
+          : null
+      );
+      return;
+    }
+    if (!externalElements?.length) return;
     const currentSelections = selectedElementsRef.current;
     const additions = externalElements.filter(
       (el) => el?.key && !currentSelections.some((selected) => selected.key === el.key)
     );
     if (!additions.length) return;
 
-    const available = MAX_SELECTIONS - currentSelections.length;
+    const available = selectionLimit - currentSelections.length;
     if (available <= 0) {
-      setSelectionError(`Add up to ${MAX_SELECTIONS} chart elements to focus your question.`);
+      setSelectionError(`Add up to ${selectionLimit} chart elements to focus your question.`);
       return;
     }
 
     setSelectedElements([...currentSelections, ...additions.slice(0, available)]);
     setSelectionError(
       additions.length > available
-        ? `Add up to ${MAX_SELECTIONS} chart elements to focus your question.`
+        ? `Add up to ${selectionLimit} chart elements to focus your question.`
         : null
     );
-  }, [externalElements]);
+  }, [externalElements, selectionLimit, syncExternalElements]);
 
   useEffect(() => {
     if (!externalToggle?.element || externalToggleRef.current === externalToggle.nonce) return;
@@ -823,8 +861,10 @@ function AskStelliumPanel({
     onSelectionChange?.(selectedElements);
   }, [selectedElements, onSelectionChange]);
 
-  const handleSendMessage = useCallback(async () => {
-    const trimmedMessage = inputMessage.trim();
+  const handleSendMessage = useCallback(async (messageOverride) => {
+    const trimmedMessage = typeof messageOverride === 'string'
+      ? messageOverride.trim()
+      : inputMessage.trim();
     const hasSelection = selectedElements.length > 0;
     if ((!trimmedMessage && !hasSelection) || loading || !config) return;
 
@@ -878,7 +918,7 @@ function AskStelliumPanel({
         response = await enhancedChatForRelationship(contentId, userMessage || '', scoredItems);
         responseText = response?.answer || response?.response || '';
       } else if (contentType === 'horoscope') {
-        const requestBody = { period: activePeriod };
+        const requestBody = includeHoroscopeReading ? { period: activePeriod } : {};
         const activeDateValue = getActiveDate?.();
         const activeDate = activeDateValue ? new Date(activeDateValue) : null;
         if (activeDate && !Number.isNaN(activeDate.getTime())) {
@@ -908,8 +948,10 @@ function AskStelliumPanel({
           animate: true,
           timestamp: new Date().toISOString(),
         }]);
-        setSelectedElements([]);
-        setSelectionError(null);
+        if (!preserveSelectionOnSend) {
+          setSelectedElements([]);
+          setSelectionError(null);
+        }
 
         // Reconcile optimistic counter against backend state.
         if (stelliumUser?._id) {
@@ -951,8 +993,16 @@ function AskStelliumPanel({
     stelliumUser?._id,
     selectedElements,
     activePeriod,
-    getActiveDate
+    getActiveDate,
+    includeHoroscopeReading,
+    preserveSelectionOnSend
   ]);
+
+  useEffect(() => {
+    if (loading || !externalMessage?.nonce || externalMessageRef.current === externalMessage.nonce) return;
+    externalMessageRef.current = externalMessage.nonce;
+    handleSendMessage(externalMessage.message);
+  }, [externalMessage, handleSendMessage, loading]);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1021,7 +1071,7 @@ function AskStelliumPanel({
   const filterOptions = getFilterOptions(contentType);
   const totalCount = selectableElements.length;
   const shownCount = filteredOverlayElements.length;
-  const selectionLimitReached = selectedElements.length >= MAX_SELECTIONS;
+  const selectionLimitReached = selectedElements.length >= selectionLimit;
   const contextActionLabel = selectedElements.length > 0 ? 'Edit' : 'Add context';
   const chartOwner = /^(your|this)$/i.test(primarySubjectName)
     ? 'your chart'
@@ -1077,13 +1127,13 @@ function AskStelliumPanel({
                       {element.label || element.description || element.code}
                     </span>
                   )) : (
-                    <span className="ask-panel__summary-placeholder">Add up to {MAX_SELECTIONS} chart elements to focus your question</span>
+                    <span className="ask-panel__summary-placeholder">Add up to {selectionLimit} chart elements to focus your question</span>
                   )}
                 </div>
               </div>
               <div className="ask-panel__compact-right">
                 <span className="ask-panel__selection-count">
-                  {selectedElements.length} of {MAX_SELECTIONS} selected
+                  {selectedElements.length} of {selectionLimit} selected
                 </span>
                 {selectedElements.length > 0 && (
                   <button className="ask-panel__selection-clear-inline" onClick={clearSelections}>
@@ -1106,7 +1156,7 @@ function AskStelliumPanel({
               <div className="ask-panel__items-overlay">
                 <div className="ask-panel__overlay-help-row">
                   <div className="ask-panel__overlay-help">
-                    Inspect the chart, then explicitly add up to {MAX_SELECTIONS} details as context.
+                    Inspect the chart, then explicitly add up to {selectionLimit} details as context.
                   </div>
                   {inspectorFocus && (
                     <button
@@ -1412,7 +1462,7 @@ function AskStelliumPanel({
           </div>
           <button
             className="ask-panel__send"
-            onClick={handleSendMessage}
+            onClick={() => handleSendMessage()}
             disabled={!canSend}
           >
             {loading ? '...' : '\u2192'}
