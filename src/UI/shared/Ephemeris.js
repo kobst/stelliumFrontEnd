@@ -59,7 +59,7 @@ const THEMES = {
         // matches the horoscope (WebGL) ink wheel: a narrow sign band near the
         // plate edge with planet glyphs INSIDE the inner circle; collisions
         // dodge sideways along their orbit so nothing can clip the plate
-        dims: { centerX: 300, centerY: 300, outerRadius: 268, innerRadius: 225, houseCircleRadius: 277 },
+        dims: { centerX: 300, centerY: 300, outerRadius: 268, innerRadius: 225, houseCircleRadius: 277, aspectRadius: 174 },
         ringWidth: 1.7,
         zodiacIconSize: 34,
         zodiacRingOffset: 22,
@@ -118,7 +118,8 @@ const scaleDimensions = (size, base) => {
         centerY: base.centerY * ratio,
         outerRadius: base.outerRadius * ratio,
         innerRadius: base.innerRadius * ratio,
-        houseCircleRadius: base.houseCircleRadius * ratio
+        houseCircleRadius: base.houseCircleRadius * ratio,
+        aspectRadius: (base.aspectRadius || base.innerRadius) * ratio
     };
 };
 
@@ -513,7 +514,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
         }
 
         if (aspects && aspects.length !== 0) {
-            drawAspectLines(ctx, aspects, dims.innerRadius, houseRotationRadians);
+            drawAspectLines(ctx, aspects, dims.aspectRadius, houseRotationRadians);
         }
 
         if (transits && transits.length !== 0) {
