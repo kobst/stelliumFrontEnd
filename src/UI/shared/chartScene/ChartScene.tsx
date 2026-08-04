@@ -15,6 +15,7 @@ import {
   HELIO_ORBIT_RADII,
   NATAL_PLANET_RADIUS,
   SECONDARY_PLANET_RADIUS,
+  TRANSIT_PLANET_RADIUS,
 } from './constants'
 import type {
   BodySelection,
@@ -93,16 +94,16 @@ function OrbitFit({ fitRadius, coveredRightPx, fitNonce = 0 }: { fitRadius: numb
  * frame correctly). Keeps ~0.6 units of vertical breathing room and
  * never crops the wheel horizontally.
  */
-function TopDownFit() {
+function TopDownFit({ extent = 5.6 }: { extent?: number }) {
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
   useEffect(() => {
     const halfV = Math.tan((45 * Math.PI) / 360)
     const aspect = size.width / Math.max(1, size.height)
-    const dist = Math.max(5.6, 5.1 / aspect) / halfV
+    const dist = Math.max(extent, (extent - 0.5) / aspect) / halfV
     camera.position.set(0, dist, dist * 0.04)
     camera.lookAt(0, 0, 0)
-  }, [camera, size])
+  }, [camera, size, extent])
   return null
 }
 
@@ -209,7 +210,7 @@ function ChartSceneImpl({
 
   // external emphasis (chapter being read); internal interaction wins
   // small top-down mounts need bigger glyphs to stay legible
-  const glyphScale = topDown ? 1.6 : 1
+  const glyphScale = topDown ? (relationship ? 2.1 : 1.6) : 1
 
   const highlightSet = useMemo(
     () => (highlightBodies?.length ? new Set(highlightBodies) : null),
@@ -313,7 +314,7 @@ function ChartSceneImpl({
     >
       <SceneThemeProvider value={SCENE_PALETTE}>
       <FrameloopSync paused={paused} />
-      {topDown && <TopDownFit />}
+      {topDown && <TopDownFit extent={relationship || transitFrames ? 6.15 : 5.6} />}
       {!topDown && fitRadius ? <OrbitFit fitRadius={fitRadius} coveredRightPx={coveredRightPx} fitNonce={fitNonce} /> : null}
       <ViewOffset coveredRightPx={coveredRightPx} />
       <color attach="background" args={[background]} />
@@ -427,13 +428,14 @@ function ChartSceneImpl({
 
       {relationship && (
         <>
-          <RelationshipLayer {...relationship} />
+          <RelationshipLayer {...relationship} glyphScale={glyphScale} />
           {/* synastry cross lines: alive once merged, gone in composite */}
           <AspectLines
             aspects={relationship.synastryAspects ?? []}
             natal={{ placements: relationship.a, radius: NATAL_PLANET_RADIUS }}
-            secondary={{ placements: relationship.b, radius: SECONDARY_PLANET_RADIUS }}
+            secondary={{ placements: relationship.b, radius: TRANSIT_PLANET_RADIUS }}
             defaultLayers={['natal', 'secondary']}
+            projectSecondaryOntoNatal
             visible={relationship.blend > 0.75 && relationship.comp < 0.35}
             emphasized
             focus={selection}

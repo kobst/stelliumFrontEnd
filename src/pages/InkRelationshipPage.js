@@ -411,8 +411,42 @@ function InkRelationshipPage() {
     'aria-pressed': pinnedFocus?.key === key,
   }), [pinFocus, pinnedFocus?.key]);
 
+  // idle tour: with no hover/pin, cycle through partner A's planets and
+  // light each one's full aspect web in turn
+  const tourBodies = useMemo(() => {
+    const order = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'asc', 'mc', 'node'];
+    const seen = [];
+    (synastryAspects || []).forEach((aspect) => {
+      if (!seen.includes(aspect.bodyA)) seen.push(aspect.bodyA);
+    });
+    return seen.sort((x, y) => {
+      const xi = order.indexOf(x);
+      const yi = order.indexOf(y);
+      return (xi === -1 ? 99 : xi) - (yi === -1 ? 99 : yi);
+    });
+  }, [synastryAspects]);
+  const [tourIndex, setTourIndex] = useState(0);
+
+  useEffect(() => {
+    if (activeTab !== 'synastry' || hoverFocus || pinnedFocus || tourBodies.length === 0) return undefined;
+    const id = setInterval(
+      () => setTourIndex((index) => (index + 1) % tourBodies.length),
+      3200
+    );
+    return () => clearInterval(id);
+  }, [activeTab, hoverFocus, pinnedFocus, tourBodies.length]);
+
+  const tourBody =
+    activeTab === 'synastry' && !hoverFocus && !pinnedFocus && tourBodies.length
+      ? tourBodies[tourIndex % tourBodies.length]
+      : null;
+
   const focus = hoverFocus || pinnedFocus || {};
-  const highlightA = focus.a?.length ? toSceneBodyNames(focus.a) : undefined;
+  const highlightA = focus.a?.length
+    ? toSceneBodyNames(focus.a)
+    : tourBody
+      ? [tourBody]
+      : undefined;
   const highlightB = focus.b?.length ? toSceneBodyNames(focus.b) : undefined;
 
   const handleSceneHover = useCallback((placement, side) => {
@@ -564,22 +598,6 @@ function InkRelationshipPage() {
                 )}
               </article>
 
-              <div className="ink-relationship__wheel-column">
-                <div className="ink-relationship__medallion ink-relationship__medallion--overview">
-                  <RelationshipScene
-                    scene={scene}
-                    paused={activeTab !== 'overview'}
-                    label={`${aName} and ${bName} synastry bi-wheel`}
-                  />
-                  <span className="ink-annot ink-relationship__overview-annot">
-                    {aName} outer, {bName} inner ↓
-                  </span>
-                </div>
-                <p className="ink-relationship__wheel-caption">
-                  <span aria-hidden="true" />
-                  Two charts drawn in one wheel — {aName} outer, {bName} inner
-                </p>
-              </div>
             </div>
           </div>
         </section>

@@ -147,6 +147,7 @@ function PublicCelebrityRelationship() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState('scores');
+  const [tourIndex, setTourIndex] = useState(0);
   const [askOpen, setAskOpen] = useState(false);
 
   useEffect(() => {
@@ -213,6 +214,34 @@ function PublicCelebrityRelationship() {
     () => toSynastrySceneAspects(relationship?.synastryAspects || []),
     [relationship?.synastryAspects]
   );
+
+  // idle tour: cycle partner A's planets, lighting each one's aspect web
+  const tourBodies = useMemo(() => {
+    const order = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'asc', 'mc', 'node'];
+    const seen = [];
+    (synastryAspects || []).forEach((aspect) => {
+      if (!seen.includes(aspect.bodyA)) seen.push(aspect.bodyA);
+    });
+    return seen.sort((x, y) => {
+      const xi = order.indexOf(x);
+      const yi = order.indexOf(y);
+      return (xi === -1 ? 99 : xi) - (yi === -1 ? 99 : yi);
+    });
+  }, [synastryAspects]);
+
+  useEffect(() => {
+    if (activeSection !== 'scores' || tourBodies.length === 0) return undefined;
+    const id = setInterval(
+      () => setTourIndex((index) => (index + 1) % tourBodies.length),
+      3200
+    );
+    return () => clearInterval(id);
+  }, [activeSection, tourBodies.length]);
+
+  const tourBody =
+    activeSection === 'scores' && tourBodies.length
+      ? tourBodies[tourIndex % tourBodies.length]
+      : null;
   const compositePlacements = useMemo(
     () => toChartScenePlacements(compositeChart?.planets || []),
     [compositeChart?.planets]
@@ -368,6 +397,7 @@ function PublicCelebrityRelationship() {
                               synastryAspects,
                               compositePlacements,
                               compositeAspects,
+                              highlightA: tourBody ? [tourBody] : undefined,
                             }}
                           />
                         </div>
@@ -377,7 +407,7 @@ function PublicCelebrityRelationship() {
                           <p>Both birth charts are needed to draw this relationship wheel.</p>
                         </div>
                       )}
-                      <span className="ink-annot pcr-wheel-annot">{shortA} outer, {shortB} inner ↓</span>
+                      <span className="ink-annot pcr-wheel-annot">{shortA} inner, {shortB} outer ↓</span>
                     </div>
                     <p className="pcr-wheel-caption"><span aria-hidden="true" /> Real ephemeris · synastry bi-wheel</p>
                   </div>

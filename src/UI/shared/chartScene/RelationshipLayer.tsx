@@ -5,14 +5,16 @@ import { PlanetMarker } from './PlanetMarker'
 import type { MarkerState } from './PlanetMarker'
 import { OrbitRings } from './OrbitRings'
 import { lerpAngle, dampFactor } from './utils'
-import { NATAL_PLANET_RADIUS, SECONDARY_PLANET_RADIUS } from './constants'
+import { NATAL_PLANET_RADIUS, TRANSIT_PLANET_RADIUS } from './constants'
 import type { Placement } from './types'
 
 // two-wheel layout (ratios from the design mock, scaled to scene units)
 export const PAIR_X = 6.5 // side-by-side wheel centers at ±x
 export const PAIR_R = 3.8 // each partner wheel's planet radius
-const MERGED_A_R = NATAL_PLANET_RADIUS // partner A → outer ring
-const MERGED_B_R = SECONDARY_PLANET_RADIUS // partner B → inner ring
+const PAIR_RING_R = PAIR_R + 0.55
+const pairRingRadii = [PAIR_RING_R]
+const MERGED_A_R = NATAL_PLANET_RADIUS // partner A → natal ring
+const MERGED_B_R = TRANSIT_PLANET_RADIUS // partner B → transit ring
 const COMPOSITE_R = NATAL_PLANET_RADIUS
 
 const smooth = (t: number) => {
@@ -80,6 +82,8 @@ export interface RelationshipLayerProps {
   compositePlacements?: Placement[]
   highlightA?: string[]
   highlightB?: string[]
+  /** enlarges glyphs for small/top-down mounts (matches ChartScene) */
+  glyphScale?: number
   onHoverBody?: (p: Placement | null, side: 'a' | 'b') => void
   onSelectBody?: (p: Placement, side: 'a' | 'b') => void
 }
@@ -88,10 +92,10 @@ export interface RelationshipLayerProps {
  * The relationship choreography, verbatim from the design mock: at
  * blend 0 the two charts are full wheels side by side, each ringed in
  * its partner's color with a name floating behind it. Scroll drives
- * blend → the wheels glide together, A settling on the outer ring and
- * B on the inner. Comp then collapses every same-name pair toward its
- * midpoint (the composite's real longitudes when supplied): A's copy
- * carries the merged identity, B's fades out en route.
+ * blend → the wheels glide together, A settling on the natal ring and
+ * B on the transit's outer ring. Comp then collapses every same-name
+ * pair toward its midpoint (the composite's real longitudes when
+ * supplied): A's copy carries the merged identity, B's fades out en route.
  */
 export function RelationshipLayer({
   a,
@@ -105,6 +109,7 @@ export function RelationshipLayer({
   compositePlacements,
   highlightA,
   highlightB,
+  glyphScale = 1,
   onHoverBody,
   onSelectBody,
 }: RelationshipLayerProps) {
@@ -159,6 +164,7 @@ export function RelationshipLayer({
         radius={radius}
         color={side === 'a' ? colorA : colorB}
         sizeScale={side === 'b' ? 0.8 : 1}
+        glyphScale={glyphScale}
         hidden={side === 'b' && ec > 0.5}
         state={stateFor(p.body, side)}
         onHover={(hp) => onHoverBody?.(hp, side)}
@@ -168,14 +174,16 @@ export function RelationshipLayer({
   }
 
   const ringScaleA = radiusA / PAIR_R
-  const ringScaleB = (radiusB + (COMPOSITE_R - radiusB) * ec) / PAIR_R
+  const ringRadiusB = PAIR_RING_R + (MERGED_B_R - PAIR_RING_R) * eb
+  const ringScaleB =
+    (ringRadiusB + (COMPOSITE_R - ringRadiusB) * ec) / PAIR_RING_R
 
   return (
     <group>
       {/* partner A wheel */}
       <group position={[groupAX, 0, 0]}>
         <group scale={[ringScaleA, 1, ringScaleA]}>
-          <OrbitRings radii={[PAIR_R + 0.55]} visible={eb < 0.92} />
+          <OrbitRings radii={pairRingRadii} visible={eb < 0.92} />
         </group>
         <NameSprite
           text={nameA}
@@ -189,7 +197,7 @@ export function RelationshipLayer({
       {/* partner B wheel */}
       <group position={[groupBX, 0, 0]}>
         <group scale={[ringScaleB, 1, ringScaleB]}>
-          <OrbitRings radii={[PAIR_R + 0.55]} visible={ec < 0.5} />
+          <OrbitRings radii={pairRingRadii} visible={ec < 0.5} />
         </group>
         <NameSprite
           text={nameB}
