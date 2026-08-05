@@ -257,7 +257,7 @@ export function TransitLayer({
           key={`transit-${p.body}`}
           placement={p}
           radius={TRANSIT_PLANET_RADIUS}
-          sizeScale={0.7}
+          sizeScale={0.85}
           hidden={!visible}
           state={markerStateFor?.(p.body) ?? 'normal'}
           onHover={onHoverBody}

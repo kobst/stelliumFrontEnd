@@ -48,7 +48,7 @@ const SCOPE_OPTIONS = [
     period: 'daily',
     readingDays: 1,
     windowDays: 7,
-    playSeconds: 20,
+    playSeconds: 12,
     fetcher: generateDailyHoroscope,
     supportsDate: true,
   },
@@ -59,7 +59,7 @@ const SCOPE_OPTIONS = [
     period: 'weekly',
     readingDays: 7,
     windowDays: 7,
-    playSeconds: 60,
+    playSeconds: 28,
     fetcher: generateWeeklyHoroscope,
     supportsDate: false,
   },
@@ -70,7 +70,7 @@ const SCOPE_OPTIONS = [
     period: 'monthly',
     readingDays: 30,
     windowDays: 30,
-    playSeconds: 120,
+    playSeconds: 55,
     fetcher: generateMonthlyHoroscope,
     supportsDate: false,
   },
@@ -487,16 +487,6 @@ function HoroscopeExperience({ user, userId, entitlements }) {
     addContextElement(makeTransitContextElement(transit));
   }, [addContextElement]);
 
-  const removeTransitContext = useCallback((key) => {
-    setExperience((previous) => ({
-      ...previous,
-      chatContext: {
-        ...previous.chatContext,
-        transits: previous.chatContext.transits.filter((element) => element.key !== key),
-      },
-    }));
-  }, []);
-
   const handleChatSelectionChange = useCallback((elements) => {
     const next = (elements || []).filter((element) => element.group === 'horoscope');
     setExperience((previous) => {
@@ -644,18 +634,6 @@ function HoroscopeExperience({ user, userId, entitlements }) {
           </div>
         </header>
 
-        <CalendarStrip
-          experience={experience}
-          interval={scopeInterval}
-          readingInterval={currentHoroscope ? readingInterval : null}
-          transitWindows={scopeTransits}
-          playing={playing}
-          canPlay={Boolean(frames?.length)}
-          onTogglePlaying={() => setPlaying(!playing)}
-          onScrub={(milliseconds) => scrubShared(milliseconds, true)}
-          onNow={() => scrubShared(Date.now(), true)}
-        />
-
         <div className={`ihp-stage${skyLens === 'tracker' ? ' is-tracker' : ''}`}>
           <section className="ihp-slot ihp-sky-slot" aria-label="The sky">
             <div className="ihp-lens-row">
@@ -683,7 +661,6 @@ function HoroscopeExperience({ user, userId, entitlements }) {
               </span>
             </div>
 
-            <div className="ihp-lens-panel" hidden={skyLens !== 'wheel'}>
               <div className="ink-card ihp-transit-card">
                 <span className="ihp-transit-card__label">Transits</span>
                 <button
@@ -735,6 +712,7 @@ function HoroscopeExperience({ user, userId, entitlements }) {
                 )}
               </div>
 
+            <div className="ihp-lens-panel" hidden={skyLens !== 'wheel'}>
               <div className="ihp-medallion-shell">
                 <div className="ihp-medallion" aria-label="Your natal chart with the sky at the playhead">
                   {natal.length ? (
@@ -759,6 +737,20 @@ function HoroscopeExperience({ user, userId, entitlements }) {
                   ) : (
                     <div className="ihp-medallion__empty" role="status">
                       Your chart wheel is not available yet.
+                    </div>
+                  )}
+                  {natal.length > 0 && frames && (
+                    <div className="ihp-medallion__date" aria-hidden="true">
+                      <strong>
+                        {new Date(experience.playhead).toLocaleDateString('en-US', {
+                          weekday: 'long', month: 'short', day: 'numeric',
+                        })}
+                      </strong>
+                      <span>
+                        {scopeTransits.filter((transit) => (
+                          transit.startMs <= experience.playhead && experience.playhead <= transit.endMs
+                        )).length} transits in orb
+                      </span>
                     </div>
                   )}
                   {natal.length > 0 && !frames && (
@@ -786,12 +778,26 @@ function HoroscopeExperience({ user, userId, entitlements }) {
                 interval={scopeInterval}
                 transitWindows={scopeTransits}
                 referencedKeys={referencedKeys}
+                activeBodies={activeBodies}
+                bodiesMode={experience.selectedTransits.mode}
                 loading={transitsLoading}
                 error={transitsError}
                 onAddContext={addTransitContext}
                 onScrub={(milliseconds) => scrubShared(milliseconds, true)}
               />
             </div>
+
+            <CalendarStrip
+              experience={experience}
+              interval={scopeInterval}
+              readingInterval={currentHoroscope ? readingInterval : null}
+              transitWindows={scopeTransits}
+              playing={playing}
+              canPlay={Boolean(frames?.length)}
+              onTogglePlaying={() => setPlaying(!playing)}
+              onScrub={(milliseconds) => scrubShared(milliseconds, true)}
+              onNow={() => scrubShared(Date.now(), true)}
+            />
           </section>
 
           <section className="ihp-slot ihp-meaning-slot" aria-label="The meaning">

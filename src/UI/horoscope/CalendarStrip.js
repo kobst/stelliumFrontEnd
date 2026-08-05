@@ -74,9 +74,10 @@ function CalendarStrip({
               const dotCount = Math.min(active.length, dense ? 3 : 5);
               const selected = sameLocalDay(experience.playhead, day);
               const today = sameLocalDay(Date.now(), day);
+              // compact "Mo 3" labels — the strip lives in the sky column now
               const label = dense
                 ? new Date(day).getDate()
-                : formatCalendarDate(day, { weekday: 'short' }).replace(',', '');
+                : `${formatCalendarDate(day, { weekday: 'short' }).replace(',', '').slice(0, 2)} ${new Date(day).getDate()}`;
               return (
                 <button
                   type="button"

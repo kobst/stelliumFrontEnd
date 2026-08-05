@@ -106,9 +106,12 @@
 
 .ihp-stage {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(330px, .85fr);
+  /* wider than the standard ink-wrap so the wheel can breathe */
+  width: min(1520px, 96vw);
+  margin: 0 auto;
+  grid-template-columns: minmax(520px, 1.2fr) minmax(360px, .8fr);
   align-items: start;
-  gap: clamp(20px, 2.6vw, 40px);
+  gap: clamp(24px, 3vw, 52px);
   padding-top: clamp(22px, 3.5vh, 40px);
   padding-bottom: 70px;
 }
@@ -221,6 +224,32 @@
     0 1px 2px rgba(35, 40, 64, .12),
     0 22px 44px -28px rgba(35, 40, 64, .45);
   isolation: isolate;
+}
+
+/* playhead date floating at the wheel hub — the clearest playback cue */
+.ihp-medallion__date {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.ihp-medallion__date strong {
+  font-family: var(--ink-serif, 'EB Garamond', serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(17px, 1.6vw, 24px);
+  color: #232840;
+}
+
+.ihp-medallion__date span {
+  margin-top: 4px;
+  font-size: 12.5px;
+  letter-spacing: .08em;
+  color: rgba(35, 40, 64, .55);
 }
 
 .ihp-medallion canvas {

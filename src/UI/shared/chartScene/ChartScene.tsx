@@ -210,7 +210,7 @@ function ChartSceneImpl({
 
   // external emphasis (chapter being read); internal interaction wins
   // small top-down mounts need bigger glyphs to stay legible
-  const glyphScale = topDown ? (relationship ? 2.1 : 1.6) : 1
+  const glyphScale = topDown ? (relationship || transitFrames ? 2.1 : 1.6) : 1
 
   const highlightSet = useMemo(
     () => (highlightBodies?.length ? new Set(highlightBodies) : null),

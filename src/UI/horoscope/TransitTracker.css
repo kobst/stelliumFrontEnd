@@ -229,3 +229,77 @@
     overflow-x: auto;
   }
 }
+
+/* ── curation controls (filter / sort) ─────────────────────────────── */
+.ihp-tracker__controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 2px 2px 12px;
+}
+
+.ihp-tracker__controls-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(35, 40, 64, .55);
+  margin-right: 2px;
+}
+
+.ihp-tracker__controls-label--sort {
+  margin-left: auto;
+}
+
+.ihp-tracker__toggle {
+  font-family: inherit;
+  font-style: italic;
+  font-size: 13.5px;
+  color: rgba(35, 40, 64, .65);
+  background: none;
+  border: 1px solid rgba(57, 68, 90, .28);
+  border-radius: 999px;
+  padding: 4px 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ihp-tracker__toggle:hover { color: #232840; }
+
+.ihp-tracker__toggle.on {
+  color: #3437a8;
+  border-color: rgba(52, 55, 168, .55);
+  background: rgba(52, 55, 168, .07);
+}
+
+/* today column band behind the lanes */
+.ihp-tracker__todayband {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  background: rgba(57, 68, 90, .06);
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+/* condensed bars inside sweep / grouped lanes */
+.ihp-tracker__bar.is-mini {
+  height: 4px;
+  opacity: .65;
+}
+
+/* show-all / collapse affordance */
+.ihp-tracker__showall {
+  display: block;
+  margin: 14px auto 4px;
+  font-family: inherit;
+  font-style: italic;
+  font-size: 15px;
+  color: #3437a8;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.ihp-tracker__showall:hover { text-decoration: underline; }
