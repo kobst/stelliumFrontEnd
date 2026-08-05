@@ -1163,15 +1163,24 @@
   min-height: 518px;
 }
 
-.ihp-chat-slot .ask-panel__compact-context,
+/* the chat lens is the whole conversation now (the bottom dock is
+   gone), so the panel keeps its own context bar and input */
 .ihp-chat-slot .ask-panel__credit-cost,
-.ihp-chat-slot .ask-panel__input,
 .ihp-chat-slot .ask-panel__suggestions {
   display: none;
 }
 
+.ihp-chat-slot .ask-panel__compact-context {
+  display: block;
+}
+
+.ihp-chat-slot .ask-panel__input {
+  display: flex;
+}
+
 .ihp-chat-slot .ask-panel__messages {
-  min-height: 518px;
+  flex: 1 1 auto;
+  min-height: 320px;
   max-height: min(68vh, 720px);
   gap: 16px;
   padding: 22px 24px;

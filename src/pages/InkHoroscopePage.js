@@ -866,7 +866,6 @@ function HoroscopeExperience({ user, userId, entitlements }) {
                 externalElements={experience.chatContext.transits}
                 syncExternalElements
                 preserveSelectionOnSend
-                selectionLimit={50}
                 onSelectionChange={handleChatSelectionChange}
                 contextLabel="About your horoscope"
                 placeholderText="Ask about your chart or these transits…"
