@@ -375,6 +375,7 @@ function ChartSceneImpl({
           aspectBodies={transitAspectBodies}
           lineBoost={transitLineBoost}
           focus={selection}
+          glyphScale={glyphScale}
           markerStateFor={(body) => {
             const base = stateFor(body, 'transit')
             if (base !== 'normal') return base

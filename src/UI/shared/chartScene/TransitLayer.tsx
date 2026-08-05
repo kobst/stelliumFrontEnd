@@ -194,6 +194,8 @@ interface TransitLayerProps {
   lineBoost?: boolean
   /** selected body anywhere in the scene */
   focus?: BodySelection | null
+  /** glyph magnification, matched to the natal wheel's */
+  glyphScale?: number
   markerStateFor?: (body: string) => MarkerState
   onHoverBody?: (placement: Placement | null) => void
   onSelectBody?: (placement: Placement) => void
@@ -214,6 +216,7 @@ export function TransitLayer({
   aspectBodies,
   lineBoost = false,
   focus = null,
+  glyphScale = 1,
   markerStateFor,
   onHoverBody,
   onSelectBody,
@@ -258,6 +261,7 @@ export function TransitLayer({
           placement={p}
           radius={TRANSIT_PLANET_RADIUS}
           sizeScale={0.85}
+          glyphScale={glyphScale}
           hidden={!visible}
           state={markerStateFor?.(p.body) ?? 'normal'}
           onHover={onHoverBody}
