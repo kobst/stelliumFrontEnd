@@ -47,7 +47,7 @@ const SCOPE_OPTIONS = [
     contextLabel: "Today's reading",
     period: 'daily',
     readingDays: 1,
-    windowDays: 7,
+    windowDays: 1,
     playSeconds: 12,
     fetcher: generateDailyHoroscope,
     supportsDate: true,

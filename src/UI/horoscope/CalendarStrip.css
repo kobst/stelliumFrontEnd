@@ -192,3 +192,129 @@
     justify-content: center;
   }
 }
+
+/* ── continuous track (today + month densities) ─────────────────────── */
+
+.ihp-calendar__continuous {
+  position: relative;
+  height: 52px;
+  min-width: 0;
+  border: 1px solid rgba(57, 68, 90, .18);
+  border-radius: 4px;
+  background: rgba(246, 241, 231, .62);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.ihp-calendar__continuous:focus-visible {
+  border-color: rgba(52, 55, 168, .5);
+  outline: none;
+}
+
+.ihp-calendar__continuous.is-dragging {
+  cursor: ew-resize;
+}
+
+/* transits-in-orb per day, drawn as terrain. Explicit width — an
+   absolutely positioned svg ignores left+right and falls back to its
+   viewBox aspect ratio, squashing the terrain into ~113px. */
+.ihp-calendar__ridge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 34px;
+  pointer-events: none;
+}
+
+.ihp-calendar__ridge path {
+  fill: rgba(52, 55, 168, .13);
+  stroke: rgba(52, 55, 168, .42);
+  stroke-width: .6;
+  vector-effect: non-scaling-stroke;
+}
+
+/* week gridlines (month) / hour ticks (today) */
+.ihp-calendar__grid {
+  position: absolute;
+  top: 6px;
+  bottom: 0;
+  width: 1px;
+  background: rgba(57, 68, 90, .22);
+  pointer-events: none;
+}
+
+.ihp-calendar__grid.is-minor {
+  top: auto;
+  height: 7px;
+  background: rgba(57, 68, 90, .28);
+}
+
+.ihp-calendar__grid label {
+  position: absolute;
+  top: -3px;
+  left: 4px;
+  color: var(--ink-faint);
+  font-size: 10.5px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* exact-date red ticks along the baseline — quiet texture, not a
+   picket fence: a busy month has ~200 of them */
+.ihp-calendar__exact-tick {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 7px;
+  background: var(--madder, #a8483c);
+  opacity: .5;
+  pointer-events: none;
+}
+
+/* editorial stars above the track */
+.ihp-calendar__star {
+  position: absolute;
+  top: 2px;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 400;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+/* faint gold "now" marker distinct from the madder playhead */
+.ihp-calendar__todaytick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(168, 134, 60, .55);
+  pointer-events: none;
+}
+
+/* floating date label while scrubbing, video-scrubber style */
+.ihp-calendar__float {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  padding: 3px 9px;
+  border: 1px solid rgba(57, 68, 90, .3);
+  border-radius: 4px;
+  background: #f7f1e6;
+  box-shadow: 0 2px 6px rgba(35, 40, 64, .18);
+  color: var(--ink);
+  font-size: 12.5px;
+  pointer-events: none;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.ihp-calendar__legend u.is-ridge {
+  width: 22px;
+  height: 9px;
+  border-top: 1px solid rgba(52, 55, 168, .5);
+  border-radius: 2px 6px 0 0 / 2px 9px 0 0;
+  background: rgba(52, 55, 168, .16);
+  text-decoration: none;
+}
