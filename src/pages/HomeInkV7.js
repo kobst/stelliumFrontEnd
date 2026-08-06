@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import GravityIntakeChat from '../UI/gravity/GravityIntakeChat';
 import InkWheel from '../UI/gravity/InkWheel';
 import { loadTrialSession } from '../Utilities/trialApi';
@@ -77,6 +78,8 @@ const HomeInkV7 = () => {
       });
     return () => { active = false; };
   }, []);
+  const { stelliumUser } = useAuth();
+
   // the wheel replaces the hero art once a chart exists (fresh cast or saved)
   const wheelReading = castReading || (savedReading?.bigThree ? savedReading : null);
 
@@ -98,7 +101,13 @@ const HomeInkV7 = () => {
           <a className="hv7-navlink" href="#ways">Features</a>
           <a className="hv7-navlink" href="#examples">Examples</a>
           <a className="hv7-navlink" href="#pricing">Pricing</a>
-          <Link className="hv7-btn hv7-btn--navy hv7-nav-btn" to="/signUp">Get started</Link>
+          {stelliumUser?._id ? (
+            <Link className="hv7-btn hv7-btn--navy hv7-nav-btn" to={`/dashboard/${stelliumUser._id}`}>
+              Open dashboard ✳
+            </Link>
+          ) : (
+            <Link className="hv7-btn hv7-btn--navy hv7-nav-btn" to="/signUp">Get started</Link>
+          )}
         </div>
       </nav>
 

@@ -28,6 +28,7 @@ function getInitials(user) {
 }
 
 function MarketingNav({ marketingLinks = DEFAULT_MARKETING_LINKS, className = '' }) {
+  const { stelliumUser } = useAuth();
   return (
     <nav className={`ink-nav ink-nav--marketing ${className}`.trim()} aria-label="Main navigation">
       <div className="ink-nav__inner">
@@ -43,7 +44,11 @@ function MarketingNav({ marketingLinks = DEFAULT_MARKETING_LINKS, className = ''
           ))}
         </div>
 
-        <Link className="ink-nav__cta" to="/signUp">Get started</Link>
+        {stelliumUser?._id ? (
+          <Link className="ink-nav__cta" to={`/dashboard/${stelliumUser._id}`}>Open dashboard</Link>
+        ) : (
+          <Link className="ink-nav__cta" to="/signUp">Get started</Link>
+        )}
       </div>
     </nav>
   );
