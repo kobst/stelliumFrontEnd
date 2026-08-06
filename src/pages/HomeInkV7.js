@@ -80,8 +80,12 @@ const HomeInkV7 = () => {
   }, []);
   const { stelliumUser } = useAuth();
 
-  // the wheel replaces the hero art once a chart exists (fresh cast or saved)
-  const wheelReading = castReading || (savedReading?.bigThree ? savedReading : null);
+  // the wheel replaces the hero art once a chart exists (fresh cast or
+  // saved) — but a stale anonymous-trial chart never renders for a
+  // signed-in account
+  const wheelReading = stelliumUser?._id
+    ? null
+    : castReading || (savedReading?.bigThree ? savedReading : null);
 
   // The marketing ask-bar has no chart yet: stash the question and take them to the form
   const handleMarketingAsk = (event) => {
@@ -120,7 +124,18 @@ const HomeInkV7 = () => {
               Astral Gravity reads your actual birth chart — not your sun sign — for guidance that genuinely knows you.
             </p>
 
-            {savedReading?.overview && (
+            {/* A signed-in user's reading is their dashboard — never pitch
+                the anonymous trial (or a stale trial session) at them */}
+            {stelliumUser?._id ? (
+              <div className="hv7-saved-reading">
+                <span>
+                  Welcome back{stelliumUser.firstName ? `, ${stelliumUser.firstName}` : ''} — your chart is ready.
+                </span>
+                <Link className="hv7-btn hv7-btn--navy hv7-saved-reading__btn" to={`/dashboard/${stelliumUser._id}`}>
+                  Open dashboard ✳
+                </Link>
+              </div>
+            ) : savedReading?.overview ? (
               <div className="hv7-saved-reading">
                 <span>
                   Welcome back{savedReading.firstName ? `, ${savedReading.firstName}` : ''} — your reading is saved.
@@ -129,10 +144,12 @@ const HomeInkV7 = () => {
                   Continue reading ✳
                 </Link>
               </div>
+            ) : (
+              <GravityIntakeChat onReadingReady={setCastReading} />
             )}
-
-            {!savedReading?.overview && <GravityIntakeChat onReadingReady={setCastReading} />}
-            <p className="hv7-micro">Free overview &nbsp;·&nbsp; <b>3 Gravity Chat questions</b> &nbsp;·&nbsp; no card, no account</p>
+            {!stelliumUser?._id && (
+              <p className="hv7-micro">Free overview &nbsp;·&nbsp; <b>3 Gravity Chat questions</b> &nbsp;·&nbsp; no card, no account</p>
+            )}
           </div>
           <div className="hv7-hero-art">
             {wheelReading ? (
