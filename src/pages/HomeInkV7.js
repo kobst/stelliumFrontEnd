@@ -82,10 +82,12 @@ const HomeInkV7 = () => {
 
   // the wheel replaces the hero art once a chart exists (fresh cast or
   // saved) — but a stale anonymous-trial chart never renders for a
-  // signed-in account
+  // signed-in account, and a saved session without stored planet data
+  // (pre-enrichment trials) falls back to the hero art instead of an
+  // empty ring
   const wheelReading = stelliumUser?._id
     ? null
-    : castReading || (savedReading?.bigThree ? savedReading : null);
+    : castReading || (savedReading?.bigThree && savedReading?.chart?.planets?.length ? savedReading : null);
 
   // The marketing ask-bar has no chart yet: stash the question and take them to the form
   const handleMarketingAsk = (event) => {
