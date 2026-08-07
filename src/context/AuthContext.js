@@ -13,6 +13,7 @@ import { getUserByFirebaseUid } from '../Utilities/api';
 import { initializeEntitlements } from '../Utilities/entitlementsApi';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 import { identifyUser, resetUser } from '../Utilities/analytics';
+import { clearTrialSession } from '../Utilities/trialApi';
 
 const AuthContext = createContext(null);
 
@@ -47,6 +48,12 @@ export const AuthProvider = ({ children }) => {
           if (userData && userData._id) {
             console.log('User found in backend:', userData._id);
             setStelliumUser(userData);
+            // An account with a profile makes any unclaimed anonymous trial
+            // session obsolete — discard it so it can't resurface later
+            // (e.g. "Welcome back, Arlo" on the landing page after logout).
+            // New signups aren't affected: their claim/start-fresh choice
+            // happens on the onboarding page before a profile exists.
+            clearTrialSession();
             identifyUser(userData._id, {
               email: userData.email,
               name: [userData.firstName, userData.lastName].filter(Boolean).join(' '),
