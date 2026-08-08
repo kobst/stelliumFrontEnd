@@ -233,14 +233,17 @@ const HelpCenter = () => {
 
           <div className="help-item">
             <h3>What subscription plans are available?</h3>
-            <p>Stellium offers a <strong>Plus Plan</strong> ($20/month) that includes:</p>
+            <p>Stellium offers a <strong>Plus Plan</strong> ($14.99/month) that includes:</p>
             <ul>
               <li>Everything in Free</li>
-              <li>3 birth chart/relationship analyses per month</li>
-              <li>Gravity Chat included under a 50-question daily fair-use limit</li>
-              <li>Guest charts, relationship overviews, and horoscopes included</li>
-              <li>Purchased credits cover additional reports and never expire</li>
+              <li>3 full reports per billing period (natal or relationship, pooled)</li>
+              <li>Daily and custom transit horoscopes</li>
+              <li>Gravity Chat under a 50-question daily fair-use limit</li>
+              <li>Guest charts and relationship overviews included</li>
             </ul>
+            <p>Need more than your 3 included reports? Buy a Full Natal Report ($9.99)
+            or Full Relationship Report ($7.99) any time — each unlocks permanently
+            and includes 5 bonus Gravity Chat questions.</p>
           </div>
 
           <div className="help-item">

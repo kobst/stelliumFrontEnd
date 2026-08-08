@@ -83,7 +83,7 @@ function SignUpInterceptModal({
           </div>
 
           <div className="pcc-modal__props">
-            <span className="pcc-modal__prop"><span className="ck" aria-hidden="true">&#10022;</span> <b>25 free credits</b> on sign-up</span>
+            <span className="pcc-modal__prop"><span className="ck" aria-hidden="true">&#10022;</span> <b>Free chart + 5 questions</b> on sign-up</span>
             <span className="pcc-modal__prop"><span className="ck" aria-hidden="true">✓</span> No credit card</span>
             <span className="pcc-modal__prop"><span className="ck" aria-hidden="true">✓</span> Spend them on any chart</span>
           </div>

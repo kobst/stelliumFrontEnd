@@ -208,7 +208,7 @@
 /* pricing */
 .hv7-pricing { padding: clamp(52px, 8vh, 92px) 0; }
 .hv7-plans-lede { font-style: italic; font-size: 16.5px; color: var(--ink-soft); max-width: 56ch; margin: 0; }
-.hv7-plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 2.4vw, 28px); align-items: stretch; }
+.hv7-plans { display: grid; grid-template-columns: 1fr 1.08fr 0.92fr; gap: clamp(16px, 2.4vw, 28px); align-items: stretch; }
 .hv7-plan { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 34px 30px 30px; display: grid; grid-template-rows: auto auto auto 1fr auto; gap: 0; text-align: center; }
 .hv7-plan--pop { border: 1.4px solid rgba(52,55,168,0.45); box-shadow: 0 18px 34px -20px rgba(35,40,64,0.35); }
 .hv7-flag { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #f2ecdd; background: var(--navy); border-radius: 999px; padding: 5px 16px; white-space: nowrap; }
@@ -230,6 +230,8 @@
 .hv7-pp { font-family: var(--serif); font-size: 21px; }
 .hv7-pc { color: var(--ink-faint); font-style: italic; margin-right: auto; }
 .hv7-bv { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; color: var(--gold); white-space: nowrap; }
+.hv7-plan--alc { background: none; border-style: dashed; box-shadow: none; }
+.hv7-plan--alc h3 { font-size: 22px; }
 
 /* compare table */
 .hv7-compare { max-width: 880px; margin: clamp(44px, 6vh, 64px) auto 0; }

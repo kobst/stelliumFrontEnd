@@ -14,6 +14,12 @@ const CREDIT_PACK_PRODUCTS = {
   '250': 'CREDIT_PACK_250',
 };
 
+/** Maps an entity type to its simple-pricing one-time report product type. */
+const REPORT_PRODUCTS = {
+  BIRTH_CHART: 'NATAL_REPORT',
+  RELATIONSHIP: 'RELATIONSHIP_REPORT',
+};
+
 /**
  * Hook to handle Stripe checkout flows and post-checkout return
  * @param {Object} user - The user object
@@ -49,11 +55,13 @@ export function useCheckout(user, onSuccess) {
         setSuccessMessage('Welcome to Plus! Your 3 included reports are ready.');
       } else if (purchased === 'true') {
         const typeMessages = {
-          BIRTH_CHART: 'Birth chart analysis unlocked!',
-          RELATIONSHIP: 'Relationship analysis unlocked!',
+          NATAL_REPORT: 'Natal report unlocked! Plus 5 questions to discuss it.',
+          RELATIONSHIP_REPORT: 'Relationship report unlocked! Plus 5 questions to discuss it.',
+          BIRTH_CHART: 'Birth chart analysis unlocked!', // Legacy credit model
+          RELATIONSHIP: 'Relationship analysis unlocked!', // Legacy credit model
           QUESTION_PACK: 'Question pack added to your account!', // Legacy
-          CREDIT_PACK: '100 credits added to your account!',
-          CREDIT_PACK_250: '250 credits added to your account!',
+          CREDIT_PACK: '100 credits added to your account!', // Legacy
+          CREDIT_PACK_250: '250 credits added to your account!', // Legacy
         };
         setSuccessMessage(typeMessages[purchaseType] || 'Purchase successful!');
       }
@@ -192,6 +200,53 @@ export function useCheckout(user, onSuccess) {
   );
 
   /**
+   * Purchase a one-time full report (simple pricing).
+   * @param {string} entityType - 'BIRTH_CHART' | 'RELATIONSHIP'
+   * @param {string} entityId - the chart / composite-chart id to unlock
+   */
+  const purchaseReport = useCallback(
+    async (entityType, entityId) => {
+      if (!user?._id) {
+        setError('Please sign in to purchase');
+        return { success: false, error: 'Not signed in' };
+      }
+
+      const productType = REPORT_PRODUCTS[entityType];
+      if (!productType || !entityId) {
+        setError('Invalid report type or ID');
+        return { success: false, error: 'Invalid parameters' };
+      }
+
+      trackCheckoutStarted(productType);
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const { successUrl, cancelUrl } = buildCheckoutUrls(productType, entityId);
+        const result = await createPurchaseCheckout(
+          user._id,
+          productType,
+          entityId,
+          successUrl,
+          cancelUrl
+        );
+
+        if (result?.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+          return { success: true };
+        }
+        throw new Error('No checkout URL received');
+      } catch (err) {
+        console.error('Error starting report checkout:', err);
+        setError(err.message || 'Failed to start checkout');
+        setIsLoading(false);
+        return { success: false, error: err.message };
+      }
+    },
+    [user?._id, buildCheckoutUrls]
+  );
+
+  /**
    * Purchase a credit pack.
    * @param {'100'|'250'} [packId='100'] - which pack to buy. '100' = $10 / 100 credits,
    *   '250' = $20 / 250 credits.
@@ -288,6 +343,7 @@ export function useCheckout(user, onSuccess) {
     // Actions
     startSubscription,
     purchaseAnalysis,
+    purchaseReport,
     purchaseCreditPack,
     openCustomerPortal,
     clearError,

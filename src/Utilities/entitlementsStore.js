@@ -9,13 +9,17 @@ import { canStartFullReport as canStartFullReportPolicy } from './subscriptionPo
 
 // Default/initial state
 const initialState = {
+  // Which pricing model the backend is enforcing; the UI branches on it.
+  // 'credits' = legacy credit system, 'simple' = Free/Plus + one-time reports.
+  pricingModel: 'credits',
+
   // Plan info
   plan: null, // 'FREE' | 'PLUS' | null
   planActiveUntil: null,
   isSubscriptionActive: false,
   hasEverSubscribed: false,
 
-  // Credits (unified system)
+  // Credits (legacy credit system; all zero under simple pricing)
   credits: {
     total: 0,        // monthly + pack
     monthly: 0,      // from monthly allotment
@@ -24,11 +28,21 @@ const initialState = {
     resetDate: null,
   },
 
+  // Simple-pricing chat allowances (unused under credit pricing)
+  freeQuestions: {
+    allowance: 0,  // lifetime free chat questions granted
+    remaining: 0,  // lifetime free chat questions left
+  },
+  dailyQuestionsRemaining: 0, // Plus fair-use questions left today
+
   fullReportQuota: {
     limit: 0,
     remaining: 0,
     resetsAt: null,
   },
+
+  // Report unlocks grandfathered from the credit migration (simple pricing)
+  grandfatheredReportUnlocks: 0,
 
   // Unlocked analyses
   unlockedAnalyses: {
@@ -112,6 +126,7 @@ const useEntitlementsStore = create((set, get) => ({
       const isPlus = normalizedPlan === 'PLUS';
 
       set({
+        pricingModel: entitlementsData?.pricingModel || 'credits',
         plan: normalizedPlan,
         planActiveUntil: entitlementsData?.planActiveUntil
           ? new Date(entitlementsData.planActiveUntil)
@@ -128,6 +143,13 @@ const useEntitlementsStore = create((set, get) => ({
             ? new Date(entitlementsData.credits.resetDate)
             : null,
         },
+
+        freeQuestions: {
+          allowance: entitlementsData?.freeQuestionsAllowance ?? 0,
+          remaining: entitlementsData?.freeQuestionsRemaining ?? 0,
+        },
+        dailyQuestionsRemaining: entitlementsData?.dailyQuestionsRemaining ?? 0,
+        grandfatheredReportUnlocks: entitlementsData?.grandfatheredReportUnlocks ?? 0,
 
         fullReportQuota: {
           limit: entitlementsData?.fullReportQuota?.limit || 0,
@@ -184,10 +206,12 @@ const useEntitlementsStore = create((set, get) => ({
   useQuestion: async (userId) => {
     if (!userId) return { success: false, error: 'No user ID' };
 
+    const simple = get().pricingModel === 'simple';
     let creditsSnapshot = null;
     try {
       set({ isLoading: true });
-      creditsSnapshot = get().applyOptimisticCreditSpend(1);
+      // Optimistic spend only applies to the legacy credit wallet.
+      if (!simple) creditsSnapshot = get().applyOptimisticCreditSpend(1);
       const result = await apiUseQuestion(userId);
 
       // Reconcile against backend state, but keep the optimistic deduction if refresh fails.
@@ -198,8 +222,13 @@ const useEntitlementsStore = create((set, get) => ({
         set({ isLoading: false });
       }
 
-      const updatedCredits = get().credits.total;
-      get().showToast(`1 credit used. ${updatedCredits} remaining.`, 'info');
+      if (simple) {
+        const remaining = get().getChatQuestionsRemaining();
+        get().showToast(`${remaining} question${remaining === 1 ? '' : 's'} left.`, 'info');
+      } else {
+        const updatedCredits = get().credits.total;
+        get().showToast(`1 credit used. ${updatedCredits} remaining.`, 'info');
+      }
 
       return { success: true, result };
     } catch (error) {
@@ -268,6 +297,27 @@ const useEntitlementsStore = create((set, get) => ({
 
   // ========== HELPERS / SELECTORS ==========
 
+  /** True when the backend is enforcing the simple (Free/Plus) model. */
+  isSimplePricing: () => get().pricingModel === 'simple',
+
+  /**
+   * Chat questions the user has left right now. Under simple pricing this is
+   * the Plus daily allowance (when subscribed) or the lifetime free allowance;
+   * under credit pricing it falls back to the credit balance.
+   */
+  getChatQuestionsRemaining: () => {
+    const state = get();
+    if (state.pricingModel === 'simple') {
+      return state.isPlusUser()
+        ? state.dailyQuestionsRemaining
+        : state.freeQuestions.remaining;
+    }
+    return state.credits.total;
+  },
+
+  /** Whether the user can ask at least one more chat question. */
+  canAskQuestion: () => get().getChatQuestionsRemaining() > 0,
+
   /**
    * Check if user is on Plus plan (also accepts 'PREMIUM' for backward compatibility)
    */
@@ -310,9 +360,13 @@ const useEntitlementsStore = create((set, get) => ({
       return true;
     }
 
+    if (state.pricingModel === 'simple') {
+      return state.canStartFullReport(entityType);
+    }
+
     // Check if user has enough credits to unlock
     const cost = entityType === 'birthChart' ? CREDIT_COSTS.FULL_NATAL : CREDIT_COSTS.FULL_RELATIONSHIP;
-    
+
     return state.credits.total >= cost;
   },
 
@@ -324,9 +378,18 @@ const useEntitlementsStore = create((set, get) => ({
     return state.credits.total >= cost;
   },
 
-  /** Check pooled quota first, then the appropriate credit wallet. */
+  /**
+   * Whether the user can start a full report WITHOUT paying now. Under simple
+   * pricing that means Plus quota or a grandfathered unlock remains; otherwise
+   * they go through the one-time purchase flow. Credit pricing uses the pooled
+   * quota then the credit wallet.
+   */
   canStartFullReport: (entityType) => {
     const state = get();
+    if (state.pricingModel === 'simple') {
+      const hasQuota = state.isPlusUser() && state.fullReportQuota.remaining > 0;
+      return hasQuota || (state.grandfatheredReportUnlocks || 0) > 0;
+    }
     return canStartFullReportPolicy({
       entityType,
       isPlus: state.isPlusUser(),
@@ -363,6 +426,8 @@ const useEntitlementsStore = create((set, get) => ({
    */
   canCreateRelationship: () => {
     const state = get();
+    // Relationship overviews are free for everyone under simple pricing.
+    if (state.pricingModel === 'simple') return true;
     return state.isPlusUser() || state.credits.total >= CREDIT_COSTS.RELATIONSHIP_OVERVIEW;
   },
 

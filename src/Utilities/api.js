@@ -2209,10 +2209,14 @@ export const enhancedChatForUserBirthChart = async (userId, requestBody) => {
       method: HTTP_POST,
       body: JSON.stringify(requestBody)
     });
-    
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      const error = new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      error.status = response.status;
+      error.statusCode = response.status;
+      error.details = errorData;
+      throw error;
     }
     
     const data = await response.json();
@@ -2269,12 +2273,17 @@ export const enhancedChatForRelationship = async (compositeChartId, query, score
       console.error('❌ Response headers:', Object.fromEntries(response.headers.entries()));
       
       // Try to parse as JSON, fall back to text error
+      let errorData = null;
       try {
-        const errorData = JSON.parse(responseText);
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        errorData = JSON.parse(responseText);
       } catch (parseError) {
         throw new Error(`HTTP error! status: ${response.status}, response: ${responseText.substring(0, 200)}...`);
       }
+      const error = new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      error.status = response.status;
+      error.statusCode = response.status;
+      error.details = errorData;
+      throw error;
     }
     
     const responseText = await response.text();
@@ -2353,7 +2362,11 @@ export const enhancedChatForHoroscope = async (userId, requestBody) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      const error = new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      error.status = response.status;
+      error.statusCode = response.status;
+      error.details = errorData;
+      throw error;
     }
 
     return await response.json();
