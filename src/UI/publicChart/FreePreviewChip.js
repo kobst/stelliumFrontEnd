@@ -9,7 +9,7 @@ function FreePreviewChip({ onClick }) {
     <button type="button" className="pcc pcc-free-chip" onClick={onClick}>
       <span className="pcc-free-chip__g" aria-hidden="true">&#10022;</span>
       <span className="pcc-free-chip__txt">
-        Free preview · <span className="pcc-free-chip__b">25 credits</span> on sign-up
+        Free preview · <span className="pcc-free-chip__b">free chart</span> on sign-up
       </span>
       <span className="pcc-free-chip__go">Start free →</span>
     </button>

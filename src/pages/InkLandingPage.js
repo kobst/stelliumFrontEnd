@@ -404,7 +404,7 @@ function InkLandingPage() {
                 <a className="ink-btn ink-btn--ghost" href="#ways">See how it works</a>
               </div>
               <p className="ink-landing__micro">
-                No credit card <span aria-hidden="true">·</span> <b>25 welcome credits</b>
+                No credit card <span aria-hidden="true">·</span> <b>free chart + 5 questions</b>
               </p>
             </div>
 
@@ -524,24 +524,24 @@ function InkLandingPage() {
         <section className="ink-wrap ink-landing__pricing" id="pricing">
           <div className="ink-sect-head">
             <span className="ink-eyebrow">Choose your plan</span>
-            <h2>Choose how deep you want to <span className="ink-italic">go.</span></h2>
+            <h2>Start free. Go deeper <span className="ink-italic">when you&rsquo;re ready.</span></h2>
             <p className="ink-landing__pricing-lede">
-              Plus includes everyday guidance and three full reports each billing period.
-              Credit packs cover extra reports and never expire.
+              Even Free reads your actual birth chart — not your sun sign.
+              No card, no account required to start.
             </p>
           </div>
 
           <div className="ink-landing__plans">
             <div className="ink-landing__plan">
               <h3>Free</h3>
-              <p className="pd">Explore your chart and sample features.</p>
+              <p className="pd">Your real chart, read back to you.</p>
               <div className="price">$0 <span className="per">/ forever</span></div>
               <ul>
-                <li><span>Weekly &amp; monthly horoscopes included</span></li>
-                <li><span>Daily horoscopes available for 1 credit</span></li>
-                <li><span>Unlimited chart &amp; relationship creation</span></li>
-                <li><span><span className="gold">25 welcome credits</span> on signup</span></li>
-                <li><span>Buy more credits anytime</span></li>
+                <li><span><span className="gold">Full birth chart overview</span> on signup</span></li>
+                <li><span>Weekly &amp; monthly horoscopes — unlimited</span></li>
+                <li><span>Unlimited charts — friends, family, partners</span></li>
+                <li><span>Relationship overviews for any two charts</span></li>
+                <li><span>5 Gravity Chat questions to start</span></li>
               </ul>
               <Link className="ink-btn ink-btn--ghost" to="/signUp">Get started free</Link>
             </div>
@@ -549,14 +549,14 @@ function InkLandingPage() {
             <div className="ink-landing__plan ink-landing__plan--pop">
               <span className="flag">Most popular</span>
               <h3>Plus</h3>
-              <p className="pd">Everyday guidance plus three full reports per billing period.</p>
-              <div className="price">$20 <span className="per">/ month</span></div>
+              <p className="pd">Live with your chart daily.</p>
+              <div className="price">$14.99 <span className="per">/ month</span></div>
               <ul>
                 <li><span><b>Everything in Free, plus —</b></span></li>
-                <li><span><span className="gold">3 full reports</span> per billing period (natal or relationship)</span></li>
-                <li><span>Gravity Chat included — up to 50 / day</span></li>
-                <li><span>Daily horoscopes tuned to your chart</span></li>
-                <li><span>Extra reports with credits after your quota</span></li>
+                <li><span>Daily horoscopes tuned to your transits</span></li>
+                <li><span>Custom transit horoscopes — any date range</span></li>
+                <li><span>Gravity Chat — <span className="gold">50 questions / day</span></span></li>
+                <li><span><span className="gold">3 full reports</span> a month — natal or relationship, any mix</span></li>
               </ul>
               <div>
                 <Link className="ink-btn ink-btn--navy" to="/signUp">Start Plus ✳</Link>
@@ -565,18 +565,17 @@ function InkLandingPage() {
             </div>
 
             <div className="ink-landing__plan">
-              <h3>Credit Pack</h3>
-              <p className="pd">One-time credits. No subscription.</p>
+              <h3>Single reports</h3>
+              <p className="pd">Not ready to subscribe? Buy one deep-dive. No subscription needed.</p>
               <div className="packs">
-                <div className="pack"><span className="pp">$10</span><span className="pc">100 credits</span></div>
-                <div className="pack pack--best"><span className="pp">$20</span><span className="pc">250 credits</span><span className="bv">Best value</span></div>
+                <div className="pack"><span className="pp">$9.99</span><span className="pc">Full Natal Report</span></div>
+                <div className="pack"><span className="pp">$7.99</span><span className="pc">Full Relationship Report</span></div>
               </div>
               <ul>
-                <li><span>Credits <span className="gold">never expire</span></span></li>
-                <li><span>Buy extra reports or any credit action</span></li>
-                <li><span>Stack with Free or Plus</span></li>
+                <li><span>Unlocks <span className="gold">permanently</span> — buy once, revisit forever</span></li>
+                <li><span>Includes 5 bonus Gravity Chat questions to discuss it</span></li>
               </ul>
-              <Link className="ink-btn ink-btn--ghost" to="/signUp">Buy credits</Link>
+              <Link className="ink-btn ink-btn--ghost" to="/signUp">Buy a report</Link>
             </div>
           </div>
 
@@ -584,23 +583,22 @@ function InkLandingPage() {
             <h3>What&rsquo;s <span className="ink-italic">in</span> each plan</h3>
             <table>
               <thead>
-                <tr><th>&nbsp;</th><th>Free</th><th className="pl">Plus</th><th>Credit cost</th></tr>
+                <tr><th>&nbsp;</th><th>Free</th><th className="pl">Plus</th></tr>
               </thead>
               <tbody>
-                <tr><td>Daily horoscope</td><td>1 credit / day</td><td><span className="yes">✓</span></td><td><span className="cr">1</span></td></tr>
-                <tr><td>Weekly horoscope</td><td><span className="yes">✓</span></td><td><span className="yes">✓</span></td><td>—</td></tr>
-                <tr><td>Monthly horoscope</td><td><span className="yes">✓</span></td><td><span className="yes">✓</span></td><td>—</td></tr>
-                <tr><td>Guest chart + short overview</td><td>Uses credits</td><td>Included</td><td><span className="cr">1</span></td></tr>
-                <tr><td>Relationship overview + pattern</td><td>Uses credits</td><td>Included</td><td><span className="cr">5</span></td></tr>
-                <tr><td>Gravity Chat</td><td>1 credit each</td><td>50 / day</td><td><span className="cr">1</span></td></tr>
-                <tr><td>Natal report</td><td>Uses credits</td><td>Uses 3-report pool</td><td><span className="cr">75</span></td></tr>
-                <tr><td>Relationship report</td><td>Uses credits</td><td>Uses same pool</td><td><span className="cr">60</span></td></tr>
-                <tr><td>Welcome credits</td><td><span className="cr">25</span></td><td>—</td><td>—</td></tr>
+                <tr><td>Birth chart overview</td><td><span className="yes">✓</span></td><td><span className="yes">✓</span></td></tr>
+                <tr><td>Create charts — self, friends, partners</td><td><span className="yes">✓</span></td><td><span className="yes">✓</span></td></tr>
+                <tr><td>Relationship compatibility overviews</td><td><span className="yes">✓</span></td><td><span className="yes">✓</span></td></tr>
+                <tr><td>Weekly &amp; monthly horoscopes</td><td><span className="yes">✓</span></td><td><span className="yes">✓</span></td></tr>
+                <tr><td>Gravity Chat</td><td>5 questions</td><td>50 / day</td></tr>
+                <tr><td>Daily horoscopes</td><td>—</td><td><span className="yes">✓</span></td></tr>
+                <tr><td>Custom transit horoscopes</td><td>—</td><td><span className="yes">✓</span></td></tr>
+                <tr><td>Full reports — natal or relationship</td><td>$9.99 / $7.99 each</td><td>3 a month, then à la carte</td></tr>
               </tbody>
             </table>
             <p className="fine">
-              Plus reports are one pooled quota across natal and relationship. Unused reports
-              don&rsquo;t carry over — purchased credits do.
+              Plus reports are one pooled allowance across natal and relationship, resetting on
+              your billing date. Purchased reports unlock permanently.
             </p>
           </div>
         </section>

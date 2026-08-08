@@ -311,7 +311,9 @@ function HoroscopeExperience({ user, userId, entitlements }) {
       setHoroscopeErrors((previous) => ({
         ...previous,
         [period]: error?.status === 402
-          ? 'A daily horoscope costs 1 credit. Buy credits to unlock today’s reading.'
+          ? (entitlements?.isSimplePricing
+              ? 'Daily horoscopes are included with Plus. Upgrade to unlock today’s reading.'
+              : 'A daily horoscope costs 1 credit. Buy credits to unlock today’s reading.')
           : 'We couldn’t load this reading right now.',
       }));
     } finally {

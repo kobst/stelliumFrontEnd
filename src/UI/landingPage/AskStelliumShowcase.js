@@ -102,7 +102,7 @@ function AskStelliumShowcase() {
             Stellium reads your actual chart data — not generic horoscopes.
           </p>
           <p className="ask-showcase__credit-nudge">
-            Just 1 credit per question — included in every plan.
+            5 free questions to start · 50 a day with Plus.
           </p>
         </div>
 
@@ -189,7 +189,7 @@ function AskStelliumShowcase() {
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                 </svg>
-                Included with Plus · 1 credit on Free
+                50 a day with Plus · 5 free to start
               </div>
               <div className="ask-showcase__input-wrapper">
                 {hasContext && (

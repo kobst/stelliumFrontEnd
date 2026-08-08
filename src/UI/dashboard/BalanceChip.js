@@ -42,6 +42,7 @@ function BalanceChip({ entitlements, credits, onManage, onBuyCredits }) {
   }, [open]);
 
   const isPlus = !!entitlements?.isPlus;
+  const isSimple = !!entitlements?.isSimplePricing;
   const pack = credits?.pack ?? entitlements?.credits?.pack ?? 0;
   const total = credits?.total ?? entitlements?.credits?.total ?? 0;
   // Spendable balance: Plus spends purchased (pack) credits; Free spends its full balance.
@@ -53,6 +54,7 @@ function BalanceChip({ entitlements, credits, onManage, onBuyCredits }) {
   const meterPct = reportsLimit > 0
     ? Math.max(0, Math.min(100, (reportsRemaining / reportsLimit) * 100))
     : 0;
+  const questionsLeft = entitlements?.chatQuestionsRemaining ?? 0;
 
   const handleManage = () => {
     setOpen(false);
@@ -62,6 +64,80 @@ function BalanceChip({ entitlements, credits, onManage, onBuyCredits }) {
     setOpen(false);
     onBuyCredits?.();
   };
+
+  // ---- Simple pricing: plan chip + questions/reports popover (no credits) ----
+  if (isSimple) {
+    return (
+      <div className="md-balance-wrap" ref={wrapRef}>
+        <button
+          type="button"
+          className="md-balance-chip"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <GoldDiamond />
+          <span className="md-balance-chip__lbl">{isPlus ? 'Plus' : 'Free'}</span>
+          <span className="md-balance-chip__chev">▾</span>
+        </button>
+
+        <div className={`md-balance-pop${open ? ' open' : ''}`} role="menu">
+          <div className="md-pop-thread" />
+          <div className="md-pop-body">
+            <div className="md-pop-row">
+              <span className="md-pop-plan">
+                <span className="md-pop-plan-label">Your plan</span>
+                <span className="md-pop-plan-badge">{isPlus ? 'PLUS' : 'FREE'}</span>
+              </span>
+              <button type="button" className="md-pop-manage" onClick={handleManage}>
+                {isPlus ? 'Manage' : 'Upgrade'}
+              </button>
+            </div>
+
+            <div className="md-pop-divider" />
+
+            {isPlus ? (
+              <div className="md-pop-metric">
+                <div className="md-pop-metric-top">
+                  <span className="md-pop-label">Included reports</span>
+                  <span className="md-pop-val md-pop-val--reports">
+                    {reportsRemaining} of {reportsLimit} left
+                  </span>
+                </div>
+                <div className="md-pop-meter">
+                  <div className="md-pop-meter__fill" style={{ width: `${meterPct}%` }} />
+                </div>
+                <div className="md-pop-sub">Resets next billing period · natal or relationship</div>
+              </div>
+            ) : (
+              <div className="md-pop-upsell">
+                <div className="md-pop-upsell__text">
+                  Go Plus for daily horoscopes, 50 questions a day, and 3 full reports a month.
+                </div>
+                <button type="button" className="md-pop-upgrade" onClick={handleManage}>
+                  Upgrade to Plus — $14.99/mo
+                </button>
+              </div>
+            )}
+
+            <div className="md-pop-divider" />
+
+            <div className="md-pop-metric">
+              <div className="md-pop-metric-top">
+                <span className="md-pop-label">Gravity Chat</span>
+                <span className="md-pop-val md-pop-val--credits">
+                  {isPlus ? `${questionsLeft} today` : `${questionsLeft} left`}
+                </span>
+              </div>
+              <div className="md-pop-sub">
+                {isPlus ? '50 questions a day · fair use' : 'Free questions · upgrade for 50 a day'}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="md-balance-wrap" ref={wrapRef}>

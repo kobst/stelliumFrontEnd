@@ -52,6 +52,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
   const canStartFullReport = useEntitlementsStore((state) => state.canStartFullReport);
   const applyReportBilling = useEntitlementsStore((state) => state.applyReportBilling);
   const fetchEntitlements = useEntitlementsStore((state) => state.fetchEntitlements);
+  const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
   const usesIncludedReport = isPlus && fullReportQuota.remaining > 0;
   const availableOverageCredits = isPlus ? credits.pack : credits.total;
 
@@ -305,7 +306,9 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
               ) : (
                 usesIncludedReport
                   ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
-                  : `Start 360° Analysis (${CREDIT_COSTS.FULL_RELATIONSHIP} credits)`
+                  : isSimple
+                    ? 'Unlock this report — $7.99'
+                    : `Start 360° Analysis (${CREDIT_COSTS.FULL_RELATIONSHIP} credits)`
               )}
             </button>
           ) : (
@@ -313,7 +316,9 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
               <p className="locked-content__confirm-text">
                 {usesIncludedReport
                   ? `This uses 1 included report. You'll have ${fullReportQuota.remaining - 1} remaining this period.`
-                  : `This will use ${CREDIT_COSTS.FULL_RELATIONSHIP} credits. You'll have ${availableOverageCredits - CREDIT_COSTS.FULL_RELATIONSHIP} remaining.`}
+                  : isSimple
+                    ? 'This report unlocks permanently and includes 5 chat questions.'
+                    : `This will use ${CREDIT_COSTS.FULL_RELATIONSHIP} credits. You'll have ${availableOverageCredits - CREDIT_COSTS.FULL_RELATIONSHIP} remaining.`}
               </p>
               <div className="locked-content__confirm-actions">
                 <button
@@ -334,8 +339,12 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
 
           <p className="prompt-credit-balance">
             {isPlus
-              ? `${fullReportQuota.remaining} included reports · ${credits.pack} purchased credits`
-              : `You have ${credits.total} credits`}
+              ? isSimple
+                ? `${fullReportQuota.remaining} included reports this period`
+                : `${fullReportQuota.remaining} included reports · ${credits.pack} purchased credits`
+              : isSimple
+                ? 'One-time purchase · or go Plus for 3 reports a month'
+                : `You have ${credits.total} credits`}
           </p>
         </div>
 
@@ -345,6 +354,8 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
           creditsNeeded={CREDIT_COSTS.FULL_RELATIONSHIP}
           creditsAvailable={availableOverageCredits}
           reportType="RELATIONSHIP"
+          entityType="RELATIONSHIP"
+          entityId={compositeId}
           onBuyCredits={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
           onSubscribe={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
         />

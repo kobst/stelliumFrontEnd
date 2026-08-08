@@ -13,7 +13,9 @@ function SubscriptionSettings({ userId, user, entitlements, onNavigateTab }) {
   const [selectedPack, setSelectedPack] = useState('250');
 
   const isPlus = !!entitlements?.isPlus;
+  const isSimple = !!entitlements?.isSimplePricing;
   const planLabel = (entitlements?.plan || (isPlus ? 'plus' : 'free')).toUpperCase();
+  const questionsLeft = entitlements?.chatQuestionsRemaining ?? 0;
 
   const reportsLimit = entitlements?.fullReportQuota?.limit || (isPlus ? 3 : 0);
   const reportsRemaining = entitlements?.fullReportQuota?.remaining ?? 0;
@@ -68,69 +70,93 @@ function SubscriptionSettings({ userId, user, entitlements, onNavigateTab }) {
           </div>
           <div className="ss-meter"><div className="ss-meter__fill" style={{ width: `${meterPct}%` }} /></div>
           <div className="ss-note">
-            Use on birth charts or relationships. Additional reports use purchased credits. Resets next billing period.
+            {isSimple
+              ? 'Use on birth charts or relationships. Extra reports are one-time purchases ($9.99 natal / $7.99 relationship). Resets next billing period.'
+              : 'Use on birth charts or relationships. Additional reports use purchased credits. Resets next billing period.'}
           </div>
         </div>
       )}
 
-      {/* Purchased credits + pack picker */}
-      <div className="ss-card ss-card--tonal">
-        <div className="ss-card-label ss-card-label--gold">
-          <span className="ss-ic ss-ic--gold">⚡</span> Purchased Credits
-        </div>
-        <div className="ss-metric">
-          <span className="ss-metric__n ss-metric__n--credits">{creditBalance}</span>
-          <span className="ss-metric__unit">remaining</span>
-        </div>
-        <div className="ss-note">Pack credits never expire.</div>
-
-        <div className="ss-costs">
-          <div className="ss-costs__lbl">Credit costs</div>
-          <div className="ss-costs__row">
-            Birth chart report <span className="ss-costs__c">{CREDIT_COSTS.FULL_NATAL} credits</span>
+      {/* Simple pricing: Gravity Chat allowance (no credits) */}
+      {isSimple && (
+        <div className="ss-card ss-card--tonal">
+          <div className="ss-card-label ss-card-label--gold">
+            <span className="ss-ic ss-ic--gold">✦</span> Gravity Chat
           </div>
-          <div className="ss-costs__row">
-            Relationship report <span className="ss-costs__c">{CREDIT_COSTS.FULL_RELATIONSHIP} credits</span>
+          <div className="ss-metric">
+            <span className="ss-metric__n ss-metric__n--credits">{questionsLeft}</span>
+            <span className="ss-metric__unit">{isPlus ? 'questions left today' : 'free questions left'}</span>
           </div>
-          <div className="ss-costs__row">
-            Gravity Chat question <span className="ss-costs__c">{askCost} {askCost === 1 ? 'credit' : 'credits'}</span>
+          <div className="ss-note">
+            {isPlus
+              ? '50 questions a day under fair use. Resets daily.'
+              : 'Upgrade to Plus for 50 questions a day, plus daily horoscopes and 3 reports a month.'}
           </div>
         </div>
+      )}
 
-        <div className="ss-pack-label">Add credits</div>
-        <div className="ss-pack-grid">
-          {PACKS.map((pack) => (
-            <button
-              key={pack.id}
-              type="button"
-              className={`ss-pack${pack.tag ? ' ss-pack--tagged' : ''}${selectedPack === pack.id ? ' ss-pack--active' : ''}`}
-              onClick={() => setSelectedPack(pack.id)}
-              aria-pressed={selectedPack === pack.id}
-            >
-              {pack.tag && <span className="ss-pack__tag">{pack.tag}</span>}
-              <span className="ss-pack__radio" />
-              <div className="ss-pack__credits">{pack.credits}<span className="ss-pack__unit">credits</span></div>
-              <div className="ss-pack__price">{pack.price} <span className="ss-pack__per">{pack.per}</span></div>
-            </button>
-          ))}
+      {/* Legacy credits: purchased balance + pack picker */}
+      {!isSimple && (
+        <div className="ss-card ss-card--tonal">
+          <div className="ss-card-label ss-card-label--gold">
+            <span className="ss-ic ss-ic--gold">⚡</span> Purchased Credits
+          </div>
+          <div className="ss-metric">
+            <span className="ss-metric__n ss-metric__n--credits">{creditBalance}</span>
+            <span className="ss-metric__unit">remaining</span>
+          </div>
+          <div className="ss-note">Pack credits never expire.</div>
+
+          <div className="ss-costs">
+            <div className="ss-costs__lbl">Credit costs</div>
+            <div className="ss-costs__row">
+              Birth chart report <span className="ss-costs__c">{CREDIT_COSTS.FULL_NATAL} credits</span>
+            </div>
+            <div className="ss-costs__row">
+              Relationship report <span className="ss-costs__c">{CREDIT_COSTS.FULL_RELATIONSHIP} credits</span>
+            </div>
+            <div className="ss-costs__row">
+              Gravity Chat question <span className="ss-costs__c">{askCost} {askCost === 1 ? 'credit' : 'credits'}</span>
+            </div>
+          </div>
+
+          <div className="ss-pack-label">Add credits</div>
+          <div className="ss-pack-grid">
+            {PACKS.map((pack) => (
+              <button
+                key={pack.id}
+                type="button"
+                className={`ss-pack${pack.tag ? ' ss-pack--tagged' : ''}${selectedPack === pack.id ? ' ss-pack--active' : ''}`}
+                onClick={() => setSelectedPack(pack.id)}
+                aria-pressed={selectedPack === pack.id}
+              >
+                {pack.tag && <span className="ss-pack__tag">{pack.tag}</span>}
+                <span className="ss-pack__radio" />
+                <div className="ss-pack__credits">{pack.credits}<span className="ss-pack__unit">credits</span></div>
+                <div className="ss-pack__price">{pack.price} <span className="ss-pack__per">{pack.per}</span></div>
+              </button>
+            ))}
+          </div>
+
+          <button type="button" className="ss-buy" onClick={handleBuy} disabled={isLoading}>
+            {isLoading ? 'Loading…' : `Buy ${activePack.credits} credits — ${activePack.price}`}
+          </button>
         </div>
-
-        <button type="button" className="ss-buy" onClick={handleBuy} disabled={isLoading}>
-          {isLoading ? 'Loading…' : `Buy ${activePack.credits} credits — ${activePack.price}`}
-        </button>
-      </div>
+      )}
 
       {error && <div className="ss-error">{error}</div>}
 
-      <div className="ss-links">
-        <button
-          type="button"
-          className="ss-text-link"
-          onClick={() => onNavigateTab && onNavigateTab('transactions')}
-        >
-          View Transaction History →
-        </button>
-      </div>
+      {!isSimple && (
+        <div className="ss-links">
+          <button
+            type="button"
+            className="ss-text-link"
+            onClick={() => onNavigateTab && onNavigateTab('transactions')}
+          >
+            View Transaction History →
+          </button>
+        </div>
+      )}
 
       <button
         type="button"

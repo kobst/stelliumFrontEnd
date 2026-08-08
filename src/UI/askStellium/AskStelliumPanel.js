@@ -345,6 +345,7 @@ function AskStelliumPanel({
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState(null);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallGate, setPaywallGate] = useState(null);
   const [selectedElements, setSelectedElements] = useState([]);
   const [selectionError, setSelectionError] = useState(null);
   const [activePeriod, setActivePeriod] = useState('weekly');
@@ -380,6 +381,8 @@ function AskStelliumPanel({
     (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
   );
   const credits = useEntitlementsStore(state => state.credits);
+  const isSimple = useEntitlementsStore(state => state.pricingModel === 'simple');
+  const chatQuestionsRemaining = useEntitlementsStore(state => state.getChatQuestionsRemaining());
   const fetchEntitlements = useEntitlementsStore(state => state.fetchEntitlements);
   const applyOptimisticCreditSpend = useEntitlementsStore(state => state.applyOptimisticCreditSpend);
   const restoreCredits = useEntitlementsStore(state => state.restoreCredits);
@@ -966,9 +969,16 @@ function AskStelliumPanel({
       console.error('Error sending message:', err);
       restoreCredits(creditsSnapshot);
 
-      if (err.status === 429 || err.message?.includes('LIMIT_REACHED')) {
+      // Simple pricing surfaces a typed gate (code + options) on both 429 and
+      // 402; show the model-aware paywall from it.
+      const gateBody = err.details || err.response || null;
+      if (isSimple && gateBody?.code) {
+        setPaywallGate(gateBody);
+        setShowPaywall(true);
+      } else if (err.status === 429 || err.message?.includes('LIMIT_REACHED')) {
         setError("You've reached today's Gravity Chat fair-use limit. Try again tomorrow.");
       } else if (err.status === 402 || err.status === 403 || err.message?.includes('403')) {
+        setPaywallGate(gateBody);
         setShowPaywall(true);
         setError(err.message || 'Failed to send message');
       } else {
@@ -1420,9 +1430,10 @@ function AskStelliumPanel({
         {/* Insufficient Credits Modal */}
         <InsufficientCreditsModal
           isOpen={showPaywall}
-          onClose={() => setShowPaywall(false)}
+          onClose={() => { setShowPaywall(false); setPaywallGate(null); }}
           creditsNeeded={1}
           creditsAvailable={credits.total}
+          gate={paywallGate}
           onBuyCredits={() => { setShowPaywall(false); navigate('/pricingTable'); }}
           onSubscribe={() => { setShowPaywall(false); navigate('/pricingTable'); }}
         />
@@ -1430,7 +1441,13 @@ function AskStelliumPanel({
         {/* Input with inline chips */}
         <div className="ask-panel__credit-cost">
           <span aria-hidden="true">✦</span>
-          <span>{isPlus ? 'Included with Plus · fair use applies' : `1 credit per message · ${credits.total} remaining`}</span>
+          <span>
+            {isSimple
+              ? (isPlus
+                  ? 'Included with Plus · fair use applies'
+                  : `${chatQuestionsRemaining} free question${chatQuestionsRemaining === 1 ? '' : 's'} left`)
+              : (isPlus ? 'Included with Plus · fair use applies' : `1 credit per message · ${credits.total} remaining`)}
+          </span>
         </div>
         <div className="ask-panel__input">
           <div className="ask-panel__input-wrapper">

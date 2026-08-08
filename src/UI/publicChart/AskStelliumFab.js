@@ -11,7 +11,7 @@ function AskStelliumFab({ onClick }) {
       <span className="pcc-fab__copy">
         <span className="pcc-fab__title">Ask about this chart with Gravity Chat</span>
         <span className="pcc-fab__sub">
-          Sign up free, get <b>25 credits</b> to ask anything
+          Sign up free, get <b>5 questions</b> to ask anything
         </span>
       </span>
     </button>

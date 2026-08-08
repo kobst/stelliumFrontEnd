@@ -17,7 +17,7 @@ function InlineSignUpCta({ eyebrow, heading, body, buttonLabel, onActivate }) {
           {buttonLabel}
         </button>
         <div className="pcc-inline-cta__note">
-          No credit card · <b>25 credits included</b>
+          No credit card · <b>free chart + 5 questions</b>
         </div>
       </div>
     </div>

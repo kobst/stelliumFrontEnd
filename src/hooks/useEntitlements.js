@@ -1,18 +1,18 @@
 import { useMemo, useEffect, useCallback } from 'react';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 
-// Pricing constants
+// Pricing constants (simple pricing model — one-time report purchases).
+// Kept flat: the same price applies regardless of tier.
 const PRICING = {
   BIRTH_CHART: {
-    free: 20,
-    plus: 12, // 40% discount
+    free: 9.99,
+    plus: 9.99,
   },
   RELATIONSHIP: {
-    free: 10,
-    plus: 6, // 40% discount
+    free: 7.99,
+    plus: 7.99,
   },
-  SUBSCRIPTION: 20, // per month
-  QUESTION_PACK: 10,
+  SUBSCRIPTION: 14.99, // per month
 };
 
 /**
@@ -65,6 +65,10 @@ export function useEntitlements(user) {
     const isPlus = isPaidTier && store.isSubscriptionActive;
 
     return {
+      // Which pricing model the backend is enforcing
+      pricingModel: store.pricingModel,
+      isSimplePricing: store.pricingModel === 'simple',
+
       // Plan info
       plan: store.plan,
       isPlus,
@@ -73,7 +77,7 @@ export function useEntitlements(user) {
       isSubscriptionActive: store.isSubscriptionActive,
       hasEverSubscribed: store.hasEverSubscribed,
 
-      // Credits (unified)
+      // Credits (legacy; zero under simple pricing)
       credits: {
         total: store.credits.total,
         monthly: store.credits.monthly,
@@ -82,11 +86,18 @@ export function useEntitlements(user) {
         resetDate: store.credits.resetDate,
       },
 
+      // Simple-pricing chat allowances
+      freeQuestions: store.freeQuestions,
+      dailyQuestionsRemaining: store.dailyQuestionsRemaining,
+      chatQuestionsRemaining: store.getChatQuestionsRemaining(),
+      canAskQuestion: store.canAskQuestion(),
+
       fullReportQuota: {
         limit: store.fullReportQuota.limit,
         remaining: store.fullReportQuota.remaining,
         resetsAt: store.fullReportQuota.resetsAt,
       },
+      grandfatheredReportUnlocks: store.grandfatheredReportUnlocks,
 
       // Horoscope access
       canAccessDaily: store.horoscopeAccess.daily || isPlus,
@@ -101,11 +112,10 @@ export function useEntitlements(user) {
       isLoading: store.isLoading,
       error: store.error,
 
-      // Pricing based on tier
+      // One-time report / subscription prices (simple pricing)
       birthChartPrice: isPlus ? PRICING.BIRTH_CHART.plus : PRICING.BIRTH_CHART.free,
       relationshipPrice: isPlus ? PRICING.RELATIONSHIP.plus : PRICING.RELATIONSHIP.free,
       subscriptionPrice: PRICING.SUBSCRIPTION,
-      questionPackPrice: PRICING.QUESTION_PACK,
     };
   }, [store]);
 

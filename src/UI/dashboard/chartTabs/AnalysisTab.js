@@ -430,6 +430,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
   );
   const isAnalysisUnlocked = useEntitlementsStore((state) => state.isAnalysisUnlocked);
   const canStartFullReport = useEntitlementsStore((state) => state.canStartFullReport);
+  const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
   const usesIncludedReport = isPlus && fullReportQuota.remaining > 0;
   const availableOverageCredits = isPlus ? credits.pack : credits.total;
 
@@ -500,14 +501,18 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
             <button className="start-analysis-button" onClick={handleStartClick}>
               {usesIncludedReport
                 ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
-                : `Start 360° Analysis (${CREDIT_COSTS.FULL_NATAL} credits)`}
+                : isSimple
+                  ? 'Unlock this report — $9.99'
+                  : `Start 360° Analysis (${CREDIT_COSTS.FULL_NATAL} credits)`}
             </button>
           ) : (
             <div className="locked-content__confirm">
               <p className="locked-content__confirm-text">
                 {usesIncludedReport
                   ? `This uses 1 included report. You'll have ${fullReportQuota.remaining - 1} remaining this period.`
-                  : `This will use ${CREDIT_COSTS.FULL_NATAL} credits. You'll have ${availableOverageCredits - CREDIT_COSTS.FULL_NATAL} remaining.`}
+                  : isSimple
+                    ? 'This report unlocks permanently and includes 5 chat questions.'
+                    : `This will use ${CREDIT_COSTS.FULL_NATAL} credits. You'll have ${availableOverageCredits - CREDIT_COSTS.FULL_NATAL} remaining.`}
               </p>
               <div className="locked-content__confirm-actions">
                 <button
@@ -528,8 +533,12 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
 
           <p className="prompt-credit-balance">
             {isPlus
-              ? `${fullReportQuota.remaining} included reports · ${credits.pack} purchased credits`
-              : `You have ${credits.total} credits`}
+              ? isSimple
+                ? `${fullReportQuota.remaining} included reports this period`
+                : `${fullReportQuota.remaining} included reports · ${credits.pack} purchased credits`
+              : isSimple
+                ? 'One-time purchase · or go Plus for 3 reports a month'
+                : `You have ${credits.total} credits`}
           </p>
         </div>
 
@@ -539,6 +548,8 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
           creditsNeeded={CREDIT_COSTS.FULL_NATAL}
           creditsAvailable={availableOverageCredits}
           reportType="BIRTH_CHART"
+          entityType="BIRTH_CHART"
+          entityId={chartId}
           onBuyCredits={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
           onSubscribe={() => { setShowInsufficientModal(false); navigate('/pricingTable'); }}
         />
