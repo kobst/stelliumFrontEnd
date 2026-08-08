@@ -154,12 +154,45 @@
   transform: rotate(-2deg);
 }
 
+.login-credits--offer {
+  align-items: flex-start;
+}
+
+.login-credits--offer::before {
+  content: "yours, on the house";
+}
+
 .login-credits__num {
   flex: 0 0 auto;
   color: var(--gold);
   font-size: 53px;
   font-style: italic;
   line-height: 1;
+}
+
+.login-credits__glyph {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--gold);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.login-val__foot {
+  max-width: 52ch;
+  margin: 26px 0 0;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-faint);
+  font-size: 14.5px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.login-val__foot b {
+  font-weight: 600;
+  font-style: normal;
+  color: var(--ink-soft);
 }
 
 .login-credits__title,

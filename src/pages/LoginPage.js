@@ -20,23 +20,23 @@ function GoogleMark() {
 const SIGNUP_BENEFITS = [
   {
     glyph: '✦',
-    title: 'Your full birth-chart reading',
-    sub: 'A plain-language interpretation of your placements, houses, and aspects.'
+    title: 'Weekly & monthly horoscopes — unlimited, free forever',
+    sub: 'Written from your transits, not a newspaper column.'
   },
   {
     glyph: '☾',
-    title: 'Weekly horoscopes, tuned to your chart',
-    sub: 'Not your sign — your actual sky, read for the week ahead.'
+    title: 'Unlimited charts',
+    sub: "Your own, plus friends, family, and anyone you're curious about."
   },
   {
     glyph: '♥',
-    title: 'Compatibility with anyone',
-    sub: 'Compare synastry and chemistry with a partner, a crush, or a celebrity.'
+    title: 'Relationship overviews',
+    sub: 'Instant compatibility scoring for any two charts.'
   },
   {
     glyph: '✶',
     title: 'Gravity Chat, your AI astrologer',
-    sub: 'Real answers from your real chart data — 1 credit per question.'
+    sub: '5 questions included — real answers from your real chart data.'
   }
 ];
 
@@ -168,17 +168,16 @@ const LoginPage = () => {
             Read your own sky, <span className="login-val__accent">free.</span>
           </h1>
           <p className="login-val__lede">
-            The same depth you just read about the stars — turned on your own chart, and anyone
-            you're curious about.
+            Your actual birth chart — not your sun sign — read back to you the moment you sign up.
           </p>
 
-          <div className="login-credits">
-            <div className="login-credits__num">25</div>
+          <div className="login-credits login-credits--offer">
+            <div className="login-credits__glyph" aria-hidden="true">✳</div>
             <div className="login-credits__copy">
-              <div className="login-credits__title">Free credits, the moment you sign up</div>
+              <div className="login-credits__title">Your full birth chart overview, free on signup</div>
               <div className="login-credits__sub">
-                Spend them asking Stellium anything — about your chart, your horoscope, or any
-                celebrity in the database.
+                Astral Gravity reads your real chart — placements, patterns, the shape of it — and
+                gives you 5 Gravity Chat questions to talk it through.
               </div>
             </div>
           </div>
@@ -194,6 +193,11 @@ const LoginPage = () => {
               </div>
             ))}
           </div>
+
+          <p className="login-val__foot">
+            Go deeper whenever you're ready — a single <b>full report from $7.99</b> (yours forever,
+            no subscription), or <b>Plus at $14.99/mo</b> for daily horoscopes and 3 reports a month.
+          </p>
         </>
       ) : (
         <>
@@ -201,7 +205,7 @@ const LoginPage = () => {
             Welcome back to <span className="login-val__accent">your sky.</span>
           </h1>
           <p className="login-val__lede">
-            Sign in to pick up your readings, horoscopes, and Gravity Chat credits right where you
+            Sign in to pick up your readings, horoscopes, and Gravity Chat right where you
             left them.
           </p>
         </>
@@ -240,7 +244,7 @@ const LoginPage = () => {
                 {isSignUp ? 'Start free in seconds' : 'Sign in'}
               </h2>
               <div className="login-card__sub">
-                {isSignUp ? '25 credits included — no credit card.' : 'Good to see you again.'}
+                {isSignUp ? 'Your chart overview included — no credit card.' : 'Good to see you again.'}
               </div>
             </div>
 
@@ -331,7 +335,7 @@ const LoginPage = () => {
                     {isSubmitting
                       ? 'Please wait...'
                       : isSignUp
-                        ? 'Create account & claim 25 credits →'
+                        ? 'Create account — read my chart ✳'
                         : 'Sign in →'}
                   </button>
                 </form>
