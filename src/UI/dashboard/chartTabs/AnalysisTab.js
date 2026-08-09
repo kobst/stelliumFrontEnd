@@ -431,7 +431,10 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
   const isAnalysisUnlocked = useEntitlementsStore((state) => state.isAnalysisUnlocked);
   const canStartFullReport = useEntitlementsStore((state) => state.canStartFullReport);
   const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
+  const grandfatheredReports = useEntitlementsStore((state) => state.grandfatheredReportUnlocks);
   const usesIncludedReport = isPlus && fullReportQuota.remaining > 0;
+  // Grandfathered unlocks (from the credit migration) start a report free too.
+  const usesGrandfatheredReport = isSimple && !usesIncludedReport && grandfatheredReports > 0;
   const availableOverageCredits = isPlus ? credits.pack : credits.total;
 
   const isAnalysisComplete = analysisStatus?.completed ||
@@ -501,18 +504,22 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
             <button className="start-analysis-button" onClick={handleStartClick}>
               {usesIncludedReport
                 ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
-                : isSimple
-                  ? 'Unlock this report — $9.99'
-                  : `Start 360° Analysis (${CREDIT_COSTS.FULL_NATAL} credits)`}
+                : usesGrandfatheredReport
+                  ? `Use 1 saved report unlock (${grandfatheredReports} left)`
+                  : isSimple
+                    ? 'Unlock this report — $9.99'
+                    : `Start 360° Analysis (${CREDIT_COSTS.FULL_NATAL} credits)`}
             </button>
           ) : (
             <div className="locked-content__confirm">
               <p className="locked-content__confirm-text">
                 {usesIncludedReport
                   ? `This uses 1 included report. You'll have ${fullReportQuota.remaining - 1} remaining this period.`
-                  : isSimple
-                    ? 'This report unlocks permanently and includes 5 chat questions.'
-                    : `This will use ${CREDIT_COSTS.FULL_NATAL} credits. You'll have ${availableOverageCredits - CREDIT_COSTS.FULL_NATAL} remaining.`}
+                  : usesGrandfatheredReport
+                    ? `This uses 1 of your saved report unlocks (${grandfatheredReports - 1} left afterward) and unlocks permanently.`
+                    : isSimple
+                      ? 'This report unlocks permanently and includes 5 chat questions.'
+                      : `This will use ${CREDIT_COSTS.FULL_NATAL} credits. You'll have ${availableOverageCredits - CREDIT_COSTS.FULL_NATAL} remaining.`}
               </p>
               <div className="locked-content__confirm-actions">
                 <button
