@@ -475,9 +475,9 @@ function LandingPage() {
       {/* ─── NAV ───────────────────────────────────────────── */}
       <nav className="lp-nav">
         <div className="lp-nav__inner">
-          <a className="lp-wordmark" href="#top" aria-label="Stellium home">
+          <a className="lp-wordmark" href="#top" aria-label="Astral Gravity home">
             <span className="lp-wordmark__glyph"><WordmarkGlyph /></span>
-            <span className="lp-wordmark__name">Stellium</span>
+            <span className="lp-wordmark__name">Astral Gravity</span>
           </a>
           <div className="lp-nav__links">
             <a className="lp-nav__link" href="#how">How it works</a>
@@ -521,7 +521,7 @@ function LandingPage() {
                 read <span className="accent">just for you.</span>
               </h1>
               <p className="lp-hero__lede">
-                Stellium reads <span className="gold-inline">your actual birth chart</span> — not your sun sign —
+                Astral Gravity reads <span className="gold-inline">your actual birth chart</span> — not your sun sign —
                 for guidance that genuinely knows you.
               </p>
               <div className="lp-hero__cta">
@@ -554,9 +554,9 @@ function LandingPage() {
 
         <div className="lp-wrap">
           <div className="lp-section-head">
-            <div className="lp-eyebrow gold">How Stellium gets this personal</div>
+            <div className="lp-eyebrow gold">How Astral Gravity gets this personal</div>
             <h2>Three steps from <span className="italic">birth data</span> to readings that actually know you.</h2>
-            <p>Stellium reads your actual chart — not your sun sign. The depth you’d expect from a professional, in the language you actually speak.</p>
+            <p>Astral Gravity reads your actual chart — not your sun sign. The depth you’d expect from a professional, in the language you actually speak.</p>
           </div>
 
           <div className="lp-steps">
@@ -617,7 +617,7 @@ function LandingPage() {
 
         <div className="lp-wrap">
           <div className="lp-section-head">
-            <div className="lp-eyebrow lilac">What Stellium does</div>
+            <div className="lp-eyebrow lilac">What Astral Gravity does</div>
             <h2>Four ways the chart <span className="italic">speaks</span> to you.</h2>
           </div>
 
@@ -670,7 +670,7 @@ function LandingPage() {
               </div>
               <h3>Anyone you’ve ever wondered about.</h3>
               <p className="lp-feat__tagline">Partner, crush, ex, friend, celebrity.</p>
-              <p>Add anyone by birth details — or pick from hundreds of celebrities. Stellium calculates synastry, composite, and a romantic archetype for the pair.</p>
+              <p>Add anyone by birth details — or pick from hundreds of celebrities. Astral Gravity calculates synastry, composite, and a romantic archetype for the pair.</p>
             </div>
           </div>
         </div>
@@ -963,7 +963,7 @@ function LandingPage() {
             <div className="lp-foot-brand">
               <a className="lp-wordmark" href="#top">
                 <span className="lp-wordmark__glyph"><WordmarkGlyph /></span>
-                <span className="lp-wordmark__name">Stellium</span>
+                <span className="lp-wordmark__name">Astral Gravity</span>
               </a>
               <p className="lp-foot-brand__blurb">
                 Personalized astrology, powered by AI. Your chart, read like a person — not a horoscope column.
@@ -1002,7 +1002,7 @@ function LandingPage() {
             </div>
           </div>
           <div className="lp-foot-bot">
-            <span>© {new Date().getFullYear()} Stellium · Personalized astrology, powered by AI.</span>
+            <span>© {new Date().getFullYear()} Stellium Labs LLC · Astral Gravity · Personalized astrology, powered by AI.</span>
             <span className="lp-foot-bot__italic">Made under a generous sky.</span>
           </div>
         </div>

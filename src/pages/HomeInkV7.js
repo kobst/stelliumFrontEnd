@@ -391,7 +391,7 @@ const HomeInkV7 = () => {
           <span className="hv7-wm">Astral Gravity ✳</span>
           <Link to="/privacy-policy">Privacy</Link>
           <Link to="/terms-of-service">Terms</Link>
-          <span>© 2026</span>
+          <span>© 2026 Stellium Labs LLC</span>
         </div>
       </footer>
     </div>

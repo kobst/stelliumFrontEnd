@@ -440,7 +440,7 @@ const FreeReadingPage = () => {
           <Link to="/">Home</Link>
           <Link to="/privacy-policy">Privacy</Link>
           <Link to="/terms-of-service">Terms</Link>
-          <span>© 2026 Astral Gravity</span>
+          <span>© 2026 Stellium Labs LLC</span>
         </div>
       </footer>
     </div>

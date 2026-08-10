@@ -228,7 +228,7 @@ function DashboardContent({ user, userId, entitlements, credits, activeTab, onTa
   useEffect(() => {
     const section = activeTab.startsWith('settings:') ? 'settings' : activeTab;
     const previousTitle = document.title;
-    document.title = `${DASHBOARD_TITLES[section] || 'Dashboard'} | Stellium`;
+    document.title = `${DASHBOARD_TITLES[section] || 'Dashboard'} | Astral Gravity`;
     return () => {
       document.title = previousTitle;
     };
@@ -675,7 +675,7 @@ function HomePane({ userId, user, entitlements }) {
     <div className="md-stage-panel">
       <div className="md-horo-head md-horo-head--stage">
         <div>
-          <h1 className="md-horo-title">Horoscopes by Stellium</h1>
+          <h1 className="md-horo-title">Horoscopes by Astral Gravity</h1>
           <div className="md-horo-rdate">
             <span className="md-horo-rperiod">{periodHeadLabel}</span>
             <span>{periodDateLabel}</span>

@@ -14,7 +14,7 @@ function StelliumWordmark({
   onClick,
   size = 'md',
   className = '',
-  ariaLabel = 'Stellium home'
+  ariaLabel = 'Astral Gravity home'
 }) {
   const sizeClass = `stellium-wordmark--${size}`;
   const classes = `stellium-wordmark ${sizeClass} ${className}`.trim();
@@ -30,7 +30,7 @@ function StelliumWordmark({
           <path d="M3 19 Q11 22 19 19" stroke="#cabeff" strokeWidth="0.6" fill="none" opacity="0.6" />
         </svg>
       </span>
-      <span className="stellium-wordmark__name">Stellium</span>
+      <span className="stellium-wordmark__name">Astral Gravity</span>
     </>
   );
 

@@ -483,7 +483,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
         <div className="analysis-prompt">
           <div className="prompt-icon">◎</div>
           <h3>360° Analysis</h3>
-          <p>This is a featured celebrity chart. Its 360° Analysis is curated by the Stellium team.</p>
+          <p>This is a featured celebrity chart. Its 360° Analysis is curated by the Astral Gravity team.</p>
           <p className="prompt-note">Check back soon — celebrity analyses are published when ready.</p>
         </div>
       </div>

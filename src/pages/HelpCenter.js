@@ -25,8 +25,8 @@ const HelpCenter = () => {
       <main className="help-container">
         <header className="help-header">
           <span className="ink-eyebrow">Questions, answered</span>
-          <h1>Stellium Help Center</h1>
-          <p className="welcome-text">Welcome to the Stellium Help Center. Below you'll find answers to the most common questions about charts, relationships, chat, subscriptions, and your account.</p>
+          <h1>Astral Gravity Help Center</h1>
+          <p className="welcome-text">Welcome to the Astral Gravity Help Center. Below you'll find answers to the most common questions about charts, relationships, chat, subscriptions, and your account.</p>
         </header>
 
         {/* Navigation Menu */}
@@ -46,7 +46,7 @@ const HelpCenter = () => {
 
           <div className="help-item">
             <h3>What is a Birth Chart?</h3>
-            <p>A birth chart (or natal chart) maps the position of the planets at the exact moment and place you were born. Stellium uses your date, time, and location to generate:</p>
+            <p>A birth chart (or natal chart) maps the position of the planets at the exact moment and place you were born. Astral Gravity uses your date, time, and location to generate:</p>
             <ul>
               <li>Your chart wheel</li>
               <li>Planetary positions</li>
@@ -60,7 +60,7 @@ const HelpCenter = () => {
 
           <div className="help-item">
             <h3>What is "Create Birth Chart"?</h3>
-            <p>This is the first step in generating a personal astrological profile. After entering birth data, Stellium immediately provides:</p>
+            <p>This is the first step in generating a personal astrological profile. After entering birth data, Astral Gravity immediately provides:</p>
             <ul>
               <li>A full chart wheel</li>
               <li>Planet & house positions</li>
@@ -73,7 +73,7 @@ const HelpCenter = () => {
 
           <div className="help-item">
             <h3>Why do I need to create a chart before getting a Full Birth Chart Analysis?</h3>
-            <p>Full analyses take much longer (up to several minutes) and require significantly more AI computation. Stellium first needs to:</p>
+            <p>Full analyses take much longer (up to several minutes) and require significantly more AI computation. Astral Gravity first needs to:</p>
             <ul>
               <li>Generate the birth chart</li>
               <li>Lock in planetary positions</li>
@@ -121,7 +121,7 @@ const HelpCenter = () => {
 
           <div className="help-item">
             <h3>What is "Create Relationship"?</h3>
-            <p>This step allows you to pair two charts (you + partner, or any two people). Stellium instantly generates:</p>
+            <p>This step allows you to pair two charts (you + partner, or any two people). Astral Gravity instantly generates:</p>
             <ul>
               <li>Synastry overlay</li>
               <li>Initial compatibility scores</li>
@@ -190,7 +190,7 @@ const HelpCenter = () => {
 
           <div className="help-item">
             <h3>How does the chat system work?</h3>
-            <p>Stellium AI can answer questions about:</p>
+            <p>Astral Gravity AI can answer questions about:</p>
             <ul>
               <li>Your birth chart</li>
               <li>A relationship</li>
@@ -233,7 +233,7 @@ const HelpCenter = () => {
 
           <div className="help-item">
             <h3>What subscription plans are available?</h3>
-            <p>Stellium offers a <strong>Plus Plan</strong> ($14.99/month) that includes:</p>
+            <p>Astral Gravity offers a <strong>Plus Plan</strong> ($14.99/month) that includes:</p>
             <ul>
               <li>Everything in Free</li>
               <li>3 full reports per billing period (natal or relationship, pooled)</li>
@@ -251,7 +251,7 @@ const HelpCenter = () => {
             <p><strong>On iOS:</strong></p>
             <ul>
               <li>Open Settings → Apple ID → Subscriptions</li>
-              <li>Select Stellium</li>
+              <li>Select Astral Gravity</li>
               <li>You can cancel or switch plans anytime</li>
             </ul>
             <p><strong>Inside the app:</strong></p>
@@ -284,7 +284,7 @@ const HelpCenter = () => {
           </div>
 
           <div className="help-item">
-            <h3>Does Stellium store my birth details?</h3>
+            <h3>Does Astral Gravity store my birth details?</h3>
             <p>Yes, your chart data is securely stored so that:</p>
             <ul>
               <li>Analyses are preserved</li>
@@ -327,7 +327,7 @@ const HelpCenter = () => {
 
           <div className="help-item">
             <h3>Can I request refunds?</h3>
-            <p>Refunds for in-app purchases are handled by Apple, not Stellium.</p>
+            <p>Refunds for in-app purchases are handled by Apple, not Astral Gravity.</p>
             <p>You can request one through Report a Problem:</p>
             <p><a href="https://support.apple.com/billing" target="_blank" rel="noopener noreferrer" className="help-link">https://support.apple.com/billing</a></p>
           </div>
@@ -343,11 +343,11 @@ const HelpCenter = () => {
       </main>
       <footer className="help-colophon">
         <div className="ink-wrap">
-          <span className="help-colophon__wordmark">Stellium ✳</span>
+          <span className="help-colophon__wordmark">Astral Gravity ✳</span>
           <Link to="/privacy-policy">Privacy</Link>
           <Link to="/terms-of-service">Terms</Link>
           <Link to="/help">Help</Link>
-          <span>© {new Date().getFullYear()}</span>
+          <span>© {new Date().getFullYear()} Stellium Labs LLC</span>
         </div>
       </footer>
     </div>

@@ -176,7 +176,7 @@ function InkMyChartsPage({ user: userOverride, userId: userIdOverride }) {
 
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = 'My Birth Charts | Stellium';
+    document.title = 'My Birth Charts | Astral Gravity';
     return () => {
       document.title = previousTitle;
     };

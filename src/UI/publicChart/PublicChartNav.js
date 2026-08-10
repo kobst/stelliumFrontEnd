@@ -22,9 +22,9 @@ function PublicChartNav({ onSignIn, onSignUp }) {
   return (
     <nav className="pcc pcc-nav" aria-label="Primary">
       <div className="pcc-nav__inner">
-        <button type="button" className="pcc-wordmark" onClick={() => navigate('/')} aria-label="Stellium home">
+        <button type="button" className="pcc-wordmark" onClick={() => navigate('/')} aria-label="Astral Gravity home">
           <span className="pcc-wordmark__glyph"><WordmarkGlyph /></span>
-          <span>Stellium</span>
+          <span>Astral Gravity</span>
         </button>
         <div className="pcc-nav__links">
           <button type="button" className="pcc-nav__link" onClick={() => navigate('/')}>Home</button>

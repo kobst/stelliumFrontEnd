@@ -72,10 +72,10 @@ const OnboardingPage = () => {
                 </div>
                 <footer className="onboarding-footer">
                     <div className="ink-wrap onboarding-colophon">
-                        <span className="onboarding-colophon__wordmark">Stellium ✳</span>
+                        <span className="onboarding-colophon__wordmark">Astral Gravity ✳</span>
                         <a href="/privacy-policy">Privacy</a>
                         <a href="/terms-of-service">Terms</a>
-                        <span>© 2026</span>
+                        <span>© 2026 Stellium Labs LLC</span>
                     </div>
                 </footer>
             </div>
@@ -141,10 +141,10 @@ const OnboardingPage = () => {
 
             <footer className="onboarding-footer">
                 <div className="ink-wrap onboarding-colophon">
-                    <span className="onboarding-colophon__wordmark">Stellium ✳</span>
+                    <span className="onboarding-colophon__wordmark">Astral Gravity ✳</span>
                     <a href="/privacy-policy">Privacy</a>
                     <a href="/terms-of-service">Terms</a>
-                    <span>© 2026</span>
+                    <span>© 2026 Stellium Labs LLC</span>
                 </div>
             </footer>
         </div>

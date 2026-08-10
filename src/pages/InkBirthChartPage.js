@@ -664,7 +664,7 @@ function InkBirthChartPage() {
 
             <div className="ibc-ask-main">
               <h2>Gravity Chat <span className="ink-italic">✳</span></h2>
-              <p className="ibc-ask-sub">Stellium has read your chart. Ask about it.</p>
+              <p className="ibc-ask-sub">Astral Gravity has read your chart. Ask about it.</p>
               {isAnalysisComplete ? (
                 <div className="ibc-ask-panel-host">
                   <AskStelliumPanel

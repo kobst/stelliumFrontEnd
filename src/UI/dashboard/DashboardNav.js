@@ -73,7 +73,7 @@ function DashboardNav({ user, entitlements, credits, activeTab, onTabChange, onN
           <div className="md-nav__left">
             <button type="button" className="md-wordmark" onClick={onNavigateHome} aria-label="Go to Horoscope">
               <span className="md-wordmark__glyph"><WordmarkGlyph /></span>
-              <span className="md-wordmark__name">Stellium</span>
+              <span className="md-wordmark__name">Astral Gravity</span>
             </button>
           </div>
 

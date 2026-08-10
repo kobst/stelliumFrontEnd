@@ -396,7 +396,7 @@ function InkLandingPage() {
                 The stars,<br />read <span className="ink-italic">just for you.</span>
               </h1>
               <p className="ink-landing__lede">
-                Stellium reads your actual birth chart — not your sun sign — for guidance that
+                Astral Gravity reads your actual birth chart — not your sun sign — for guidance that
                 genuinely knows you.
               </p>
               <div className="ink-landing__hero-ctas">
@@ -453,7 +453,7 @@ function InkLandingPage() {
                   Your Venus in Scorpio conjunct your South Node. You’re not choosing them —
                   you’re remembering them.
                 </p>
-                <p className="ink-landing__signature-answer">— Stellium ✳</p>
+                <p className="ink-landing__signature-answer">— Astral Gravity ✳</p>
               </div>
             </div>
 
@@ -629,10 +629,10 @@ function InkLandingPage() {
 
       <footer className="ink-landing__footer">
         <div className="ink-wrap ink-landing__colophon">
-          <span className="ink-landing__wordmark">Stellium ✳</span>
+          <span className="ink-landing__wordmark">Astral Gravity ✳</span>
           <Link to="/privacy-policy">Privacy</Link>
           <Link to="/terms-of-service">Terms</Link>
-          <span>© 2026</span>
+          <span>© 2026 Stellium Labs LLC</span>
         </div>
       </footer>
     </div>

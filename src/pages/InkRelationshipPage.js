@@ -797,7 +797,7 @@ function InkRelationshipPage() {
             <article className="ink-relationship__ask-main">
               <h2>Gravity Chat <span aria-hidden="true">✳</span></h2>
               <p className="ink-relationship__ask-subhead">
-                Stellium has read both charts. Ask about the space between them.
+                Astral Gravity has read both charts. Ask about the space between them.
               </p>
               <div className="ink-relationship__ask-chat" aria-label="Gravity Chat conversation">
                 <AskStelliumPanel

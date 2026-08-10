@@ -347,7 +347,7 @@ const LoginPage = () => {
                 )}
 
                 <div className="login-terms">
-                  By creating an account you agree to Stellium's{' '}
+                  By creating an account you agree to Astral Gravity's{' '}
                   <a href="/terms-of-service">Terms</a> and{' '}
                   <a href="/privacy-policy">Privacy Policy</a>.
                 </div>
@@ -367,10 +367,10 @@ const LoginPage = () => {
 
       <footer className="login-footer">
         <div className="ink-wrap login-colophon">
-          <span className="login-colophon__wordmark">Stellium ✳</span>
+          <span className="login-colophon__wordmark">Astral Gravity ✳</span>
           <a href="/privacy-policy">Privacy</a>
           <a href="/terms-of-service">Terms</a>
-          <span>© 2026</span>
+          <span>© 2026 Stellium Labs LLC</span>
         </div>
       </footer>
     </div>

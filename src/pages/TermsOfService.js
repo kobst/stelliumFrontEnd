@@ -17,19 +17,19 @@ const TermsOfService = () => {
       <InkNav variant="marketing" marketingLinks={MARKETING_LINKS} />
       <main className="terms-container">
         <header className="terms-header">
-          <span className="ink-eyebrow">Stellium legal</span>
+          <span className="ink-eyebrow">Astral Gravity legal</span>
           <h1>Terms of Service</h1>
           <p className="last-updated">Last updated: {new Date().toLocaleDateString()}</p>
         </header>
         
         <section className="terms-section">
           <h2>1. Acceptance of Terms</h2>
-          <p>By accessing and using Stellium ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+          <p>By accessing and using Astral Gravity, a product of Stellium Labs LLC ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
         </section>
 
         <section className="terms-section">
           <h2>2. Description of Service</h2>
-          <p>Stellium is an AI-powered astrology platform that provides:</p>
+          <p>Astral Gravity, a product of Stellium Labs LLC, is an AI-powered astrology platform that provides:</p>
           <ul>
             <li>Personalized birth chart generation and analysis</li>
             <li>AI-powered astrological interpretations and insights</li>
@@ -66,7 +66,7 @@ const TermsOfService = () => {
 
         <section className="terms-section">
           <h2>5. Intellectual Property</h2>
-          <p>The Service and its original content, features, and functionality are and will remain the exclusive property of Stellium and its licensors. The service is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used without our prior written consent.</p>
+          <p>The Service and its original content, features, and functionality are and will remain the exclusive property of Stellium Labs LLC and its licensors. The service is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used without our prior written consent.</p>
         </section>
 
         <section className="terms-section">
@@ -86,13 +86,13 @@ const TermsOfService = () => {
 
         <section className="terms-section">
           <h2>8. Disclaimers</h2>
-          <p><strong>Entertainment Purpose:</strong> Astrological interpretations and insights provided by Stellium are for entertainment and self-reflection purposes only. They should not be considered as professional advice for medical, legal, financial, or other important life decisions.</p>
+          <p><strong>Entertainment Purpose:</strong> Astrological interpretations and insights provided by Astral Gravity are for entertainment and self-reflection purposes only. They should not be considered as professional advice for medical, legal, financial, or other important life decisions.</p>
           <p><strong>No Warranties:</strong> The service is provided "as is" without any representations or warranties, express or implied. We make no representations or warranties in relation to this website or the information and materials provided.</p>
         </section>
 
         <section className="terms-section">
           <h2>9. Limitation of Liability</h2>
-          <p>In no event shall Stellium, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use of the service.</p>
+          <p>In no event shall Stellium Labs LLC, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use of the service.</p>
         </section>
 
         <section className="terms-section">
@@ -102,7 +102,7 @@ const TermsOfService = () => {
 
         <section className="terms-section">
           <h2>11. Governing Law</h2>
-          <p>These Terms shall be interpreted and governed by the laws of the jurisdiction in which Stellium operates, without regard to its conflict of law provisions.</p>
+          <p>These Terms shall be interpreted and governed by the laws of the jurisdiction in which Stellium Labs LLC operates, without regard to its conflict of law provisions.</p>
         </section>
 
         <section className="terms-section">
@@ -118,11 +118,11 @@ const TermsOfService = () => {
       </main>
       <footer className="terms-colophon">
         <div className="ink-wrap">
-          <span className="terms-colophon__wordmark">Stellium ✳</span>
+          <span className="terms-colophon__wordmark">Astral Gravity ✳</span>
           <Link to="/privacy-policy">Privacy</Link>
           <Link to="/terms-of-service">Terms</Link>
           <Link to="/help">Help</Link>
-          <span>© {new Date().getFullYear()}</span>
+          <span>© {new Date().getFullYear()} Stellium Labs LLC</span>
         </div>
       </footer>
     </div>

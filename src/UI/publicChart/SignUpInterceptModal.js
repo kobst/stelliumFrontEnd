@@ -47,7 +47,7 @@ function SignUpInterceptModal({
         className="pcc-modal"
         role="dialog"
         aria-modal="true"
-        aria-label={`Create a free account to ask Stellium about ${celebrityName || 'this chart'}`}
+        aria-label={`Create a free account to use Gravity Chat for ${celebrityName || 'this chart'}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="pcc-modal__thread" aria-hidden="true" />

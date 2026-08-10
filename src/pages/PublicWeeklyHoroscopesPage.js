@@ -151,10 +151,10 @@ function PublicWeeklyHoroscopesPage() {
 
   useEffect(() => {
     const previousTitle = document.title;
-    const title = `${signLabel} Weekly Horoscope | Stellium`;
+    const title = `${signLabel} Weekly Horoscope | Astral Gravity`;
     const description = weekRange
-      ? `Read Stellium's ${signLabel} weekly horoscope for ${weekRange}.`
-      : `Read Stellium's ${signLabel} weekly horoscope.`;
+      ? `Read Astral Gravity's ${signLabel} weekly horoscope for ${weekRange}.`
+      : `Read Astral Gravity's ${signLabel} weekly horoscope.`;
 
     document.title = title;
 
@@ -317,11 +317,11 @@ function PublicWeeklyHoroscopesPage() {
 
       <footer className="wh-ink-colophon">
         <div className="ink-wrap">
-          <span className="wh-ink-colophon__wordmark">Stellium ✳</span>
+          <span className="wh-ink-colophon__wordmark">Astral Gravity ✳</span>
           <Link to="/privacy-policy">Privacy</Link>
           <Link to="/terms-of-service">Terms</Link>
           <Link to="/help">Help</Link>
-          <span>© {new Date().getFullYear()}</span>
+          <span>© {new Date().getFullYear()} Stellium Labs LLC</span>
         </div>
       </footer>
     </div>

@@ -543,7 +543,7 @@ function RelationshipJourneyPage() {
             onClick={() => navigate(`/dashboard/${userId}`, { state: { section: 'home' } })}
             title="Go to Horoscope"
           >
-            <span aria-hidden="true">☼</span> Stellium
+            <span aria-hidden="true">☼</span> Astral Gravity
           </button>
           <div className="birth-journey-identity">
             <strong>{aName} <span className="rj-amp">&amp;</span> {bName}</strong>

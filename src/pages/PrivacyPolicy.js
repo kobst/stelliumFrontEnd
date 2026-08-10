@@ -17,7 +17,7 @@ const PrivacyPolicy = () => {
       <InkNav variant="marketing" marketingLinks={MARKETING_LINKS} />
       <main className="policy-container">
         <header className="policy-header">
-          <span className="ink-eyebrow">Stellium legal</span>
+          <span className="ink-eyebrow">Astral Gravity legal</span>
           <h1>Privacy Policy</h1>
           <p className="last-updated">Last updated: {new Date().toLocaleDateString()}</p>
         </header>
@@ -116,11 +116,11 @@ const PrivacyPolicy = () => {
       </main>
       <footer className="policy-colophon">
         <div className="ink-wrap">
-          <span className="policy-colophon__wordmark">Stellium ✳</span>
+          <span className="policy-colophon__wordmark">Astral Gravity ✳</span>
           <Link to="/privacy-policy">Privacy</Link>
           <Link to="/terms-of-service">Terms</Link>
           <Link to="/help">Help</Link>
-          <span>© {new Date().getFullYear()}</span>
+          <span>© {new Date().getFullYear()} Stellium Labs LLC</span>
         </div>
       </footer>
     </div>

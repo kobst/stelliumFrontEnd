@@ -21,7 +21,7 @@ function InkPublicFooter() {
         </nav>
 
         <p className="public-ink-footer__signoff">
-          © {new Date().getFullYear()} Astral Gravity · Made under a generous sky.
+          © {new Date().getFullYear()} Stellium Labs LLC · Made under a generous sky.
         </p>
       </div>
     </footer>

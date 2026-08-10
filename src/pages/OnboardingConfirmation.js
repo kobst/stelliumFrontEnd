@@ -130,10 +130,10 @@ const OnboardingConfirmation = () => {
                 </main>
                 <footer className="onboarding-confirmation__footer">
                     <div className="ink-wrap onboarding-confirmation__colophon">
-                        <span className="onboarding-confirmation__wordmark">Stellium ✳</span>
+                        <span className="onboarding-confirmation__wordmark">Astral Gravity ✳</span>
                         <a href="/privacy-policy">Privacy</a>
                         <a href="/terms-of-service">Terms</a>
-                        <span>© 2026</span>
+                        <span>© 2026 Stellium Labs LLC</span>
                     </div>
                 </footer>
             </div>
@@ -178,7 +178,7 @@ const OnboardingConfirmation = () => {
                 <header className="onboarding-confirmation__header">
                     <span className="ink-eyebrow">Your chart is taking shape</span>
                     <h1>
-                        Welcome to Stellium, <em>{userData?.firstName || firebaseUser?.displayName || 'User'}.</em>
+                        Welcome to Astral Gravity, <em>{userData?.firstName || firebaseUser?.displayName || 'User'}.</em>
                     </h1>
                     <p>
                         {isCreating ? 'Creating your profile...' : isComplete ? 'Your profile has been created successfully!' : error ? 'Profile creation failed. Please retry.' : 'Processing...'}
@@ -283,10 +283,10 @@ const OnboardingConfirmation = () => {
 
             <footer className="onboarding-confirmation__footer">
                 <div className="ink-wrap onboarding-confirmation__colophon">
-                    <span className="onboarding-confirmation__wordmark">Stellium ✳</span>
+                    <span className="onboarding-confirmation__wordmark">Astral Gravity ✳</span>
                     <a href="/privacy-policy">Privacy</a>
                     <a href="/terms-of-service">Terms</a>
-                    <span>© 2026</span>
+                    <span>© 2026 Stellium Labs LLC</span>
                 </div>
             </footer>
         </div>

@@ -813,7 +813,7 @@ function ChartReaderPage() {
             onClick={() => navigate(`/dashboard/${userId}`, { state: { section: 'home' } })}
             title="Go to Horoscope"
           >
-            <span aria-hidden="true">☼</span> Stellium
+            <span aria-hidden="true">☼</span> Astral Gravity
           </button>
           <div className="birth-journey-identity">
             <strong>{subjectName}</strong>

@@ -47,7 +47,7 @@ function UserSelectionPage() {
   return (
     <div className="user-selection-page">
       <div className="user-selection-header">
-        <h1 className="user-selection-title mont-font">STELLIUM</h1>
+        <h1 className="user-selection-title mont-font">Astral Gravity</h1>
         <p className="user-selection-subtitle">Select a user to view their dashboard</p>
       </div>
 

@@ -99,7 +99,7 @@ function AskStelliumShowcase() {
           <h2 className="ask-showcase__title">Ask Gravity Chat anything about your chart</h2>
           <p className="ask-showcase__description">
             Just type a question, or pick specific placements and aspects as context for more targeted answers.
-            Stellium reads your actual chart data — not generic horoscopes.
+            Astral Gravity reads your actual chart data — not generic horoscopes.
           </p>
           <p className="ask-showcase__credit-nudge">
             5 free questions to start · 50 a day with Plus.
