@@ -113,7 +113,7 @@ const TermsOfService = () => {
         <section className="terms-section">
           <h2>13. Contact Information</h2>
           <p>If you have any questions about these Terms of Service, please contact us at:</p>
-          <p>Email: support@stellium.app</p>
+          <p>Email: hi@astralgravity.com</p>
         </section>
       </main>
       <footer className="terms-colophon">

@@ -992,7 +992,7 @@ function LandingPage() {
             <div>
               <h4>Contact</h4>
               <ul>
-                <li><a href="mailto:hello@stellium.ai">hello@stellium.ai</a></li>
+                <li><a href="mailto:hi@astralgravity.com">hi@astralgravity.com</a></li>
                 <li><a href="/help">Help & Support</a></li>
               </ul>
             </div>

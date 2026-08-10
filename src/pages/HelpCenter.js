@@ -279,7 +279,7 @@ const HelpCenter = () => {
           <div className="help-item">
             <h3>Where can I read the Privacy Policy?</h3>
             <p>You can view the Privacy Policy at:</p>
-            <p><a href="/privacy-policy" className="help-link">stellium.ai/privacy</a></p>
+            <p><a href="/privacy-policy" className="help-link">astralgravity.com/privacy-policy</a></p>
             <p>The app will link directly to this page.</p>
           </div>
 
@@ -298,7 +298,7 @@ const HelpCenter = () => {
           <div className="help-item">
             <h3>Can I delete my account?</h3>
             <p>You can request account deletion via:</p>
-            <p><a href="mailto:support@stellium.ai" className="help-link">support@stellium.ai</a></p>
+            <p><a href="mailto:hi@astralgravity.com" className="help-link">hi@astralgravity.com</a></p>
             <p>A full in-app deletion option is coming.</p>
           </div>
         </section>
@@ -310,7 +310,7 @@ const HelpCenter = () => {
           <div className="help-item">
             <h3>How do I get help?</h3>
             <p>You can contact us anytime:</p>
-            <p><a href="mailto:support@stellium.ai" className="help-link">support@stellium.ai</a></p>
+            <p><a href="mailto:hi@astralgravity.com" className="help-link">hi@astralgravity.com</a></p>
             <p>We typically respond within 24–48 hours.</p>
           </div>
 
@@ -320,7 +320,7 @@ const HelpCenter = () => {
             <p>You can access it:</p>
             <ul>
               <li>From the Profile modal → Help Center</li>
-              <li>From stellium.ai/help</li>
+              <li>From astralgravity.com/help</li>
               <li>From bottom navigation (if enabled)</li>
             </ul>
           </div>
@@ -337,7 +337,7 @@ const HelpCenter = () => {
         <section className="help-section help-footer">
           <h2>Still need help?</h2>
           <p>We're here for you!</p>
-          <p>Send us an email: <a href="mailto:support@stellium.ai" className="help-link">support@stellium.ai</a></p>
+          <p>Send us an email: <a href="mailto:hi@astralgravity.com" className="help-link">hi@astralgravity.com</a></p>
           <p>Or reach out through the app.</p>
         </section>
       </main>

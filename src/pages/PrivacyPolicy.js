@@ -111,7 +111,7 @@ const PrivacyPolicy = () => {
         <section className="policy-section">
           <h2>10. Contact Us</h2>
           <p>If you have any questions about this Privacy Policy, please contact us at:</p>
-          <p>Email: admin@stellium.app</p>
+          <p>Email: hi@astralgravity.com</p>
         </section>
       </main>
       <footer className="policy-colophon">
