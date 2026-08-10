@@ -61,8 +61,12 @@ function AppNav({ activeSegment = 'home', onSegmentChange, user: userOverride, c
   const entitlements = useEntitlements(user);
   const dashboardPath = user?._id ? `/dashboard/${user._id}` : '/';
   const displayName = getDisplayName(user);
+  const isSimple = !!entitlements?.isSimplePricing;
   const creditTotal = Number(entitlements?.credits?.total);
   const credits = Number.isFinite(creditTotal) ? creditTotal : 0;
+  const questionsLeft = Number.isFinite(Number(entitlements?.chatQuestionsRemaining))
+    ? Number(entitlements.chatQuestionsRemaining)
+    : 0;
   const tier = (entitlements?.plan || entitlements?.tier || 'free').toUpperCase();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -127,7 +131,11 @@ function AppNav({ activeSegment = 'home', onSegmentChange, user: userOverride, c
           })}
         </div>
 
-        <span className="ink-nav__credits">✳ {credits} credits</span>
+        <span className="ink-nav__credits">
+          {isSimple
+            ? `✳ ${questionsLeft} question${questionsLeft === 1 ? '' : 's'}`
+            : `✳ ${credits} credits`}
+        </span>
 
         <div className="ink-nav__user-wrap" ref={menuRef}>
           <button

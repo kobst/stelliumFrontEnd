@@ -1,7 +1,9 @@
 import React from 'react';
+import useEntitlementsStore from '../../Utilities/entitlementsStore';
 import './AnalysisPromptCard.css';
 
 function AnalysisPromptCard({ message, onNavigate, creditCost, creditsRemaining }) {
+  const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
   return (
     <div className="analysis-prompt-card">
       <div className="analysis-prompt-card__body">
@@ -11,9 +13,9 @@ function AnalysisPromptCard({ message, onNavigate, creditCost, creditsRemaining 
         <p className="analysis-prompt-card__message">{message}</p>
       </div>
       <button className="analysis-prompt-card__btn" onClick={onNavigate}>
-        Get 360° Analysis{creditCost != null ? ` (${creditCost} credits)` : ''}
+        Get 360° Analysis{!isSimple && creditCost != null ? ` (${creditCost} credits)` : ''}
       </button>
-      {creditsRemaining != null && (
+      {!isSimple && creditsRemaining != null && (
         <p className="analysis-prompt-card__credits">You have {creditsRemaining} credits</p>
       )}
     </div>

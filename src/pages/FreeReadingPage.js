@@ -417,7 +417,7 @@ const FreeReadingPage = () => {
             {outOfQuestions && (
               <div className="fr-wall">
                 <span className="fr-eyebrow">That’s your three</span>
-                <h3>Keep going with <span className="fr-it">25 free credits.</span></h3>
+                <h3>Keep going with <span className="fr-it">5 free questions.</span></h3>
                 <p>Create an account and Astral Gravity keeps this chart, remembers the conversation, and opens the full reading — patterns, every placement, and your 360° analysis.</p>
                 <Link className="fr-btn fr-btn--navy" to="/signUp">Create free account ✳</Link>
                 <p className="fr-fine">No card required. Your reading is saved to this chart.</p>

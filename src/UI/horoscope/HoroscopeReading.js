@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import useEntitlementsStore from '../../Utilities/entitlementsStore';
 import { formatCalendarDate, formatOrb, formatTransitRange } from './horoscopeSlots';
 import './HoroscopeReading.css';
 
@@ -19,6 +20,7 @@ function HoroscopeReading({
   onTransitFocus,
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
+  const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
 
   useEffect(() => {
     setMoreOpen(false);
@@ -50,7 +52,11 @@ function HoroscopeReading({
       <div className="ihp-reading-body" aria-live="polite">
         {dailyLocked && (
           <div className="ihp-reading-state">
-            <p>Daily horoscopes cost 1 credit on Free and are included with Plus.</p>
+            <p>
+              {isSimple
+                ? 'Daily horoscopes are included with Plus. Upgrade to unlock today’s reading.'
+                : 'Daily horoscopes cost 1 credit on Free and are included with Plus.'}
+            </p>
           </div>
         )}
         {!dailyLocked && loading && (

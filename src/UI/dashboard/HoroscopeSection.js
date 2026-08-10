@@ -268,7 +268,7 @@ function HoroscopeSection({ userId, user, entitlements }) {
                 'Personalized energy forecasts',
                 'Key themes for your day'
               ]}
-              ctaText="1 credit on Free · Included with Plus"
+              ctaText={entitlements?.isSimplePricing ? 'Included with Plus' : '1 credit on Free · Included with Plus'}
             />
           }
         />
