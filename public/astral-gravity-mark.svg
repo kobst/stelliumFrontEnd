@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Astral Gravity">
+  <style>
+    path { fill: #3437a8; }
+    @media (prefers-color-scheme: dark) { path { fill: #8b8ef0; } }
+  </style>
+  <g>
+    <path transform="rotate(0 50 50)"   d="M50 7 L51.7 50 L50 54 L48.3 50 Z"/>
+    <path transform="rotate(45 50 50)"  d="M50 7 L51.7 50 L50 54 L48.3 50 Z"/>
+    <path transform="rotate(90 50 50)"  d="M50 7 L51.7 50 L50 54 L48.3 50 Z"/>
+    <path transform="rotate(135 50 50)" d="M50 7 L51.7 50 L50 54 L48.3 50 Z"/>
+    <path transform="rotate(180 50 50)" d="M50 7 L51.7 50 L50 54 L48.3 50 Z"/>
+    <path transform="rotate(225 50 50)" d="M50 7 L51.7 50 L50 54 L48.3 50 Z"/>
+    <path transform="rotate(270 50 50)" d="M50 7 L51.7 50 L50 54 L48.3 50 Z"/>
+    <path transform="rotate(315 50 50)" d="M50 7 L51.7 50 L50 54 L48.3 50 Z"/>
+  </g>
+</svg>

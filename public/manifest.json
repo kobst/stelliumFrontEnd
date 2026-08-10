@@ -4,6 +4,11 @@
   "description": "Birth chart analysis, relationship compatibility, daily horoscopes, and an AI astrologer that knows your chart.",
   "icons": [
     {
+      "src": "astral-gravity-mark.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
@@ -16,7 +21,8 @@
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
