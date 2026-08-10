@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import TimeSelector from './TimeSelector';
 import HoroscopeCard from './HoroscopeCard';
-import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
+import GravityChatPanel from '../../gravityChat/GravityChatPanel';
 import './HoroscopeContent.css';
 
 function HoroscopeContent({
@@ -122,7 +122,7 @@ function HoroscopeContent({
           />
         </div>
 
-        <AskStelliumPanel
+        <GravityChatPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
           contentType="horoscope"
@@ -199,7 +199,7 @@ function HoroscopeContent({
         )}
       </div>
 
-      <AskStelliumPanel
+      <GravityChatPanel
         isOpen={chatOpen}
         onClose={() => setChatOpen(false)}
         contentType="horoscope"

@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import Ephemeris from '../../shared/Ephemeris';
 import BirthChartSummaryTable from '../../birthChart/tables/BirthChartSummaryTable';
-import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
-import AskStelliumCta from '../chartTabs/AskStelliumCta';
+import GravityChatPanel from '../../gravityChat/GravityChatPanel';
+import GravityChatCta from '../chartTabs/GravityChatCta';
 import { PlanetIcon } from '../../shared/AstroIcon';
 import './RelationshipTabs.css';
 
@@ -88,7 +88,7 @@ function SynastryAspectsTable({ aspects, userAName, userBName }) {
   );
 }
 
-function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskStellium = false }) {
+function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseGravityChat = false }) {
   const [activeSubTab, setActiveSubTab] = useState('synastry');
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -190,8 +190,8 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskSt
       <div className="charts-header">
         <h2 className="charts-header__title">Charts</h2>
         {!isCelebrity && (
-          <AskStelliumCta
-            hasFullAccess={canUseAskStellium}
+          <GravityChatCta
+            hasFullAccess={canUseGravityChat}
             onActivate={() => setChatOpen(prev => !prev)}
             label="Ask about this relationship with Gravity Chat"
           />
@@ -308,8 +308,8 @@ function ChartsTab({ relationship, compositeId, isCelebrity = false, canUseAskSt
         )}
         </div>
       </div>
-      {!isCelebrity && canUseAskStellium && (
-        <AskStelliumPanel
+      {!isCelebrity && canUseGravityChat && (
+        <GravityChatPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
           contentType="relationship"

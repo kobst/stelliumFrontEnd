@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './AskStelliumShowcase.css';
+import './GravityChatShowcase.css';
 
 const TABS = [
   {
@@ -52,7 +52,7 @@ const TABS = [
   },
 ];
 
-function AskStelliumShowcase() {
+function GravityChatShowcase() {
   const [activeTab, setActiveTab] = useState('horoscope');
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -217,4 +217,4 @@ function AskStelliumShowcase() {
   );
 }
 
-export default AskStelliumShowcase;
+export default GravityChatShowcase;

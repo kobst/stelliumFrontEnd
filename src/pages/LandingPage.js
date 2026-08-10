@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
-import AskStelliumShowcase from '../UI/landingPage/AskStelliumShowcase';
+import GravityChatShowcase from '../UI/landingPage/GravityChatShowcase';
 import { useAuth } from '../context/AuthContext';
 import { useCheckout } from '../hooks/useCheckout';
 import { ZODIAC_SIGNS } from '../Utilities/zodiac';
@@ -676,11 +676,11 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* ─── ASK STELLIUM ──────────────────────────────────── */}
+      {/* ─── GRAVITY CHAT ──────────────────────────────────── */}
       <section className="lp-ask" id="ask-stellium" ref={addFadeRef}>
         <div className="lp-halo cyan lp-ask__halo-c" />
         <Stardust seed={3} density={70} />
-        <AskStelliumShowcase />
+        <GravityChatShowcase />
       </section>
 
       {/* ─── DISCOVER CHARTS ───────────────────────────────── */}

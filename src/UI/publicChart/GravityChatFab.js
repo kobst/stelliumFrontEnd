@@ -1,10 +1,10 @@
 import React from 'react';
 
 /**
- * Floating Ask-Stellium trigger for the logged-out celebrity chart.
+ * Floating Gravity Chat trigger for the logged-out celebrity chart.
  * Two lines so the value is set before the click — no bait-and-switch.
  */
-function AskStelliumFab({ onClick }) {
+function GravityChatFab({ onClick }) {
   return (
     <button type="button" className="pcc pcc-fab" onClick={onClick}>
       <span className="pcc-fab__sp" aria-hidden="true">&#10024;</span>
@@ -18,4 +18,4 @@ function AskStelliumFab({ onClick }) {
   );
 }
 
-export default AskStelliumFab;
+export default GravityChatFab;

@@ -15,7 +15,7 @@ import {
 } from '../Utilities/chartSceneAdapter';
 import { mentionsIn } from '../UI/journey/AnalysisFlow';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
-import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
+import GravityChatPanel from '../UI/gravityChat/GravityChatPanel';
 import ChapterHeader from '../UI/journey/ChapterHeader';
 import DetailNavigator from '../UI/journey/DetailNavigator';
 import { PlanetIcon } from '../UI/shared/AstroIcon';
@@ -814,7 +814,7 @@ function RelationshipJourneyPage() {
           <div className="birth-ask-workspace">
             {activeChapter === 'ask' && askChart}
             <section className="birth-ask-chat" aria-label="Gravity Chat conversation">
-              <AskStelliumPanel
+              <GravityChatPanel
                 variant="dock"
                 isOpen={activeChapter === 'ask'}
                 onClose={() => goToChapter('composite')}

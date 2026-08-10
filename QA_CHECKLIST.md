@@ -245,7 +245,7 @@ This panel can be triggered from multiple locations via icons in section headers
 - [ ] All pages render correctly on tablet (768px width)
 - [ ] All pages render correctly on desktop (1280px+ width)
 - [ ] Sidebar collapses to hamburger on mobile
-- [ ] AskStellium panel renders full-width on mobile
+- [ ] GravityChat panel renders full-width on mobile
 - [ ] Pricing cards stack vertically on mobile
 - [ ] Chart wheel scales appropriately on smaller screens
 

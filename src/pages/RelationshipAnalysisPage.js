@@ -200,7 +200,7 @@ function RelationshipAnalysisPage() {
   }
 
   const hasAnalysis = !!(relationship?.completeAnalysis && Object.keys(relationship.completeAnalysis).length > 0);
-  const canUseAskStellium = Boolean(hasAnalysis);
+  const canUseGravityChat = Boolean(hasAnalysis);
   const navigateToAnalysis = () => setActiveSection('analysis');
 
   // Build sections array for RelationshipDetailLayout
@@ -211,7 +211,7 @@ function RelationshipAnalysisPage() {
         <ScoresTab
           relationship={relationship}
           hasAnalysis={hasAnalysis}
-          canUseAskStellium={canUseAskStellium}
+          canUseGravityChat={canUseGravityChat}
           onNavigateToAnalysis={navigateToAnalysis}
           creditCost={CREDIT_COSTS.FULL_RELATIONSHIP}
           creditsRemaining={entitlements.credits?.total}
@@ -221,15 +221,15 @@ function RelationshipAnalysisPage() {
     },
     {
       id: 'overview',
-      content: <OverviewTab relationship={relationship} compositeId={compositeId} canUseAskStellium={canUseAskStellium} />
+      content: <OverviewTab relationship={relationship} compositeId={compositeId} canUseGravityChat={canUseGravityChat} />
     },
     {
       id: 'composite',
-      content: <CompositeTab relationship={relationship} compositeId={compositeId} canUseAskStellium={canUseAskStellium} />
+      content: <CompositeTab relationship={relationship} compositeId={compositeId} canUseGravityChat={canUseGravityChat} />
     },
     {
       id: 'charts',
-      content: <ChartsTab relationship={relationship} compositeId={compositeId} canUseAskStellium={canUseAskStellium} />
+      content: <ChartsTab relationship={relationship} compositeId={compositeId} canUseGravityChat={canUseGravityChat} />
     },
     {
       id: 'analysis',
@@ -237,7 +237,7 @@ function RelationshipAnalysisPage() {
         <AnalysisTab
           relationship={relationship}
           compositeId={compositeId}
-          canUseAskStellium={canUseAskStellium}
+          canUseGravityChat={canUseGravityChat}
           onAnalysisComplete={handleAnalysisComplete}
           userId={userId}
           initialAnalysisStatus={analysisStatus}

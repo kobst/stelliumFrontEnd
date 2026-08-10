@@ -181,7 +181,7 @@ Replaces `QuestionsIndicator` and `AnalysisQuotaCard`.
 
 ### 3. Updated Components
 
-**File:** `src/UI/askStellium/AskStelliumPanel.js`
+**File:** `src/UI/gravityChat/GravityChatPanel.js`
 ```javascript
 // BEFORE
 const hasQuestionsRemaining = useEntitlementsStore(state => state.hasQuestionsRemaining);
@@ -331,7 +331,7 @@ entitlements?.relationships?.remaining
 ### Frontend
 - [x] Update entitlementsStore (credits instead of quotas)
 - [x] Create CreditsIndicator component
-- [x] Update AskStelliumPanel
+- [x] Update GravityChatPanel
 - [x] Update SubscriptionSettings
 - [x] Update useCheckout hook
 - [ ] **FIX: Update MainDashboard to use credits**
@@ -383,8 +383,8 @@ entitlements?.relationships?.remaining
 - src/UI/entitlements/CreditsIndicator.js (NEW)
 - src/UI/entitlements/CreditsIndicator.css (NEW)
 - src/UI/entitlements/index.js
-- src/UI/askStellium/AskStelliumPanel.js
-- src/UI/askStellium/AskStelliumPanel.css
+- src/UI/gravityChat/GravityChatPanel.js
+- src/UI/gravityChat/GravityChatPanel.css
 - src/UI/dashboard/settings/SubscriptionSettings.js
 - src/UI/dashboard/settings/SubscriptionSettings.css
 - src/hooks/useCheckout.js

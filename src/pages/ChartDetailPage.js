@@ -224,7 +224,7 @@ function ChartDetailPage() {
     ? entitlements.isAnalysisUnlocked('BIRTH_CHART', chartId)
     : false;
   const isAnalysisComplete = !!(broadCategoryAnalyses && Object.keys(broadCategoryAnalyses).length > 0);
-  const canUseAskStellium = isAnalysisComplete;
+  const canUseGravityChat = isAnalysisComplete;
   const hasAnalysis = !!(basicAnalysis?.dominance || basicAnalysis?.planets);
   // Celebrity charts are read-only for regular users: their full analyses are generated via the
   // admin dashboard, and the backend rejects /analysis/start-full for celebrity subjects. Hide the
@@ -278,7 +278,7 @@ function ChartDetailPage() {
           basicAnalysis={basicAnalysis}
           chartId={chartId}
           birthChart={birthChart}
-          canUseAskStellium={canUseAskStellium}
+          canUseGravityChat={canUseGravityChat}
         />
       )
     },
@@ -288,7 +288,7 @@ function ChartDetailPage() {
         <ChartTab
           birthChart={birthChart}
           chartId={chartId}
-          canUseAskStellium={canUseAskStellium}
+          canUseGravityChat={canUseGravityChat}
         />
       )
     },
@@ -307,7 +307,7 @@ function ChartDetailPage() {
           creditCost={CREDIT_COSTS.FULL_NATAL}
           creditsRemaining={entitlements.credits?.total}
           chartId={chartId}
-          canUseAskStellium={canUseAskStellium}
+          canUseGravityChat={canUseGravityChat}
         />
       )
     },
@@ -322,7 +322,7 @@ function ChartDetailPage() {
           creditCost={CREDIT_COSTS.FULL_NATAL}
           creditsRemaining={entitlements.credits?.total}
           chartId={chartId}
-          canUseAskStellium={canUseAskStellium}
+          canUseGravityChat={canUseGravityChat}
         />
       )
     },

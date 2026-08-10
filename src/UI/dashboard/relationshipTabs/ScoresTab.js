@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
-import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
-import AskStelliumCta from '../chartTabs/AskStelliumCta';
+import GravityChatPanel from '../../gravityChat/GravityChatPanel';
+import GravityChatCta from '../chartTabs/GravityChatCta';
 import { getRelationshipSummary } from '../../../Utilities/relationshipSummary';
 import './RelationshipTabs.css';
 
@@ -205,7 +205,7 @@ function ScoresTab({
   creditsRemaining,
   compositeId,
   isCelebrity = false,
-  canUseAskStellium = false
+  canUseGravityChat = false
 }) {
   const [openCluster, setOpenCluster] = useState('Harmony');
   const [chatOpen, setChatOpen] = useState(false);
@@ -230,8 +230,8 @@ function ScoresTab({
     relationship?.clusterScoring?.scoredItems ||
     [];
 
-  const chatPanel = !isCelebrity && canUseAskStellium ? (
-    <AskStelliumPanel
+  const chatPanel = !isCelebrity && canUseGravityChat ? (
+    <GravityChatPanel
       isOpen={chatOpen}
       onClose={() => setChatOpen(false)}
       contentType="relationship"
@@ -370,8 +370,8 @@ function ScoresTab({
 
       {!isCelebrity && (
         <div style={{ marginTop: 18 }}>
-          <AskStelliumCta
-            hasFullAccess={canUseAskStellium}
+          <GravityChatCta
+            hasFullAccess={canUseGravityChat}
             onActivate={() => setChatOpen(prev => !prev)}
             label="Ask about this relationship with Gravity Chat"
           />

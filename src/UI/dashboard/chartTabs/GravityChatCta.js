@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-function AskStelliumCta({ hasFullAccess, onActivate, label = 'Ask about this chart with Gravity Chat' }) {
+function GravityChatCta({ hasFullAccess, onActivate, label = 'Ask about this chart with Gravity Chat' }) {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const dismissTimerRef = useRef(null);
 
@@ -69,4 +69,4 @@ function AskStelliumCta({ hasFullAccess, onActivate, label = 'Ask about this cha
   );
 }
 
-export default AskStelliumCta;
+export default GravityChatCta;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
+import GravityChatPanel from '../../gravityChat/GravityChatPanel';
 import InsufficientCreditsModal from '../../entitlements/InsufficientCreditsModal';
 import useEntitlementsStore from '../../../Utilities/entitlementsStore';
 import { CREDIT_COSTS } from '../../../Utilities/creditCosts';
@@ -647,7 +647,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
       )}
 
       {!isCelebrity && (
-        <AskStelliumPanel
+        <GravityChatPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
           contentType="analysis"

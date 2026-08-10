@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import SimplifiedPatternWheel from '../../astrology/SimplifiedPatternWheel';
 import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
-import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
-import AskStelliumCta from './AskStelliumCta';
+import GravityChatPanel from '../../gravityChat/GravityChatPanel';
+import GravityChatCta from './GravityChatCta';
 import {
   calculateStelliumSpanFromPlanets,
   generateTSquareLinesFromStructured,
@@ -63,7 +63,7 @@ const QUADRANT_LABEL_POS = {
   ul: { x: 113, y: 120 }, ur: { x: 227, y: 120 }, lr: { x: 227, y: 228 }, ll: { x: 113, y: 228 },
 };
 
-function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity, canUseAskStellium = false, onHoverBodies }) {
+function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity, canUseGravityChat = false, onHoverBodies }) {
   const [activeTab, setActiveTab] = useState('elements');
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -799,8 +799,8 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
       <div className="patterns-header">
         <h2 className="patterns-header-title">Patterns</h2>
         {!isCelebrity && (
-          <AskStelliumCta
-            hasFullAccess={canUseAskStellium}
+          <GravityChatCta
+            hasFullAccess={canUseGravityChat}
             onActivate={() => setChatOpen(prev => !prev)}
           />
         )}
@@ -832,8 +832,8 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
         {renderTabContent()}
       </div>
 
-      {!isCelebrity && canUseAskStellium && (
-        <AskStelliumPanel
+      {!isCelebrity && canUseGravityChat && (
+        <GravityChatPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
           contentType="birthchart"

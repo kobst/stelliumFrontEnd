@@ -25,7 +25,7 @@ import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import AddChartModal from '../UI/dashboard/AddChartModal';
 import DashboardNav from '../UI/dashboard/DashboardNav';
 import SettingsSection from '../UI/dashboard/SettingsSection';
-import AskStelliumPanel, { formatTransitEvent } from '../UI/askStellium/AskStelliumPanel';
+import GravityChatPanel, { formatTransitEvent } from '../UI/gravityChat/GravityChatPanel';
 import InsufficientCreditsModal from '../UI/entitlements/InsufficientCreditsModal';
 import './MainDashboard.css';
 import './MainDashboardTheme.css';
@@ -744,7 +744,7 @@ function HomePane({ userId, user, entitlements }) {
           {composing ? 'Composing…' : '✦ Compose a reading from ' + askSelection.length + (askSelection.length > 1 ? ' influences' : ' influence')}
         </button>
       )}
-      <AskStelliumPanel
+      <GravityChatPanel
         variant="dock"
         isOpen={horizon === 'ask'}
         onClose={() => goToHorizon(PERIOD_TO_HORIZON[period] || 'today')}

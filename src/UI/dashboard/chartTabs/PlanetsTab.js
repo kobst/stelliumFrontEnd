@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import AnalysisPromptCard from '../../shared/AnalysisPromptCard';
-import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
-import AskStelliumCta from './AskStelliumCta';
+import GravityChatPanel from '../../gravityChat/GravityChatPanel';
+import GravityChatCta from './GravityChatCta';
 import { PlanetIcon, SignIcon } from '../../shared/AstroIcon';
 import AspectMiniChart, { aspectKindFor } from '../../shared/AspectMiniChart';
 import './PlanetsTab.css';
@@ -25,7 +25,7 @@ const splitIntoParagraphs = (text) => {
   ));
 };
 
-function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseAskStellium = false, onEmphasizeBodies, onHoverBodies, onUserSelectPlanet, externalPlanet, showAspectTable = true }) {
+function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity = false, canUseGravityChat = false, onEmphasizeBodies, onHoverBodies, onUserSelectPlanet, externalPlanet, showAspectTable = true }) {
   const planets = useMemo(() => {
     const rawPlanets = birthChart?.planets?.filter(p => !excludedPlanets.includes(p.name)) || [];
     // Sort planets by the canonical order
@@ -170,8 +170,8 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
           <div className="planets-header">
             <h3 className="planets-header-title">Planets</h3>
             {!isCelebrity && (
-              <AskStelliumCta
-                hasFullAccess={canUseAskStellium}
+              <GravityChatCta
+                hasFullAccess={canUseGravityChat}
                 onActivate={() => setChatOpen(prev => !prev)}
               />
             )}
@@ -191,8 +191,8 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
         <div className="planets-header">
           <h3 className="planets-header-title">Planets</h3>
           {!isCelebrity && (
-            <AskStelliumCta
-              hasFullAccess={canUseAskStellium}
+            <GravityChatCta
+              hasFullAccess={canUseGravityChat}
               onActivate={() => setChatOpen(prev => !prev)}
             />
           )}
@@ -382,8 +382,8 @@ function PlanetsTab({ birthChart, basicAnalysis, hasAnalysis, onNavigateToAnalys
           </div>
         )}
       </div>
-      {!isCelebrity && canUseAskStellium && (
-        <AskStelliumPanel
+      {!isCelebrity && canUseGravityChat && (
+        <GravityChatPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
           contentType="birthchart"

@@ -99,7 +99,7 @@ A centralized stylesheet for mobile-specific fixes, loaded last for proper CSS s
 - Pill-style nav buttons with proper touch targets
 - Reduced section padding
 
-#### `src/UI/dashboard/AskStelliumTab.css`
+#### `src/UI/dashboard/GravityChatTab.css`
 - Larger period buttons with flex wrapping
 - Full-width generate button with proper height
 - Transit checkboxes enlarged for touch

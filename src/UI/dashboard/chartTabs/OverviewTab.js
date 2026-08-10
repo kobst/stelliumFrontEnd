@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
-import AskStelliumCta from './AskStelliumCta';
+import GravityChatPanel from '../../gravityChat/GravityChatPanel';
+import GravityChatCta from './GravityChatCta';
 import './ChartTabs.css';
 
-function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity, canUseAskStellium = false }) {
+function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity, canUseGravityChat = false }) {
   const [chatOpen, setChatOpen] = useState(false);
 
   const overview = basicAnalysis?.overview;
@@ -40,15 +40,15 @@ function OverviewTab({ basicAnalysis, chartId, birthChart, isCelebrity, canUseAs
 
       {!isCelebrity && (
         <div style={{ marginTop: 24 }}>
-          <AskStelliumCta
-            hasFullAccess={canUseAskStellium}
+          <GravityChatCta
+            hasFullAccess={canUseGravityChat}
             onActivate={() => setChatOpen(prev => !prev)}
           />
         </div>
       )}
 
-      {!isCelebrity && canUseAskStellium && (
-        <AskStelliumPanel
+      {!isCelebrity && canUseGravityChat && (
+        <GravityChatPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
           contentType="birthchart"

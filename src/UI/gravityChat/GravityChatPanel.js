@@ -15,7 +15,7 @@ import { useAuth } from '../../context/AuthContext';
 import InsufficientCreditsModal from '../entitlements/InsufficientCreditsModal';
 import { trackChatMessageSent, trackCreditWallHit } from '../../Utilities/analytics';
 import StreamingTextReveal from './StreamingTextReveal';
-import './AskStelliumPanel.css';
+import './GravityChatPanel.css';
 
 const HISTORY_CONFIG = {
   birthchart: {
@@ -306,7 +306,7 @@ const getContextTableCells = (contentType, element) => {
 
 const makeMessageId = () => `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-function AskStelliumPanel({
+function GravityChatPanel({
   isOpen,
   onClose,
   contentType,
@@ -1499,4 +1499,4 @@ function AskStelliumPanel({
   ), document.body);
 }
 
-export default AskStelliumPanel;
+export default GravityChatPanel;

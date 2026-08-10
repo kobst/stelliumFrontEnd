@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { fetchAnalysis, fetchUser } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
-import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
-import AskStelliumCta from '../UI/dashboard/chartTabs/AskStelliumCta';
+import GravityChatPanel from '../UI/gravityChat/GravityChatPanel';
+import GravityChatCta from '../UI/dashboard/chartTabs/GravityChatCta';
 import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
 import ChartTab from '../UI/dashboard/chartTabs/ChartTab';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
@@ -281,7 +281,7 @@ function PublicCelebrityDashboard() {
               )}
               {isFullyAuthenticated && (
                 <div className="pcb-ask-inline">
-                  <AskStelliumCta hasFullAccess onActivate={handleAsk} />
+                  <GravityChatCta hasFullAccess onActivate={handleAsk} />
                 </div>
               )}
             </div>
@@ -299,7 +299,7 @@ function PublicCelebrityDashboard() {
       <InkPublicFooter />
 
       {isFullyAuthenticated && (
-        <AskStelliumPanel
+        <GravityChatPanel
           isOpen={askOpen}
           onClose={() => setAskOpen(false)}
           contentType="birthchart"

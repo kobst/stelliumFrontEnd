@@ -1,4 +1,4 @@
-import { formatTransitEvent } from '../askStellium/AskStelliumPanel';
+import { formatTransitEvent } from '../gravityChat/GravityChatPanel';
 import { toSceneBodyNames } from '../../Utilities/chartSceneAdapter';
 
 export const DAY_MS = 86400000;

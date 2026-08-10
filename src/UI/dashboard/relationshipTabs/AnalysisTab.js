@@ -4,8 +4,8 @@ import { startRelationshipWorkflow, getRelationshipWorkflowStatus } from '../../
 import InsufficientCreditsModal from '../../entitlements/InsufficientCreditsModal';
 import useEntitlementsStore from '../../../Utilities/entitlementsStore';
 import { CREDIT_COSTS } from '../../../Utilities/creditCosts';
-import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
-import AskStelliumCta from '../chartTabs/AskStelliumCta';
+import GravityChatPanel from '../../gravityChat/GravityChatPanel';
+import GravityChatCta from '../chartTabs/GravityChatCta';
 import AspectMiniChart, { aspectKindFor } from '../../shared/AspectMiniChart';
 import './RelationshipTabs.css';
 
@@ -28,7 +28,7 @@ const getQuadrantLabel = (quadrant) => {
   return quadrant;
 };
 
-function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, isCelebrity = false, initialAnalysisStatus = null, canUseAskStellium = false }) {
+function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, isCelebrity = false, initialAnalysisStatus = null, canUseGravityChat = false }) {
   const [selectedCluster, setSelectedCluster] = useState('Harmony');
   const [selectedPanel, setSelectedPanel] = useState('support');
   const [analysisStatus, setAnalysisStatus] = useState(null);
@@ -230,8 +230,8 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
     relationship?.clusterScoring?.scoredItems ||
     [];
 
-  const chatPanel = !isCelebrity && canUseAskStellium ? (
-    <AskStelliumPanel
+  const chatPanel = !isCelebrity && canUseGravityChat ? (
+    <GravityChatPanel
       isOpen={chatOpen}
       onClose={() => setChatOpen(false)}
       contentType="relationship"
@@ -254,8 +254,8 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
         <div className="analysis-header">
           <h2 className="analysis-header__title">360° Analysis</h2>
           {!isCelebrity && (
-            <AskStelliumCta
-              hasFullAccess={canUseAskStellium}
+            <GravityChatCta
+              hasFullAccess={canUseGravityChat}
               onActivate={() => setChatOpen(prev => !prev)}
               label="Ask about this relationship with Gravity Chat"
             />
@@ -279,8 +279,8 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
         <div className="analysis-header">
           <h2 className="analysis-header__title">360° Analysis</h2>
           {!isCelebrity && (
-            <AskStelliumCta
-              hasFullAccess={canUseAskStellium}
+            <GravityChatCta
+              hasFullAccess={canUseGravityChat}
               onActivate={() => setChatOpen(prev => !prev)}
               label="Ask about this relationship with Gravity Chat"
             />
@@ -402,8 +402,8 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
       <div className="analysis-header">
         <h2 className="analysis-header__title">360° Analysis</h2>
         {!isCelebrity && (
-          <AskStelliumCta
-            hasFullAccess={canUseAskStellium}
+          <GravityChatCta
+            hasFullAccess={canUseGravityChat}
             onActivate={() => setChatOpen(prev => !prev)}
             label="Ask about this relationship with Gravity Chat"
           />

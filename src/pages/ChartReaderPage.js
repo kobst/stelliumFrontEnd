@@ -24,10 +24,10 @@ import AnalysisTab from '../UI/dashboard/chartTabs/AnalysisTab';
 import { AnalysisStepBody, flattenAnalysis } from '../UI/journey/AnalysisFlow';
 import DetailNavigator from '../UI/journey/DetailNavigator';
 import ChapterHeader from '../UI/journey/ChapterHeader';
-import AskStelliumPanel, {
+import GravityChatPanel, {
   formatAspectData,
   formatPositionData,
-} from '../UI/askStellium/AskStelliumPanel';
+} from '../UI/gravityChat/GravityChatPanel';
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import './ChartReaderPage.css';
 import './BirthChartJourneyPage.css';
@@ -446,7 +446,7 @@ function ChartReaderPage() {
       .sort((a, b) => Number(a.orb) - Number(b.orb));
   }, [activeChapter, aspects, focusedPlanetName]);
   const hoveredPlanet = hoverInfo ? sceneBodyLookup[hoverInfo.body] : null;
-  const canUseAskStellium = isAnalysisComplete;
+  const canUseGravityChat = isAnalysisComplete;
   const isCelebrity =
     chart?.isCelebrity === true || chart?.kind === 'celebrity' || chart?.isReadOnly === true;
 
@@ -823,7 +823,7 @@ function ChartReaderPage() {
             type="button"
             className="birth-journey-ask"
             onClick={() => goToChapter('ask')}
-            disabled={!canUseAskStellium}
+            disabled={!canUseGravityChat}
           >
             <span aria-hidden="true">✦</span> Gravity Chat
           </button>
@@ -1082,7 +1082,7 @@ function ChartReaderPage() {
                       creditCost={CREDIT_COSTS.FULL_NATAL}
                       creditsRemaining={entitlements.credits?.total}
                       chartId={chartId}
-                      canUseAskStellium={false}
+                      canUseGravityChat={false}
                       onEmphasizeBodies={handlePlanetsEmphasis}
                       onHoverBodies={setHoverNames}
                       onUserSelectPlanet={selectPlanet}
@@ -1168,7 +1168,7 @@ function ChartReaderPage() {
               aria-label="Chart context inspector"
             />
             <section className="birth-ask-chat" aria-label="Gravity Chat conversation">
-              <AskStelliumPanel
+              <GravityChatPanel
                 variant="dock"
                 defaultContextOpen
                 contextPlacement="external"

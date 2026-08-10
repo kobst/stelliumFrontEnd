@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import AskStelliumPanel from '../../askStellium/AskStelliumPanel';
-import AskStelliumCta from '../chartTabs/AskStelliumCta';
+import GravityChatPanel from '../../gravityChat/GravityChatPanel';
+import GravityChatCta from '../chartTabs/GravityChatCta';
 import './RelationshipTabs.css';
 
-function OverviewTab({ relationship, compositeId, isCelebrity = false, canUseAskStellium = false }) {
+function OverviewTab({ relationship, compositeId, isCelebrity = false, canUseGravityChat = false }) {
   const [chatOpen, setChatOpen] = useState(false);
 
   const initialOverview = relationship?.initialOverview;
@@ -16,8 +16,8 @@ function OverviewTab({ relationship, compositeId, isCelebrity = false, canUseAsk
     relationship?.clusterScoring?.scoredItems ||
     [];
 
-  const panel = !isCelebrity && canUseAskStellium ? (
-    <AskStelliumPanel
+  const panel = !isCelebrity && canUseGravityChat ? (
+    <GravityChatPanel
       isOpen={chatOpen}
       onClose={() => setChatOpen(false)}
       contentType="relationship"
@@ -56,8 +56,8 @@ function OverviewTab({ relationship, compositeId, isCelebrity = false, canUseAsk
 
       {!isCelebrity && (
         <div style={{ padding: '24px 30px 0' }}>
-          <AskStelliumCta
-            hasFullAccess={canUseAskStellium}
+          <GravityChatCta
+            hasFullAccess={canUseGravityChat}
             onActivate={() => setChatOpen(prev => !prev)}
             label="Ask about this relationship with Gravity Chat"
           />

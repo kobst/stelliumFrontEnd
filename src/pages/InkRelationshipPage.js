@@ -15,7 +15,7 @@ import {
   toSynastrySceneAspects,
 } from '../Utilities/chartSceneAdapter';
 import { ChartScene } from '../UI/shared/chartScene';
-import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
+import GravityChatPanel from '../UI/gravityChat/GravityChatPanel';
 import InkNav from '../UI/ink/InkNav';
 import '../styles/ink.css';
 import './InkRelationshipPage.css';
@@ -800,7 +800,7 @@ function InkRelationshipPage() {
                 Astral Gravity has read both charts. Ask about the space between them.
               </p>
               <div className="ink-relationship__ask-chat" aria-label="Gravity Chat conversation">
-                <AskStelliumPanel
+                <GravityChatPanel
                   variant="dock"
                   isOpen={activeTab === 'ask'}
                   onClose={() => setActiveTab('composite')}

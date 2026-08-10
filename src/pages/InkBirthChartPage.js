@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import useChartData from '../hooks/useChartData';
 import InkNav from '../UI/ink/InkNav';
 import Ephemeris from '../UI/shared/Ephemeris';
-import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
+import GravityChatPanel from '../UI/gravityChat/GravityChatPanel';
 import AnalysisTab, {
   decodeAstroCode,
   formatAspectDetail,
@@ -667,7 +667,7 @@ function InkBirthChartPage() {
               <p className="ibc-ask-sub">Astral Gravity has read your chart. Ask about it.</p>
               {isAnalysisComplete ? (
                 <div className="ibc-ask-panel-host">
-                  <AskStelliumPanel
+                  <GravityChatPanel
                     variant="dock"
                     isOpen={activeChapter === 'ask'}
                     onClose={() => handleChapterChange('analysis')}

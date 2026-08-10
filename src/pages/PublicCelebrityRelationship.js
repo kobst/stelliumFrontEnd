@@ -12,8 +12,8 @@ import {
   toChartScenePlacements,
   toSynastrySceneAspects,
 } from '../Utilities/chartSceneAdapter';
-import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
-import AskStelliumCta from '../UI/dashboard/chartTabs/AskStelliumCta';
+import GravityChatPanel from '../UI/gravityChat/GravityChatPanel';
+import GravityChatCta from '../UI/dashboard/chartTabs/GravityChatCta';
 import RelationshipAnalysisTab from '../UI/dashboard/relationshipTabs/AnalysisTab';
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
 import CompositeTab from '../UI/dashboard/relationshipTabs/CompositeTab';
@@ -420,7 +420,7 @@ function PublicCelebrityRelationship() {
 
             <div className="ink-wrap">
               {isFullyAuthenticated ? (
-                <div className="pcr-ask-inline"><AskStelliumCta hasFullAccess onActivate={handleAsk} /></div>
+                <div className="pcr-ask-inline"><GravityChatCta hasFullAccess onActivate={handleAsk} /></div>
               ) : (
                 (tab.id === 'scores' || tab.id === 'analysis') && <ConversionCta />
               )}
@@ -439,7 +439,7 @@ function PublicCelebrityRelationship() {
       <InkPublicFooter />
 
       {isFullyAuthenticated && (
-        <AskStelliumPanel
+        <GravityChatPanel
           isOpen={askOpen}
           onClose={() => setAskOpen(false)}
           contentType="relationship"

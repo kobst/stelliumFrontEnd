@@ -11,7 +11,7 @@ import useStore from '../Utilities/store';
 import { useAuth } from '../context/AuthContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import useTransitFrames from '../hooks/useTransitFrames';
-import AskStelliumPanel from '../UI/askStellium/AskStelliumPanel';
+import GravityChatPanel from '../UI/gravityChat/GravityChatPanel';
 import CalendarStrip from '../UI/horoscope/CalendarStrip';
 import HoroscopeReading from '../UI/horoscope/HoroscopeReading';
 import TransitTracker from '../UI/horoscope/TransitTracker';
@@ -854,7 +854,7 @@ function HoroscopeExperience({ user, userId, entitlements }) {
               className="ink-card ihp-ask-panel ihp-chat-slot ihp-lens-panel"
               hidden={meaningLens !== 'chat'}
             >
-              <AskStelliumPanel
+              <GravityChatPanel
                 variant="dock"
                 isOpen
                 onClose={() => setMeaningLens('reading')}
