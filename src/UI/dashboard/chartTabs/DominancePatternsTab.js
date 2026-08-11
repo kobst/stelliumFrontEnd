@@ -63,7 +63,7 @@ const QUADRANT_LABEL_POS = {
   ul: { x: 113, y: 120 }, ur: { x: 227, y: 120 }, lr: { x: 227, y: 228 }, ll: { x: 113, y: 228 },
 };
 
-function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity, canUseGravityChat = false, onHoverBodies }) {
+function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities, quadrants, planetaryDominance, hasAnalysis, onNavigateToAnalysis, creditCost, creditsRemaining, chartId, isCelebrity, canUseGravityChat = false, onHoverBodies, onOpenGravityChat }) {
   const [activeTab, setActiveTab] = useState('elements');
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -798,7 +798,9 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
       {/* Header */}
       <div className="patterns-header">
         <h2 className="patterns-header-title">Patterns</h2>
-        {!isCelebrity && (
+        {/* When the host page renders its own page-level CTA (signalled by
+            onOpenGravityChat), suppress this in-tab one to avoid duplicates. */}
+        {!onOpenGravityChat && !isCelebrity && (
           <GravityChatCta
             hasFullAccess={canUseGravityChat}
             onActivate={() => setChatOpen(prev => !prev)}
@@ -832,7 +834,9 @@ function DominancePatternsTab({ birthChart, basicAnalysis, elements, modalities,
         {renderTabContent()}
       </div>
 
-      {!isCelebrity && canUseGravityChat && (
+      {/* When the host page owns a dedicated Gravity Chat surface it passes
+          onOpenGravityChat to route there; skip the in-tab panel in that case. */}
+      {!onOpenGravityChat && !isCelebrity && canUseGravityChat && (
         <GravityChatPanel
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}

@@ -12,6 +12,7 @@ import AnalysisTab, {
 } from '../UI/dashboard/chartTabs/AnalysisTab';
 import { flattenAnalysis } from '../UI/journey/AnalysisFlow';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
+import GravityChatCta from '../UI/dashboard/chartTabs/GravityChatCta';
 import '../styles/ink.css';
 import './InkBirthChartPage.css';
 
@@ -477,6 +478,9 @@ function InkBirthChartPage() {
               quadrants={quadrants}
               planetaryDominance={planetaryDominance}
               hasAnalysis={hasAnalysis}
+              isCelebrity={isCelebrity}
+              canUseGravityChat={isAnalysisComplete}
+              onOpenGravityChat={() => handleChapterChange('ask')}
               onNavigateToAnalysis={() => handleChapterChange('analysis')}
             />
           </div>
@@ -710,6 +714,16 @@ function InkBirthChartPage() {
           </div>
         </section>
       </main>
+
+      {/* Page-level floating CTA: shown on every content chapter except Gravity
+          Chat itself (redundant there). Fixed-positioned, so it must live
+          outside the per-chapter <section hidden> blocks to stay visible. */}
+      {!isCelebrity && activeChapter !== 'ask' && (
+        <GravityChatCta
+          hasFullAccess={isAnalysisComplete}
+          onActivate={() => handleChapterChange('ask')}
+        />
+      )}
     </div>
   );
 }
