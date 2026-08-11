@@ -396,28 +396,6 @@ export const fetchUsersPaginated = async (options = {}) => {
 };
 
 
-export const fetchComposites = async () => {
-  try {
-    const response = await telemetryFetch(`${SERVER_URL}/getCompositeCharts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      // Add a body if needed
-      // body: JSON.stringify({})
-    });
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    console.log('Composites:', data);
-    return data;
-  } catch (error) {
-    console.error('Error fetching composites:', error);
-    throw error;
-  }
-};
-
 export const handleUserInput = async (userId, query) => {
   console.log(query)
   try {
