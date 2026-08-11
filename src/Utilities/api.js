@@ -464,7 +464,9 @@ export const createRelationshipDirect = async (userIdA, userIdB, ownerUserId = n
       requestBody.celebRelationship = true;
     }
     
-    const response = await telemetryFetch(`${SERVER_URL}/enhanced-relationship-analysis`, {
+    // Endpoint requires auth (requireAuth + owner-body match); authenticatedFetch
+    // attaches the Firebase token and still routes through telemetryFetch.
+    const response = await authenticatedFetch(`${SERVER_URL}/enhanced-relationship-analysis`, {
       method: HTTP_POST,
       headers: { [CONTENT_TYPE_HEADER]: APPLICATION_JSON },
       body: JSON.stringify(requestBody)
