@@ -383,6 +383,11 @@ function InkBirthChartPage() {
     : 'House placement unavailable';
   const isCelebrity =
     chart?.isCelebrity === true || chart?.kind === 'celebrity' || chart?.isReadOnly === true;
+  // Guests/celebrities are third parties; only the owner's own chart is "you".
+  // Legacy charts without a kind fall back to the prior "own chart" assumption
+  // unless they are a celebrity.
+  const isOwnChart = chart?.kind ? chart.kind === 'accountSelf' : !isCelebrity;
+  const subjectFirstName = chart?.firstName || subjectName;
   const activeAnalysisIndex = analysisGroups.findIndex(
     (group) => group.domain.id === selectedAnalysis?.domain.id
   );
@@ -425,12 +430,15 @@ function InkBirthChartPage() {
           <div className="ink-wrap ibc-overview-grid">
             <div className="ibc-overview-copy">
               <div className="ink-eyebrow">Overview</div>
-              <h2>Your chart, brought <span className="ink-italic">into focus.</span></h2>
+              <h2>
+                {isOwnChart ? 'Your chart' : `${subjectFirstName}’s chart`}, brought{' '}
+                <span className="ink-italic">into focus.</span>
+              </h2>
               {overviewParagraphs.length > 0 ? (
                 overviewParagraphs.map((text, index) => <p key={index}>{text}</p>)
               ) : (
                 <p className="ibc-empty-copy">
-                  Your overview will appear here when the chart’s interpretation is ready.
+                  {isOwnChart ? 'Your overview' : `${subjectFirstName}’s overview`} will appear here when the chart’s interpretation is ready.
                 </p>
               )}
             </div>
