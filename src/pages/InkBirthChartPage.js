@@ -13,6 +13,7 @@ import AnalysisTab, {
 import { flattenAnalysis } from '../UI/journey/AnalysisFlow';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import GravityChatCta from '../UI/dashboard/chartTabs/GravityChatCta';
+import InkSubjectAvatar from '../UI/ink/InkSubjectAvatar';
 import '../styles/ink.css';
 import './InkBirthChartPage.css';
 
@@ -398,7 +399,16 @@ function InkBirthChartPage() {
       <InkNav variant="app" activeSegment="charts" />
 
       <header className="ibc-chart-head">
-        <h1><span aria-hidden="true">✳</span>{subjectName}</h1>
+        <div className="ibc-chart-avatar-row">
+          <InkSubjectAvatar
+            subjectId={chart?._id || chartId}
+            photoUrl={chart?.profilePhotoUrl}
+            firstName={chart?.firstName}
+            lastName={chart?.lastName}
+            editable={!isCelebrity}
+          />
+        </div>
+        <h1>{subjectName}</h1>
         {birthMeta && <p>{birthMeta}</p>}
       </header>
 

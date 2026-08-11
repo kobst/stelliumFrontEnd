@@ -25,6 +25,12 @@
   text-align: center;
 }
 
+.ibc-chart-avatar-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
 .ibc-chart-head h1 {
   display: flex;
   align-items: baseline;
