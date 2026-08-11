@@ -9,6 +9,19 @@
     outline: none !important;
     border-color: rgba(255, 255, 255, 0.8) !important;
   }
+
+  /* Browser autofill overrides the field background with its own light fill,
+     which hides the white input text. Mask it with a dark inset box-shadow and
+     force the text fill back to white; the long transition stops it flashing. */
+  .input-dark-placeholder:-webkit-autofill,
+  .input-dark-placeholder:-webkit-autofill:hover,
+  .input-dark-placeholder:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px rgba(12, 9, 26, 0.96) inset !important;
+    box-shadow: 0 0 0 1000px rgba(12, 9, 26, 0.96) inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff;
+    transition: background-color 600000s 0s, color 600000s 0s;
+  }
   
   .input-dark-placeholder:hover {
     background-color: rgba(0, 0, 0, 0.5) !important;

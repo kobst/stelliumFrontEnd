@@ -457,6 +457,20 @@
   -webkit-text-fill-color: var(--ink) !important;
 }
 
+/* Browser autofill paints its own (here dark-purple) background that
+   background-color cannot override; the inset box-shadow trick masks it with
+   the paper color and the long transition keeps it from flashing back. */
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input:-webkit-autofill,
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input:-webkit-autofill:hover,
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input:-webkit-autofill:focus,
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group .add-chart-modal__location-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--card) inset !important;
+  box-shadow: 0 0 0 1000px var(--card) inset !important;
+  -webkit-text-fill-color: var(--ink) !important;
+  caret-color: var(--ink);
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+
 .ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group input::placeholder,
 .ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group .add-chart-modal__location-input::placeholder {
   color: var(--ink-faint) !important;
@@ -476,6 +490,23 @@
   padding-right: 38px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23232840' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
   background-color: var(--card) !important;
+  /* Pin the chevron so it never tiles: the browser drops the base shorthand's
+     no-repeat when it re-renders the field on selection/autofill. */
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 12px 12px !important;
+}
+
+/* On an autofilled select Chrome resets background-repeat to `repeat` even over
+   page !important, tiling the chevron SVG into a triangle pattern. The inset
+   box-shadow paints the paper color over the whole background layer, masking
+   both the tiled chevron and the dark autofill fill. The chevron reappears as
+   soon as the field is clicked and leaves the autofill-highlighted state. */
+.ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--card) inset !important;
+  box-shadow: 0 0 0 1000px var(--card) inset !important;
+  -webkit-text-fill-color: var(--ink) !important;
+  transition: background-color 600000s 0s, color 600000s 0s;
 }
 
 .ink-my-charts__modal-skin .add-chart-modal__form .add-chart-modal__group select option {
