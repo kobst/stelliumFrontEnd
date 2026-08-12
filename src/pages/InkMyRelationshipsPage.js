@@ -31,10 +31,14 @@ function getPersonName(person) {
     || 'Unknown';
 }
 
-function getSunSign(person) {
+function getPlanetSign(person, planetName) {
   const planets = person?.birthChart?.planets;
   if (!Array.isArray(planets)) return null;
-  return planets.find((planet) => planet?.name === 'Sun')?.sign || null;
+  return planets.find((planet) => planet?.name === planetName)?.sign || null;
+}
+
+function getSunSign(person) {
+  return getPlanetSign(person, 'Sun');
 }
 
 function getInitials(person) {
@@ -52,25 +56,26 @@ function getPhoto(person) {
   return person?.profilePhotoUrl || person?.photoUrl || null;
 }
 
-// Circular medal: shows the subject's photo when available, otherwise the
-// tinted initials. Mirrors the landing page / My Charts portrait style.
-function CelebMedal({ person, tintClass }) {
+// Square, etched-ink portrait matching the celebrity-database / landing-page
+// card style: a grayscale-sepia photo when available, otherwise tinted initials.
+function CelebPortrait({ person, tintClass }) {
   const [imageFailed, setImageFailed] = useState(false);
   const photo = getPhoto(person);
   const showPhoto = photo && !imageFailed;
   return (
-    <span className={`ink-relationships__medal tint-${tintClass}${showPhoto ? ' has-photo' : ''}`}>
-      <span className="ink-relationships__medal-initials" aria-hidden="true">{getInitials(person)}</span>
-      {showPhoto && (
+    <div className={`ink-relationships__celeb-portrait ink-relationships__celeb-portrait--${tintClass}`}>
+      {showPhoto ? (
         <img
-          className="ink-relationships__medal-img"
           src={photo}
           alt=""
           loading="lazy"
+          decoding="async"
           onError={() => setImageFailed(true)}
         />
+      ) : (
+        <span aria-hidden="true">{getInitials(person)}</span>
       )}
-    </span>
+    </div>
   );
 }
 
@@ -558,21 +563,32 @@ function InkMyRelationshipsPage({ userId: userIdOverride }) {
                 <div className="ink-relationships__celebrity-grid">
                   {filteredCelebrities.map((celebrity, index) => {
                     const selected = selectedType === 'celebrity' && sameId(selectedPerson?._id, celebrity._id);
-                    const sign = getSunSign(celebrity);
+                    const sun = getPlanetSign(celebrity, 'Sun');
+                    const moon = getPlanetSign(celebrity, 'Moon');
                     return (
                       <button
                         type="button"
-                        className={`ink-relationships__celebrity-chip${selected ? ' is-selected' : ''}`}
+                        className={`ink-relationships__celeb-card${selected ? ' is-selected' : ''}`}
                         aria-pressed={selected}
                         onClick={() => selectPerson(celebrity, 'celebrity')}
                         key={celebrity._id}
                       >
-                        <CelebMedal
+                        <CelebPortrait
                           person={celebrity}
                           tintClass={CELEBRITY_TINTS[index % CELEBRITY_TINTS.length]}
                         />
-                        <b>{getPersonName(celebrity)}</b>
-                        <span>{sign || 'Birth chart'}</span>
+                        <div className="ink-relationships__celeb-copy">
+                          <b>{getPersonName(celebrity)}</b>
+                          {(sun || moon) ? (
+                            <span className="ink-relationships__celeb-placements">
+                              {sun && <>☉ {sun} Sun</>}
+                              {sun && moon && <span> · </span>}
+                              {moon && <>☽ {moon} Moon</>}
+                            </span>
+                          ) : (
+                            <span className="ink-relationships__celeb-placements"><span>Birth chart</span></span>
+                          )}
+                        </div>
                       </button>
                     );
                   })}

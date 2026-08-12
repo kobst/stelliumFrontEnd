@@ -354,63 +354,92 @@
 .ink-relationships__celebrity-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
 
-.ink-relationships__celebrity-chip {
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  padding: 18px 10px 14px;
-}
-
-.ink-relationships__celebrity-chip b {
-  font-size: 17px;
-  line-height: 1.15;
-}
-
-.ink-relationships__medal {
+/* Celebrity picker cards — etched-ink portraits matching the celebrity
+   database / landing page. */
+.ink-relationships__celeb-card {
   position: relative;
   display: grid;
-  place-items: center;
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
   overflow: hidden;
-  color: rgba(35, 40, 64, .6);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--card);
+  color: var(--ink);
   font-family: var(--ink-serif);
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 500;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color .15s ease, box-shadow .18s ease, transform .18s ease;
 }
 
-.ink-relationships__medal-initials {
-  line-height: 1;
+.ink-relationships__celeb-card:hover {
+  border-color: rgba(52, 55, 168, .35);
+  box-shadow: 0 18px 34px -28px rgba(27, 33, 64, .65);
+  transform: translateY(-2px);
 }
 
-.ink-relationships__medal-img {
-  position: absolute;
-  inset: 0;
+.ink-relationships__celeb-card.is-selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue);
+}
+
+.ink-relationships__celeb-portrait {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: #ddd4c5;
+  color: rgba(27, 33, 64, .7);
+  font-family: var(--ink-serif);
+  font-size: clamp(26px, 4vw, 42px);
+  font-style: italic;
+}
+
+.ink-relationships__celeb-portrait--blue { background: #cad5d9; }
+.ink-relationships__celeb-portrait--gold { background: #ded2b8; }
+.ink-relationships__celeb-portrait--rose { background: #dfc9c5; }
+.ink-relationships__celeb-portrait--sage { background: #ccd4c7; }
+
+.ink-relationships__celeb-portrait img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 50%;
+  object-position: 50% 25%;
+  /* etched-ink tone, matching the landing page's celebrity strip */
+  filter: grayscale(1) sepia(0.28) saturate(0.85) contrast(1.02);
+  transition: transform .25s ease;
 }
 
-.ink-relationships__medal.tint-blue {
-  background: radial-gradient(circle at 30% 25%, rgba(52, 55, 168, .16), rgba(52, 55, 168, .05));
+.ink-relationships__celeb-card:hover .ink-relationships__celeb-portrait img {
+  transform: scale(1.018);
 }
 
-.ink-relationships__medal.tint-gold {
-  background: radial-gradient(circle at 30% 25%, rgba(176, 141, 62, .22), rgba(176, 141, 62, .07));
+.ink-relationships__celeb-copy {
+  padding: 12px 13px 14px;
 }
 
-.ink-relationships__medal.tint-rose {
-  background: radial-gradient(circle at 30% 25%, rgba(190, 110, 95, .2), rgba(190, 110, 95, .06));
+.ink-relationships__celeb-copy b {
+  display: block;
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.12;
+  color: var(--ink);
 }
 
-.ink-relationships__medal.tint-sage {
-  background: radial-gradient(circle at 30% 25%, rgba(122, 138, 109, .22), rgba(122, 138, 109, .07));
+.ink-relationships__celeb-placements {
+  color: var(--blue);
+  font-size: 12.5px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.ink-relationships__celeb-placements span {
+  color: var(--ink-faint);
 }
 
 .ink-relationships__pick-card .ink-relationships__status {
