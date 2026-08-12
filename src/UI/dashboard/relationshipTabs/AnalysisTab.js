@@ -304,11 +304,13 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
                   Starting Analysis...
                 </>
               ) : (
-                usesIncludedReport
-                  ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
-                  : isSimple
-                    ? 'Unlock this report — $7.99'
-                    : `Start 360° Analysis (${CREDIT_COSTS.FULL_RELATIONSHIP} credits)`
+                isAnalysisUnlocked('RELATIONSHIP', compositeId)
+                  ? 'Start 360° Analysis'
+                  : usesIncludedReport
+                    ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
+                    : isSimple
+                      ? 'Unlock this report — $7.99'
+                      : `Start 360° Analysis (${CREDIT_COSTS.FULL_RELATIONSHIP} credits)`
               )}
             </button>
           ) : (

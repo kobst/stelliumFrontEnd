@@ -499,11 +499,13 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
 
           {!showConfirm ? (
             <button className="start-analysis-button" onClick={handleStartClick}>
-              {usesIncludedReport
-                ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
-                : isSimple
-                  ? 'Unlock this report — $9.99'
-                  : `Start 360° Analysis (${CREDIT_COSTS.FULL_NATAL} credits)`}
+              {isAnalysisUnlocked('BIRTH_CHART', chartId)
+                ? 'Start 360° Analysis'
+                : usesIncludedReport
+                  ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
+                  : isSimple
+                    ? 'Unlock this report — $9.99'
+                    : `Start 360° Analysis (${CREDIT_COSTS.FULL_NATAL} credits)`}
             </button>
           ) : (
             <div className="locked-content__confirm">

@@ -637,11 +637,13 @@ function InkRelationshipPage() {
         </>
       ) : !showConfirm ? (
         <button type="button" className="ink-btn ink-btn--navy" onClick={handleStartClick}>
-          {usesIncludedReport
-            ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
-            : isSimple
-              ? 'Unlock this report — $7.99'
-              : `Run full analysis (${CREDIT_COSTS.FULL_RELATIONSHIP} credits)`}
+          {isAnalysisUnlocked('RELATIONSHIP', compositeId)
+            ? 'Run full analysis'
+            : usesIncludedReport
+              ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
+              : isSimple
+                ? 'Unlock this report — $7.99'
+                : `Run full analysis (${CREDIT_COSTS.FULL_RELATIONSHIP} credits)`}
         </button>
       ) : (
         <div className="ink-relationship__gate-confirm">

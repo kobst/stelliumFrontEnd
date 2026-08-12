@@ -161,10 +161,23 @@ const useEntitlementsStore = create((set, get) => ({
           monthly: true, // Always available
         },
 
-        unlockedAnalyses: {
-          birthCharts: unlockedData?.birthCharts || [],
-          relationships: unlockedData?.relationships || [],
-        },
+        // The backend returns a flat `unlocked` array of { entityType, entityId }.
+        // Split it into per-type id lists that isAnalysisUnlocked() checks.
+        unlockedAnalyses: (() => {
+          const list = Array.isArray(unlockedData?.unlocked)
+            ? unlockedData.unlocked
+            : Array.isArray(unlockedData)
+              ? unlockedData
+              : [];
+          return {
+            birthCharts: list
+              .filter((u) => u?.entityType === 'BIRTH_CHART')
+              .map((u) => String(u.entityId)),
+            relationships: list
+              .filter((u) => u?.entityType === 'RELATIONSHIP')
+              .map((u) => String(u.entityId)),
+          };
+        })(),
 
         isLoading: false,
         error: null,
