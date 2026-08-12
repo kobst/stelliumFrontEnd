@@ -42,6 +42,7 @@ export function useCheckout(user, onSuccess) {
     const upgraded = params.get('upgraded');
     const purchased = params.get('purchased');
     const purchaseType = params.get('type');
+    const entityId = params.get('entityId');
 
     if (upgraded === 'true' || purchased === 'true') {
       // Track completed checkout
@@ -67,9 +68,19 @@ export function useCheckout(user, onSuccess) {
       }
       setShowSuccessToast(true);
 
-      // Refresh entitlements after Stripe webhook processing
+      // Refresh entitlements after Stripe webhook processing. Poll until the
+      // purchase is reflected (report unlocked, or plan now Plus) so a slow
+      // webhook is caught without a manual refresh.
       if (user?._id) {
-        refreshAfterPurchase(user._id, 2000);
+        const REPORT_ENTITY_TYPE = { NATAL_REPORT: 'BIRTH_CHART', RELATIONSHIP_REPORT: 'RELATIONSHIP' };
+        const entityType = REPORT_ENTITY_TYPE[purchaseType];
+        let until = null;
+        if (upgraded === 'true') {
+          until = (state) => state.plan === 'PLUS';
+        } else if (purchased === 'true' && entityType && entityId) {
+          until = (state) => state.isAnalysisUnlocked(entityType, entityId);
+        }
+        refreshAfterPurchase(user._id, { delayMs: 2000, until });
       }
 
       // Clean up URL parameters
@@ -77,6 +88,7 @@ export function useCheckout(user, onSuccess) {
       newParams.delete('upgraded');
       newParams.delete('purchased');
       newParams.delete('type');
+      newParams.delete('entityId');
       newParams.delete('session_id');
 
       const newSearch = newParams.toString();

@@ -199,14 +199,35 @@ const useEntitlementsStore = create((set, get) => ({
    * Refresh entitlements after Stripe checkout return
    * Includes a delay to allow webhook processing
    */
-  refreshAfterPurchase: async (userId, delayMs = 2000) => {
+  refreshAfterPurchase: async (userId, options = {}) => {
+    // Back-compat: a plain number is the legacy delayMs-only call.
+    const opts = typeof options === 'number' ? { delayMs: options } : (options || {});
+    const {
+      delayMs = 2000,
+      intervalMs = 2000,
+      maxAttempts = 5,
+      until = null,
+    } = opts;
+
     set({ isLoading: true });
 
-    // Wait for webhook to process
+    // Wait for the webhook to process, then fetch fresh data.
     await new Promise((resolve) => setTimeout(resolve, delayMs));
+    let result = await get().fetchEntitlements(userId);
 
-    // Then fetch fresh data
-    return get().fetchEntitlements(userId);
+    // When a completion predicate is given (e.g. the purchased report is now
+    // unlocked, or the plan is Plus), poll a few more times so a slow webhook
+    // is caught without a manual refresh. Read-only; stops as soon as satisfied.
+    if (typeof until === 'function') {
+      let attempts = 1;
+      while (attempts < maxAttempts && !until(get())) {
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+        result = await get().fetchEntitlements(userId);
+        attempts += 1;
+      }
+    }
+
+    return result;
   },
 
   /**
