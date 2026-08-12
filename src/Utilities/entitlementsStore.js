@@ -41,9 +41,6 @@ const initialState = {
     resetsAt: null,
   },
 
-  // Report unlocks grandfathered from the credit migration (simple pricing)
-  grandfatheredReportUnlocks: 0,
-
   // Unlocked analyses
   unlockedAnalyses: {
     birthCharts: [],
@@ -149,7 +146,6 @@ const useEntitlementsStore = create((set, get) => ({
           remaining: entitlementsData?.freeQuestionsRemaining ?? 0,
         },
         dailyQuestionsRemaining: entitlementsData?.dailyQuestionsRemaining ?? 0,
-        grandfatheredReportUnlocks: entitlementsData?.grandfatheredReportUnlocks ?? 0,
 
         fullReportQuota: {
           limit: entitlementsData?.fullReportQuota?.limit || 0,
@@ -380,15 +376,14 @@ const useEntitlementsStore = create((set, get) => ({
 
   /**
    * Whether the user can start a full report WITHOUT paying now. Under simple
-   * pricing that means Plus quota or a grandfathered unlock remains; otherwise
-   * they go through the one-time purchase flow. Credit pricing uses the pooled
-   * quota then the credit wallet.
+   * pricing that means Plus quota remains; otherwise they go through the
+   * one-time purchase flow. Credit pricing uses the pooled quota then the
+   * credit wallet.
    */
   canStartFullReport: (entityType) => {
     const state = get();
     if (state.pricingModel === 'simple') {
-      const hasQuota = state.isPlusUser() && state.fullReportQuota.remaining > 0;
-      return hasQuota || (state.grandfatheredReportUnlocks || 0) > 0;
+      return state.isPlusUser() && state.fullReportQuota.remaining > 0;
     }
     return canStartFullReportPolicy({
       entityType,

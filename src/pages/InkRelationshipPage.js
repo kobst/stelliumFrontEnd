@@ -9,6 +9,7 @@ import {
 } from '../Utilities/api';
 import useEntitlementsStore from '../Utilities/entitlementsStore';
 import InsufficientCreditsModal from '../UI/entitlements/InsufficientCreditsModal';
+import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import { formatCalendarDate } from '../Utilities/dateFormatting';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 import {
@@ -235,10 +236,19 @@ function InkRelationshipPage() {
   const [analysisError, setAnalysisError] = useState(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallGate, setPaywallGate] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
   const pollRef = useRef(null);
 
   const navigate = useNavigate();
   const fetchEntitlements = useEntitlementsStore((state) => state.fetchEntitlements);
+  const credits = useEntitlementsStore((state) => state.credits);
+  const fullReportQuota = useEntitlementsStore((state) => state.fullReportQuota);
+  const isPlus = useEntitlementsStore((state) => (
+    (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
+  ));
+  const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
+  const isAnalysisUnlocked = useEntitlementsStore((state) => state.isAnalysisUnlocked);
+  const canStartFullReport = useEntitlementsStore((state) => state.canStartFullReport);
 
   useEffect(() => {
     let cancelled = false;
@@ -390,6 +400,30 @@ function InkRelationshipPage() {
   useEffect(() => () => {
     if (pollRef.current) clearInterval(pollRef.current);
   }, []);
+
+  // Report-quota state for the confirmation prompt (mirrors the birth-chart gate).
+  const usesIncludedReport = isPlus && fullReportQuota.remaining > 0;
+  const availableOverageCredits = isPlus ? credits.pack : credits.total;
+
+  const handleStartClick = useCallback(() => {
+    // Already unlocked for this relationship → run without spending again.
+    if (isAnalysisUnlocked('RELATIONSHIP', compositeId)) {
+      handleRunFullAnalysis();
+      return;
+    }
+    // No quota / credits → surface the paywall instead of a dead click.
+    if (!canStartFullReport('RELATIONSHIP')) {
+      setPaywallGate(null);
+      setShowPaywall(true);
+      return;
+    }
+    setShowConfirm(true);
+  }, [compositeId, isAnalysisUnlocked, canStartFullReport, handleRunFullAnalysis]);
+
+  const handleConfirmStart = useCallback(() => {
+    setShowConfirm(false);
+    handleRunFullAnalysis();
+  }, [handleRunFullAnalysis]);
 
   const rankedClusters = useMemo(() => CLUSTERS
     .map((cluster) => ({
@@ -590,21 +624,39 @@ function InkRelationshipPage() {
       <h3>Unlock the full relationship reading.</h3>
       <p>
         Run the 360° analysis to generate the deep-dive readings across all five
-        clusters and open Gravity Chat. This uses one report from your Plus quota.
+        clusters and open Gravity Chat.
       </p>
       {analysisError && <p className="ink-relationship__gate-error">{analysisError}</p>}
-      <button
-        type="button"
-        className="ink-btn ink-btn--navy"
-        onClick={handleRunFullAnalysis}
-        disabled={analysisRunning}
-      >
-        {analysisRunning ? 'Preparing your reading…' : 'Run full analysis ✳'}
-      </button>
-      {analysisRunning && (
-        <p className="ink-relationship__gate-note">
-          This usually takes 30–60 seconds. The tabs unlock automatically when it’s ready.
-        </p>
+
+      {analysisRunning ? (
+        <>
+          <button type="button" className="ink-btn ink-btn--navy" disabled>Preparing your reading…</button>
+          <p className="ink-relationship__gate-note">
+            This usually takes 30–60 seconds. The tabs unlock automatically when it’s ready.
+          </p>
+        </>
+      ) : !showConfirm ? (
+        <button type="button" className="ink-btn ink-btn--navy" onClick={handleStartClick}>
+          {usesIncludedReport
+            ? `Use 1 included report (${fullReportQuota.remaining} remaining)`
+            : isSimple
+              ? 'Unlock this report — $7.99'
+              : `Run full analysis (${CREDIT_COSTS.FULL_RELATIONSHIP} credits)`}
+        </button>
+      ) : (
+        <div className="ink-relationship__gate-confirm">
+          <p className="ink-relationship__gate-confirm-text">
+            {usesIncludedReport
+              ? `This uses 1 included report. You'll have ${fullReportQuota.remaining - 1} remaining this period.`
+              : isSimple
+                ? 'This relationship report unlocks permanently and includes 5 chat questions.'
+                : `This will use ${CREDIT_COSTS.FULL_RELATIONSHIP} credits. You'll have ${availableOverageCredits - CREDIT_COSTS.FULL_RELATIONSHIP} remaining.`}
+          </p>
+          <div className="ink-relationship__gate-actions">
+            <button type="button" className="ink-btn ink-btn--navy" onClick={handleConfirmStart}>Confirm</button>
+            <button type="button" className="ink-btn ink-btn--ghost" onClick={() => setShowConfirm(false)}>Cancel</button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -974,3 +974,20 @@
   color: var(--ink-faint, rgba(35, 40, 64, 0.55));
   margin-top: 14px;
 }
+
+.ink-relationship__gate-confirm {
+  margin-top: 4px;
+}
+
+.ink-relationship__gate-confirm-text {
+  color: var(--ink-soft, rgba(35, 40, 64, 0.78));
+  font-size: 15px;
+  margin: 0 auto 14px;
+  max-width: 42ch;
+}
+
+.ink-relationship__gate-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}

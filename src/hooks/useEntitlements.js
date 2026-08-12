@@ -97,7 +97,6 @@ export function useEntitlements(user) {
         remaining: store.fullReportQuota.remaining,
         resetsAt: store.fullReportQuota.resetsAt,
       },
-      grandfatheredReportUnlocks: store.grandfatheredReportUnlocks,
 
       // Horoscope access
       canAccessDaily: store.horoscopeAccess.daily || isPlus,

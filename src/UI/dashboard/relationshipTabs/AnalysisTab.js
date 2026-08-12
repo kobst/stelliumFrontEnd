@@ -53,10 +53,7 @@ function AnalysisTab({ relationship, compositeId, onAnalysisComplete, userId, is
   const applyReportBilling = useEntitlementsStore((state) => state.applyReportBilling);
   const fetchEntitlements = useEntitlementsStore((state) => state.fetchEntitlements);
   const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
-  const grandfatheredReports = useEntitlementsStore((state) => state.grandfatheredReportUnlocks);
   const usesIncludedReport = isPlus && fullReportQuota.remaining > 0;
-  // Grandfathered unlocks (from the credit migration) start a report free too.
-  const usesGrandfatheredReport = isSimple && !usesIncludedReport && grandfatheredReports > 0;
   const availableOverageCredits = isPlus ? credits.pack : credits.total;
 
   const completeAnalysis = relationship?.completeAnalysis;
