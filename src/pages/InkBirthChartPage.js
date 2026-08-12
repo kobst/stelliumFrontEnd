@@ -14,6 +14,7 @@ import { flattenAnalysis } from '../UI/journey/AnalysisFlow';
 import DominancePatternsTab from '../UI/dashboard/chartTabs/DominancePatternsTab';
 import GravityChatCta from '../UI/dashboard/chartTabs/GravityChatCta';
 import InkSubjectAvatar from '../UI/ink/InkSubjectAvatar';
+import InkAskContextPicker from '../UI/ink/InkAskContextPicker';
 import '../styles/ink.css';
 import './InkBirthChartPage.css';
 
@@ -260,6 +261,17 @@ function InkBirthChartPage() {
   } = useChartData(userId, chartId);
 
   const [activeChapter, setActiveChapter] = useState('overview');
+  const [askContext, setAskContext] = useState([]);
+
+  const toggleAskContext = useCallback((element) => {
+    setAskContext((prev) => {
+      if (prev.some((el) => el.key === element.key)) {
+        return prev.filter((el) => el.key !== element.key);
+      }
+      if (prev.length >= 3) return prev;
+      return [...prev, element];
+    });
+  }, []);
   const [selectedPlanetName, setSelectedPlanetName] = useState(null);
   const [selectedAnalysisId, setSelectedAnalysisId] = useState(null);
 
@@ -668,19 +680,35 @@ function InkBirthChartPage() {
         >
           <div className="ink-wrap ibc-ask-grid">
             <aside className="ibc-ask-side">
-              <Medallion
-                className="ibc-medallion--ask"
+              <InkAskContextPicker
                 planets={planets}
-                houses={wheelHouses}
                 aspects={aspects}
-                instanceId="ibc-wheel-ask"
-                label={`${subjectName}'s active chart context`}
+                patterns={birthChart?.patterns}
+                selected={askContext}
+                onToggle={toggleAskContext}
+                max={3}
               />
               <div className="ink-card ibc-context-card">
                 <div className="ink-eyebrow">Active context</div>
                 <p>{subjectName}{ascendant?.sign ? ` (${ascendant.sign} Rising)` : ''}</p>
                 {formattedDate && <p>{formattedDate}{timeValue ? ` · ${formatChartTime(timeValue)}` : ''}</p>}
                 {locationText && <p>{locationText}</p>}
+                <div className="ibc-ctx-chips">
+                  {askContext.length === 0 ? (
+                    <span className="ibc-ctx-none">Whole chart — add elements to focus your question.</span>
+                  ) : (
+                    askContext.map((el) => (
+                      <button
+                        type="button"
+                        className="ibc-ctx-chip"
+                        key={el.key}
+                        onClick={() => toggleAskContext(el)}
+                      >
+                        {el.label || el.description} <b aria-hidden="true">✕</b>
+                      </button>
+                    ))
+                  )}
+                </div>
               </div>
             </aside>
 
@@ -696,6 +724,11 @@ function InkBirthChartPage() {
                     contentType="birthchart"
                     contentId={chartId}
                     birthChart={birthChart}
+                    contextPlacement="external"
+                    externalElements={askContext}
+                    syncExternalElements
+                    selectionLimit={3}
+                    onSelectionChange={setAskContext}
                     contextLabel="About your birth chart"
                     placeholderText="Ask about your chart..."
                     suggestedQuestions={[

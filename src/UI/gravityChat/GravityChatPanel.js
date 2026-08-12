@@ -57,7 +57,7 @@ const getOrdinal = (n) => {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
-const findPlanetData = (planetName, planets) => {
+export const findPlanetData = (planetName, planets) => {
   return planets.find(p => p.name === planetName) || null;
 };
 
@@ -109,7 +109,7 @@ export const formatPositionData = (planet) => {
   };
 };
 
-const formatHouseData = (house) => {
+export const formatHouseData = (house) => {
   const houseNumber = house.house || house.number || house.houseNumber;
   const sign = house.sign || house.zodiacSign || house.signName || '';
   const degree = house.degree ?? house.norm_degree ?? house.longitude;
@@ -134,7 +134,7 @@ const normalizePatternLabel = (key) => {
     .replace(/^./, char => char.toUpperCase());
 };
 
-const formatPatternData = (pattern, fallbackKey, index) => {
+export const formatPatternData = (pattern, fallbackKey, index) => {
   const label = typeof pattern === 'string'
     ? pattern
     : pattern?.label || pattern?.name || pattern?.title || pattern?.pattern || normalizePatternLabel(fallbackKey);
@@ -151,7 +151,7 @@ const formatPatternData = (pattern, fallbackKey, index) => {
   };
 };
 
-const flattenPatterns = (patterns) => {
+export const flattenPatterns = (patterns) => {
   if (!patterns) return [];
   if (Array.isArray(patterns)) {
     return patterns.map((pattern, index) => formatPatternData(pattern, 'pattern', index));

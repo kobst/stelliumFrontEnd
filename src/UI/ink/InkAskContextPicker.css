@@ -1,0 +1,179 @@
+.iacp-card {
+  padding: 18px 20px 20px;
+}
+
+.iacp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.iacp-lens {
+  display: inline-flex;
+  border: 1px solid rgba(35, 40, 64, 0.25);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.iacp-lens button {
+  font-family: var(--ink-serif, "EB Garamond", Georgia, serif);
+  font-size: 13.5px;
+  padding: 4px 15px;
+  background: none;
+  border: none;
+  color: var(--ink-faint, rgba(35, 40, 64, 0.55));
+  cursor: pointer;
+}
+
+.iacp-lens button + button {
+  border-left: 1px solid rgba(35, 40, 64, 0.14);
+}
+
+.iacp-lens button.on {
+  background: rgba(52, 55, 168, 0.1);
+  color: var(--blue, #3437a8);
+}
+
+.iacp-hint {
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--ink-faint, rgba(35, 40, 64, 0.55));
+  margin: 6px 0 10px;
+}
+
+.iacp-hint.warn {
+  color: #a8483c;
+}
+
+/* wheel */
+.iacp-wheel {
+  position: relative;
+}
+
+.iacp-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  font-family: "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols 2", var(--ink-serif, "EB Garamond", Georgia, serif);
+}
+
+.iacp-tip {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  background: var(--navy, #1b2140);
+  color: #f2ecdd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  max-width: 190px;
+  box-shadow: 0 10px 24px -10px rgba(27, 33, 64, 0.5);
+}
+
+.iacp-tip b {
+  font-weight: 600;
+}
+
+.iacp-tip i {
+  font-style: italic;
+  color: #d8ba74;
+}
+
+/* table */
+.iacp-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--line, rgba(35, 40, 64, 0.16));
+  margin-bottom: 4px;
+}
+
+.iacp-tab {
+  font-family: var(--ink-serif, "EB Garamond", Georgia, serif);
+  font-size: 14.5px;
+  padding: 6px 14px 8px;
+  background: none;
+  border: none;
+  color: var(--ink-faint, rgba(35, 40, 64, 0.55));
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.iacp-tab.on {
+  color: var(--blue, #3437a8);
+  border-bottom-color: var(--blue, #3437a8);
+}
+
+.iacp-rows {
+  max-height: 348px;
+  overflow-y: auto;
+}
+
+.iacp-empty {
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--ink-faint, rgba(35, 40, 64, 0.55));
+  padding: 18px 2px;
+  text-align: center;
+}
+
+.iacp-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr auto auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 8px 2px;
+  border: none;
+  border-bottom: 1px solid rgba(35, 40, 64, 0.08);
+  background: none;
+  font-size: 14px;
+  font-family: var(--ink-serif, "EB Garamond", Georgia, serif);
+  color: var(--ink, #232840);
+  text-align: left;
+  cursor: pointer;
+}
+
+.iacp-row:hover {
+  background: rgba(52, 55, 168, 0.04);
+}
+
+.iacp-row.is-in {
+  background: rgba(176, 141, 62, 0.08);
+}
+
+.iacp-c0 {
+  font-weight: 600;
+}
+
+.iacp-c1 {
+  color: var(--ink-soft, rgba(35, 40, 64, 0.78));
+}
+
+.iacp-c2 {
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--ink-faint, rgba(35, 40, 64, 0.55));
+  white-space: nowrap;
+}
+
+.iacp-add {
+  font-size: 12.5px;
+  border: 1px solid rgba(176, 141, 62, 0.5);
+  border-radius: 999px;
+  padding: 3px 11px;
+  color: var(--gold, #b08d3e);
+  white-space: nowrap;
+}
+
+.iacp-row.is-in .iacp-add {
+  background: rgba(176, 141, 62, 0.12);
+}
+
+@media (max-width: 900px) {
+  .iacp-rows {
+    max-height: 300px;
+  }
+}
