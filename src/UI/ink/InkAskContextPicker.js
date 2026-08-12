@@ -25,6 +25,17 @@ const GLYPHS = {
 const ASPECT_COLOR = { hard: '#a8483c', soft: '#3437a8', conj: '#8a6a24', minor: 'rgba(35,40,64,0.45)' };
 const SKIP_BODIES = new Set(['South Node', 'Part of Fortune']);
 
+// canonical body order for tables: Ascendant, Sun, Moon, Mercury, ...
+const BODY_ORDER = [
+  'Ascendant', 'Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn',
+  'Uranus', 'Neptune', 'Pluto', 'Midheaven', 'Chiron', 'North Node', 'Node',
+  'South Node', 'Part of Fortune'
+];
+const orderIndex = (name) => {
+  const i = BODY_ORDER.indexOf(name);
+  return i === -1 ? BODY_ORDER.length : i;
+};
+
 const num = (value) => {
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
@@ -123,16 +134,25 @@ function InkAskContextPicker({ planets = [], aspects = [], patterns = null, sele
       .filter(Boolean);
   }, [aspects, planets]);
 
-  const positionRows = useMemo(() => bodies.map((b) => {
-    const d = b.element;
-    return { el: b.element, c0: d.planet, c1: `${d.sign}${d.degree != null ? ` ${fmtDeg(d.degree)}` : ''}`, c2: d.house ? `House ${d.house}` : '—' };
-  }), [bodies]);
+  const positionRows = useMemo(() => bodies
+    .map((b) => {
+      const d = b.element;
+      return { el: b.element, c0: d.planet, c1: `${d.sign}${d.degree != null ? ` ${fmtDeg(d.degree)}` : ''}`, c2: d.house ? `House ${d.house}` : '—' };
+    })
+    .sort((x, y) => orderIndex(x.c0) - orderIndex(y.c0)), [bodies]);
 
-  const aspectRows = useMemo(() => aspectEls.map((a) => {
-    const d = a.element;
-    const type = d.aspectType ? d.aspectType.charAt(0).toUpperCase() + d.aspectType.slice(1) : 'Aspect';
-    return { el: d, c0: d.planet1, c1: `${type} ${d.planet2}`, c2: a.orb != null ? `${a.orb}° orb` : '' };
-  }), [aspectEls]);
+  const aspectRows = useMemo(() => aspectEls
+    .map((a) => {
+      const d = a.element;
+      // lead with whichever body comes first in canonical order so the table
+      // groups "all Ascendant, then Sun, then Moon…" cleanly.
+      const [lead, other] = orderIndex(d.planet1) <= orderIndex(d.planet2)
+        ? [d.planet1, d.planet2]
+        : [d.planet2, d.planet1];
+      const type = d.aspectType ? d.aspectType.charAt(0).toUpperCase() + d.aspectType.slice(1) : 'Aspect';
+      return { el: d, c0: lead, c1: `${type} ${other}`, c2: a.orb != null ? `${a.orb}° orb` : '', _o: [orderIndex(lead), orderIndex(other)] };
+    })
+    .sort((x, y) => x._o[0] - y._o[0] || x._o[1] - y._o[1]), [aspectEls]);
 
   const patternRows = useMemo(() => {
     return flattenPatterns(patterns)
