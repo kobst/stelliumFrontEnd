@@ -995,6 +995,9 @@ function InkRelationshipPage() {
         isOpen={showPaywall}
         onClose={() => setShowPaywall(false)}
         gate={paywallGate}
+        reportType="RELATIONSHIP"
+        entityType="RELATIONSHIP"
+        entityId={compositeId}
         onBuyCredits={() => { setShowPaywall(false); navigate('/pricingTable'); }}
         onSubscribe={() => { setShowPaywall(false); navigate('/pricingTable'); }}
       />
