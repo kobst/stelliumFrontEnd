@@ -48,6 +48,32 @@ function getInitials(person) {
     .toUpperCase() || '?';
 }
 
+function getPhoto(person) {
+  return person?.profilePhotoUrl || person?.photoUrl || null;
+}
+
+// Circular medal: shows the subject's photo when available, otherwise the
+// tinted initials. Mirrors the landing page / My Charts portrait style.
+function CelebMedal({ person, tintClass }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const photo = getPhoto(person);
+  const showPhoto = photo && !imageFailed;
+  return (
+    <span className={`ink-relationships__medal tint-${tintClass}${showPhoto ? ' has-photo' : ''}`}>
+      <span className="ink-relationships__medal-initials" aria-hidden="true">{getInitials(person)}</span>
+      {showPhoto && (
+        <img
+          className="ink-relationships__medal-img"
+          src={photo}
+          alt=""
+          loading="lazy"
+          onError={() => setImageFailed(true)}
+        />
+      )}
+    </span>
+  );
+}
+
 function sameId(a, b) {
   return a != null && b != null && String(a) === String(b);
 }
@@ -541,9 +567,10 @@ function InkMyRelationshipsPage({ userId: userIdOverride }) {
                         onClick={() => selectPerson(celebrity, 'celebrity')}
                         key={celebrity._id}
                       >
-                        <span className={`ink-relationships__medal tint-${CELEBRITY_TINTS[index % CELEBRITY_TINTS.length]}`}>
-                          {getInitials(celebrity)}
-                        </span>
+                        <CelebMedal
+                          person={celebrity}
+                          tintClass={CELEBRITY_TINTS[index % CELEBRITY_TINTS.length]}
+                        />
                         <b>{getPersonName(celebrity)}</b>
                         <span>{sign || 'Birth chart'}</span>
                       </button>
