@@ -1,8 +1,0 @@
-/* Sidebar nav lives in RelationshipDashboardTheme.css under
-   .rd-section-nav, .rd-pair-profile, .rd-tabs, .rd-tab. */
-
-.rd-section-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}

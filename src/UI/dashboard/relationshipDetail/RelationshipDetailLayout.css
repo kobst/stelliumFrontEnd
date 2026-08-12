@@ -1,9 +1,0 @@
-/* The full Stellium relationship-dashboard design system lives in
-   ./RelationshipDashboardTheme.css. This file keeps only a tiny
-   reset for when nested inside DashboardLayout. */
-
-.relationship-detail-layout {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-}
