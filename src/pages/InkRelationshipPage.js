@@ -1,10 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   fetchRelationshipAnalysis,
   fetchUser,
   getUserCompositeCharts,
+  startFullRelationshipAnalysis,
+  getRelationshipWorkflowStatus,
 } from '../Utilities/api';
+import useEntitlementsStore from '../Utilities/entitlementsStore';
+import InsufficientCreditsModal from '../UI/entitlements/InsufficientCreditsModal';
 import { formatCalendarDate } from '../Utilities/dateFormatting';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 import {
@@ -227,6 +231,14 @@ function InkRelationshipPage() {
   const [activeCluster, setActiveCluster] = useState('Harmony');
   const [hoverFocus, setHoverFocus] = useState(null);
   const [pinnedFocus, setPinnedFocus] = useState(null);
+  const [analysisRunning, setAnalysisRunning] = useState(false);
+  const [analysisError, setAnalysisError] = useState(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallGate, setPaywallGate] = useState(null);
+  const pollRef = useRef(null);
+
+  const navigate = useNavigate();
+  const fetchEntitlements = useEntitlementsStore((state) => state.fetchEntitlements);
 
   useEffect(() => {
     let cancelled = false;
@@ -319,6 +331,65 @@ function InkRelationshipPage() {
     [relationship]
   );
   const completeAnalysis = relationship?.completeAnalysis;
+  const isAnalysisComplete = !!(completeAnalysis && Object.keys(completeAnalysis).length > 0);
+
+  const reloadAnalysis = useCallback(async () => {
+    const analysis = await fetchRelationshipAnalysis(compositeId).catch(() => null);
+    if (analysis) setRelationship((prev) => ({ ...(prev || {}), ...analysis }));
+    return analysis;
+  }, [compositeId]);
+
+  const startAnalysisPolling = useCallback(() => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    const poll = async () => {
+      try {
+        const status = await getRelationshipWorkflowStatus(compositeId);
+        const state = status?.workflowStatus?.status || status?.status;
+        if (state === 'completed' || state === 'completed_with_failures') {
+          clearInterval(pollRef.current);
+          pollRef.current = null;
+          await reloadAnalysis();
+          setAnalysisRunning(false);
+        } else if (state === 'failed') {
+          clearInterval(pollRef.current);
+          pollRef.current = null;
+          setAnalysisRunning(false);
+          setAnalysisError('The analysis could not be completed. Please try again.');
+        }
+      } catch (err) {
+        console.error('Error polling relationship analysis status:', err);
+      }
+    };
+    poll();
+    pollRef.current = setInterval(poll, 3000);
+  }, [compositeId, reloadAnalysis]);
+
+  const handleRunFullAnalysis = useCallback(async () => {
+    if (analysisRunning) return;
+    setAnalysisError(null);
+    setAnalysisRunning(true);
+    try {
+      const response = await startFullRelationshipAnalysis(compositeId);
+      if (response?.billing) {
+        useEntitlementsStore.getState().applyReportBilling(response.billing);
+      }
+      if (userId) fetchEntitlements(userId);
+      startAnalysisPolling();
+    } catch (err) {
+      console.error('Error starting full relationship analysis:', err);
+      setAnalysisRunning(false);
+      if (err?.statusCode === 402) {
+        setPaywallGate(err.details || null);
+        setShowPaywall(true);
+      } else {
+        setAnalysisError(err?.message || 'We couldn’t start the analysis. Please try again.');
+      }
+    }
+  }, [analysisRunning, compositeId, userId, fetchEntitlements, startAnalysisPolling]);
+
+  useEffect(() => () => {
+    if (pollRef.current) clearInterval(pollRef.current);
+  }, []);
 
   const rankedClusters = useMemo(() => CLUSTERS
     .map((cluster) => ({
@@ -512,6 +583,46 @@ function InkRelationshipPage() {
   const created = formatDate(relationship?.createdAt);
   const archetypeLabel = archetype.cardHeadline || archetype.cardLabel || archetype.label;
   const overviewDescription = archetype.blurb || relationship?.description;
+
+  const analysisGate = (
+    <div className="ink-card ink-relationship__gate">
+      <span className="ink-relationship__gate-mark" aria-hidden="true">✦</span>
+      <h3>Unlock the full relationship reading.</h3>
+      <p>
+        Run the 360° analysis to generate the deep-dive readings across all five
+        clusters and open Gravity Chat. This uses one report from your Plus quota.
+      </p>
+      {analysisError && <p className="ink-relationship__gate-error">{analysisError}</p>}
+      <button
+        type="button"
+        className="ink-btn ink-btn--navy"
+        onClick={handleRunFullAnalysis}
+        disabled={analysisRunning}
+      >
+        {analysisRunning ? 'Preparing your reading…' : 'Run full analysis ✳'}
+      </button>
+      {analysisRunning && (
+        <p className="ink-relationship__gate-note">
+          This usually takes 30–60 seconds. The tabs unlock automatically when it’s ready.
+        </p>
+      )}
+    </div>
+  );
+
+  const askGate = (
+    <div className="ink-card ink-relationship__gate">
+      <span className="ink-relationship__gate-mark" aria-hidden="true">◎</span>
+      <h3>Complete the full analysis first.</h3>
+      <p>Gravity Chat opens once the full relationship reading is ready.</p>
+      <button
+        type="button"
+        className="ink-btn ink-btn--navy"
+        onClick={() => setActiveTab('analysis')}
+      >
+        Go to 360 Analysis
+      </button>
+    </div>
+  );
 
   return (
     <div className="ink-page ink-relationship">
@@ -713,6 +824,7 @@ function InkRelationshipPage() {
           aria-hidden={activeTab !== 'analysis'}
         >
           <div className="ink-wrap">
+            {!isAnalysisComplete ? analysisGate : (<>
             <nav className="ink-pmenu ink-relationship__pmenu" aria-label="360 Analysis dimensions">
               {pillarData.map((pillar) => (
                 <button
@@ -767,6 +879,7 @@ function InkRelationshipPage() {
                 )}
               </article>
             )}
+            </>)}
           </div>
         </section>
 
@@ -777,6 +890,9 @@ function InkRelationshipPage() {
           aria-labelledby="ink-relationship-tab-ask"
           aria-hidden={activeTab !== 'ask'}
         >
+          {!isAnalysisComplete ? (
+            <div className="ink-wrap">{askGate}</div>
+          ) : (
           <div className="ink-wrap ink-relationship__ask-grid">
             <aside className="ink-relationship__ask-side">
               <div className="ink-relationship__medallion ink-relationship__medallion--ask">
@@ -819,8 +935,17 @@ function InkRelationshipPage() {
               <p className="ink-relationship__ask-foot">Powered by real astrology + AI · 1 credit per question</p>
             </article>
           </div>
+          )}
         </section>
       </main>
+
+      <InsufficientCreditsModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        gate={paywallGate}
+        onBuyCredits={() => { setShowPaywall(false); navigate('/pricingTable'); }}
+        onSubscribe={() => { setShowPaywall(false); navigate('/pricingTable'); }}
+      />
     </div>
   );
 }

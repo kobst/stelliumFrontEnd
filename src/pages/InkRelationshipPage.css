@@ -932,3 +932,45 @@
     min-height: 520px;
   }
 }
+
+/* Full-analysis gate (360 Analysis + Gravity Chat locked until the report runs) */
+.ink-relationship__gate {
+  max-width: 560px;
+  margin: 8px auto 0;
+  text-align: center;
+  padding: 40px 36px;
+}
+
+.ink-relationship__gate-mark {
+  display: block;
+  font-size: 26px;
+  color: var(--gold, #b08d3e);
+  margin-bottom: 10px;
+}
+
+.ink-relationship__gate h3 {
+  font-family: var(--ink-serif, "EB Garamond", Georgia, serif);
+  font-weight: 500;
+  font-size: 26px;
+  color: var(--ink, #232840);
+  margin: 0 0 10px;
+}
+
+.ink-relationship__gate p {
+  color: var(--ink-soft, rgba(35, 40, 64, 0.78));
+  font-size: 16px;
+  margin: 0 auto 18px;
+  max-width: 44ch;
+}
+
+.ink-relationship__gate-error {
+  color: #9a3f38;
+  font-style: italic;
+}
+
+.ink-relationship__gate-note {
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--ink-faint, rgba(35, 40, 64, 0.55));
+  margin-top: 14px;
+}

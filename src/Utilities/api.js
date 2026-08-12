@@ -1436,9 +1436,18 @@ export const startFullRelationshipAnalysis = async (compositeChartId) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Start full relationship analysis error:", errorText);
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      const errorData = await response.json().catch(() => null);
+      // Preserve the typed entitlement gate on quota/payment errors so the
+      // caller can show the model-aware paywall (same shape as creation).
+      if (response.status === 402 && errorData) {
+        const error = new Error(errorData.message || errorData.error || 'Payment required');
+        error.code = errorData.error;
+        error.details = errorData;
+        error.statusCode = 402;
+        throw error;
+      }
+      console.error("Start full relationship analysis error:", errorData);
+      throw new Error(errorData?.error || `HTTP error! status: ${response.status}`);
     }
 
     const responseData = await response.json();
