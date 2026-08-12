@@ -244,6 +244,7 @@ function InkMyRelationshipsPage({ userId: userIdOverride }) {
   const isPlus = useEntitlementsStore((state) => (
     (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
   ));
+  const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
 
   const [showCreate, setShowCreate] = useState(false);
   const [relationships, setRelationships] = useState([]);
@@ -365,8 +366,10 @@ function InkMyRelationshipsPage({ userId: userIdOverride }) {
   const handleCreateRelationship = async () => {
     if (!stelliumUser?._id || !selectedPerson?._id || !userId || creating) return;
 
+    // Relationship overview is free for everyone under simple pricing; only the
+    // legacy credit model gates it. Skip the paywall/credit spend when simple.
     const cost = CREDIT_COSTS.RELATIONSHIP_OVERVIEW;
-    if (!isPlus && (credits?.total || 0) < cost) {
+    if (!isSimple && !isPlus && (credits?.total || 0) < cost) {
       setShowPaywall(true);
       return;
     }
@@ -375,7 +378,7 @@ function InkMyRelationshipsPage({ userId: userIdOverride }) {
     try {
       setCreating(true);
       setCreateError(null);
-      if (!isPlus) creditsSnapshot = applyOptimisticCreditSpend(cost);
+      if (!isSimple && !isPlus) creditsSnapshot = applyOptimisticCreditSpend(cost);
 
       const response = await createRelationshipDirect(
         stelliumUser._id,
@@ -607,7 +610,11 @@ function InkMyRelationshipsPage({ userId: userIdOverride }) {
                     {userName} <span>♡</span> <b>{getPersonName(selectedPerson)}</b>
                   </span>
                   <span className="ink-relationships__cost">
-                    {isPlus ? 'INCLUDED WITH PLUS' : `${CREDIT_COSTS.RELATIONSHIP_OVERVIEW} CREDITS`}
+                    {isSimple
+                      ? 'FREE'
+                      : isPlus
+                        ? 'INCLUDED WITH PLUS'
+                        : `${CREDIT_COSTS.RELATIONSHIP_OVERVIEW} CREDITS`}
                   </span>
                   <button
                     type="button"

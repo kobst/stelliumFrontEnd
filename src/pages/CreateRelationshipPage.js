@@ -22,6 +22,7 @@ function CreateRelationshipPage() {
   const isPlus = useEntitlementsStore((state) =>
     (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
   );
+  const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
 
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -358,7 +359,11 @@ function CreateRelationshipPage() {
                 )}
               </button>
               <p className="create-credit-note">
-                {isPlus ? 'Included with Plus' : `Costs ${CREDIT_COSTS.RELATIONSHIP_OVERVIEW} credits`}
+                {isSimple
+                  ? 'Free — includes a compatibility overview'
+                  : isPlus
+                    ? 'Included with Plus'
+                    : `Costs ${CREDIT_COSTS.RELATIONSHIP_OVERVIEW} credits`}
               </p>
               {selectedPerson && (
                 <p className="create-preview">

@@ -225,8 +225,10 @@ function InkMyChartsPage({ user: userOverride, userId: userIdOverride }) {
   }, [guestCharts, user]);
 
   const handleChartSubmit = async (guestData) => {
+    // Creating a guest subject (with overview) is free for everyone under
+    // simple pricing; only the legacy credit model gates it.
     const cost = CREDIT_COSTS.GUEST_CHART;
-    if (!entitlements?.isPlus && (credits?.total ?? 0) < cost) {
+    if (!entitlements?.isSimplePricing && !entitlements?.isPlus && (credits?.total ?? 0) < cost) {
       setShowPaywall(true);
       return;
     }
@@ -237,7 +239,7 @@ function InkMyChartsPage({ user: userOverride, userId: userIdOverride }) {
 
     let creditsSnapshot = null;
     try {
-      if (!entitlements?.isPlus) creditsSnapshot = applyOptimisticCreditSpend(cost);
+      if (!entitlements?.isSimplePricing && !entitlements?.isPlus) creditsSnapshot = applyOptimisticCreditSpend(cost);
       const result = await createGuestSubject(apiData);
 
       if (!(result?.success || result?.userId || result?.guestSubject)) {

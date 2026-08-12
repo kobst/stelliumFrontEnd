@@ -9,6 +9,7 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
   const isPlus = useEntitlementsStore((state) =>
     (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
   );
+  const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
   // Form state
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -166,7 +167,11 @@ function AddChartModal({ isOpen, onClose, userId, onSubmit }) {
           <div className="add-chart-modal__header-text">
             <h2>Add Birth Chart</h2>
             <p className="add-chart-modal__subtitle">
-              {isPlus ? 'Included with Plus' : `Costs ${CREDIT_COSTS.GUEST_CHART} credit`}
+              {isSimple
+                ? 'Free — includes a chart overview'
+                : isPlus
+                  ? 'Included with Plus'
+                  : `Costs ${CREDIT_COSTS.GUEST_CHART} credit`}
             </p>
           </div>
           <button
