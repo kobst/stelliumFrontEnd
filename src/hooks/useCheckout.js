@@ -234,6 +234,15 @@ export function useCheckout(user, onSuccess) {
       setError(null);
 
       try {
+        // Remember what was purchased so the page can auto-start the analysis
+        // on return (survives the Stripe redirect via sessionStorage).
+        try {
+          sessionStorage.setItem(
+            'ag_pending_report_start',
+            JSON.stringify({ entityType, entityId })
+          );
+        } catch (e) { /* storage unavailable — auto-start just won't fire */ }
+
         const { successUrl, cancelUrl } = buildCheckoutUrls(productType, entityId);
         const result = await createPurchaseCheckout(
           user._id,

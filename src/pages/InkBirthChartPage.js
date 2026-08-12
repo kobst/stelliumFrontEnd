@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import useChartData from '../hooks/useChartData';
+import useEntitlementsStore from '../Utilities/entitlementsStore';
 import InkNav from '../UI/ink/InkNav';
 import Ephemeris from '../UI/shared/Ephemeris';
 import GravityChatPanel from '../UI/gravityChat/GravityChatPanel';
@@ -262,6 +263,22 @@ function InkBirthChartPage() {
 
   const [activeChapter, setActiveChapter] = useState('overview');
   const [askContext, setAskContext] = useState([]);
+
+  // After a report purchase, auto-start the analysis and jump to the 360 tab so
+  // the user sees it generating instead of having to find their way back.
+  const unlockedBirthCharts = useEntitlementsStore((state) => state.unlockedAnalyses.birthCharts);
+  useEffect(() => {
+    if (isAnalysisComplete || analysisStatus?.status === 'in_progress') return;
+    if (!chartId || !unlockedBirthCharts.includes(chartId)) return;
+    let pending;
+    try {
+      pending = JSON.parse(sessionStorage.getItem('ag_pending_report_start') || 'null');
+    } catch (e) { return; }
+    if (pending?.entityType !== 'BIRTH_CHART' || pending?.entityId !== chartId) return;
+    sessionStorage.removeItem('ag_pending_report_start');
+    setActiveChapter('analysis');
+    handleStartAnalysis();
+  }, [unlockedBirthCharts, chartId, isAnalysisComplete, analysisStatus, handleStartAnalysis]);
 
   const toggleAskContext = useCallback((element) => {
     setAskContext((prev) => {

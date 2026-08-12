@@ -249,6 +249,7 @@ function InkRelationshipPage() {
   const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
   const isAnalysisUnlocked = useEntitlementsStore((state) => state.isAnalysisUnlocked);
   const canStartFullReport = useEntitlementsStore((state) => state.canStartFullReport);
+  const unlockedRelationships = useEntitlementsStore((state) => state.unlockedAnalyses.relationships);
 
   useEffect(() => {
     let cancelled = false;
@@ -424,6 +425,20 @@ function InkRelationshipPage() {
     setShowConfirm(false);
     handleRunFullAnalysis();
   }, [handleRunFullAnalysis]);
+
+  // After a report purchase, auto-start the analysis and jump to the 360 tab.
+  useEffect(() => {
+    if (isAnalysisComplete || analysisRunning) return;
+    if (!compositeId || !unlockedRelationships.includes(compositeId)) return;
+    let pending;
+    try {
+      pending = JSON.parse(sessionStorage.getItem('ag_pending_report_start') || 'null');
+    } catch (e) { return; }
+    if (pending?.entityType !== 'RELATIONSHIP' || pending?.entityId !== compositeId) return;
+    sessionStorage.removeItem('ag_pending_report_start');
+    setActiveTab('analysis');
+    handleRunFullAnalysis();
+  }, [unlockedRelationships, compositeId, isAnalysisComplete, analysisRunning, handleRunFullAnalysis]);
 
   const rankedClusters = useMemo(() => CLUSTERS
     .map((cluster) => ({
