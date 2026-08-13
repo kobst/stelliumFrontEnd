@@ -30,6 +30,10 @@ export const AuthProvider = ({ children }) => {
   const [stelliumUser, setStelliumUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
+  // True when the profile lookup failed for a reason OTHER than 404 (network,
+  // CORS, 5xx). Distinct from "no account" so a transient error never routes an
+  // existing user into onboarding/re-creation.
+  const [lookupError, setLookupError] = useState(false);
 
   // Listen to Firebase auth state changes
   useEffect(() => {
@@ -48,6 +52,7 @@ export const AuthProvider = ({ children }) => {
           if (userData && userData._id) {
             console.log('User found in backend:', userData._id);
             setStelliumUser(userData);
+            setLookupError(false);
             // An account with a profile makes any unclaimed anonymous trial
             // session obsolete — discard it so it can't resurface later
             // (e.g. "Welcome back, Arlo" on the landing page after logout).
@@ -67,18 +72,24 @@ export const AuthProvider = ({ children }) => {
               console.warn('Could not initialize entitlements:', entErr);
             }
           } else {
-            // User authenticated but not in backend (new user)
+            // 404 → genuinely no account for this Firebase UID: onboard.
             console.log('User not found in backend, needs onboarding');
             setStelliumUser(null);
+            setLookupError(false);
           }
         } catch (error) {
+          // Network/CORS/5xx: the lookup failed, but that does NOT mean the user
+          // has no account. Flag the error so needsOnboarding stays false and the
+          // UI can offer a retry instead of forcing re-creation.
           console.error('Error checking user in backend:', error);
           setStelliumUser(null);
+          setLookupError(true);
         }
       } else {
         // User is signed out
         resetUser();
         setStelliumUser(null);
+        setLookupError(false);
       }
 
       setLoading(false);
@@ -88,8 +99,10 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // Check if user needs onboarding (authenticated but no Stellium profile)
-  const needsOnboarding = firebaseUser && !stelliumUser && initialCheckDone;
+  // Needs onboarding only when the lookup succeeded AND returned no account.
+  // A failed lookup (lookupError) must never route an existing user to create.
+  const needsOnboarding =
+    firebaseUser && !stelliumUser && initialCheckDone && !lookupError;
 
   // Check if user is fully authenticated (Firebase + Stellium profile)
   const isFullyAuthenticated = firebaseUser && stelliumUser;
@@ -112,12 +125,22 @@ export const AuthProvider = ({ children }) => {
       const userData = response?.user || response;
       if (userData && userData._id) {
         setStelliumUser(userData);
+        setLookupError(false);
         return userData;
       }
+      // 404 → no account.
+      setLookupError(false);
     } catch (error) {
       console.error('Error refreshing user:', error);
+      setLookupError(true);
     }
     return null;
+  };
+
+  // Retry the profile lookup after a failed (non-404) attempt. Lets a UI show
+  // "couldn't reach the server — retry" instead of dropping into onboarding.
+  const retryUserLookup = async () => {
+    return refreshStelliumUser();
   };
 
   // Handle Google sign in
@@ -179,6 +202,7 @@ export const AuthProvider = ({ children }) => {
     stelliumUser,
     loading,
     needsOnboarding,
+    lookupError,
     isFullyAuthenticated,
 
     // Actions
@@ -189,6 +213,7 @@ export const AuthProvider = ({ children }) => {
     sendPasswordReset: handlePasswordReset,
     getToken,
     refreshStelliumUser,
+    retryUserLookup,
     setStelliumUser
   };
 

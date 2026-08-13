@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import AuthRetryScreen from './AuthRetryScreen';
 
 /**
  * ProtectedRoute - Wraps routes that require authentication
@@ -13,7 +14,7 @@ import { useAuth } from '../context/AuthContext';
  * @param {boolean} requireProfile - If true, user must have a Stellium profile (default: true)
  */
 const ProtectedRoute = ({ children, requireProfile = true }) => {
-    const { firebaseUser, needsOnboarding, loading } = useAuth();
+    const { firebaseUser, stelliumUser, needsOnboarding, lookupError, loading } = useAuth();
     const location = useLocation();
 
     // Show loading state while checking auth
@@ -52,6 +53,12 @@ const ProtectedRoute = ({ children, requireProfile = true }) => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
+    // Signed in, but the profile lookup failed (network/CORS/5xx). Don't render a
+    // profile-less page or send an existing user to onboarding — offer a retry.
+    if (requireProfile && !stelliumUser && lookupError) {
+        return <AuthRetryScreen />;
+    }
+
     // Authenticated but needs onboarding (no Stellium profile yet)
     if (requireProfile && needsOnboarding) {
         // Don't redirect if already on onboarding pages
@@ -74,7 +81,7 @@ const ProtectedRoute = ({ children, requireProfile = true }) => {
  * - If needs onboarding: render children
  */
 export const OnboardingRoute = ({ children }) => {
-    const { firebaseUser, stelliumUser, loading } = useAuth();
+    const { firebaseUser, stelliumUser, lookupError, loading } = useAuth();
     const location = useLocation();
 
     if (loading) {
@@ -115,6 +122,12 @@ export const OnboardingRoute = ({ children }) => {
     // Already has profile - redirect to dashboard
     if (stelliumUser && stelliumUser._id) {
         return <Navigate to={`/dashboard/${stelliumUser._id}`} replace />;
+    }
+
+    // Lookup failed (network/CORS/5xx): the account may exist — don't offer the
+    // create flow on a transient error. Retry instead.
+    if (lookupError) {
+        return <AuthRetryScreen />;
     }
 
     // Needs onboarding - render the onboarding content

@@ -126,7 +126,8 @@ export const getUserByFirebaseUid = async (firebaseUid, token) => {
     );
 
     if (response.status === 404) {
-      // User not found - this is expected for new users
+      // Genuinely no account for this Firebase UID — the only case that means
+      // "new user, send to onboarding". Signalled with null.
       console.log('User not found (404)');
       return null;
     }
@@ -138,12 +139,12 @@ export const getUserByFirebaseUid = async (firebaseUid, token) => {
     }
 
     const data = await response.json();
-    console.log('getUserByFirebaseUid success, data:', data);
     return data;
   } catch (error) {
+    // Network/CORS/5xx failures are NOT "no account". Propagate so the caller
+    // can retry instead of pushing an existing user into re-creation.
     console.error('Error fetching user by Firebase UID:', error);
-    // Return null for network errors to allow onboarding flow
-    return null;
+    throw error;
   }
 };
 

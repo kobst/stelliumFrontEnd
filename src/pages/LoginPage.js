@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { loadTrialSession } from '../Utilities/trialApi';
 import { useAuth } from '../context/AuthContext';
+import AuthRetryScreen from '../components/AuthRetryScreen';
 import InkNav from '../UI/ink/InkNav';
 import '../styles/ink.css';
 import './LoginPage.css';
@@ -47,6 +48,7 @@ const LoginPage = () => {
     firebaseUser,
     stelliumUser,
     needsOnboarding,
+    lookupError,
     signInWithGoogle,
     signInWithEmail,
     signUpWithEmail,
@@ -212,6 +214,12 @@ const LoginPage = () => {
       )}
     </div>
   );
+
+  // Signed in but the profile lookup failed — never leave an existing user
+  // stranded on the sign-in form. Offer a retry instead.
+  if (!loading && firebaseUser && !stelliumUser && lookupError) {
+    return <AuthRetryScreen />;
+  }
 
   return (
     <div className="ink-page login-page">
