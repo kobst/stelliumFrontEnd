@@ -19,7 +19,7 @@ const devConfig = {
 // Prod Firebase config (stellium-70a2a)
 const prodConfig = {
   apiKey: "AIzaSyBnSYzpgghCC3c-0vdP1mvPeoy2vAz8I4E",
-  authDomain: "stellium-70a2a.firebaseapp.com",
+  authDomain: "auth.astralgravity.com",
   projectId: "stellium-70a2a",
   storageBucket: "stellium-70a2a.firebasestorage.app",
   messagingSenderId: "63614597334",
