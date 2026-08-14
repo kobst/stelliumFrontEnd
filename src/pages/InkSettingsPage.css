@@ -534,6 +534,106 @@
   cursor: not-allowed;
 }
 
+/* ---- Purchases ---- */
+.ink-settings .purchases-settings__description {
+  color: var(--ink-faint);
+  font-size: 15px;
+  margin: 0 0 22px;
+}
+
+.ink-settings .purchases-settings__state {
+  padding: 24px 0;
+  color: var(--ink-faint);
+}
+
+.ink-settings .purchases-settings__state--error {
+  color: #a13a2f;
+}
+
+.ink-settings .purchases-settings__empty {
+  padding: 22px 16px;
+  text-align: center;
+  color: var(--ink-faint);
+  background: rgba(35, 40, 64, 0.03);
+  border: 1px dashed var(--line);
+  border-radius: 11px;
+  font-size: 15px;
+}
+
+.ink-settings .purchases-settings__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.ink-settings .purchases-settings__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.ink-settings .purchases-settings__row:first-child {
+  border-top: none;
+}
+
+.ink-settings .purchases-settings__row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ink-settings .purchases-settings__item {
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.ink-settings .purchases-settings__date {
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+
+.ink-settings .purchases-settings__amount {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ink-settings .purchases-settings__portal {
+  appearance: none;
+  margin-top: 18px;
+  width: 100%;
+  font-family: var(--ink-serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 20px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.ink-settings .purchases-settings__portal:hover:not(:disabled) {
+  border-color: var(--ink-soft);
+  background: rgba(35, 40, 64, 0.03);
+}
+
+.ink-settings .purchases-settings__portal:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 720px) {
   .ink-settings__grid {

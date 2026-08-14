@@ -6,6 +6,7 @@ import { useEntitlements } from '../hooks/useEntitlements';
 import InkNav from '../UI/ink/InkNav';
 import ProfileSettings from '../UI/dashboard/settings/ProfileSettings';
 import SubscriptionSettings from '../UI/dashboard/settings/SubscriptionSettings';
+import PurchasesSettings from '../UI/dashboard/settings/PurchasesSettings';
 import AccountSettings from '../UI/dashboard/settings/AccountSettings';
 import PrivacySettings from '../UI/dashboard/settings/PrivacySettings';
 import '../styles/ink.css';
@@ -14,6 +15,7 @@ import './InkSettingsPage.css';
 const TABS = [
   { id: 'profile', label: 'Profile' },
   { id: 'subscription', label: 'Subscription' },
+  { id: 'purchases', label: 'Purchases' },
   { id: 'account', label: 'Account' },
   { id: 'privacy', label: 'Privacy & Data' },
 ];
@@ -77,6 +79,8 @@ function InkSettingsPage() {
     switch (activeTab) {
       case 'subscription':
         return <SubscriptionSettings userId={userId} user={user} entitlements={entitlements} />;
+      case 'purchases':
+        return <PurchasesSettings userId={userId} user={user} entitlements={entitlements} />;
       case 'account':
         return <AccountSettings userId={userId} user={user} />;
       case 'privacy':

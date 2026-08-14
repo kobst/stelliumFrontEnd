@@ -27,6 +27,29 @@ export const getEntitlements = async (userId) => {
 };
 
 /**
+ * Get a user's completed one-time purchases (report unlocks, subscription).
+ * @param {string} userId - The user ID
+ * @returns {Promise<Array>} List of purchases (most recent first)
+ */
+export const getPurchaseHistory = async (userId) => {
+  try {
+    const response = await authenticatedFetch(`${SERVER_URL}/users/${userId}/purchases`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return Array.isArray(data?.purchases) ? data.purchases : [];
+  } catch (error) {
+    console.error('Error fetching purchase history:', error);
+    throw error;
+  }
+};
+
+/**
  * Get list of unlocked analyses for a user
  * @param {string} userId - The user ID
  * @returns {Promise<object>} Unlocked analyses data
