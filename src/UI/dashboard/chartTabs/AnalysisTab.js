@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GravityChatPanel from '../../gravityChat/GravityChatPanel';
 import InsufficientCreditsModal from '../../entitlements/InsufficientCreditsModal';
@@ -416,12 +416,15 @@ function DomainContent({ domain, data, expandedCard, onCardToggle }) {
 
 // ============ MAIN COMPONENT ============
 
-function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, chartId, birthChart, userId, isCelebrity = false }) {
+function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, chartId, birthChart, userId, isCelebrity = false, isStarting = false }) {
   const [activeDomain, setActiveDomain] = useState(LIFE_DOMAINS[0].id);
   const [expandedCard, setExpandedCard] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  // Bridges the gap between "start requested" and analysisStatus flipping to
+  // 'in_progress' so the buy prompt never flashes after a click/purchase.
+  const [startingLocal, setStartingLocal] = useState(false);
   const navigate = useNavigate();
   const credits = useEntitlementsStore((state) => state.credits);
   const fullReportQuota = useEntitlementsStore((state) => state.fullReportQuota);
@@ -442,6 +445,16 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
   const totalTasks = analysisStatus?.failures?.totalTasks || 86;
   const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
+  // "Starting" covers the transient window after a start is requested (a manual
+  // click here, or a post-purchase auto-start driven by the parent) but before
+  // the backend reports 'in_progress'. Show the generating view, not the buy CTA.
+  const isStartingNow = (isStarting || startingLocal) && !isAnalysisComplete && !isAnalysisInProgress;
+
+  // Once the backend confirms progress or completion, drop the local flag.
+  useEffect(() => {
+    if (isAnalysisInProgress || isAnalysisComplete) setStartingLocal(false);
+  }, [isAnalysisInProgress, isAnalysisComplete]);
+
   // Handle domain change - reset expanded card
   const handleDomainChange = (domainId) => {
     setActiveDomain(domainId);
@@ -456,6 +469,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
   // Credit-gated start analysis
   const handleStartClick = () => {
     if (isAnalysisUnlocked('BIRTH_CHART', chartId)) {
+      setStartingLocal(true);
       onStartAnalysis();
       return;
     }
@@ -468,6 +482,7 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
 
   const handleConfirmStart = () => {
     setShowConfirm(false);
+    setStartingLocal(true);
     onStartAnalysis();
   };
 
@@ -487,8 +502,8 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
     );
   }
 
-  // Render the start analysis prompt
-  if (!isAnalysisComplete && !isAnalysisInProgress) {
+  // Render the start analysis prompt (never while a start is being processed)
+  if (!isAnalysisComplete && !isAnalysisInProgress && !isStartingNow) {
     return (
       <div className="chart-tab-content analysis-tab">
         <div className="analysis-prompt">
@@ -559,8 +574,8 @@ function AnalysisTab({ broadCategoryAnalyses, analysisStatus, onStartAnalysis, c
     );
   }
 
-  // Render progress if analysis is in progress
-  if (isAnalysisInProgress && !isAnalysisComplete) {
+  // Render progress if analysis is in progress (or a start is being processed)
+  if ((isAnalysisInProgress || isStartingNow) && !isAnalysisComplete) {
     return (
       <div className="chart-tab-content analysis-tab">
         <div className="analysis-progress">

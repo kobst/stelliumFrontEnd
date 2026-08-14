@@ -233,6 +233,10 @@ function InkRelationshipPage() {
   const [hoverFocus, setHoverFocus] = useState(null);
   const [pinnedFocus, setPinnedFocus] = useState(null);
   const [analysisRunning, setAnalysisRunning] = useState(false);
+  // True from returning after a purchase until the real run begins — bridges the
+  // gap so the buy prompt never flashes. Kept separate from analysisRunning,
+  // which also guards against double-starting the analysis.
+  const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
   const [analysisError, setAnalysisError] = useState(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallGate, setPaywallGate] = useState(null);
@@ -426,19 +430,40 @@ function InkRelationshipPage() {
     handleRunFullAnalysis();
   }, [handleRunFullAnalysis]);
 
-  // After a report purchase, auto-start the analysis and jump to the 360 tab.
+  // After a report purchase, show the generating state immediately, then
+  // auto-start once the unlock lands and jump to the 360 tab.
   useEffect(() => {
-    if (isAnalysisComplete || analysisRunning) return;
-    if (!compositeId || !unlockedRelationships.includes(compositeId)) return;
+    if (!compositeId) return;
     let pending;
     try {
       pending = JSON.parse(sessionStorage.getItem('ag_pending_report_start') || 'null');
     } catch (e) { return; }
     if (pending?.entityType !== 'RELATIONSHIP' || pending?.entityId !== compositeId) return;
-    sessionStorage.removeItem('ag_pending_report_start');
+
     setActiveTab('analysis');
-    handleRunFullAnalysis();
+    setIsStartingAnalysis(true);
+
+    if (isAnalysisComplete || analysisRunning) {
+      sessionStorage.removeItem('ag_pending_report_start');
+      return;
+    }
+    if (unlockedRelationships.includes(compositeId)) {
+      sessionStorage.removeItem('ag_pending_report_start');
+      handleRunFullAnalysis();
+    }
   }, [unlockedRelationships, compositeId, isAnalysisComplete, analysisRunning, handleRunFullAnalysis]);
+
+  // Clear the starting flag once the real run begins or the analysis completes.
+  useEffect(() => {
+    if (analysisRunning || isAnalysisComplete) setIsStartingAnalysis(false);
+  }, [analysisRunning, isAnalysisComplete]);
+
+  // Safety net: don't leave the generating view stuck if the unlock never lands.
+  useEffect(() => {
+    if (!isStartingAnalysis) return undefined;
+    const timer = setTimeout(() => setIsStartingAnalysis(false), 90000);
+    return () => clearTimeout(timer);
+  }, [isStartingAnalysis]);
 
   const rankedClusters = useMemo(() => CLUSTERS
     .map((cluster) => ({
@@ -643,7 +668,7 @@ function InkRelationshipPage() {
       </p>
       {analysisError && <p className="ink-relationship__gate-error">{analysisError}</p>}
 
-      {analysisRunning ? (
+      {(analysisRunning || isStartingAnalysis) ? (
         <>
           <button type="button" className="ink-btn ink-btn--navy" disabled>Preparing your reading…</button>
           <p className="ink-relationship__gate-note">

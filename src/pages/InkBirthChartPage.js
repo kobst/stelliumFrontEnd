@@ -263,22 +263,53 @@ function InkBirthChartPage() {
 
   const [activeChapter, setActiveChapter] = useState('overview');
   const [askContext, setAskContext] = useState([]);
+  // True from the moment we return from a report purchase for this chart until
+  // the backend reports the analysis 'in_progress'. Drives the 360 tab to show
+  // "Generating…" instead of flashing the buy prompt during that window.
+  const [isStartingAnalysis, setIsStartingAnalysis] = useState(false);
 
-  // After a report purchase, auto-start the analysis and jump to the 360 tab so
-  // the user sees it generating instead of having to find their way back.
+  // After a report purchase, show the generating state immediately, then
+  // auto-start the analysis once the unlock lands so the user never sees the
+  // buy prompt or has to find their way back.
   const unlockedBirthCharts = useEntitlementsStore((state) => state.unlockedAnalyses.birthCharts);
   useEffect(() => {
-    if (isAnalysisComplete || analysisStatus?.status === 'in_progress') return;
-    if (!chartId || !unlockedBirthCharts.includes(chartId)) return;
+    if (!chartId) return;
     let pending;
     try {
       pending = JSON.parse(sessionStorage.getItem('ag_pending_report_start') || 'null');
     } catch (e) { return; }
     if (pending?.entityType !== 'BIRTH_CHART' || pending?.entityId !== chartId) return;
-    sessionStorage.removeItem('ag_pending_report_start');
+
+    // Show the generating view and jump to the 360 tab right away — before the
+    // webhook/unlock is even confirmed.
     setActiveChapter('analysis');
-    handleStartAnalysis();
+    setIsStartingAnalysis(true);
+
+    if (isAnalysisComplete || analysisStatus?.status === 'in_progress') {
+      sessionStorage.removeItem('ag_pending_report_start');
+      return;
+    }
+    // Kick off only once the unlock is detected (webhook processed + refreshed).
+    if (unlockedBirthCharts.includes(chartId)) {
+      sessionStorage.removeItem('ag_pending_report_start');
+      handleStartAnalysis();
+    }
   }, [unlockedBirthCharts, chartId, isAnalysisComplete, analysisStatus, handleStartAnalysis]);
+
+  // Drop the starting flag once the backend confirms progress/completion.
+  useEffect(() => {
+    if (isAnalysisComplete || analysisStatus?.status === 'in_progress') {
+      setIsStartingAnalysis(false);
+    }
+  }, [isAnalysisComplete, analysisStatus]);
+
+  // Safety net: never leave the generating view stuck forever if the unlock
+  // never arrives (e.g. a webhook failure). Fall back to the normal view.
+  useEffect(() => {
+    if (!isStartingAnalysis) return undefined;
+    const timer = setTimeout(() => setIsStartingAnalysis(false), 90000);
+    return () => clearTimeout(timer);
+  }, [isStartingAnalysis]);
 
   const toggleAskContext = useCallback((element) => {
     setAskContext((prev) => {
@@ -682,6 +713,7 @@ function InkBirthChartPage() {
                   birthChart={birthChart}
                   userId={userId}
                   isCelebrity={isCelebrity}
+                  isStarting={isStartingAnalysis}
                 />
               </div>
             )}
