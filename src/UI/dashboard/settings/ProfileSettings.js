@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { updateUserProfile } from '../../../Utilities/api';
 import { useAuth } from '../../../context/AuthContext';
-import './ProfileSettings.css';
 
 function ProfileSettings({ userId, user }) {
   const { firebaseUser, refreshStelliumUser } = useAuth();

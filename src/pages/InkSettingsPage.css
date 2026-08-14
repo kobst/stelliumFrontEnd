@@ -1,0 +1,559 @@
+/* Ink-themed account settings. Styles the reused settings panels (Profile,
+   Subscription, Account, Privacy) for the cream ink app. Everything is scoped
+   under .ink-settings so the panels need no CSS of their own. */
+
+.ink-settings-page {
+  padding-bottom: 80px;
+}
+
+.ink-settings {
+  padding-top: 28px;
+}
+
+.ink-settings__head {
+  margin-bottom: 24px;
+}
+
+.ink-settings__title {
+  font-family: var(--ink-serif);
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 4px;
+  letter-spacing: 0.2px;
+}
+
+.ink-settings__sub {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 16px;
+}
+
+.ink-settings__state {
+  padding: 56px 0;
+  text-align: center;
+  color: var(--ink-faint);
+}
+
+.ink-settings__state--error {
+  color: #a13a2f;
+}
+
+/* ---- Layout: left rail + panel ---- */
+.ink-settings__grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.ink-settings__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  top: 24px;
+}
+
+.ink-settings__tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-family: var(--ink-serif);
+  font-size: 16px;
+  color: var(--ink-soft);
+  padding: 11px 14px;
+  border-radius: 9px;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.ink-settings__tab:hover {
+  color: var(--ink);
+  background: rgba(35, 40, 64, 0.04);
+}
+
+.ink-settings__tab.is-active {
+  color: var(--blue);
+  background: rgba(52, 55, 168, 0.06);
+  border-left-color: var(--blue);
+  font-weight: 600;
+}
+
+.ink-settings__panel {
+  min-width: 0;
+}
+
+/* ---- Shared card + section chrome ---- */
+.ink-settings .settings-section-header {
+  margin-bottom: 6px;
+}
+
+.ink-settings .settings-section-title {
+  font-family: var(--ink-serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+
+.ink-settings .profile-settings__description,
+.ink-settings .account-settings__description,
+.ink-settings .privacy-settings__description,
+.ink-settings .ss-sub {
+  color: var(--ink-faint);
+  font-size: 15px;
+  margin: 0 0 22px;
+}
+
+/* ---- Fields, labels, inputs (shared across panels) ---- */
+.ink-settings .profile-settings__field,
+.ink-settings .account-settings__field {
+  margin-bottom: 18px;
+}
+
+.ink-settings .profile-settings__label,
+.ink-settings .account-settings__label,
+.ink-settings .privacy-settings__confirm-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 7px;
+}
+
+.ink-settings input[type="text"],
+.ink-settings input[type="email"] {
+  width: 100%;
+  font-family: var(--ink-serif);
+  font-size: 16px;
+  color: var(--ink);
+  background: #fbf8f1;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 11px 13px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ink-settings input[type="text"]::placeholder,
+.ink-settings input[type="email"]::placeholder {
+  color: rgba(35, 40, 64, 0.38);
+}
+
+.ink-settings input[type="text"]:focus,
+.ink-settings input[type="email"]:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(52, 55, 168, 0.12);
+}
+
+.ink-settings .profile-settings__email-display,
+.ink-settings .account-settings__email {
+  font-size: 16px;
+  color: var(--ink-soft);
+  background: rgba(35, 40, 64, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 11px 13px;
+}
+
+.ink-settings .account-settings__email-note,
+.ink-settings .profile-settings__hint {
+  color: var(--ink-faint);
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
+/* ---- Buttons (primary / secondary / danger) ---- */
+.ink-settings .profile-settings__submit,
+.ink-settings .account-settings__reset-btn,
+.ink-settings .account-settings__signout-btn,
+.ink-settings .privacy-settings__delete-btn,
+.ink-settings .ss-manage {
+  appearance: none;
+  font-family: var(--ink-serif);
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 11px 20px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+/* Primary (navy) */
+.ink-settings .profile-settings__submit,
+.ink-settings .ss-manage {
+  background: var(--navy);
+  color: #f4efe5;
+  border: 1px solid var(--navy);
+}
+
+.ink-settings .profile-settings__submit:hover:not(:disabled),
+.ink-settings .ss-manage:hover:not(:disabled) {
+  background: #262d54;
+}
+
+.ink-settings .ss-manage {
+  width: 100%;
+  margin-top: 18px;
+}
+
+/* Secondary (outline) */
+.ink-settings .account-settings__reset-btn,
+.ink-settings .account-settings__signout-btn {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.ink-settings .account-settings__reset-btn:hover:not(:disabled),
+.ink-settings .account-settings__signout-btn:hover:not(:disabled) {
+  border-color: var(--ink-soft);
+  background: rgba(35, 40, 64, 0.03);
+}
+
+.ink-settings button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Danger */
+.ink-settings .privacy-settings__delete-btn {
+  background: transparent;
+  color: #a13a2f;
+  border: 1px solid rgba(161, 58, 47, 0.4);
+}
+
+.ink-settings .privacy-settings__delete-btn:hover {
+  background: rgba(161, 58, 47, 0.06);
+  border-color: #a13a2f;
+}
+
+/* ---- Inline error / success ---- */
+.ink-settings .profile-settings__error,
+.ink-settings .account-settings__error,
+.ink-settings .ss-error {
+  background: rgba(161, 58, 47, 0.08);
+  color: #a13a2f;
+  border: 1px solid rgba(161, 58, 47, 0.25);
+  border-radius: 9px;
+  padding: 10px 13px;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.ink-settings .profile-settings__success,
+.ink-settings .account-settings__success {
+  background: rgba(46, 111, 64, 0.08);
+  color: #2e6f40;
+  border: 1px solid rgba(46, 111, 64, 0.25);
+  border-radius: 9px;
+  padding: 10px 13px;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+/* ---- Account / Privacy stacked sections ---- */
+.ink-settings .account-settings__section,
+.ink-settings .privacy-settings__section {
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+
+.ink-settings .account-settings__section:first-of-type,
+.ink-settings .privacy-settings__section:first-of-type {
+  border-top: none;
+  padding-top: 4px;
+}
+
+.ink-settings .account-settings__section-title,
+.ink-settings .privacy-settings__section-title {
+  font-family: var(--ink-serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+
+.ink-settings .privacy-settings__section-title--danger {
+  color: #a13a2f;
+}
+
+.ink-settings .account-settings__section-description,
+.ink-settings .privacy-settings__section-description {
+  color: var(--ink-faint);
+  font-size: 14px;
+  margin: 0 0 14px;
+}
+
+.ink-settings .privacy-settings__reassurance {
+  color: var(--ink-faint);
+  font-size: 13px;
+  margin: 10px 0 0;
+}
+
+/* ---- Subscription cards ---- */
+.ink-settings .ss-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.ink-settings .ss-card--tonal {
+  background: rgba(52, 55, 168, 0.035);
+}
+
+.ink-settings .ss-plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ink-settings .ss-plan-lbl {
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.ink-settings .ss-plan-badge {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--gold);
+  border: 1px solid rgba(176, 141, 62, 0.4);
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+
+.ink-settings .ss-plan-until {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+
+.ink-settings .ss-card-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+
+.ink-settings .ss-ic {
+  font-size: 15px;
+}
+
+.ink-settings .ss-ic--gold { color: var(--gold); }
+.ink-settings .ss-ic--lilac { color: #6d5ec0; }
+
+.ink-settings .ss-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ink-settings .ss-metric__n {
+  font-family: var(--ink-serif);
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.ink-settings .ss-metric__n--zero {
+  color: #a13a2f;
+}
+
+.ink-settings .ss-metric__unit {
+  font-size: 14px;
+  color: var(--ink-faint);
+}
+
+.ink-settings .ss-meter {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(35, 40, 64, 0.1);
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.ink-settings .ss-meter__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), rgba(176, 141, 62, 0.7));
+}
+
+.ink-settings .ss-note {
+  font-size: 13px;
+  color: var(--ink-faint);
+  line-height: 1.5;
+}
+
+/* ---- Delete-account modal ---- */
+.ink-settings .privacy-settings__modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 33, 64, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.ink-settings .privacy-settings__modal {
+  width: min(460px, 100%);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(27, 33, 64, 0.28);
+  overflow: hidden;
+}
+
+.ink-settings .privacy-settings__modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 0;
+}
+
+.ink-settings .privacy-settings__modal-title {
+  font-family: var(--ink-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+
+.ink-settings .privacy-settings__modal-close {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+
+.ink-settings .privacy-settings__modal-body {
+  padding: 16px 20px;
+}
+
+.ink-settings .privacy-settings__warning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #a13a2f;
+  background: rgba(161, 58, 47, 0.08);
+  border: 1px solid rgba(161, 58, 47, 0.22);
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.ink-settings .privacy-settings__modal-text {
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.ink-settings .privacy-settings__delete-list {
+  margin: 0 0 16px;
+  padding-left: 20px;
+  color: var(--ink-faint);
+  font-size: 14px;
+}
+
+.ink-settings .privacy-settings__delete-list li {
+  margin-bottom: 3px;
+}
+
+.ink-settings .privacy-settings__confirm-field {
+  margin-top: 6px;
+}
+
+.ink-settings .privacy-settings__confirm-label strong {
+  color: var(--ink);
+}
+
+.ink-settings .privacy-settings__modal-error {
+  background: rgba(161, 58, 47, 0.08);
+  color: #a13a2f;
+  border: 1px solid rgba(161, 58, 47, 0.25);
+  border-radius: 9px;
+  padding: 9px 12px;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.ink-settings .privacy-settings__modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px 20px;
+}
+
+.ink-settings .privacy-settings__modal-cancel,
+.ink-settings .privacy-settings__modal-confirm {
+  appearance: none;
+  font-family: var(--ink-serif);
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.ink-settings .privacy-settings__modal-cancel {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.ink-settings .privacy-settings__modal-confirm {
+  background: #a13a2f;
+  color: #f4efe5;
+  border: 1px solid #a13a2f;
+}
+
+.ink-settings .privacy-settings__modal-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 720px) {
+  .ink-settings__grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .ink-settings__nav {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .ink-settings__tab {
+    border-left: none;
+    border: 1px solid var(--line);
+  }
+
+  .ink-settings__tab.is-active {
+    border-color: var(--blue);
+  }
+}

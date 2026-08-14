@@ -19,7 +19,7 @@ import OnboardingPage from './pages/OnboardingPage';
 import OnboardingConfirmation from './pages/OnboardingConfirmation';
 
 // Protected pages (auth + profile required)
-import MainDashboard from './pages/MainDashboard';
+import InkSettingsPage from './pages/InkSettingsPage';
 import ChartReaderPage from './pages/ChartReaderPage';
 import RelationshipJourneyPage from './pages/RelationshipJourneyPage';
 
@@ -126,13 +126,11 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* pre-ink dashboard shell — kept only for the Settings
-                section until it gets an ink home */}
             <Route
-              path="/dashboard/:userId/legacy"
+              path="/dashboard/:userId/settings"
               element={
                 <ProtectedRoute>
-                  <MainDashboard />
+                  <InkSettingsPage />
                 </ProtectedRoute>
               }
             />

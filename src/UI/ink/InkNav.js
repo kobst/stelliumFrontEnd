@@ -162,7 +162,7 @@ function AppNav({ activeSegment = 'home', onSegmentChange, user: userOverride, c
               <Link
                 className="ink-nav__menu-item"
                 role="menuitem"
-                to={`${dashboardPath}/legacy`}
+                to={`${dashboardPath}/settings`}
                 onClick={() => setMenuOpen(false)}
               >
                 Settings

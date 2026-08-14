@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useCheckout } from '../../../hooks/useCheckout';
 import { CREDIT_COSTS } from '../../../Utilities/creditCosts';
-import './SubscriptionSettings.css';
 
 const PACKS = [
   { id: '100', credits: 100, price: '$10', per: '$0.10 / credit' },
