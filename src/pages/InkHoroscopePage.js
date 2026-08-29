@@ -150,12 +150,11 @@ function getScopeWindowDays(scopeOption, horoscope) {
 }
 
 function getFrameStartDate(scopeOption, horoscope) {
-  if (scopeOption.period !== 'daily') return horoscope?.startDate;
-  const anchor = new Date(toTimestamp(horoscope?.startDate) ?? Date.now());
-  anchor.setHours(0, 0, 0, 0);
-  const daysSinceMonday = (anchor.getDay() + 6) % 7;
-  anchor.setDate(anchor.getDate() - daysSinceMonday);
-  return anchor.toISOString();
+  // Anchor the sky window to the horoscope's own start: the day itself for
+  // 'today', the Monday for 'week', the 1st for 'month'. The daily scope used to
+  // rewind to the week's Monday, which pushed its 1-day window onto Mon–Tue and
+  // made the wheel show the wrong day (e.g. Tuesday for a Saturday reading).
+  return horoscope?.startDate;
 }
 
 function getFrameAspects(frames, playhead, selection) {
