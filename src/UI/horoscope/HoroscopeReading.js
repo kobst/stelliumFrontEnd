@@ -30,9 +30,21 @@ function HoroscopeReading({
     readingInterval &&
     (experience.playhead < readingInterval.start || experience.playhead >= readingInterval.end)
   );
-  const rangeLabel = readingInterval
-    ? `${formatCalendarDate(readingInterval.start)}–${formatCalendarDate(readingInterval.end - 1)}`
+  // Horoscope day boundaries are stored at UTC midnight, so format the calendar
+  // label in UTC — otherwise a negative-offset timezone renders each boundary a
+  // day early (e.g. a Saturday reading showing "Aug 28–Aug 29"). Collapse a
+  // single-day range (daily) to one date.
+  const rangeStart = readingInterval
+    ? formatCalendarDate(readingInterval.start, { timeZone: 'UTC' })
     : '';
+  const rangeEnd = readingInterval
+    ? formatCalendarDate(readingInterval.end - 1, { timeZone: 'UTC' })
+    : '';
+  const rangeLabel = !readingInterval
+    ? ''
+    : rangeStart === rangeEnd
+      ? rangeStart
+      : `${rangeStart}–${rangeEnd}`;
   const shownQuiet = moreOpen ? quietTransits : quietTransits.slice(0, 3);
 
   return (
