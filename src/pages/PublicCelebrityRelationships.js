@@ -6,21 +6,13 @@ import {
   getCelebrityRelationships,
 } from '../Utilities/api';
 import { useAuth } from '../context/AuthContext';
-import { getRelationshipCardSummary, relationshipStrengthWord } from '../Utilities/relationshipSummary';
+import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
 import InkNav from '../UI/ink/InkNav';
 import InkPublicFooter from '../UI/publicInk/InkPublicFooter';
 import '../styles/ink.css';
 import './PublicCelebrityRelationships.css';
 
 const PORTRAIT_TONES = ['lilac', 'gold', 'blue', 'rose', 'sage', 'plum'];
-const ORDERED_CLUSTERS = ['Harmony', 'Passion', 'Connection', 'Stability', 'Growth'];
-const CLUSTER_GLYPHS = {
-  Harmony: '♡',
-  Passion: '△',
-  Connection: '☌',
-  Stability: '◇',
-  Growth: '✦',
-};
 const MARKETING_LINKS = [
   { label: 'Celebrity charts', href: '/celebrities' },
   { label: 'Relationships', href: '/celebrity-relationships' },
@@ -52,20 +44,6 @@ function getSunSign(relationship, prefix) {
   return planets.find((planet) => planet?.name === 'Sun')?.sign || null;
 }
 
-function getClusterScores(relationship) {
-  const clusterAnalysis = relationship?.relationshipAnalysisStatus?.clusterScoring
-    || relationship?.clusterScoring
-    || relationship?.clusterAnalysis
-    || {};
-  const clusters = clusterAnalysis?.clusters || {};
-  const scores = {};
-  ORDERED_CLUSTERS.forEach((cluster) => {
-    const score = clusters?.[cluster]?.score;
-    scores[cluster] = typeof score === 'number' ? Math.round(score) : 0;
-  });
-  return scores;
-}
-
 function getOverall(relationship) {
   return relationship?.relationshipAnalysisStatus?.clusterScoring?.overall
     || relationship?.clusterScoring?.overall
@@ -76,10 +54,8 @@ function getOverall(relationship) {
 function getArchetype(relationship) {
   const overall = getOverall(relationship);
   const { cardHeadline, blurb } = getRelationshipCardSummary(overall);
-  const scores = getClusterScores(relationship);
-  const fallbackStrength = relationshipStrengthWord(scores.overall);
   return {
-    label: cardHeadline || fallbackStrength || 'Cosmic Pair',
+    label: cardHeadline || 'Cosmic Pair',
     blurb: blurb || '',
   };
 }
@@ -111,20 +87,6 @@ function DuoPortrait({ relationship, tones }) {
   );
 }
 
-function ScoreStrip({ relationship }) {
-  const scores = getClusterScores(relationship);
-  return (
-    <div className="pcrl-scores" aria-label="Relationship theme scores">
-      {ORDERED_CLUSTERS.map((cluster) => (
-        <span title={cluster} key={cluster}>
-          <i aria-hidden="true">{CLUSTER_GLYPHS[cluster]}</i>
-          <b>{scores[cluster]}</b>
-        </span>
-      ))}
-    </div>
-  );
-}
-
 function RelationshipCard({ relationship, tones, featured = false, onClick }) {
   const { label, blurb } = getArchetype(relationship);
   const firstA = getUserFirstName(relationship, 'userA');
@@ -148,7 +110,6 @@ function RelationshipCard({ relationship, tones, featured = false, onClick }) {
           </p>
         )}
         {featured && blurb && <p className="pcrl-card__blurb">{blurb}</p>}
-        <ScoreStrip relationship={relationship} />
       </div>
       <span className="pcrl-card__arrow" aria-hidden="true">Read the relationship ↗</span>
     </button>

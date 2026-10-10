@@ -490,8 +490,6 @@ function RelationshipJourneyPage() {
     );
   }
 
-  const overallScore = Number.isFinite(overall) ? overall : archetype.score;
-  const overallLabel = Number.isFinite(overallScore) ? `Pattern index · ${Math.round(overallScore)}%` : null;
   const chart = (
     <RelationshipChart
       relationship={baseScene}
@@ -547,7 +545,6 @@ function RelationshipJourneyPage() {
           </button>
           <div className="birth-journey-identity">
             <strong>{aName} <span className="rj-amp">&amp;</span> {bName}</strong>
-            {overallLabel && <span>{overallLabel}</span>}
           </div>
           <button type="button" className="birth-journey-ask" onClick={() => goToChapter('ask')}>
             <span aria-hidden="true">✦</span> Gravity Chat
@@ -581,11 +578,6 @@ function RelationshipJourneyPage() {
                 {paragraphs(relationship?.initialOverview || clusterPanels('overview')?.synthesis)
                   .slice(0, 4)
                   .map((text, index) => <p key={index}>{text}</p>)}
-                {overallLabel && (
-                  <p className="relationship-reader-note">
-                    The pattern index summarizes detected themes. It is context, not a verdict on the relationship.
-                  </p>
-                )}
                 <button type="button" className="birth-journey-primary" onClick={() => goToChapter('skies')}>
                   Meet the two skies →
                 </button>
@@ -696,10 +688,9 @@ function RelationshipJourneyPage() {
                 setHoverAB(null);
                 setPinnedAB(null);
               }}
-              renderLabel={(item, selected) => (
+              renderLabel={(item) => (
                 <>
                   <span>{item.title}</span>
-                  {selected && <small>{item.payload.score}%</small>}
                 </>
               )}
               renderItem={({ payload: pillar }) => (
@@ -708,7 +699,6 @@ function RelationshipJourneyPage() {
                   <section className="birth-journey-copy relationship-reader-copy" style={{ '--relationship-tone': pillar.tone }}>
                     <div className="relationship-dimension-heading">
                       <h1 data-detail-heading tabIndex="-1">{pillar.key}</h1>
-                      <strong>{pillar.score}%</strong>
                     </div>
                     <p>Key factors light the placements and threads that support this dimension.</p>
                     <div className="relationship-factor-list">
@@ -722,9 +712,6 @@ function RelationshipJourneyPage() {
                             {...focusProps(`factor-${pillar.key}-${index}`, names, names)}
                           >
                             <span>{factor.description || factor.reason || factor.label}</span>
-                            <strong className={factor.clusterScore < 0 ? 'negative' : ''}>
-                              {factor.clusterScore > 0 ? '+' : ''}{Math.round(factor.clusterScore)}
-                            </strong>
                           </button>
                         );
                       })}

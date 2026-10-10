@@ -18,7 +18,6 @@ import RelationshipAnalysisTab from '../UI/dashboard/relationshipTabs/AnalysisTa
 import ChartsTab from '../UI/dashboard/relationshipTabs/ChartsTab';
 import CompositeTab from '../UI/dashboard/relationshipTabs/CompositeTab';
 import RelationshipOverviewTab from '../UI/dashboard/relationshipTabs/OverviewTab';
-import ScoresTab from '../UI/dashboard/relationshipTabs/ScoresTab';
 import InkNav from '../UI/ink/InkNav';
 import InkPublicFooter from '../UI/publicInk/InkPublicFooter';
 import { ChartScene } from '../UI/shared/chartScene';
@@ -27,11 +26,10 @@ import './InkRelationshipPage.css';
 import './PublicCelebrityRelationship.css';
 
 const TABS = [
-  { id: 'scores', roman: 'i.', label: 'Scores' },
-  { id: 'overview', roman: 'ii.', label: 'Overview' },
-  { id: 'composite', roman: 'iii.', label: 'Composite' },
-  { id: 'charts', roman: 'iv.', label: 'Both Charts' },
-  { id: 'analysis', roman: 'v.', label: '360 Analysis' },
+  { id: 'overview', roman: 'i.', label: 'Overview' },
+  { id: 'composite', roman: 'ii.', label: 'Composite' },
+  { id: 'charts', roman: 'iii.', label: 'Both Charts' },
+  { id: 'analysis', roman: 'iv.', label: '360 Analysis' },
 ];
 const MARKETING_LINKS = [
   { label: 'Celebrity charts', href: '/celebrities' },
@@ -146,7 +144,7 @@ function PublicCelebrityRelationship() {
   const [relationship, setRelationship] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeSection, setActiveSection] = useState('scores');
+  const [activeSection, setActiveSection] = useState('overview');
   const [tourIndex, setTourIndex] = useState(0);
   const [askOpen, setAskOpen] = useState(false);
 
@@ -230,7 +228,7 @@ function PublicCelebrityRelationship() {
   }, [synastryAspects]);
 
   useEffect(() => {
-    if (activeSection !== 'scores' || tourBodies.length === 0) return undefined;
+    if (activeSection !== 'overview' || tourBodies.length === 0) return undefined;
     const id = setInterval(
       () => setTourIndex((index) => (index + 1) % tourBodies.length),
       3200
@@ -239,7 +237,7 @@ function PublicCelebrityRelationship() {
   }, [activeSection, tourBodies.length]);
 
   const tourBody =
-    activeSection === 'scores' && tourBodies.length
+    activeSection === 'overview' && tourBodies.length
       ? tourBodies[tourIndex % tourBodies.length]
       : null;
   const compositePlacements = useMemo(
@@ -254,9 +252,6 @@ function PublicCelebrityRelationship() {
   if (loading) return <PageState>Bringing the two skies together…</PageState>;
   if (error || !relationship) return <PageState error>{error || 'Relationship not found.'}</PageState>;
 
-  const hasAnalysis = Boolean(
-    relationship?.completeAnalysis && Object.keys(relationship.completeAnalysis).length > 0
-  );
   const relationshipScoredItems = relationship?.scoredItems
     || relationship?.clusterAnalysis?.scoredItems
     || relationship?.clusterScoring?.scoredItems
@@ -281,15 +276,6 @@ function PublicCelebrityRelationship() {
   };
 
   const tabContent = {
-    scores: (
-      <ScoresTab
-        relationship={relationship}
-        hasAnalysis={hasAnalysis}
-        onNavigateToAnalysis={() => setActiveSection('analysis')}
-        compositeId={compositeId}
-        isCelebrity
-      />
-    ),
     overview: <RelationshipOverviewTab relationship={relationship} compositeId={compositeId} isCelebrity />,
     composite: <CompositeTab relationship={relationship} compositeId={compositeId} isCelebrity />,
     charts: <ChartsTab relationship={relationship} compositeId={compositeId} isCelebrity />,
@@ -341,7 +327,7 @@ function PublicCelebrityRelationship() {
             aria-hidden={activeSection !== tab.id}
             key={tab.id}
           >
-            {tab.id === 'scores' ? (
+            {tab.id === 'overview' ? (
               <div className="ink-wrap">
                 <div className="ink-relationship__partners pcr-partners">
                   <PartnerSummary
@@ -369,8 +355,8 @@ function PublicCelebrityRelationship() {
                     <h2>Two charts, <span className="ink-italic">one weather system.</span></h2>
                     {archetypeLabel && <p className="ink-relationship__archetype">“{archetypeLabel}”</p>}
                     {archetype.blurb && <p className="pcr-archetype-blurb">{archetype.blurb}</p>}
-                    <p className="pcr-score-intro">
-                      The five relationship themes below show where this pairing flows, intensifies,
+                    <p className="pcr-overview-intro">
+                      The five dimensions in 360 Analysis explore where this pairing flows, intensifies,
                       steadies, and asks both people to grow.
                     </p>
                   </article>
@@ -386,7 +372,7 @@ function PublicCelebrityRelationship() {
                             natalAspects={[]}
                             topDown
                             disableZoom
-                            paused={activeSection !== 'scores'}
+                            paused={activeSection !== 'overview'}
                             relationship={{
                               a: placementsA,
                               b: placementsB,
@@ -412,7 +398,7 @@ function PublicCelebrityRelationship() {
                     <p className="pcr-wheel-caption"><span aria-hidden="true" /> Real ephemeris · synastry bi-wheel</p>
                   </div>
                 </div>
-                <div className="pcr-score-content">{tabContent.scores}</div>
+                <div className="pcr-overview-reading">{tabContent.overview}</div>
               </div>
             ) : (
               <div className="ink-wrap pcr-tab-content">{tabContent[tab.id]}</div>
@@ -422,7 +408,7 @@ function PublicCelebrityRelationship() {
               {isFullyAuthenticated ? (
                 <div className="pcr-ask-inline"><GravityChatCta hasFullAccess onActivate={handleAsk} /></div>
               ) : (
-                (tab.id === 'scores' || tab.id === 'analysis') && <ConversionCta />
+                (tab.id === 'overview' || tab.id === 'analysis') && <ConversionCta />
               )}
             </div>
           </section>

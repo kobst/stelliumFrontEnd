@@ -1,4 +1,17 @@
 .public-celeb-relationship {
+  /* Legacy tab primitives still consume these variables on the public ink page. */
+  --rd-surface: var(--paper);
+  --rd-surface-low: var(--paper-2);
+  --rd-surface-mid: var(--card);
+  --rd-surface-hi: var(--card);
+  --rd-text: var(--ink);
+  --rd-text-muted: var(--ink-soft);
+  --rd-text-faint: var(--ink-faint);
+  --rd-primary: var(--blue);
+  --rd-gold: var(--gold);
+  --rd-ghost: var(--line);
+  --rd-serif: var(--ink-serif);
+  --rd-sans: var(--ink-serif);
   background:
     radial-gradient(circle at 13% 28%, rgba(176, 141, 62, .055), transparent 25rem),
     radial-gradient(circle at 88% 72%, rgba(52, 55, 168, .045), transparent 30rem),
@@ -67,20 +80,148 @@
   line-height: 1.5;
 }
 
-.pcr-score-intro {
+.pcr-overview-intro {
   max-width: 55ch;
   margin: 0;
   color: var(--ink-soft);
   line-height: 1.6;
 }
 
-.pcr-score-content {
+.pcr-overview-reading {
   margin-top: 56px;
 }
 
-.pcr-overview-copy .relationship-scores-redesign,
-.pcr-overview-copy .scores-tab-redesign {
-  margin-top: 24px;
+.public-celeb-relationship .rd-section-head {
+  padding: 18px 24px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.public-celeb-relationship .rd-section-head h2 {
+  margin: 0;
+  font-size: 27px;
+  line-height: 1.2;
+}
+
+.public-celeb-relationship :is(.rd-overview-reading, .rd-empty) {
+  padding: clamp(20px, 4vw, 36px);
+  text-align: left;
+}
+
+.public-celeb-relationship .rd-overview-reading p {
+  max-width: 78ch;
+  margin: 0 auto 20px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.public-celeb-relationship .rd-overview-reading p:last-child {
+  margin-bottom: 0;
+}
+
+.public-celeb-relationship :is(.analysis-header, .charts-header) {
+  padding: 18px 24px;
+  margin-bottom: 24px;
+}
+
+.public-celeb-relationship :is(.analysis-header__title, .charts-header__title) {
+  margin: 0;
+  text-align: left;
+}
+
+.public-celeb-relationship .analysis-cluster-tabs {
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.public-celeb-relationship .analysis-cluster-tabs::before,
+.public-celeb-relationship .analysis-cluster-tabs::after {
+  display: none;
+}
+
+.public-celeb-relationship :is(.analysis-cluster-tab, .panel-nav-item, .charts-sub-tab):focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.public-celeb-relationship :is(.analysis-cluster-tab.active, .panel-nav-item.active, .charts-sub-tab.active) {
+  background: rgba(52, 55, 168, .08);
+}
+
+.public-celeb-relationship .analysis-cluster-tab.active::after {
+  background: var(--blue);
+}
+
+.public-celeb-relationship :is(.analysis-cluster-content, .analysis-panel-content, .scored-items-section) {
+  text-align: left;
+}
+
+.public-celeb-relationship :is(.analysis-panel-content, .panel-aspects__item) {
+  padding: 20px;
+}
+
+.public-celeb-relationship :is(.key-factor-item__stars, .panel-aspects__stars) {
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+.public-celeb-relationship :is(.scored-items-section__title, .key-factors-title, .panel-content-text .no-content, .panel-aspects__empty) {
+  color: var(--ink-soft);
+}
+
+.public-celeb-relationship :is(.scored-items-section__toggle-btn, .scored-items-section__filter-btn, .scored-items-section__filter-toggle-btn, .panel-aspects__show-all) {
+  color: var(--ink-soft);
+  background: var(--paper-2);
+  border-color: var(--line);
+}
+
+.public-celeb-relationship :is(.scored-items-section__toggle-btn.active, .scored-items-section__filter-btn.active) {
+  color: var(--blue);
+  background: rgba(52, 55, 168, .08);
+}
+
+.public-celeb-relationship :is(.key-factor-item__header, .panel-aspects__item-main) {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.public-celeb-relationship :is(.charts-section-header h3, .synastry-planet, .synastry-aspect, .synastry-orb, .panel-aspects__source, .panel-aspects__detail) {
+  color: var(--ink-soft);
+}
+
+.public-celeb-relationship .synastry-header {
+  color: var(--ink-faint);
+}
+
+.public-celeb-relationship :is(.synastry-person-label, .synastry-aspect-label, .synastry-orb-label, .synastry-planet .planet-name, .synastry-aspect-type) {
+  color: var(--ink-soft);
+}
+
+.public-celeb-relationship .synastry-header {
+  background: var(--paper-2);
+}
+
+.public-celeb-relationship .key-factor-item__description {
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .public-celeb-relationship .analysis-panels-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .public-celeb-relationship .analysis-panels-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .public-celeb-relationship .analysis-cluster-content {
+    padding: 16px;
+  }
 }
 
 .pcr-wheel-annot {
@@ -119,7 +260,6 @@
 }
 
 .public-celeb-relationship :is(
-  .scores-header,
   .rd-section-head,
   .charts-header,
   .analysis-header
@@ -131,7 +271,6 @@
 }
 
 .public-celeb-relationship :is(
-  .scores-header__title,
   .rd-section-head h2,
   .charts-header__title,
   .analysis-header__title
@@ -143,8 +282,6 @@
 }
 
 .public-celeb-relationship :is(
-  .scores-summary-card,
-  .scores-radar-wrapper,
   .comp-glance,
   .rd-overview-reading,
   .rd-empty,
@@ -177,7 +314,6 @@
 }
 
 .public-celeb-relationship :is(
-  .scores-summary-card__body,
   .rd-overview-reading p,
   .comp-glance__eyebrow,
   .comp-pl__sign,

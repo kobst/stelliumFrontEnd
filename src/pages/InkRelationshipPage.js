@@ -640,11 +640,9 @@ function InkRelationshipPage() {
     return <FailureState userId={userId} notFound={notFound} message={error} />;
   }
 
-  const overallScore = finiteNumber(overall?.score, overall, archetype.score);
   const strongest = rankedClusters.filter((cluster) => cluster.score > 0).slice(0, 2);
-  const strongestNames = strongest.map((cluster) => cluster.key.toLowerCase()).join(' & ');
-  const strongestWithScores = strongest
-    .map((cluster) => `${cluster.key} ${Math.round(cluster.score)}%`)
+  const strongestNames = strongest
+    .map((cluster) => cluster.key)
     .join(' · ');
   const overviewCopy = paragraphs(
     relationship?.initialOverview
@@ -792,15 +790,6 @@ function InkRelationshipPage() {
                 )) : (
                   <p className="ink-relationship__muted">The overview narrative is still being prepared.</p>
                 )}
-                {overallScore !== null && (
-                  <div className="ink-relationship__score-line">
-                    <strong>{Math.round(overallScore)}%</strong>
-                    <span>
-                      overall connection
-                      {strongestNames ? ` · strongest in ${strongestNames}` : ''}
-                    </span>
-                  </div>
-                )}
               </article>
 
             </div>
@@ -938,10 +927,6 @@ function InkRelationshipPage() {
               <article className="ink-relationship__analysis" style={{ '--ink-relationship-cluster-tone': activePillar.tone }}>
                 <div className="ink-eyebrow">360 Analysis</div>
                 <h2>{activePillar.key}</h2>
-                <div className="ink-relationship__analysis-score">
-                  <strong>{activePillar.score}%</strong>
-                  <span><i style={{ width: `${Math.min(100, Math.max(0, activePillar.score))}%` }} /></span>
-                </div>
 
                 {activePillar.factors.length > 0 ? (
                   <div className="ink-relationship__chips" aria-label={`${activePillar.key} key factors`}>
@@ -1000,7 +985,7 @@ function InkRelationshipPage() {
               <div className="ink-card ink-relationship__context-card">
                 <div className="ink-eyebrow">Active context</div>
                 <p>{aName} &amp; {bName} · Synastry + Composite</p>
-                <p>Strongest: {strongestWithScores || 'analysis pending'}</p>
+                <p>Strongest: {strongestNames || 'analysis pending'}</p>
               </div>
             </aside>
 
