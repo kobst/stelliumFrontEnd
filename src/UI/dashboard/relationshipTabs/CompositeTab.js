@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import BirthChartSummaryTable from '../../birthChart/tables/BirthChartSummaryTable';
+import ChartTabSummary from '../chartTabs/ChartTabSummary';
+import { getCompositeInterpretation } from '../../../Utilities/compositeInterpretation';
 import GravityChatPanel from '../../gravityChat/GravityChatPanel';
 import GravityChatCta from '../chartTabs/GravityChatCta';
 import { SignIcon } from '../../shared/AstroIcon';
@@ -53,9 +54,7 @@ function CompositeTab({ relationship, compositeId, isCelebrity = false, canUseGr
   const [chatOpen, setChatOpen] = useState(false);
 
   const compositeChart = useMemo(() => relationship?.compositeChart || {}, [relationship]);
-  const compositeSummary = relationship?.compositeSummary;
-
-  const paragraphs = useMemo(() => toParagraphs(compositeSummary?.summary), [compositeSummary]);
+  const paragraphs = useMemo(() => toParagraphs(getCompositeInterpretation(relationship)), [relationship]);
   const placements = useMemo(() => buildPlacements(compositeChart), [compositeChart]);
   const hasCompositeData = compositeChart?.planets && compositeChart.planets.length > 0;
 
@@ -78,7 +77,7 @@ function CompositeTab({ relationship, compositeId, isCelebrity = false, canUseGr
             {placements.map((pl) => (
               <div className="comp-pl" key={pl.label}>
                 <div className="comp-pl__glyph">
-                  <SignIcon name={pl.sign} size={22} />
+                  <SignIcon name={pl.sign} size={22} style={{ filter: 'none' }} />
                 </div>
                 <div className="comp-pl__meta">
                   <div className="comp-pl__name">{pl.label}</div>
@@ -111,7 +110,8 @@ function CompositeTab({ relationship, compositeId, isCelebrity = false, canUseGr
             <h3>The Chart Behind the Reading</h3>
             <p>Both birth charts folded into a single wheel of midpoints &mdash; the relationship&apos;s own sky.</p>
           </div>
-          <BirthChartSummaryTable
+          <ChartTabSummary
+            theme="ink"
             planets={compositeChart.planets || []}
             houses={compositeChart.houses || []}
             aspects={compositeChart.aspects || []}

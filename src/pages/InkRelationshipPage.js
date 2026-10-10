@@ -12,6 +12,8 @@ import InsufficientCreditsModal from '../UI/entitlements/InsufficientCreditsModa
 import { CREDIT_COSTS } from '../Utilities/creditCosts';
 import { formatCalendarDate } from '../Utilities/dateFormatting';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
+import { getCompositeInterpretation } from '../Utilities/compositeInterpretation';
+import ChartTabSummary from '../UI/dashboard/chartTabs/ChartTabSummary';
 import {
   fromSceneBodyName,
   toChartSceneAspects,
@@ -649,7 +651,7 @@ function InkRelationshipPage() {
       || relationship?.holisticOverview
       || clusterPanels(rankedClusters[0]?.key || 'Harmony')?.synthesis
   );
-  const compositeCopy = paragraphs(clusterPanels('composite')?.synthesis);
+  const compositeCopy = paragraphs(getCompositeInterpretation(relationship));
   const synastryCopy = paragraphs(clusterPanels(rankedClusters[0]?.key || 'Harmony')?.synthesis);
   const compositePlacementLine = placementSummary(compositeChart);
   const created = formatDate(relationship?.createdAt);
@@ -878,7 +880,7 @@ function InkRelationshipPage() {
               {compositePlacementLine.length > 0 && (
                 <p className="ink-relationship__placement-line">{compositePlacementLine.join(' · ')}</p>
               )}
-              {compositeCopy.length > 0 ? compositeCopy.slice(0, 3).map((text, index) => (
+              {compositeCopy.length > 0 ? compositeCopy.map((text, index) => (
                 <p key={index}>{text}</p>
               )) : (
                 <p className="ink-relationship__muted">Composite interpretation is not available yet.</p>
@@ -897,6 +899,17 @@ function InkRelationshipPage() {
               </div>
             </div>
           </div>
+          {compositePlanets.length > 0 && (
+            <div className="ink-wrap ink-relationship__composite-details">
+              <ChartTabSummary
+                theme="ink"
+                showWheel={false}
+                planets={compositePlanets}
+                houses={compositeChart?.houses || []}
+                aspects={compositeChart?.aspects || []}
+              />
+            </div>
+          )}
         </section>
 
         <section

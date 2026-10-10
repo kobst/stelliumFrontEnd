@@ -140,6 +140,7 @@ function AspectMiniChartImpl({
   orb,
   ascendantDegree = 0,
   size = 260,
+  theme,
 }) {
   const reactId = useId();
   const filterId = (suffix) => `mini-aspect-${reactId.replace(/[^a-zA-Z0-9-]/g, '')}-${suffix}`;
@@ -165,11 +166,13 @@ function AspectMiniChartImpl({
   const rGlyph = size * 0.431;
 
   const resolvedKind = kind || aspectKindFor(relation, from.name, to.name);
-  const lineColor = KIND_COLORS[resolvedKind] || KIND_COLORS.neutral;
+  const ink = theme === 'ink';
+  const colors = ink ? { flowing: '#3437a8', tension: '#b24a3a', moon: '#b08d3e', neutral: '#39445a' } : KIND_COLORS;
+  const lineColor = colors[resolvedKind] || colors.neutral;
   const dash = KIND_DASH[resolvedKind];
 
-  const fromColor = tintToHex(from.color);
-  const toColor = tintToHex(to.color);
+  const fromColor = ink ? (from.color === 'gold' ? '#b08d3e' : '#39445a') : tintToHex(from.color);
+  const toColor = ink ? (to.color === 'gold' ? '#b08d3e' : '#3437a8') : tintToHex(to.color);
 
   const fromTintId = filterId('from-tint');
   const toTintId = filterId('to-tint');
@@ -201,7 +204,7 @@ function AspectMiniChartImpl({
         y1={a.y}
         x2={b.x}
         y2={b.y}
-        stroke="rgba(202,190,255,0.16)"
+        stroke={ink ? 'rgba(57,68,90,0.25)' : 'rgba(202,190,255,0.16)'}
         strokeWidth={0.5}
       />
     );
@@ -233,7 +236,7 @@ function AspectMiniChartImpl({
           textAnchor="middle"
           fontFamily="Manrope, sans-serif"
           fontSize={activeSize}
-          fill={isActive ? 'rgba(232,228,240,0.95)' : 'rgba(202,190,255,0.34)'}
+          fill={ink ? (isActive ? '#232840' : 'rgba(57,68,90,0.5)') : (isActive ? 'rgba(232,228,240,0.95)' : 'rgba(202,190,255,0.34)')}
         >
           {SIGN_FALLBACK_GLYPHS[i]}
         </text>
@@ -298,14 +301,14 @@ function AspectMiniChartImpl({
             <feColorMatrix type="matrix" values={tintMatrix(toColor)} />
           </filter>
           <filter id={ambientId} colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values={tintMatrix(TINT_LILAC, 0.34)} />
+            <feColorMatrix type="matrix" values={tintMatrix(ink ? '#39445a' : TINT_LILAC, ink ? 0.5 : 0.34)} />
           </filter>
           <filter id={activeSignId} colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values={tintMatrix('#e8e4f0', 0.95)} />
+            <feColorMatrix type="matrix" values={tintMatrix(ink ? '#232840' : '#e8e4f0', 0.95)} />
           </filter>
         </defs>
-        <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke="rgba(202,190,255,0.30)" strokeWidth={0.6} />
-        <circle cx={cx} cy={cy} r={rInner} fill="none" stroke="rgba(202,190,255,0.18)" strokeWidth={0.5} />
+        <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke={ink ? 'rgba(57,68,90,0.5)' : 'rgba(202,190,255,0.30)'} strokeWidth={0.6} />
+        <circle cx={cx} cy={cy} r={rInner} fill="none" stroke={ink ? 'rgba(57,68,90,0.3)' : 'rgba(202,190,255,0.18)'} strokeWidth={0.5} />
         {spokes}
         {zodiac}
         <line
@@ -323,7 +326,7 @@ function AspectMiniChartImpl({
         <circle cx={l2.x} cy={l2.y} r={size * 0.01} fill={lineColor} />
         {renderPlanet(g1, from.name, fromSrc, fromTintId, fromColor)}
         {renderPlanet(g2, to.name, toSrc, toTintId, toColor)}
-        <circle cx={cx} cy={cy} r={size * 0.0096} fill="#e9c349" opacity={0.45} />
+        <circle cx={cx} cy={cy} r={size * 0.0096} fill={ink ? '#b08d3e' : '#e9c349'} opacity={0.45} />
       </svg>
 
       <div className="mini-aspect-legend">

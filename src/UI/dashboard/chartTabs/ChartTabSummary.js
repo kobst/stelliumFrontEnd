@@ -226,7 +226,7 @@ function resolvePos(name, planets, houses) {
   };
 }
 
-function KeyAspectsCard({ aspects, planets, houses }) {
+function KeyAspectsCard({ aspects, planets, houses, theme }) {
   const [openIndex, setOpenIndex] = useState(null);
 
   const ascDeg = useMemo(() => {
@@ -306,6 +306,7 @@ function KeyAspectsCard({ aspects, planets, houses }) {
               {isOpen && canRender ? (
                 <div className="cts-aspect-mini">
                   <AspectMiniChart
+                    theme={theme}
                     from={{
                       name: aName,
                       sign: aPos.sign,
@@ -335,7 +336,7 @@ function KeyAspectsCard({ aspects, planets, houses }) {
   );
 }
 
-function ChartTabSummary({ planets = [], houses = [], aspects = [] }) {
+function ChartTabSummary({ planets = [], houses = [], aspects = [], theme, showWheel = true }) {
   const visiblePlanets = useMemo(
     () => planets.filter((p) => p?.name && !HIDDEN_PLANETS.has(p.name)),
     [planets]
@@ -343,13 +344,13 @@ function ChartTabSummary({ planets = [], houses = [], aspects = [] }) {
   const counters = `${visiblePlanets.length} planets · ${houses.length} houses · ${aspects.length} aspects`;
 
   return (
-    <div className="cts-root">
-      <WheelCard planets={planets} houses={houses} aspects={aspects} counters={counters} />
+    <div className={`cts-root${theme === 'ink' ? ' cts-root--ink' : ''}`}>
+      {showWheel && <WheelCard planets={planets} houses={houses} aspects={aspects} counters={counters} />}
       <div className="cts-row">
         <PlanetsListCard planets={planets} />
         <HousesGridCard houses={houses} />
       </div>
-      <KeyAspectsCard aspects={aspects} planets={planets} houses={houses} />
+      <KeyAspectsCard aspects={aspects} planets={planets} houses={houses} theme={theme} />
     </div>
   );
 }

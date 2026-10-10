@@ -483,7 +483,19 @@
 }
 
 .ink-relationship__chapter-grid--composite {
-  grid-template-columns: minmax(0, 1.1fr) minmax(340px, .9fr);
+  width: min(1500px, 92%);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+  align-items: start;
+}
+
+.ink-relationship__chapter-grid--composite .ink-relationship__copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.ink-relationship__composite-details {
+  margin-top: 48px;
 }
 
 .ink-relationship__inline-empty {

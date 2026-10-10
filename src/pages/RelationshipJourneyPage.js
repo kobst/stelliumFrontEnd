@@ -15,6 +15,7 @@ import {
 } from '../Utilities/chartSceneAdapter';
 import { mentionsIn } from '../UI/journey/AnalysisFlow';
 import { getRelationshipCardSummary } from '../Utilities/relationshipSummary';
+import { getCompositeInterpretation } from '../Utilities/compositeInterpretation';
 import GravityChatPanel from '../UI/gravityChat/GravityChatPanel';
 import ChapterHeader from '../UI/journey/ChapterHeader';
 import DetailNavigator from '../UI/journey/DetailNavigator';
@@ -765,7 +766,7 @@ function RelationshipJourneyPage() {
                       <p>
                         This placement belongs to the relationship itself: the midpoint created by both charts working as one system.
                       </p>
-                      {paragraphs(clusterPanels('composite')?.synthesis).slice(0, 3).map((text, index) => (
+                      {paragraphs(getCompositeInterpretation(relationship)).map((text, index) => (
                         <p key={index}>{text}</p>
                       ))}
                       {bodyAspects.length > 0 && (
