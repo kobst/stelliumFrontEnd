@@ -61,6 +61,8 @@
   position: static; width: 100%; height: auto; max-height: none; border: 0; background: var(--card); box-shadow: none; color: var(--ink);
 }
 .cp-live-discussion .ask-panel__content { height: auto; min-height: 350px; }
+.cp-live-discussion .ask-panel__messages { max-height: 350px; }
+.cp-horo.is-conversation-expanded .cp-live-discussion .ask-panel__messages { max-height: 20dvh; }
 .cp-live-discussion :is(.ask-panel__header,.ask-panel__input-container) { background: var(--paper-2); color: var(--ink); }
 @media (max-width: 760px) {
   .cp-horo:not(.has-sky-space) .cp-horo-sky { display: block; }

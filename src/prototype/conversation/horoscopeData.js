@@ -7,7 +7,7 @@ export function passageTransitKeys(paragraphs, transits) {
   const normalize = (text) => String(text).toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
   return paragraphs.map((paragraph) => transits.filter((transit) => {
     const text = ` ${normalize(paragraph)} `;
-    return [transit.title, `${transit.transitingPlanet} ${transit.aspectName} your natal ${transit.targetPlanet}`,
+    return [transit.title, `${transit.transitingPlanet} ${transit.aspectName} ${transit.targetPlanet}`, `${transit.transitingPlanet} ${transit.aspectName} your natal ${transit.targetPlanet}`,
       `${transit.transitingPlanet} ${transit.aspectName} your ${transit.targetPlanet}`]
       .some((phrase) => text.includes(` ${normalize(phrase)} `));
   }).map((transit) => transit.key));

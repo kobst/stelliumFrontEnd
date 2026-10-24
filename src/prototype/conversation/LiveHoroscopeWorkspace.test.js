@@ -33,3 +33,13 @@ it('handles a missing saved reading and unavailable frames independently', async
   expect(data.frameError).toContain('natal chart only');
   expect(data.planets).toHaveLength(1);
 });
+
+it('uses explicit prose and structured references without inventing cross-paragraph transit matches', async () => {
+  fetchUser.mockResolvedValue({ birthChart: { planets: [] } });
+  getLatestHoroscope.mockResolvedValue({ horoscope: { interpretation: 'Venus square natal Mars. Mercury trine natal Jupiter.', analysis: { keyThemes: [null, { transitingPlanet: 'Sun', targetPlanet: 'Moon', aspect: 'conjunct' }] } } });
+  const transit = (id, body, aspect, target) => ({ id, transitingPlanet: body, aspect, targetPlanet: target, exact: '2026-10-23' });
+  getTransitWindows.mockResolvedValue({ transitEvents: [transit('real', 'Venus', 'square', 'Mars'), transit('false-match', 'Venus', 'trine', 'Mars'), transit('structured', 'Sun', 'conjunction', 'Moon')] });
+  getTransitFrames.mockResolvedValue([]);
+  const data = await loadSavedHoroscope('account-id', initialHoroscope());
+  expect(data.referencedKeys).toEqual(['real', 'structured']);
+});

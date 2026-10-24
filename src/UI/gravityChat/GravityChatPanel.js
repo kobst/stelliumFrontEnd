@@ -337,6 +337,7 @@ function GravityChatPanel({
   getActiveDate,
   includeHoroscopeReading = true,
   preserveSelectionOnSend = false,
+  containMessageScroll = false,
   selectionLimit = MAX_SELECTIONS
 }) {
   const [messages, setMessages] = useState([]);
@@ -482,14 +483,16 @@ function GravityChatPanel({
     }
   }, [contentType, externalInspect]);
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
   const scrollToLatestMessage = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
+    if (containMessageScroll) {
+      const container = messagesEndRef.current?.closest('.ask-panel__messages');
+      if (container) container.scrollTop = container.scrollHeight;
+    } else {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [containMessageScroll]);
+
+  useEffect(() => { scrollToLatestMessage(); }, [messages, scrollToLatestMessage]);
 
   const markMessageRevealComplete = useCallback((messageId) => {
     setMessages(prev => prev.map(message => (
@@ -1468,6 +1471,7 @@ function GravityChatPanel({
               </div>
             )}
             <textarea
+              aria-label="Your message"
               ref={textareaRef}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
@@ -1479,6 +1483,7 @@ function GravityChatPanel({
           </div>
           <button
             className="ask-panel__send"
+            aria-label="Send message"
             onClick={() => handleSendMessage()}
             disabled={!canSend}
           >

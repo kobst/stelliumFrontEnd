@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { fetchUser, getLatestHoroscope, getTransitWindows, getTransitFrames } from '../../Utilities/api';
 import GravityChatPanel from '../../UI/gravityChat/GravityChatPanel';
-import { makeTransitContextElement, normalizeTransitWindow } from '../../UI/horoscope/horoscopeSlots';
-import { PERIODS, dateKey, initialHoroscope, readingInterval, scopeInterval } from './horoscopeData';
+import { makeTransitContextElement, normalizeAspect, normalizeTransitWindow } from '../../UI/horoscope/horoscopeSlots';
+import { PERIODS, dateKey, initialHoroscope, passageTransitKeys, readingInterval, scopeInterval } from './horoscopeData';
 import HoroscopeWorkspace from './HoroscopeWorkspace';
 import '../../styles/ink.css';
 import './ConversationPrototype.css';
@@ -25,12 +25,14 @@ export async function loadSavedHoroscope(userId, value) {
     ...(rawTransits?.transitEvents || []), ...(rawTransits?.transitToTransitEvents || []),
   ]).map(normalizeTransitWindow).filter(Boolean);
   const text = String(horoscope?.interpretation || horoscope?.text || '').toLowerCase();
-  const references = [...(Array.isArray(horoscope?.keyTransits) ? horoscope.keyTransits : []), ...(Array.isArray(horoscope?.analysis?.keyTransits) ? horoscope.analysis.keyTransits : [])];
+  const proseKeys = new Set(passageTransitKeys([text], transits).flat());
+  const references = [...(Array.isArray(horoscope?.keyTransits) ? horoscope.keyTransits : []), ...(Array.isArray(horoscope?.analysis?.keyTransits) ? horoscope.analysis.keyTransits : []), ...(Array.isArray(horoscope?.analysis?.keyThemes) ? horoscope.analysis.keyThemes : [])];
   const referencedKeys = transits.filter((transit) => references.some((ref) =>
-    String(ref.transitingPlanet || ref.transitingBody || '').toLowerCase() === String(transit.transitingPlanet).toLowerCase()
+    ref && typeof ref === 'object'
+      && String(ref.transitingPlanet || ref.transitingBody || ref.transit?.transitingPlanet || '').toLowerCase() === String(transit.transitingPlanet).toLowerCase()
       && String(ref.targetPlanet || ref.target || ref.natalPlanet || '').toLowerCase() === String(transit.targetPlanet).toLowerCase()
-      && String(ref.aspect || '').toLowerCase() === transit.aspectName)
-    || (text.includes(String(transit.transitingPlanet).toLowerCase()) && text.includes(String(transit.targetPlanet).toLowerCase()) && text.includes(transit.aspectName)))
+      && normalizeAspect(ref.aspect || ref.transit?.aspect) === transit.aspectName)
+    || proseKeys.has(transit.key))
     .map((item) => item.key);
   return { name: user?.firstName || 'Your', sample: false, planets: user?.birthChart?.planets || [], houses: user?.birthChart?.houses || [],
     horoscope, transits, referencedKeys, frames: framesResult.status === 'fulfilled' && Array.isArray(framesResult.value) ? framesResult.value : [],
@@ -82,7 +84,7 @@ function AccountWorkspace({ user }) {
       <GravityChatPanel variant="dock" isOpen onClose={() => change({ panel: 'forecast' })} contentType="horoscope" contentId={user._id}
         birthChart={{ planets: data.planets, houses: data.houses }} transitWindows={data.transits} horoscopePeriod={value.scope}
         includeHoroscopeReading={Boolean(coverage && value.playhead >= coverage.start && value.playhead < coverage.end)}
-        getActiveDate={() => new Date(value.playhead)} externalElements={elements} syncExternalElements preserveSelectionOnSend
+        getActiveDate={() => new Date(value.playhead)} externalElements={elements} syncExternalElements preserveSelectionOnSend containMessageScroll
         onSelectionChange={handleSelection}
         contextLabel={`About ${user.firstName || 'your'} horoscope`} placeholderText="Ask about this reading or selected transit…" />
     </div>
