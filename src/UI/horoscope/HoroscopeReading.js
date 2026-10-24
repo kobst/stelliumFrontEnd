@@ -18,6 +18,9 @@ function HoroscopeReading({
   onReturnToReading,
   onAddContext,
   onTransitFocus,
+  selectionOnly = false,
+  passageTransitKeys = [],
+  onPassageSelect,
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
@@ -86,7 +89,17 @@ function HoroscopeReading({
           </div>
         )}
         {!dailyLocked && !loading && !error && horoscope && paragraphs.length > 0 && (
-          paragraphs.map((paragraph, index) => <p key={`${experience.scope}-${index}`}>{paragraph}</p>)
+          paragraphs.map((paragraph, index) => {
+            const keys = passageTransitKeys[index] || [];
+            const selected = keys.some((key) => experience.chatContext.transits.some((transit) => transit.key === key));
+            return <p key={`${experience.scope}-${index}`} className={selected ? 'is-transit-passage' : undefined}>
+              {paragraph}
+              {onPassageSelect && keys.map((key) => {
+                const transit = referencedTransits.find((item) => item.transit.key === key)?.transit;
+                return transit ? <button key={key} type="button" className="cp-passage-transit" aria-pressed={experience.chatContext.transits.some((item) => item.key === key)} onClick={() => onPassageSelect(transit)}>Explore {transit.title} ↗</button> : null;
+              })}
+            </p>;
+          })
         )}
         {!dailyLocked && !loading && !error && horoscope && paragraphs.length === 0 && (
           <div className="ihp-reading-state">
@@ -113,7 +126,7 @@ function HoroscopeReading({
                 <button
                   type="button"
                   className={`ihp-reading-transit${selected ? ' is-selected' : ''}${status.active ? '' : ' is-quiet'}`}
-                  title={`${formatTransitRange(transit)} · add to Gravity Chat`}
+                  title={`${formatTransitRange(transit)} · ${selectionOnly ? 'select transit' : 'add to Gravity Chat'}`}
                   onMouseEnter={() => onTransitFocus(transit)}
                   onMouseLeave={() => onTransitFocus(null)}
                   onFocus={() => onTransitFocus(transit)}

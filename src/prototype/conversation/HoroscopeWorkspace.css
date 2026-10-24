@@ -1,0 +1,82 @@
+.cp-horo { min-width: 0; position: relative; }
+.cp-horo-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+.cp-horo-heading h1 { font-size: clamp(32px,3.4vw,46px); line-height: 1.1; margin: 8px 0; }
+.cp-horo-heading p { margin: 0; color: var(--ink-faint); font-size: 15px; }
+.cp-horo-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding: 14px 0; border-block: 1px solid var(--line); }
+.cp-horo-periods, .cp-horo-date-controls, .cp-horo-lenses, .cp-horo-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cp-horo :is(.cp-horo-periods,.cp-horo-lenses,.cp-horo-filters) > button { border: 1px solid transparent; border-radius: 5px; padding: 7px 12px; background: transparent; color: var(--ink-faint); font-size: 15px; }
+.cp-horo :is(.cp-horo-periods,.cp-horo-lenses,.cp-horo-filters) > button[aria-pressed="true"] { border-color: var(--line); color: var(--blue); background: rgba(52,55,168,.045); }
+.cp-horo-date-controls label { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ink-faint); }
+.cp-horo-date-controls input { background: var(--card); border: 1px solid var(--line); border-radius: 4px; color: var(--ink); font-family: inherit; font-size: 14px; padding: 6px; }
+.cp-horo-date-controls > button { border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--ink); width: 30px; height: 30px; }
+.cp-horo .ihp-calendar { margin: 20px 0; }
+.cp-horo .ihp-reading-card { padding: 24px; }
+.cp-horo .ihp-reading-range { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; margin: 10px 0 18px; border-block: 1px solid var(--line); font-size: 14px; color: var(--ink-faint); }
+.cp-horo .ihp-reading-body p { font-size: 19px; line-height: 1.7; color: var(--ink-soft); }
+.cp-horo-discussion { min-width: 0; margin-top: 28px; }
+.cp-horo-discussion .cp-service-heading { display: none; }
+.cp-horo-forecast { margin-top: 20px; }
+.cp-horo-explorer { margin: 20px 0; min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper-2); color: var(--ink); }
+.cp-horo.has-sky-space .cp-horo-explorer { position: fixed; left: calc(var(--cp-column-left) + var(--cp-column-width) + 24px); top: 100px; bottom: 20px; width: min(700px,calc(100vw - var(--cp-column-left) - var(--cp-column-width) - 48px)); box-sizing: border-box; margin: 0; overflow-y: auto; }
+.cp-horo-moment { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 12px; font-size: 14px; color: var(--ink-faint); }
+.cp-horo .is-transit-passage { border-left: 3px solid var(--blue); padding: 12px 16px; background: rgba(52,55,168,.05); }
+.cp-passage-transit { display: block; border: 0; background: transparent; padding: 6px 0; color: var(--blue); font-size: 14px; text-align: left; }
+.cp-horo-linked-passage { margin: 16px 0; padding: 12px 16px; border-left: 2px solid var(--blue); color: var(--ink-soft); font-size: 17px; }
+.cp-horo-linked-passage p { max-height: 100px; overflow-y: auto; margin-bottom: 0; }
+.cp-horo-conversation-heading { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 12px; border-top: 1px solid var(--line); padding: 14px 0; }
+.cp-horo-ask { position: fixed; bottom: 18px; right: 18px; z-index: 8; box-shadow: 0 4px 20px rgba(29,32,62,.15); }
+.cp-horo.is-conversation-expanded .cp-horo-conversation-panel { position: fixed; bottom: 16px; left: var(--cp-column-left); width: var(--cp-column-width); max-height: 55dvh; display: flex; flex-direction: column; z-index: 10; box-sizing: border-box; padding: 0 18px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: 0 -8px 32px rgba(29,32,62,.12); }
+.cp-horo.is-conversation-expanded .cp-horo-conversation-content { overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
+.cp-horo.is-conversation-expanded .cp-horo-conversation-heading { border: 0; flex-shrink: 0; }
+.cp-horo.is-conversation-expanded .cp-composer { bottom: 0; }
+.cp-horo:not(.has-sky-space) .cp-horo-sky { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; align-items: start; }
+.cp-horo:not(.has-sky-space) .cp-horo-sky > .cp-caption { grid-column: 1 / -1; }
+.cp-horo:not(.has-sky-space) .cp-horo-tracker { margin-top: 0; }
+.cp-horo-explorer-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.cp-horo-explorer-heading h2 { margin: 8px 0; font-size: 32px; }
+.cp-horo-explorer .cp-horo-date-controls { margin-top: 20px; }
+.cp-horo-sky { min-width: 0; }
+.cp-horo-sky-card { padding: 20px; }
+.cp-horo-explorer .cp-horo-sky-card { display: flex; flex-direction: column; }
+.cp-horo-explorer .cp-horo-selected { order: -1; border-top: 0; padding-top: 0; margin-top: 0; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--line); }
+.cp-horo-explorer .cp-horo-wheel { width: 100%; }
+.cp-horo-filters { margin-top: 12px; gap: 4px; }
+.cp-horo .cp-horo-filters > button { font-size: 13px; padding: 5px 8px; }
+.cp-horo-wheel { max-width: 590px; margin: 12px auto; border: 1px solid var(--line); border-radius: 8px; background: #f5eee5; }
+.cp-horo-selected { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 18px; }
+.cp-horo-selected h3 { font-size: 24px; margin: 9px 0; }
+.cp-horo-selected > p { color: var(--ink-soft); font-size: 15px; }
+.cp-horo-selected > .cp-text-button { margin-left: 16px; }
+.cp-horo-tracker { overflow-x: auto; margin-top: 20px; border-radius: 6px; }
+.cp-horo-tracker > .ihp-tracker { min-width: 560px; }
+.cp-transit-context { padding: 12px 0; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+.cp-transit-context p { margin: 5px 0; font-size: 15px; color: var(--ink-soft); }
+.cp-user-message .cp-horoscope-message-context { font-size: 13px; color: var(--blue); margin-bottom: 8px; border-bottom: 1px solid var(--line); padding-bottom: 7px; }
+.cp-live-workspace { width: min(880px,94%); margin: 28px auto; }
+.cp-live-discussion .ask-panel--dock {
+  --as-surface: var(--paper); --as-surface-low: var(--card); --as-surface-mid: var(--paper-2); --as-surface-hi: var(--card);
+  --as-primary: var(--blue); --as-gold: var(--gold); --as-cyan: var(--blue); --as-gold-dim: var(--gold);
+  --as-text: var(--ink); --as-text-muted: var(--ink-soft); --as-text-faint: var(--ink-faint);
+  --as-ghost: var(--line); --as-ghost-strong: var(--line); --as-serif: var(--ink-serif); --as-sans: var(--ink-serif);
+  position: static; width: 100%; height: auto; max-height: none; border: 0; background: var(--card); box-shadow: none; color: var(--ink);
+}
+.cp-live-discussion .ask-panel__content { height: auto; min-height: 350px; }
+.cp-live-discussion :is(.ask-panel__header,.ask-panel__input-container) { background: var(--paper-2); color: var(--ink); }
+@media (max-width: 760px) {
+  .cp-horo:not(.has-sky-space) .cp-horo-sky { display: block; }
+  .cp-horo:not(.has-sky-space) .cp-horo-tracker { margin-top: 16px; }
+  .cp-horo-ask { bottom: 10px; right: 10px; font-size: 14px; }
+  .cp-horo.is-conversation-expanded .cp-horo-conversation-panel { padding-inline: 12px; bottom: 8px; max-height: 65dvh; }
+  .cp-horo-explorer { padding: 16px; }
+  .cp-horo .ihp-calendar__scrub { gap: 7px; grid-template-columns: 34px minmax(0,1fr); }
+  .cp-horo .ihp-calendar__play { width: 34px; height: 34px; }
+  .cp-horo .ihp-calendar__now { grid-column: 2; justify-self: end; padding: 4px 12px; }
+  .cp-horo .ihp-calendar__day { min-width: 0; padding-inline: 2px; }
+  .cp-horo .ihp-calendar__day-label { font-size: 11px; overflow: visible; text-overflow: clip; }
+  .cp-horo .ihp-calendar__day-label b { display: none; }
+  .cp-horo .ihp-calendar > p { font-size: 12px; margin-top: 6px; }
+  .cp-horo .ihp-calendar__legend { font-size: 11px; gap: 7px; }
+  .cp-horo :is(.ihp-reading-card,.cp-horo-sky-card) { padding: 16px; }
+  .cp-horo .cp-horo-lenses > button { padding-inline: 10px; }
+  .cp-horo-toolbar { gap: 10px; }
+}

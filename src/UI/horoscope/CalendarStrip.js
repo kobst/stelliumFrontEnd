@@ -45,6 +45,7 @@ function CalendarStrip({
   onTogglePlaying,
   onScrub,
   onNow,
+  nowLabel = 'Now',
 }) {
   const trackRef = useRef(null);
   const [dragging, setDragging] = useState(false);
@@ -288,7 +289,7 @@ function CalendarStrip({
         {mode === 'cells' ? cellsTrack : continuousTrack}
 
         <button type="button" className="ihp-calendar__now" disabled={!interval} onClick={onNow}>
-          Now
+          {nowLabel}
         </button>
       </div>
 

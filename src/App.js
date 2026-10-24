@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute, { OnboardingRoute } from './components/ProtectedRoute';
@@ -35,6 +35,9 @@ import FreeReadingPage from './pages/FreeReadingPage';
 
 import './App.css';
 
+const ConversationPrototype = lazy(() => import('./prototype/conversation/ConversationPrototype'));
+const LiveHoroscopeWorkspace = lazy(() => import('./prototype/conversation/LiveHoroscopeWorkspace'));
+
 function DefaultChartView() {
   const { userId, chartId } = useParams();
   return <Navigate to={`/dashboard/${userId}/chart/${chartId}/reader`} replace />;
@@ -56,6 +59,12 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
+            <Route path="/prototype/horoscope" element={<ProtectedRoute><Suspense fallback={<div className="ink-page" role="status">Opening your horoscope workspace…</div>}><LiveHoroscopeWorkspace /></Suspense></ProtectedRoute>} />
+            <Route path="/prototype/conversation" element={
+              <Suspense fallback={<div className="ink-page" role="status">Opening the conversation prototype…</div>}>
+                <ConversationPrototype />
+              </Suspense>
+            } />
             {/* Public routes - no auth required */}
             <Route path="/" element={<HomeInkV7 />} />
             <Route path="/free-reading" element={<FreeReadingPage />} />

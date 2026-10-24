@@ -56,6 +56,7 @@ function TransitTracker({
   error,
   onAddContext,
   onScrub,
+  selectionOnly = false,
 }) {
   const [includeMinor, setIncludeMinor] = useState(false);
   const [personalOnly, setPersonalOnly] = useState(false);
@@ -157,7 +158,7 @@ function TransitTracker({
           data-transit-bar
           className={`ihp-tracker__bar ${frictional ? 'is-frictional' : 'is-flowing'}`}
           style={{ left: `${barLeft}%`, width: `${barWidth}%` }}
-          aria-label={`Add ${transit.title}, ${formatTransitRange(transit)}, to Gravity Chat`}
+          aria-label={selectionOnly ? `Select ${transit.title}, ${formatTransitRange(transit)}` : `Add ${transit.title}, ${formatTransitRange(transit)}, to Gravity Chat`}
           onClick={() => onAddContext(transit)}
         />
         {transit.exactMs >= interval.start && transit.exactMs <= interval.end && (
@@ -184,7 +185,7 @@ function TransitTracker({
         <button
           type="button"
           className="ihp-tracker__name"
-          title={`${transit.title} · ${formatTransitRange(transit)} · add to Gravity Chat`}
+          title={`${transit.title} · ${formatTransitRange(transit)} · ${selectionOnly ? 'select transit' : 'add to Gravity Chat'}`}
           onClick={() => onAddContext(transit)}
         >
           <span>{transit.title}</span>
@@ -263,7 +264,7 @@ function TransitTracker({
         <span>◆ exact</span>
         <span><em className="is-today" />today</span>
         <span><em className="is-playhead" />playhead — click a lane to move it</span>
-        <span>✳ in this reading · click a name for Ask context</span>
+        <span>{selectionOnly ? '✳ in this reading · select a transit to inspect before asking' : '✳ in this reading · click a name for Ask context'}</span>
       </div>
     </div>
   );
