@@ -1,0 +1,121 @@
+import React from 'react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import ConversationPrototype from './ConversationPrototype';
+import { STORAGE_KEY } from './model';
+
+jest.mock('../../UI/shared/Ephemeris', () => () => <div>Sample wheel</div>);
+jest.mock('../../UI/shared/AspectMiniChart', () => () => <div>Sample aspect diagram</div>);
+const mount = () => render(<MemoryRouter><ConversationPrototype /></MemoryRouter>);
+const stored = () => JSON.parse(localStorage.getItem(STORAGE_KEY));
+const rail = () => within(screen.getByRole('complementary', { name: 'Your services' }));
+const start = kind => fireEvent.click(rail().getByRole('button', { name: `＋ Add ${kind}` }));
+const fill = (name = 'Jordan') => {
+  fireEvent.click(screen.getByRole('button', { name: 'Enter all details at once' }));
+  fireEvent.change(screen.getByLabelText('Name'), { target: { value: name } });
+  fireEvent.change(screen.getByLabelText('Birth date'), { target: { value: '1993-02-15' } });
+  fireEvent.click(screen.getByLabelText('Birth time unknown'));
+  fireEvent.change(screen.getByLabelText('Birthplace'), { target: { value: 'Portland, OR, USA' } });
+};
+const send = text => {
+  fireEvent.change(screen.getByLabelText('Your question'), { target: { value: text } });
+  fireEvent.click(screen.getByRole('button', { name: 'Send question' }));
+};
+beforeEach(() => { localStorage.removeItem(STORAGE_KEY); jest.useFakeTimers(); });
+afterEach(() => { jest.clearAllTimers(); jest.useRealTimers(); });
+
+it('adds a person, keeps one discussion across overview/detail and reload, and adds their relationship', () => {
+  let view = mount();
+  start('person');
+  fireEvent.click(screen.getByRole('button', { name: 'Continue', exact: true }));
+  expect(screen.getByRole('alert').textContent).toContain('Enter a name');
+  fill();
+  expect(screen.getByLabelText('Birth time').disabled).toBe(true);
+  fireEvent.click(screen.getByRole('button', { name: 'Review details' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Add person & open chart' }));
+  act(() => jest.advanceTimersByTime(20));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByRole('heading', { name: 'Jordan’s birth chart', level: 1 })).toBeTruthy();
+  expect(screen.queryByText('Sample wheel')).toBeNull();
+  send('What does my Sun sign mean?');
+  expect(screen.getByRole('log').textContent).toContain('has not calculated this chart');
+  fireEvent.click(screen.getByRole('button', { name: 'Detailed reading', exact: true }));
+  expect(screen.getByRole('heading', { name: 'No detailed reading yet.' })).toBeTruthy();
+  expect(screen.getByRole('log').textContent).toContain('What does my Sun sign mean?');
+  fireEvent.click(screen.getByRole('button', { name: 'Overview', exact: true }));
+  view.unmount(); view = mount();
+  expect(screen.getByRole('heading', { name: 'Jordan’s birth chart', level: 1 })).toBeTruthy();
+  expect(screen.getByRole('log').textContent).toContain('What does my Sun sign mean?');
+  start('relationship');
+  const personId = stored().people[0].id;
+  fireEvent.change(screen.getByLabelText('Choose a person'), { target: { value: personId } });
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Add relationship', exact: true }));
+  expect(screen.getByRole('heading', { name: 'Maya & Jordan', level: 1 })).toBeTruthy();
+  expect(screen.getByRole('log').textContent).toBe('');
+  send('How can we communicate?');
+  expect(screen.getByRole('log').textContent).toContain('Maya & Jordan');
+  start('relationship');
+  fireEvent.change(screen.getByLabelText('Choose a person'), { target: { value: personId } });
+  fireEvent.click(screen.getByRole('button', { name: 'Open existing relationship' }));
+  expect(screen.getByRole('log').textContent).toContain('How can we communicate?');
+  expect(stored().threads).toHaveLength(6);
+  fireEvent.click(rail().getByRole('button', { name: /Jordan’s birth chart/ }));
+  expect(screen.getByRole('log').textContent).not.toContain('How can we communicate?');
+});
+
+it('supports inline creation, cancel without saving, and existing sample pairs', () => {
+  mount(); start('relationship');
+  fireEvent.change(screen.getByLabelText('Choose a person'), { target: { value: 'new' } });
+  fill('Sam');
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel', exact: true }));
+  expect(stored().people).toHaveLength(0);
+  start('relationship');
+  fireEvent.change(screen.getByLabelText('Choose a person'), { target: { value: 'new' } });
+  fill('Sam');
+  fireEvent.click(screen.getByRole('button', { name: 'Review details' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Add person & relationship' }));
+  expect(screen.getByRole('heading', { name: 'Maya & Sam', level: 1 })).toBeTruthy();
+  expect(stored().threads).toHaveLength(6);
+  start('relationship');
+  fireEvent.change(screen.getByLabelText('Choose a person'), { target: { value: 'theo' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Open existing relationship' }));
+  expect(document.querySelector('.cp-product-heading h1').textContent).toBe('Maya & Theo');
+  expect(stored().threads).toHaveLength(6);
+});
+
+it('exposes creation from Your sky and mobile navigation', () => {
+  mount();
+  fireEvent.click(screen.getByRole('button', { name: 'Your sky', exact: true }));
+  fireEvent.click(within(screen.getByRole('main')).getByRole('button', { name: '＋ Add person' }));
+  fill('Taylor');
+  fireEvent.click(screen.getByRole('button', { name: 'Review details' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Add person & open chart' }));
+  const nav = within(screen.getByRole('navigation', { name: 'Service navigation' }));
+  expect(nav.getByRole('option', { name: 'Taylor’s birth chart' })).toBeTruthy();
+  fireEvent.click(nav.getByRole('button', { name: '＋ Add relationship' }));
+  expect(screen.getByRole('dialog', { name: 'Add a relationship' })).toBeTruthy();
+  fireEvent(screen.getByRole('dialog'), new Event('cancel', { bubbles: true, cancelable: true }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+it('collects a new relationship partner conversationally, edits the summary and saves only on confirmation', () => {
+  mount(); start('relationship');
+  fireEvent.change(screen.getByLabelText('Choose a person'), { target: { value: 'new' } });
+  expect(screen.queryByLabelText('Birth date')).toBeNull();
+  const next = () => fireEvent.click(screen.getByRole('button', { name: 'Continue', exact: true }));
+  fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Robin' } }); next();
+  fireEvent.change(screen.getByLabelText('Birth date'), { target: { value: '1995-04-12' } }); next();
+  fireEvent.change(screen.getByLabelText('Birthplace'), { target: { value: 'Austin, TX, USA' } }); next();
+  expect(screen.getByRole('list', { name: 'Birth details collected' }).textContent).toContain('12 April 1995');
+  fireEvent.click(screen.getByRole('button', { name: 'I don’t know their birth time' }));
+  expect(screen.getByRole('heading', { name: 'Check birth details' })).toBeTruthy();
+  expect(stored().people).toHaveLength(0);
+  expect(stored().threads).toHaveLength(4);
+  fireEvent.click(screen.getByRole('button', { name: 'Edit name' }));
+  fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Robin Lee' } }); next();
+  expect(screen.getByRole('heading', { name: 'Check birth details' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Add person & relationship' }));
+  expect(screen.getByRole('heading', { name: 'Maya & Robin Lee', level: 1 })).toBeTruthy();
+  expect(stored().people[0]).toMatchObject({ name: 'Robin Lee', unknownTime: true, birthTime: '', place: 'Austin, TX, USA' });
+  expect(stored().threads.every(thread => thread.messages.length === 0)).toBe(true);
+});

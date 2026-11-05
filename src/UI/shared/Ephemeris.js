@@ -123,11 +123,13 @@ const scaleDimensions = (size, base) => {
     };
 };
 
-const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 0, instanceId, theme = 'ink', emphasisPlanets = null }) => {
+const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 0, instanceId, theme = 'ink', emphasisPlanets = null, onPlanetSelect, onExplore, ringLabels }) => {
     const palette = THEMES[theme] || THEMES.ink;
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
     const [canvasSize, setCanvasSize] = useState(BASE_SIZE);
+    const [glyphTargets, setGlyphTargets] = useState({ natal: [], transit: [] });
+    const interactive = Boolean(onPlanetSelect);
     
     // Get ascendant degree from houses
     const currentAscendantDegree = useMemo(() => {
@@ -224,9 +226,10 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
             });
         }
 
+        if (interactive && !isCancelled()) setGlyphTargets(current => ({ ...current, natal: planetDrawInfos.map(info => ({ name: info.planetName, x: info.drawX, y: info.drawY, size: ICON_WIDTH })) }));
         // Planets outside the emphasis set draw dimmed (used to isolate one
         // body's aspects); an empty/absent set means everything is full-ink.
-        const emphasisSet = emphasisPlanets && emphasisPlanets.length ? new Set(emphasisPlanets) : null;
+        const emphasisSet = emphasisPlanets && (emphasisPlanets.size || emphasisPlanets.length) ? new Set(emphasisPlanets) : null;
 
         // Phase 2: Draw planet icons and their hash marks (and indicator lines if moved)
         for (const info of planetDrawInfos) {
@@ -286,7 +289,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                 console.error(`Error processing SVG for ${planetName}:`, error);
             }
         }
-    }, [instanceId, dims, canvasSize, palette, emphasisPlanets]);
+    }, [instanceId, dims, canvasSize, palette, emphasisPlanets, interactive]);
 
     const drawAspectLines = useCallback((ctx, aspects, innerRadius, rotationRadians) => {
   
@@ -387,6 +390,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
             });
         }
 
+        if (interactive && !isCancelled()) setGlyphTargets(current => ({ ...current, transit: transitDrawInfos.map(info => ({ name: info.planetName, x: info.drawX, y: info.drawY, size: ICON_WIDTH })) }));
         // Phase 2: Draw transit icons with hash marks and indicator lines
         for (const info of transitDrawInfos) {
             const { planetName, iconUrl, drawX, drawY, truePlanetRadians, wasMoved } = info;
@@ -443,7 +447,7 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
                 console.error(`Error processing transit SVG for ${planetName}:`, error);
             }
         }
-    }, [instanceId, dims, canvasSize]);
+    }, [instanceId, dims, canvasSize, interactive]);
 
 
     const drawZodiacWheel = useCallback(async (ctx, planets, houses, aspects, transits, isCancelled) => {
@@ -567,8 +571,9 @@ const Ephemeris = memo(({ planets, houses, aspects, transits, ascendantDegree = 
     }, []);
 
     return (
-        <div ref={containerRef} className="ephemeris-container" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <canvas ref={canvasRef} width={canvasSize} height={canvasSize} />
+        <div ref={containerRef} className="ephemeris-container" style={{ width: '100%', display: 'flex', justifyContent: 'center', position: 'relative' }}>
+            <canvas ref={canvasRef} width={canvasSize} height={canvasSize} onClick={onExplore} aria-label={interactive ? 'Astrological wheel; use the planet controls or position list to select context' : 'Astrological wheel'} />
+            {interactive && canvasSize > 0 && Object.entries(glyphTargets).flatMap(([ring, targets]) => targets.filter(target => (ring === 'natal' ? planets : transits)?.some(planet => planet.name === target.name)).map(target => <button key={`${ring}-${target.name}`} type="button" className="ephemeris-glyph-target" aria-label={`Select ${ringLabels?.[ring] || ring} ${target.name}`} title={`${ringLabels?.[ring] || (ring === 'natal' ? 'Natal' : 'Transit')} ${target.name}`} onClick={() => onPlanetSelect(target.name, ring)} style={{ position: 'absolute', left: `${100 * (target.x + target.size / 2) / canvasSize}%`, top: `${100 * (target.y + target.size / 2) / canvasSize}%`, transform: 'translate(-50%, -50%)', width: Math.max(22, target.size), height: Math.max(22, target.size), padding: 0, border: 0, background: 'transparent', borderRadius: '50%' }} />))}
         </div>
     );
 });

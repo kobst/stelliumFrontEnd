@@ -93,7 +93,12 @@ export function skyAt(data, playhead) {
       const longitude = (target.full_degree - (degrees[item.aspectName] || 0) + (playhead - item.exactMs) / DAY_MS * .7 + 720) % 360;
       byBody.set(item.transitingPlanet, { name: item.transitingPlanet, full_degree: longitude });
     });
-    return [...byBody.values()];
+    // Keep the displayed body set stable, even when a body has no forecast event.
+    // The fallback is explicitly synthetic motion, not an astronomical ephemeris.
+    const rates = { Sun: 1, Moon: 13, Mercury: 1.2, Venus: 1, Mars: .5, Jupiter: .08, Saturn: .03 };
+    return data.planets.map(planet => byBody.get(planet.name) || {
+      name: planet.name, full_degree: ((planet.full_degree + 60 + (playhead - dayAt('2026-10-23')) / DAY_MS * rates[planet.name]) % 360 + 360) % 360,
+    });
   }
   const closest = data.frames.reduce((previous, frame) => !previous || Math.abs(Date.parse(frame.date) - playhead) < Math.abs(Date.parse(previous.date) - playhead) ? frame : previous, null);
   return (closest?.planets || []).map((planet) => ({ name: planet.name, full_degree: Number(planet.lon) })).filter((planet) => Number.isFinite(planet.full_degree));

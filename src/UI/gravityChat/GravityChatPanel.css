@@ -149,6 +149,8 @@
 }
 
 /* Loading state */
+.ask-panel__history-error { color: var(--as-text); border: 1px solid var(--as-ghost-strong); padding: 12px; }
+.ask-panel__history-error button { color: var(--as-primary); background: transparent; border: 1px solid var(--as-ghost-strong); border-radius: 5px; padding: 6px 12px; font: inherit; cursor: pointer; }
 .ask-panel__loading {
   display: flex;
   flex-direction: column;

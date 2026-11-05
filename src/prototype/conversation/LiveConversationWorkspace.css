@@ -1,0 +1,34 @@
+.cp-dev-page { padding-bottom: 40px; }
+.cp-dev-workspace { width: min(1440px,94%); grid-template-columns: 180px minmax(0,1fr); gap: 28px; }
+.cp-dev-content { min-width: 0; }
+.cp-live-service { display: grid; grid-template-columns: minmax(0,720px) 280px; gap: 28px; align-items: start; }
+.cp-live-service .cp-conversation { width: 100%; padding: 0; }
+.cp-dev-page .cp-rail { position: sticky; top: 20px; max-height: calc(100dvh - 40px); overflow-y: auto; align-self: start; }
+.cp-live-entity { display: flex; align-items: baseline; gap: 6px; width: 100%; text-align: left; padding: 8px 0; background: transparent; border: 0; border-bottom: 1px solid var(--line); color: var(--ink); font-size: 13px; }
+.cp-live-entity > span:last-child { flex: 1; min-width: 0; }
+.cp-live-entity[aria-pressed=true] { color: var(--blue); background: #3437a809; }
+.cp-live-entity .cp-position-line { grid-template-columns: minmax(0,1fr) 7ch 5ch; }
+.cp-live-position { padding: 5px 0; font-size: 13px; }
+.cp-live-position .cp-position-line { grid-template-columns: minmax(0,1fr) 7ch 5ch; }
+.cp-live-chapters { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.cp-live-chapters [aria-current=step] { text-decoration: underline; }
+.cp-live-account-chat { margin-top: 32px; }
+.cp-live-account-chat .ask-panel--dock {
+  --as-surface: var(--paper); --as-surface-low: var(--card); --as-surface-mid: var(--paper-2); --as-surface-hi: var(--card);
+  --as-primary: var(--blue); --as-gold: var(--gold); --as-cyan: var(--blue); --as-gold-dim: var(--gold);
+  --as-text: var(--ink); --as-text-muted: var(--ink-soft); --as-text-faint: var(--ink-faint);
+  --as-ghost: var(--line); --as-ghost-strong: var(--line); --as-serif: var(--ink-serif); --as-sans: var(--ink-serif);
+  position: static; width: 100%; min-width: 0; height: auto; min-height: 220px;
+  overflow: visible; z-index: auto; color: var(--ink); background: var(--card);
+  border: 1px solid var(--line); border-radius: 8px;
+}
+.cp-live-account-chat .ask-panel--dock::before { display: none; }
+.cp-live-account-chat .ask-panel__input { border-radius: 0 0 8px 8px; }
+.cp-live-account-chat .ask-panel__messages { overflow: visible; max-height: none; flex: none; padding-bottom: 20px; }
+.cp-live-account-chat .ask-panel__input { position: static; background: var(--paper); }
+.cp-dev-notice { width: min(1320px,94%); margin: 16px auto; }
+.cp-live-context-mobile { grid-row: 1; }
+.cp-create-dialog .cp-intake-controls { margin: 0; }
+.cp-dev-page .cp-live-page { padding: 0; }
+@media (max-width:1199px) { .cp-live-service { grid-template-columns: minmax(0,1fr); } .cp-live-service .cp-conversation { grid-row: 2; } }
+@media (max-width:760px) { .cp-dev-workspace { display: block; } .cp-dev-page .cp-rail { display: none; } .cp-live-account-chat .ask-panel__messages { padding-inline: 0; } }

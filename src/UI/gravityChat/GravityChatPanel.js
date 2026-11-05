@@ -328,6 +328,7 @@ function GravityChatPanel({
   syncExternalElements = false,
   externalToggle,
   externalMessage,
+  externalDraft,
   externalInspect,
   externalHover,
   onElementHover,
@@ -344,6 +345,8 @@ function GravityChatPanel({
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState(false);
+  const [historyAttempt, setHistoryAttempt] = useState(0);
   const [error, setError] = useState(null);
   const [showPaywall, setShowPaywall] = useState(false);
   const [paywallGate, setPaywallGate] = useState(null);
@@ -367,6 +370,12 @@ function GravityChatPanel({
   const externalInspectRef = useRef(null);
   const externalElementsRef = useRef(null);
   const externalMessageRef = useRef(null);
+  const externalDraftRef = useRef(null);
+  useEffect(() => {
+    if (!externalDraft?.nonce || externalDraftRef.current === externalDraft.nonce) return;
+    externalDraftRef.current = externalDraft.nonce;
+    setInputMessage(current => current.trim() ? `${externalDraft.text || ''}\n${current}` : externalDraft.text || '');
+  }, [externalDraft]);
   const selectedElementsRef = useRef([]);
   const isOverlayVariant = variant === 'overlay';
   const persistentContext = contextPlacement === 'external';
@@ -422,11 +431,14 @@ function GravityChatPanel({
     if (!isOpen || !contentId || !config) return;
     if (disableHistory) return; // celebrity Gravity Chat: ephemeral, don't load prior history
     if (hasLoadedRef.current === contentId) return;
+    let cancelled = false;
 
     const loadHistory = async () => {
       setLoadingHistory(true);
+      setHistoryError(false);
       try {
         const history = await config.fetchHistory(contentId, 50);
+        if (cancelled) return;
         const historyArray = Array.isArray(history)
           ? history
           : Array.isArray(history?.chatHistory)
@@ -442,16 +454,18 @@ function GravityChatPanel({
           }));
           setMessages(prev => (prev.length > 0 ? prev : mapped));
         }
+        hasLoadedRef.current = contentId;
       } catch (err) {
         console.error('Error loading chat history:', err);
+        if (!cancelled) setHistoryError(true);
       } finally {
-        setLoadingHistory(false);
-        hasLoadedRef.current = contentId;
+        if (!cancelled) setLoadingHistory(false);
       }
     };
 
     loadHistory();
-  }, [isOpen, contentId, config, disableHistory]);
+    return () => { cancelled = true; };
+  }, [isOpen, contentId, config, disableHistory, historyAttempt]);
 
   // Reset state when contentId changes
   useEffect(() => {
@@ -1331,6 +1345,7 @@ function GravityChatPanel({
 
         {/* Messages */}
         <div className="ask-panel__messages">
+          {historyError && <div role="alert" className="ask-panel__history-error"><p>Your saved discussion could not be loaded. It has not been deleted.</p><button type="button" onClick={() => setHistoryAttempt(value => value + 1)}>Retry discussion</button></div>}
           {loadingHistory ? (
             <div className="ask-panel__loading">
               <div className="loading-spinner"></div>

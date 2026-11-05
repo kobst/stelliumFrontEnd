@@ -18,6 +18,7 @@ it('moves sample transit positions with the date and shows the selected cross-ch
   const data = sampleHoroscopeData(initialHoroscope());
   const exact = dayAt('2026-10-23');
   const sky = skyAt(data, exact);
+  expect(sky.map(planet => planet.name)).toEqual(data.planets.map(planet => planet.name));
   expect(skyAt(data, exact + 86400000)).not.toEqual(sky);
   const aspect = chartAspects([data.transits[0]], data.planets, sky, exact)[0];
   expect(aspect.aspectedPlanet).toBe('Venus');

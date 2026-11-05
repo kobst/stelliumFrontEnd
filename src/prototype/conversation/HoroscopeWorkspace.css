@@ -64,6 +64,15 @@
 .cp-live-discussion .ask-panel__messages { max-height: 350px; }
 .cp-horo.is-conversation-expanded .cp-live-discussion .ask-panel__messages { max-height: 20dvh; }
 .cp-live-discussion :is(.ask-panel__header,.ask-panel__input-container) { background: var(--paper-2); color: var(--ink); }
+.cp-horo--single-scroll.has-sky-space .cp-horo-explorer { position: static; width: auto; max-height: none; overflow: visible; margin: 20px 0; }
+.cp-horo--single-scroll .cp-horo-linked-passage p { max-height: none; overflow: visible; }
+.cp-horo--single-scroll .cp-horo-toolbar { position: sticky; top: 0; z-index: 6; background: var(--paper); }
+.cp-horo--single-scroll .cp-horo-tracker { overflow: visible; }
+.cp-horo--single-scroll .cp-horo-tracker > .ihp-tracker { min-width: 0; }
+.cp-horo--single-scroll .ihp-tracker__controls { flex-wrap: wrap; overflow: visible; }
+.cp-horo.cp-horo--context .cp-horo-sky { display: block; }
+.cp-horo.cp-horo--context .cp-horo-explorer { position: static; width: auto; max-height: none; overflow: visible; }
+.cp-horo--context .cp-horo-tracker { margin-top: 16px; }
 @media (max-width: 760px) {
   .cp-horo:not(.has-sky-space) .cp-horo-sky { display: block; }
   .cp-horo:not(.has-sky-space) .cp-horo-tracker { margin-top: 16px; }

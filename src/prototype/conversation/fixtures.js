@@ -1,4 +1,5 @@
 // Illustrative content only. No account data, forecasts, or purchases are fetched.
+import { normalizeServiceReading } from './serviceReadingData';
 export const SUBJECTS = [
   { id: 'maya', label: 'Maya', detail: 'Sample birth chart · time known', kind: 'person' },
   { id: 'maya-theo', label: 'Maya & Theo', detail: 'Sample relationship · Theo’s birth time unknown', kind: 'relationship', partner: 'Theo' },
@@ -37,6 +38,48 @@ export const SAMPLE_PLANETS = [
   { name: 'Saturn', sign: 'Pisces', norm_degree: 14, full_degree: 344 },
 ];
 
+// Fictional profile copy and illustrative sky fixtures, not calculated natal data.
+export const SAMPLE_PEOPLE = {
+  Maya: { birthDate: 'Oct 2, 1990', birthTime: '7:42 AM', place: 'Washington Grove, MD', planets: SAMPLE_PLANETS },
+  Theo: { birthDate: 'Mar 14, 1988', birthTime: null, place: 'Austin, TX', planets: samplePositions([354, 312, 340, 321, 110, 15, 272]) },
+  Alex: { birthDate: 'Jun 8, 1992', birthTime: '2:15 PM', place: 'Brooklyn, NY', planets: samplePositions([77, 312, 82, 41, 110, 157, 318]) },
+};
+function samplePositions(longitudes) {
+  const signs = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  return SAMPLE_PLANETS.map((planet, index) => ({ name: planet.name, full_degree: longitudes[index], norm_degree: longitudes[index] % 30, sign: signs[Math.floor(longitudes[index] / 30)] }));
+}
+
+// Geometry derived only from the illustrative fixtures above, never birth data.
+export function getRelationshipCharts(subjectId) {
+  const partner = SUBJECTS.find(subject => subject.id === subjectId)?.partner;
+  if (!partner) return null;
+  const inner = SAMPLE_PLANETS, outer = SAMPLE_PEOPLE[partner].planets;
+  const composite = samplePositions(inner.map((planet, index) => {
+    const delta = ((outer[index].full_degree - planet.full_degree + 540) % 360) - 180;
+    return (planet.full_degree + delta / 2 + 360) % 360;
+  }));
+  const types = [['conjunction', 0], ['sextile', 60], ['square', 90], ['trine', 120], ['opposition', 180]];
+  const aspects = (first, second, source) => first.flatMap((a, i) => second.flatMap((b, j) => {
+    if (source === 'composite' && j <= i) return [];
+    const separation = Math.abs(((b.full_degree - a.full_degree + 540) % 360) - 180);
+    const match = types.find(([, angle]) => Math.abs(separation - angle) <= 6);
+    if (!match) return [];
+    const [aspect, angle] = match;
+    const known = source === 'synastry' && a.name === 'Sun' && b.name === 'Moon' && aspect === 'trine' ? 'connection'
+      : source === 'synastry' && a.name === 'Venus' && b.name === 'Mars' && aspect === 'square' ? 'attraction' : null;
+    return [{ id: known || `${source}-${a.name}-${aspect}-${b.name}`, source, type: 'aspect',
+      label: source === 'synastry' ? `Maya’s ${a.name} ${aspect} ${partner}’s ${b.name}` : `Composite ${a.name} ${aspect} ${b.name}`,
+      planet1: a.name, planet2: b.name, aspect, orb: Math.abs(separation - angle),
+      aspectedPlanet: a.name, aspectingPlanet: b.name, aspectType: aspect,
+      aspectedPlanetDegree: a.full_degree, aspectingPlanetDegree: b.full_degree,
+      ...(known ? { starRating: known === 'connection' ? 3 : 4 } : {}) }];
+  }));
+  return {
+    synastry: { planets: inner, outerPlanets: outer, aspects: aspects(inner, outer, 'synastry') },
+    composite: { planets: composite, outerPlanets: [], aspects: aspects(composite, composite, 'composite') },
+  };
+}
+
 export const SAMPLE_MONTH = {
   start: '2026-11-01', end: '2026-11-30', label: 'November 2026', timezone: 'America/New_York',
   title: 'A little more room to grow.',
@@ -50,6 +93,7 @@ export const SAMPLE_MONTH = {
 
 export function makeReport(subjectId) {
   const subject = SUBJECTS.find((item) => item.id === subjectId);
+  if (subjectId === 'maya') return getServiceReading(subjectId).report;
   if (subject?.kind !== 'relationship') return null;
   const partner = subject.partner;
   return {
@@ -85,4 +129,34 @@ export function makeReport(subjectId) {
       ] },
     ],
   };
+}
+
+export function getServiceReading(subjectId) {
+  const subject = SUBJECTS.find((item) => item.id === subjectId);
+  if (!subject) return null;
+  if (subject.kind === 'relationship') {
+    const report = makeReport(subjectId);
+    const keys = ['Harmony', 'Connection', 'Passion', 'Stability', 'Growth'];
+    const completeAnalysis = Object.fromEntries(report.chapters.map((chapter, index) => [keys[index], {
+      synastry: { supportPanel: chapter.paragraphs[0], challengePanel: chapter.paragraphs[1], synthesisPanel: chapter.paragraphs[2] },
+      ...(subjectId === 'maya-alex' ? { composite: { synthesisPanel: `For Maya and Alex, the composite ${keys[index].toLowerCase()} theme describes the relationship as its own pattern, rather than comparing two people. This illustrative interpretation invites you to notice the habits you create together.\n\nA shared routine can support the connection without asking either person to give up their individuality.` } } : {}),
+    }]));
+    return normalizeServiceReading({ subjectId, label: subject.label, kind: 'relationship', note: report.note, source: {
+      initialOverview: `For ${subject.label}, closeness grows through everyday attention: the questions you ask, the space you give, and the care you make visible. Your differences can offer perspective without needing to become a contest.\n\nThis reading is a starting point for understanding your patterns together, not a verdict on compatibility. Notice which themes help you have a more generous conversation.`,
+      completeAnalysis,
+      clusterScoring: { scoredItems: Object.values(getRelationshipCharts(subjectId)).flatMap(chart => chart.aspects) },
+    } });
+  }
+  return normalizeServiceReading({ subjectId, label: subject.label, kind: 'birthchart', note: 'Illustrative sample positions and interpretations. Houses and rising sign are not included in this sample.', source: {
+    birthChart: { planets: SAMPLE_PLANETS, aspects: [{ aspectedPlanet: 'Venus', aspectingPlanet: 'Mars', aspectType: 'square', orb: 1 }] },
+    basicAnalysis: { overview: 'You can be generous with your attention without giving away the space you need for yourself. In this illustrative chart, the Libra Sun brings curiosity about other people, while the Leo Moon asks for warmth that feels personal and unmistakable.\n\nVenus in Aries adds a directness to the way you connect. Saying what you enjoy, want, or need can be more helpful than waiting for someone else to read the room perfectly.' },
+    broadCategoryAnalyses: {
+      PERSONALITY_IDENTITY: { overview: 'Your Libra Sun describes an interest in perspective: understanding another person does not have to mean agreeing with them.', subtopics: { self_expression: { analysis: 'You may discover what you think through conversation. Give yourself permission to form a view before making it pleasing to everyone else.' } }, synthesis: 'Begin with one decision that feels recognizably yours. You can remain open to other people without making their approval the measure of your choice.' },
+      EMOTIONAL_FOUNDATIONS_HOME: { overview: 'The Leo Moon gives this sample reading a theme of emotional warmth and visible appreciation.', subtopics: { emotional_needs: { analysis: 'Being noticed is not the same as needing an audience. A small gesture from someone close to you can matter more than general praise.' } }, synthesis: 'Try naming the kind of reassurance that actually helps. Specificity makes care easier to offer and receive.' },
+      COMMUNICATION_BELIEFS: { overview: 'Mercury in Libra offers a language for balancing honesty with consideration.', editedSubtopics: { difficult_conversations: 'Taking time to find a fair expression can be useful. Notice when careful wording becomes a way of postponing the conversation itself.' }, synthesis: 'Ask a question that could change your mind, and make a request clear enough that someone can answer it.' },
+      CAREER_PURPOSE_PUBLIC_IMAGE: { overview: 'This sample chapter explores how collaboration and independent judgment can support meaningful work.', subtopics: { working_with_others: 'You do not need to take responsibility for every perspective in a group. Offer what you see, then leave room for other people to do the same.' }, synthesis: 'Choose one contribution you can make well, rather than trying to make yourself indispensable everywhere.' },
+      RELATIONSHIPS_SOCIAL: { overview: 'Venus in Aries brings a direct, exploratory quality to connection in this illustrative reading.', subtopics: { closeness_and_space: 'Honesty can be an act of care. Let someone know what you would enjoy without turning the invitation into an obligation.' }, synthesis: 'A relationship can make room for two distinct lives. Curiosity is often a better bridge than trying to become more alike.' },
+      UNCONSCIOUS_SPIRITUALITY: { overview: 'Reflection gives you room to notice which expectations you have quietly adopted from other people.', subtopics: { inner_practice: 'A useful practice does not need to look impressive. An unhurried walk, a page of writing, or a little silence may be enough to hear yourself more clearly.' }, synthesis: 'Return to what helps you feel present, rather than measuring your inner life against an ideal.' },
+    },
+  } });
 }

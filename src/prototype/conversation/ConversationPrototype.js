@@ -1,10 +1,19 @@
-import React, { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Ephemeris from '../../UI/shared/Ephemeris';
 import AspectMiniChart from '../../UI/shared/AspectMiniChart';
 import HoroscopeWorkspace from './HoroscopeWorkspace';
-import { MODES, SAMPLE_MONTH, SAMPLE_PLANETS, SAMPLE_WEEK, SUBJECTS, makeReport } from './fixtures';
-import { SERVICES, STORAGE_KEY, createMessages, loadState, reducer, resolveRequest, serviceForReading, subjectFor } from './model';
+import ServiceReadingWorkspace from './ServiceReadingWorkspace';
+import ReportAccess from './ReportAccess';
+import useComposerDock from './useComposerDock';
+import useReplyReveal from './useReplyReveal';
+import ContextRail from './ContextRail';
+import CreateServiceDialog from './CreateServiceDialog';
+import LocalServiceOverview from './LocalServiceOverview';
+import { MODES, SAMPLE_MONTH, SAMPLE_PLANETS, SAMPLE_WEEK, SUBJECTS, getServiceReading, makeReport } from './fixtures';
+import { STORAGE_KEY, createMessages, loadState, reducer, resolveRequest, serializableState, serviceForReading, subjectFor } from './model';
+import { ReferenceProvider, ReferenceText } from './ReferenceLayer';
+import { referenceKey, textVersion } from './references';
 import '../../styles/ink.css';
 import './ConversationPrototype.css';
 
@@ -45,55 +54,84 @@ function Forecast({ monthly, onAsk, expanded = false }) {
   </div>;
 }
 
-function ReadingView({ reading, position, onPosition, onBack, onQuote, onAsk }) {
-  const report = reading.type === 'report' ? makeReport(reading.subjectId) : null;
+function ReadingView({ reading, position, onPosition, onBack, onAsk, embedded = false, focusPassage, focusVisit }) {
+  const report = reading.type === 'report' ? getServiceReading(reading.subjectId)?.report : null;
   const chapter = report?.chapters.find((item) => item.id === position?.chapterId) || report?.chapters[0];
+  const lens = position?.lens || 'synastry';
+  const sections = chapter?.lenses ? chapter.lenses[lens] || [] : null;
+  const passages = sections ? sections.flatMap((section) => section.paragraphs) : chapter?.paragraphs || [];
+  const quoteTitle = chapter ? `${chapter.title}${chapter.lenses ? ` · ${lens === 'composite' ? 'Composite' : 'Synastry'}` : ''}` : '';
   const body = useRef(null);
-  const [selection, setSelection] = useState('');
+  const chaptersNav = useRef(null);
+  useEffect(() => {
+    const nav = chaptersNav.current;
+    const center = () => {
+      const active = nav?.querySelector('[aria-current="step"]');
+      if (active && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = active.offsetLeft - nav.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2;
+    };
+    center();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(center);
+    if (nav) observer?.observe(nav);
+    return () => observer?.disconnect();
+  }, [chapter?.id]);
   useLayoutEffect(() => {
-    if (body.current) body.current.scrollTop = position?.scrollTop || 0;
-    setSelection('');
+    if (embedded) {
+      document.documentElement.scrollTop = position?.pageScrollTop || 0;
+    } else if (body.current) body.current.scrollTop = position?.scrollTop || 0;
     // Restore once on chapter entry; subsequent scroll events update the stored position.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reading.id, chapter?.id]);
-  const captureSelection = () => {
-    const selected = window.getSelection();
-    setSelection(selected && body.current?.contains(selected.anchorNode) && body.current?.contains(selected.focusNode)
-      ? selected.toString().trim().slice(0, 1000) : '');
-  };
-  return <section className="cp-reader" aria-label="Dedicated reading view">
-    <header className="cp-reader-header">
+  }, [reading.id, chapter?.id, lens, embedded]);
+  const onPositionRef = useRef(onPosition);
+  onPositionRef.current = onPosition;
+  useEffect(() => {
+    if (!embedded) return undefined;
+    let frame;
+    const save = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => onPositionRef.current({ chapterId: chapter?.id, lens, pageScrollTop: window.scrollY }));
+    };
+    window.addEventListener('scroll', save, { passive: true });
+    return () => { window.removeEventListener('scroll', save); cancelAnimationFrame(frame); };
+  }, [embedded, chapter?.id, lens]);
+  useEffect(() => {
+    if (!focusPassage) return;
+    const passage = Array.from(body.current?.querySelectorAll('[data-passage]') || []).find((item) => item.dataset.passage === focusPassage);
+    passage?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    passage?.focus({ preventScroll: true });
+  }, [focusPassage, focusVisit, chapter?.id, lens]);
+  return <section className={`cp-reader${embedded ? ' cp-reader--embedded' : ''}`} aria-label="Dedicated reading view">
+    {!embedded && <header className="cp-reader-header">
       <button type="button" className="ink-btn ink-btn--ghost" onClick={onBack}>← Back to conversation</button>
-      <div><span className="ink-eyebrow">{report ? 'Relationship reading' : 'Forecast'}</span><p>{reading.title}</p></div>
+      <div><span className="ink-eyebrow">{report ? report.kind === 'birthchart' ? 'Birth chart reading' : 'Relationship reading' : 'Forecast'}</span><p>{reading.title}</p></div>
       <span className="cp-saved">✓ Saved to Your sky</span>
-    </header>
+    </header>}
     <div className={`cp-reader-layout${report ? '' : ' cp-reader-layout--forecast'}`}>
-      {report && <nav className="cp-chapters" aria-label="Report chapters">
+      {report && <nav ref={chaptersNav} className="cp-chapters" aria-label="Report chapters">
         <span className="ink-eyebrow">In this reading</span>
         {report.chapters.map((item, index) => <button key={item.id} type="button" aria-current={item.id === chapter.id ? 'step' : undefined}
-          onClick={() => onPosition({ chapterId: item.id, scrollTop: 0 })}><span>{String(index + 1).padStart(2, '0')}</span>{item.title}</button>)}
+          onClick={() => onPosition({ chapterId: item.id, scrollTop: 0, lens })}><span>{String(index + 1).padStart(2, '0')}</span>{item.title}</button>)}
         <p className="cp-caption">A sample report for testing the reading experience.</p>
       </nav>}
-      <div className="cp-reader-scroll" role="region" aria-label="Reading content" tabIndex={0} ref={body} onMouseUp={captureSelection} onKeyUp={captureSelection}
-        onScroll={(event) => onPosition({ chapterId: chapter?.id, scrollTop: event.currentTarget.scrollTop })}>
+      <div className="cp-reader-scroll" role="region" aria-label="Reading content" tabIndex={0} ref={body}
+        onScroll={embedded ? undefined : (event) => onPosition({ chapterId: chapter?.id, scrollTop: event.currentTarget.scrollTop, lens })}>
         {report ? <article className="cp-reading-prose" key={chapter.id}>
           <div className="ink-eyebrow">Chapter {report.chapters.indexOf(chapter) + 1} of {report.chapters.length} · {chapter.eyebrow}</div>
-          <h1>{chapter.title}<span className="ink-italic">, between you.</span></h1>
-          <p className="cp-context-note">{report.note}</p>
-          {chapter.paragraphs.map((paragraph, index) => <div className="cp-passage" key={paragraph}>
-            <p>{paragraph}</p>
-            <button type="button" className="cp-text-button" aria-label={`Ask about passage ${index + 1}`}
-              onClick={() => onQuote({ text: paragraph, chapterId: chapter.id, chapterTitle: chapter.title, subjectId: reading.subjectId, readingId: reading.id })}>✳ Ask about this passage</button>
+          <h1>{chapter.title}<span className="ink-italic">{report.kind === 'birthchart' ? ', in your life.' : ', between you.'}</span></h1>
+          <p className="cp-sample-note">{report.note}</p>
+          {chapter.lenses && <><div className="cp-reader-lenses" role="group" aria-label="Relationship interpretation lens">{['synastry', 'composite'].map((value) => <button key={value} type="button" aria-pressed={lens === value} onClick={() => onPosition({ chapterId: chapter.id, lens: value, scrollTop: 0 })}>{value === 'synastry' ? 'Synastry' : 'Composite'}</button>)}</div><p className="cp-caption">{lens === 'synastry' ? 'Synastry compares your two charts: how each person meets the other.' : 'Composite describes the relationship as its own chart, not either individual.'}</p></>}
+          {sections && !sections.length && <div className="ink-card cp-context-note" role="status">No {lens} interpretation is available for this theme. The other view remains available; missing text has not been filled in.</div>}
+          {passages.map((paragraph, index) => <div className={`cp-passage${focusPassage === `detail-${chapter.id}-${lens}-${index}` ? ' is-highlighted' : ''}`} tabIndex={-1} data-passage={`detail-${chapter.id}-${lens}-${index}`} key={`${lens}-${index}`}>
+            {sections?.find((section) => section.paragraphs[0] === paragraph) && <h2 className="cp-reader-section-title">{sections.find((section) => section.paragraphs[0] === paragraph).heading}</h2>}
+            {!sections && chapter.sections?.find((section) => section.paragraphs[0] === paragraph) && <h2 className="cp-reader-section-title">{chapter.sections.find((section) => section.paragraphs[0] === paragraph).heading}</h2>}
+            <ReferenceText text={paragraph} source={{ serviceId: reading.threadId, sourceId: `${reading.id}:${chapter.id}:${lens}:${index}`, sourceVersion: textVersion(passages.join('\n')), label: `Chapter ${report.chapters.indexOf(chapter) + 1} · ${quoteTitle}`,
+              target: { subjectId: reading.subjectId, readingId: reading.id, chapterId: chapter.id, lens } }} />
           </div>)}
-          {selection && <button type="button" className="ink-btn ink-btn--navy cp-selection" onClick={() => onQuote({
-            text: selection, chapterId: chapter.id, chapterTitle: chapter.title, subjectId: reading.subjectId, readingId: reading.id,
-          })}>Ask about selected text ↗</button>}
           <div className="cp-reader-next">{report.chapters.indexOf(chapter) < report.chapters.length - 1
-            ? <button className="ink-btn ink-btn--ghost" type="button" onClick={() => onPosition({ chapterId: report.chapters[report.chapters.indexOf(chapter) + 1].id, scrollTop: 0 })}>Next chapter →</button>
+            ? <button className="ink-btn ink-btn--ghost" type="button" onClick={() => onPosition({ chapterId: report.chapters[report.chapters.indexOf(chapter) + 1].id, scrollTop: 0, lens })}>Next chapter →</button>
             : <p>You’ve reached the end. What would you like to explore together?</p>}</div>
         </article> : <div className="cp-reading-prose"><Forecast monthly={reading.monthly} expanded onAsk={onAsk} /></div>}
       </div>
-      <aside className="cp-reader-aside"><SampleWheel /><p>{subjectFor(reading.subjectId).label}<br />Illustrative positions</p></aside>
+      {!embedded && <aside className="cp-reader-aside"><span className="ink-eyebrow">Reading & discussion</span><p>{subjectFor(reading.subjectId).label}<br />Your place is saved as you read.</p>{report && <button type="button" className="cp-text-button" onClick={() => onAsk(`Help me understand ${chapter.title.toLowerCase()}`)}>Ask about this chapter ↗</button>}{report?.kind === 'birthchart' && <details><summary>Explore the sample chart</summary><SampleWheel /></details>}</aside>}
     </div>
   </section>;
 }
@@ -105,16 +143,36 @@ export default function ConversationPrototype() {
   const [params, setParams] = useSearchParams();
   const [draft, setDraft] = useState('');
   const [library, setLibrary] = useState(false);
+  const [creationMode, setCreationMode] = useState(null);
   const [storageError, setStorageError] = useState(false);
+  const [returnRequest, setReturnRequest] = useState(null);
+  const [composerExpanded, setComposerExpanded] = useState(false);
+  const [replyTarget, setReplyTarget] = useState(null);
+  const [contextMount, setContextMount] = useState(null);
+  const [skyRequest, setSkyRequest] = useState(0);
   const composer = useRef(null);
+  const page = useRef(null);
+  const column = useRef(null);
+  const transcript = useRef(null);
+  const sourceVisits = useRef(0);
   const thread = state.threads.find((item) => item.id === state.activeId) || { messages: state.homeMessages, title: 'Home' };
-  const activeService = SERVICES.find((item) => item.id === state.activeId);
-  const subject = subjectFor(state.subjectId);
+  const activeService = state.threads.find((item) => item.id === state.activeId);
+  const serviceReading = useMemo(() => activeService && !activeService.custom && activeService.kind !== 'horoscope' ? getServiceReading(activeService.subjectId) : null, [activeService]);
+  const subject = subjectFor(state.subjectId, state);
   const reading = state.readings.find((item) => item.id === params.get('reading'));
   const inReader = params.get('view') === 'reading';
+  const embeddedReader = inReader && reading?.type === 'report';
+  const showingAccess = params.get('view') === 'detail';
+  const reportRequest = [...thread.messages].reverse().find(message => message.type === 'report');
+  useComposerDock(page, column, composer, !library && (!inReader || embeddedReader));
+  useReplyReveal(replyTarget, transcript, composer, !library && !showingAccess && (!inReader || embeddedReader));
 
   useEffect(() => {
-    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, homeMessages: [] })); setStorageError(false); }
+    if (embeddedReader && state.activeId !== reading.threadId) dispatch({ type: 'switch', id: reading.threadId });
+  }, [embeddedReader, reading?.threadId, state.activeId]);
+
+  useEffect(() => {
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(serializableState(state))); setStorageError(false); }
     catch { setStorageError(true); }
   }, [state]);
   useEffect(() => {
@@ -122,26 +180,29 @@ export default function ConversationPrototype() {
     const timers = jobs.map((job) => window.setTimeout(() => dispatch({ type: 'ready', threadId: job.threadId, id: job.id }), Math.max(0, 1500 - (Date.now() - job.startedAt))));
     return () => timers.forEach(window.clearTimeout);
   }, [state.threads]);
+  useEffect(() => { if ((state.pendingQuote || state.pendingTransit) && (!inReader || embeddedReader)) composer.current?.focus({ preventScroll: true }); }, [state.pendingQuote, state.pendingTransit, inReader, embeddedReader]);
   useEffect(() => {
-    if (!inReader && thread.messages.length) {
-      composer.current?.closest('form')?.scrollIntoView?.({ block: 'end', behavior: 'smooth' });
-    }
-  }, [thread.messages.length, state.activeId, state.pendingQuote, state.pendingTransit, inReader]);
-  useEffect(() => { if ((state.pendingQuote || state.pendingTransit) && !inReader) composer.current?.focus(); }, [state.pendingQuote, state.pendingTransit, inReader]);
-  useEffect(() => {
-    if (inReader || library || thread.messages.length === 0) { document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }
-  }, [inReader, library, thread.messages.length]);
+    if (embeddedReader && !library) return; // The reader restores its own page position.
+    document.documentElement.scrollTop = 0; document.body.scrollTop = 0;
+  }, [inReader, embeddedReader, library, state.activeId, showingAccess]);
 
   const send = (text, subjectId = state.subjectId, override) => {
     if (!text.trim()) return;
-    const request = override || resolveRequest(text, subjectId, state.mode, state.activeId);
+    let request = override || resolveRequest(text, subjectId, state.mode, state.activeId, state);
+    if (!override && state.pendingReferences.length && request.subjectId === state.subjectId) request = { kind: 'answer', subjectId: state.subjectId, serviceId: state.activeId };
     if (override) request.serviceId = request.kind === 'forecast' ? 'horoscope:maya'
       : subjectFor(request.subjectId).kind === 'relationship' ? `relationship:${request.subjectId}`
         : activeService?.subjectId === request.subjectId && request.kind === 'answer' ? activeService.id : 'birthchart:maya';
     if (state.pendingTransit && state.activeId === 'horoscope:maya' && request.kind === 'answer') request.serviceId = 'horoscope:maya';
+    if (activeService?.custom) request = { kind: 'answer', subjectId: activeService.subjectId, serviceId: activeService.id };
     const messages = createMessages(text.trim(), request, state);
+    composer.current?.blur();
+    setComposerExpanded(false);
+    setReplyTarget(request.kind === 'report' ? null : messages.response.id);
     dispatch({ type: 'send', ...messages, subjectId: request.subjectId });
-    setDraft(''); setLibrary(false); setParams({});
+    setDraft(''); setLibrary(false);
+    if (request.kind === 'report') setParams({ view: 'detail' });
+    else if ((!embeddedReader || request.serviceId !== reading.threadId) && (!showingAccess || request.serviceId !== state.activeId)) setParams({});
   };
   const saveForecast = (monthly, open = false) => {
     const fixture = forecastFor(monthly);
@@ -152,7 +213,7 @@ export default function ConversationPrototype() {
   const openReport = (subjectId) => {
     const report = makeReport(subjectId);
     if (!report) return;
-    dispatch({ type: 'save', reading: { id: report.id, title: report.title, type: 'report', subjectId, threadId: `relationship:${subjectId}` } });
+    dispatch({ type: 'save', reading: { id: report.id, title: report.title, type: 'report', subjectId, threadId: serviceForReading({ type: 'report', subjectId }) } });
     setParams({ view: 'reading', reading: report.id }); setLibrary(false);
   };
   const openSaved = (item) => {
@@ -160,18 +221,69 @@ export default function ConversationPrototype() {
     setParams({ view: 'reading', reading: item.id }); setLibrary(false);
   };
   const quote = (value) => {
-    dispatch({ type: 'quote', threadId: reading?.threadId, quote: value });
-    setParams({}); setDraft('');
+    dispatch({ type: 'quote', threadId: value.serviceId || reading?.threadId, quote: value });
+    if (!embeddedReader || value.readingId !== reading.id) setParams({});
+    setDraft('');
   };
-  const goHome = () => { dispatch({ type: 'home' }); setDraft(''); setLibrary(false); setParams({}); };
-  const openService = (serviceId) => { dispatch({ type: 'switch', id: serviceId }); setDraft(''); setLibrary(false); setParams({}); };
+  const selectReference = (reference, toggle = false, focus = true) => {
+    dispatch({ type: 'reference', reference, toggle });
+    if (focus) {
+      setComposerExpanded(true);
+      requestAnimationFrame(() => composer.current?.focus({ preventScroll: true }));
+    }
+  };
+  const openExchange = messageId => {
+    const element = Array.from(transcript.current?.querySelectorAll('[data-message]') || []).find(item => item.dataset.message === messageId);
+    element?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+    element?.focus({ preventScroll: true });
+  };
+  const returnReference = reference => {
+    composer.current?.blur();
+    setComposerExpanded(false);
+    const target = reference.target || {};
+    if (state.activeId !== reference.serviceId) dispatch({ type: 'switch', id: reference.serviceId });
+    if (target.horoscope) {
+      dispatch({ type: 'horoscope', value: target.horoscope });
+      setParams({});
+    } else if (target.readingId) {
+      dispatch({ type: 'position', readingId: target.readingId, position: { chapterId: target.chapterId, lens: target.lens, pageScrollTop: 0 } });
+      setParams({ view: 'reading', reading: target.readingId });
+    } else setParams({});
+    setLibrary(false);
+    setReturnRequest({ reference, visit: ++sourceVisits.current });
+  };
+  const returnToPassage = (value) => {
+    if (value.readingId) {
+      const position = state.positions[value.readingId] || {};
+      if (value.chapterId) dispatch({ type: 'position', readingId: value.readingId, position: {
+        chapterId: value.chapterId, lens: value.lens || 'synastry',
+        scrollTop: position.chapterId === value.chapterId && position.lens === (value.lens || 'synastry') ? position.scrollTop : 0,
+        pageScrollTop: position.chapterId === value.chapterId && position.lens === (value.lens || 'synastry') ? position.pageScrollTop : 0,
+      } });
+      setParams({ view: 'reading', reading: value.readingId, visit: String(++sourceVisits.current), ...(value.passageId ? { focus: value.passageId } : {}) });
+    } else setParams({ focus: value.passageId, subject: value.subjectId, visit: String(++sourceVisits.current) });
+  };
+  const goHome = () => { dispatch({ type: 'home' }); setDraft(''); setLibrary(false); setParams({}); setReturnRequest(null); setComposerExpanded(false); };
+  const openService = (serviceId) => { dispatch({ type: 'switch', id: serviceId }); setDraft(''); setLibrary(false); setParams({}); setReturnRequest(null); setComposerExpanded(false); setSkyRequest(0); };
+  const completeCreation = action => {
+    dispatch(action); setCreationMode(null); setDraft(''); setLibrary(false); setParams({}); setReturnRequest(null); setComposerExpanded(false); setReplyTarget(null);
+    requestAnimationFrame(() => column.current?.querySelector('h1')?.focus({ preventScroll: true }));
+  };
+  const creationActions = <div className="cp-create-actions"><button type="button" className="cp-text-button" onClick={() => setCreationMode('person')}>＋ Add person</button><button type="button" className="cp-text-button" onClick={() => setCreationMode('relationship')}>＋ Add relationship</button></div>;
   const startGeneration = (message, retry = false) => dispatch({ type: 'generation', id: message.id, fail: retry ? false : state.settings.failGeneration });
+  const requestServiceReport = () => {
+    if (state.readings.some((item) => item.id === serviceReading.report.id) || state.settings.access === 'owned') { openReport(activeService.subjectId); return; }
+    dispatch({ type: 'request-report' });
+    setParams({ view: 'detail' });
+  };
 
   const renderMessage = (message) => {
-    const person = subjectFor(message.subjectId);
+    const person = subjectFor(message.subjectId, state);
+    if (message.type === 'report') return null;
     if (message.type === 'user') return <div className="cp-user-message">
+      {!!message.references?.length && <div className="cp-message-references" aria-label="Referenced sources">{message.references.map(reference => <button type="button" className="cp-source-chip" key={referenceKey(reference)} title={`${reference.label}${reference.excerpt ? ` · ${reference.excerpt}` : ''} · Return to source`} aria-label={`Return to source: ${reference.label}`} onClick={() => returnReference(reference)}><span>{reference.excerpt ? `“${reference.excerpt}”` : reference.label}</span><span aria-hidden="true">↗</span></button>)}</div>}
       {message.horoscopeContext && <p className="cp-horoscope-message-context">{message.horoscopeContext.label} · {message.horoscopeContext.date}{message.horoscopeContext.transit ? ` · ${message.horoscopeContext.transit.title}` : ''}</p>}
-      {message.quote && <blockquote>{message.quote.chapterTitle}: “{message.quote.text}”</blockquote>}
+      {message.quote && <><blockquote>{message.quote.chapterTitle}: “{message.quote.text}”</blockquote><button type="button" className="cp-text-button" onClick={() => returnToPassage(message.quote)}>Return to source ↗</button></>}
       <p>{message.text}</p><span>{person.label}</span>
     </div>;
     return <div className="cp-assistant-message">
@@ -201,49 +313,46 @@ export default function ConversationPrototype() {
           onClick={() => send(message.reason === 'birth-report' ? `Open the full compatibility report for ${item.partner}` : message.original, item.id,
             { kind: message.reason === 'birth-report' ? 'report' : message.requestedKind, subjectId: item.id })}>{item.label}</button>)}</div>
       </div>}
-      {message.type === 'report' && <div className="ink-card cp-report-card"><div className="cp-meta"><span className="ink-eyebrow">Full relationship reading</span><span>5 chapters · sample report</span></div>
-        <h3>{person.label}<span className="ink-italic">, between the lines.</span></h3><p>Connection, communication, attraction, repair, and the long run. A dedicated reading to explore at your own pace.</p>
-        <p className="cp-context-note">{makeReport(person.id)?.note}</p>
-        {message.status === 'access' && <div className="cp-access"><h4>{state.settings.access === 'included' ? 'Included in this test scenario' : 'This sample report is locked'}</h4>
-          <p>{state.settings.access === 'included' ? 'Use the simulated included report to test generation and reading.' : 'Simulate the existing one-time report purchase. No payment will be taken.'}</p>
-          <button type="button" className="ink-btn ink-btn--navy" onClick={() => startGeneration(message)}>{state.settings.access === 'included' ? 'Use sample included report' : 'Simulate purchase · $7.99'}</button>
-          <button type="button" className="cp-text-button" onClick={() => send('Give me a short relationship overview', person.id)}>Read a short overview first</button>
-        </div>}
-        {message.status === 'generating' && <div className="cp-generation" role="status"><span className="cp-pulse" aria-hidden="true">✳</span><div>Preparing your sample reading…<p>You can leave this conversation and return when it’s ready.</p></div></div>}
-        {message.status === 'failed' && <div role="alert" className="cp-access"><h4>The simulated generation failed.</h4><p>Your request is kept here. Retry the sample without another purchase step.</p>
-          <button type="button" className="ink-btn ink-btn--ghost" onClick={() => startGeneration(message, true)}>Retry sample generation</button></div>}
-        {message.status === 'ready' && <div className="cp-actions"><button type="button" className="ink-btn ink-btn--navy" onClick={() => openReport(person.id)}>Open the reading ↗</button><span className="cp-caption">Ready · return to any chapter</span></div>}
-      </div>}
     </div>;
   };
 
-  return <div className="ink-page cp-page">
+  return <ReferenceProvider serviceId={state.activeId} references={state.pendingReferences} messages={thread.messages} onSelect={selectReference} onOpenExchange={openExchange} returnRequest={returnRequest}><div ref={page} className="ink-page cp-page">
     <header className="cp-topbar"><Link className="cp-wordmark" to="/">Astral Gravity <span>✳</span></Link>
       <span className="cp-prototype-tag">Conversation prototype · sample data</span>
+      <Link to="/prototype/conversation/live" className="cp-text-button">Use dev account data ↗</Link>
       <button type="button" className="cp-text-button" aria-current={!activeService && !library && !inReader ? 'page' : undefined} onClick={goHome}>Home</button>
       <button type="button" className="ink-btn ink-btn--ghost" aria-expanded={library} onClick={() => setLibrary(!library)}>Your sky <span aria-hidden="true">↗</span></button>
     </header>
+    <nav className="cp-mobile-services" aria-label="Service navigation"><label htmlFor="cp-service-select">Your services</label><select id="cp-service-select" value={state.activeId || ''} onChange={event => event.target.value ? openService(event.target.value) : goHome()}><option value="">Home</option>{state.threads.map(service => <option key={service.id} value={service.id}>{service.title}</option>)}</select>{creationActions}</nav>
     {storageError && <p className="cp-storage-note" role="status">Browser storage is unavailable. This sample session will not survive a refresh.</p>}
     {library ? <main className="cp-library"><div className="cp-library-heading"><div><span className="ink-eyebrow">A place to return to</span><h1>Your sky</h1></div><button className="cp-text-button" type="button" onClick={() => setLibrary(false)}>Back to {inReader ? 'reading' : 'conversation'} →</button></div>
+      {creationActions}
       <section><h2>Readings & forecasts</h2>{state.readings.length ? state.readings.map((item) => <button type="button" className="ink-card cp-library-row" key={item.id} onClick={() => openSaved(item)}>
-        <span><span className="ink-eyebrow">{item.type === 'report' ? 'Relationship reading' : 'Forecast'}</span><strong>{item.title}</strong><small>{subjectFor(item.subjectId).label}{state.positions[item.id]?.chapterId ? ' · In progress' : ''}</small></span><span>Open ↗</span>
+        <span><span className="ink-eyebrow">{item.type === 'report' ? subjectFor(item.subjectId).kind === 'relationship' ? 'Relationship reading' : 'Birth chart reading' : 'Forecast'}</span><strong>{item.title}</strong><small>{subjectFor(item.subjectId).label}{state.positions[item.id]?.chapterId ? ' · In progress' : ''}</small></span><span>Open ↗</span>
       </button>) : <p>Saved forecasts and ready reports will appear here. Try requesting a relationship report.</p>}</section>
       <section><h2>Your services</h2><p>Each chart, relationship, or horoscope service has one ongoing discussion.</p>{state.threads.map((item) => <button type="button" className="cp-library-row" key={item.id} onClick={() => openService(item.id)}>
         <span>{item.title}<small>{item.description} · {item.messages.filter((message) => message.type === 'user').length} questions</small></span><span>{item.messages.length ? 'Resume discussion ↗' : 'Open service ↗'}</span></button>)}</section>
-    </main> : inReader && reading ? <ReadingView reading={reading} position={state.positions[reading.id]}
+    </main> : inReader && reading && !embeddedReader ? <ReadingView reading={reading} position={state.positions[reading.id]}
       onPosition={(position) => dispatch({ type: 'position', readingId: reading.id, position })}
       onBack={() => { dispatch({ type: 'switch', id: reading.threadId }); setParams({}); }} onQuote={quote}
       onAsk={(text) => { dispatch({ type: 'quote', threadId: reading.threadId, quote: { subjectId: reading.subjectId, text, chapterTitle: reading.title, readingId: reading.id } }); setParams({}); setDraft(text); }} />
-      : inReader ? <main className="cp-missing"><h1>This sample reading isn’t saved here.</h1><p>Open a saved reading from Your sky or return to the conversation.</p><button type="button" className="ink-btn ink-btn--ghost" onClick={() => setParams({})}>Back to conversation</button></main>
-        : <main className="cp-workspace">
+      : inReader && !reading ? <main className="cp-missing"><h1>This sample reading isn’t saved here.</h1><p>Open a saved reading from Your sky or return to the conversation.</p><button type="button" className="ink-btn ink-btn--ghost" onClick={() => setParams({})}>Back to conversation</button></main>
+        : <main className={`cp-workspace${activeService ? ' cp-workspace--context' : ''}`}>
           <aside className="cp-rail" aria-label="Your services"><button type="button" className="cp-text-button" onClick={goHome}>← Explore from home</button>
             <span className="ink-eyebrow">Your services</span>{state.threads.map((item) => <button type="button" key={item.id} aria-current={item.id === state.activeId ? 'page' : undefined} onClick={() => openService(item.id)}>{item.title}<small>{item.messages.length ? 'Resume discussion' : item.kind === 'horoscope' ? 'Forecasts & discussion' : 'Reading & discussion'}</small></button>)}
+            {creationActions}
             <p>One ongoing discussion for each service. Find saved readings in <button type="button" className="cp-text-button" onClick={() => setLibrary(true)}>Your sky ↗</button></p>
           </aside>
-          <div className="cp-conversation">
-            <HoroscopeWorkspace enabled={activeService?.kind === 'horoscope'} value={state.horoscope}
+          <div ref={column} className="cp-conversation">
+            <HoroscopeWorkspace singleScroll referenceRequest={returnRequest} exploreRequest={skyRequest} contextRail={activeService?.kind === 'horoscope' ? <ContextRail service={activeService} mount={contextMount} horoscope={state.horoscope} referenceRequest={returnRequest} onHoroscopeChange={value => dispatch({ type: 'horoscope', value })} onExplore={() => setSkyRequest(value => value + 1)} /> : null} enabled={activeService?.kind === 'horoscope'} value={state.horoscope}
               onChange={(value) => dispatch({ type: 'horoscope', value })} onAddContext={(transit) => dispatch({ type: 'transit-context', transit })}>
-            {activeService && <div className="cp-service-heading"><span className="ink-eyebrow">{activeService.kind === 'birthchart' ? 'Birth chart' : activeService.kind === 'relationship' ? 'Relationship' : 'Horoscopes'}</span><h1>{activeService.title}</h1><p>{thread.messages.length ? 'Your ongoing discussion, restored from this browser.' : 'Your reading and discussion live together here. Ask a question to begin.'}</p></div>}
+            <ServiceReadingWorkspace contextRail={serviceReading ? <ContextRail service={activeService} mount={contextMount} horoscope={state.horoscope} referenceRequest={returnRequest} onHoroscopeChange={value => dispatch({ type: 'horoscope', value })} /> : null} enabled={Boolean(serviceReading)} data={serviceReading} onReadDetail={requestServiceReport} onQuote={quote}
+              onOverview={() => setParams({})}
+              readingView={embeddedReader ? <ReadingView embedded reading={reading} position={state.positions[reading.id]}
+                focusPassage={params.get('focus')} focusVisit={params.get('visit')} onPosition={(position) => dispatch({ type: 'position', readingId: reading.id, position })} onQuote={quote} /> : showingAccess ? <ReportAccess message={reportRequest} access={state.settings.access} onGenerate={startGeneration} onOpen={openReport} onOverview={() => setParams({})} /> : null}
+              focusPassage={params.get('subject') === state.subjectId ? params.get('focus') : null} focusVisit={params.get('visit')} highlightedPassage={state.pendingQuote?.passageId}
+              >
+            {activeService?.custom ? <LocalServiceOverview key={activeService.id} service={activeService} state={state} mount={contextMount} /> : activeService && <div className="cp-service-heading"><span className="ink-eyebrow">{activeService.kind === 'birthchart' ? 'Birth chart' : activeService.kind === 'relationship' ? 'Relationship' : 'Horoscopes'}</span><h1>{activeService.title}</h1><p>{thread.messages.length ? 'Your ongoing discussion, restored from this browser.' : 'Your reading and discussion live together here. Ask a question to begin.'}</p></div>}
             {thread.messages.length === 0 && !activeService && <div className="cp-welcome"><div><span className="ink-eyebrow">{state.discovery ? 'Four ways to begin' : 'Your chart. Your questions.'}</span>
               <h1>{state.discovery ? <>What would you like<br />to <em>explore?</em></> : <>A little space<br />to <em>understand.</em></>}</h1>
               <p>{state.discovery ? 'Start with a reading, a forecast, or something on your mind. This prototype uses sample people.' : 'Start here, or return to a service. Your questions stay with the chart, relationship, or forecast you’re exploring.'}</p>
@@ -256,16 +365,18 @@ export default function ConversationPrototype() {
             }}>
               <span className="cp-starter-mark">{mode.mark}</span><span><small>{['i.', 'ii.', 'iii.', 'iv.'][index]}</small><strong>{mode.label}</strong><span>{mode.id === 'question' ? 'We’ll take your question to the right service' : 'Return to your reading & discussion'}</span></span><span aria-hidden="true">↗</span>
             </button>)}</div>}
-            <div className="cp-transcript" role="log" aria-label="Conversation" aria-live="polite">{thread.messages.map((message) => <article key={message.id}>{renderMessage(message)}</article>)}</div>
-            <form className="cp-composer" onSubmit={(event) => { event.preventDefault(); send(draft); }}>
+            <div ref={transcript} className="cp-transcript" role="log" aria-label="Conversation" aria-live="polite">{thread.messages.filter(message => message.type !== 'report').map((message) => <article key={message.id} tabIndex={-1} data-message={message.id}>{renderMessage(message)}</article>)}</div>
+            <form className={`cp-composer cp-composer--dock${composerExpanded ? '' : ' cp-composer--compact'}`} onSubmit={(event) => { event.preventDefault(); send(draft); }}>
+              {state.referenceError && <p role="status" className="cp-reference-error">{state.referenceError}</p>}
+              {state.pendingReferences.length > 0 && <div className="cp-reference-chips" role="group" aria-label="Question references">{state.pendingReferences.map(reference => <div className="cp-reference-chip" key={referenceKey(reference)} title={reference.label}><span><small>{reference.kind} · {reference.label}</small><span className="cp-reference-excerpt">{reference.excerpt || reference.label}</span></span><button type="button" aria-label={`Remove reference ${reference.label}`} onClick={() => dispatch({ type: 'remove-reference', key: referenceKey(reference) })}>×</button></div>)}</div>}
               {state.pendingTransit && <div className="cp-transit-context"><span className="ink-eyebrow">Discussing this transit</span><p>{state.pendingTransit.transit.title}<br />{state.pendingTransit.label} · {state.pendingTransit.date} · {state.pendingTransit.timezone}</p>
                 <button type="button" className="cp-text-button" onClick={() => dispatch({ type: 'clear-transit' })}>Remove transit context</button></div>}
               {state.pendingQuote && <div className="cp-quote"><div><span className="ink-eyebrow">About {state.pendingQuote.chapterTitle}</span><p>“{state.pendingQuote.text}”</p>
-                <button type="button" className="cp-text-button" onClick={() => { setParams({ view: 'reading', reading: state.pendingQuote.readingId }); }}>Return to passage ↗</button></div>
+                <button type="button" className="cp-text-button" onClick={() => returnToPassage(state.pendingQuote)}>Return to passage ↗</button></div>
                 <button type="button" className="cp-text-button" aria-label="Remove passage context" onClick={() => dispatch({ type: 'context' })}>×</button></div>}
               <div className="cp-composer-context"><strong className="cp-composer-service">{activeService ? activeService.title : 'Home · find the right service'}</strong>
-                <span>{subject.id === 'maya-theo' ? 'Birth time unknown for Theo' : activeService ? 'One ongoing discussion' : 'Questions open the relevant discussion'}</span></div>
-              <div className="cp-input-row"><textarea id="cp-prompt" ref={composer} aria-label="Your question" rows={2} value={draft} onChange={(event) => setDraft(event.target.value)}
+                <span>{subject.id === 'maya-theo' ? 'Birth time unknown for Theo' : activeService ? 'One ongoing discussion' : 'Questions open the relevant discussion'}</span>{composerExpanded && <button type="button" className="cp-text-button" onClick={() => { composer.current?.blur(); setComposerExpanded(false); }}>Minimize input</button>}</div>
+              <div className="cp-input-row"><textarea id="cp-prompt" ref={composer} aria-label="Your question" rows={composerExpanded ? 2 : 1} onFocus={() => setComposerExpanded(true)} value={draft} onChange={(event) => setDraft(event.target.value)}
                 placeholder={state.pendingQuote ? 'What would you like to understand about this passage?' : 'Ask a question, request a reading, or explore your week…'}
                 onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(draft); } }} />
                 <button className="cp-send" type="submit" disabled={!draft.trim()} aria-label="Send question">↑</button></div>
@@ -277,15 +388,18 @@ export default function ConversationPrototype() {
             </> : activeService.kind === 'relationship' ? <>
               <button type="button" onClick={() => send('What are our relationship strengths?')}>Our strengths</button><button type="button" onClick={() => send('How can we communicate better?')}>How we communicate</button>
             </> : <><button type="button" onClick={() => send('Give me a short birth chart reading')}>A short reading</button><button type="button" onClick={() => send('What does my Venus sign mean?')}>My Venus sign</button></>}</div>
-            </HoroscopeWorkspace>
+            </ServiceReadingWorkspace></HoroscopeWorkspace>
           </div>
+          {activeService && <div ref={setContextMount} className="cp-context-mount" />}
         </main>}
     <details className="cp-test-controls"><summary>Prototype scenarios</summary><div><p>Sample content only. No API requests or real purchases. Saved in this browser.</p>
+      <p>Reset also removes locally added people, relationships, and their discussions from this prototype.</p>
       <label>Report access <select aria-label="Report access scenario" value={state.settings.access} onChange={(event) => dispatch({ type: 'settings', value: { access: event.target.value } })}>
         <option value="included">Included report</option><option value="locked">Locked · simulated purchase</option><option value="owned">Already owned</option></select></label>
       <label><input type="checkbox" checked={state.settings.failGeneration} onChange={(event) => dispatch({ type: 'settings', value: { failGeneration: event.target.checked } })} /> Simulate next generation failure</label>
       <button type="button" className="cp-text-button" onClick={() => { goHome(); dispatch({ type: 'discovery', value: true }); }}>Try first-visit discovery</button>
       <button type="button" className="cp-text-button" onClick={() => { dispatch({ type: 'reset' }); setParams({}); setLibrary(false); setDraft(''); }}>Reset sample conversations & readings</button>
     </div></details>
-  </div>;
+    {creationMode && <CreateServiceDialog mode={creationMode} state={state} onClose={() => setCreationMode(null)} onCreate={completeCreation} />}
+  </div></ReferenceProvider>;
 }

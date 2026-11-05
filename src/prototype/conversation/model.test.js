@@ -1,4 +1,14 @@
-import { SERVICES, createMessages, initialState, loadState, reducer, resolveRequest } from './model';
+import { SERVICES, STORAGE_KEY, createMessages, initialState, loadState, reducer, resolveRequest } from './model';
+
+it('starts a clean test cohort without deleting the previous prototype store', () => {
+  const old = JSON.stringify({ ...initialState(), cohort: undefined });
+  const values = new Map([['ag_conversation_prototype_v1', old], [STORAGE_KEY, old]]);
+  const loaded = loadState({ getItem: key => values.get(key) });
+  expect(loaded.threads.every(thread => !thread.messages.length)).toBe(true);
+  expect(loaded.cohort).toBe('rail-cleanup-1');
+  expect(values.get('ag_conversation_prototype_v1')).toBe(old);
+  expect(STORAGE_KEY).not.toBe('ag_conversation_prototype_v1');
+});
 
 it('routes different presentation types without requiring a mode selection', () => {
   expect(resolveRequest('What does my Venus sign mean?', 'maya', 'horoscope').kind).toBe('answer');
@@ -7,7 +17,7 @@ it('routes different presentation types without requiring a mode selection', () 
   expect(resolveRequest('Show my November forecast', 'maya').expanded).toBe(true);
   expect(resolveRequest('I want a full compatibility report for Theo', 'maya').subjectId).toBe('maya-theo');
   expect(resolveRequest('I want a full report', 'maya').kind).toBe('clarification');
-  expect(resolveRequest('A full birth chart report', 'maya-theo').reason).toBe('birth-report');
+  expect(resolveRequest('A full birth chart report', 'maya-theo')).toMatchObject({ kind: 'report', subjectId: 'maya', serviceId: 'birthchart:maya' });
   expect(resolveRequest('Compare Theo and Alex', 'maya').kind).toBe('clarification');
   expect(resolveRequest('What is next week like for Theo?', 'maya').scopeNote).toContain('Maya’s forecast only');
 });
@@ -36,6 +46,12 @@ it('does not leak a passage from one couple into a request about another', () =>
   expect(messages.response.text).not.toContain('A passage for Theo');
 });
 
+it('keeps a birth chart passage out of the same person’s horoscope discussion', () => {
+  const state = { ...initialState(), pendingQuote: { subjectId: 'maya', text: 'Birth chart only.', source: 'overview', chapterTitle: 'Overview' } };
+  expect(createMessages('My week', resolveRequest('My week', 'maya'), state).user.quote).toBeNull();
+  expect(createMessages('How can I use this?', resolveRequest('How can I use this?', 'maya'), state).user.quote.text).toBe('Birth chart only.');
+});
+
 it('recovers from missing or corrupt storage and restores a valid session', () => {
   const initial = initialState();
   expect(loadState({ getItem: () => JSON.stringify(initial) })).toEqual(initial);
@@ -48,6 +64,21 @@ it('opens an owned sample report without another access or generation step', () 
   state.settings.access = 'owned';
   const { response } = createMessages('Full report for Theo', resolveRequest('Full report for Theo', 'maya'), state);
   expect(response.status).toBe('ready');
+});
+
+it('records report availability without fabricating a user question or duplicating the access event', () => {
+  let state = reducer(initialState(), { type: 'switch', id: 'birthchart:maya' });
+  state = reducer(state, { type: 'request-report' });
+  state = reducer(state, { type: 'request-report' });
+  expect(state.threads[0].messages).toHaveLength(1);
+  expect(state.threads[0].messages[0]).toMatchObject({ type: 'report', status: 'access' });
+});
+
+it('attaches a passage once without echoing it in the assistant answer', () => {
+  const state = { ...initialState(), pendingQuote: { subjectId: 'maya', text: 'A long quoted paragraph.', chapterTitle: 'Identity' } };
+  const result = createMessages('How can I apply this?', resolveRequest('How can I apply this?', 'maya'), state);
+  expect(result.user.quote.text).toBe('A long quoted paragraph.');
+  expect(result.response.text).not.toContain('A long quoted paragraph.');
 });
 
 it('routes a person’s birth chart and horoscope to separate stable discussions', () => {

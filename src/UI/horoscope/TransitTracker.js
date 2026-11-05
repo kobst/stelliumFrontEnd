@@ -55,6 +55,7 @@ function TransitTracker({
   loading,
   error,
   onAddContext,
+  renderTransitName,
   onScrub,
   selectionOnly = false,
 }) {
@@ -182,7 +183,7 @@ function TransitTracker({
         className={`ihp-tracker__row${referenced ? ' is-referenced' : ' is-quiet'}${selected ? ' is-selected' : ''}`}
         key={transit.key}
       >
-        <button
+        {renderTransitName ? renderTransitName(transit) : <button
           type="button"
           className="ihp-tracker__name"
           title={`${transit.title} · ${formatTransitRange(transit)} · ${selectionOnly ? 'select transit' : 'add to Gravity Chat'}`}
@@ -190,7 +191,7 @@ function TransitTracker({
         >
           <span>{transit.title}</span>
           {referenced && <b aria-label="Referenced in this reading">✳</b>}
-        </button>
+        </button>}
         <div className="ihp-tracker__lane" role="presentation" onClick={scrubLane}>
           {renderBar(transit)}
           {laneChrome}

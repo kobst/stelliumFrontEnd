@@ -37,6 +37,7 @@ import './App.css';
 
 const ConversationPrototype = lazy(() => import('./prototype/conversation/ConversationPrototype'));
 const LiveHoroscopeWorkspace = lazy(() => import('./prototype/conversation/LiveHoroscopeWorkspace'));
+const LiveConversationWorkspace = lazy(() => import('./prototype/conversation/LiveConversationWorkspace'));
 
 function DefaultChartView() {
   const { userId, chartId } = useParams();
@@ -59,6 +60,7 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
+            <Route path="/prototype/conversation/live" element={<ProtectedRoute><Suspense fallback={<div className="ink-page" role="status">Opening your dev workspace…</div>}><LiveConversationWorkspace /></Suspense></ProtectedRoute>} />
             <Route path="/prototype/horoscope" element={<ProtectedRoute><Suspense fallback={<div className="ink-page" role="status">Opening your horoscope workspace…</div>}><LiveHoroscopeWorkspace /></Suspense></ProtectedRoute>} />
             <Route path="/prototype/conversation" element={
               <Suspense fallback={<div className="ink-page" role="status">Opening the conversation prototype…</div>}>

@@ -42,13 +42,13 @@ export async function loadSavedHoroscope(userId, value) {
     dashboardPath: `/dashboard/${userId}` };
 }
 
-export default function LiveHoroscopeWorkspace() {
+export default function LiveHoroscopeWorkspace({ embedded = false }) {
   const { stelliumUser } = useAuth();
   // Key the child by account: cached selections and chat context never cross users.
-  return <AccountWorkspace key={stelliumUser._id} user={stelliumUser} />;
+  return <AccountWorkspace key={stelliumUser._id} user={stelliumUser} embedded={embedded} />;
 }
 
-function AccountWorkspace({ user }) {
+function AccountWorkspace({ user, embedded }) {
   const storageKey = `ag_horoscope_workspace_${user._id}`;
   const [value, setValue] = useState(() => {
     try { return { ...initialHoroscope(dateKey(Date.now())), ...JSON.parse(localStorage.getItem(storageKey) || '{}') }; }
@@ -74,10 +74,10 @@ function AccountWorkspace({ user }) {
     return previous.length === next.length && previous.every((item, index) => item.key === next[index].key) ? previous : next;
   }), [data.transits]);
   const coverage = readingInterval(data.horoscope, value.scope);
-  return <div className="ink-page cp-page cp-live-page"><header className="cp-topbar">
+  return <div className="ink-page cp-page cp-live-page">{!embedded && <header className="cp-topbar">
     <Link className="cp-wordmark" to="/">Astral Gravity <span>✳</span></Link><span className="cp-prototype-tag">Workspace prototype · signed-in account data</span>
     <Link to="/prototype/conversation" className="cp-text-button">Back to sample prototype</Link>
-  </header><main className="cp-live-workspace"><HoroscopeWorkspace enabled value={value} data={data} onChange={change} onReload={() => setReload((previous) => previous + 1)}
+  </header>}<section className="cp-live-workspace"><HoroscopeWorkspace enabled value={value} data={data} onChange={change} onReload={() => setReload((previous) => previous + 1)}
     onAddContext={(transit) => { setContext([transit]); change({ panel: 'discussion', discussionOpen: true }); }}>
     <div className="cp-live-discussion"><span className="ink-eyebrow">Your existing horoscope discussion</span>
       <p className="cp-caption">Browsing uses saved data. Sending a question uses the existing Gravity Chat service and your normal allowance.</p>
@@ -88,5 +88,5 @@ function AccountWorkspace({ user }) {
         onSelectionChange={handleSelection}
         contextLabel={`About ${user.firstName || 'your'} horoscope`} placeholderText="Ask about this reading or selected transit…" />
     </div>
-  </HoroscopeWorkspace></main></div>;
+  </HoroscopeWorkspace></section></div>;
 }

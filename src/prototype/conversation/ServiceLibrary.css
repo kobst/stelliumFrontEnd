@@ -1,0 +1,39 @@
+.cp-dev-workspace.cp-dev-workspace--library { display: block; max-width: 1200px; }
+.cp-service-library > header { margin-bottom: 26px; }
+.cp-service-library h1 { margin: 10px 0; font-size: clamp(32px,4vw,48px); }
+.cp-library-you { margin: 0 0 28px; }
+.cp-library-you > h2 { font-size: 18px; margin-bottom: 10px; color: var(--ink-soft); }
+.cp-owner-card { padding: 22px 26px; border-top: 2px solid var(--gold); }
+.cp-owner-card h3 { font-size: 28px; margin: 0 0 6px; }
+.cp-owner-products { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.cp-owner-products > div { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
+.cp-owner-products .cp-library-badges, .cp-owner-products p { margin: 0; }
+.cp-owner-products small { color: var(--ink-faint); }
+.cp-owner-products .cp-library-related { margin: 0; }
+.cp-owner-forecast { border-left: 1px solid var(--line); padding-left: 24px; }
+.cp-owner-products .ink-btn { font-size: 15px; padding: 8px 12px; }
+.cp-library-tools { display: flex; flex-wrap: wrap; gap: 20px; padding-block: 20px; border-block: 1px solid var(--line); }
+.cp-library-tools label { display: grid; gap: 8px; font-size: 14px; color: var(--ink-soft); }
+.cp-library-tools label:first-child { flex: 1; min-width: min(100%,240px); }
+.cp-library-tools :is(input,select) { padding: 10px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; color: var(--ink); font: inherit; min-width: 0; }
+.cp-library-group { margin: 32px 0; }
+.cp-library-group > h2 { font-size: 27px; font-weight: 500; }
+.cp-library-group > h2 > span { color: var(--ink-faint); font-size: 16px; margin-left: 8px; }
+.cp-library-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr)); gap: 18px; }
+.cp-service-card { padding: 22px; display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.cp-service-card h3 { margin: 12px 0; font-size: 25px; }
+.cp-service-card h3 button { font: inherit; text-align: left; color: var(--ink); }
+.cp-service-person-details { font-size: 14px; color: var(--ink-soft); margin: 0 0 16px; }
+.cp-library-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.cp-library-badges > span { font-size: 12px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 20px; color: var(--ink-soft); }
+.cp-service-card > small { color: var(--ink-faint); }
+.cp-library-related { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 14px 0; font-size: 14px; }
+.cp-service-card .cp-service-open { margin-top: auto; padding: 10px 0 0; border: 0; font-size: 15px; }
+.cp-library-nav-group { margin-bottom: 18px; }
+.cp-library-nav-group h2 { font-size: 13px; color: var(--ink); text-transform: uppercase; letter-spacing: .1em; margin: 0 0 8px; }
+.cp-library-nav-group h2 span { color: var(--ink-faint); }
+.cp-library-nav-group > button { display: block; width: 100%; background: transparent; border: 0; border-left: 2px solid transparent; padding: 8px; color: var(--ink-soft); font: inherit; text-align: left; }
+.cp-library-nav-group > button[aria-current=page] { border-left-color: var(--blue); color: var(--blue); }
+.cp-library-nav-group small { display: block; font-size: 12px; margin-top: 4px; color: var(--ink-faint); }
+@media (max-width:760px) { .cp-library-tools { flex-direction: column; } .cp-service-card { padding: 18px; } }
+@media (max-width:600px) { .cp-owner-card { padding: 18px; } .cp-owner-products { grid-template-columns: 1fr; gap: 16px; } .cp-owner-forecast { border-left: 0; border-top: 1px solid var(--line); padding: 14px 0 0; } }

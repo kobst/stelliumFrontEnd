@@ -10,6 +10,7 @@ import {
 } from '../../Utilities/trialApi';
 import { SUN_LINES, MOON_LINES, RISING_LINES, ordinal, signIconPath } from '../../Utilities/signCopy';
 import './GravityIntakeChat.css';
+import { birthDetailPrompt, formatBirthDate as formatDateAnswer, formatBirthTime as formatTimeAnswer } from './birthDetailsIntake';
 
 /**
  * Conversational trial intake: asks for birth details one question at a time,
@@ -60,19 +61,6 @@ export const splitOverviewForTeaser = (overview) => {
   head = head.trim();
   const tail = prose.slice(head.length).trim().slice(0, 420);
   return { head, tail };
-};
-
-const formatDateAnswer = (iso) => {
-  const [y, m, d] = iso.split('-').map(Number);
-  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  return `${d} ${MONTHS[m - 1]} ${y}`;
-};
-
-const formatTimeAnswer = (t) => {
-  let [h, mi] = t.split(':').map(Number);
-  const ap = h >= 12 ? 'pm' : 'am';
-  h = h % 12 || 12;
-  return `${h}:${String(mi).padStart(2, '0')} ${ap}`;
 };
 
 let bubbleKey = 0;
@@ -171,7 +159,7 @@ const GravityIntakeChat = ({ onReadingReady }) => {
       push({ kind: 'user', text: value });
       setTextValue('');
       setBusy(true);
-      await pushBot(`Lovely to meet you, ${firstName}. What’s your birth date?`, 650);
+      await pushBot(birthDetailPrompt('birthDate', { name: firstName, self: true }), 650);
       setBusy(false);
       setStep(STEP.DATE);
       return;
@@ -182,7 +170,7 @@ const GravityIntakeChat = ({ onReadingReady }) => {
       formRef.current.dateOfBirth = dateValue;
       push({ kind: 'user', text: formatDateAnswer(dateValue) });
       setBusy(true);
-      await pushBot('And where were you born? City and country is perfect.', 650);
+      await pushBot(birthDetailPrompt('place', { self: true }), 650);
       setBusy(false);
       setStep(STEP.PLACE);
       return;
@@ -241,7 +229,7 @@ const GravityIntakeChat = ({ onReadingReady }) => {
     formRef.current.lon = lon;
     push({ kind: 'user', text: formattedAddress });
     setBusy(true);
-    await pushBot('Last one — what time were you born? If you don’t know, that’s completely fine.', 650);
+    await pushBot(birthDetailPrompt('birthTime', { self: true }), 650);
     setBusy(false);
     setStep(STEP.TIME);
   };

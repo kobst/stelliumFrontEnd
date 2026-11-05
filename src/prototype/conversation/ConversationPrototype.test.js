@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ConversationPrototype from './ConversationPrototype';
 import { STORAGE_KEY } from './model';
+import { askPassage } from './referenceTestUtils';
 
 jest.mock('../../UI/shared/Ephemeris', () => () => <div>Sample wheel</div>);
 jest.mock('../../UI/shared/AspectMiniChart', () => () => <div>Sample aspect diagram</div>);
@@ -21,23 +22,25 @@ it('completes the report, passage question, reading restoration and library roun
   const view = mount();
   send('I want a full compatibility report');
   fireEvent.click(screen.getByRole('button', { name: 'Maya & Theo' }));
-  expect(screen.getByText(/Theo’s birth time is unknown/)).toBeTruthy();
+  expect(screen.getAllByText(/Theo’s birth time is unknown/).length).toBeGreaterThan(0);
   fireEvent.click(screen.getByRole('button', { name: 'Use sample included report' }));
   expect(screen.getByText(/Preparing your sample reading/)).toBeTruthy();
   act(() => jest.advanceTimersByTime(1600));
   fireEvent.click(screen.getByRole('button', { name: 'Open the reading ↗' }));
   fireEvent.click(screen.getByRole('button', { name: /03.*Attraction/ }));
-  fireEvent.scroll(screen.getByRole('region', { name: 'Reading content' }), { target: { scrollTop: 135 } });
-  fireEvent.click(screen.getByRole('button', { name: 'Ask about passage 1' }));
-  expect(screen.getByText('About Attraction')).toBeTruthy();
+  Object.defineProperty(window, 'scrollY', { configurable: true, value: 135 });
+  fireEvent.scroll(window);
+  act(() => jest.advanceTimersByTime(20));
+  askPassage();
+  expect(screen.getByRole('group', { name: 'Question references' }).textContent).toContain('Attraction · Synastry');
   send('How could I put that into practice?');
-  expect(screen.getByRole('log').textContent).toContain('in Attraction');
+  expect(screen.getByRole('log').textContent).toContain('Attraction · Synastry');
   // Leaving for home does not replace the service’s history or reading position.
   fireEvent.click(screen.getByRole('button', { name: 'Home', exact: true }));
   fireEvent.click(screen.getByRole('button', { name: 'Your sky', exact: true }));
   fireEvent.click(screen.getByRole('button', { name: /Maya & Theo · A relationship reading/ }));
   expect(screen.getByRole('button', { name: /03.*Attraction/ }).getAttribute('aria-current')).toBe('step');
-  expect(screen.getByRole('region', { name: 'Reading content' }).scrollTop).toBe(135);
+  expect(document.documentElement.scrollTop).toBe(135);
   view.unmount();
   mount();
   fireEvent.click(screen.getByRole('button', { name: 'Your sky', exact: true }));
@@ -67,7 +70,7 @@ it('resumes each product discussion across home visits and reloads without addin
   expect(screen.getByRole('log').textContent).toContain('What does my week look like?');
 });
 
-it('opens the horoscope tools and attaches a selected transit only when the user asks', () => {
+it('selects a transit from the table, sends its existing Ask payload and restores its exact moment', () => {
   const view = mount();
   openService('Maya’s horoscopes');
   expect(screen.queryByRole('combobox', { name: 'Discuss' })).toBeNull();
@@ -81,30 +84,36 @@ it('opens the horoscope tools and attaches a selected transit only when the user
   expect(screen.getByRole('region', { name: 'Calendar scrub track' })).toBeTruthy();
   const sky = screen.getByRole('region', { name: 'Sky and transits workspace' });
   fireEvent.click(within(sky).getByRole('button', { name: 'All transits', exact: true }));
-  fireEvent.click(within(sky).getByTitle(/Venus square natal Mars.*select transit/));
+  fireEvent.click(within(sky).getByRole('button', { name: 'Include Venus square natal Mars in question' }));
   expect(screen.getByRole('log').textContent).toBe('');
   fireEvent.click(screen.getByRole('button', { name: /Scrub to.*Oct 24/ }));
-  fireEvent.click(screen.getByRole('button', { name: 'Ask about this transit ↗' }));
   expect(screen.getByRole('region', { name: 'Explore transits' })).toBeTruthy();
-  expect(screen.getByRole('textbox', { name: 'Your question' })).toBe(document.activeElement);
-  expect(screen.getByText('Discussing this transit')).toBeTruthy();
+  expect(screen.getByRole('group', { name: 'Question references' }).textContent).toContain('Venus square natal Mars');
   expect(screen.getByRole('log').textContent).toBe('');
   send('Explain this influence');
   expect(screen.getByRole('log').textContent).toContain('Venus square natal Mars');
-  expect(screen.getByRole('log').textContent).toContain('2026-10-24');
   const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  expect(stored.threads.find((thread) => thread.id === 'horoscope:maya').messages).toHaveLength(2);
+  const messages = stored.threads.find((thread) => thread.id === 'horoscope:maya').messages;
+  expect(messages).toHaveLength(2);
+  expect(messages[0].askContext.selectedTransits).toEqual([messages[0].references[0].data]);
+  expect(messages[0].references[0].data).toMatchObject({ transitingPlanet: 'Venus', targetPlanet: 'Mars' });
+  expect(stored.pendingReferences).toEqual([]);
   expect(stored.horoscope.bodiesMode).toBe('all');
   view.unmount(); mount();
   expect(screen.getByRole('log').textContent).toContain('Explain this influence');
+  fireEvent.click(screen.getByRole('button', { name: 'Return to source: Venus square natal Mars' }));
+  act(() => jest.advanceTimersByTime(20));
+  expect(screen.getByRole('region', { name: 'Explore transits' })).toBeTruthy();
+  expect(JSON.parse(localStorage.getItem(STORAGE_KEY)).horoscope.playhead).toBe(new Date('2026-10-23T12:00:00').getTime());
+  fireEvent.click(screen.getByRole('button', { name: 'Close explorer ✕' }));
   fireEvent.click(screen.getByRole('button', { name: 'Explore transits ↗' }));
-  expect(screen.getByRole('button', { name: /Scrub to.*Oct 24/ }).getAttribute('aria-current')).toBe('date');
+  expect(screen.getByRole('button', { name: /Scrub to.*Oct 23/ }).getAttribute('aria-current')).toBe('date');
   fireEvent.click(screen.getByRole('button', { name: 'Close explorer ✕' }));
   expect(document.body.style.overflow).toBe('');
   expect(screen.getByRole('button', { name: 'Explore transits ↗' })).toBe(document.activeElement);
   fireEvent.click(screen.getByRole('button', { name: 'Today', exact: true }));
   expect(screen.getByRole('article', { name: 'Today horoscope reading' })).toBeTruthy();
-  expect(JSON.parse(localStorage.getItem(STORAGE_KEY)).horoscope.anchor).toBe('2026-10-24');
+  expect(JSON.parse(localStorage.getItem(STORAGE_KEY)).horoscope.anchor).toBe('2026-10-23');
   fireEvent.click(screen.getByRole('button', { name: 'This month', exact: true }));
   expect(screen.getByRole('article', { name: 'This month horoscope reading' })).toBeTruthy();
   expect(screen.getByRole('textbox', { name: 'Your question' })).toBeTruthy();
@@ -114,27 +123,26 @@ it('opens the horoscope tools and attaches a selected transit only when the user
   expect(screen.getByRole('log').textContent).toContain('Explain this influence');
 });
 
-it('links a reading passage to the sky and preserves it while the conversation expands', () => {
+it('shares selected transits between the reading and explorer without duplicating context', () => {
   mount();
   openService('Maya’s horoscopes');
   const reading = screen.getByRole('article', { name: 'This week horoscope reading' });
-  fireEvent.click(within(reading).getByRole('button', { name: 'Explore Venus square natal Mars ↗' }));
-  expect(within(reading).getByRole('button', { name: 'Explore Venus square natal Mars ↗' }).closest('p').className).toBe('is-transit-passage');
+  fireEvent.click(within(reading).getByRole('button', { name: 'Include Venus square natal Mars in question' }));
+  expect(reading.querySelector('.is-transit-passage').textContent).toContain('Venus');
   expect(JSON.parse(localStorage.getItem(STORAGE_KEY)).horoscope.playhead).toBe(new Date('2026-10-23T12:00:00').getTime());
   expect(screen.getByRole('region', { name: 'Explore transits' })).toBeTruthy();
   expect(screen.queryByRole('dialog')).toBeNull();
-  fireEvent.click(within(screen.getByRole('region', { name: 'Sky and transits workspace' })).getByTitle(/Mercury trine natal Jupiter.*select transit/));
-  expect(within(reading).getByRole('button', { name: 'Explore Mercury trine natal Jupiter ↗' }).getAttribute('aria-pressed')).toBe('true');
-  expect(within(reading).getByRole('button', { name: 'Explore Venus square natal Mars ↗' }).getAttribute('aria-pressed')).toBe('false');
-  fireEvent.click(within(reading).getByRole('button', { name: 'Explore Venus square natal Mars ↗' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Ask about this transit ↗' }));
-  expect(screen.getByRole('button', { name: 'Return discussion below reading' })).toBeTruthy();
+  fireEvent.click(within(screen.getByRole('region', { name: 'Sky and transits workspace' })).getByRole('button', { name: 'Include Mercury trine natal Jupiter in question' }));
+  expect(within(reading).getByRole('button', { name: 'Include Mercury trine natal Jupiter in question' }).getAttribute('aria-pressed')).toBe('true');
+  expect(within(reading).getByRole('button', { name: 'Include Venus square natal Mars in question' }).getAttribute('aria-pressed')).toBe('true');
+  expect(screen.getByRole('group', { name: 'Question references' }).querySelectorAll('.cp-reference-chip')).toHaveLength(2);
+  expect(screen.queryByRole('button', { name: 'Return discussion below reading' })).toBeNull();
   send('What does this mean for me?');
   expect(screen.getByRole('article', { name: 'This week horoscope reading' })).toBe(reading);
   expect(screen.getByRole('log').textContent).toContain('Venus square natal Mars');
-  fireEvent.click(screen.getByRole('button', { name: 'Return discussion below reading' }));
   expect(screen.getByRole('log').textContent).toContain('What does this mean for me?');
-  fireEvent.click(screen.getByRole('button', { name: 'Ask about this reading ↗' }));
+  expect(screen.queryByRole('group', { name: 'Question references' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Ask about this reading' }));
   expect(screen.getByRole('textbox', { name: 'Your question' })).toBe(document.activeElement);
 });
 

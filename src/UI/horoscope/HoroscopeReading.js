@@ -21,6 +21,9 @@ function HoroscopeReading({
   selectionOnly = false,
   passageTransitKeys = [],
   onPassageSelect,
+  renderPassage,
+  renderTransit,
+  heading = 'Horoscope',
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const isSimple = useEntitlementsStore((state) => state.pricingModel === 'simple');
@@ -52,7 +55,7 @@ function HoroscopeReading({
 
   return (
     <article className="ink-card ihp-reading-card" aria-label={`${scopeLabel} horoscope reading`}>
-      <h2>Horoscope</h2>
+      {heading && <h2>{heading}</h2>}
       <div className="ihp-reading-range">
         <b>{scopeLabel}</b>
         <span>{rangeLabel}</span>
@@ -90,6 +93,7 @@ function HoroscopeReading({
         )}
         {!dailyLocked && !loading && !error && horoscope && paragraphs.length > 0 && (
           paragraphs.map((paragraph, index) => {
+            if (renderPassage) return <React.Fragment key={`${experience.scope}-${index}`}>{renderPassage(paragraph, index)}</React.Fragment>;
             const keys = passageTransitKeys[index] || [];
             const selected = keys.some((key) => experience.chatContext.transits.some((transit) => transit.key === key));
             return <p key={`${experience.scope}-${index}`} className={selected ? 'is-transit-passage' : undefined}>
@@ -121,6 +125,7 @@ function HoroscopeReading({
           <div className="ihp-reading-list-label">Referenced in this reading</div>
           <div className="ihp-reading-transits">
             {referencedTransits.map(({ transit, status }) => {
+              if (renderTransit) return <React.Fragment key={transit.key}>{renderTransit(transit, status)}</React.Fragment>;
               const selected = experience.chatContext.transits.some((element) => element.key === transit.key);
               return (
                 <button
@@ -157,6 +162,7 @@ function HoroscopeReading({
           </div>
           <div className="ihp-reading-quiet">
             {shownQuiet.map((transit) => {
+              if (renderTransit) return <React.Fragment key={transit.key}>{renderTransit(transit)}</React.Fragment>;
               const selected = experience.chatContext.transits.some((element) => element.key === transit.key);
               return (
                 <button
