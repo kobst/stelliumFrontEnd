@@ -1,4 +1,4 @@
-import { canStartFullReport } from './subscriptionPolicy';
+import { canStartFullReport, canSendChatQuestion } from './subscriptionPolicy';
 import { CREDIT_COSTS } from './creditCosts';
 
 describe('canStartFullReport', () => {
@@ -29,5 +29,27 @@ describe('canStartFullReport', () => {
       isPlus: false,
       totalCredits: CREDIT_COSTS.FULL_NATAL,
     })).toBe(true);
+  });
+});
+
+describe('canSendChatQuestion', () => {
+  it('lets Plus users send regardless of counters (backend enforces fair use)', () => {
+    expect(canSendChatQuestion({ isPlus: true, pricingModel: 'simple', chatQuestionsRemaining: 0, creditsTotal: 0 })).toBe(true);
+    expect(canSendChatQuestion({ isPlus: true, pricingModel: 'credits', chatQuestionsRemaining: 0, creditsTotal: 0 })).toBe(true);
+  });
+
+  it('under simple pricing gates free users on the free-question counter, not legacy credits', () => {
+    expect(canSendChatQuestion({ isPlus: false, pricingModel: 'simple', chatQuestionsRemaining: 5, creditsTotal: 0 })).toBe(true);
+    expect(canSendChatQuestion({ isPlus: false, pricingModel: 'simple', chatQuestionsRemaining: 0, creditsTotal: 10 })).toBe(false);
+  });
+
+  it('under credit pricing gates free users on the credit balance', () => {
+    expect(canSendChatQuestion({ isPlus: false, pricingModel: 'credits', chatQuestionsRemaining: 0, creditsTotal: 1 })).toBe(true);
+    expect(canSendChatQuestion({ isPlus: false, pricingModel: 'credits', chatQuestionsRemaining: 5, creditsTotal: 0 })).toBe(false);
+  });
+
+  it('treats missing counters as zero', () => {
+    expect(canSendChatQuestion({ isPlus: false, pricingModel: 'simple' })).toBe(false);
+    expect(canSendChatQuestion({ isPlus: false, pricingModel: 'credits' })).toBe(false);
   });
 });

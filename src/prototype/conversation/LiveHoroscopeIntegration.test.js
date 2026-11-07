@@ -141,6 +141,8 @@ it('restores a newly answered question from service history after remounting', a
 it('keeps the real chat allowance gate in effect', async () => {
   const allowance = jest.requireMock('../../Utilities/entitlementsStore').testState;
   allowance.plan = 'FREE';
+  // Simple pricing gates on the free-question counter, not the legacy credit wallet.
+  allowance.getChatQuestionsRemaining = () => 0;
   allowance.hasEnoughCredits = () => false;
   mount();
   await screen.findByText('account-a weekly forecast.');

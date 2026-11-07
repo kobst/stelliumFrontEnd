@@ -10,6 +10,7 @@ import {
   generateCustomHoroscope
 } from '../../Utilities/api';
 import useEntitlementsStore from '../../Utilities/entitlementsStore';
+import { canSendChatQuestion } from '../../Utilities/subscriptionPolicy';
 import useStore from '../../Utilities/store';
 import { useAuth } from '../../context/AuthContext';
 import InsufficientCreditsModal from '../entitlements/InsufficientCreditsModal';
@@ -386,7 +387,6 @@ function GravityChatPanel({
 
   const navigate = useNavigate();
   const { stelliumUser } = useAuth();
-  const hasEnoughCredits = useEntitlementsStore(state => state.hasEnoughCredits);
   const isPlus = useEntitlementsStore(state =>
     (state.plan === 'PLUS' || state.plan === 'PREMIUM') && state.isSubscriptionActive
   );
@@ -893,8 +893,17 @@ function GravityChatPanel({
       return;
     }
 
-    if (!isPlus && !hasEnoughCredits(1)) {
-      trackCreditWallHit('ask_stellium', { creditsNeeded: 1, creditsAvailable: 0 });
+    // Gate on the counter that matches the pricing model. Under simple pricing
+    // the legacy credit wallet is always zero, so checking it here sent every
+    // free user to the paywall while the footer still showed questions left.
+    const pricingModel = isSimple ? 'simple' : 'credits';
+    if (!canSendChatQuestion({ isPlus, pricingModel, chatQuestionsRemaining, creditsTotal: credits.total })) {
+      trackCreditWallHit('ask_stellium', {
+        creditsNeeded: 1,
+        creditsAvailable: isSimple ? chatQuestionsRemaining : credits.total,
+        pricingModel,
+      });
+      setPaywallGate(null);
       setShowPaywall(true);
       return;
     }
@@ -917,7 +926,7 @@ function GravityChatPanel({
 
     let creditsSnapshot = null;
     try {
-      if (!isPlus) creditsSnapshot = applyOptimisticCreditSpend(1);
+      if (!isPlus && !isSimple) creditsSnapshot = applyOptimisticCreditSpend(1);
 
       let response;
       let responseText = '';
@@ -1013,7 +1022,9 @@ function GravityChatPanel({
     contentId,
     contentType,
     isPlus,
-    hasEnoughCredits,
+    isSimple,
+    chatQuestionsRemaining,
+    credits.total,
     applyOptimisticCreditSpend,
     restoreCredits,
     fetchEntitlements,
